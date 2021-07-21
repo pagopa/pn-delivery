@@ -1,0 +1,54 @@
+{
+  "paNotificationId": "paNot1",
+  "subject": "una prova di invio",
+  "cancelledIun": "TODO",
+  "recipients": [
+    {
+      "fc": "VTIMRC1234567890",
+      "digitalDomicile": {
+        "type": "PEC",
+        "address": "io@poc.it"
+      },
+      "physicalAddress": [
+        "via qualcuosa 1",
+        "40100 BO"
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "digests": {
+        "sha256": "string"
+      },
+      "contentType": "string",
+      "body": "string"
+    }
+  ],
+  "payment": {
+    "iuv": "string",
+    "notificationFeePolicy": "FLAT_RATE",
+    "f24": {
+      "flatRate": {
+        "digests": {
+          "sha256": "string"
+        },
+        "contentType": "string",
+        "body": "string"
+      },
+      "digital": {
+        "digests": {
+          "sha256": "string"
+        },
+        "contentType": "string",
+        "body": "string"
+      },
+      "analog": {
+        "digests": {
+          "sha256": "string"
+        },
+        "contentType": "string",
+        "body": "string"
+      }
+    }
+  }
+}
