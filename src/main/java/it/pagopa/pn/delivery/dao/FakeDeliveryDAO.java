@@ -19,8 +19,8 @@ public class FakeDeliveryDAO implements DeliveryDAO {
      * @return
      */
     public CompletableFuture<Void> addNotification(Notification notification ) {
-        return CompletableFuture.runAsync(() -> {
-            log.info("Adding notification to store. IUN = {}", notification.getIun());
-        });
+        return CompletableFuture.runAsync(() ->
+            log.info("Adding notification to store. IUN = {}", notification.getIun())
+        );
     }
 }

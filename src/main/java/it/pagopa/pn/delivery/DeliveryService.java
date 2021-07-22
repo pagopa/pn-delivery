@@ -47,10 +47,9 @@ public class DeliveryService {
 
         Instant now = Instant.now( clock );
         OffsetDateTime nowUtc = now.atOffset( ZoneOffset.UTC );
-        String iun = nowUtc.get( ChronoField.YEAR_OF_ERA)
-                   + nowUtc.get( ChronoField.MONTH_OF_YEAR)
-                   + '-' + uuid;
-        return iun;
+        int year = nowUtc.get( ChronoField.YEAR_OF_ERA);
+        int month = nowUtc.get( ChronoField.MONTH_OF_YEAR);
+        return year + month + '-' + uuid;
     }
 
     private boolean checkPaNotificationId(String paNotificationId) {

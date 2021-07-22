@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UnitTest {
+class UnitTest {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void success() {
+    void success() {
         log.debug("Do a successful test");
         int actual = 1;
         Assertions.assertEquals(1, actual);

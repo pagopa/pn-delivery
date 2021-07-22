@@ -22,10 +22,7 @@ public class AwsServicesClientsConfig {
     public DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient() {
         return DynamoDbEnhancedAsyncClient.builder()
                 .dynamoDbClient(
-                        DynamoDbAsyncClient.builder()
-                                .credentialsProvider( ProfileCredentialsProvider.create( "staging" ))
-                                .region(Region.EU_SOUTH_1)
-                                .build()
+                        configureBuilder( DynamoDbAsyncClient.builder() )
                     )
                 .build();
     }
