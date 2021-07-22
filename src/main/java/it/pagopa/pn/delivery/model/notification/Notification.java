@@ -6,14 +6,10 @@ import it.pagopa.pn.delivery.model.notification.status.NotificationStatus;
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.model.notification.timeline.TimelineElement;
 import it.pagopa.pn.delivery.rest.Views;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnore;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@DynamoDbBean
 public class Notification {
 
     @JsonView(value = { Views.None.class, Views.NotificationsView.Sent.class })
@@ -52,7 +48,6 @@ public class Notification {
     @JsonView(value = { Views.None.class, Views.NotificationsView.Sent.class })
     private List<TimelineElement> timeline = new ArrayList<>();
 
-    @DynamoDbPartitionKey
     public String getIun() {
         return iun;
     }
@@ -93,7 +88,6 @@ public class Notification {
         this.cancelledByIun = cancelledByIun;
     }
 
-    @DynamoDbIgnore
     public NotificationSender getSender() {
         return sender;
     }
@@ -102,7 +96,6 @@ public class Notification {
         this.sender = sender;
     }
 
-    @DynamoDbIgnore
     public List<NotificationRecipient> getRecipients() {
         return recipients;
     }
@@ -111,7 +104,6 @@ public class Notification {
         this.recipients = recipients;
     }
 
-    @DynamoDbIgnore
     public List<NotificationAttachment> getDocuments() {
         return documents;
     }
@@ -120,7 +112,6 @@ public class Notification {
         this.documents = documents;
     }
 
-    @DynamoDbIgnore
     public NotificationPaymentInfo getPayment() {
         return payment;
     }
@@ -129,7 +120,6 @@ public class Notification {
         this.payment = payment;
     }
 
-    @DynamoDbIgnore
     public NotificationStatus getNotificationStatus() {
         return notificationStatus;
     }
@@ -138,7 +128,6 @@ public class Notification {
         this.notificationStatus = notificationStatus;
     }
 
-    @DynamoDbIgnore
     public List<NotificationStatusHistoryElement> getNotificationStatusHistory() {
         return notificationStatusHistory;
     }
@@ -147,7 +136,6 @@ public class Notification {
         this.notificationStatusHistory = notificationStatusHistory;
     }
 
-    @DynamoDbIgnore
     public List<TimelineElement> getTimeline() {
         return timeline;
     }
