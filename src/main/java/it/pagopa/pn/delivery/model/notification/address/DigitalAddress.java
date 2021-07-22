@@ -1,5 +1,8 @@
 package it.pagopa.pn.delivery.model.notification.address;
 
+import org.springframework.data.cassandra.core.mapping.UserDefinedType;
+
+@UserDefinedType
 public class DigitalAddress {
 
     public enum Type {

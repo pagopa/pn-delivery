@@ -3,7 +3,9 @@ package it.pagopa.pn.delivery.model.notification;
 
 import it.pagopa.pn.delivery.model.notification.address.DigitalAddress;
 import it.pagopa.pn.delivery.model.notification.address.PhysicalAddress;
+import org.springframework.data.cassandra.core.mapping.UserDefinedType;
 
+@UserDefinedType
 public class NotificationRecipient {
 
     private String fc;

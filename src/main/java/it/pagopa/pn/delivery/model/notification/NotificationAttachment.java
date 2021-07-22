@@ -2,7 +2,11 @@ package it.pagopa.pn.delivery.model.notification;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import it.pagopa.pn.delivery.rest.Views;
+import lombok.Data;
+import org.springframework.data.cassandra.core.mapping.UserDefinedType;
 
+@Data
+@UserDefinedType
 public class NotificationAttachment {
 
     private Digests digests = new Digests();
@@ -11,31 +15,7 @@ public class NotificationAttachment {
     @JsonView(value = { Views.NotificationsView.Send.class })
     private String body;
 
-    public Digests getDigests() {
-        return digests;
-    }
-
-    public void setDigests(Digests digests) {
-        this.digests = digests;
-    }
-
-    public String getContentType() {
-        return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-
+    @UserDefinedType
     public class Digests {
         private String sha256;
 

@@ -1,5 +1,9 @@
 package it.pagopa.pn.delivery.model.notification;
 
+import org.springframework.data.cassandra.core.mapping.CassandraType;
+import org.springframework.data.cassandra.core.mapping.UserDefinedType;
+
+@UserDefinedType
 public class NotificationSender {
 
     private String paId;

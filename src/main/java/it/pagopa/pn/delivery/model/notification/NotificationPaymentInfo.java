@@ -1,5 +1,8 @@
 package it.pagopa.pn.delivery.model.notification;
 
+import org.springframework.data.cassandra.core.mapping.UserDefinedType;
+
+@UserDefinedType
 public class NotificationPaymentInfo {
 
     public enum FeePolicies {
@@ -35,6 +38,7 @@ public class NotificationPaymentInfo {
         this.f24 = f24;
     }
 
+    @UserDefinedType
     public static class F24 {
         private NotificationAttachment flatRate;
         private NotificationAttachment digital;

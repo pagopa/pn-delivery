@@ -1,44 +1,43 @@
 package it.pagopa.pn.delivery;
 
-import it.pagopa.pn.commons.aws.AwsConfigs;
-import it.pagopa.pn.commons.aws.AwsServicesClientsConfig;
-import it.pagopa.pn.delivery.dao.DynamoDeliveryDAO;
+import it.pagopa.pn.delivery.dao.DeliveryDAO;
 import it.pagopa.pn.delivery.model.notification.Notification;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import it.pagopa.pn.delivery.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @SpringBootTest
 public class DeliveryServiceTest {
 
-    private DynamoDeliveryDAO dao;
+
+    private final NotificationRepository notificationRepository;
 
     @Autowired
-    private AwsServicesClientsConfig cfg;
-
-    @BeforeEach
-    public void initDao() {
-        Assertions.assertNotNull( cfg );
-        this.dao = new DynamoDeliveryDAO( cfg.dynamoDbEnhancedAsyncClient() );
+    public DeliveryServiceTest( NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
     }
 
     @Test
-    public void test() throws ExecutionException, InterruptedException {
-        Notification n = new Notification();
-        n.setPaNotificationId("paNot1");
+    public void testScrittura()  {
+        for (int i=1; i<5 ; i++){
+            Notification notification = new Notification();
+            notification.setPaNotificationId("paNot" + i);
 
-        n.setIun("iun1");
-        CompletableFuture cf = dao.addNotification( n );
-        cf.get();
-                //.exceptionally( t -> {t.printStackTrace(); return null; })
-                //.get();
+            notification.setIun("iun" + i);
+            notificationRepository.save(notification);
+        }
 
     }
 
+    @Test
+    public void testLettura() {
+        List<Notification> listaNotifiche = (List<Notification>) notificationRepository.findAll();
+        System.err.println(listaNotifiche);
+    }
 
 }
