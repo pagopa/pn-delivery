@@ -1,7 +1,11 @@
 package it.pagopa.pn.delivery;
 
 
-import it.pagopa.pn.delivery.model.notification.Notification;
+import it.pagopa.pn.delivery.model.notification.*;
+import it.pagopa.pn.delivery.model.notification.address.DigitalAddress;
+import it.pagopa.pn.delivery.model.notification.address.PhysicalAddress;
+import it.pagopa.pn.delivery.model.notification.status.NotificationStatus;
+import it.pagopa.pn.delivery.model.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.model.notification.timeline.TimelineElement;
 import it.pagopa.pn.delivery.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
@@ -36,16 +40,60 @@ public class DeliveryServiceTestIT {
         //
         //Given
         String id1 = "iun1";
-        Notification notification1 = Notification.builder().build();
-        notification1.setPaNotificationId("paNot1");
-        notification1.setIun(id1);
-        notification1.setTimeline(Arrays.asList(TimelineElement.builder().timestamp(Instant.now().truncatedTo(ChronoUnit.MILLIS)).build()));
+        Notification notification1 = Notification.builder()
+                .iun(id1)
+                .paNotificationId("paNot1")
+                .cancelledIun("cancellediun")
+                .subject("subject 1")
+                .cancelledByIun("cancelledByIun1")
+                .notificationStatus(NotificationStatus.DELIVERED)
+                .notificationStatusHistory(Arrays.asList(NotificationStatusHistoryElement.builder()
+                        .status(NotificationStatus.PAID)
+                        .activeFrom(Instant.now().truncatedTo(ChronoUnit.MILLIS))
+                        .build()))
+                .recipients(Arrays.asList(NotificationRecipient.builder()
+                        .digitalDomicile(DigitalAddress.builder()
+                                .address("via Roma 122")
+                                .type(DigitalAddress.Type.PEC).build())
+                        .physicalAddress(new PhysicalAddress())
+                        .fc("fc1")
+                        .build()))
+                .payment(NotificationPaymentInfo.builder()
+                        .iuv("iuv1")
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog(NotificationAttachment.builder()
+                                        .body("body1")
+                                        .contentType("contentType1")
+                                        .build())
+                                .digital(NotificationAttachment.builder()
+                                        .body("body1")
+                                        .contentType("contentType1")
+                                        .build())
+                                .flatRate(NotificationAttachment.builder()
+                                        .body("body1")
+                                        .contentType("contentType1")
+                                        .build())
+                                .build())
+                        .notificationFeePolicy(NotificationPaymentInfo.FeePolicies.DELIVERY_MODE)
+                        .build())
+                .documents(Arrays.asList(NotificationAttachment.builder()
+                        .body("body1")
+                        .contentType("contentType1")
+                        .build()))
+                .sender(NotificationSender.builder()
+                        .paId("paId1")
+                        .paName("paName1")
+                        .build())
+                .timeline(Arrays.asList(TimelineElement.builder().timestamp(Instant.now().truncatedTo(ChronoUnit.MILLIS)).build()))
+                .build();
+
 
         String id2 = "iun2";
-        Notification notification2 = Notification.builder().build();
-        notification2.setPaNotificationId("paNot2");
-        notification2.setIun(id2);
-//usare il builder al posto dei setter\
+        Notification notification2 = Notification.builder()  //liste vuote
+                .iun(id2)
+                .paNotificationId("paNot2")
+                .build();
+
         //
         //When
         notificationRepository.deleteAll();
@@ -57,15 +105,16 @@ public class DeliveryServiceTestIT {
         Optional<Notification> notificationRead1 = notificationRepository.findById(id1);
         Optional<Notification> notificationRead2 = notificationRepository.findById(id2);
 
-        // assertTrue(notificationRead1.isPresent());
+        assertTrue(notificationRead1.isPresent());
         if (notificationRead1.isPresent()) {
             assertEquals(notification1,notificationRead1.get());
         }
-/*
+
+        assertTrue(notificationRead2.isPresent());
         if (notificationRead2.isPresent()) {
             assertEquals(notification2,notificationRead2.get());
         }
-*/
+
         // findAll deve dare un risultato ccon due elementi diversi
         List<Notification> listaNotifiche = (List<Notification>) notificationRepository.findAll();
         assertEquals(2,listaNotifiche.size());
@@ -101,6 +150,7 @@ public class DeliveryServiceTestIT {
 
         //When
         //
+        notificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
         notificationRepository.save(notification);
 
         //Then
@@ -109,10 +159,51 @@ public class DeliveryServiceTestIT {
         assertTrue(notificationRead.isPresent());
         assertEquals(notification,notificationRead.get());
 
+    }
+
+    @Test
+    public void testIstantTruncation(){
+        //
+        //Given
+        String id1 = "iun1";
+        Notification notification1 = Notification.builder() //troncato prima della memorizzazione
+                .iun(id1)
+                .paNotificationId("paNot1")
+                .timeline(Arrays.asList(TimelineElement.builder().timestamp(Instant.now().truncatedTo(ChronoUnit.MILLIS)).build()))
+                .build();
+
+        String id2 = "iun2";
+        Notification notification2 = Notification.builder()  //liste vuote
+                .iun(id2)
+                .paNotificationId("paNot2")
+                .timeline(Arrays.asList(TimelineElement.builder().timestamp(Instant.now()).build()))
+                .build();
+
+        //
+        //When
+        notificationRepository.deleteAll();
+        notificationRepository.save(notification1);
+        notificationRepository.save(notification2);
+        //
+        // Then
+        // RiletturaById
+        Optional<Notification> notificationRead1 = notificationRepository.findById(id1);
+        Optional<Notification> notificationRead2 = notificationRepository.findById(id2);
+
+        assertTrue(notificationRead1.isPresent());
+        if (notificationRead1.isPresent()) {
+            assertEquals(notification1,notificationRead1.get());
+        }
+
+        assertTrue(notificationRead2.isPresent());
+        if (notificationRead2.isPresent()) {
+            assertNotEquals(notification2,notificationRead2.get()); // la seconda viene troncata durante la memorizzazione
+        }
 
     }
 
-    //Fare testPiccoli per gli errori
+
+
     //istante troncato e non troncato verifica che l' istante sia diverso e dopo troncati in millisecondi originale
     //Test grande in cui inserisco dati
 
