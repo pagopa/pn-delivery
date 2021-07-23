@@ -1,12 +1,14 @@
 package it.pagopa.pn.delivery.model.notification.timeline;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.cassandra.core.mapping.UserDefinedType;
 
 import java.time.Instant;
 
 @Data
+@Builder
 @UserDefinedType
 public class TimelineElement {
 
