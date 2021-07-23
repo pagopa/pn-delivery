@@ -25,6 +25,5 @@ public class NotificationPaymentInfo {
         private NotificationAttachment flatRate;
         private NotificationAttachment digital;
         private NotificationAttachment analog;
-
     }
 }

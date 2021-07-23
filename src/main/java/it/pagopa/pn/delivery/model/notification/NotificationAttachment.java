@@ -11,22 +11,15 @@ import org.springframework.data.cassandra.core.mapping.UserDefinedType;
 @UserDefinedType
 public class NotificationAttachment {
 
-    private Digests digests = new Digests();
+    private Digests digests;
     private String contentType;
 
     @JsonView(value = { Views.NotificationsView.Send.class })
     private String body;
 
+    @Data
     @UserDefinedType
     public class Digests {
         private String sha256;
-
-        public String getSha256() {
-            return sha256;
-        }
-
-        public void setSha256(String sha256) {
-            this.sha256 = sha256;
-        }
     }
 }
