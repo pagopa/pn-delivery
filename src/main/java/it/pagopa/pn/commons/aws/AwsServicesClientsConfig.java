@@ -9,7 +9,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 
-@Configuration
+//@Configuration
 public class AwsServicesClientsConfig {
 
     private final AwsConfigs props;
