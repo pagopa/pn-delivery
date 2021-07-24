@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/delivery/notifications/sent/")
+@RequestMapping("/delivery/notifications/sent")
 public class PnSentDeliveryController {
 
     @Autowired
     private DeliveryService svc;
 
-    @PostMapping("/")
+    @PostMapping("")
     public Mono<ResponseEntity<Void>> send(
             @RequestBody @JsonView(value = Views.NotificationsView.Send.class ) Notification notification,
             @RequestHeader("X-PagoPA-PN-PA") String paId
@@ -26,12 +26,12 @@ public class PnSentDeliveryController {
     }
 
 
-    @GetMapping("/")
+    @GetMapping("")
     @JsonView(value = Views.NotificationsView.Sent.class )
     public Mono<ResponseEntity<Notification>> getAllSentNotification(
             @RequestHeader("X-PagoPA-PN-PA") String paId
     ) {
-        return Mono.just(ResponseEntity.ok( null ));
+        return Mono.just(ResponseEntity.ok( new Notification() ));
     }
 
 
