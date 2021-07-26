@@ -1,40 +1,68 @@
 package it.pagopa.pn.delivery;
 
-import java.util.Date;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.util.concurrent.ListenableFuture;
 
+import it.pagopa.pn.commons.kafka.KafkaConfigs;
 import it.pagopa.pn.delivery.model.message.Message;
+import it.pagopa.pn.delivery.model.message.Message.Type;
 
 @SpringBootTest
-@Configuration
-public class KafkaProducerServiceTest {
+class KafkaProducerServiceTest {
 
 	private KafkaTemplate<String, Message> kafkaTemplate;
-	private static final String TOPIC = "topic1";
-
+	private Consumer<String, Message> consumer;
+	private KafkaConfigs configProperties;
+	
 	@Autowired
-	public KafkaProducerServiceTest(KafkaTemplate<String, Message> kafkaTemplate) {
+	public KafkaProducerServiceTest(KafkaTemplate<String, Message> kafkaTemplate, Consumer<String, Message> consumer, KafkaConfigs configProperties) {
 		this.kafkaTemplate = kafkaTemplate;
+		this.consumer = consumer;
+		this.configProperties = configProperties;
 	}
 
 	@Test
-	public void test() throws ExecutionException, InterruptedException {
+	void test() throws InterruptedException, ExecutionException {		
+		String iun = RandomStringUtils.randomAlphanumeric(6);
+		Instant now = Instant.now();
+		Type type = Type.TYPE1;
+		
+		//Given
 		Message message = new Message();
-		message.setIun(RandomStringUtils.randomAlphanumeric(6));
-		message.setSentDate(new Date());
+		message.setIun(iun);
+		message.setSentDate(now);
+		message.setMessageType(type);
+			
+		//When
+		SendResult<String, Message> sendResult = kafkaTemplate.send(configProperties.getTopic(), message).get();
+		
+		//Then
+		Message received = getPollLastMessage(sendResult);
+		
+		assertThat(received).usingRecursiveComparison().isEqualTo(message);
+	}
 
-		ListenableFuture<SendResult<String, Message>> future = kafkaTemplate.send(TOPIC, message);
-
-		long offset = future.get().getRecordMetadata().offset();
+	private Message getPollLastMessage(SendResult<String, Message> sendResult)  {
+		TopicPartition topicPartition = new TopicPartition(configProperties.getTopic(), sendResult.getRecordMetadata().partition()); 
+		consumer.assign(Arrays.asList(topicPartition)); 
+		consumer.seek(topicPartition, sendResult.getRecordMetadata().offset());
+		ConsumerRecords<String, Message> consumerRecords = consumer.poll(java.time.Duration.ofMillis(200));
+		Message received = consumerRecords.iterator().next().value();
+		
+		return received;
 	}
 
 }
