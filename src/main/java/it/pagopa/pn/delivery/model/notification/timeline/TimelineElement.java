@@ -21,6 +21,8 @@ public class TimelineElement {
 
     private Instant timestamp;
     private EventCategory eventCategory;
+
+    //TODO decommentare e risolvere
 /*
     @Schema(oneOf = {
             NotificationPathChooseDetails.class, ReceivedDetails.class,

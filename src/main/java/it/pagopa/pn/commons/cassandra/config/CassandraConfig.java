@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class CassandraConfig {
+    // TODO indagare effettiva necessità di questa classe
 
     private final String keyspace;
     private final String username;
