@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -54,6 +56,6 @@ public class Notification {
     private List<NotificationStatusHistoryElement> notificationStatusHistory;
 
     @JsonView(value = { Views.None.class, Views.NotificationsView.Sent.class })
-    private List<TimelineElement> timeline ;
+    private List<TimelineElement> timeline;
 
 }

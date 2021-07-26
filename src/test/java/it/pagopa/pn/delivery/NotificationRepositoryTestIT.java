@@ -24,13 +24,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {})
-public class DeliveryServiceTestIT {
+public class NotificationRepositoryTestIT {
 
     //cercare come fare delle properties specifiche per il test
     private final NotificationRepository notificationRepository;
+    private static final String IUN1 = NotificationRepositoryTestIT.class.getName() + "_iun_1";
+    private static final String IUN2 = NotificationRepositoryTestIT.class.getName() + "_iun_2";
 
     @Autowired
-    public DeliveryServiceTestIT(NotificationRepository notificationRepository) {
+    public NotificationRepositoryTestIT(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
     }
 
@@ -39,7 +41,7 @@ public class DeliveryServiceTestIT {
 
         //
         //Given
-        String id1 = "iun1";
+        String id1 = IUN1;
         Notification notification1 = Notification.builder()
                 .iun(id1)
                 .paNotificationId("paNot1")
@@ -88,7 +90,7 @@ public class DeliveryServiceTestIT {
                 .build();
 
 
-        String id2 = "iun2";
+        String id2 = IUN2;
         Notification notification2 = Notification.builder()  //liste vuote
                 .iun(id2)
                 .paNotificationId("paNot2")
@@ -145,13 +147,13 @@ public class DeliveryServiceTestIT {
     public void testNotificationIunOnly(){
         // Given
         //
-        String iun = "iun1";
+        String iun = IUN1;
         Notification notification = Notification.builder().iun(iun).build();
 
         //When
         //
         notificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
-        notificationRepository.save(notification); 
+        notificationRepository.save(notification);
 
         //Then
         //
@@ -162,19 +164,39 @@ public class DeliveryServiceTestIT {
     }
 
     @Test
+    public void testListNotNull(){
+        // Given
+        //
+        String iun = IUN1;
+        Notification notification = Notification.builder().iun(iun).build();
+
+        //When
+        //
+        notificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
+        notificationRepository.save(notification);
+
+        //Then
+        //
+        Optional<Notification> notificationRead = notificationRepository.findById(iun);
+        assertTrue(notificationRead.isPresent());
+        assertTrue(notificationRead.get().getTimeline() == null);
+
+    }
+
+    @Test
     public void testIstantTruncation(){
         /*
         * cassandra trasforma il tipo Istant di java in un suo tipo Timestamp che è troncato ai millisecondi. */
         //
         //Given
-        String id1 = "iun1";
+        String id1 = IUN1;
         Notification notification1 = Notification.builder() //troncato prima della memorizzazione
                 .iun(id1)
                 .paNotificationId("paNot1")
                 .timeline(Arrays.asList(TimelineElement.builder().timestamp(Instant.now().truncatedTo(ChronoUnit.MILLIS)).build()))
                 .build();
 
-        String id2 = "iun2";
+        String id2 = IUN2;
         Notification notification2 = Notification.builder()  //liste vuote
                 .iun(id2)
                 .paNotificationId("paNot2")
