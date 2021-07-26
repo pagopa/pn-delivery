@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.result.view.RedirectView;
 
-@SpringBootApplication(scanBasePackages = {"it.pagopa.pn.commons", "it.pagopa.pn.delivery"})
+@SpringBootApplication(scanBasePackages = {"it.pagopa.pn.commons.cassandra"})
 public class PnDeliveryApplication {
 
 	public static void main(String[] args) {
