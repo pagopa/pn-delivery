@@ -50,12 +50,12 @@ class KafkaProducerServiceTest {
 		SendResult<String, Message> sendResult = kafkaTemplate.send(configProperties.getTopic(), message).get();
 		
 		//Then
-		Message received = getPollLastMessage(sendResult);
+		Message received = pollLastMessage(sendResult);
 		
 		assertThat(received).usingRecursiveComparison().isEqualTo(message);
 	}
 
-	private Message getPollLastMessage(SendResult<String, Message> sendResult)  {
+	private Message pollLastMessage(SendResult<String, Message> sendResult)  {
 		TopicPartition topicPartition = new TopicPartition(configProperties.getTopic(), sendResult.getRecordMetadata().partition()); 
 		consumer.assign(Arrays.asList(topicPartition)); 
 		consumer.seek(topicPartition, sendResult.getRecordMetadata().offset());
