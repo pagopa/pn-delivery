@@ -151,7 +151,7 @@ public class DeliveryServiceTestIT {
         //When
         //
         notificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
-        notificationRepository.save(notification);
+        notificationRepository.save(notification); 
 
         //Then
         //
@@ -163,6 +163,8 @@ public class DeliveryServiceTestIT {
 
     @Test
     public void testIstantTruncation(){
+        /*
+        * cassandra trasforma il tipo Istant di java in un suo tipo Timestamp che è troncato ai millisecondi. */
         //
         //Given
         String id1 = "iun1";
@@ -203,15 +205,4 @@ public class DeliveryServiceTestIT {
     }
 
 
-
-    //istante troncato e non troncato verifica che l' istante sia diverso e dopo troncati in millisecondi originale
-    //Test grande in cui inserisco dati
-
-
- /*
- * data una notifica quando scrivi su cassandra verifico che la find all sia un insieme di due elementi che sono quelli scritti
- * due istanze diverse (assert) puntatori diversi  equals sui campi
- * entità test notification e scriverla su una
- * cassandraTestNotification entity di test per containerizzare il test e renderlo indipendente
- */
 }
