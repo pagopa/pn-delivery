@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.concurrent.CompletableFuture;
 
-@Component
 public class DynamoDeliveryDAO implements DeliveryDAO {
 
     private static final String NOTIFICATIONS_TABLE_NAME = "Notifications";
