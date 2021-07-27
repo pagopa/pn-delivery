@@ -21,14 +21,14 @@ import it.pagopa.pn.delivery.model.message.Message;
 import it.pagopa.pn.delivery.model.message.Message.Type;
 
 @SpringBootTest
-class KafkaProducerServiceTest {
+class KafkaProducerServiceTestIT {
 
 	private KafkaTemplate<String, Message> kafkaTemplate;
 	private Consumer<String, Message> consumer;
 	private KafkaConfigs configProperties;
 	
 	@Autowired
-	public KafkaProducerServiceTest(KafkaTemplate<String, Message> kafkaTemplate, Consumer<String, Message> consumer, KafkaConfigs configProperties) {
+	public KafkaProducerServiceTestIT(KafkaTemplate<String, Message> kafkaTemplate, Consumer<String, Message> consumer, KafkaConfigs configProperties) {
 		this.kafkaTemplate = kafkaTemplate;
 		this.consumer = consumer;
 		this.configProperties = configProperties;
