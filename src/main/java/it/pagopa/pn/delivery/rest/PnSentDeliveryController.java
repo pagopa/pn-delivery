@@ -17,8 +17,8 @@ public class PnSentDeliveryController {
     private DeliveryService svc;
 
     @PostMapping("")
-    public Mono<ResponseEntity<Void>> send(
-            @RequestBody @JsonView(value = Views.NotificationsView.Send.class ) Notification notification,
+    public Mono<ResponseEntity<Void>> receiveNotificationFromPa(
+            @RequestBody @JsonView(value = JsonViews.NotificationsView.ReceivedNotification.class ) Notification notification,
             @RequestHeader("X-PagoPA-PN-PA") String paId
     ) {
         svc.receiveNotification( paId, notification );
@@ -27,14 +27,12 @@ public class PnSentDeliveryController {
 
 
     @GetMapping("")
-    @JsonView(value = Views.NotificationsView.Sent.class )
+    @JsonView(value = JsonViews.NotificationsView.Sent.class )
     public Mono<ResponseEntity<Notification>> getAllSentNotification(
             @RequestHeader("X-PagoPA-PN-PA") String paId
     ) {
-        return Mono.just(ResponseEntity.ok( new Notification() ));
+        return Mono.just(ResponseEntity.ok( Notification.builder().build() ));
     }
 
-
 }
-
 

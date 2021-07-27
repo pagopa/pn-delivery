@@ -33,6 +33,7 @@ public class DeliveryService {
         }
 
         // - verificare presenza almeno un destinatario
+
         // - Verificare sha256
 
         String iun = generateIun();
