@@ -1,82 +1,88 @@
 package it.pagopa.pn.commons.cassandra.config;
 
+
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.CqlSessionBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.cassandra.SessionFactory;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
+import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
 import org.springframework.data.cassandra.config.CqlSessionFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
-import org.springframework.data.cassandra.config.SessionFactoryFactoryBean;
-import org.springframework.data.cassandra.core.CassandraOperations;
-import org.springframework.data.cassandra.core.CassandraTemplate;
-import org.springframework.data.cassandra.core.convert.CassandraConverter;
-import org.springframework.data.cassandra.core.convert.MappingCassandraConverter;
-import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
-import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
+import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification;
+import org.springframework.data.cassandra.core.cql.keyspace.DataCenterReplication;
+import org.springframework.data.cassandra.core.cql.keyspace.DropKeyspaceSpecification;
+import org.springframework.data.cassandra.core.cql.keyspace.KeyspaceOption;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
+import org.springframework.core.env.Environment;
+
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.List;
 
 
 @Configuration
-// @EnableCassandraRepositories(basePackages = { "org.springframework.data.cassandra.example" })
-public class CassandraConfig {
-
-    // TODO indagare effettiva necessità di questa classe
+@EnableCassandraRepositories(basePackages="it.pagopa.pn.delivery.model")
+public class CassandraConfig extends AbstractCassandraConfiguration {
 
     private final String keyspace;
     private final String username;
     private final String password;
 
+
     CassandraConfig(
             @Value("${spring.data.cassandra.keyspace-name}") String keyspace,
-            @Value("${spring.data.cassandra.contact-points}") String username,
-            @Value("${spring.data.cassandra.contact-points}") String password) {
+            @Value("${spring.data.cassandra.username}") String username,
+            @Value("${spring.data.cassandra.password}") String password) {
         this.keyspace = keyspace;
         this.username = username;
         this.password = password;
     }
 
-    @Bean
-    public CqlSessionFactoryBean session() {
+    @Override
+    protected String getKeyspaceName() {
+        return keyspace;
+    }
 
-        CqlSessionFactoryBean session = new CqlSessionFactoryBean();
-        session.setLocalDatacenter("");
-        session.setKeyspaceName(keyspace);
-        session.setPassword(password);
-        session.setUsername(username);
-        session.setLocalDatacenter("datacenter1"
-        );
+    @Override
+    public SchemaAction getSchemaAction() {
+        return SchemaAction.CREATE_IF_NOT_EXISTS;
+    }
 
-        return session;
+    @Override
+    protected List<CreateKeyspaceSpecification> getKeyspaceCreations() {
+
+        CreateKeyspaceSpecification specification = CreateKeyspaceSpecification
+                .createKeyspace(keyspace)
+                .ifNotExists()
+                .with(KeyspaceOption.DURABLE_WRITES, true)
+                .withNetworkReplication(DataCenterReplication.of("foo", 1), DataCenterReplication.of("bar", 2));
+
+        return Arrays.asList(specification);
+    }
+
+    @Override
+    protected List<DropKeyspaceSpecification> getKeyspaceDrops() {
+        return Arrays.asList(DropKeyspaceSpecification.dropKeyspace(keyspace));
     }
 
     @Bean
-    public SessionFactoryFactoryBean sessionFactory(CqlSession session, CassandraConverter converter) {
-
-        SessionFactoryFactoryBean sessionFactory = new SessionFactoryFactoryBean();
-        sessionFactory.setSession(session);
-        sessionFactory.setConverter(converter);
-        sessionFactory.setSchemaAction(SchemaAction.NONE);
-
-        return sessionFactory;
+    @Override
+    public CqlSessionFactoryBean cassandraSession() {
+        CqlSessionFactoryBean cassandraSession = super.cassandraSession();//super session should be called only once
+        cassandraSession.setUsername(username);
+        cassandraSession.setPassword(password);
+        return cassandraSession;
     }
 
-    @Bean
-    public CassandraMappingContext mappingContext(CqlSession cqlSession) {
-
-        CassandraMappingContext mappingContext = new CassandraMappingContext();
-        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cqlSession));
-
-        return mappingContext;
+    @Override
+    public String[] getEntityBasePackages() {
+        return new String[] { "it.pagopa.pn.delivery.model" };
     }
 
-    @Bean
-    public CassandraConverter converter(CassandraMappingContext mappingContext) {
-        return new MappingCassandraConverter(mappingContext);
-    }
-
-    @Bean
-    public CassandraOperations cassandraTemplate(SessionFactory sessionFactory, CassandraConverter converter) {
-        return new CassandraTemplate(sessionFactory, converter);
-    }
 }
+
+

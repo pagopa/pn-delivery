@@ -30,5 +30,4 @@ public class TimelineElement {
         })
     private TimelineElementDetails details;
 */
-
 }
