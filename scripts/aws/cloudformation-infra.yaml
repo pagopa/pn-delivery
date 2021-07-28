@@ -1,0 +1,186 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy PN-delivery and ensure infrastructure
+
+Parameters:
+  EnvName:
+    Type: String
+    Description: Nome dell'ambiente destinazione
+  EnvNumber:
+    Type: String
+    Description: Second byte from the left for VPC CIDR
+
+Resources:
+  WebappAndSshSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${EnvName}-webapp-and-ssh-security-group
+      GroupDescription: "ingres tcp 8080 and ssh, egress all"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
+
+  # PN DELIVERY INFRASTRUCTURE PART
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvName}-instance-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+  InstancePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${EnvName}-instance-policy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - ecr:GetAuthorizationToken
+              - ecr:BatchCheckLayerAvailability
+              - ecr:BatchGetImage
+              - ecr:DescribeRepositories
+              - ecr:GetDownloadUrlForLayer
+              - sqs:*
+            Resource: "*"
+      Roles:
+        - !Ref InstanceRole
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: simple-instance-profile
+      Path: /
+      Roles:
+        - !Ref InstanceRole
+  Instance1:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 'ami-00f22f6155d6d92c5' # amazon linux Francoforte
+      InstanceType: 't2.small'
+      KeyName: 'PerProveFf'
+      SubnetId: !ImportValue
+        "Fn::Sub": '${EnvName}-subnet1'
+      SecurityGroupIds:
+        - !Ref WebappAndSshSecurityGroup
+      IamInstanceProfile: !Ref InstanceProfile
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - "\n"
+            - - "#!/bin/bash -xe"
+              - echo ciao >> /home/ec2-user/log.txt
+              - exec > >(tee /var/log/user-data.log) 2>&1
+              - "sudo sed -i /etc/resolv.conf -e 's/nameserver.*/nameserver 8.8.8.8/'"
+              - sudo yum -y install docker
+              - sudo systemctl enable docker
+              - sudo systemctl start docker
+              - sudo yum -y install docker
+              - !Sub "export ECR_REGION=${AWS::Region}"
+              - !Sub "export ECR_ACCOUNT_ID=${AWS::AccountId}"
+              - export ECR_URL=${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
+              - aws ecr get-login-password --region $ECR_REGION | sudo docker login --username AWS --password-stdin $ECR_URL
+              - sudo docker run -p 8080:8080 --rm --name pn-delivery -d $ECR_URL/pn-delivery:latest
+  Instance2:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 'ami-00f22f6155d6d92c5' # amazon linux Francoforte
+      InstanceType: 't2.small'
+      KeyName: 'PerProveFf'
+      SubnetId: !ImportValue
+        "Fn::Sub": '${EnvName}-subnet1'
+      SecurityGroupIds:
+        - !Ref WebappAndSshSecurityGroup
+      IamInstanceProfile: !Ref InstanceProfile
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - "\n"
+            - - "#!/bin/bash -xe"
+              - echo ciao >> /home/ec2-user/log.txt
+              - exec > >(tee /var/log/user-data.log) 2>&1
+              - "sudo sed -i /etc/resolv.conf -e 's/nameserver.*/nameserver 8.8.8.8/'"
+              - sudo yum -y install docker
+              - sudo systemctl enable docker
+              - sudo systemctl start docker
+              - sudo yum -y install docker
+              - !Sub "export ECR_REGION=${AWS::Region}"
+              - !Sub "export ECR_ACCOUNT_ID=${AWS::AccountId}"
+              - export ECR_URL=${ECR_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com
+              - aws ecr get-login-password --region $ECR_REGION | sudo docker login --username AWS --password-stdin $ECR_URL
+              - sudo docker run -p 8080:8080 --rm --name pn-delivery -d $ECR_URL/pn-delivery:latest
+
+  DeliveryTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${EnvName}-delivery-tgrp
+      TargetType: instance
+      Protocol: HTTP
+      Port: 8080
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /
+      HealthCheckPort: 8080
+      HealthCheckProtocol: HTTP
+      Matcher:
+        HttpCode: 303
+      Targets:
+        - Id: !Ref Instance1
+          Port: 8080
+        - Id: !Ref Instance2
+          Port: 8080
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
+  DeliveryLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !ImportValue
+        "Fn::Sub": '${EnvName}-alb-id'
+      Protocol: HTTP
+      Port: 8080
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref DeliveryTargetGroup
+          Order: 1
+
+
+  DeliveryNetTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${EnvName}-delivery-nlb-tg
+      TargetType: instance
+      Protocol: TCP
+      Port: 8080
+      Targets:
+        - Id: !Ref Instance1
+          Port: 8080
+        - Id: !Ref Instance2
+          Port: 8080
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
+
+  DeliveryNetLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !ImportValue
+        "Fn::Sub": '${EnvName}-nlb-id'
+      Protocol: TCP
+      Port: 8080
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref DeliveryNetTargetGroup
+          Order: 1

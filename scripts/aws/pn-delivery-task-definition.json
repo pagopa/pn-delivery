@@ -1,0 +1,32 @@
+{
+    "family": "pn-delivery",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "taskRoleArn": "",
+    "executionRoleArn": "",
+    "networkMode": "bridge",
+    "cpu": "1024",
+    "memory": "2048",
+    "pidMode": "task",
+    "ipcMode": "task",
+    "containerDefinitions": [
+        {
+            "name": "pn-delivery",
+            "image": "",
+            "repositoryCredentials": {
+                "credentialsParameter": ""
+            },
+            "cpu": 1024,
+            "memory": 2048
+            "portMappings": [
+                {
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true
+        }
+    ]
+}
