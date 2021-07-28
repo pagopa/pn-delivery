@@ -68,7 +68,7 @@ public class DeliveryService {
         OffsetDateTime nowUtc = now.atOffset( ZoneOffset.UTC );
         int year = nowUtc.get( ChronoField.YEAR_OF_ERA);
         int month = nowUtc.get( ChronoField.MONTH_OF_YEAR);
-        return year + month + '-' + uuid;
+        return String.format("%04d%02d-%s", year, month, uuid);
     }
 
     private boolean checkPaNotificationId(String paNotificationId) {
