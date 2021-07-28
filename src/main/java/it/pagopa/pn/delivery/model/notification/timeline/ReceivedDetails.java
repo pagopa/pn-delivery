@@ -12,7 +12,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @UserDefinedType
 public class ReceivedDetails extends TimelineElementDetails {
 

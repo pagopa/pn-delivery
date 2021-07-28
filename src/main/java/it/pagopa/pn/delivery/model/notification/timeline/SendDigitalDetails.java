@@ -9,7 +9,6 @@ import org.springframework.data.cassandra.core.mapping.UserDefinedType;
 
 @Setter
 @Getter
-@Builder
 @UserDefinedType
 public class SendDigitalDetails extends TimelineElementDetails{
 

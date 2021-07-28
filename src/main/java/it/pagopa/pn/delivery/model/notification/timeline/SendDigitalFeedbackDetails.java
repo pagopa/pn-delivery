@@ -1,13 +1,11 @@
 package it.pagopa.pn.delivery.model.notification.timeline;
 
 import it.pagopa.pn.delivery.model.notification.address.DigitalAddress;
-import lombok.Builder;
-import lombok.Data;
+
 import org.springframework.data.cassandra.core.mapping.UserDefinedType;
 
 import java.util.List;
 
-@Builder
 @UserDefinedType
 public class SendDigitalFeedbackDetails extends SendDigitalDetails {
 
