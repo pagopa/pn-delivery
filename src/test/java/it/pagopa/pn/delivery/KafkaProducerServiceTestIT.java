@@ -2,10 +2,16 @@ package it.pagopa.pn.delivery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
+import it.pagopa.pn.commons.mom.MomConsumer;
+import it.pagopa.pn.commons.mom.MomProducer;
+import it.pagopa.pn.delivery.dao.KafkaNewNotificationEvtMOM;
+import it.pagopa.pn.delivery.dao.NewNotificationEvtMOM;
+import it.pagopa.pn.delivery.model.events.NewNotificationEvt;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -16,53 +22,34 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 
-import it.pagopa.pn.commons.kafka.KafkaConfigs;
-import it.pagopa.pn.delivery.model.message.Message;
-import it.pagopa.pn.delivery.model.message.Message.Type;
+import it.pagopa.pn.commons.mom.kafka.KafkaConfigs;
+import it.pagopa.pn.delivery.model.events.NewNotificationEvt.Type;
 
-@SpringBootTest
+@SpringBootTest()
 class KafkaProducerServiceTestIT {
 
-	private KafkaTemplate<String, Message> kafkaTemplate;
-	private Consumer<String, Message> consumer;
-	private KafkaConfigs configProperties;
-	
 	@Autowired
-	public KafkaProducerServiceTestIT(KafkaTemplate<String, Message> kafkaTemplate, Consumer<String, Message> consumer, KafkaConfigs configProperties) {
-		this.kafkaTemplate = kafkaTemplate;
-		this.consumer = consumer;
-		this.configProperties = configProperties;
-	}
+	private NewNotificationEvtMOM mom;
 
 	@Test
-	void test() throws InterruptedException, ExecutionException {		
+	void test() throws ExecutionException, InterruptedException {
 		String iun = RandomStringUtils.randomAlphanumeric(6);
 		Instant now = Instant.now();
 		Type type = Type.TYPE1;
 		
 		//Given
-		Message message = new Message();
-		message.setIun(iun);
-		message.setSentDate(now);
-		message.setMessageType(type);
-			
-		//When
-		SendResult<String, Message> sendResult = kafkaTemplate.send(configProperties.getTopic(), message).get();
-		
-		//Then
-		Message received = pollLastMessage(sendResult);
-		
-		assertThat(received).usingRecursiveComparison().isEqualTo(message);
-	}
+		NewNotificationEvt message = NewNotificationEvt.builder()
+				.iun( iun )
+				.sentDate( now )
+				.messageType( type )
+				.build();
 
-	private Message pollLastMessage(SendResult<String, Message> sendResult)  {
-		TopicPartition topicPartition = new TopicPartition(configProperties.getTopic(), sendResult.getRecordMetadata().partition()); 
-		consumer.assign(Arrays.asList(topicPartition)); 
-		consumer.seek(topicPartition, sendResult.getRecordMetadata().offset());
-		ConsumerRecords<String, Message> consumerRecords = consumer.poll(java.time.Duration.ofMillis(200));
-		Message received = consumerRecords.iterator().next().value();
-		
-		return received;
+		//When
+		mom.push( message ).get();
+		NewNotificationEvt received = mom.poll( Duration.ofMillis(400) ).get().get( 0 );
+
+		//Then
+		assertThat(received).usingRecursiveComparison().isEqualTo(message);
 	}
 
 }

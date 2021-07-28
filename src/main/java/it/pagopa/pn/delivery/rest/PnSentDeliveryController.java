@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import com.fasterxml.jackson.annotation.JsonView;
 import it.pagopa.pn.delivery.DeliveryService;
 import it.pagopa.pn.delivery.model.notification.Notification;
+import it.pagopa.pn.delivery.model.notification.NotificationAck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +18,14 @@ public class PnSentDeliveryController {
     private DeliveryService svc;
 
     @PostMapping("")
-    public Mono<ResponseEntity<Void>> receiveNotificationFromPa(
+    public Mono<ResponseEntity<NotificationAck>> receiveNotificationFromPa(
             @RequestBody @JsonView(value = JsonViews.NotificationsView.ReceivedNotification.class ) Notification notification,
             @RequestHeader("X-PagoPA-PN-PA") String paId
     ) {
-        svc.receiveNotification( paId, notification );
-        return Mono.just(ResponseEntity.accepted().build());
+        return Mono.fromFuture(
+                svc.receiveNotification( paId, notification )
+                        .thenApply( (ack) -> ResponseEntity.ok( ack ) )
+            );
     }
 
 

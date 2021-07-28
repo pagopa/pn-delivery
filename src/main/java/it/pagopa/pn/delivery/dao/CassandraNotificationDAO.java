@@ -8,21 +8,20 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
 
+@ConditionalOnProperty( name="pn.key-value-store", havingValue = "cassandra")
 @Component
-@ConditionalOnProperty( name="pn.key-value-store", havingValue = "none")
-public class FakeDeliveryDAO implements DeliveryDAO {
+public class CassandraNotificationDAO implements DeliveryDAO {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * Gestisce anche l' "annullamento" delle notifiche precedenti
-     *
-     * @param notification
-     * @return
-     */
+    private final CassandraNotificationRepository springDataCassandra;
+
+    public CassandraNotificationDAO(CassandraNotificationRepository springDataCassandra) {
+        this.springDataCassandra = springDataCassandra;
+    }
+
     public CompletableFuture<Void> addNotification(Notification notification ) {
-        return CompletableFuture.runAsync(() ->
-            log.info("Adding notification to store. IUN = {}", notification.getIun())
-        );
+        springDataCassandra.save( notification );
+        return CompletableFuture.runAsync( () -> {});
     }
 }

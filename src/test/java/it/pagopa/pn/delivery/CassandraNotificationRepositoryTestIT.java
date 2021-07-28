@@ -7,7 +7,7 @@ import it.pagopa.pn.delivery.model.notification.address.PhysicalAddress;
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatus;
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.model.notification.timeline.TimelineElement;
-import it.pagopa.pn.delivery.repository.NotificationRepository;
+import it.pagopa.pn.delivery.dao.CassandraNotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +24,16 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(properties = {})
-public class NotificationRepositoryTestIT {
+public class CassandraNotificationRepositoryTestIT {
 
     //cercare come fare delle properties specifiche per il test
-    private final NotificationRepository notificationRepository;
-    private static final String IUN1 = NotificationRepositoryTestIT.class.getName() + "_iun_1";
-    private static final String IUN2 = NotificationRepositoryTestIT.class.getName() + "_iun_2";
+    private final CassandraNotificationRepository cassandraNotificationRepository;
+    private static final String IUN1 = CassandraNotificationRepositoryTestIT.class.getName() + "_iun_1";
+    private static final String IUN2 = CassandraNotificationRepositoryTestIT.class.getName() + "_iun_2";
 
     @Autowired
-    public NotificationRepositoryTestIT(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
+    public CassandraNotificationRepositoryTestIT(CassandraNotificationRepository cassandraNotificationRepository) {
+        this.cassandraNotificationRepository = cassandraNotificationRepository;
     }
 
     @Test
@@ -98,14 +98,14 @@ public class NotificationRepositoryTestIT {
 
         //
         //When
-        notificationRepository.deleteAll();
-        notificationRepository.save(notification1);
-        notificationRepository.save(notification2);
+        cassandraNotificationRepository.deleteAll();
+        cassandraNotificationRepository.save(notification1);
+        cassandraNotificationRepository.save(notification2);
         //
         // Then
         // RiletturaById
-        Optional<Notification> notificationRead1 = notificationRepository.findById(id1);
-        Optional<Notification> notificationRead2 = notificationRepository.findById(id2);
+        Optional<Notification> notificationRead1 = cassandraNotificationRepository.findById(id1);
+        Optional<Notification> notificationRead2 = cassandraNotificationRepository.findById(id2);
 
         assertTrue(notificationRead1.isPresent());
         if (notificationRead1.isPresent()) {
@@ -118,7 +118,7 @@ public class NotificationRepositoryTestIT {
         }
 
         // findAll deve dare un risultato ccon due elementi diversi
-        List<Notification> listaNotifiche = (List<Notification>) notificationRepository.findAll();
+        List<Notification> listaNotifiche = (List<Notification>) cassandraNotificationRepository.findAll();
         assertEquals(2,listaNotifiche.size());
         assertNotEquals(listaNotifiche.get(0),listaNotifiche.get(1));
 
@@ -134,7 +134,7 @@ public class NotificationRepositoryTestIT {
         //When
         //
         Executable saveNotification = () -> {
-                notificationRepository.save(notification);
+                cassandraNotificationRepository.save(notification);
         };
 
         //Then
@@ -152,12 +152,12 @@ public class NotificationRepositoryTestIT {
 
         //When
         //
-        notificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
-        notificationRepository.save(notification);
+        cassandraNotificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
+        cassandraNotificationRepository.save(notification);
 
         //Then
         //
-        Optional<Notification> notificationRead = notificationRepository.findById(iun);
+        Optional<Notification> notificationRead = cassandraNotificationRepository.findById(iun);
         assertTrue(notificationRead.isPresent());
         assertEquals(notification,notificationRead.get());
 
@@ -172,12 +172,12 @@ public class NotificationRepositoryTestIT {
 
         //When
         //
-        notificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
-        notificationRepository.save(notification);
+        cassandraNotificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
+        cassandraNotificationRepository.save(notification);
 
         //Then
         //
-        Optional<Notification> notificationRead = notificationRepository.findById(iun);
+        Optional<Notification> notificationRead = cassandraNotificationRepository.findById(iun);
         assertTrue(notificationRead.isPresent());
         assertTrue(notificationRead.get().getTimeline() == null);
 
@@ -205,14 +205,14 @@ public class NotificationRepositoryTestIT {
 
         //
         //When
-        notificationRepository.deleteAll();
-        notificationRepository.save(notification1);
-        notificationRepository.save(notification2);
+        cassandraNotificationRepository.deleteAll();
+        cassandraNotificationRepository.save(notification1);
+        cassandraNotificationRepository.save(notification2);
         //
         // Then
         // RiletturaById
-        Optional<Notification> notificationRead1 = notificationRepository.findById(id1);
-        Optional<Notification> notificationRead2 = notificationRepository.findById(id2);
+        Optional<Notification> notificationRead1 = cassandraNotificationRepository.findById(id1);
+        Optional<Notification> notificationRead2 = cassandraNotificationRepository.findById(id2);
 
         assertTrue(notificationRead1.isPresent());
         if (notificationRead1.isPresent()) {

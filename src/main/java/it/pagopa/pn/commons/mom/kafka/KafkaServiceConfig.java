@@ -1,8 +1,10 @@
-package it.pagopa.pn.commons.kafka;
+package it.pagopa.pn.commons.mom.kafka;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import it.pagopa.pn.delivery.dao.KafkaNewNotificationEvtMOM;
+import it.pagopa.pn.delivery.dao.NewNotificationEvtMOM;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -10,6 +12,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -21,9 +24,10 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
-import it.pagopa.pn.delivery.model.message.Message;
+import it.pagopa.pn.delivery.model.events.NewNotificationEvt;
 
 @Configuration
+@ConditionalOnProperty( name="pn.mom", havingValue = "kafka")
 @EnableKafka
 public class KafkaServiceConfig {
 	
@@ -31,12 +35,12 @@ public class KafkaServiceConfig {
 	private KafkaConfigs configProperties;
 	
 	// bootstrap configurations
-	public KafkaConfigs configProperties() {
-		return this.configProperties;
-	}
+	//public KafkaConfigs configProperties() {
+	//	return this.configProperties;
+	//}
 	
 	// producer
-	@Bean
+	//@Bean
 	public Map<String, Object> producerConfigs() {		
 		Map<String, Object> props = new HashMap<>();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getServerUrl() + ":" + configProperties.getServerPort());
@@ -46,18 +50,18 @@ public class KafkaServiceConfig {
 		return props;
 	}
 
-	@Bean
-	public ProducerFactory<String, Message> producerFactory() {
+	//@Bean
+	public ProducerFactory<String, NewNotificationEvt> producerFactory() {
 		return new DefaultKafkaProducerFactory<>(producerConfigs());
 	}
 
-	@Bean
-	public KafkaTemplate<String, Message> kafkaTemplate() {
+	//@Bean
+	public KafkaTemplate<String, NewNotificationEvt> kafkaTemplate() {
 		return new KafkaTemplate<>(producerFactory());
 	}
 	
 	// consumer
-	@Bean
+	//@Bean
 	public Map<String, Object> consumerConfigs() {
 		Map<String, Object> props = new HashMap<>();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, configProperties.getServerUrl() + ":" + configProperties.getServerPort());
@@ -69,18 +73,24 @@ public class KafkaServiceConfig {
 		return props;
 	} 
 	  
-	@Bean
-	public ConsumerFactory<String, Message> consumerFactory() {	    
+	//@Bean
+	public ConsumerFactory<String, NewNotificationEvt> consumerFactory() {
 		return new DefaultKafkaConsumerFactory<>(consumerConfigs());
 	}
 	
-	@Bean
-	public Consumer<String, Message> consumer() {
+	//@Bean
+	public Consumer<String, NewNotificationEvt> consumer() {
 		return consumerFactory().createConsumer();
 	}
 
-	// create topic
 	@Bean
+	public NewNotificationEvtMOM newNotificationEvtMomKafka() {
+		String topic = "new_notifications_evt";
+		return new KafkaNewNotificationEvtMOM( topic, consumer(), kafkaTemplate() );
+	}
+
+	// create topic
+	//@Bean
 	public NewTopic addNewTopic() {
 		return new NewTopic(configProperties.getTopic(), 1, (short) 1);
 	}

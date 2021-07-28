@@ -1,4 +1,4 @@
-package it.pagopa.pn.commons.kafka;
+package it.pagopa.pn.commons.mom.kafka;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

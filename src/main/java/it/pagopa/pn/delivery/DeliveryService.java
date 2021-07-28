@@ -1,7 +1,11 @@
 package it.pagopa.pn.delivery;
 
 import it.pagopa.pn.delivery.dao.DeliveryDAO;
+import it.pagopa.pn.delivery.dao.NewNotificationEvtMOM;
+import it.pagopa.pn.delivery.model.events.NewNotificationEvt;
 import it.pagopa.pn.delivery.model.notification.Notification;
+import it.pagopa.pn.delivery.model.notification.NotificationAck;
+import it.pagopa.pn.delivery.model.notification.NotificationSender;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,17 +18,23 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class DeliveryService {
 
-    @Autowired
-    private Clock clock;
+    private final Clock clock;
 
-    @Autowired
-    private DeliveryDAO deliveryDao;
-    
-    public CompletableFuture<Void> receiveNotification(String paId, Notification notification) {
+    private final DeliveryDAO deliveryDao;
+    private final NewNotificationEvtMOM mom;
+
+    public DeliveryService(DeliveryDAO deliveryDao, NewNotificationEvtMOM mom, Clock clock) {
+        this.clock = clock;
+        this.deliveryDao = deliveryDao;
+        this.mom = mom;
+    }
+
+    public CompletableFuture<NotificationAck> receiveNotification(String paId, Notification notification) {
 
         if( ! checkPaNotificationId( paId ) ) {
             throw new IllegalArgumentException(); //FIXME gestione messaggistica
         }
+        notification.setSender( NotificationSender.builder().build() );
         notification.getSender().setPaId( paId.trim() );
 
         String paNotificationId = notification.getPaNotificationId();
@@ -40,7 +50,15 @@ public class DeliveryService {
         notification.setIun( iun );
 
         // - save
-        return deliveryDao.addNotification( notification );
+        return mom.push(
+                NewNotificationEvt.builder()
+                        .iun( iun )
+                        .sentDate( clock.instant() )
+                        .build()
+            ).thenCompose( (v1) ->
+                deliveryDao.addNotification( notification )
+                        .thenApply( (v2) -> NotificationAck.builder().iun( iun ).paNotificationId( paNotificationId ).build() )
+        );
     }
 
     private String generateIun() {
