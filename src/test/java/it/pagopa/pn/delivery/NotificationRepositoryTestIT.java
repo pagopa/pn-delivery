@@ -100,13 +100,12 @@ public class NotificationRepositoryTestIT {
                 .iun(id2)
                 .paNotificationId("paNot2")
                 .build();
-
+        
         //
         //When
         notificationRepository.deleteAll();
         notificationRepository.save(notification1);
         notificationRepository.save(notification2);
-
 
         //Thread.sleep(320000);
         // Then
@@ -116,7 +115,7 @@ public class NotificationRepositoryTestIT {
 
         assertTrue(notificationRead1.isPresent());
         if (notificationRead1.isPresent()) {
-            assertNotEquals(notification1,notificationRead1.get());
+            assertEquals(notification1,notificationRead1.get());
             // assertSame(notification1,notificationRead1.get());
 
         }
@@ -130,7 +129,6 @@ public class NotificationRepositoryTestIT {
         List<Notification> listaNotifiche = (List<Notification>) notificationRepository.findAll();
         assertEquals(2,listaNotifiche.size());
         assertNotEquals(listaNotifiche.get(0),listaNotifiche.get(1));
-
     }
 
     @Test
