@@ -23,11 +23,11 @@ public class TimelineElement {
     private EventCategory eventCategory;
 
     //TODO decommentare e risolvere
-/*
+
     @Schema(oneOf = {
             NotificationPathChooseDetails.class, ReceivedDetails.class,
             SendDigitalDetails.class, SendDigitalFeedbackDetails.class
         })
     private TimelineElementDetails details;
-*/
+
 }

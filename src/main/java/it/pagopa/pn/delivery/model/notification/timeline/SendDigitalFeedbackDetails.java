@@ -7,13 +7,14 @@ import org.springframework.data.cassandra.core.mapping.UserDefinedType;
 
 import java.util.List;
 
+@Builder
 @UserDefinedType
 public class SendDigitalFeedbackDetails extends SendDigitalDetails {
 
     private List<String> errors;
 
-    SendDigitalFeedbackDetails(String fc, DigitalAddress address, Integer n, DownstreamId downstreamId) {
-        super(fc, address, n, downstreamId);
+    SendDigitalFeedbackDetails(String fc, DigitalAddress address, Integer n, DownstreamId downstreamId, TimelineElement.EventCategory eventCategory) {
+        super(fc, address, n, downstreamId, eventCategory);
     }
 
     public List<String> getErrors() {
