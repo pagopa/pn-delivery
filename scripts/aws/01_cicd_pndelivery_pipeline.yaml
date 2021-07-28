@@ -273,10 +273,10 @@ Resources:
                 Version: 1
                 Provider: CloudFormation
               Configuration:
-                ActionMode: CREATE_OR_UPDATE
+                ActionMode: CREATE_UPDATE
                 StackName: !Sub ${ProductName}-${BranchName}-delivery-rt
-                TemplatePath: !Sub SCCheckoutArtifact::/scripts/aws/cloudformation-infra.yaml
-                #TemplateConfiguration: !Sub SCCheckoutArtifact::${BetaEnvConfiguration}
+                TemplatePath: !Sub SCCheckoutArtifact::scripts/aws/cloudformation-infra.yaml
+                TemplateConfiguration: !Sub SCCheckoutArtifact::scripts/aws/beta-cfg.json
                 RoleArn:
                   Fn::If:
                     - AddCodeBuildResource
@@ -284,7 +284,7 @@ Resources:
                     - !Ref AWS::NoValue
               InputArtifacts:
                 - Name: SCCheckoutArtifact
-              RunOrder: 1
+              RunOrder: 2
               RoleArn:
                 Fn::If:
                   - AddCodeBuildResource
