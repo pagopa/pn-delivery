@@ -23,13 +23,14 @@ import it.pagopa.pn.delivery.repository.NotificationRepository;
 @Service
 public class DeliveryService {
 
-	private Clock clock;
-	private NotificationRepository notificationRepository;
-	private KafkaTemplate<String, Message> kafkaTemplate;
-	private KafkaConfigs kafkaConfigs;
+	private final Clock clock;
+	private final NotificationRepository notificationRepository;
+	private final KafkaTemplate<String, Message> kafkaTemplate;
+	private final KafkaConfigs kafkaConfigs;
 
 	@Autowired
-	public DeliveryService(Clock clock, NotificationRepository notificationRepository, KafkaTemplate<String, Message> kafkaTemplate, KafkaConfigs kafkaConfigs) {
+	public DeliveryService(Clock clock, NotificationRepository notificationRepository,
+			KafkaTemplate<String, Message> kafkaTemplate, KafkaConfigs kafkaConfigs) {
 		this.clock = clock;
 		this.notificationRepository = notificationRepository;
 		this.kafkaTemplate = kafkaTemplate;
@@ -84,7 +85,20 @@ public class DeliveryService {
 	}
 
 	private boolean checkRecipients(List<NotificationRecipient> recipients) {
-		return (recipients != null && !recipients.isEmpty());
+		return (recipients != null && !recipients.isEmpty() 
+					&& checkRecipientsItems(recipients));
+	}
+
+	private boolean checkRecipientsItems(List<NotificationRecipient> recipients) {
+		for (NotificationRecipient recipient : recipients) {
+			if (recipient == null || StringUtils.isBlank(recipient.getFc()) 
+					|| (recipient.getPhysicalAddress() == null 
+						|| recipient.getPhysicalAddress().isEmpty())) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 }

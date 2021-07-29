@@ -18,31 +18,34 @@ import it.pagopa.pn.delivery.model.notification.response.NotificationResponse;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/delivery/notifications/sent/")
+@RequestMapping("/delivery/notifications/sent")
 public class PnSentDeliveryController {
-
+	
     @Autowired
     private DeliveryService svc;
 
-    @PostMapping("/")
+    @PostMapping("")			
     @ResponseBody
-    public Mono<NotificationResponse> send(
+    public Mono<ResponseEntity<NotificationResponse>> send(
             @RequestBody @JsonView(value = Views.NotificationsView.Send.class ) Notification notification,
             @RequestHeader("X-PagoPA-PN-PA") String paId
     ) {
         Notification addedNotification = svc.receiveNotification( paId, notification );
-        return Mono.just(new NotificationResponse(addedNotification.getIun(), addedNotification.getPaNotificationId()));
+        
+        NotificationResponse response = NotificationResponse.builder()
+        		.iun( addedNotification.getIun() )
+        		.paNotificationId( addedNotification.getPaNotificationId() )
+        		.build();
+        ResponseEntity<NotificationResponse> entity = ResponseEntity.ok().body( response );
+        return Mono.just( entity );
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     @JsonView(value = Views.NotificationsView.Sent.class )
     public Mono<ResponseEntity<Notification>> getAllSentNotification(
             @RequestHeader("X-PagoPA-PN-PA") String paId
     ) {
         return Mono.just(ResponseEntity.ok( null ));
     }
-
-
+    
 }
-
-

@@ -1,8 +1,10 @@
 package it.pagopa.pn.delivery.model.notification.response;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Value;
 
-@Data
+@Value
+@Builder
 public class NotificationResponse {
 
 	private String iun;
