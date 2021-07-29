@@ -9,7 +9,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
 
-@Configuration
+//@Configuration
 public class AwsServicesClientsConfig {
 
     private final AwsConfigs props;
@@ -22,10 +22,7 @@ public class AwsServicesClientsConfig {
     public DynamoDbEnhancedAsyncClient dynamoDbEnhancedAsyncClient() {
         return DynamoDbEnhancedAsyncClient.builder()
                 .dynamoDbClient(
-                        DynamoDbAsyncClient.builder()
-                                .credentialsProvider( ProfileCredentialsProvider.create( "staging" ))
-                                .region(Region.EU_SOUTH_1)
-                                .build()
+                        configureBuilder( DynamoDbAsyncClient.builder() )
                     )
                 .build();
     }

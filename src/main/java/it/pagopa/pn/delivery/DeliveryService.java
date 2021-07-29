@@ -75,9 +75,10 @@ public class DeliveryService {
 	private String generateIun() {
 		String uuid = UUID.randomUUID().toString();
 		Instant now = Instant.now(clock);
-		OffsetDateTime nowUtc = now.atOffset(ZoneOffset.UTC);
-		
-		return nowUtc.get(ChronoField.YEAR_OF_ERA) + nowUtc.get(ChronoField.MONTH_OF_YEAR) + '-' + uuid;
+		OffsetDateTime nowUtc = now.atOffset( ZoneOffset.UTC );
+    int year = nowUtc.get( ChronoField.YEAR_OF_ERA);
+    int month = nowUtc.get( ChronoField.MONTH_OF_YEAR);
+    return year + month + '-' + uuid;
 	}
 
 	private boolean checkPaNotificationId(String paNotificationId) {
