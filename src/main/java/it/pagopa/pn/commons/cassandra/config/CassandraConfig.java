@@ -22,7 +22,7 @@ public class CassandraConfig {
         this.password = password;
     }
 
-    //@Bean
+    @Bean
     public CqlSession getSession(){
         return CqlSession.builder().withKeyspace(keyspace).withAuthCredentials(username,password).build();
     }
