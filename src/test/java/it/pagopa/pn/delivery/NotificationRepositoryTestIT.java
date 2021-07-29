@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.model.notification.address.PhysicalAddress;
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatus;
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.model.notification.timeline.DownstreamId;
+import it.pagopa.pn.delivery.model.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.delivery.model.notification.timeline.TimelineElement;
 import it.pagopa.pn.delivery.model.notification.timeline.TimelineElementDetails;
 import it.pagopa.pn.delivery.repository.NotificationRepository;
@@ -90,7 +91,9 @@ public class NotificationRepositoryTestIT {
                         .build())
                 .timeline(Arrays.asList(TimelineElement.builder()
                         .timestamp(Instant.now().truncatedTo(ChronoUnit.MILLIS))
-                        .details(TimelineElementDetails.builder().eventCategory(TimelineElement.EventCategory.NOTIFICATION_PATH_CHOOSE).build())
+                        .details(NotificationPathChooseDetails.builder()
+                                .deliveryMode(NotificationPathChooseDetails.DeliveryMode.ANALOG)
+                                .build())
                         .build()))
                 .build();
 

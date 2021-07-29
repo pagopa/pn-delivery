@@ -10,14 +10,11 @@ import org.springframework.data.cassandra.core.mapping.UserDefinedType;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
+@Builder
 @UserDefinedType
-public class ReceivedDetails extends TimelineElementDetails {
+public class ReceivedDetails implements TimelineElementDetails {
 
-    public ReceivedDetails(TimelineElement.EventCategory eventCategory){
-        super(eventCategory);
-    }
     private NotificationAttachment.Digests digests;
     private List<NotificationRecipient> recipients;
 
