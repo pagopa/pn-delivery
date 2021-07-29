@@ -1,9 +1,9 @@
 package it.pagopa.pn.delivery.rest;
 
-public interface Views {
+public interface JsonViews {
 
     interface NotificationsView {
-        interface Send { }
+        interface ReceivedNotification { }
         interface Sent { }
     }
 
