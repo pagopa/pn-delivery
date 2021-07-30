@@ -1,6 +1,7 @@
 package it.pagopa.pn.commons.cassandra.config;
 
 
+import it.pagopa.pn.delivery.PnDeliveryApplication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableCassandraRepositories(basePackages="it.pagopa.pn.delivery.model.notification")
+@EnableCassandraRepositories(basePackages = PnDeliveryApplication.ENTITY_BASE_PACKAGE)
 public class CassandraConfig extends AbstractCassandraConfiguration {
 
     private final CassandraProperties cassandraProperties;

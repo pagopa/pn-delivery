@@ -10,8 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.result.view.RedirectView;
 
 @EnableConfigurationProperties(CassandraProperties.class)
-@SpringBootApplication(scanBasePackages = {"it.pagopa.pn.commons", "it.pagopa.pn.delivery"})
+@SpringBootApplication(scanBasePackages = {PnDeliveryApplication.COMMONS_BASE_PACKAGE, PnDeliveryApplication.DELIVERY_BASE_PACKAGE})
 public class PnDeliveryApplication {
+
+	public static final String DELIVERY_BASE_PACKAGE = "it.pagopa.pn.delivery";
+	public static final String COMMONS_BASE_PACKAGE = "it.pagopa.pn.commons";
+	public static final String ENTITY_BASE_PACKAGE = DELIVERY_BASE_PACKAGE + ".model";
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(PnDeliveryApplication.class, args);
