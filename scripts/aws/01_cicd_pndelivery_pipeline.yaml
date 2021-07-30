@@ -186,6 +186,11 @@ Resources:
               - echo Pushing the Docker image...
               - docker push $ECR_URL/$ARTIFACT_ID:$VERSION
               - docker push $ECR_URL/$ARTIFACT_ID:latest
+              - echo "Deploy to ECS"
+              - "export JQ_EXP='{ \"CLUSTER_ARN\": .CluserArn, \"SERVICE_NAME\": .ServiceName } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
+              - "$( cat $CODEBUILD_SRC_DIR_InfraOutputs/InfrastructureOutputs.json | jq -r \"$JQ_EXP\" )"
+              - aws ecs update-service --cluster "$CLUSTER_ARN" --service "$SERVICE_NAME" --force-new-deployment
+
       Artifacts:
         Type: CODEPIPELINE
       Environment:
