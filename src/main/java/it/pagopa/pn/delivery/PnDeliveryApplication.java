@@ -15,7 +15,6 @@ public class PnDeliveryApplication {
 
 	public static final String DELIVERY_BASE_PACKAGE = "it.pagopa.pn.delivery";
 	public static final String COMMONS_BASE_PACKAGE = "it.pagopa.pn.commons";
-	public static final String ENTITY_BASE_PACKAGE = DELIVERY_BASE_PACKAGE + ".model";
 
 
 	public static void main(String[] args) {

@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableCassandraRepositories(basePackages = PnDeliveryApplication.ENTITY_BASE_PACKAGE)
 public class CassandraConfig extends AbstractCassandraConfiguration {
 
     private final CassandraProperties cassandraProperties;
@@ -58,7 +57,7 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         return cassandraSession;
     }
 
-    @Override
+    @Override // da indagare
     public String[] getEntityBasePackages() {
         return new String[] {cassandraProperties.getEntitypackage()};
     }
