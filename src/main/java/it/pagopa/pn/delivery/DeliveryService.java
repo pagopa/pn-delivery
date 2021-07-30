@@ -49,15 +49,23 @@ public class DeliveryService {
         String iun = generateIun();
         notification.setIun( iun );
 
-        // - save
-        return mom.push(
+        // - Restituisci il risultato della seguente azione ...
+        return mom
+            .push( // - Invia una notifica in coda che ha un tempo di delay sufficiente per ...
                 NewNotificationEvt.builder()
                         .iun( iun )
                         .sentDate( clock.instant() )
                         .build()
             ).thenCompose( (v1) ->
-                deliveryDao.addNotification( notification )
-                        .thenApply( (v2) -> NotificationAck.builder().iun( iun ).paNotificationId( paNotificationId ).build() )
+                // ... salvare la notifica su un key-value store indicizzata con IUN.
+                deliveryDao
+                        .addNotification( notification )
+                        .thenApply( (v2) ->
+                                // - Costruisci risposta da inviare al chiamante
+                                NotificationAck.builder()
+                                        .iun( iun )
+                                        .paNotificationId( paNotificationId )
+                                        .build() )
         );
     }
 
