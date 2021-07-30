@@ -1,7 +1,7 @@
 package it.pagopa.pn.commons.cassandra.config;
 
 
-import it.pagopa.pn.delivery.PnDeliveryApplication;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,6 @@ import org.springframework.data.cassandra.config.CqlSessionFactoryBean;
 import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification;
 import org.springframework.data.cassandra.core.cql.keyspace.KeyspaceOption;
-import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
 
 import java.util.Arrays;
 import java.util.List;
