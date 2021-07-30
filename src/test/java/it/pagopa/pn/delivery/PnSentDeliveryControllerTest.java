@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+//import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import it.pagopa.pn.delivery.model.notification.address.PhysicalAddress;
 import it.pagopa.pn.delivery.rest.PnSentDeliveryController;
 import reactor.core.publisher.Mono;
 
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
 @WebFluxTest(PnSentDeliveryController.class)
 class PnSentDeliveryControllerTest {
 	

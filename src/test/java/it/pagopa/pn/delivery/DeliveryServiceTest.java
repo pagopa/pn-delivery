@@ -1,13 +1,14 @@
 package it.pagopa.pn.delivery;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -67,11 +68,11 @@ class DeliveryServiceTest {
 
 		// When
 		// Notification addedNotification = deliveryService.receiveNotification(paId, notification);
-		Throwable throwable = assertThrows(NullPointerException.class,
+		Throwable throwable = Assertions.assertThrows(NullPointerException.class,
 				() -> deliveryService.receiveNotification(PA_ID, notification));
 
 		// Then
-		assertEquals(NullPointerException.class, throwable.getClass());
+		Assertions.assertEquals(NullPointerException.class, throwable.getClass());
 	}
 
 	@Test
@@ -82,11 +83,11 @@ class DeliveryServiceTest {
 				.recipients(notificationReceipients).build();
 
 		// When
-		Throwable throwable = assertThrows(NullPointerException.class,
+		Throwable throwable = Assertions.assertThrows(NullPointerException.class,
 				() -> deliveryService.receiveNotification(PA_ID, notification));
 
 		// Then
-		assertEquals(NullPointerException.class, throwable.getClass());
+		Assertions.assertEquals(NullPointerException.class, throwable.getClass());
 	}
 
 	@Test
@@ -98,11 +99,11 @@ class DeliveryServiceTest {
 				.recipients(notificationReceipients).build();
 
 		// When
-		Throwable throwable = assertThrows(IllegalArgumentException.class,
+		Throwable throwable = Assertions.assertThrows(IllegalArgumentException.class,
 				() -> deliveryService.receiveNotification("", notification));
 
 		// Then
-		assertEquals(IllegalArgumentException.class, throwable.getClass());
+		Assertions.assertEquals(IllegalArgumentException.class, throwable.getClass());
 	}
 
 	@Test
@@ -114,11 +115,11 @@ class DeliveryServiceTest {
 				.recipients(notificationReceipients).build();
 
 		// When
-		Throwable throwable = assertThrows(IllegalArgumentException.class,
+		Throwable throwable = Assertions.assertThrows(IllegalArgumentException.class,
 				() -> deliveryService.receiveNotification(null, notification));
 
 		// Then
-		assertEquals(IllegalArgumentException.class, throwable.getClass());
+		Assertions.assertEquals(IllegalArgumentException.class, throwable.getClass());
 	}
 
 	@Test
@@ -130,11 +131,11 @@ class DeliveryServiceTest {
 				.recipients(notificationReceipients).build();
 
 		// When
-		Throwable throwable = assertThrows(IllegalArgumentException.class,
+		Throwable throwable = Assertions.assertThrows(IllegalArgumentException.class,
 				() -> deliveryService.receiveNotification(PA_ID, notification));
 
 		// Then
-		assertEquals(IllegalArgumentException.class, throwable.getClass());
+		Assertions.assertEquals(IllegalArgumentException.class, throwable.getClass());
 	}
 
 	@Test
