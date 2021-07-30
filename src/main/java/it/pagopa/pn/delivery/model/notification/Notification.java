@@ -1,21 +1,21 @@
 package it.pagopa.pn.delivery.model.notification;
 
+
+import java.util.List;
+import lombok.Builder;
+import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonView;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
+
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatus;
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.model.notification.timeline.TimelineElement;
 import it.pagopa.pn.delivery.rest.JsonViews;
 
-import lombok.Builder;
-import lombok.Data;
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
-
-import java.util.List;
-
 @Table
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class Notification {
 
     @JsonView(value = { JsonViews.None.class, JsonViews.NotificationsView.Sent.class })
