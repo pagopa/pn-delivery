@@ -2,7 +2,6 @@ package it.pagopa.pn.commons.cassandra.config;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
@@ -14,7 +13,6 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
 
 import java.util.Arrays;
 import java.util.List;
-
 
 @Configuration
 @EnableCassandraRepositories(basePackages="it.pagopa.pn.delivery.model.notification")
