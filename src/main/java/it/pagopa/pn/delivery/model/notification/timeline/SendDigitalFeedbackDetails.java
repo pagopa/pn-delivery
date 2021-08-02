@@ -1,16 +1,21 @@
 package it.pagopa.pn.delivery.model.notification.timeline;
 
+import it.pagopa.pn.delivery.model.notification.address.DigitalAddress;
+
+import lombok.*;
+import org.springframework.data.cassandra.core.mapping.UserDefinedType;
+
 import java.util.List;
 
-public class SendDigitalFeedbackDetails extends SendDigitalDetails {
+@Getter
+@Setter
+@UserDefinedType
+public class SendDigitalFeedbackDetails extends SendDigitalDetails implements TimelineElementDetails{
 
     private List<String> errors;
 
-    public List<String> getErrors() {
-        return errors;
+    public SendDigitalFeedbackDetails(String fc, DigitalAddress address, Integer n, DownstreamId downstreamId) {
+        super(fc, address, n, downstreamId);
     }
 
-    public void setErrors(List<String> errors) {
-        this.errors = errors;
-    }
 }

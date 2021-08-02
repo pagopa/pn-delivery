@@ -13,7 +13,6 @@ import it.pagopa.pn.delivery.model.notification.status.NotificationStatusHistory
 import it.pagopa.pn.delivery.model.notification.timeline.TimelineElement;
 import it.pagopa.pn.delivery.rest.JsonViews;
 
-
 @Table
 @Data
 @Builder(toBuilder = true)

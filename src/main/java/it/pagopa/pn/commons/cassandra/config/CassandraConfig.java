@@ -1,29 +1,66 @@
 package it.pagopa.pn.commons.cassandra.config;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import org.springframework.beans.factory.annotation.Value;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
+import org.springframework.data.cassandra.config.CqlSessionFactoryBean;
+import org.springframework.data.cassandra.config.SchemaAction;
+import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification;
+import org.springframework.data.cassandra.core.cql.keyspace.KeyspaceOption;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
-public class CassandraConfig {
-    // TODO indagare effettiva necessità di questa classe
+public class CassandraConfig extends AbstractCassandraConfiguration {
 
-    private final String keyspace;
-    private final String username;
-    private final String password;
+    private final CassandraProperties cassandraProperties;
 
+    @Autowired
     CassandraConfig(
-            @Value("${spring.data.cassandra.keyspace-name}") String keyspace,
-            @Value("${spring.data.cassandra.contact-points}") String username,
-            @Value("${spring.data.cassandra.contact-points}") String password) {
-        this.keyspace = keyspace;
-        this.username = username;
-        this.password = password;
+            CassandraProperties cassandraProperties) {
+
+        this.cassandraProperties = cassandraProperties;
+    }
+
+    @Override
+    protected String getKeyspaceName() {
+        return cassandraProperties.getKeyspaceName();
+    }
+
+    @Override
+    public SchemaAction getSchemaAction() {
+        return SchemaAction.CREATE_IF_NOT_EXISTS;
+    }
+
+    @Override
+    protected List<CreateKeyspaceSpecification> getKeyspaceCreations() {
+
+        CreateKeyspaceSpecification specification = CreateKeyspaceSpecification
+                .createKeyspace(cassandraProperties.getKeyspaceName())
+                .ifNotExists()
+                .with(KeyspaceOption.DURABLE_WRITES, true);
+
+        return Arrays.asList(specification);
     }
 
     @Bean
-    public CqlSession getSession(){
-        return CqlSession.builder().withKeyspace(keyspace).withAuthCredentials(username,password).build();
+    @Override
+    public CqlSessionFactoryBean cassandraSession() {
+        CqlSessionFactoryBean cassandraSession = super.cassandraSession();//super session should be called only once
+        cassandraSession.setUsername(cassandraProperties.getUsername());
+        cassandraSession.setPassword(cassandraProperties.getPassword());
+        return cassandraSession;
     }
+
+    @Override // da indagare
+    public String[] getEntityBasePackages() {
+        return new String[] {cassandraProperties.getEntitypackage()};
+    }
+
 }
+
+
