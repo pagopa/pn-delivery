@@ -1,9 +1,9 @@
 package it.pagopa.pn.delivery.model.notification.timeline;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
+
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.cassandra.core.mapping.UserDefinedType;
@@ -12,9 +12,8 @@ import java.time.Instant;
 
 @Data
 @Builder
-@UserDefinedType
 @NoArgsConstructor
-@AllArgsConstructor
+@UserDefinedType
 public class TimelineElement {
 
     public enum EventCategory {
@@ -36,9 +35,13 @@ public class TimelineElement {
     private SendDigitalFeedbackDetails sendDigitalFeedbackDetails;
     private SendDigitalDetails sendDigitalDetails;
 
+    public TimelineElement(Instant timestamp, EventCategory eventCategory, TimelineElementDetails details, NotificationPathChooseDetails notificationPathChooseDetails, ReceivedDetails receivedDetails, SendDigitalFeedbackDetails sendDigitalFeedbackDetails, SendDigitalDetails sendDigitalDetails) {
+        this.timestamp = timestamp;
+        this.eventCategory = eventCategory;
+        setDetails(details);
+    }
 
     public void setDetails(TimelineElementDetails details) {
-        this.details = details;
 
         if(details instanceof NotificationPathChooseDetails){
             this.notificationPathChooseDetails = (NotificationPathChooseDetails) details;

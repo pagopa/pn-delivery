@@ -6,10 +6,7 @@ import it.pagopa.pn.delivery.model.notification.address.DigitalAddress;
 import it.pagopa.pn.delivery.model.notification.address.PhysicalAddress;
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatus;
 import it.pagopa.pn.delivery.model.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.delivery.model.notification.timeline.DownstreamId;
-import it.pagopa.pn.delivery.model.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.delivery.model.notification.timeline.TimelineElement;
-import it.pagopa.pn.delivery.model.notification.timeline.TimelineElementDetails;
+import it.pagopa.pn.delivery.model.notification.timeline.*;
 import it.pagopa.pn.delivery.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -33,6 +30,11 @@ public class NotificationRepositoryTestIT {
     private final NotificationRepository notificationRepository;
     private static final String IUN1 = NotificationRepositoryTestIT.class.getName() + "_iun_1";
     private static final String IUN2 = NotificationRepositoryTestIT.class.getName() + "_iun_2";
+    private static final String IUN3 = NotificationRepositoryTestIT.class.getName() + "_iun_3";
+    private static final String IUN4 = NotificationRepositoryTestIT.class.getName() + "_iun_4";
+    private static final String IUN5 = NotificationRepositoryTestIT.class.getName() + "_iun_5";
+    private static final String IUN6 = NotificationRepositoryTestIT.class.getName() + "_iun_6";
+
 
     @Autowired
     public NotificationRepositoryTestIT(NotificationRepository notificationRepository) {
@@ -48,7 +50,7 @@ public class NotificationRepositoryTestIT {
         Notification notification1 = Notification.builder()
                 .iun(id1)
                 .paNotificationId("paNot1")
-                .cancelledIun("cancellediun")
+                .cancelledIun("cancellediunProva")
                 .subject("subject 1")
                 .cancelledByIun("cancelledByIun1")
                 .notificationStatus(NotificationStatus.DELIVERED)
@@ -93,11 +95,14 @@ public class NotificationRepositoryTestIT {
                         .timestamp(Instant.now().truncatedTo(ChronoUnit.MILLIS))
                         .details(NotificationPathChooseDetails.builder()
                                 .deliveryMode(NotificationPathChooseDetails.DeliveryMode.ANALOG)
+                                .fc("fcNotification1")
                                 .build())
                         .build()))
                 .build();
 
 
+
+        System.err.println(notification1);
         String id2 = IUN2;
         Notification notification2 = Notification.builder()  //liste vuote
                 .iun(id2)
@@ -106,7 +111,9 @@ public class NotificationRepositoryTestIT {
         
         //
         //When
-        notificationRepository.deleteAll();
+        notificationRepository.deleteById(notification1.getIun());
+        notificationRepository.deleteById(notification2.getIun());
+
         notificationRepository.save(notification1);
         notificationRepository.save(notification2);
 
@@ -119,7 +126,6 @@ public class NotificationRepositoryTestIT {
         assertTrue(notificationRead1.isPresent());
         if (notificationRead1.isPresent()) {
             assertEquals(notification1,notificationRead1.get());
-            // assertSame(notification1,notificationRead1.get());
 
         }
 
@@ -130,8 +136,60 @@ public class NotificationRepositoryTestIT {
 
         // findAll deve dare un risultato ccon due elementi diversi
         List<Notification> listaNotifiche = (List<Notification>) notificationRepository.findAll();
-        assertEquals(2,listaNotifiche.size());
-        assertNotEquals(listaNotifiche.get(0),listaNotifiche.get(1));
+
+    }
+
+    public Notification creaNotificaConDetails(String iun, TimelineElementDetails details){
+        Notification notification = Notification.builder()
+                .iun(iun)
+                .paNotificationId("paNot1")
+                .cancelledIun("cancellediunProva")
+                .subject("subject 1")
+                .cancelledByIun("cancelledByIun1")
+                .notificationStatus(NotificationStatus.DELIVERED)
+                .notificationStatusHistory(Arrays.asList(NotificationStatusHistoryElement.builder()
+                        .status(NotificationStatus.PAID)
+                        .activeFrom(Instant.now().truncatedTo(ChronoUnit.MILLIS))
+                        .build()))
+                .recipients(Arrays.asList(NotificationRecipient.builder()
+                        .digitalDomicile(DigitalAddress.builder()
+                                .address("via Roma 122")
+                                .type(DigitalAddress.Type.PEC).build())
+                        .physicalAddress(new PhysicalAddress())
+                        .fc("fc1")
+                        .build()))
+                .payment(NotificationPaymentInfo.builder()
+                        .iuv("iuv1")
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog(NotificationAttachment.builder()
+                                        .body("body1")
+                                        .contentType("contentType1")
+                                        .build())
+                                .digital(NotificationAttachment.builder()
+                                        .body("body1")
+                                        .contentType("contentType1")
+                                        .build())
+                                .flatRate(NotificationAttachment.builder()
+                                        .body("body1")
+                                        .contentType("contentType1")
+                                        .build())
+                                .build())
+                        .notificationFeePolicy(NotificationPaymentInfo.FeePolicies.DELIVERY_MODE)
+                        .build())
+                .documents(Arrays.asList(NotificationAttachment.builder()
+                        .body("body1")
+                        .contentType("contentType1")
+                        .build()))
+                .sender(NotificationSender.builder()
+                        .paId("paId1")
+                        .paName("paName1")
+                        .build())
+                .timeline(Arrays.asList(TimelineElement.builder()
+                        .timestamp(Instant.now().truncatedTo(ChronoUnit.MILLIS))
+                        .details(details)
+                        .build()))
+                .build();
+        return notification;
     }
 
     @Test
@@ -156,12 +214,12 @@ public class NotificationRepositoryTestIT {
     public void testNotificationIunOnly(){
         // Given
         //
-        String iun = IUN1;
+        String iun = IUN3;
         Notification notification = Notification.builder().iun(iun).build();
 
         //When
         //
-        notificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
+        notificationRepository.deleteById(notification.getIun());
         notificationRepository.save(notification);
 
         //Then
@@ -176,12 +234,12 @@ public class NotificationRepositoryTestIT {
     public void testListNotNull() throws InterruptedException {
         // Given
         //
-        String iun = IUN1;
+        String iun = IUN4;
         Notification notification = Notification.builder().iun(iun).build();
 
         //When
         //
-        notificationRepository.deleteById(iun); // elimino quello con lo stesso id se gia presente
+        notificationRepository.deleteById(notification.getIun());
         notificationRepository.save(notification);
 
         //Then
@@ -198,14 +256,14 @@ public class NotificationRepositoryTestIT {
         * cassandra trasforma il tipo Istant di java in un suo tipo Timestamp che è troncato ai millisecondi. */
         //
         //Given
-        String id1 = IUN1;
+        String id1 = IUN5;
         Notification notification1 = Notification.builder() //troncato prima della memorizzazione
                 .iun(id1)
                 .paNotificationId("paNot1")
                 .timeline(Arrays.asList(TimelineElement.builder().timestamp(Instant.now().truncatedTo(ChronoUnit.MILLIS)).build()))
                 .build();
 
-        String id2 = IUN2;
+        String id2 = IUN6;
         Notification notification2 = Notification.builder()  //liste vuote
                 .iun(id2)
                 .paNotificationId("paNot2")
@@ -214,7 +272,8 @@ public class NotificationRepositoryTestIT {
 
         //
         //When
-        notificationRepository.deleteAll();
+        notificationRepository.deleteById(notification1.getIun());
+        notificationRepository.deleteById(notification2.getIun());
         notificationRepository.save(notification1);
         notificationRepository.save(notification2);
         //
