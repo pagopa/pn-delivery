@@ -1,0 +1,285 @@
+#  Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#  Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with
+#  the License. A copy of the License is located at
+#      http://aws.amazon.com/apache2.0/
+#  or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+#  CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+#  limitations under the License.
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CodePipeline for pn-delivery
+Parameters:
+  ProductName:
+    Description: Name of the Project
+    Type: String
+    Default: pn
+  BranchName:
+    Description: Name of the Project branch
+    Type: String
+    Default: main
+  DeliveryRepoName:
+    Description: Name of the Github Repository infra
+    Type: String
+    Default: pagopa/pn-delivery
+  BetaAccount:
+    Description: AWS AccountNumber for test
+    Type: Number
+    Default: 558518206506
+  CrossAccountCondition:
+    Description: Conditionally creates the resources for cross account access
+    Type: String
+    Default: false
+  
+Conditions:
+  AddCodeBuildResource: !Equals [ !Ref CrossAccountCondition, true ]
+
+Resources:
+
+  PipeLineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProductName}-${BranchName}-delivery-pipeline-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+  PipelinePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProductName}-${BranchName}-delivery-pipeline-policy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Action:
+              - codepipeline:*
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+              - iam:ListRoles
+              - iam:PassRole
+              - s3:ListAllMyBuckets
+              - s3:GetBucketLocation
+            Resource:
+              - "*"
+          -
+            Effect: Allow
+            Action:
+              - kms:Decrypt
+            Resource: { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-CMK-arn"}}
+          -
+            Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:GetBucketPolicy
+              - s3:GetObject
+              - s3:ListBucket
+            Resource:
+             - !Join ['',['arn:aws:s3:::', { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-build-artifacts-buket-name"}}, '/*']]
+             - !Join ['',['arn:aws:s3:::', { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-build-artifacts-buket-name"}} ]]
+          -
+            Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Resource:
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/${ProductName}-${BranchName}-from-github-to-s3-role
+              - !Sub arn:aws:iam::${BetaAccount}:role/${ProductName}-${BranchName}-cicd-role
+      Roles:
+        -
+          !Ref PipeLineRole
+  
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProductName}-${BranchName}-delivery-codebuild-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - 
+            Effect: Allow
+            Principal:
+              Service:
+                - "codebuild.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+  CodeBuildPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProductName}-${BranchName}-delivery-codebuild-policy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+            Resource:
+              - "*"
+          -
+            Effect: Allow
+            Action:
+              - kms:Decrypt
+            Resource: { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-CMK-arn"}}
+          -
+            Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:GetBucketPolicy
+              - s3:GetObject
+              - s3:ListBucket
+            Resource:
+             - !Join ['',['arn:aws:s3:::', { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-build-artifacts-buket-name"}}, '/*']]
+             - !Join ['',['arn:aws:s3:::', { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-build-artifacts-buket-name"}} ]]
+          - # For ECR deployment
+            Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Resource:
+              - !Sub arn:aws:iam::${BetaAccount}:role/${ProductName}-${BranchName}-cicd-role
+      Roles:
+        - !Ref CodeBuildRole
+  
+  CodeBuildProject:
+    Type: 'AWS::CodeBuild::Project'
+    Properties:
+      Name: !Sub ${ProductName}-${BranchName}-delivery
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Source: 
+        Type: CODEPIPELINE
+        #BuildSpec: scripts/aws/codebuild_spec.yaml
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+                commands:
+                  - echo "Define variables"
+                  - "export ARTIFACT_ID=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout )"
+                  - "export VERSION=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout )"
+                  - "export ECR_URL=$ECR_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com"
+                  - echo "Build $ARTIFACT_ID version $VERSION to $ECR_URL"
+                  - echo Logging in to Amazon ECR ...
+                  - "export JQ_EXP='{ \"AWS_ACCESS_KEY_ID\": .Credentials.AccessKeyId, \"AWS_SECRET_ACCESS_KEY\": .Credentials.SecretAccessKey, \"AWS_SESSION_TOKEN\": .Credentials.SessionToken } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
+                  - "$( aws sts assume-role --role-arn arn:aws:iam::$ECR_ACCOUNT_ID:role/pn-main-cicd-role --role-session-name pn-main-beta-deploy-session | jq -r \"$JQ_EXP\" )"
+                  - aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin $ECR_URL
+            build:
+              commands:
+              - ./mvnw -DskipITs spring-boot:build-image
+              - docker tag $ARTIFACT_ID:$VERSION $ECR_URL/$ARTIFACT_ID:$VERSION
+              - docker tag $ARTIFACT_ID:$VERSION $ECR_URL/$ARTIFACT_ID:latest
+              - docker image ls
+            post_build:
+              commands:
+              - echo Build completed on `date`
+              - echo Create repository $ARTIFACT_ID
+              - aws ecr describe-repositories --repository-names $ARTIFACT_ID || aws ecr create-repository --repository-name $ARTIFACT_ID
+              - echo Pushing the Docker image...
+              - docker push $ECR_URL/$ARTIFACT_ID:$VERSION
+              - docker push $ECR_URL/$ARTIFACT_ID:latest
+              - echo "Deploy to ECS"
+              - "export JQ_EXP='{ \"CLUSTER_ARN\": .CluserArn, \"SERVICE_NAME\": .ServiceName } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
+              - "$( cat $CODEBUILD_SRC_DIR_InfraOutputs/InfrastructureOutputs.json | jq -r \"$JQ_EXP\" )"
+              - aws ecs update-service --cluster "$CLUSTER_ARN" --service "$SERVICE_NAME" --force-new-deployment
+
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: ECR_REGION
+            Value: !Ref AWS::Region
+          - Name: ECR_ACCOUNT_ID
+            Value: !Ref BetaAccount
+
+  PnDeliveryAppPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt PipeLineRole.Arn
+      Name: !Sub '${ProductName}-${BranchName}-delivery'
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: AppCode
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: CodeStarSourceConnection
+              Configuration:
+                ConnectionArn: { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-github-connection"}}
+                FullRepositoryId: !Ref DeliveryRepoName
+                BranchName: 'release/0.0.1-Poc_M1'
+              OutputArtifacts:
+                - Name: SCCheckoutArtifact
+              RunOrder: 1
+              #RoleArn: !Sub arn:aws:iam::${DevAccount}:role/ToolsAcctCodePipelineCodeCommitRole
+              RoleArn:
+                  Fn::If:
+                  - AddCodeBuildResource
+                  - !Sub arn:aws:iam::${AWS::AccountId}:role/${ProductName}-${BranchName}-from-github-to-s3-role
+                  - !Ref AWS::NoValue
+        - Name: DeployToTest
+          Actions:
+            - Name: UpdateInfra
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CloudFormation
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Sub ${ProductName}-${BranchName}-delivery-rt
+                TemplatePath: !Sub SCCheckoutArtifact::scripts/aws/cloudformation-infra.yaml
+                TemplateConfiguration: !Sub SCCheckoutArtifact::scripts/aws/beta-cfg.json
+                OutputFileName: InfrastructureOutputs.json
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn:
+                  Fn::If:
+                    - AddCodeBuildResource
+                    - !Sub arn:aws:iam::${BetaAccount}:role/${ProductName}-${BranchName}-cloudformationdeployer-role
+                    - !Ref AWS::NoValue
+              InputArtifacts:
+                - Name: SCCheckoutArtifact
+              OutputArtifacts:
+                - Name: InfraOutputs
+              RunOrder: 2
+              RoleArn:
+                Fn::If:
+                  - AddCodeBuildResource
+                  - !Sub arn:aws:iam::${BetaAccount}:role/${ProductName}-${BranchName}-cicd-role
+                  - !Ref AWS::NoValue
+        - Name: BuildDockerImage
+          Actions:
+            - Name: CodeBuildDelivery
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+                PrimarySource: SCCheckoutArtifact
+              InputArtifacts:
+                - Name: SCCheckoutArtifact
+                - Name: InfraOutputs
+              RunOrder: 1
+      ArtifactStore:
+        Type: S3
+        Location: { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-build-artifacts-buket-name"}}
+        EncryptionKey:
+          Id:  { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-CMK-arn"}}
+          Type: KMS
+

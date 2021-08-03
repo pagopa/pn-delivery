@@ -1,0 +1,303 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy PN-delivery and ensure infrastructure
+
+Parameters:
+  EnvName:
+    Type: String
+    Description: Nome dell'ambiente destinazione
+  EnvNumber:
+    Type: String
+    Description: Second byte from the left for VPC CIDR
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Join [ '', [ !Ref EnvName, DeliveryCluster ] ]
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    # Makes sure the log group is created before it is used.
+    DependsOn: LogGroup
+    Properties:
+      # Name of the task definition. Subsequent versions of the task definition are grouped together under this name.
+      Family: !Join [ '', [ !Ref EnvName, DeliveryTaskDefinition ] ]
+      # awsvpc is required for Fargate
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
+      # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
+      # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
+      # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
+      # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
+      Cpu: 1024
+      # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
+      # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
+      # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
+      # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
+      # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
+      Memory: 2GB
+      # A role needed by ECS.
+      # "The ARN of the task execution role that containers in this task can assume. All containers in this task are granted the permissions that are specified in this role."
+      # "There is an optional task execution IAM role that you can specify with Fargate to allow your Fargate tasks to make API calls to Amazon ECR."
+      ExecutionRoleArn: !Ref ExecutionRole
+      # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that grants containers in the task permission to call AWS APIs on your behalf."
+      TaskRoleArn: !Ref TaskRole
+      ContainerDefinitions:
+        - Name: !Sub '${EnvName}-delivery'
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/pn-delivery:latest'
+          PortMappings:
+            - ContainerPort: 8080
+          # Send logs to CloudWatch Logs
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroup
+              awslogs-stream-prefix: ecs
+  # A role needed by ECS
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join [ '', [ !Ref EnvName, DeliveryExecutionRole ] ]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+  # A role for the containers
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join [ '', [ !Ref EnvName, DeliveryTaskRole ] ]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+  InstancePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${EnvName}-inst-delivery-policy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - ecr:GetAuthorizationToken
+              - ecr:BatchCheckLayerAvailability
+              - ecr:BatchGetImage
+              - ecr:DescribeRepositories
+              - ecr:GetDownloadUrlForLayer
+              - sqs:*
+            Resource: "*"
+      Roles:
+        - !Ref TaskRole
+  # A role needed for auto scaling
+  AutoScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join [ '', [ !Ref EnvName, DeliveryAutoScalingRole ] ]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole'
+  ContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Join [ '', [ !Ref EnvName, DeliveryContSecGrp ] ]
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+          #SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Join [ '', [ !Ref EnvName, DeliveryLbSecGrp ] ]
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+  DeliveryService:
+    Type: AWS::ECS::Service
+    # This dependency is needed so that the load balancer is setup correctly in time
+    #DependsOn:
+    #  - ListenerHTTP
+    Properties:
+      #ServiceName: !Sub '${EnvName}-delivery'
+      Cluster: !Ref Cluster
+      TaskDefinition: !Ref TaskDefinition
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+      DesiredCount: 2
+      # This may need to be adjusted if the container takes a while to start up
+      #HealthCheckGracePeriodSeconds: 30
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          # change to DISABLED if you're using private subnets that have access to a NAT gateway
+          AssignPublicIp: ENABLED
+          Subnets:
+            - !ImportValue { "Fn::Sub": '${EnvName}-subnet1' }
+            - !ImportValue { "Fn::Sub": '${EnvName}-subnet2' }
+          SecurityGroups:
+            - !Ref ContainerSecurityGroup
+      LoadBalancers:
+        - ContainerName: !Sub '${EnvName}-delivery'
+          ContainerPort: 8080
+          TargetGroupArn: !Ref DeliveryTargetGroup
+        - ContainerName: !Sub '${EnvName}-delivery'
+          ContainerPort: 8080
+          TargetGroupArn: !Ref DeliveryNetTargetGroup
+
+  DeliveryTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      #Name: !Sub ${EnvName}-delivery-tgrp
+      TargetType: ip
+      Protocol: HTTP
+      Port: 8080
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /
+      HealthCheckPort: 8080
+      HealthCheckProtocol: HTTP
+      Matcher:
+        HttpCode: 303
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60 # default is 300
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
+  DeliveryLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !ImportValue
+        "Fn::Sub": '${EnvName}-alb-id'
+      Protocol: HTTP
+      Port: 8080
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref DeliveryTargetGroup
+          Order: 1
+
+  DeliveryNetTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      #Name: !Sub ${EnvName}-delivery-nlb-tg
+      TargetType: ip
+      Protocol: TCP
+      Port: 8080
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60 # default is 300
+      VpcId: !ImportValue
+        "Fn::Sub": '${EnvName}-vpc-id'
+  DeliveryNetLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !ImportValue
+        "Fn::Sub": '${EnvName}-nlb-id'
+      Protocol: TCP
+      Port: 8080
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref DeliveryNetTargetGroup
+          Order: 1
+
+        #TargetGroup:
+        #  Type: AWS::ElasticLoadBalancingV2::TargetGroup
+        #  Properties:
+        #    HealthCheckIntervalSeconds: 10
+        # will look for a 200 status code by default unless specified otherwise
+        #    HealthCheckPath: !Ref HealthCheckPath
+        #    HealthCheckTimeoutSeconds: 5
+        #    UnhealthyThresholdCount: 2
+        #    HealthyThresholdCount: 2
+        #    Name: !Join ['', [!Ref ServiceName, TargetGroup]]
+        #    Port: !Ref ContainerPort
+        #    Protocol: HTTP
+        #    TargetGroupAttributes:
+        #      - Key: deregistration_delay.timeout_seconds
+        #        Value: 60 # default is 300
+        #    TargetType: ip
+        #    VpcId: !Ref VPC
+        #ListenerHTTP:
+        #  Type: AWS::ElasticLoadBalancingV2::Listener
+        #  Properties:
+        #    DefaultActions:
+        #      - TargetGroupArn: !Ref TargetGroup
+        #        Type: forward
+        #    LoadBalancerArn: !Ref LoadBalancer
+        #    Port: !Ref LoadBalancerPort
+        #    Protocol: HTTP
+        #Certificates:
+        #  - CertificateArn: !Ref Certificate
+        #LoadBalancer:
+        #  Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+        #  Properties:
+        #    LoadBalancerAttributes:
+        # this is the default, but is specified here in case it needs to be changed
+      #      - Key: idle_timeout.timeout_seconds
+      #        Value: 60
+      #Name: !Join ['', [!Ref ServiceName, LoadBalancer]]
+      # "internal" is also an option
+  #    Scheme: internal
+  #    SecurityGroups:
+  #      - !Ref LoadBalancerSecurityGroup
+  #    Subnets:
+  #      - !Ref SubnetA
+  #      - !Ref SubnetB
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join [ '', [ /ecs/, !Ref EnvName, Delivery ] ]
+      RetentionInDays: 3
+  AutoScalingTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MinCapacity: 2
+      MaxCapacity: 4
+      ResourceId: !Join [ '/', [ service, !Ref Cluster, !GetAtt DeliveryService.Name ] ]
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+      # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that allows Application Auto Scaling to modify your scalable target."
+      RoleARN: !GetAtt AutoScalingRole.Arn
+  AutoScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Join [ '', [ !Ref EnvName, DeliveryAutoScalingPolicy ] ]
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref AutoScalingTarget
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ECSServiceAverageCPUUtilization
+        ScaleInCooldown: 10
+        ScaleOutCooldown: 10
+        # Keep things at or lower than 50% CPU utilization, for example
+        TargetValue: 60
+
+Outputs:
+  CluserArn:
+    Description: ARN del cluster fargate
+    Value: !Sub '${Cluster.Arn}'
+  ServiceName:
+    Description: Nome del servizio di cui fare deploy
+    Value: !Sub '${DeliveryService.Name}'
+

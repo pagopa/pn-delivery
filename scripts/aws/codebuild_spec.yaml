@@ -1,0 +1,27 @@
+version: 0.2
+  phases:
+    pre_build:
+      commands:
+      - echo "Define variables"
+      - "export ARTIFACT_ID=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout )"
+      - "export VERSION=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout )"
+      - "export ECR_URL=$ECR_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com"
+      - echo "Build $ARTIFACT_ID version $VERSION to $ECR_URL"
+      - echo Logging in to Amazon ECR...
+      - "export JQ_EXP='{ \"AWS_ACCESS_KEY_ID\": .Credentials.AccessKeyId, \"AWS_SECRET_ACCESS_KEY\": .Credentials.SecretAccessKey, \"AWS_SESSION_TOKEN\": .Credentials.SessionToken } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
+      - "$( aws sts assume-role --role-arn arn:aws:iam::$ECR_ACCOUNT_ID:role/pn-main-cicd-role --role-session-name pn-main-beta-deploy-session | jq -r \"$JQ_EXP\" )"
+      - aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin $ECR_URL
+    build:
+      commands:
+      - ./mvnw -DskipITs spring-boot:build-image
+      - docker tag $ARTIFACT_ID:$VERSION $ECR_URL/$ARTIFACT_ID:$VERSION
+      - docker tag $ARTIFACT_ID:$VERSION $ECR_URL/$ARTIFACT_ID:latest
+      - docker image ls
+    post_build:
+      commands:
+      - echo Build completed on `date`
+      - echo Create repository $ARTIFACT_ID
+      - aws ecr describe-repositories --repository-names $ARTIFACT_ID || aws ecr create-repository --repository-name $ARTIFACT_ID
+      - echo Pushing the Docker image...
+      - docker push $ECR_URL/$ARTIFACT_ID:$VERSION
+      - docker push $ECR_URL/$ARTIFACT_ID:latest
