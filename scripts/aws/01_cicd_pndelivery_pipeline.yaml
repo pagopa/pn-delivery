@@ -7,7 +7,7 @@
 #  limitations under the License.
 
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CodePipeline for the Sample Lambda Function
+Description: CodePipeline for pn-delivery
 Parameters:
   ProductName:
     Description: Name of the Project
@@ -168,7 +168,7 @@ Resources:
                   - "export VERSION=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout )"
                   - "export ECR_URL=$ECR_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com"
                   - echo "Build $ARTIFACT_ID version $VERSION to $ECR_URL"
-                  - echo Logging in to Amazon ECR...
+                  - echo Logging in to Amazon ECR ...
                   - "export JQ_EXP='{ \"AWS_ACCESS_KEY_ID\": .Credentials.AccessKeyId, \"AWS_SECRET_ACCESS_KEY\": .Credentials.SecretAccessKey, \"AWS_SESSION_TOKEN\": .Credentials.SessionToken } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
                   - "$( aws sts assume-role --role-arn arn:aws:iam::$ECR_ACCOUNT_ID:role/pn-main-cicd-role --role-session-name pn-main-beta-deploy-session | jq -r \"$JQ_EXP\" )"
                   - aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin $ECR_URL

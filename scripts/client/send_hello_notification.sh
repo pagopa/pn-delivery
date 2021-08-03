@@ -1,5 +1,5 @@
-paId="abc"
-paNotificationId="prot1-APIGW"
+paId="pa_id"
+paNotificationId=$1
 #baseUrl='http://3.67.133.88:8080'
 baseUrl='https://h4hcl6trzf.execute-api.eu-central-1.amazonaws.com/beta/'
 apiKeySecret=zewBLfImEB3PEuwwwoxxk8DxJ1TkZxRD7ZpZ5qb4

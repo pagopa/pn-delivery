@@ -22,7 +22,8 @@ public class FakeDeliveryDAO implements DeliveryDAO {
      */
     public CompletableFuture<Void> addNotification(Notification notification ) {
         return CompletableFuture.runAsync(() ->
-            log.info("Ricevuta notifica con IUN = {}", notification.getIun())
+            log.info("Ricevuta notifica con IUN = {} e numero protocollo = {}",
+                                                      notification.getIun(), notification.getPaNotificationId() )
         );
     }
 }
