@@ -157,7 +157,6 @@ Resources:
       ServiceRole: !GetAtt CodeBuildRole.Arn
       Source: 
         Type: CODEPIPELINE
-        #BuildSpec: scripts/aws/codebuild_spec.yaml
         BuildSpec: |
           version: 0.2
           phases:
