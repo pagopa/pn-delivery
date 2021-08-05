@@ -10,6 +10,22 @@ Parameters:
     Description: Second byte from the left for VPC CIDR
 
 Resources:
+  AttachmentsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      # No default retentin neither legal hold.
+      # Can define retention period or legal hold when upload new object or version
+      ObjectLockEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
@@ -79,8 +95,9 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
             Action: 'sts:AssumeRole'
-  InstancePolicy:
+  TaskPolicy:
     Type: AWS::IAM::Policy
+    DependsOn: AttachmentsBucket
     Properties:
       PolicyName: !Sub ${EnvName}-inst-delivery-policy
       PolicyDocument:
@@ -88,13 +105,40 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - ecr:GetAuthorizationToken
-              - ecr:BatchCheckLayerAvailability
-              - ecr:BatchGetImage
-              - ecr:DescribeRepositories
-              - ecr:GetDownloadUrlForLayer
-              - sqs:*
-            Resource: "*"
+              #- ecr:GetAuthorizationToken
+              #- ecr:BatchCheckLayerAvailability
+              #- ecr:BatchGetImage
+              #- ecr:DescribeRepositories
+              #- ecr:GetDownloadUrlForLayer
+              - sqs:ChangeMessageVisibility
+              - sqs:ChangeMessageVisibilityBatch
+              - sqs:DeleteMessage
+              - sqs:DeleteMessageBatch
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+              - sqs:SendMessage
+              - sqs:SendMessageBatch
+            Resource:
+              - !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-arn' }
+              - !ImportValue { "Fn::Sub": '${EnvName}-extchannel-input-queue-arn' }
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:GetObjectAcl
+              - s3:GetObjectLegalHold
+              - s3:GetObjectLockConfiguration
+              - s3:GetObjectRetention
+              - s3:GetObjectTagging
+              - s3:HeadBucket
+              - s3:HeadObject
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectLockConfiguration
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+            Resource:
+              - !Sub '${AttachmentsBucket.Arn}'
       Roles:
         - !Ref TaskRole
   # A role needed for auto scaling
@@ -221,49 +265,6 @@ Resources:
           TargetGroupArn: !Ref DeliveryNetTargetGroup
           Order: 1
 
-        #TargetGroup:
-        #  Type: AWS::ElasticLoadBalancingV2::TargetGroup
-        #  Properties:
-        #    HealthCheckIntervalSeconds: 10
-        # will look for a 200 status code by default unless specified otherwise
-        #    HealthCheckPath: !Ref HealthCheckPath
-        #    HealthCheckTimeoutSeconds: 5
-        #    UnhealthyThresholdCount: 2
-        #    HealthyThresholdCount: 2
-        #    Name: !Join ['', [!Ref ServiceName, TargetGroup]]
-        #    Port: !Ref ContainerPort
-        #    Protocol: HTTP
-        #    TargetGroupAttributes:
-        #      - Key: deregistration_delay.timeout_seconds
-        #        Value: 60 # default is 300
-        #    TargetType: ip
-        #    VpcId: !Ref VPC
-        #ListenerHTTP:
-        #  Type: AWS::ElasticLoadBalancingV2::Listener
-        #  Properties:
-        #    DefaultActions:
-        #      - TargetGroupArn: !Ref TargetGroup
-        #        Type: forward
-        #    LoadBalancerArn: !Ref LoadBalancer
-        #    Port: !Ref LoadBalancerPort
-        #    Protocol: HTTP
-        #Certificates:
-        #  - CertificateArn: !Ref Certificate
-        #LoadBalancer:
-        #  Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-        #  Properties:
-        #    LoadBalancerAttributes:
-        # this is the default, but is specified here in case it needs to be changed
-      #      - Key: idle_timeout.timeout_seconds
-      #        Value: 60
-      #Name: !Join ['', [!Ref ServiceName, LoadBalancer]]
-      # "internal" is also an option
-  #    Scheme: internal
-  #    SecurityGroups:
-  #      - !Ref LoadBalancerSecurityGroup
-  #    Subnets:
-  #      - !Ref SubnetA
-  #      - !Ref SubnetB
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
