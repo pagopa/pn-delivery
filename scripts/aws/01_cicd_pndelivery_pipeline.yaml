@@ -244,7 +244,7 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 StackName: !Sub ${ProductName}-${BranchName}-delivery-rt
                 TemplatePath: !Sub SCCheckoutArtifact::scripts/aws/cloudformation-infra.yaml
-                TemplateConfiguration: !Sub SCCheckoutArtifact::scripts/aws/beta-cfg.json
+                TemplateConfiguration: !Sub SCCheckoutArtifact::scripts/aws/${ProductName}-${BranchName}-beta-cfg.json
                 OutputFileName: InfrastructureOutputs.json
                 Capabilities: CAPABILITY_NAMED_IAM
                 RoleArn:
