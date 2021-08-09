@@ -17,6 +17,10 @@ Parameters:
     Description: Name of the Project branch
     Type: String
     Default: main
+  GitBranchName:
+    Description: Name of the Project branch on git
+    Type: String
+    Default: main
   DeliveryRepoName:
     Description: Name of the Github Repository infra
     Type: String
@@ -218,7 +222,7 @@ Resources:
               Configuration:
                 ConnectionArn: { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-github-connection"}}
                 FullRepositoryId: !Ref DeliveryRepoName
-                BranchName: 'release/0.0.1-Poc_M1'
+                BranchName: !Ref GitBranchName
               OutputArtifacts:
                 - Name: SCCheckoutArtifact
               RunOrder: 1
