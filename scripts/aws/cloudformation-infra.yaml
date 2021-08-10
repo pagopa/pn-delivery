@@ -8,6 +8,9 @@ Parameters:
   EnvNumber:
     Type: String
     Description: Second byte from the left for VPC CIDR
+  KeyspaceName:
+    Type: String
+    Description: cassandra keyspace name
 
 Resources:
   AttachmentsBucket:
@@ -297,7 +300,7 @@ Resources:
   Keyspace:
     Type: AWS::Cassandra::Keyspace
     Properties:
-      KeyspaceName: !Sub '${EnvName}-delivery-keyspace'
+      KeyspaceName: !Ref KeyspaceName
 
   NotificationTable:
     Type: AWS::Cassandra::Table
