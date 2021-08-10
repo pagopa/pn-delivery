@@ -5,6 +5,6 @@ import it.pagopa.pn.commons.abstractions.MomProducer;
 
 public interface NewNotificationProducer extends MomProducer<NewNotificationEvent> {
 
-    String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.NotificationProducer";
+    String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-producer";
 
 }

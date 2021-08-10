@@ -2,13 +2,15 @@ package it.pagopa.pn.commons.configs.aws;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsClientBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
-//@Configuration
+@Configuration
 public class AwsServicesClientsConfig {
 
     private final AwsConfigs props;
@@ -24,6 +26,11 @@ public class AwsServicesClientsConfig {
                         configureBuilder( DynamoDbAsyncClient.builder() )
                     )
                 .build();
+    }
+
+    @Bean
+    public SqsClient sqsClient() {
+        return configureBuilder( SqsClient.builder() );
     }
 
     private <C> C configureBuilder(AwsClientBuilder<?, C> builder) {

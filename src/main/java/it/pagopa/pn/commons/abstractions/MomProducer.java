@@ -1,9 +1,11 @@
 package it.pagopa.pn.commons.abstractions;
 
+import it.pagopa.pn.api.dto.events.GenericEvent;
+
 import java.util.Collections;
 import java.util.List;
 
-public interface MomProducer<T> {
+public interface MomProducer<T extends GenericEvent> {
 
     void push( List<T> messages );
 

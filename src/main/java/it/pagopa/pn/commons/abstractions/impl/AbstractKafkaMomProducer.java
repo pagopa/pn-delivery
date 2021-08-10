@@ -3,6 +3,7 @@ package it.pagopa.pn.commons.abstractions.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import it.pagopa.pn.api.dto.events.GenericEvent;
 import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.configs.InheritedConditionalOnProperty;
 import it.pagopa.pn.commons.configs.RuntimeModes;
@@ -10,7 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.List;
 
-public abstract class AbstractKafkaMomProducer<T> implements MomProducer<T> {
+public abstract class AbstractKafkaMomProducer<T extends GenericEvent> implements MomProducer<T> {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectWriter objectWriter;
