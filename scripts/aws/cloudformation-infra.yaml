@@ -61,7 +61,7 @@ Resources:
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
         - Name: !Sub '${EnvName}-delivery'
-          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/pn-delivery:latest'
+          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EnvName}-pn-delivery:latest'
           PortMappings:
             - ContainerPort: 8080
           # Send logs to CloudWatch Logs

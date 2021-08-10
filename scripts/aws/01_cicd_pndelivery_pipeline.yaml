@@ -29,6 +29,10 @@ Parameters:
     Description: AWS AccountNumber for test
     Type: Number
     Default: 558518206506
+  CodeArtifactDeploymentStackName:
+    Description: Used for maven repository access
+    Type: String
+    Default: pn-main-01
   CrossAccountCondition:
     Description: Conditionally creates the resources for cross account access
     Type: String
@@ -128,6 +132,9 @@ Resources:
               - logs:PutLogEvents
               - codebuild:BatchGetBuilds
               - codebuild:StartBuild
+              - ecr:GetAuthorizationToken
+              - codeartifact:*
+              - sts:GetServiceBearerToken
             Resource:
               - "*"
           -
@@ -166,6 +173,11 @@ Resources:
           phases:
             pre_build:
               commands:
+                - echo "Maven settings"
+                - echo $SETTINGS > maven-deploy-settings.xml
+                - cat maven-deploy-settings.xml
+                - export REPOSITORY_TOKEN=$( aws codeartifact get-authorization-token --domain $CODEARTIFACT_DOMAIN_NAME --query authorizationToken --output text )
+                - echo $REPOSITORY_TOKEN
                 - echo "Define variables"
                 - "export ARTIFACT_ID=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout )"
                 - "export VERSION=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout )"
@@ -177,16 +189,16 @@ Resources:
                 - aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin $ECR_URL
             build:
               commands:
-                - ./mvnw -DskipITs spring-boot:build-image
-                - docker tag $ARTIFACT_ID:$VERSION $ECR_URL/$ARTIFACT_ID:$VERSION
-                - docker tag $ARTIFACT_ID:$VERSION $ECR_URL/$ARTIFACT_ID:latest
+                - ./mvnw --settings maven-deploy-settings.xml -DskipITs spring-boot:build-image
+                - docker tag $ARTIFACT_ID:$VERSION $ECR_URL/$DOCKER_PREFIX-$ARTIFACT_ID:$VERSION
+                - docker tag $ARTIFACT_ID:$VERSION $ECR_URL/$DOCKER_PREFIX-$ARTIFACT_ID:latest
                 - docker image ls
                 - echo Build completed on `date`
                 - echo Create repository $ARTIFACT_ID
-                - aws ecr describe-repositories --repository-names $ARTIFACT_ID || aws ecr create-repository --repository-name $ARTIFACT_ID
+                - aws ecr describe-repositories --repository-names $DOCKER_PREFIX-$ARTIFACT_ID || aws ecr create-repository --repository-name $DOCKER_PREFIX-$ARTIFACT_ID
                 - echo Pushing the Docker image...
-                - docker push $ECR_URL/$ARTIFACT_ID:$VERSION
-                - docker push $ECR_URL/$ARTIFACT_ID:latest
+                - docker push $ECR_URL/$DOCKER_PREFIX-$ARTIFACT_ID:$VERSION
+                - docker push $ECR_URL/$DOCKER_PREFIX-$ARTIFACT_ID:latest
                 - echo "Deploy to ECS"
                 - "export JQ_EXP='{ \"CLUSTER_ARN\": .CluserArn, \"SERVICE_NAME\": .ServiceName } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
                 - "$( cat $CODEBUILD_SRC_DIR_InfraOutputs/InfrastructureOutputs.json | jq -r \"$JQ_EXP\" )"
@@ -204,6 +216,62 @@ Resources:
             Value: !Ref AWS::Region
           - Name: ECR_ACCOUNT_ID
             Value: !Ref BetaAccount
+          - Name: DOCKER_PREFIX
+            Value: !Sub '${ProductName}-${BranchName}'
+          - Name: CODEARTIFACT_DOMAIN_NAME
+            Type: PLAINTEXT 
+            Value:
+              Fn::ImportValue: !Sub "${CodeArtifactDeploymentStackName}-CodeArtifactDomainName"
+          - Name: CODEARTIFACT_DOMAIN_FULL
+            Type: PLAINTEXT 
+            Value:
+              Fn::Join:
+                - ''
+                - - Fn::ImportValue: !Sub "${CodeArtifactDeploymentStackName}-CodeArtifactDomainName"
+                  - !Sub '-${AWS::AccountId}.d.codeartifact.${AWS::Region}.${AWS::URLSuffix}'
+          - Name: CODEARTIFACT_REPO 
+            Type: PLAINTEXT 
+            Value:
+              Fn::ImportValue: !Sub "${CodeArtifactDeploymentStackName}-CodeArtifactRepositoryName" 
+          - Name: SETTINGS
+            Type: PLAINTEXT
+            Value: |
+              <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                        http://maven.apache.org/xsd/settings-1.0.0.xsd">
+                <profiles>
+                  <profile>
+                    <id>pn-codeartifact</id>
+                    <activation>
+                      <activeByDefault>true</activeByDefault>
+                    </activation>
+                    <repositories>
+                      <repository>
+                        <id>pn-codeartifact</id>
+                        <url>https://${env.CODEARTIFACT_DOMAIN_FULL}/maven/${env.CODEARTIFACT_REPO}/</url>
+                      </repository>
+                    </repositories>
+                  </profile>
+                </profiles>
+
+                <servers>
+                  <server>
+                    <id>pn-codeartifact</id>
+                    <username>aws</username>
+                    <password>${env.REPOSITORY_TOKEN}</password>
+                  </server>
+                </servers>
+
+                <mirrors>
+                  <mirror>
+                    <id>pn-codeartifact</id>
+                    <name>pn-codeartifact</name>
+                    <url>https://${env.CODEARTIFACT_DOMAIN_FULL}/maven/${env.CODEARTIFACT_REPO}/</url>
+                    <mirrorOf>*</mirrorOf>
+                  </mirror>
+                </mirrors>  
+              </settings>
 
   PnDeliveryAppPipeline:
     Type: AWS::CodePipeline::Pipeline
