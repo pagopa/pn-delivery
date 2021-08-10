@@ -5,7 +5,7 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 
 public interface NotificationDao {
 
-    public static final String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.DeliveryDao";
+    public static final String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.delivery-dao";
     /**
      * Gestisce anche l' "annullamento" delle notifiche precedenti
      *

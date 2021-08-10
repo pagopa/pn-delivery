@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootApplication(scanBasePackages = {"it.pagopa.pn"})
-@Import({PnAutoConfigurationSelector.class, PnCassandraAutoConfiguration.class})
+@Import({PnAutoConfigurationSelector.class})
 public @interface PnSpringBootApplication {
 }

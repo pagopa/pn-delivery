@@ -293,6 +293,48 @@ Resources:
         ScaleOutCooldown: 10
         # Keep things at or lower than 50% CPU utilization, for example
         TargetValue: 60
+  
+  Keyspace:
+    Type: AWS::Cassandra::Keyspace
+    Properties:
+      KeyspaceName: !Sub '${EnvName}-delivery-keyspace'
+
+  NotificationTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: notification
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: iun
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: cancelledbyiun
+          ColumnType: text
+        - ColumnName: cancellediun
+          ColumnType: text
+        - ColumnName: notificationstatus
+          ColumnType: text
+        - ColumnName: panotificationid
+          ColumnType: text
+        - ColumnName: subject
+          ColumnType: text
+        - ColumnName: senderpaid
+          ColumnType: text
+        - ColumnName: recipientsjson
+          ColumnType: map<text,text>
+        - ColumnName: documentsdigestssha256
+          ColumnType: list<text>
+        - ColumnName: iuv
+          ColumnType: text
+        - ColumnName: notificationfeepolicy
+          ColumnType: text
+        - ColumnName: f24flatratedigestsha256
+          ColumnType: text
+        - ColumnName: f24digitaldigestsha256
+          ColumnType: text
+        - ColumnName: f24analogdigestsha256
+          ColumnType: text
 
 Outputs:
   CluserArn:

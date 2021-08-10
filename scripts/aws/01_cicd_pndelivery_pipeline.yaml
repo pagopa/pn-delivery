@@ -132,7 +132,22 @@ Resources:
               - logs:PutLogEvents
               - codebuild:BatchGetBuilds
               - codebuild:StartBuild
-              - ecr:GetAuthorizationToken
+              - ecr:BatchCheckLayerAvailability
+              - ecr:BatchGetImage
+              - ecr:CompleteLayerUpload 
+              - ecr:CreateRepository 
+              - ecr:DescribeImages 
+              - ecr:DescribeRegistry 
+              - ecr:DescribeRepositories 
+              - ecr:GetAuthorizationToken 
+              - ecr:GetDownloadUrlForLayer 
+              - ecr:InitiateLayerUpload 
+              - ecr:ListImages 
+              - ecr:ListTagsForResource 
+              - ecr:PutImage 
+              - ecr:TagResource 
+              - ecr:UntagResource 
+              - ecr:UploadLayerPart 
               - codeartifact:*
               - sts:GetServiceBearerToken
             Resource:
@@ -177,7 +192,6 @@ Resources:
                 - echo $SETTINGS > maven-deploy-settings.xml
                 - cat maven-deploy-settings.xml
                 - export REPOSITORY_TOKEN=$( aws codeartifact get-authorization-token --domain $CODEARTIFACT_DOMAIN_NAME --query authorizationToken --output text )
-                - echo $REPOSITORY_TOKEN
                 - echo "Define variables"
                 - "export ARTIFACT_ID=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout )"
                 - "export VERSION=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout )"
@@ -185,7 +199,7 @@ Resources:
                 - echo "Build $ARTIFACT_ID version $VERSION to $ECR_URL"
                 - echo Logging in to Amazon ECR ...
                 - "export JQ_EXP='{ \"AWS_ACCESS_KEY_ID\": .Credentials.AccessKeyId, \"AWS_SECRET_ACCESS_KEY\": .Credentials.SecretAccessKey, \"AWS_SESSION_TOKEN\": .Credentials.SessionToken } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
-                - "$( aws sts assume-role --role-arn arn:aws:iam::$ECR_ACCOUNT_ID:role/pn-main-cicd-role --role-session-name pn-main-beta-deploy-session | jq -r \"$JQ_EXP\" )"
+                - "$( aws sts assume-role --role-arn arn:aws:iam::$ECR_ACCOUNT_ID:role/$DOCKER_PREFIX-cicd-role --role-session-name $DOCKER_PREFIX-beta-deploy-session | jq -r \"$JQ_EXP\" )"
                 - aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin $ECR_URL
             build:
               commands:
@@ -199,11 +213,6 @@ Resources:
                 - echo Pushing the Docker image...
                 - docker push $ECR_URL/$DOCKER_PREFIX-$ARTIFACT_ID:$VERSION
                 - docker push $ECR_URL/$DOCKER_PREFIX-$ARTIFACT_ID:latest
-                - echo "Deploy to ECS"
-                - "export JQ_EXP='{ \"CLUSTER_ARN\": .CluserArn, \"SERVICE_NAME\": .ServiceName } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
-                - "$( cat $CODEBUILD_SRC_DIR_InfraOutputs/InfrastructureOutputs.json | jq -r \"$JQ_EXP\" )"
-                - aws ecs update-service --cluster "$CLUSTER_ARN" --service "$SERVICE_NAME" --force-new-deployment
-
       Artifacts:
         Type: CODEPIPELINE
       Environment:
@@ -272,6 +281,31 @@ Resources:
                   </mirror>
                 </mirrors>  
               </settings>
+  
+                
+  CodeBuildProjectDeploy:
+    Type: 'AWS::CodeBuild::Project'
+    Properties:
+      Name: !Sub ${ProductName}-${BranchName}-delivery-deploy
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Source: 
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            build:
+              commands:
+                - echo "Deploy to ECS"
+                - "export JQ_EXP='{ \"CLUSTER_ARN\": .CluserArn, \"SERVICE_NAME\": .ServiceName } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
+                - "$( cat $CODEBUILD_SRC_DIR_InfraOutputs/InfrastructureOutputs.json | jq -r \"$JQ_EXP\" )"
+                - echo aws ecs update-service --cluster "$CLUSTER_ARN" --service "$SERVICE_NAME" --force-new-deployment
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Type: LINUX_CONTAINER
+        Image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+      
 
   PnDeliveryAppPipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -300,6 +334,20 @@ Resources:
                   - AddCodeBuildResource
                   - !Sub arn:aws:iam::${AWS::AccountId}:role/${ProductName}-${BranchName}-from-github-to-s3-role
                   - !Ref AWS::NoValue
+        - Name: BuildDockerImage
+          Actions:
+            - Name: CodeBuildDelivery
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+                PrimarySource: SCCheckoutArtifact
+              InputArtifacts:
+                - Name: SCCheckoutArtifact
+              RunOrder: 1
         - Name: DeployToTest
           Actions:
             - Name: UpdateInfra
@@ -324,27 +372,25 @@ Resources:
                 - Name: SCCheckoutArtifact
               OutputArtifacts:
                 - Name: InfraOutputs
-              RunOrder: 2
+              RunOrder: 1
               RoleArn:
                 Fn::If:
                   - AddCodeBuildResource
                   - !Sub arn:aws:iam::${BetaAccount}:role/${ProductName}-${BranchName}-cicd-role
                   - !Ref AWS::NoValue
-        - Name: BuildDockerImage
-          Actions:
-            - Name: CodeBuildDelivery
+            - Name: CodeBuildDeliveryDeploy
               ActionTypeId:
                 Category: Build
                 Owner: AWS
                 Version: 1
                 Provider: CodeBuild
               Configuration:
-                ProjectName: !Ref CodeBuildProject
+                ProjectName: !Ref CodeBuildProjectDeploy
                 PrimarySource: SCCheckoutArtifact
               InputArtifacts:
                 - Name: SCCheckoutArtifact
                 - Name: InfraOutputs
-              RunOrder: 1
+              RunOrder: 2
       ArtifactStore:
         Type: S3
         Location: { "Fn::ImportValue": {"Fn::Sub": "${ProductName}-${BranchName}-build-artifacts-buket-name"}}

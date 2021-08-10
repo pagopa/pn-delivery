@@ -1,5 +1,6 @@
 package it.pagopa.pn.commons.configs;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigurationImportSelector;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
@@ -9,6 +10,7 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import java.util.*;
 
+@Slf4j
 public class PnAutoConfigurationSelector extends AutoConfigurationImportSelector {
 
     private static final String MIDDLEWARE_DEACTIVATION_PREFIX = "pn.middleware.init.";
@@ -16,8 +18,7 @@ public class PnAutoConfigurationSelector extends AutoConfigurationImportSelector
     private static final Map<String, List<String>> EXCLUSIONS_MAP = Map.ofEntries(
             Map.entry( MIDDLEWARE_DEACTIVATION_PREFIX + "cassandra",
                 Arrays.asList(
-                    CassandraAutoConfiguration.class.getName(),
-                    PnCassandraAutoConfiguration.class.getName()
+                    CassandraAutoConfiguration.class.getName()
                 )),
             Map.entry( MIDDLEWARE_DEACTIVATION_PREFIX + "kafka",
                 Collections.singletonList(
@@ -29,10 +30,9 @@ public class PnAutoConfigurationSelector extends AutoConfigurationImportSelector
             CassandraAutoConfiguration.class.getName()
         );
 
-    private static final List<String> NOT_DEVELOPMENT_EXCLUSION = Collections.emptyList();
-    //Collections.singletonList(
-      //      PnCassandraAutoConfiguration.class.getName()
-       //);
+    private static final List<String> NOT_DEVELOPMENT_EXCLUSION = Collections.singletonList(
+            ""//PnCassandraAutoConfiguration.class.getName()
+       );
     public static final String DEVELOPMENT_MODE_PROPERTY = "pn.env.development";
 
 
@@ -49,12 +49,15 @@ public class PnAutoConfigurationSelector extends AutoConfigurationImportSelector
         exclusions.addAll( computeMiddlewareExclusions() );
 
         if( isDevelopmentMode() ) {
+            log.info(" Exclusions: in development mode" );
             exclusions.addAll( DEVELOPMENT_EXCLUSION );
         }
         else {
+            log.info(" Exclusions: NOT development mode" );
             exclusions.addAll( NOT_DEVELOPMENT_EXCLUSION );
         }
 
+        log.info(" Exclusions: {}", exclusions );
         return exclusions;
     }
 
