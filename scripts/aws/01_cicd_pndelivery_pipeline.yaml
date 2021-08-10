@@ -296,16 +296,25 @@ Resources:
             build:
               commands:
                 - echo "Deploy to ECS"
+                - "export JQ_EXP='{ \"AWS_ACCESS_KEY_ID\": .Credentials.AccessKeyId, \"AWS_SECRET_ACCESS_KEY\": .Credentials.SecretAccessKey, \"AWS_SESSION_TOKEN\": .Credentials.SessionToken } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
+                - "$( aws sts assume-role --role-arn arn:aws:iam::$ECR_ACCOUNT_ID:role/$DOCKER_PREFIX-cicd-role --role-session-name $DOCKER_PREFIX-beta-deploy-session | jq -r \"$JQ_EXP\" )"
                 - "export JQ_EXP='{ \"CLUSTER_ARN\": .CluserArn, \"SERVICE_NAME\": .ServiceName } | to_entries | map(\"export \" + .key + \"=\" + .value) | .[]'"
                 - "$( cat $CODEBUILD_SRC_DIR_InfraOutputs/InfrastructureOutputs.json | jq -r \"$JQ_EXP\" )"
-                - echo aws ecs update-service --cluster "$CLUSTER_ARN" --service "$SERVICE_NAME" --force-new-deployment
+                - aws ecs update-service --cluster "$CLUSTER_ARN" --service "$SERVICE_NAME" --force-new-deployment
       Artifacts:
         Type: CODEPIPELINE
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
         Type: LINUX_CONTAINER
         Image: "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
-      
+        EnvironmentVariables:
+          - Name: ECR_REGION
+            Value: !Ref AWS::Region
+          - Name: ECR_ACCOUNT_ID
+            Value: !Ref BetaAccount
+          - Name: DOCKER_PREFIX
+            Value: !Sub '${ProductName}-${BranchName}'
+        
 
   PnDeliveryAppPipeline:
     Type: AWS::CodePipeline::Pipeline

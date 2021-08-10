@@ -1,8 +1,11 @@
 paId="pa_id"
 paNotificationId=$1
 #baseUrl='http://3.67.133.88:8080'
-baseUrl='https://h4hcl6trzf.execute-api.eu-central-1.amazonaws.com/beta/'
-apiKeySecret=zewBLfImEB3PEuwwwoxxk8DxJ1TkZxRD7ZpZ5qb4
+#baseUrl='https://h4hcl6trzf.execute-api.eu-central-1.amazonaws.com/beta/'
+#apiKeySecret=zewBLfImEB3PEuwwwoxxk8DxJ1TkZxRD7ZpZ5qb4
+baseUrl='https://e9t7rm7qkg.execute-api.eu-central-1.amazonaws.com/beta/'
+#baseUrl='http://18.194.140.160:8080'
+apiKeySecret="hlNDsrXXfT9yRfoDv8w9FaVEul3AmonX73sVPHTB"
 
 curl -v -X 'POST' \
   "${baseUrl}/delivery/notifications/sent" \
@@ -17,13 +20,19 @@ curl -v -X 'POST' \
   "recipients": [
     {
       "fc": "string",
+      "denomination": "string",
       "digitalDomicile": {
         "type": "PEC",
         "address": "string"
       },
-      "physicalAddress": [
-        "string"
-      ]
+      "physicalAddress": {
+        "at": "string",
+        "address": "string",
+        "addressDetails": "string",
+        "zip": "string",
+        "municipality": "string",
+        "province": "string"
+      }
     }
   ],
   "documents": [
