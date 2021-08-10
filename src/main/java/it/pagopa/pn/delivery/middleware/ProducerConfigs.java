@@ -9,6 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class ProducerConfigs {
 
-    private String newNotifications;
+    private String newnotifications;
 
 }

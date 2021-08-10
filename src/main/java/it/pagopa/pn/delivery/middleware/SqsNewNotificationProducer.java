@@ -16,7 +16,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 public class SqsNewNotificationProducer extends AbstractSqsMomProducer<NewNotificationEvent> implements NewNotificationProducer {
 
     public SqsNewNotificationProducer(SqsClient sqsClient, ObjectMapper objectMapper, ProducerConfigs cfg ) {
-        super(sqsClient, cfg.getNewNotifications(), objectMapper, NewNotificationEvent.class);
+        super(sqsClient, cfg.getNewnotifications(), objectMapper, NewNotificationEvent.class);
     }
 
 }
