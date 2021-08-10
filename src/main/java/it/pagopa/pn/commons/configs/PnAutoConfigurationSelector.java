@@ -29,9 +29,10 @@ public class PnAutoConfigurationSelector extends AutoConfigurationImportSelector
             CassandraAutoConfiguration.class.getName()
         );
 
-    private static final List<String> NOT_DEVELOPMENT_EXCLUSION = Collections.singletonList(
-            PnCassandraAutoConfiguration.class.getName()
-       );
+    private static final List<String> NOT_DEVELOPMENT_EXCLUSION = Collections.emptyList();
+    //Collections.singletonList(
+      //      PnCassandraAutoConfiguration.class.getName()
+       //);
     public static final String DEVELOPMENT_MODE_PROPERTY = "pn.env.development";
 
 
