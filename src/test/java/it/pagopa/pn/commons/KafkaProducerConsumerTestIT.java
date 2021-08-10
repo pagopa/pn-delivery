@@ -1,9 +1,13 @@
 package it.pagopa.pn.commons;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.api.dto.events.GenericEvent;
+import it.pagopa.pn.api.dto.events.NewNotificationEvent;
+import it.pagopa.pn.api.dto.events.StandardEventHeader;
 import it.pagopa.pn.commons.abstractions.impl.AbstractKafkaMomConsumer;
 import it.pagopa.pn.commons.abstractions.MomConsumer;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.junit.jupiter.api.*;
@@ -16,17 +20,17 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 
-@SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+//@SpringBootTest
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KafkaProducerConsumerTestIT {
 
 	static final String TOPIC_NAME = "KafkaConsumerTest_testTopic";
 	static final String GROUP_NAME = "KafkaConsumerTest_grp1";
 
-	@Autowired
+	//@Autowired
 	private TestKafkaProducer producer;
 
-	@Autowired
+	/*@Autowired
 	private MomConsumer<TestBean> consumer;
 
 
@@ -42,15 +46,16 @@ class KafkaProducerConsumerTestIT {
 	public void test() throws InterruptedException {
 
 		// - Given
-		TestBean bean = TestBean.builder()
-				.name("Donald")
-				.surname("Duck")
-				.age( randomAge() )
-				.build();
+		NewNotificationEvent bean = new NewNotificationEvent( NewNotificationEvent.<StandardEventHeader, NewNotificationEvent.Payload>builder()
+				.header( StandardEventHeader.builder()
+						.build()
+				)
+				.payload(NewNotificationEvent.Payload.builder().paId("paId").build())
+				.build() );
 
 		// - When
 		producer.push( bean );
-		List<TestBean> receivedBeans = consumer.poll( Duration.ofSeconds(10) );
+		List<NewNotificationEvent> receivedBeans = consumer.poll( Duration.ofSeconds(10) );
 
 		// - Then
 		Assertions.assertTrue( receivedBeans.size() > 0, "Ricevuto almeno un messaggio");
@@ -62,17 +67,6 @@ class KafkaProducerConsumerTestIT {
 		return new Random().nextInt( 100);
 	}
 
-
-
-	@Value
-	@Builder( toBuilder = true)
-	@EqualsAndHashCode()
-	public static class TestBean {
-
-		private String name;
-		private String surname;
-		private Integer age;
-
-	}
+	*/
 
 }
