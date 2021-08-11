@@ -66,6 +66,8 @@ Resources:
         - Name: !Sub '${EnvName}-delivery'
           Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EnvName}-pn-delivery:latest'
           Environment:
+            - Name: AWS_REGIONCODE
+              Value: !Ref AWS::Region
             - Name: PN_DELIVERY_TOPICS_NEWNOTIFICATIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
             - Name: AWS_BUCKETNAME
@@ -74,8 +76,6 @@ Resources:
               Value: 3
             - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
               Value: !Sub ${Keyspace}
-            - Name: SPRING_DATA_CASSANDRA_LOCALDATACENTER
-              Value: !Ref AWS::Region
             - Name: SPRING_DATA_CASSANDRA_SSL
               Value: true
             - Name: SPRING_DATA_CASSANDRA_CONTACTPOINTS
