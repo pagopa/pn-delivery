@@ -162,7 +162,7 @@ Resources:
               - cassandra:Modify
               - cassandra:Select
             Resource:
-              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/${Keyspace}/table/*"
+              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
       Roles:
         - !Ref TaskRole
   # A role needed for auto scaling
