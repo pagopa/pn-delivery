@@ -66,8 +66,10 @@ Resources:
         - Name: !Sub '${EnvName}-delivery'
           Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EnvName}-pn-delivery:latest'
           Environment:
-            Name: PN_TOPICS_NEW-notifications
-            Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
+            - Name: PN_DELIVERY_TOPICS_NEWNOTIFICATION
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
+            - Name: AWS_BUCKETNAME
+              Value: !Sub '${AttachmentsBucket}'
           PortMappings:
             - ContainerPort: 8080
           # Send logs to CloudWatch Logs
