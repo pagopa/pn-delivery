@@ -316,7 +316,7 @@ Resources:
   NotificationTable:
     Type: AWS::Cassandra::Table
     Properties:
-      TableName: notifications
+      TableName: notification
       KeyspaceName: !Ref Keyspace
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
