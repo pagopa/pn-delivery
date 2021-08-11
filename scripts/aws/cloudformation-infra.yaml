@@ -349,7 +349,7 @@ Resources:
           ColumnType: map<text, text>
         - ColumnName: documentsdigestssha256
           ColumnType: list<text>
-        - ColumnName: documentsversionIds
+        - ColumnName: documentsversionids
           ColumnType: list<text>
         - ColumnName: iuv
           ColumnType: text
