@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import it.pagopa.pn.api.dto.events.GenericEvent;
 import it.pagopa.pn.commons.abstractions.MomProducer;
-import it.pagopa.pn.commons.configs.InheritedConditionalOnProperty;
-import it.pagopa.pn.commons.configs.RuntimeModes;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.List;

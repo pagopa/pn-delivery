@@ -308,7 +308,7 @@ Resources:
   NotificationTable:
     Type: AWS::Cassandra::Table
     Properties:
-      TableName: notification
+      TableName: notifications
       KeyspaceName: !Ref Keyspace
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
@@ -331,15 +331,23 @@ Resources:
           ColumnType: map<text,text>
         - ColumnName: documentsdigestssha256
           ColumnType: list<text>
+        - ColumnName: documentsVersionIds
+          ColumnType: list<text>
         - ColumnName: iuv
           ColumnType: text
         - ColumnName: notificationfeepolicy
           ColumnType: text
         - ColumnName: f24flatratedigestsha256
           ColumnType: text
+        - ColumnName: f24flatrateversionid
+          ColumnType: text
         - ColumnName: f24digitaldigestsha256
           ColumnType: text
+        - ColumnName: f24digitalversionid
+          ColumnType: text
         - ColumnName: f24analogdigestsha256
+          ColumnType: text
+        - ColumnName: f24analogversionid
           ColumnType: text
 
 Outputs:

@@ -1,6 +1,7 @@
 package it.pagopa.pn.commons.configs.aws;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
@@ -8,9 +9,13 @@ import software.amazon.awssdk.awscore.client.builder.AwsClientBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
+import java.net.URI;
+
 @Configuration
+@ConditionalOnProperty( name = "pn.middleware.init.aws", havingValue = "true")
 public class AwsServicesClientsConfig {
 
     private final AwsConfigs props;
@@ -33,6 +38,12 @@ public class AwsServicesClientsConfig {
         return configureBuilder( SqsClient.builder() );
     }
 
+    @Bean
+    public S3Client s3Client() {
+        return configureBuilder( S3Client.builder() );
+    }
+
+
     private <C> C configureBuilder(AwsClientBuilder<?, C> builder) {
         if( props != null ) {
 
@@ -45,6 +56,12 @@ public class AwsServicesClientsConfig {
             if( StringUtils.isNotBlank( regionCode )) {
                 builder.region( Region.of( regionCode ));
             }
+
+            String endpointUrl = props.getEndpointUrl();
+            if( StringUtils.isNotBlank( endpointUrl )) {
+                builder.endpointOverride( URI.create( endpointUrl ));
+            }
+
         }
 
         return builder.build();

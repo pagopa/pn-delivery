@@ -47,6 +47,7 @@ public class DtoToEntityMapper {
                 .senderPaId( dto.getSender().getPaId() )
                 .recipientsJson( recipientList2json( dto.getRecipients() ))
                 .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
+                .documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
             ;
 
 
@@ -63,6 +64,12 @@ public class DtoToEntityMapper {
                 .collect(Collectors.toList());
     }
 
+    private List<String> listDocumentsVersionIds(List<NotificationAttachment> documents) {
+        return documents.stream()
+                .map( doc -> doc.getSavedVersionId() )
+                .collect(Collectors.toList());
+    }
+
     private void fillBuilderWithPaymentInfo(NotificationEntity.NotificationEntityBuilder builder, NotificationPaymentInfo paymentInfo) {
         if( paymentInfo != null ) {
             builder
@@ -73,17 +80,23 @@ public class DtoToEntityMapper {
 
                 NotificationAttachment flatRateF24 = paymentInfo.getF24().getFlatRate();
                 if( flatRateF24 != null ) {
-                    builder.f24FlatRateDigestSha256( flatRateF24.getDigests().getSha256() );
+                    builder
+                            .f24FlatRateDigestSha256( flatRateF24.getDigests().getSha256() )
+                            .f24FlatRateVersionId( flatRateF24.getSavedVersionId() );
                 }
 
                 NotificationAttachment digitalF24 = paymentInfo.getF24().getDigital();
                 if( digitalF24 != null ) {
-                    builder.f24DigitalDigestSha256( digitalF24.getDigests().getSha256() );
+                    builder
+                            .f24DigitalDigestSha256( digitalF24.getDigests().getSha256() )
+                            .f24DigitalVersionId( digitalF24.getSavedVersionId() );
                 }
 
                 NotificationAttachment analogF24 = paymentInfo.getF24().getAnalog();
                 if( analogF24 != null ) {
-                    builder.f24AnalogDigestSha256( analogF24.getDigests().getSha256() );
+                    builder
+                            .f24AnalogDigestSha256( analogF24.getDigests().getSha256() )
+                            .f24DigitalVersionId(analogF24.getSavedVersionId() );
                 }
             }
         }

@@ -12,7 +12,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-@Table("Notification")
+@Table("notifications")
 @Data
 @Builder
 public class NotificationEntity {
@@ -32,7 +32,9 @@ public class NotificationEntity {
 
     private Map<String,String> recipientsJson;
 
-    private List<String> documentsDigestsSha256 ;
+    private List<String> documentsDigestsSha256;
+
+    private List<String> documentsVersionIds;
 
     private String iuv;
 
@@ -40,8 +42,14 @@ public class NotificationEntity {
 
     private String f24FlatRateDigestSha256;
 
+    private String f24FlatRateVersionId;
+
     private String f24DigitalDigestSha256;
 
+    private String f24DigitalVersionId;
+
     private String f24AnalogDigestSha256;
+
+    private String f24AnalogVersionId;
 
 }

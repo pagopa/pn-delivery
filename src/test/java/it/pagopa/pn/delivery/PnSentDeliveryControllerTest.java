@@ -1,24 +1,15 @@
 package it.pagopa.pn.delivery;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static it.pagopa.pn.delivery.NotificationDtoUtils.buildNotification;
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.delivery.model.notification.cassandra.NotificationEntity;
-import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import it.pagopa.pn.delivery.rest.PnSentDeliveryController;
 import reactor.core.publisher.Mono;
 
 //@WebFluxTest(PnSentDeliveryController.class)
@@ -32,7 +23,7 @@ class PnSentDeliveryControllerTest {
     WebTestClient webTestClient;
 	
 	@MockBean
-	private DeliveryService deliveryService;
+	private NotificationReceiverService deliveryService;
 	
 	//@Test
 	void testSend_post() {

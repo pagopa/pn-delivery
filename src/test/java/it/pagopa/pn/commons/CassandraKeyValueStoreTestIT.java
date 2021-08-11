@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.cassandra.core.mapping.Table;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
 @SpringBootTest()
+@ActiveProfiles("test")
 class CassandraKeyValueStoreTestIT {
 
 	public static final String BEAN_ID = CassandraKeyValueStoreTestIT.class.getSimpleName() + "_ID1";

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.NewNotificationEvent;
 import it.pagopa.pn.commons.abstractions.impl.AbstractKafkaMomProducer;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -15,8 +16,8 @@ public class KafkaNewNotificationProducer extends AbstractKafkaMomProducer<NewNo
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public KafkaNewNotificationProducer(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper, ProducerConfigs cfg ) {
-        super(kafkaTemplate, cfg.getNewnotifications(), objectMapper, NewNotificationEvent.class);
+    public KafkaNewNotificationProducer(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper, PnDeliveryConfigs cfg ) {
+        super(kafkaTemplate, cfg.getTopics().getNewnotifications(), objectMapper, NewNotificationEvent.class);
         this.kafkaTemplate = kafkaTemplate;
     }
 

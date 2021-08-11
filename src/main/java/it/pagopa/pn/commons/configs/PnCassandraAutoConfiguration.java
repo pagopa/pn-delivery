@@ -5,7 +5,7 @@ import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.autoconfigure.cassandra.CassandraProperties;
 import org.springframework.boot.autoconfigure.cassandra.CqlSessionBuilderCustomizer;
@@ -20,8 +20,8 @@ import org.springframework.context.annotation.Scope;
 @Slf4j
 public class PnCassandraAutoConfiguration extends CassandraAutoConfiguration {
 
-    @Value( "${" + RuntimeModes.DEVELOPMENT_MODE_PROPERTY + "}")
-    private String runtimeMode;
+    @Autowired
+    private RuntimeMode runtimeMode;
 
     @Bean
     @ConditionalOnMissingBean
@@ -29,7 +29,7 @@ public class PnCassandraAutoConfiguration extends CassandraAutoConfiguration {
     public CqlSessionBuilder cassandraSessionBuilder(CassandraProperties properties,
                                                      DriverConfigLoader driverConfigLoader, ObjectProvider<CqlSessionBuilderCustomizer> builderCustomizers) {
 
-        if( "true".equalsIgnoreCase( runtimeMode ) ) {
+        if( RuntimeMode.DEVELOPMENT.equals( runtimeMode ) ) {
             log.info("Custom cassandra autoconfigurator");
 
             String keyspaceName = properties.getKeyspaceName();

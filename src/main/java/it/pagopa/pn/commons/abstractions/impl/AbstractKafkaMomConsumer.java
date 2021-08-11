@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.commons.abstractions.MomConsumer;
-import it.pagopa.pn.commons.configs.InheritedConditionalOnProperty;
-import it.pagopa.pn.commons.configs.RuntimeModes;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
@@ -19,7 +17,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-@InheritedConditionalOnProperty( name = RuntimeModes.DEVELOPMENT_MODE_PROPERTY, havingValue = "true")
 public class AbstractKafkaMomConsumer<T> implements MomConsumer<T>, AutoCloseable {
 
     private final MessageListenerContainer listenerContainer;

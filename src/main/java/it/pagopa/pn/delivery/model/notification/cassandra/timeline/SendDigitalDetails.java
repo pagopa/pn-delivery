@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.model.notification.cassandra.timeline;
 
-import it.pagopa.pn.delivery.model.notification.cassandra.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 
 import lombok.Builder;
 

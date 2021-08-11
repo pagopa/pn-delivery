@@ -7,6 +7,7 @@ import java.util.Collections;
 import static it.pagopa.pn.delivery.NotificationDtoUtils.buildNotification;
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -20,19 +21,25 @@ import org.mockito.Mockito;
 
 class DeliveryServiceTest {
 
-	public NotificationDao notificationDao;
-	public NewNotificationProducer notificationEventProducer;
-	public DeliveryService deliveryService;
+	private NotificationDao notificationDao;
+	private NewNotificationProducer notificationEventProducer;
+	private NotificationReceiverService deliveryService;
+	private PnDeliveryConfigs configs;
+	private FileStorage fileStorage;
 	
-	public static final String PA_NOTIFICATION_ID = "paNotificationId";
-	public static final String PA_ID = "paid";
+	private static final String PA_NOTIFICATION_ID = "paNotificationId";
+	private static final String PA_ID = "paid";
 
 	@BeforeEach
 	@SuppressWarnings("unchecked")
 	public void setup() {
 		notificationDao = Mockito.mock(NotificationDao.class);
 		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
-		deliveryService = new DeliveryService(Clock.systemUTC(), notificationDao, notificationEventProducer );
+		fileStorage = Mockito.mock( FileStorage.class );
+		configs = Mockito.mock( PnDeliveryConfigs.class );
+
+		deliveryService = new NotificationReceiverService( Clock.systemUTC(),
+				                notificationDao, notificationEventProducer, fileStorage, configs );
 	}
 
 	@Test

@@ -46,6 +46,7 @@ public class NotificationDtoUtils {
         return builder
                 .paNotificationId( paNotificationId)
                 .recipients( recipients )
+                .documents( Collections.emptyList() )
                 .build();
     }
 

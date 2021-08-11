@@ -1,37 +1,32 @@
 package it.pagopa.pn.commons;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import it.pagopa.pn.api.dto.events.GenericEvent;
 import it.pagopa.pn.api.dto.events.NewNotificationEvent;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
-import it.pagopa.pn.commons.abstractions.impl.AbstractKafkaMomConsumer;
+import it.pagopa.pn.commons.abstractions.MomProducer;
 import it.pagopa.pn.commons.abstractions.MomConsumer;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Random;
 
-//@SpringBootTest
-//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@SpringBootTest
+@ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KafkaProducerConsumerTestIT {
 
 	static final String TOPIC_NAME = "KafkaConsumerTest_testTopic";
 	static final String GROUP_NAME = "KafkaConsumerTest_grp1";
+	public static final String IUN = "IUN_001";
+	public static final String PA_ID = "paId";
 
-	//@Autowired
-	private TestKafkaProducer producer;
+	@Autowired
+	private MomProducer<NewNotificationEvent> producer;
 
-	/*@Autowired
-	private MomConsumer<TestBean> consumer;
+	@Autowired
+	private MomConsumer<NewNotificationEvent> consumer;
 
 
 	@BeforeAll
@@ -48,9 +43,13 @@ class KafkaProducerConsumerTestIT {
 		// - Given
 		NewNotificationEvent bean = new NewNotificationEvent( NewNotificationEvent.<StandardEventHeader, NewNotificationEvent.Payload>builder()
 				.header( StandardEventHeader.builder()
+						.iun( IUN )
 						.build()
 				)
-				.payload(NewNotificationEvent.Payload.builder().paId("paId").build())
+				.payload(NewNotificationEvent.Payload.builder()
+						.paId( PA_ID )
+						.build()
+				)
 				.build() );
 
 		// - When
@@ -59,14 +58,8 @@ class KafkaProducerConsumerTestIT {
 
 		// - Then
 		Assertions.assertTrue( receivedBeans.size() > 0, "Ricevuto almeno un messaggio");
-		TestBean lastReceived = receivedBeans.get( receivedBeans.size() - 1 );
+		NewNotificationEvent lastReceived = receivedBeans.get( receivedBeans.size() - 1 );
 		Assertions.assertEquals( bean, lastReceived, "Sended and received messages differs");
 	}
-
-	private Integer randomAge() {
-		return new Random().nextInt( 100);
-	}
-
-	*/
 
 }
