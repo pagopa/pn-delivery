@@ -66,7 +66,7 @@ Resources:
         - Name: !Sub '${EnvName}-delivery'
           Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EnvName}-pn-delivery:latest'
           Environment:
-            - Name: PN_DELIVERY_TOPICS_NEWNOTIFICATION
+            - Name: PN_DELIVERY_TOPICS_NEWNOTIFICATIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
             - Name: AWS_BUCKETNAME
               Value: !Sub '${AttachmentsBucket}'
