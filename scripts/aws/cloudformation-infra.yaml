@@ -70,6 +70,16 @@ Resources:
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
             - Name: AWS_BUCKETNAME
               Value: !Sub '${AttachmentsBucket}'
+            - Name: PN_DELIVERY_IUNRETRY
+              Value: 3
+            - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
+              Value: !Sub ${Keyspace}
+            - Name: SPRING_DATA_CASSANDRA_LOCALDATACENTER
+              Value: !Ref AWS::Region
+            - Name: SPRING_DATA_CASSANDRA_SSL
+              Value: true
+            - Name: SPRING_DATA_CASSANDRA_CONTACTPOINTS
+              Value: !Sub 'cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
           PortMappings:
             - ContainerPort: 8080
           # Send logs to CloudWatch Logs
