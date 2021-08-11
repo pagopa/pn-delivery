@@ -134,12 +134,11 @@ Resources:
             Action:
               - s3:GetObject
               - s3:GetObjectAcl
+              - s3:GetObjectVersionAcl
               - s3:GetObjectLegalHold
               - s3:GetObjectLockConfiguration
               - s3:GetObjectRetention
               - s3:GetObjectTagging
-              - s3:HeadBucket
-              - s3:HeadObject
               - s3:PutObject
               - s3:PutObjectLegalHold
               - s3:PutObjectLockConfiguration
