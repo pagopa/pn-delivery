@@ -135,7 +135,6 @@ Resources:
               - s3:GetObject
               - s3:GetObjectAcl
               - s3:GetObjectLegalHold
-              - s3:GetObjectLockConfiguration
               - s3:GetObjectRetention
               - s3:GetObjectTagging
               - s3:GetObjectVersion
@@ -143,7 +142,6 @@ Resources:
               - s3:GetObjectVersionTagging
               - s3:PutObject
               - s3:PutObjectLegalHold
-              - s3:PutObjectLockConfiguration
               - s3:PutObjectRetention
               - s3:PutObjectTagging
               - s3:PutObjectVersionTagging
