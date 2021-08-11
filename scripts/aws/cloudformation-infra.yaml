@@ -134,18 +134,21 @@ Resources:
             Action:
               - s3:GetObject
               - s3:GetObjectAcl
-              - s3:GetObjectVersionAcl
               - s3:GetObjectLegalHold
               - s3:GetObjectLockConfiguration
               - s3:GetObjectRetention
               - s3:GetObjectTagging
+              - s3:GetObjectVersion
+              - s3:GetObjectVersionAcl
+              - s3:GetObjectVersionTagging
               - s3:PutObject
               - s3:PutObjectLegalHold
               - s3:PutObjectLockConfiguration
               - s3:PutObjectRetention
               - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
             Resource:
-              - !Sub '${AttachmentsBucket.Arn}'
+              - !Sub '${AttachmentsBucket.Arn}/*'
       Roles:
         - !Ref TaskRole
   # A role needed for auto scaling
