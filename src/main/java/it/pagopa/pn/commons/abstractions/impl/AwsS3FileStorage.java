@@ -29,7 +29,11 @@ public class AwsS3FileStorage implements FileStorage {
 
         log.info("Starting {} service for bucker {} with runtime mode {}", this.getClass(),getBucketName(), runtimeMode );
         if( RuntimeMode.DEVELOPMENT.equals( runtimeMode ) ) {
-            createBucket();
+            try {
+                createBucket();
+            } catch (RuntimeException exc ) {
+                log.warn( "Creating development bucket", exc);
+            }
         }
     }
 

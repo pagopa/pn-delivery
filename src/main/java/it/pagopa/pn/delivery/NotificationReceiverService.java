@@ -138,7 +138,7 @@ public class NotificationReceiverService {
 
 
 	private int getIunGenerationMaxRetryNumber() {
-		Integer maxIunGenerationAttempts = configs.getIunretry();
+		Integer maxIunGenerationAttempts = configs.getIunRetry();
 		if( maxIunGenerationAttempts == null || maxIunGenerationAttempts < 1 ) {
 			maxIunGenerationAttempts = 1;
 		}

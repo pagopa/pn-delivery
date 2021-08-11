@@ -9,14 +9,14 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class PnDeliveryConfigs {
 
-    private Integer iunretry;
+    private Integer iunRetry;
 
     private Topics topics;
 
     @Data
     public static class Topics {
 
-        private String newnotifications;
+        private String newNotifications;
 
     }
 }

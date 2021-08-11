@@ -17,7 +17,7 @@ public class KafkaNewNotificationProducer extends AbstractKafkaMomProducer<NewNo
     private final KafkaTemplate<String, String> kafkaTemplate;
 
     public KafkaNewNotificationProducer(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper, PnDeliveryConfigs cfg ) {
-        super(kafkaTemplate, cfg.getTopics().getNewnotifications(), objectMapper, NewNotificationEvent.class);
+        super(kafkaTemplate, cfg.getTopics().getNewNotifications(), objectMapper, NewNotificationEvent.class);
         this.kafkaTemplate = kafkaTemplate;
     }
 

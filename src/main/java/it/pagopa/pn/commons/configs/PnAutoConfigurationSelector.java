@@ -30,10 +30,7 @@ public class PnAutoConfigurationSelector extends AutoConfigurationImportSelector
             CassandraAutoConfiguration.class.getName()
         );
 
-    private static final List<String> NOT_DEVELOPMENT_EXCLUSION = Collections.singletonList(
-            ""//PnCassandraAutoConfiguration.class.getName()
-       );
-    public static final String DEVELOPMENT_MODE_PROPERTY = "pn.env.development";
+    private static final List<String> NOT_DEVELOPMENT_EXCLUSION = Collections.emptyList();
 
 
     private final Environment env;
@@ -74,11 +71,11 @@ public class PnAutoConfigurationSelector extends AutoConfigurationImportSelector
     }
 
     private boolean isDevelopmentMode() {
-        return "true".equalsIgnoreCase( env.getProperty( DEVELOPMENT_MODE_PROPERTY, "").trim() );
+        return RuntimeModeHolder.isDevelopment( env );
     }
 
     private boolean isFalse(String propertyValue) {
-        return propertyValue != null && "false".equalsIgnoreCase( propertyValue.trim() );
+        return ! "true".equalsIgnoreCase( propertyValue == null ? "": propertyValue.trim() );
     }
 
 }

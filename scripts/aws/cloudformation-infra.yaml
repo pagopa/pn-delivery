@@ -147,6 +147,12 @@ Resources:
               - s3:PutObjectVersionTagging
             Resource:
               - !Sub '${AttachmentsBucket.Arn}/*'
+          - Effect: Allow
+            Action:
+              - cassandra:Modify
+              - cassandra:Select
+            Resource:
+              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/${Keyspace}/table/*"
       Roles:
         - !Ref TaskRole
   # A role needed for auto scaling
@@ -330,10 +336,10 @@ Resources:
         - ColumnName: senderpaid
           ColumnType: text
         - ColumnName: recipientsjson
-          ColumnType: map<text,text>
+          ColumnType: map<text, text>
         - ColumnName: documentsdigestssha256
           ColumnType: list<text>
-        - ColumnName: documentsVersionIds
+        - ColumnName: documentsversionIds
           ColumnType: list<text>
         - ColumnName: iuv
           ColumnType: text

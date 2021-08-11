@@ -2,6 +2,7 @@ package it.pagopa.pn.commons.configs;
 
 import com.datastax.oss.driver.api.core.CqlSessionBuilder;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.ObjectProvider;
@@ -14,26 +15,42 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.aws.mcs.auth.SigV4AuthProvider;
+
+import java.net.InetSocketAddress;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Configuration
 @ConditionalOnProperty( name = "pn.middleware.init.cassandra", havingValue = "true")
 @Slf4j
 public class PnCassandraAutoConfiguration extends CassandraAutoConfiguration {
 
-    @Autowired
-    private RuntimeMode runtimeMode;
+    private final RuntimeMode runtimeMode;
+    private final AwsConfigs awsConfigs;
+    private final Optional<SigV4AuthProvider> awsSigner;
+
+    public PnCassandraAutoConfiguration(RuntimeMode runtimeMode, AwsConfigs awsConfigs, Optional<SigV4AuthProvider> awsSigner) {
+        this.runtimeMode = runtimeMode;
+        this.awsConfigs = awsConfigs;
+        this.awsSigner = awsSigner;
+    }
 
     @Bean
     @ConditionalOnMissingBean
     @Scope("prototype")
     public CqlSessionBuilder cassandraSessionBuilder(CassandraProperties properties,
                                                      DriverConfigLoader driverConfigLoader, ObjectProvider<CqlSessionBuilderCustomizer> builderCustomizers) {
-
-        if( RuntimeMode.DEVELOPMENT.equals( runtimeMode ) ) {
-            log.info("Custom cassandra autoconfigurator");
-
+        log.info("Custom cassandra autoconfigurator");
+        
+        if( isDevelopmentMode() && ! useAwsKeyspace() ) {
+            
             String keyspaceName = properties.getKeyspaceName();
             if(StringUtils.isNotBlank( keyspaceName )) {
+                log.info("Custom cassandra autoconfigurator create keyspace {}", keyspaceName );
+                
                 properties.setKeyspaceName( null );
                 super.cassandraSessionBuilder( properties, driverConfigLoader, builderCustomizers)
                         .build()
@@ -42,7 +59,29 @@ public class PnCassandraAutoConfiguration extends CassandraAutoConfiguration {
             }
         }
 
-        return super.cassandraSessionBuilder( properties, driverConfigLoader, builderCustomizers);
+        CqlSessionBuilder cqlSessionBuilder = super.cassandraSessionBuilder( properties, driverConfigLoader, builderCustomizers);
+        if( useAwsKeyspace() ) {
+            activateAwsToken( cqlSessionBuilder );
+        }
+        return cqlSessionBuilder;
+    }
+
+    private boolean isDevelopmentMode() {
+        return RuntimeMode.DEVELOPMENT.equals(runtimeMode);
+    }
+
+    private boolean useAwsKeyspace() {
+        return Boolean.TRUE.equals(awsConfigs.getUseAwsKeyspace());
+    }
+
+    private void activateAwsToken(CqlSessionBuilder cqlSessionBuilder) {
+        String region = awsConfigs.getRegionCode();
+
+        log.info("Custom cassandra autoconfigurator use aws keyspace in region {}", region );
+
+        cqlSessionBuilder
+                .withAuthProvider( awsSigner.get() )
+                .withLocalDatacenter( region );
     }
 
 
