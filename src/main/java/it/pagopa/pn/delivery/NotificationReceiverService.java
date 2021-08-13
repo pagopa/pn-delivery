@@ -108,7 +108,7 @@ public class NotificationReceiverService {
 	}
 
 	private NewNotificationEvent buildNewNotificationEvent(String iun, String paId ) {
-		GenericEvent<StandardEventHeader, NewNotificationEvent.Payload> genericEvent = GenericEvent.<StandardEventHeader, NewNotificationEvent.Payload>builder()
+		return NewNotificationEvent.builder()
 				.header( StandardEventHeader.builder()
 						.iun( iun )
 						.eventId( iun + "_start" )
@@ -122,7 +122,6 @@ public class NotificationReceiverService {
 						.build()
 				)
 				.build();
-		return new NewNotificationEvent( genericEvent );
 	}
 
 	private boolean trySaveNotificationMetadataAndCheckIunCollision(Notification notification) {
