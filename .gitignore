@@ -1,5 +1,6 @@
 application-aws.properties
 
+scripts/client/tmp
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
