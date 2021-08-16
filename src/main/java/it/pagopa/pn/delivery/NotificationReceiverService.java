@@ -62,7 +62,10 @@ public class NotificationReceiverService {
 
 	private String tryMultipleTimesToHandleIunCollision( Notification notification,
 														             int maxIunGenerationRetry) {
+
+		log.info( "START insertion of notification with paNotificationId {}", notification.getPaNotificationId() );
 		String iun;
+		boolean inserted = false;
 		boolean duplicatedIun;
 		int iunConflictCounter = 0;
 		do {
@@ -72,9 +75,19 @@ public class NotificationReceiverService {
 			if( duplicatedIun ) {
 				iunConflictCounter += 1;
 			}
+			else {
+				inserted = true;
+			}
 		}
 		while ( duplicatedIun && iunConflictCounter < maxIunGenerationRetry);
 
+		if( inserted ) {
+			log.info( "END insertion of notification IUN:{} with paNotificationId {}", iun, notification.getPaNotificationId() );
+		}
+		else {
+			// FIXME notification handling
+			throw new IllegalStateException("Duplicated IUN " + iun + " multiple times ");
+		}
 		return iun;
 	}
 
