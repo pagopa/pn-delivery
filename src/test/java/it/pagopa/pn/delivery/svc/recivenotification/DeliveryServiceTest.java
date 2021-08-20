@@ -61,7 +61,7 @@ class DeliveryServiceTest {
 
 	@Test
 	void testReceiveNotification_valid_with_payments_delivery_mode() throws IdConflictException {
-		ArgumentCaptor<Notification> savedNotification = ArgumentCaptor.forClass(Notification.class);
+		ArgumentCaptor<Notification> savedNotificationCaptor = ArgumentCaptor.forClass(Notification.class);
 
 		// Given
 		Notification notification = NotificationFactoryForTesting.newNotificationWithPaymentsDeliveryMode( false );
@@ -70,9 +70,11 @@ class DeliveryServiceTest {
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( notification );
 
 		// Then
-		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
-		assertEquals( savedNotification.getValue().getIun(), addedNotification.getIun(), "Saved iun differ from returned one");
-		assertEquals( notification.getPaNotificationId(), savedNotification.getValue().getPaNotificationId(), "Wrong protocol number");
+		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture() );
+
+		Notification savedNotification = savedNotificationCaptor.getValue();
+		assertEquals( savedNotification.getIun(), addedNotification.getIun(), "Saved iun differ from returned one");
+		assertEquals( notification.getPaNotificationId(), savedNotification.getPaNotificationId(), "Wrong protocol number");
 		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
 
 		Mockito.verify( fileStorage, Mockito.times(4) )

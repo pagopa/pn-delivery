@@ -55,50 +55,57 @@ public class NotificationReceiverService {
 	}
 
 	public NewNotificationResponse receiveNotification(Notification notification) {
+		log.debug("receiveNotification: called with {}", notification );
 		validator.checkNewNotificationBeforeInsertAndThrow( notification );
+		log.debug("receiveNotification: Validation OK");
 
 		int maxRetryTimes = getIunGenerationMaxRetryNumber();
+		log.debug("receiveNotification: max retry = {}", maxRetryTimes);
 		String iun = tryMultipleTimesToHandleIunCollision( notification, maxRetryTimes );
 
-		return NewNotificationResponse.builder()
+		NewNotificationResponse response = NewNotificationResponse.builder()
 				.iun( iun )
 				.paNotificationId( notification.getPaNotificationId() )
 				.build();
+
+		log.debug("receiveNotification: response {}", response);
+		return response;
 	}
 
 	private String tryMultipleTimesToHandleIunCollision( Notification notification,
 														             int maxIunGenerationRetry) {
 
-		log.info( "START insertion of notification with paNotificationId {}", notification.getPaNotificationId() );
 		String iun;
 		boolean inserted = false;
-		boolean duplicatedIun;
 		int iunConflictCounter = 0;
 		do {
 			iun = generateIun();
-			duplicatedIun = tryToSaveNotificationMetadataAndAttachments( notification, iun);
+			log.info( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
+					                                     iun, notification.getPaNotificationId() );
 
-			if( duplicatedIun ) {
-				iunConflictCounter += 1;
-			}
-			else {
+			try {
+				tryToSaveNotificationMetadataAndAttachments(notification, iun);
 				inserted = true;
 			}
+			catch ( IdConflictException exc ) {
+				iunConflictCounter += 1;
+				log.warn("tryMultipleTimesToHandleIunCollision: duplicated iun {}", iun );
+			}
 		}
-		while ( duplicatedIun && iunConflictCounter < maxIunGenerationRetry);
+		while ( !inserted && iunConflictCounter < maxIunGenerationRetry);
 
 		if( inserted ) {
-			log.info( "END insertion of notification IUN:{} with paNotificationId {}", iun, notification.getPaNotificationId() );
+			log.info( "tryMultipleTimesToHandleIunCollision: insertion done for iun {}", iun );
 		}
 		else {
-			// FIXME notification handling
+			// FIXME exception handling
 			throw new IllegalStateException("Duplicated IUN " + iun + " multiple times ");
 		}
 		return iun;
 	}
 
-	private boolean tryToSaveNotificationMetadataAndAttachments( Notification notification,
-																                      String iun) {
+	private void tryToSaveNotificationMetadataAndAttachments( Notification notification,
+														String iun) throws IdConflictException {
 		String paId = notification.getSender().getPaId();
 		Notification notificationWithIun = notification.toBuilder()
 				.iun( iun )
@@ -108,17 +115,15 @@ public class NotificationReceiverService {
 				)
 				.build();
 
+		log.debug("tryToSaveNotificationMetadataAndAttachments: call saveAttachments for iun {}", iun);
 		Notification notificationWithCompleteMetadata = saveAttachments( notificationWithIun );
 
 		// - Will be delayed from the receiver
+		log.debug("tryToSaveNotificationMetadataAndAttachments: call sendNewNotificationEvent for iun {}", iun);
 		sendNewNotificationEvent( paId, iun);
 
-		boolean duplicatedIun = this.trySaveNotificationMetadataAndCheckIunCollision(
-				                                                 notificationWithCompleteMetadata );
-		if ( duplicatedIun ) {
-			log.warn( "Duplicated IUN: {}", iun );
-		}
-		return duplicatedIun;
+		log.debug("tryToSaveNotificationMetadataAndAttachments: call trySaveNotificationMetadataAndCheckIunCollision for iun {}", iun);
+		notificationDao.addNotification( notificationWithIun );
 	}
 
 	private void sendNewNotificationEvent( String paId, String iun) {
@@ -143,18 +148,6 @@ public class NotificationReceiverService {
 				.build();
 	}
 
-	private boolean trySaveNotificationMetadataAndCheckIunCollision(Notification notification) {
-		boolean duplicatedIun = false;
-		try {
-			notificationDao.addNotification( notification );
-		}
-		catch (IdConflictException exc) {
-			duplicatedIun = true;
-		}
-		return duplicatedIun;
-	}
-
-
 	private int getIunGenerationMaxRetryNumber() {
 		Integer maxIunGenerationAttempts = configs.getIunRetry();
 		if( maxIunGenerationAttempts == null || maxIunGenerationAttempts < 1 ) {
@@ -169,9 +162,11 @@ public class NotificationReceiverService {
 		Notification.NotificationBuilder builder = notification.toBuilder();
 
 		// - Save documents
+		log.debug("saveAttachments: call saveDocuments for iun {}", iun);
 		saveDocuments( notification, iun, builder );
 
 		// - save F24
+		log.debug("saveAttachments: call saveF24 for iun {}", iun);
 		saveF24( notification, iun, builder);
 		return builder.build();
 	}
@@ -181,7 +176,7 @@ public class NotificationReceiverService {
 		builder.documents( notification.getDocuments().stream()
 				.map( toSave -> {
 					String key = String.format("%s/documents/%d", iun, index.getAndIncrement() );
-					return saveAndUpdateAttachment( toSave, key );
+					return saveAndUpdateAttachment( iun, toSave, key );
 				})
 				.collect(Collectors.toList())
 			);
@@ -202,19 +197,19 @@ public class NotificationReceiverService {
 				NotificationAttachment f24FlatRate = f24.getFlatRate();
 				if( f24FlatRate != null ) {
 					String key = String.format( "%s/f24/flatRate", iun);
-					f24Builder.flatRate( saveAndUpdateAttachment( f24FlatRate, key ) );
+					f24Builder.flatRate( saveAndUpdateAttachment(iun, f24FlatRate, key ) );
 				}
 
 				NotificationAttachment f24Digital = f24.getDigital();
 				if( f24Digital != null ) {
 					String key = String.format( "%s/f24/digital", iun);
-					f24Builder.digital( saveAndUpdateAttachment( f24Digital, key ) );
+					f24Builder.digital( saveAndUpdateAttachment(iun, f24Digital, key ) );
 				}
 
 				NotificationAttachment f24Analog = f24.getAnalog();
 				if( f24Analog != null ) {
 					String key = String.format( "%s/f24/analog", iun);
-					f24Builder.analog( saveAndUpdateAttachment( f24Analog, key ) );
+					f24Builder.analog( saveAndUpdateAttachment(iun, f24Analog, key ) );
 				}
 
 				paymentsBuilder.f24( f24Builder.build() );
@@ -223,8 +218,10 @@ public class NotificationReceiverService {
 		}
 	}
 
-	private NotificationAttachment saveAndUpdateAttachment( NotificationAttachment attachment, String key ) {
+	private NotificationAttachment saveAndUpdateAttachment(String iun, NotificationAttachment attachment, String key) {
+		log.debug("saveAndUpdateAttachment: iun={} key={}", iun, key);
 		String versionId = saveOneAttachmentToFileStorage( key, attachment );
+		log.debug("saveAndUpdateAttachment: iun={} key={} versionId={}", iun, key, versionId);
 		return updateSavedAttachment( attachment, versionId );
 	}
 
@@ -247,7 +244,6 @@ public class NotificationReceiverService {
 		byte[] body = Base64.getDecoder().decode( attachment.getBody() );
 
 		String versionId = fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );
-		log.debug("Save attachment {} with version {}", key, versionId );
 		return versionId;
 	}
 
