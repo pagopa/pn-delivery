@@ -13,4 +13,9 @@ public interface NotificationDao {
      * @return
      */
     void addNotification(Notification notification ) throws IdConflictException;
+
+    Notification getNotificationByIun( String iun );
+
+    void deleteNotificationByIun( String iun );
+
 }

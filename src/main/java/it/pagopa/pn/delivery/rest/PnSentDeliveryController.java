@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import it.pagopa.pn.delivery.NotificationReceiverService;
+import it.pagopa.pn.delivery.svc.recivenotification.NotificationReceiverService;
 
 @RestController
 public class PnSentDeliveryController implements PnDeliveryRestApi_methodReceiveNotification {

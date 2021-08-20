@@ -1,10 +1,11 @@
-package it.pagopa.pn.delivery.middleware;
+package it.pagopa.pn.delivery.middleware.newnotificationproducer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.NewNotificationEvent;
 import it.pagopa.pn.commons.abstractions.impl.AbstractKafkaMomProducer;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

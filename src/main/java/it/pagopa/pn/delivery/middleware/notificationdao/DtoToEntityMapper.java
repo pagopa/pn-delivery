@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.middleware.cassandra;
+package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,11 +42,13 @@ public class DtoToEntityMapper {
                 .cancelledByIun( dto.getCancelledByIun() )
                 .senderPaId( dto.getSender().getPaId() )
                 .recipientsJson( recipientList2json( dto.getRecipients() ))
+                .recipientsOrder( dto.getRecipients().stream()
+                        .map( recipient -> recipient.getFc() )
+                        .collect(Collectors.toList())
+                    )
                 .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
                 .documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
             ;
-
-
 
         NotificationPaymentInfo paymentInfo = dto.getPayment();
         fillBuilderWithPaymentInfo(builder, paymentInfo);
@@ -92,7 +94,7 @@ public class DtoToEntityMapper {
                 if( analogF24 != null ) {
                     builder
                             .f24AnalogDigestSha256( analogF24.getDigests().getSha256() )
-                            .f24DigitalVersionId(analogF24.getSavedVersionId() );
+                            .f24AnalogVersionId( analogF24.getSavedVersionId() );
                 }
             }
         }
@@ -113,7 +115,5 @@ public class DtoToEntityMapper {
             throw new IllegalStateException( exc );
         }
     }
-
-
 
 }

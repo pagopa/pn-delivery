@@ -1,18 +1,21 @@
-package it.pagopa.pn.delivery;
+package it.pagopa.pn.delivery.rest;
 
-import static it.pagopa.pn.delivery.NotificationDtoUtils.buildNotification;
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.delivery.NotificationFactoryForTesting;
 import it.pagopa.pn.delivery.model.notification.cassandra.NotificationEntity;
+import it.pagopa.pn.delivery.svc.recivenotification.NotificationReceiverService;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import reactor.core.publisher.Mono;
 
-//@WebFluxTest(PnSentDeliveryController.class)
+@WebFluxTest(PnSentDeliveryController.class)
 class PnSentDeliveryControllerTest {
 	
 	private static final String PA_ID = "paId";
@@ -25,10 +28,10 @@ class PnSentDeliveryControllerTest {
 	@MockBean
 	private NotificationReceiverService deliveryService;
 	
-	//@Test
+	@Test
 	void testSend_post() {
 		// Given
-		Notification notification = buildNotification( false, PA_ID, PA_NOTIFICATION_ID ).toBuilder()
+		Notification notification = NotificationFactoryForTesting.buildSimpleNotification( false, PA_ID, PA_NOTIFICATION_ID ).toBuilder()
 				.iun( IUN )
 				.build();
 

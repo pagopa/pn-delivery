@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery;
+package it.pagopa.pn.delivery.svc.recivenotification;
 
 import java.io.ByteArrayInputStream;
 import java.time.Clock;
@@ -18,6 +18,7 @@ import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import lombok.extern.slf4j.Slf4j;
@@ -37,19 +38,24 @@ public class NotificationReceiverService {
 	private final NewNotificationValidator validator;
 
 	@Autowired
-	public NotificationReceiverService(Clock clock, NotificationDao notificationDao,
-									   NewNotificationProducer newNotificationEventProducer,
-									        FileStorage fileStorage, PnDeliveryConfigs configs ) {
+	public NotificationReceiverService(
+			Clock clock,
+			NotificationDao notificationDao,
+			NewNotificationProducer newNotificationEventProducer,
+			FileStorage fileStorage,
+			PnDeliveryConfigs configs,
+			NewNotificationValidator validator
+	) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.newNotificationEventProducer = newNotificationEventProducer;
 		this.fileStorage = fileStorage;
 		this.configs = configs;
-		this.validator = new NewNotificationValidator();
+		this.validator = validator;
 	}
 
 	public NewNotificationResponse receiveNotification(Notification notification) {
-		notification = validator.checkNewNotificationBeforeInsert( notification );
+		validator.checkNewNotificationBeforeInsertAndThrow( notification );
 
 		int maxRetryTimes = getIunGenerationMaxRetryNumber();
 		String iun = tryMultipleTimesToHandleIunCollision( notification, maxRetryTimes );
@@ -245,7 +251,7 @@ public class NotificationReceiverService {
 		return versionId;
 	}
 
-	private String generateIun() {
+	public String generateIun() {
 		String uuid = UUID.randomUUID().toString();
 		Instant now = Instant.now(clock);
 		OffsetDateTime nowUtc = now.atOffset( ZoneOffset.UTC );

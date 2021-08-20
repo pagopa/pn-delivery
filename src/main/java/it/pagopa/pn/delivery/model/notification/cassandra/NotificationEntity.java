@@ -8,12 +8,14 @@ import it.pagopa.pn.api.dto.notification.NotificationPaymentInfoFeePolicies;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 @Table("notifications")
-@Data
+@Getter
 @Builder
 public class NotificationEntity {
 
@@ -29,6 +31,8 @@ public class NotificationEntity {
     private String cancelledByIun;
 
     private String senderPaId;
+
+    private List<String> recipientsOrder;
 
     private Map<String,String> recipientsJson;
 
