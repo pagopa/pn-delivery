@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class PnDeliveryConfigs {
 
-    private Integer iunRetry;
-
     private Topics topics;
 
     @Data

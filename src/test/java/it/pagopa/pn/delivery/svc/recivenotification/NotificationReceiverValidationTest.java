@@ -7,7 +7,6 @@ import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.common.messages.PnValidationException;
-import it.pagopa.pn.delivery.NotificationFactoryForTesting;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,18 +19,18 @@ import javax.validation.ValidatorFactory;
 import java.util.Collections;
 import java.util.Set;
 
-class NewNotificationValidationTest {
+class NotificationReceiverValidationTest {
 
-    private NewNotificationValidator validator;
+    private NotificationReceiverValidator validator;
 
     @BeforeEach
     void initializeValidator() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = new NewNotificationValidator( factory.getValidator() );
+        validator = new NotificationReceiverValidator( factory.getValidator() );
     }
 
     @Test
-    void emptyTest() {
+    void invalidEmptyNotification() {
 
         // GIVEN
         Notification n = Notification.builder()
@@ -51,7 +50,7 @@ class NewNotificationValidationTest {
     }
 
     @Test
-    void emptyTestThrow() {
+    void checkThrowMechanism() {
         // GIVEN
         Notification n = Notification.builder()
                 .build();
@@ -74,7 +73,7 @@ class NewNotificationValidationTest {
 
 
         @Test
-    void emptyComplexTypesTest() {
+    void invalidEmptyCollections() {
 
         // GIVEN
         Notification n = Notification.builder()
@@ -97,7 +96,7 @@ class NewNotificationValidationTest {
     }
 
     @Test
-    void nullValuesInCollections() {
+    void invalidNullValuesInCollections() {
 
         // GIVEN
         Notification n = Notification.builder()
@@ -122,7 +121,7 @@ class NewNotificationValidationTest {
     }
 
     @Test
-    void emptyDocumentAndRecipient() {
+    void invalidDocumentAndRecipientWithEmptyFields() {
 
         // GIVEN
         Notification n = Notification.builder()
@@ -148,14 +147,14 @@ class NewNotificationValidationTest {
         assertConstraintViolationNumberByField( errors, "documents[0].contentType", 1 );
         assertConstraintViolationNumberByField( errors, "documents[0].body", 1 );
         assertConstraintViolationNumberByField( errors, "documents[0].digests", 1 );
-        assertConstraintViolationNumberByField( errors, "recipients[0].fc", 1 );
+        assertConstraintViolationNumberByField( errors, "recipients[0].taxId", 1 );
         assertConstraintViolationNumberByField( errors, "recipients[0].denomination", 1 );
         assertConstraintViolationNumberByField( errors, "recipients[0].digitalDomicile", 1 );
         Assertions.assertEquals( 6, errors.size() );
     }
 
     @Test
-    void documentAndRecipientWithEmptyDigestsAndDigitalDomicile() {
+    void invalidDocumentAndRecipientWithEmptyDigestsAndDigitalDomicile() {
 
         // GIVEN
         Notification n = Notification.builder()
@@ -166,7 +165,7 @@ class NewNotificationValidationTest {
                         .build()
                 )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
-                        .fc("FiscalCode")
+                        .taxId("FiscalCode")
                         .denomination("Nome Cognome / Ragione Sociale")
                         .digitalDomicile( DigitalAddress.builder().build() )
                         .build())
@@ -191,36 +190,10 @@ class NewNotificationValidationTest {
     }
 
     @Test
-    void documentAndRecipientComplete() {
+    void validDocumentAndRecipientWithoutPayments() {
 
         // GIVEN
-        Notification n = Notification.builder()
-                .paNotificationId( "protocol1" )
-                .subject( "subject" )
-                .sender(NotificationSender.builder()
-                        .paId("paId")
-                        .build()
-                )
-                .recipients( Collections.singletonList(NotificationRecipient.builder()
-                        .fc("FiscalCode")
-                        .denomination("Nome Cognome / Ragione Sociale")
-                        .digitalDomicile( DigitalAddress.builder()
-                                .type( DigitalAddressType.PEC )
-                                .address("account@domain.it")
-                                .build()
-                        )
-                        .build())
-                )
-                .documents( Collections.singletonList(NotificationAttachment.builder()
-                        .body("Body")
-                        .contentType("Content/Type")
-                        .digests( NotificationAttachment.Digests.builder()
-                                .sha256("sha256")
-                                .build()
-                        )
-                        .build())
-                )
-                .build();
+        Notification n = validDocumentWithoutPayments();
 
         // WHEN
         Set<ConstraintViolation<Notification>> errors;
@@ -230,11 +203,13 @@ class NewNotificationValidationTest {
         Assertions.assertEquals( 0, errors.size() );
     }
 
+
+
     @Test
-    void wrongPec() {
+    void invalidPecAddress() {
 
         // GIVEN
-        Notification n = NotificationFactoryForTesting.newNotificationWithoutPayments( false );
+        Notification n = validDocumentWithoutPayments( );
         Notification wrongEmail = n.toBuilder()
                 .recipients( Collections.singletonList( n.getRecipients().get(0).toBuilder()
                         .digitalDomicile( n.getRecipients().get(0).getDigitalDomicile().toBuilder()
@@ -262,5 +237,36 @@ class NewNotificationValidationTest {
 
     private static String propertyPathToString( Path propertyPath ) {
         return propertyPath.toString().replaceFirst(".<[^>]*>$", "");
+    }
+
+    private Notification validDocumentWithoutPayments() {
+        Notification n = Notification.builder()
+                .paNotificationId( "protocol1" )
+                .subject( "subject" )
+                .sender(NotificationSender.builder()
+                        .paId("paId")
+                        .build()
+                )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@domain.it")
+                                .build()
+                        )
+                        .build())
+                )
+                .documents( Collections.singletonList(NotificationAttachment.builder()
+                        .body("Body")
+                        .contentType("Content/Type")
+                        .digests( NotificationAttachment.Digests.builder()
+                                .sha256("sha256")
+                                .build()
+                        )
+                        .build())
+                )
+                .build();
+        return n;
     }
 }

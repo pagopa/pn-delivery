@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @ConditionalOnProperty( name = NotificationDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.CASSANDRA )
 @Slf4j
@@ -33,14 +35,9 @@ public class CassandraNotificationDao implements NotificationDao {
     }
 
     @Override
-    public Notification getNotificationByIun(String iun) {
-        NotificationEntity entity = notificationEntityDao.get( iun );
-
-        Notification dto = null;
-        if( entity != null ) {
-            dto = entity2dtoMapper.entity2Dto( entity );
-        }
-        return dto;
+    public Optional<Notification> getNotificationByIun(String iun) {
+        return notificationEntityDao.get( iun )
+                .map( entity2dtoMapper::entity2Dto );
     }
 
     @Override

@@ -12,11 +12,11 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 @Component
-public class NewNotificationValidator {
+public class NotificationReceiverValidator {
 
     private final Validator validator;
 
-    public NewNotificationValidator(Validator validator) {
+    public NotificationReceiverValidator(Validator validator) {
         this.validator = validator;
     }
 

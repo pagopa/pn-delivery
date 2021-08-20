@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.delivery.NotificationFactoryForTesting;
 import it.pagopa.pn.delivery.model.notification.cassandra.NotificationEntity;
 import it.pagopa.pn.delivery.svc.recivenotification.NotificationReceiverService;
 import org.junit.jupiter.api.Test;
@@ -29,10 +28,10 @@ class PnSentDeliveryControllerTest {
 	private NotificationReceiverService deliveryService;
 	
 	@Test
-	void testSend_post() {
+	void postSuccess() {
 		// Given
-		Notification notification = NotificationFactoryForTesting.buildSimpleNotification( false, PA_ID, PA_NOTIFICATION_ID ).toBuilder()
-				.iun( IUN )
+		Notification notification = Notification.builder()
+				.paNotificationId( PA_NOTIFICATION_ID )
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder().iun( IUN ).build();

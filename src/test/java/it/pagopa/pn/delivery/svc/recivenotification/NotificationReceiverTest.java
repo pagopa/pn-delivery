@@ -5,15 +5,15 @@ import java.io.InputStream;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Arrays;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
-import it.pagopa.pn.api.dto.events.NewNotificationEvent;
-import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.*;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.common.messages.PnValidationException;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.delivery.NotificationFactoryForTesting;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,33 +28,31 @@ import org.mockito.Mockito;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
-class DeliveryServiceTest {
+class NotificationReceiverTest {
 
 	private NotificationDao notificationDao;
 	private NewNotificationProducer notificationEventProducer;
 	private NotificationReceiverService deliveryService;
-	private PnDeliveryConfigs configs;
 	private FileStorage fileStorage;
-	private Clock clock;
-	private NewNotificationValidator validator;
 
 	@BeforeEach
 	public void setup() {
+		Clock clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
+
 		notificationDao = Mockito.mock(NotificationDao.class);
 		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
 		fileStorage = Mockito.mock( FileStorage.class );
-		configs = Mockito.mock( PnDeliveryConfigs.class );
 
+		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		this.validator = new NewNotificationValidator( factory.getValidator() );
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
+		SaveAttachmentService attachmentSaver = new SaveAttachmentService( fileStorage );
 
-		this.clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
 		deliveryService = new NotificationReceiverService(
 				clock,
 				notificationDao,
 				notificationEventProducer,
-				fileStorage,
-				configs,
+				attachmentSaver,
 				validator
 		    );
 	}
@@ -64,7 +62,7 @@ class DeliveryServiceTest {
 		ArgumentCaptor<Notification> savedNotificationCaptor = ArgumentCaptor.forClass(Notification.class);
 
 		// Given
-		Notification notification = NotificationFactoryForTesting.newNotificationWithPaymentsDeliveryMode( false );
+		Notification notification = newNotificationWithPaymentsDeliveryMode( );
 
 		// When
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( notification );
@@ -80,7 +78,7 @@ class DeliveryServiceTest {
 		Mockito.verify( fileStorage, Mockito.times(4) )
 				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap() );
 
-		Mockito.verify( notificationEventProducer ).push( Mockito.any( NewNotificationEvent.class) );
+		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
 	@Test
@@ -88,7 +86,7 @@ class DeliveryServiceTest {
 		ArgumentCaptor<Notification> savedNotification = ArgumentCaptor.forClass(Notification.class);
 
 		// Given
-		Notification notification = NotificationFactoryForTesting.newNotificationWithPaymentsFlat( false );
+		Notification notification = newNotificationWithPaymentsFlat( );
 
 		// When
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( notification );
@@ -102,7 +100,7 @@ class DeliveryServiceTest {
 		Mockito.verify( fileStorage, Mockito.times(3) )
 				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap() );
 
-		Mockito.verify( notificationEventProducer ).push( Mockito.any( NewNotificationEvent.class) );
+		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
 	@Test
@@ -110,7 +108,7 @@ class DeliveryServiceTest {
 		ArgumentCaptor<Notification> savedNotification = ArgumentCaptor.forClass(Notification.class);
 
 		// Given
-		Notification notification = NotificationFactoryForTesting.newNotificationWithoutPayments( false );
+		Notification notification = newNotificationWithoutPayments( );
 
 		// When
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( notification );
@@ -124,7 +122,7 @@ class DeliveryServiceTest {
 		Mockito.verify( fileStorage, Mockito.times(2) )
 				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap() );
 
-		Mockito.verify( notificationEventProducer ).push( Mockito.any( NewNotificationEvent.class) );
+		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
 
@@ -132,7 +130,7 @@ class DeliveryServiceTest {
 	void testReceiveNotification_invalid() {
 
 		// Given
-		Notification notification = NotificationFactoryForTesting.newNotificationWithPaymentsDeliveryMode( true );
+		Notification notification = Notification.builder().build();
 
 		// When
 		Executable todo = () -> deliveryService.receiveNotification( notification );
@@ -144,62 +142,124 @@ class DeliveryServiceTest {
 	@Test
 	void testReceiveNotification_conflict() throws IdConflictException {
 		// Given
-		int iunGenerationRetry = 3;
-		Mockito.when( configs.getIunRetry() ).thenReturn( iunGenerationRetry );
-
 		Mockito.doThrow( new IdConflictException("IUN") )
 				.when( notificationDao )
 				.addNotification( Mockito.any( Notification.class) );
 
-		Notification notification = NotificationFactoryForTesting.newNotificationWithPaymentsDeliveryMode( false );
+		Notification notification = newNotificationWithPaymentsDeliveryMode( );
 
 		// When
 		Executable todo = () -> deliveryService.receiveNotification( notification );
 
 		// Then
 		Assertions.assertThrows(IllegalStateException.class, todo );
-		Mockito.verify( notificationDao, Mockito.times( iunGenerationRetry ) )
+		Mockito.verify( notificationDao, Mockito.times( 1 ) )
 				                              .addNotification( Mockito.any( Notification.class ));
 	}
 
-	@Test
-	void testReceiveNotification_conflict_try_at_least_once_for_negatives() throws IdConflictException {
-		// Given
-		Mockito.when( configs.getIunRetry() ).thenReturn( 0 );
 
-		Mockito.doThrow( new IdConflictException("IUN") )
-				.when( notificationDao )
-				.addNotification( Mockito.any( Notification.class) );
-
-		Notification notification = NotificationFactoryForTesting.newNotificationWithPaymentsDeliveryMode( false );
-
-		// When
-		Executable todo = () -> deliveryService.receiveNotification( notification );
-
-		// Then
-		Assertions.assertThrows(IllegalStateException.class, todo );
-		Mockito.verify( notificationDao, Mockito.times( 1 ) )
-				.addNotification( Mockito.any( Notification.class ));
+	private Notification newNotificationWithoutPayments( ) {
+		return Notification.builder()
+				.iun("IUN_01")
+				.paNotificationId("protocol_01")
+				.subject("Subject 01")
+				.cancelledByIun("IUN_05")
+				.cancelledIun("IUN_00")
+				.sender(NotificationSender.builder()
+						.paId(" pa_02")
+						.build()
+				)
+				.recipients(Arrays.asList(
+						NotificationRecipient.builder()
+								.taxId("Codice Fiscale 01")
+								.denomination("Nome Cognome/Ragione Sociale")
+								.digitalDomicile(DigitalAddress.builder()
+										.type(DigitalAddressType.PEC)
+										.address("account@dominio.it")
+										.build())
+								.build()
+				))
+				.documents(Arrays.asList(
+						NotificationAttachment.builder()
+								.savedVersionId("v01_doc00")
+								.digests(NotificationAttachment.Digests.builder()
+										.sha256("sha256_doc00")
+										.build()
+								)
+								.contentType( "application/pdf")
+								.body(  "Ym9keV8wMQ==")
+								.build(),
+						NotificationAttachment.builder()
+								.savedVersionId("v01_doc01")
+								.digests(NotificationAttachment.Digests.builder()
+										.sha256("sha256_doc01")
+										.build()
+								)
+								.contentType( "application/pdf")
+								.body( "Ym9keV8wMg==")
+								.build()
+				))
+				.build();
 	}
 
-	@Test
-	void testReceiveNotification_conflict_try_at_least_once_for_null() throws IdConflictException {
-		// Given
-		Mockito.when( configs.getIunRetry() ).thenReturn( null );
+	private Notification newNotificationWithPaymentsDeliveryMode( ) {
+		return newNotificationWithPaymentsDeliveryMode( "IUV_01" );
+	}
 
-		Mockito.doThrow( new IdConflictException("IUN") )
-				.when( notificationDao )
-				.addNotification( Mockito.any( Notification.class) );
+	private Notification newNotificationWithPaymentsDeliveryMode( String iuv ) {
+		return newNotificationWithoutPayments( ).toBuilder()
+				.payment( NotificationPaymentInfo.builder()
+						.iuv( iuv )
+						.notificationFeePolicy( NotificationPaymentInfoFeePolicies.DELIVERY_MODE )
+						.f24( NotificationPaymentInfo.F24.builder()
+								.digital( NotificationAttachment.builder()
+										.savedVersionId("v01__F24dig")
+										.digests( NotificationAttachment.Digests.builder()
+												.sha256("sha__F24dig")
+												.build()
+										)
+										.contentType( "Content/Type")
+										.body( "RjI0ZGln")
+										.build()
+								)
+								.analog( NotificationAttachment.builder()
+										.savedVersionId("v01__F24anag")
+										.digests( NotificationAttachment.Digests.builder()
+												.sha256("sha__F24anag")
+												.build()
+										)
+										.contentType( "Content/Type")
+										.body( "RjI0YW5hZw==")
+										.build()
+								)
+								.build()
+						)
+						.build()
+				)
+				.build();
+	}
 
-		Notification notification = NotificationFactoryForTesting.newNotificationWithPaymentsDeliveryMode( false );
-
-		// When
-		Executable todo = () -> deliveryService.receiveNotification( notification );
-
-		// Then
-		Assertions.assertThrows(IllegalStateException.class, todo );
-		Mockito.verify( notificationDao, Mockito.times( 1 ) )
-				.addNotification( Mockito.any( Notification.class ));
+	Notification newNotificationWithPaymentsFlat( ) {
+		return newNotificationWithoutPayments( ).toBuilder()
+				.payment( NotificationPaymentInfo.builder()
+						.iuv( "IUV_01" )
+						.notificationFeePolicy( NotificationPaymentInfoFeePolicies.FLAT_RATE )
+						.f24( NotificationPaymentInfo.F24.builder()
+								.flatRate( NotificationAttachment.builder()
+										.savedVersionId("v01__F24flat")
+										.digests( NotificationAttachment.Digests.builder()
+												.sha256("sha__F24flat")
+												.build()
+										)
+										.contentType( "application/pdf")
+										.body( "RjI0ZmxhdA==")
+										.build()
+								)
+								.build()
+						)
+						.build()
+				)
+				.build();
 	}
 
 }

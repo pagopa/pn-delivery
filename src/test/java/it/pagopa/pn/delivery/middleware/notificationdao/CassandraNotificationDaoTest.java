@@ -12,6 +12,7 @@ import org.junit.jupiter.api.function.Executable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
@@ -31,44 +32,44 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
 
     @Override
     @Test
-    void testInsertOk() throws IdConflictException {
-        super.testInsertOk();
+    void insertSuccessWithoutPayments() throws IdConflictException {
+        super.insertSuccessWithoutPayments();
     }
 
     @Override
     @Test
-    void testInsertOkWithPaymentsDeliveryMode() throws IdConflictException {
-        super.testInsertOkWithPaymentsDeliveryMode();
+    void insertSuccessWithPaymentsDeliveryMode() throws IdConflictException {
+        super.insertSuccessWithPaymentsDeliveryMode();
     }
 
     @Override
     @Test
-    void testInsertOkWithPaymentsFlat() throws IdConflictException {
-        super.testInsertOkWithPaymentsFlat();
+    void insertSuccessWithPaymentsFlat() throws IdConflictException {
+        super.insertSuccessWithPaymentsFlat();
     }
 
     @Override
     @Test
-    void testInsertOkWithPaymentsIuvOnly() throws IdConflictException {
-        super.testInsertOkWithPaymentsIuvOnly();
+    void insertSuccessWithPaymentsIuvOnly() throws IdConflictException {
+        super.insertSuccessWithPaymentsIuvOnly();
     }
 
     @Override
     @Test
-    void testInsertOkWithPaymentsNoIuv() throws IdConflictException {
-        super.testInsertOkWithPaymentsNoIuv();
+    void insertSuccessWithPaymentsNoIuv() throws IdConflictException {
+        super.insertSuccessWithPaymentsNoIuv();
     }
 
     @Override
     @Test
-    void testInsertFail() throws IdConflictException {
-        super.testInsertFail();
+    void insertFailForIunConflict() throws IdConflictException {
+        super.insertFailForIunConflict();
     }
 
     @Override
     @Test
-    void testDelete() throws IdConflictException {
-        super.testDelete();
+    void deleteSuccess() throws IdConflictException {
+        super.deleteSuccess();
     }
 
     @Test
@@ -161,8 +162,9 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
         }
 
         @Override
-        public NotificationEntity get(String iun) {
-            return storage.get( iun );
+        public Optional<NotificationEntity> get(String iun) {
+            NotificationEntity entity = storage.get( iun );
+            return Optional.ofNullable( entity );
         }
 
         @Override

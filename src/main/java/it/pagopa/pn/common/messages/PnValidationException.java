@@ -3,6 +3,7 @@ package it.pagopa.pn.common.messages;
 import it.pagopa.pn.api.dto.notification.Notification;
 
 import javax.validation.ConstraintViolation;
+import java.util.Collections;
 import java.util.Set;
 
 public class PnValidationException extends IllegalArgumentException {
@@ -11,7 +12,7 @@ public class PnValidationException extends IllegalArgumentException {
 
     public PnValidationException( Set<ConstraintViolation<Notification>> validationErrors ) {
         super( validationErrors.toString() );
-        this.validationErrors = validationErrors;
+        this.validationErrors = Collections.unmodifiableSet( validationErrors );
     }
 
     public Set<ConstraintViolation<Notification>> getValidationErrors() {

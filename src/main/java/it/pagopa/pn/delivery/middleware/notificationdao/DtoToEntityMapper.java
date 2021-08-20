@@ -43,7 +43,7 @@ public class DtoToEntityMapper {
                 .senderPaId( dto.getSender().getPaId() )
                 .recipientsJson( recipientList2json( dto.getRecipients() ))
                 .recipientsOrder( dto.getRecipients().stream()
-                        .map( recipient -> recipient.getFc() )
+                        .map( recipient -> recipient.getTaxId() )
                         .collect(Collectors.toList())
                     )
                 .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
@@ -103,7 +103,7 @@ public class DtoToEntityMapper {
     private Map<String, String> recipientList2json(List<NotificationRecipient> recipients) {
         Map<String, String> result = new ConcurrentHashMap<>();
         recipients.forEach( recipient -> {
-            result.put( recipient.getFc(), recipient2JsonString( recipient ));
+            result.put( recipient.getTaxId(), recipient2JsonString( recipient ));
         });
         return result;
     }
