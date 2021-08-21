@@ -7,13 +7,9 @@ import java.util.Optional;
 
 public interface NotificationDao {
 
-    public static final String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.delivery-dao";
-    /**
-     * Gestisce anche l' "annullamento" delle notifiche precedenti
-     *
-     * @param notification
-     * @return
-     */
+    static final String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.delivery-dao";
+
+    // FIXME: manca gestione annullamento
     void addNotification(Notification notification ) throws IdConflictException;
 
     Optional<Notification> getNotificationByIun(String iun );

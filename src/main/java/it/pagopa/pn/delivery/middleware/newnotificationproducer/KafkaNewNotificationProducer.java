@@ -15,11 +15,8 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty( name = NewNotificationProducer.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.KAFKA )
 public class KafkaNewNotificationProducer extends AbstractKafkaMomProducer<PnDeliveryNewNotificationEvent> implements NewNotificationProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-
     public KafkaNewNotificationProducer(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper, PnDeliveryConfigs cfg ) {
         super(kafkaTemplate, cfg.getTopics().getNewNotifications(), objectMapper, PnDeliveryNewNotificationEvent.class);
-        this.kafkaTemplate = kafkaTemplate;
     }
 
 }

@@ -19,12 +19,10 @@ import java.util.stream.Collectors;
 @Component
 public class DtoToEntityMapper {
 
-    private final ObjectMapper objMapper;
     private final ObjectWriter recipientWriter;
 
     public DtoToEntityMapper(ObjectMapper objMapper) {
-        this.objMapper = objMapper;
-        this.recipientWriter = this.objMapper.writerFor(NotificationRecipient.class);
+        this.recipientWriter = objMapper.writerFor(NotificationRecipient.class);
     }
 
     //@Mapping( target = "iun", source = "iun")
@@ -43,7 +41,7 @@ public class DtoToEntityMapper {
                 .senderPaId( dto.getSender().getPaId() )
                 .recipientsJson( recipientList2json( dto.getRecipients() ))
                 .recipientsOrder( dto.getRecipients().stream()
-                        .map( recipient -> recipient.getTaxId() )
+                        .map( NotificationRecipient::getTaxId )
                         .collect(Collectors.toList())
                     )
                 .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
@@ -64,7 +62,7 @@ public class DtoToEntityMapper {
 
     private List<String> listDocumentsVersionIds(List<NotificationAttachment> documents) {
         return documents.stream()
-                .map( doc -> doc.getSavedVersionId() )
+                .map( NotificationAttachment::getSavedVersionId )
                 .collect(Collectors.toList());
     }
 
@@ -102,9 +100,9 @@ public class DtoToEntityMapper {
 
     private Map<String, String> recipientList2json(List<NotificationRecipient> recipients) {
         Map<String, String> result = new ConcurrentHashMap<>();
-        recipients.forEach( recipient -> {
-            result.put( recipient.getTaxId(), recipient2JsonString( recipient ));
-        });
+        recipients.forEach( recipient ->
+            result.put( recipient.getTaxId(), recipient2JsonString( recipient ))
+        );
         return result;
     }
 

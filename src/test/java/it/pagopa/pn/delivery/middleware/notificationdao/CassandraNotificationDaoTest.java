@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.KeyValueStore;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.model.notification.cassandra.NotificationEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,13 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
 
-    private DtoToEntityMapper dto2Entity;
     private EntityToDtoMapper entity2dto;
 
     @BeforeEach
     void instantiateDao() {
         ObjectMapper objMapper = new ObjectMapper();
-        dto2Entity = new DtoToEntityMapper( objMapper );
+        DtoToEntityMapper dto2Entity = new DtoToEntityMapper( objMapper );
         entity2dto = new EntityToDtoMapper( objMapper );
 
         KeyValueStore<String, NotificationEntity> entityDao = new EntityDaoMock();
@@ -82,10 +82,10 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> { entity2dto.entity2Dto( entity ); };
+        Executable todo = () -> entity2dto.entity2Dto( entity );
 
         // THEN
-        Assertions.assertThrows( IllegalStateException.class,  todo );
+        Assertions.assertThrows( PnInternalException.class,  todo );
     }
 
     @Test
@@ -99,10 +99,10 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> { entity2dto.entity2Dto( entity ); };
+        Executable todo = () -> entity2dto.entity2Dto( entity );
 
         // THEN
-        Assertions.assertThrows( IllegalStateException.class,  todo );
+        Assertions.assertThrows( PnInternalException.class,  todo );
     }
 
     @Test
@@ -118,10 +118,10 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> { entity2dto.entity2Dto( entity ); };
+        Executable todo = () -> entity2dto.entity2Dto( entity );
 
         // THEN
-        Assertions.assertThrows( IllegalStateException.class,  todo );
+        Assertions.assertThrows( PnInternalException.class,  todo );
     }
 
     @Test
@@ -137,10 +137,10 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> { entity2dto.entity2Dto( entity ); };
+        Executable todo = () -> entity2dto.entity2Dto( entity );
 
         // THEN
-        Assertions.assertThrows( IllegalStateException.class,  todo );
+        Assertions.assertThrows( PnInternalException.class,  todo );
     }
 
 

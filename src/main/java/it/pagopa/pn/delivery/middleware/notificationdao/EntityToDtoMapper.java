@@ -4,26 +4,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.api.dto.notification.*;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.model.notification.cassandra.NotificationEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 //@Mapper( componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 @Component
 public class EntityToDtoMapper {
 
-    private final ObjectMapper objMapper;
     private final ObjectReader recipientReader;
 
     public EntityToDtoMapper(ObjectMapper objMapper) {
-        this.objMapper = objMapper;
-        this.recipientReader = this.objMapper.readerFor( NotificationRecipient.class );
+        this.recipientReader = objMapper.readerFor( NotificationRecipient.class );
     }
 
     public Notification entity2Dto(NotificationEntity entity) {
@@ -42,21 +39,16 @@ public class EntityToDtoMapper {
 
                 .documents( buildDocumentsList( entity ) );
 
-        boolean anyPaymentFieldNotNull = Arrays.asList(
+        boolean anyPaymentFieldNotNull = Stream.of(
                     entity.getIuv(), entity.getNotificationFeePolicy(),
                     entity.getF24AnalogDigestSha256(), entity.getF24AnalogVersionId(),
-                entity.getF24DigitalDigestSha256(), entity.getF24DigitalVersionId(),
-                entity.getF24FlatRateDigestSha256(), entity.getF24FlatRateVersionId()
+                    entity.getF24DigitalDigestSha256(), entity.getF24DigitalVersionId(),
+                    entity.getF24FlatRateDigestSha256(), entity.getF24FlatRateVersionId()
                 )
-                .stream().anyMatch( val -> val != null);
+                .anyMatch( Objects::nonNull );
         if ( anyPaymentFieldNotNull ) {
             builder.payment( buildNotificationPaymentInfo( entity ) );
         }
-
-        // Generated from timeline table
-        //.notificationStatus()
-        //.notificationStatusHistory()
-        //.timeline()
 
         return builder.build();
     }
@@ -75,8 +67,8 @@ public class EntityToDtoMapper {
         NotificationAttachment f24FlatRate = buildF24Attachment(
                            entity.getF24FlatRateVersionId(), entity.getF24FlatRateDigestSha256() );
 
-        boolean anyF24moduleNotNull = Arrays.asList( f24Analog, f24Digital, f24FlatRate )
-                .stream().anyMatch( f24 -> f24 != null);
+        boolean anyF24moduleNotNull = Stream.of( f24Analog, f24Digital, f24FlatRate )
+                .anyMatch( Objects::nonNull );
 
         if( anyF24moduleNotNull ) {
             builder.f24( NotificationPaymentInfo.F24.builder()
@@ -105,8 +97,7 @@ public class EntityToDtoMapper {
                     .build();
         }
         else {
-            // FIXME messaggistica ed eccezioni
-            throw new IllegalStateException( "Error version (" + version + ") and sha256 (" + sha256 + ") are both required or both blank" );
+            throw new PnInternalException( "Error version (" + version + ") and sha256 (" + sha256 + ") are both required or both blank" );
         }
         return result;
     }
@@ -117,7 +108,7 @@ public class EntityToDtoMapper {
 
         int length = documentsDigestsSha256.size();
         if ( length != documentsVersionIds.size() ) {
-            throw new IllegalStateException(" Notification entity with iun " + entity.getIun() + " hash different quantity of document versions and sha"); // FIXME handle exceptions
+            throw new PnInternalException(" Notification entity with iun " + entity.getIun() + " hash different quantity of document versions and sha");
         }
 
         List<NotificationAttachment> result = new ArrayList<>();
@@ -147,7 +138,7 @@ public class EntityToDtoMapper {
         try {
             return this.recipientReader.readValue( jsonString );
         } catch (JsonProcessingException exc) {
-            throw new IllegalStateException( exc ); // FIXME gestione eccezioni
+            throw new PnInternalException( "Parsing cassandra stored json", exc );
         }
     }
 }

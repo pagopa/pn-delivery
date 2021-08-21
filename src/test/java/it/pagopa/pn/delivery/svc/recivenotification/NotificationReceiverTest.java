@@ -6,14 +6,16 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Collections;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.*;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.common.messages.PnValidationException;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -136,7 +138,7 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( notification );
 
 		// Then
-		Assertions.assertThrows(PnValidationException.class, todo );
+		Assertions.assertThrows( PnValidationException.class, todo );
 	}
 
 	@Test
@@ -152,7 +154,7 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( notification );
 
 		// Then
-		Assertions.assertThrows(IllegalStateException.class, todo );
+		Assertions.assertThrows( PnInternalException.class, todo );
 		Mockito.verify( notificationDao, Mockito.times( 1 ) )
 				                              .addNotification( Mockito.any( Notification.class ));
 	}
@@ -169,7 +171,7 @@ class NotificationReceiverTest {
 						.paId(" pa_02")
 						.build()
 				)
-				.recipients(Arrays.asList(
+				.recipients( Collections.singletonList(
 						NotificationRecipient.builder()
 								.taxId("Codice Fiscale 01")
 								.denomination("Nome Cognome/Ragione Sociale")
@@ -203,13 +205,9 @@ class NotificationReceiverTest {
 	}
 
 	private Notification newNotificationWithPaymentsDeliveryMode( ) {
-		return newNotificationWithPaymentsDeliveryMode( "IUV_01" );
-	}
-
-	private Notification newNotificationWithPaymentsDeliveryMode( String iuv ) {
 		return newNotificationWithoutPayments( ).toBuilder()
 				.payment( NotificationPaymentInfo.builder()
-						.iuv( iuv )
+						.iuv( "IUV_01" )
 						.notificationFeePolicy( NotificationPaymentInfoFeePolicies.DELIVERY_MODE )
 						.f24( NotificationPaymentInfo.F24.builder()
 								.digital( NotificationAttachment.builder()

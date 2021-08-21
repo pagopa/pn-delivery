@@ -11,6 +11,7 @@ import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class NotificationReceiverService {
 		validator.checkNewNotificationBeforeInsertAndThrow( notification );
 		log.debug("Validation OK for paNotificationId {}", notification.getPaNotificationId() );
 
-		String iun = doSave_rethrow( notification );
+		String iun = doSaveWithRethrow( notification );
 
 		NewNotificationResponse response = NewNotificationResponse.builder()
 				.iun( iun )
@@ -59,7 +60,7 @@ public class NotificationReceiverService {
 		return response;
 	}
 
-	private String doSave_rethrow( Notification notification ) {
+	private String doSaveWithRethrow( Notification notification ) {
 
 		String iun = generateIun();
 		log.info( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
@@ -69,9 +70,8 @@ public class NotificationReceiverService {
 			doSave(notification, iun);
 		}
 		catch ( IdConflictException exc ) {
-			log.warn("tryMultipleTimesToHandleIunCollision: duplicated iun {}", iun );
-			// FIXME handle exceptions
-			throw new IllegalStateException( exc );
+			log.warn("duplicated iun {}", iun );
+			throw new PnInternalException( "Duplicated IUN " + iun, exc );
 		}
 
 		return iun;

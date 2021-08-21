@@ -1,15 +1,12 @@
 package it.pagopa.pn.delivery.svc.recivenotification;
 
 import it.pagopa.pn.api.dto.notification.*;
-import it.pagopa.pn.common.messages.PnValidationException;
-import org.apache.commons.lang3.StringUtils;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 @Component
 public class NotificationReceiverValidator {

@@ -6,7 +6,6 @@ import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -18,9 +17,13 @@ import it.pagopa.pn.delivery.svc.recivenotification.NotificationReceiverService;
 
 @RestController
 public class PnSentDeliveryController implements PnDeliveryRestApi_methodReceiveNotification {
-	
-    @Autowired
-    private NotificationReceiverService svc;
+
+
+    private final NotificationReceiverService svc;
+
+    public PnSentDeliveryController(NotificationReceiverService svc) {
+        this.svc = svc;
+    }
 
     @Override
     @PostMapping(PnDeliveryRestConstants.SENDER_NOTIFICATIONS_PATH )
@@ -38,20 +41,5 @@ public class PnSentDeliveryController implements PnDeliveryRestApi_methodReceive
 
         return svc.receiveNotification( withSender );
     }
-
-    /*@PostMapping("")
-    @ResponseBody
-    public Mono<ResponseEntity<NewNotificationResponse>> send(
-            @RequestBody @JsonView(value = JsonViews.NotificationsView.Sent.class ) Notification notification,
-            @RequestHeader("X-PagoPA-PN-PA") String paId
-    ) {
-        Notification withSender = notification.withSender( NotificationSender.builder().paId( paId ).build() );
-        NewNotificationResponse addedNotification = svc.receiveNotification( notification );
-
-        ResponseEntity<NewNotificationResponse> entity = ResponseEntity.ok().body( addedNotification );
-        return Mono.just( entity );
-    }*/
-
-
 
 }

@@ -6,7 +6,7 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.common.messages.PnValidationException;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,11 +41,11 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
-        assertConstraintViolationNumberByField( errors, "documents", 1 );
-        assertConstraintViolationNumberByField( errors, "sender",1 );
-        assertConstraintViolationNumberByField( errors, "recipients", 1 );
-        assertConstraintViolationNumberByField( errors, "paNotificationId", 1 );
-        assertConstraintViolationNumberByField( errors, "subject",1 );
+        assertConstraintViolationPresentByField( errors, "documents" );
+        assertConstraintViolationPresentByField( errors, "sender" );
+        assertConstraintViolationPresentByField( errors, "recipients" );
+        assertConstraintViolationPresentByField( errors, "paNotificationId" );
+        assertConstraintViolationPresentByField( errors, "subject" );
         Assertions.assertEquals( 5, errors.size() );
     }
 
@@ -56,18 +56,18 @@ class NotificationReceiverValidationTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> { validator.checkNewNotificationBeforeInsertAndThrow(n); };
+        Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(n);
 
         // THEN
         PnValidationException validationException;
         validationException = Assertions.assertThrows(PnValidationException.class, todo );
 
         Set<ConstraintViolation<Notification>> errors = validationException.getValidationErrors();
-        assertConstraintViolationNumberByField( errors, "documents", 1 );
-        assertConstraintViolationNumberByField( errors, "sender",1 );
-        assertConstraintViolationNumberByField( errors, "recipients", 1 );
-        assertConstraintViolationNumberByField( errors, "paNotificationId", 1 );
-        assertConstraintViolationNumberByField( errors, "subject",1 );
+        assertConstraintViolationPresentByField( errors, "documents" );
+        assertConstraintViolationPresentByField( errors, "sender" );
+        assertConstraintViolationPresentByField( errors, "recipients" );
+        assertConstraintViolationPresentByField( errors, "paNotificationId" );
+        assertConstraintViolationPresentByField( errors, "subject" );
         Assertions.assertEquals( 5, errors.size() );
     }
 
@@ -89,9 +89,9 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
-        assertConstraintViolationNumberByField( errors, "sender.paId",1 );
-        assertConstraintViolationNumberByField( errors, "documents", 1 );
-        assertConstraintViolationNumberByField( errors, "recipients", 1 );
+        assertConstraintViolationPresentByField( errors, "sender.paId" );
+        assertConstraintViolationPresentByField( errors, "documents" );
+        assertConstraintViolationPresentByField( errors, "recipients" );
         Assertions.assertEquals( 3, errors.size() );
     }
 
@@ -115,8 +115,8 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
-        assertConstraintViolationNumberByField( errors, "documents[0]", 1 );
-        assertConstraintViolationNumberByField( errors, "recipients[0]", 1 );
+        assertConstraintViolationPresentByField( errors, "documents[0]" );
+        assertConstraintViolationPresentByField( errors, "recipients[0]" );
         Assertions.assertEquals( 2, errors.size() );
     }
 
@@ -144,12 +144,12 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
-        assertConstraintViolationNumberByField( errors, "documents[0].contentType", 1 );
-        assertConstraintViolationNumberByField( errors, "documents[0].body", 1 );
-        assertConstraintViolationNumberByField( errors, "documents[0].digests", 1 );
-        assertConstraintViolationNumberByField( errors, "recipients[0].taxId", 1 );
-        assertConstraintViolationNumberByField( errors, "recipients[0].denomination", 1 );
-        assertConstraintViolationNumberByField( errors, "recipients[0].digitalDomicile", 1 );
+        assertConstraintViolationPresentByField( errors, "documents[0].contentType" );
+        assertConstraintViolationPresentByField( errors, "documents[0].body" );
+        assertConstraintViolationPresentByField( errors, "documents[0].digests" );
+        assertConstraintViolationPresentByField( errors, "recipients[0].taxId" );
+        assertConstraintViolationPresentByField( errors, "recipients[0].denomination" );
+        assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile" );
         Assertions.assertEquals( 6, errors.size() );
     }
 
@@ -183,9 +183,9 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
-        assertConstraintViolationNumberByField( errors, "documents[0].digests.sha256", 1 );
-        assertConstraintViolationNumberByField( errors, "recipients[0].digitalDomicile.address", 1 );
-        assertConstraintViolationNumberByField( errors, "recipients[0].digitalDomicile.type", 1 );
+        assertConstraintViolationPresentByField( errors, "documents[0].digests.sha256" );
+        assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.address" );
+        assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.type" );
         Assertions.assertEquals( 3, errors.size() );
     }
 
@@ -224,15 +224,15 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationBeforeInsert( wrongEmail );
 
         // THEN
-        assertConstraintViolationNumberByField( errors, "recipients[0].digitalDomicile.address", 1 );
+        assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.address" );
         Assertions.assertEquals( 1, errors.size() );
     }
 
-    private <T> void assertConstraintViolationNumberByField( Set<ConstraintViolation<T>> set, String propertyPath, long number) {
+    private <T> void assertConstraintViolationPresentByField( Set<ConstraintViolation<T>> set, String propertyPath ) {
         long actual = set.stream()
                 .filter( cv -> propertyPathToString( cv.getPropertyPath() ).equals( propertyPath ) )
                 .count();
-        Assertions.assertEquals( number, actual, "expected validation errors on " + propertyPath );
+        Assertions.assertEquals( 1, actual, "expected validation errors on " + propertyPath );
     }
 
     private static String propertyPathToString( Path propertyPath ) {
@@ -240,7 +240,7 @@ class NotificationReceiverValidationTest {
     }
 
     private Notification validDocumentWithoutPayments() {
-        Notification n = Notification.builder()
+        return Notification.builder()
                 .paNotificationId( "protocol1" )
                 .subject( "subject" )
                 .sender(NotificationSender.builder()
@@ -267,6 +267,5 @@ class NotificationReceiverValidationTest {
                         .build())
                 )
                 .build();
-        return n;
     }
 }

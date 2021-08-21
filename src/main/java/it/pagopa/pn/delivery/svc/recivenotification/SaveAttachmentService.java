@@ -103,6 +103,12 @@ public class SaveAttachmentService {
                 .build();
     }
 
+    /**
+     *
+     * @param key the path where to save the <code>attachment</code>
+     * @param attachment the file to save
+     * @return the versionId of the saved file
+     */
     private String saveOneAttachmentToFileStorage( String key, NotificationAttachment attachment ) {
 
         Map<String, String> metadata = new HashMap<>();
@@ -113,7 +119,6 @@ public class SaveAttachmentService {
 
         byte[] body = Base64.getDecoder().decode( attachment.getBody() );
 
-        String versionId = fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );
-        return versionId;
+        return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );
     }
 }
