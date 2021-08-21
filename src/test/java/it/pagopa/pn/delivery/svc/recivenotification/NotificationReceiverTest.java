@@ -60,7 +60,7 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void testReceiveNotification_valid_with_payments_delivery_mode() throws IdConflictException {
+	void successWritingNotificationWithPaymentsInformationWithDeliveryModeFee() throws IdConflictException {
 		ArgumentCaptor<Notification> savedNotificationCaptor = ArgumentCaptor.forClass(Notification.class);
 
 		// Given
@@ -84,7 +84,7 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void testReceiveNotification_valid_with_payments_flat() throws IdConflictException {
+	void successWritingNotificationWithPaymentsInformationWithFlatFee() throws IdConflictException {
 		ArgumentCaptor<Notification> savedNotification = ArgumentCaptor.forClass(Notification.class);
 
 		// Given
@@ -106,7 +106,7 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void testReceiveNotification_valid_without_payments() throws IdConflictException {
+	void successWritingNotificationWithoutPaymentsInformation() throws IdConflictException {
 		ArgumentCaptor<Notification> savedNotification = ArgumentCaptor.forClass(Notification.class);
 
 		// Given
@@ -129,7 +129,7 @@ class NotificationReceiverTest {
 
 
 	@Test
-	void testReceiveNotification_invalid() {
+	void throwsPnValidationExceptionForInvalidFormatNotification() {
 
 		// Given
 		Notification notification = Notification.builder().build();
@@ -142,7 +142,7 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void testReceiveNotification_conflict() throws IdConflictException {
+	void throwsPnInternalExceptionInTheUncommonCaseOfDuplicatedIun() throws IdConflictException {
 		// Given
 		Mockito.doThrow( new IdConflictException("IUN") )
 				.when( notificationDao )

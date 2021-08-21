@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 abstract class AbstractNotificationDaoTest {
@@ -129,7 +130,7 @@ abstract class AbstractNotificationDaoTest {
                         .paId(" pa_02")
                         .build()
                 )
-                .recipients(Arrays.asList(
+                .recipients( Collections.singletonList(
                         NotificationRecipient.builder()
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
