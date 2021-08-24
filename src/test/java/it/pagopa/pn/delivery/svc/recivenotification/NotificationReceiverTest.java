@@ -159,6 +159,29 @@ class NotificationReceiverTest {
 				                              .addNotification( Mockito.any( Notification.class ));
 	}
 
+	@Test
+	void successfullyInsertAfterPartialFailure() throws IdConflictException {
+		// Given
+		Mockito.doThrow( new PnInternalException("Simulated Error") )
+				.doNothing()
+				.when( notificationDao )
+				.addNotification( Mockito.any( Notification.class) );
+
+		Notification notification = newNotificationWithPaymentsDeliveryMode( );
+
+		// When
+		Assertions.assertThrows( PnInternalException.class, () ->
+				deliveryService.receiveNotification( notification )
+			);
+		deliveryService.receiveNotification( notification );
+
+		// Then
+		Mockito.verify( notificationDao, Mockito.times( 2 ) )
+				.addNotification( Mockito.any( Notification.class ));
+		Mockito.verify( fileStorage, Mockito.times( 8 ) )
+				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap() );
+	}
+
 
 	private Notification newNotificationWithoutPayments( ) {
 		return Notification.builder()
