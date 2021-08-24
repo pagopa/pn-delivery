@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.middleware.cassandra;
+package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 import it.pagopa.pn.commons.abstractions.impl.AbstractCassandraKeyValueStore;

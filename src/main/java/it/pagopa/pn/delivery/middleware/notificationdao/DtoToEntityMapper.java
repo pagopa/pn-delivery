@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.middleware.cassandra;
+package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,12 +19,10 @@ import java.util.stream.Collectors;
 @Component
 public class DtoToEntityMapper {
 
-    private final ObjectMapper objMapper;
     private final ObjectWriter recipientWriter;
 
     public DtoToEntityMapper(ObjectMapper objMapper) {
-        this.objMapper = objMapper;
-        this.recipientWriter = this.objMapper.writerFor(NotificationRecipient.class);
+        this.recipientWriter = objMapper.writerFor(NotificationRecipient.class);
     }
 
     //@Mapping( target = "iun", source = "iun")
@@ -42,11 +40,13 @@ public class DtoToEntityMapper {
                 .cancelledByIun( dto.getCancelledByIun() )
                 .senderPaId( dto.getSender().getPaId() )
                 .recipientsJson( recipientList2json( dto.getRecipients() ))
+                .recipientsOrder( dto.getRecipients().stream()
+                        .map( NotificationRecipient::getTaxId )
+                        .collect(Collectors.toList())
+                    )
                 .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
                 .documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
             ;
-
-
 
         NotificationPaymentInfo paymentInfo = dto.getPayment();
         fillBuilderWithPaymentInfo(builder, paymentInfo);
@@ -62,7 +62,7 @@ public class DtoToEntityMapper {
 
     private List<String> listDocumentsVersionIds(List<NotificationAttachment> documents) {
         return documents.stream()
-                .map( doc -> doc.getSavedVersionId() )
+                .map( NotificationAttachment::getSavedVersionId )
                 .collect(Collectors.toList());
     }
 
@@ -92,7 +92,7 @@ public class DtoToEntityMapper {
                 if( analogF24 != null ) {
                     builder
                             .f24AnalogDigestSha256( analogF24.getDigests().getSha256() )
-                            .f24DigitalVersionId(analogF24.getSavedVersionId() );
+                            .f24AnalogVersionId( analogF24.getSavedVersionId() );
                 }
             }
         }
@@ -100,9 +100,9 @@ public class DtoToEntityMapper {
 
     private Map<String, String> recipientList2json(List<NotificationRecipient> recipients) {
         Map<String, String> result = new ConcurrentHashMap<>();
-        recipients.forEach( recipient -> {
-            result.put( recipient.getFc(), recipient2JsonString( recipient ));
-        });
+        recipients.forEach( recipient ->
+            result.put( recipient.getTaxId(), recipient2JsonString( recipient ))
+        );
         return result;
     }
 
@@ -113,7 +113,5 @@ public class DtoToEntityMapper {
             throw new IllegalStateException( exc );
         }
     }
-
-
 
 }
