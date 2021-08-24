@@ -44,6 +44,14 @@ public class NotificationReceiverService {
 		this.validator = validator;
 	}
 
+	/**
+	 * Store metadata and documents about a new notification request
+	 *
+	 * @param notification Public Administration notification request that PN have to forward to
+	 *                     one or more recipient
+	 * @return A model with the generated IUN and the paNotificationId sent by the
+	 *         Public Administration
+	 */
 	public NewNotificationResponse receiveNotification(Notification notification) {
 		log.debug("New notification storing START for {}", notification );
 		validator.checkNewNotificationBeforeInsertAndThrow( notification );
@@ -99,7 +107,7 @@ public class NotificationReceiverService {
 		notificationDao.addNotification( notificationWithCompleteMetadata );
 	}
 
-	public String generateIun() {
+	private String generateIun() {
 		String uuid = UUID.randomUUID().toString();
 		Instant now = Instant.now(clock);
 		OffsetDateTime nowUtc = now.atOffset( ZoneOffset.UTC );
