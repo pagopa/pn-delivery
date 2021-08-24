@@ -66,12 +66,6 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
         super.insertFailForIunConflict();
     }
 
-    @Override
-    @Test
-    void deleteSuccess() throws IdConflictException {
-        super.deleteSuccess();
-    }
-
     @Test
     void testWrongRecipientJson() {
         // GIVEN

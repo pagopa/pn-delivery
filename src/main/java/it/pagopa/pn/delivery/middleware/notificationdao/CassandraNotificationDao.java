@@ -29,7 +29,6 @@ public class CassandraNotificationDao implements NotificationDao {
 
     @Override
     public void addNotification(Notification notification) throws IdConflictException {
-
         NotificationEntity entity = dto2entityMapper.dto2Entity( notification );
         notificationEntityDao.putIfAbsent( entity );
     }
@@ -39,11 +38,5 @@ public class CassandraNotificationDao implements NotificationDao {
         return notificationEntityDao.get( iun )
                 .map( entity2dtoMapper::entity2Dto );
     }
-
-    @Override
-    public void deleteNotificationByIun(String iun) {
-        notificationEntityDao.delete( iun );
-    }
-
 
 }

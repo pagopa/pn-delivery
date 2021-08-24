@@ -104,20 +104,6 @@ abstract class AbstractNotificationDaoTest {
     }
 
 
-    void deleteSuccess() throws IdConflictException {
-
-        // GIVEN
-        Notification notification = newNotificationWithoutPayments( );
-
-        // WHEN
-        this.dao.addNotification( notification );
-        this.dao.deleteNotificationByIun( notification.getIun() );
-
-        // THEN
-        Optional<Notification> oldNotification = this.dao.getNotificationByIun(notification.getIun());
-        Assertions.assertTrue( oldNotification.isEmpty() );
-    }
-
 
     private Notification newNotificationWithoutPayments() {
         return Notification.builder()
@@ -217,7 +203,5 @@ abstract class AbstractNotificationDaoTest {
                 )
                 .build();
     }
-
-
 
 }

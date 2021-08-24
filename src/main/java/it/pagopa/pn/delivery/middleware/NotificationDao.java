@@ -14,6 +14,5 @@ public interface NotificationDao {
 
     Optional<Notification> getNotificationByIun(String iun );
 
-    void deleteNotificationByIun( String iun );
 
 }
