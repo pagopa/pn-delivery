@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.delivery.model.notification.cassandra.NotificationEntity;
 import it.pagopa.pn.delivery.svc.recivenotification.NotificationReceiverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -45,7 +44,7 @@ class PnSentDeliveryControllerTest {
                 .uri("/delivery/notifications/sent")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(notification), NotificationEntity.class)
+                .body(Mono.just(notification), Notification.class)
                 .header("X-PagoPA-PN-PA", PA_ID)
                 .exchange()
                 .expectStatus().isOk();

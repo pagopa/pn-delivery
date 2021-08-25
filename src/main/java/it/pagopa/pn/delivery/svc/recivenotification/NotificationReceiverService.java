@@ -12,8 +12,8 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
-import it.pagopa.pn.delivery.middleware.NotificationDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -52,6 +52,7 @@ public class NotificationReceiverService {
 	 * @return A model with the generated IUN and the paNotificationId sent by the
 	 *         Public Administration
 	 */
+	// FIXME: manca gestione annullamento
 	public NewNotificationResponse receiveNotification(Notification notification) {
 		log.debug("New notification storing START for {}", notification );
 		validator.checkNewNotificationBeforeInsertAndThrow( notification );
@@ -90,6 +91,7 @@ public class NotificationReceiverService {
 		String paId = notification.getSender().getPaId();
 		Notification notificationWithIun = notification.toBuilder()
 				.iun( iun )
+				.sentAt( createdAt )
 				.sender( NotificationSender.builder()
 						.paId( paId )
 						.build()

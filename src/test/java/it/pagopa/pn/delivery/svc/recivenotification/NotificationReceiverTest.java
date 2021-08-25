@@ -16,8 +16,8 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
-import it.pagopa.pn.delivery.middleware.NotificationDao;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Assertions;

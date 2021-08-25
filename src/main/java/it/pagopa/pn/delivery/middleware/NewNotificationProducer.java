@@ -23,7 +23,7 @@ public interface NewNotificationProducer extends MomProducer<PnDeliveryNewNotifi
                         .iun( iun )
                         .eventId( iun + "_start" )
                         .createdAt( when )
-                        .eventType( EventType.NEW_NOTIFICATION )
+                        .eventType( EventType.NEW_NOTIFICATION.name() )
                         .publisher( EventPublisher.DELIVERY.name() )
                         .build()
                 )
