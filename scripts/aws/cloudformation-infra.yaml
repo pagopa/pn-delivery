@@ -345,6 +345,8 @@ Resources:
           ColumnType: text
         - ColumnName: senderpaid
           ColumnType: text
+        - ColumnName: sentat
+          ColumnType: timestamp
         - ColumnName: recipientsjson
           ColumnType: map<text, text>
         - ColumnName: documentsdigestssha256
