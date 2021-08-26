@@ -349,6 +349,8 @@ Resources:
           ColumnType: timestamp
         - ColumnName: recipientsjson
           ColumnType: map<text, text>
+        - ColumnName: recipientsorder
+          ColumnType: list<text>
         - ColumnName: documentsdigestssha256
           ColumnType: list<text>
         - ColumnName: documentsversionids
