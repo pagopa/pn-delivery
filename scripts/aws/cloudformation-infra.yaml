@@ -372,6 +372,28 @@ Resources:
         - ColumnName: f24analogversionid
           ColumnType: text
 
+  TimelineTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: timelines
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: iun
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: timeline_element_id
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: category
+          ColumnType: text
+        - ColumnName: details
+          ColumnType: text
+        - ColumnName: timestamp
+          ColumnType: timestamp
+
 Outputs:
   CluserArn:
     Description: ARN del cluster fargate
