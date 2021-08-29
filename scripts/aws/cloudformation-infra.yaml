@@ -13,22 +13,6 @@ Parameters:
     Description: cassandra keyspace name
 
 Resources:
-  AttachmentsBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    Properties:
-      # No default retentin neither legal hold.
-      # Can define retention period or legal hold when upload new object or version
-      ObjectLockEnabled: true
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
-
-
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
@@ -71,7 +55,7 @@ Resources:
             - Name: PN_DELIVERY_TOPICS_NEWNOTIFICATIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
             - Name: AWS_BUCKETNAME
-              Value: !Sub '${AttachmentsBucket}'
+              Value: !ImportValue { "Fn::Sub": '${EnvName}-attachments-bucket-name' }
             - Name: PN_DELIVERY_IUNRETRY
               Value: 3
             - Name: SPRING_DATA_CASSANDRA_KEYSPACENAME
@@ -115,7 +99,6 @@ Resources:
             Action: 'sts:AssumeRole'
   TaskPolicy:
     Type: AWS::IAM::Policy
-    DependsOn: AttachmentsBucket
     Properties:
       PolicyName: !Sub ${EnvName}-inst-delivery-policy
       PolicyDocument:
@@ -156,7 +139,10 @@ Resources:
               - s3:PutObjectTagging
               - s3:PutObjectVersionTagging
             Resource:
-              - !Sub '${AttachmentsBucket.Arn}/*'
+              - !Join
+                - '/'
+                - - !ImportValue { "Fn::Sub": '${EnvName}-attachments-bucket-arn' }
+                  - '*'
           - Effect: Allow
             Action:
               - cassandra:Modify
