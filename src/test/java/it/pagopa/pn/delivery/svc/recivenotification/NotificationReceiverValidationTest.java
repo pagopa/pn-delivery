@@ -4,13 +4,10 @@ import it.pagopa.pn.api.dto.notification.*;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.springframework.aop.TargetClassAware;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Path;
@@ -292,7 +289,7 @@ class NotificationReceiverValidationTest {
                         .body("Body")
                         .contentType("Content/Type")
                         .digests( NotificationAttachment.Digests.builder()
-                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                .sha256("39e7bbf1482cf06af71ff997e1fd834bbc62082f1cc9c065dda384fdbe19189e")
                                 .build()
                         )
                         .build())
@@ -351,19 +348,22 @@ class NotificationReceiverValidationTest {
                 )
                 .payment( NotificationPaymentInfo.builder()
                         .f24(NotificationPaymentInfo.F24.builder()
-                                .analog(NotificationAttachment.builder().body("Body")
+                                .analog(NotificationAttachment.builder()
+                                        .body("Body!")
                                         .contentType("Content/Type")
                                         .digests( NotificationAttachment.Digests.builder()
                                                 .sha256("a2ebebe39")
                                                 .build()
                                         ).build())
-                                .flatRate(NotificationAttachment.builder().body("Body")
+                                .flatRate(NotificationAttachment.builder()
+                                        .body("Body")
                                         .contentType("Content/Type")
                                         .digests( NotificationAttachment.Digests.builder()
                                                 .sha256("a2ebebe39")
                                                 .build()
                                         ).build())
-                                .digital(NotificationAttachment.builder().body("Body")
+                                .digital(NotificationAttachment.builder()
+                                        .body("Body")
                                         .contentType("Content/Type")
                                         .digests( NotificationAttachment.Digests.builder()
                                                 .sha256("a2ebebe39")
@@ -420,7 +420,7 @@ class NotificationReceiverValidationTest {
     @Test
     public void testCheckF24AttachmentsArenotBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-        Notification notification = validDocumentWithoutPayments();
+        Notification notification = validDocumentWithFalseDocumentsAndPayments();
         Method method = validator.getClass().getDeclaredMethod("checkF24AttachmentsAreBase64", Notification.class);
         method.setAccessible(true);
         Assertions.assertFalse((Boolean) method.invoke(validator,notification));
