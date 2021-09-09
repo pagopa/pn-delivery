@@ -1,21 +1,23 @@
 package it.pagopa.pn.delivery.svc.recivenotification;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.api.dto.notification.*;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.aop.TargetClassAware;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Path;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
@@ -268,4 +270,170 @@ class NotificationReceiverValidationTest {
                 )
                 .build();
     }
+    private Notification validDocumentWithPayments() {
+        return Notification.builder()
+                .paNotificationId( "protocol1" )
+                .subject( "subject" )
+                .sender(NotificationSender.builder()
+                        .paId("paId")
+                        .build()
+                )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@domain.it")
+                                .build()
+                        )
+                        .build())
+                )
+                .documents( Collections.singletonList(NotificationAttachment.builder()
+                        .body("Body")
+                        .contentType("Content/Type")
+                        .digests( NotificationAttachment.Digests.builder()
+                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                .build()
+                        )
+                        .build())
+                )
+                .payment( NotificationPaymentInfo.builder()
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog(NotificationAttachment.builder().body("Body")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                                .build()
+                                        ).build())
+                                .flatRate(NotificationAttachment.builder().body("Body")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                                .build()
+                                        ).build())
+                                .digital(NotificationAttachment.builder().body("Body")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                                .build()
+                                        ).build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+    private Notification validDocumentWithFalseDocumentsAndPayments() {
+        return Notification.builder()
+                .paNotificationId( "protocol1" )
+                .subject( "subject" )
+                .sender(NotificationSender.builder()
+                        .paId("paId")
+                        .build()
+                )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@domain.it")
+                                .build()
+                        )
+                        .build())
+                )
+                .documents( Collections.singletonList(NotificationAttachment.builder()
+                        .body("Body")
+                        .digests( NotificationAttachment.Digests.builder()
+                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                .build()
+                        )
+                        .build())
+                )
+                .payment( NotificationPaymentInfo.builder()
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog(NotificationAttachment.builder().body("Body")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                                .build()
+                                        ).build())
+                                .flatRate(NotificationAttachment.builder().body("Body")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                                .build()
+                                        ).build())
+                                .digital(NotificationAttachment.builder().body("Body")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                                .build()
+                                        ).build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+
+    @Test
+    public void testCheckNotificationAttachmentsBodyIsBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Notification notification = validDocumentWithPayments();
+        Method method = validator.getClass().getDeclaredMethod("checkNotificationAttachmentsBodyIsBase64", Notification.class);
+        method.setAccessible(true);
+        Assertions.assertTrue((Boolean) method.invoke(validator,notification));
+
+    }
+
+    @Test
+    public void testCheckNotificationAttachmentsBodyIsNotBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Notification notification = validDocumentWithFalseDocumentsAndPayments();
+        Method method = validator.getClass().getDeclaredMethod("checkNotificationAttachmentsBodyIsBase64", Notification.class);
+        method.setAccessible(true);
+        Assertions.assertFalse((Boolean) method.invoke(validator,notification));
+
+    }
+
+    @Test
+    public void testCheckNotificationAttachmentsDigestIsSha256() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Notification notification = validDocumentWithPayments();
+        Method method = validator.getClass().getDeclaredMethod("checkNotificationAttachmentsDigestIsSha256", Notification.class);
+        method.setAccessible(true);
+        Assertions.assertTrue((Boolean) method.invoke(validator,notification));
+
+    }
+
+    @Test
+    public void testCheckNotificationAttachmentsDigestIsNotSha256() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Notification notification = validDocumentWithFalseDocumentsAndPayments();
+        Method method = validator.getClass().getDeclaredMethod("checkNotificationAttachmentsDigestIsSha256", Notification.class);
+        method.setAccessible(true);
+        Assertions.assertFalse((Boolean) method.invoke(validator,notification));
+
+    }
+
+
+
+    @Test
+    public void testCheckF24AttachmentsAreBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Notification notification = validDocumentWithPayments();
+        Method method = validator.getClass().getDeclaredMethod("checkF24AttachmentsAreBase64", Notification.class);
+        method.setAccessible(true);
+        Assertions.assertTrue((Boolean) method.invoke(validator,notification));
+
+    }
+
+    @Test
+    public void testCheckF24AttachmentsArenotBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Notification notification = validDocumentWithoutPayments();
+        Method method = validator.getClass().getDeclaredMethod("checkF24AttachmentsAreBase64", Notification.class);
+        method.setAccessible(true);
+        Assertions.assertFalse((Boolean) method.invoke(validator,notification));
+
+    }
+
 }
