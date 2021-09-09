@@ -385,16 +385,6 @@ class NotificationReceiverValidationTest {
     }
 
     @Test
-    public void testCheckNotificationAttachmentsBodyIsNotBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-        Notification notification = validDocumentWithFalseDocumentsAndPayments();
-        Method method = validator.getClass().getDeclaredMethod("checkNotificationAttachmentsBodyIsBase64", Notification.class);
-        method.setAccessible(true);
-        Assertions.assertFalse((Boolean) method.invoke(validator,notification));
-
-    }
-
-    @Test
     public void testCheckNotificationAttachmentsDigestIsSha256() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         Notification notification = validDocumentWithPayments();
