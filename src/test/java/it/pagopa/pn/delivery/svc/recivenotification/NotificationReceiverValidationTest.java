@@ -401,8 +401,8 @@ class NotificationReceiverValidationTest {
         Notification notification = validDocumentWithFalseDocumentsAndPayments();
         Method method = validator.getClass().getDeclaredMethod("checkNotificationAttachmentsDigestIsSha256", Notification.class);
         method.setAccessible(true);
-        Assertions.assertFalse((Boolean) method.invoke(validator,notification));
-
+        Exception exception = Assertions.assertThrows(InvocationTargetException.class, ()->{method.invoke(validator,notification);});
+        Assertions.assertEquals(PnValidationException.class, exception.getCause().getClass());
     }
 
 
@@ -418,12 +418,13 @@ class NotificationReceiverValidationTest {
     }
 
     @Test
-    public void testCheckF24AttachmentsArenotBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void testCheckF24AttachmentsAreNotBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         Notification notification = validDocumentWithFalseDocumentsAndPayments();
         Method method = validator.getClass().getDeclaredMethod("checkF24AttachmentsAreBase64", Notification.class);
         method.setAccessible(true);
-        Assertions.assertFalse((Boolean) method.invoke(validator,notification));
+        Exception exception = Assertions.assertThrows(InvocationTargetException.class, ()->{method.invoke(validator,notification);});
+        Assertions.assertEquals(PnValidationException.class, exception.getCause().getClass());
 
     }
 
