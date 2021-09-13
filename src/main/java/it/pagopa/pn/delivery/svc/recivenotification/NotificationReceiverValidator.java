@@ -26,60 +26,71 @@ public class NotificationReceiverValidator {
         if( ! errors.isEmpty() ) {
             throw new PnValidationException( errors );
         }
-        checkNotificationAttachmentsBodyIsBase64(notification);
-        checkNotificationAttachmentsDigestIsSha256(notification);
-        if(notification.getPayment()!=null) {
-            checkF24AttachmentsAreBase64(notification);
-        }
     }
 
     public Set<ConstraintViolation<Notification>> checkNewNotificationBeforeInsert(Notification notification) {
         return validator.validate( notification, NotificationJsonViews.New.class );
     }
 
-    private boolean checkNotificationAttachmentsBodyIsBase64(Notification notification){
-        for(NotificationAttachment attachment : notification.getDocuments()){
-            if(!Base64.isBase64(attachment.getBody())) {
-                throw new PnValidationException();
-            }
+    public void checkNotificationAttachmentsBodyIsBase64(Notification notification){
+        Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsBodyIsBase64Encoded( notification );
+        if( ! errors.isEmpty() ) {
+            throw new PnValidationException( errors );
         }
-        return true;
     }
 
-    private boolean checkNotificationAttachmentsDigestIsSha256(Notification notification){
-        String sha256Str;
+    private Set<ConstraintViolation<Notification>> checkNotificationAttachmentsBodyIsBase64Encoded(Notification notification) {
+            return validator.validate(notification, NotificationJsonViews.New.class);
+        }
+
+    public void checkNotificationAttachmentsDigestIsSha256(Notification notification){
+        Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsDigestIsSha256Encoded( notification );
+        if( ! errors.isEmpty() ) {
+            throw new PnValidationException( errors );
+        }
+    }
+
+    private Set<ConstraintViolation<Notification>> checkNotificationAttachmentsDigestIsSha256Encoded(Notification notification){
+        String sha256Str = null;
+        Set<ConstraintViolation<Notification>> errors = Set.of();
         for(NotificationAttachment attachment : notification.getDocuments()){
             if (Base64.isBase64(attachment.getBody())) {
                 byte[] base64Decoded = Base64.decodeBase64(attachment.getBody());
                 sha256Str = DigestUtils.sha256Hex(base64Decoded);
             }
-            else
-                throw new PnValidationException();
-
-            if(!attachment.getDigests().getSha256().equals(sha256Str))
-                throw new PnValidationException();
+            if(sha256Str.isEmpty() || !attachment.getDigests().getSha256().equals(sha256Str)) {
+                errors = validator.validate(notification, NotificationJsonViews.New.class);
+            }
         }
-        return true;
+        return errors;
     }
 
-    private boolean checkF24AttachmentsAreBase64(Notification notification){
+    private Set<ConstraintViolation<Notification>> checkF24AttachmentsAreBase64(Notification notification){
 
         if(notification.getPayment().getF24().getFlatRate()!=null) {
-            NotificationAttachment flatRateAttachment = notification.getPayment().getF24().getFlatRate();
-            if(!Base64.isBase64(flatRateAttachment.getBody()))
-                throw new PnValidationException();
+            Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsBodyIsBase64Encoded( notification );
+            if( ! errors.isEmpty() ) {
+                throw new PnValidationException(errors);
+            }
         }
+
         if(notification.getPayment().getF24().getDigital()!=null) {
-            NotificationAttachment digitalAttachment = notification.getPayment().getF24().getDigital();
-            if(!Base64.isBase64(digitalAttachment.getBody()))
-                throw new PnValidationException();
+            Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsBodyIsBase64Encoded( notification );
+            if( ! errors.isEmpty() ) {
+                throw new PnValidationException(errors);
+            }
         }
 
         if(notification.getPayment().getF24().getAnalog()!=null) {
-            NotificationAttachment analogAttachment = notification.getPayment().getF24().getAnalog();
-            if(!Base64.isBase64(analogAttachment.getBody()))
-                throw new PnValidationException();
+            Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsBodyIsBase64Encoded( notification );
+            if( ! errors.isEmpty() ) {
+                throw new PnValidationException(errors);
+            }
         }
-        return true;
+        return Set.of();
+    }
+
+    private Set<ConstraintViolation<NotificationAttachment>> checkAttachment(NotificationAttachment notification){
+        return validator.validate(notification, NotificationJsonViews.New.class);
     }
 }
