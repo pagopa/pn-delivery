@@ -12,26 +12,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.Bucket;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 @Service
 @Slf4j
 public class DocumentAcknoledgementService {
 
-	private final S3Client s3client;
+	private final FileStorage fileStorage;
 
 	@Autowired
-	public DocumentAcknoledgementService( S3Client s3Client ) {
-		this.s3client = s3Client;
+	public DocumentAcknoledgementService( FileStorage fileStorage ) {
+		this.fileStorage = fileStorage;
 	}
 
 	/**
@@ -47,27 +43,19 @@ public class DocumentAcknoledgementService {
 	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex) {
 		log.debug( "Document download START for iun and documentIndex {}" , iun, documentIndex);
 		 
-		// GET BUCKET
-		Bucket bucket = bucket();
-		String bucketName = bucket.name();
-		
-		// READ FILES / DIRECTORY
 		String keyPrefix = iun + "/legalfacts/";
 		
-		List<S3Object> s3ObjectList = s3ObjectList(bucketName, keyPrefix);
-		
+		List<S3Object> s3ObjectList = fileStorage.getFilesByKeyPrefix( keyPrefix );
+				
 		if ( documentIndex >= s3ObjectList.size() ) {
 			log.warn( "Document ndex out of bound for iun: " + iun + " and documentIndex: " + documentIndex );
 			throw new PnInternalException( "Document ndex out of bound for iun: " + iun + " and documentIndex: " + documentIndex );
 		}
 		
-		// GET DOCUMENT KEY BY DOCUMENT INDEX
 		String documentKey = s3ObjectList.get( documentIndex ).key();
-		
-		ResponseInputStream<GetObjectResponse> s3Object = s3Object(bucketName, documentKey);	
+		ResponseInputStream<GetObjectResponse> s3Object = fileStorage.getFileByKey( documentKey );
 		
         HttpHeaders headers = headers( documentKey.substring( documentKey.lastIndexOf("/") + 1) );
-        
 	    InputStreamResource resource = null;
 	    Long contentLength = null;
 		try {
@@ -87,32 +75,6 @@ public class DocumentAcknoledgementService {
 		
 		log.debug("downloadDocument: response {}", response);
 	    return response;
-	}
-
-	private Bucket bucket() {
-		List<Bucket> buckets =	s3client.listBuckets().buckets();
-		Bucket bucket = buckets.get( 0 );
-		return bucket;
-	}
-	
-	private List<S3Object> s3ObjectList(String bucketName, String keyPrefix) {
-		ListObjectsResponse objectResponseList = s3client.listObjects( ListObjectsRequest.builder()
-																.bucket( bucketName )
-																.prefix( keyPrefix )
-																.build() );
-		
-		List<S3Object> s3ObjectList = objectResponseList.contents();
-		return s3ObjectList;
-	}
-
-	private ResponseInputStream<GetObjectResponse> s3Object(String bucketName, String documentKey) {
-		GetObjectRequest s3ObjectRequest = GetObjectRequest.builder()
-											.bucket(bucketName)
-											.key( documentKey )
-											.build();
-		
-		ResponseInputStream<GetObjectResponse> s3Object = s3client.getObject( s3ObjectRequest );
-		return s3Object;
 	}
 
 	private HttpHeaders headers( String fileName ) {
