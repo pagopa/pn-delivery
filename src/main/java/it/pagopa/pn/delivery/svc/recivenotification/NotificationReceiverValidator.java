@@ -32,17 +32,6 @@ public class NotificationReceiverValidator {
         return validator.validate( notification, NotificationJsonViews.New.class );
     }
 
-    public void checkNotificationAttachmentsBodyIsBase64(Notification notification){
-        Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsBodyIsBase64Encoded( notification );
-        if( ! errors.isEmpty() ) {
-            throw new PnValidationException( errors );
-        }
-    }
-
-    private Set<ConstraintViolation<Notification>> checkNotificationAttachmentsBodyIsBase64Encoded(Notification notification) {
-            return validator.validate(notification, NotificationJsonViews.New.class);
-        }
-
     public void checkNotificationAttachmentsDigestIsSha256(Notification notification){
         Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsDigestIsSha256Encoded( notification );
         if( ! errors.isEmpty() ) {
@@ -63,34 +52,5 @@ public class NotificationReceiverValidator {
             }
         }
         return errors;
-    }
-
-    private Set<ConstraintViolation<Notification>> checkF24AttachmentsAreBase64(Notification notification){
-
-        if(notification.getPayment().getF24().getFlatRate()!=null) {
-            Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsBodyIsBase64Encoded( notification );
-            if( ! errors.isEmpty() ) {
-                throw new PnValidationException(errors);
-            }
-        }
-
-        if(notification.getPayment().getF24().getDigital()!=null) {
-            Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsBodyIsBase64Encoded( notification );
-            if( ! errors.isEmpty() ) {
-                throw new PnValidationException(errors);
-            }
-        }
-
-        if(notification.getPayment().getF24().getAnalog()!=null) {
-            Set<ConstraintViolation<Notification>> errors = checkNotificationAttachmentsBodyIsBase64Encoded( notification );
-            if( ! errors.isEmpty() ) {
-                throw new PnValidationException(errors);
-            }
-        }
-        return Set.of();
-    }
-
-    private Set<ConstraintViolation<NotificationAttachment>> checkAttachment(NotificationAttachment notification){
-        return validator.validate(notification, NotificationJsonViews.New.class);
     }
 }
