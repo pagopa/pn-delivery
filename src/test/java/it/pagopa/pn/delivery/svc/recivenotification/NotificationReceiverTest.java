@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc.recivenotification;
 
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -20,17 +21,31 @@ import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.util.Base64Utils;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
 class NotificationReceiverTest {
+
+	public static final String ATTACHMENT_BODY_STR = "Body";
+	public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
+	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
+	public static final NotificationAttachment NOTIFICATION_ATTACHMENT = NotificationAttachment.builder()
+			.body(BASE64_BODY)
+			.contentType("Content/Type")
+			.digests(NotificationAttachment.Digests.builder()
+					.sha256(SHA256_BODY)
+					.build()
+			)
+			.build();
 
 	private NotificationDao notificationDao;
 	private NewNotificationProducer notificationEventProducer;
@@ -205,24 +220,8 @@ class NotificationReceiverTest {
 								.build()
 				))
 				.documents(Arrays.asList(
-						NotificationAttachment.builder()
-								.savedVersionId("v01_doc00")
-								.digests(NotificationAttachment.Digests.builder()
-										.sha256("sha256_doc00")
-										.build()
-								)
-								.contentType( "application/pdf")
-								.body(  "Ym9keV8wMQ==")
-								.build(),
-						NotificationAttachment.builder()
-								.savedVersionId("v01_doc01")
-								.digests(NotificationAttachment.Digests.builder()
-										.sha256("sha256_doc01")
-										.build()
-								)
-								.contentType( "application/pdf")
-								.body( "Ym9keV8wMg==")
-								.build()
+						NOTIFICATION_ATTACHMENT,
+						NOTIFICATION_ATTACHMENT
 				))
 				.build();
 	}
@@ -233,26 +232,8 @@ class NotificationReceiverTest {
 						.iuv( "IUV_01" )
 						.notificationFeePolicy( NotificationPaymentInfoFeePolicies.DELIVERY_MODE )
 						.f24( NotificationPaymentInfo.F24.builder()
-								.digital( NotificationAttachment.builder()
-										.savedVersionId("v01__F24dig")
-										.digests( NotificationAttachment.Digests.builder()
-												.sha256("sha__F24dig")
-												.build()
-										)
-										.contentType( "Content/Type")
-										.body( "RjI0ZGln")
-										.build()
-								)
-								.analog( NotificationAttachment.builder()
-										.savedVersionId("v01__F24anag")
-										.digests( NotificationAttachment.Digests.builder()
-												.sha256("sha__F24anag")
-												.build()
-										)
-										.contentType( "Content/Type")
-										.body( "RjI0YW5hZw==")
-										.build()
-								)
+								.digital( NOTIFICATION_ATTACHMENT )
+								.analog( NOTIFICATION_ATTACHMENT )
 								.build()
 						)
 						.build()
@@ -266,16 +247,7 @@ class NotificationReceiverTest {
 						.iuv( "IUV_01" )
 						.notificationFeePolicy( NotificationPaymentInfoFeePolicies.FLAT_RATE )
 						.f24( NotificationPaymentInfo.F24.builder()
-								.flatRate( NotificationAttachment.builder()
-										.savedVersionId("v01__F24flat")
-										.digests( NotificationAttachment.Digests.builder()
-												.sha256("sha__F24flat")
-												.build()
-										)
-										.contentType( "application/pdf")
-										.body( "RjI0ZmxhdA==")
-										.build()
-								)
+								.flatRate( NOTIFICATION_ATTACHMENT )
 								.build()
 						)
 						.build()
