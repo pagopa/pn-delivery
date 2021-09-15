@@ -258,7 +258,7 @@ class NotificationReceiverValidationTest {
 
 
     @Test
-    public void testCheckNotificationAttachmentsBas64Fail() {
+    void testCheckNotificationAttachmentsBas64Fail() {
 
         NotificationAttachment attachmentNoBase64Body = NotificationAttachment.builder()
                 .contentType("content/Type")
@@ -295,7 +295,7 @@ class NotificationReceiverValidationTest {
     }
 
     @Test
-    public void testCheckNotificationAttachmentsSha256Fail() {
+    void testCheckNotificationAttachmentsSha256Fail() {
 
         NotificationAttachment attachmentWithWrongSha256 = NotificationAttachment.builder()
                 .contentType("content/Type")

@@ -115,8 +115,6 @@ public class SaveAttachmentService {
         metadata.put("content-type", attachment.getContentType() );
         metadata.put("sha256", attachment.getDigests().getSha256() );
 
-        // FIXME check sha256
-
         byte[] body = Base64.getDecoder().decode( attachment.getBody() );
 
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );
