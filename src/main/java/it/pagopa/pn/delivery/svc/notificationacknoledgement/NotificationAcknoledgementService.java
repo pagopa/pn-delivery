@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc.documentacknoledgement;
+package it.pagopa.pn.delivery.svc.notificationacknoledgement;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,12 +21,12 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 @Service
 @Slf4j
-public class DocumentAcknoledgementService {
+public class NotificationAcknoledgementService {
 
 	private final FileStorage fileStorage;
 
 	@Autowired
-	public DocumentAcknoledgementService( FileStorage fileStorage ) {
+	public NotificationAcknoledgementService( FileStorage fileStorage ) {
 		this.fileStorage = fileStorage;
 	}
 
@@ -40,7 +40,7 @@ public class DocumentAcknoledgementService {
  	 *	of the document to download
 	 * 
 	 */
-	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex) {
+	public ResponseEntity<Resource> notificationAcknowledgement(String iun, int documentIndex) {
 		log.debug( "Document download START for iun and documentIndex {}" , iun, documentIndex);
 		 
 		String keyPrefix = iun + "/legalfacts/";
