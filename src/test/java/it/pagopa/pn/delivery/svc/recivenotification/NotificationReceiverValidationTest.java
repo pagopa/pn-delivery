@@ -260,7 +260,7 @@ class NotificationReceiverValidationTest {
                         .body("Body")
                         .contentType("Content/Type")
                         .digests( NotificationAttachment.Digests.builder()
-                                .sha256("sha256")
+                                .sha256("39e7bbf1482cf06af71ff997e1fd834bbc62082f1cc9c065dda384fdbe19189e")
                                 .build()
                         )
                         .build())
@@ -374,19 +374,9 @@ class NotificationReceiverValidationTest {
                 .build();
     }
 
-    @Test
-    public void testCheckNotificationAttachmentsDigestIsSha256() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-        Notification notification = validDocumentWithPayments();
-        Method method = validator.getClass().getDeclaredMethod("checkNotificationAttachmentsDigestIsSha256Encoded", Notification.class);
-        method.setAccessible(true);
-        Set<ConstraintViolation<Notification>> errors = (Set<ConstraintViolation<Notification>>) method.invoke(validator, notification);
-        Assertions.assertTrue(errors.isEmpty());
-
-    }
 
     @Test
-    public void testCheckNotificationAttachmentsDigestIsNotSha256() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void testCheckNotificationAttachmentsBodyIsBase64(){
 
         Notification notification = Notification.builder()
                 .paNotificationId( "protocol1" )
@@ -409,25 +399,183 @@ class NotificationReceiverValidationTest {
                         .body("Body")
                         .contentType("Content/Type")
                         .digests( NotificationAttachment.Digests.builder()
-                                .sha256("!!!!")
+                                .sha256("39e7bbf1482cf06af71ff997e1fd834bbc62082f1cc9c065dda384fdbe19189e")
                                 .build()
                         )
                         .build())
                 ).build();
-        Method method = validator.getClass().getDeclaredMethod("checkNotificationAttachmentsDigestIsSha256", Notification.class);
-        method.setAccessible(true);
-        Exception exception = Assertions.assertThrows(InvocationTargetException.class, ()->{method.invoke(validator,notification);});
-        Assertions.assertEquals(PnValidationException.class, exception.getCause().getClass());
+
+        Set<ConstraintViolation<Notification>> errors = validator.checkNewNotificationBeforeInsert(notification);
+        Assertions.assertTrue(errors.isEmpty());
+
+    }
+
+    @Test
+    public void testCheckNotificationAttachmentsDigestIsSha256() {
+
+        Notification notification = Notification.builder()
+                .paNotificationId( "protocol1" )
+                .subject( "subject" )
+                .sender(NotificationSender.builder()
+                        .paId("paId")
+                        .build()
+                )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@domain.it")
+                                .build()
+                        )
+                        .build())
+                )
+                .documents( Collections.singletonList(NotificationAttachment.builder()
+                        .body("Body")
+                        .contentType("Content/Type")
+                        .digests( NotificationAttachment.Digests.builder()
+                                .sha256("39e7bbf1482cf06af71ff997e1fd834bbc62082f1cc9c065dda384fdbe19189e")
+                                .build()
+                        )
+                        .build())
+                ).build();
+        Set<ConstraintViolation<Notification>> errors = validator.checkNewNotificationBeforeInsert(notification);
+        Assertions.assertTrue(errors.isEmpty());
+
+    }
+
+    @Test
+    public void testCheckNotificationAttachmentsDigestIsNotSha256()  {
+
+        Notification notification = Notification.builder()
+                .paNotificationId( "protocol1" )
+                .subject( "subject" )
+                .sender(NotificationSender.builder()
+                        .paId("paId")
+                        .build()
+                )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@domain.it")
+                                .build()
+                        )
+                        .build())
+                )
+                .documents( Collections.singletonList(NotificationAttachment.builder()
+                        .body("Body")
+                        .contentType("Content/Type")
+                        .digests( NotificationAttachment.Digests.builder()
+                                .sha256("05f2d9b7180812d71751aa8f66609ba69410d72805a3ed7a42e6c02419d76f14")
+                                .build()
+                        )
+                        .build())
+                ).build();
+        Set<ConstraintViolation<Notification>> errors = validator.checkNewNotificationBeforeInsert(notification);
+        Assertions.assertTrue(!errors.isEmpty());
+
     }
     
     @Test
-    public void testCheckF24AttachmentsAreBase64() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-        Notification notification = validDocumentWithPayments();
-        Method method = validator.getClass().getDeclaredMethod("checkNewNotificationBeforeInsert", Notification.class);
-        method.setAccessible(true);
-        Set<ConstraintViolation<Notification>> errors = (Set<ConstraintViolation<Notification>>) method.invoke(validator, notification);
+    public void testCheckF24AttachmentsAreBase64() {
+        Notification notification = Notification.builder()
+                .paNotificationId( "protocol1" )
+                .subject( "subject" )
+                .sender(NotificationSender.builder()
+                        .paId("paId")
+                        .build()
+                )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@domain.it")
+                                .build()
+                        )
+                        .build())
+                )
+                .documents( Collections.singletonList(NotificationAttachment.builder()
+                        .body("body")
+                        .contentType("Content/Type")
+                        .digests( NotificationAttachment.Digests.builder()
+                                .sha256("4f59ade6c10089dc9fca454620d18cbf9ed99aa7b2e2dd01b89aee57ba5e36e4")
+                                .build()
+                        )
+                        .build())
+                )
+                .payment( NotificationPaymentInfo.builder()
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog(NotificationAttachment.builder().body("body")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("4f59ade6c10089dc9fca454620d18cbf9ed99aa7b2e2dd01b89aee57ba5e36e4")
+                                                .build()
+                                        ).build())
+                                .digital(NotificationAttachment.builder().body("body")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("4f59ade6c10089dc9fca454620d18cbf9ed99aa7b2e2dd01b89aee57ba5e36e4")
+                                                .build()
+                                        ).build())
+                                .build())
+                        .build())
+                .build();
+        Set<ConstraintViolation<Notification>> errors = validator.checkNewNotificationBeforeInsert(notification);
         Assertions.assertTrue(errors.isEmpty());
+
+    }
+
+    @Test
+    public void testCheckF24AttachmentsAreNotBase64() {
+
+        Notification notification = Notification.builder()
+                .paNotificationId( "protocol1" )
+                .subject( "subject" )
+                .sender(NotificationSender.builder()
+                        .paId("paId")
+                        .build()
+                )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@domain.it")
+                                .build()
+                        )
+                        .build())
+                )
+                .documents( Collections.singletonList(NotificationAttachment.builder()
+                        .body("Body")
+                        .contentType("Content/Type")
+                        .digests( NotificationAttachment.Digests.builder()
+                                .sha256("39e7bbf1482cf06af71ff997e1fd834bbc62082f1cc9c065dda384fdbe19189e")
+                                .build()
+                        )
+                        .build())
+                )
+                .payment( NotificationPaymentInfo.builder()
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog(NotificationAttachment.builder().body("Body!")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                                .build()
+                                        ).build())
+                                .digital(NotificationAttachment.builder().body("Body!")
+                                        .contentType("Content/Type")
+                                        .digests( NotificationAttachment.Digests.builder()
+                                                .sha256("a2ebebe0b177628318ecfc261870fbcd84d39e0fd46620fa36a90ddaaa556e39")
+                                                .build()
+                                        ).build())
+                                .build())
+                        .build())
+                .build();
+        Set<ConstraintViolation<Notification>> errors = validator.checkNewNotificationBeforeInsert(notification);
+        Assertions.assertTrue(!errors.isEmpty());
 
     }
 }
