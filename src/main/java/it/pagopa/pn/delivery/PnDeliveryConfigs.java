@@ -15,6 +15,7 @@ public class PnDeliveryConfigs {
     public static class Topics {
 
         private String newNotifications;
+        private String notificationAcknowledgement;
 
     }
 }

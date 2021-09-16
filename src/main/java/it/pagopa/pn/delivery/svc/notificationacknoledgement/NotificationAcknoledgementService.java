@@ -1,89 +1,80 @@
 package it.pagopa.pn.delivery.svc.notificationacknoledgement;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.List;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.NotificationAcknowledgementProducer;
+import it.pagopa.pn.delivery.svc.recivenotification.SaveAttachmentService;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.S3Object;
 
 @Service
 @Slf4j
 public class NotificationAcknoledgementService {
 
-	private final FileStorage fileStorage;
+	private final SaveAttachmentService attachmentService;
+	private final Clock clock;
+	private final NotificationAcknowledgementProducer notificationAcknowledgementProducer;
+	private final NotificationDao notificationDao;
 
 	@Autowired
-	public NotificationAcknoledgementService( FileStorage fileStorage ) {
-		this.fileStorage = fileStorage;
+	public NotificationAcknoledgementService( Clock clock,
+			SaveAttachmentService attachmentService,
+			NotificationAcknowledgementProducer notificationAcknowledgementProducer, NotificationDao notificationDao ) {
+		this.clock = clock;
+		this.attachmentService = attachmentService;
+		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
+		this.notificationDao = notificationDao;
 	}
 
 	/**
-	 * Download a document for the S3 storage
+	 * Download a document from the S3 storage
 	 *
 	 * @param iun unique identifier of a Notification
 	 * @param documentIndex index of the documents array
 	 * 
-	 * @return HTTP response containingthe status code, the headers, and the body
+	 * @return HTTP response containing the status code, the headers, and the body
  	 *	of the document to download
 	 * 
 	 */
-	public ResponseEntity<Resource> notificationAcknowledgement(String iun, int documentIndex) {
+	public ResponseEntity<Resource> notificationAcknowledgement(String iun, int documentIndex, String userId ) {
 		log.debug( "Document download START for iun and documentIndex {}" , iun, documentIndex);
-		 
-		String keyPrefix = iun + "/legalfacts/";
 		
-		List<S3Object> s3ObjectList = fileStorage.getFilesByKeyPrefix( keyPrefix );
-				
-		if ( documentIndex >= s3ObjectList.size() ) {
-			log.warn( "Document ndex out of bound for iun: " + iun + " and documentIndex: " + documentIndex );
-			throw new PnInternalException( "Document ndex out of bound for iun: " + iun + " and documentIndex: " + documentIndex );
-		}
+		log.info( "Received ACTION iun={} eventId={} actionType={}", iun );
+        Optional<Notification> notification = notificationDao.getNotificationByIun( iun );
+        if( !notification.isPresent() ) {
+            log.debug("Notification not found for iun {}", iun );
+			throw new PnInternalException( "Notification not found for iun " + iun );
+        }
+                
+        int recepientIndex = IntStream.range( 0, notification.get().getRecipients().size() )
+                						.filter( i -> userId.equals( notification.get().getRecipients().get( i ).getTaxId() ) )
+                						.findFirst()
+                						.orElse( -1 );
+        
+        if( recepientIndex == -1 ) {
+            log.debug("Recipient not found for iun and userId{} ", iun, userId );
+			throw new PnInternalException( "Notification not found for iun " + iun + " and userId " + userId );
+        }
+		 			
+		ResponseEntity<Resource> response = attachmentService.loadDocument( iun, documentIndex );
 		
-		String documentKey = s3ObjectList.get( documentIndex ).key();
-		ResponseInputStream<GetObjectResponse> s3Object = fileStorage.getFileByKey( documentKey );
-		
-        HttpHeaders headers = headers( documentKey.substring( documentKey.lastIndexOf("/") + 1) );
-	    InputStreamResource resource = null;
-	    Long contentLength = null;
-		try {
-			byte[] bytes = s3Object.readAllBytes();
-			resource = new InputStreamResource( new ByteArrayInputStream( bytes ) );
-			contentLength = s3Object.response().contentLength();
-		} catch ( IOException e ) {
-			log.warn( "Error while retrieving document to download for iun: " + iun + " and documentIndex: " + documentIndex );
-			throw new PnInternalException( "Error while retrieving document to download for iun: " + iun + " and documentIndex: " + documentIndex, e );
-		}
-
-		ResponseEntity<Resource> response = ResponseEntity.ok()
-	            .headers( headers )
-	            .contentLength( contentLength )
-	            .contentType( MediaType.APPLICATION_OCTET_STREAM )
-	            .body( resource );
-		
+		log.debug("Send \"notification acknowlwdgement\" event for iun {}", iun);
+		Instant createdAt = clock.instant();
+		notificationAcknowledgementProducer.sendNotificationAcknowlwdgement( iun, createdAt, recepientIndex );
+	
 		log.debug("downloadDocument: response {}", response);
 	    return response;
-	}
-
-	private HttpHeaders headers( String fileName ) {
-		HttpHeaders headers = new HttpHeaders();
-        headers.add( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName );
-        headers.add( "Cache-Control", "no-cache, no-store, must-revalidate" );
-        headers.add( "Pragma", "no-cache" );
-        headers.add( "Expires", "0" );
-		return headers;
 	}
 
 }

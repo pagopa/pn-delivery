@@ -12,23 +12,24 @@ public interface NotificationAcknowledgementProducer extends MomProducer<PnDeliv
 
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-producer";
 
-    default void sendAcknowledgedNotificationEvent( String iun, Instant when ) {
-    	PnDeliveryNotificationAcknowledgementEvent event = buildAcknowledgedNotificationEvent( iun, when );
+    default void sendNotificationAcknowlwdgement( String iun, Instant when, int recipientIndex ) {
+    	PnDeliveryNotificationAcknowledgementEvent event = buildNotificationAcknowledgementEvent( iun, when, recipientIndex );
         this.push( event );
     }
 
-    private PnDeliveryNotificationAcknowledgementEvent buildAcknowledgedNotificationEvent( String iun, Instant when ) {
+    private PnDeliveryNotificationAcknowledgementEvent buildNotificationAcknowledgementEvent( String iun, Instant when, int recipientIndex ) {
         return PnDeliveryNotificationAcknowledgementEvent.builder()
                 .header( StandardEventHeader.builder()
                         .iun( iun )
-                        .eventId( iun + "_acknoledgement" )
+                        .eventId( iun + "_notification_viewed_" + recipientIndex )
                         .createdAt( when )
-                        .eventType( EventType.NEW_NOTIFICATION.name() )
+                        .eventType( EventType.NOTIFICATION_VIEWED.name() )
                         .publisher( EventPublisher.DELIVERY.name() )
                         .build()
                 )
                 .payload( PnDeliveryNotificationAcknowledgementEvent.Payload.builder()
                         .iun( iun )
+                        .recipientIndex( recipientIndex )
                         .build()
                 )
                 .build();

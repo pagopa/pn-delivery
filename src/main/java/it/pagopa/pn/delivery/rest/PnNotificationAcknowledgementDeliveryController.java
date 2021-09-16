@@ -1,11 +1,14 @@
 package it.pagopa.pn.delivery.rest;
 
+import org.springframework.http.HttpHeaders;
+
 import javax.validation.constraints.NotBlank;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,10 +30,18 @@ public class PnNotificationAcknowledgementDeliveryController implements PnDelive
 	@ResponseBody
     public ResponseEntity<Resource> notificationAcknowledgement(
     		@NotBlank @PathVariable("iun") String iun,
-    		@NotBlank @PathVariable("documentIndex") int documentIndex
+    		@NotBlank @PathVariable("documentIndex") int documentIndex,
+    		@NotBlank @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String userId
     ) {
 		
-    	return svc.notificationAcknowledgement( iun, documentIndex );
+		String fileName = iun + "_doc" + documentIndex + ".pdf"; //FIXME gestire estensione in base al content-type
+		ResponseEntity<Resource> resource = svc.notificationAcknowledgement( iun, documentIndex, userId );
+			
+		HttpHeaders headers = new HttpHeaders();
+		headers.addAll(resource.getHeaders());
+		headers.add( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName );
+	
+		return ResponseEntity.status(resource.getStatusCode()).headers( headers ).body( resource.getBody() );
     }
 
 }

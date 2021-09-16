@@ -4,10 +4,21 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
 import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +62,40 @@ public class SaveAttachmentService {
                 .collect(Collectors.toList())
         );
     }
+    
+    public ResponseEntity<Resource> loadDocument(String iun, int documentIndex) {
+    	String documentKey = String.format("%s/documents/%d", iun, documentIndex );
+    	
+    	ResponseInputStream<GetObjectResponse> s3Object = fileStorage.getFileByKey( documentKey );
+    	
+	    InputStreamResource resource = null;
+	    Long contentLength = null;
+		try {
+			byte[] bytes = s3Object.readAllBytes();
+			resource = new InputStreamResource( new ByteArrayInputStream( bytes ) );
+			contentLength = s3Object.response().contentLength();
+		} catch ( IOException e ) {
+			log.debug( "Error while retrieving document to download for iun: " + iun + " and documentIndex: " + documentIndex );
+			throw new PnInternalException( "Error while retrieving document to download for iun: " + iun + " and documentIndex: " + documentIndex, e );
+		}
+		
+		ResponseEntity<Resource> response = ResponseEntity.ok()
+	            .headers( headers() )
+	            .contentLength( contentLength )
+	            .contentType( MediaType.APPLICATION_OCTET_STREAM )
+	            .body( resource );
+		
+		log.debug("downloadDocument: response {}", response);
+	    return response;
+    }
+    
+    private HttpHeaders headers() {
+		HttpHeaders headers = new HttpHeaders();
+        headers.add( "Cache-Control", "no-cache, no-store, must-revalidate" );
+        headers.add( "Pragma", "no-cache" );
+        headers.add( "Expires", "0" );
+		return headers;
+	}
 
     private void saveF24(Notification notification, String iun, Notification.NotificationBuilder builder) {
         NotificationPaymentInfo paymentsInfo = notification.getPayment();

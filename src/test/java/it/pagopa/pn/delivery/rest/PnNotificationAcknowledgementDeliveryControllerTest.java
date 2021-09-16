@@ -17,6 +17,7 @@ class PnNotificationAcknowledgementDeliveryControllerTest {
 	
 	private static final String IUN = "IUN";
 	private static final int DOCUMENT_INDEX = 0;
+	private static final String USER_ID = "USER_ID";
 	
 	@Autowired
     WebTestClient webTestClient;
@@ -30,7 +31,7 @@ class PnNotificationAcknowledgementDeliveryControllerTest {
 		ResponseEntity<Resource> response = ResponseEntity.ok().build();
 				
 		// When		
-		Mockito.when(svc.notificationAcknowledgement(Mockito.anyString(), Mockito.anyInt())).thenReturn( response );
+		Mockito.when(svc.notificationAcknowledgement(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString())).thenReturn( response );
 		
 		// Then
 		webTestClient.get()
@@ -40,7 +41,7 @@ class PnNotificationAcknowledgementDeliveryControllerTest {
                 .expectStatus()
                 .isOk();
 		
-		Mockito.verify( svc ).notificationAcknowledgement(IUN, DOCUMENT_INDEX);
+		Mockito.verify( svc ).notificationAcknowledgement(IUN, DOCUMENT_INDEX, USER_ID);
 	}
 
 }
