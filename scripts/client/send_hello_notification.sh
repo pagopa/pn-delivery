@@ -7,17 +7,8 @@ fi
 
 paId="pa_id"
 paNotificationId=$1
-#baseUrl='http://3.67.133.88:8080'
 #baseUrl='https://h4hcl6trzf.execute-api.eu-central-1.amazonaws.com/beta/'
-#apiKeySecret=zewBLfImEB3PEuwwwoxxk8DxJ1TkZxRD7ZpZ5qb4
-
-baseUrl='https://vpadvtrcnl.execute-api.eu-central-1.amazonaws.com/beta/'
-apiKeySecret="mLgwKhSvUU8tYtSE3SaIh3nNIztHxhC3fe2EdUPj"
-
-
-#baseUrl='http://18.194.140.160:8080'
-#baseUrl='http://127.0.0.1:8080'
-#apiKeySecret="hlNDsrXXfT9yRfoDv8w9FaVEul3AmonX73sVPHTB"
+#apiKeySecret=spikey
 filePath=$2
 
 mkdir ./tmp
