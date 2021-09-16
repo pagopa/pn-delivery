@@ -48,9 +48,9 @@ public class NotificationAcknoledgementService {
 	 * 
 	 */
 	public ResponseEntity<Resource> notificationAcknowledgement(String iun, int documentIndex, String userId ) {
-		log.debug( "Document download START for iun and documentIndex {}" , iun, documentIndex);
+		log.debug( "Document download START for iun and documentIndex {} " , iun, documentIndex);
 		
-		log.info( "Received ACTION iun={} eventId={} actionType={}", iun );
+		log.info( "Retrieve notification with iun={} ", iun );
         Optional<Notification> notification = notificationDao.getNotificationByIun( iun );
         if( !notification.isPresent() ) {
             log.debug("Notification not found for iun {}", iun );

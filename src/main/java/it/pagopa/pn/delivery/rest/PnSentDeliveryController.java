@@ -6,6 +6,8 @@ import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;

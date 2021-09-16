@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SaveAttachmentService {
 
-    private final FileStorage fileStorage;
+    private static final String SHA256_METADATA_NAME = "sha256";
+	private static final String CONTENT_TYPE_METADATA_NAME = "content-type";
+	private final FileStorage fileStorage;
 
     public SaveAttachmentService(FileStorage fileStorage) {
         this.fileStorage = fileStorage;
@@ -82,12 +85,25 @@ public class SaveAttachmentService {
 		ResponseEntity<Resource> response = ResponseEntity.ok()
 	            .headers( headers() )
 	            .contentLength( contentLength )
-	            .contentType( MediaType.APPLICATION_OCTET_STREAM )
+	            .contentType( extractMediaType(s3Object) )
 	            .body( resource );
 		
 		log.debug("downloadDocument: response {}", response);
 	    return response;
     }
+
+	private MediaType extractMediaType(ResponseInputStream<GetObjectResponse> s3Object) {
+		MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+		try {
+			GetObjectResponse s3Response = s3Object.response();
+			if ( s3Response.hasMetadata() ) {
+				mediaType = MediaType.parseMediaType( s3Response.metadata().get( CONTENT_TYPE_METADATA_NAME ) );
+			}
+		} catch (InvalidMediaTypeException exc)  {
+			// using default
+		}
+		return mediaType;
+	}
     
     private HttpHeaders headers() {
 		HttpHeaders headers = new HttpHeaders();
@@ -157,8 +173,8 @@ public class SaveAttachmentService {
     private String saveOneAttachmentToFileStorage( String key, NotificationAttachment attachment ) {
 
         Map<String, String> metadata = new HashMap<>();
-        metadata.put("content-type", attachment.getContentType() );
-        metadata.put("sha256", attachment.getDigests().getSha256() );
+        metadata.put(CONTENT_TYPE_METADATA_NAME, attachment.getContentType() );
+        metadata.put(SHA256_METADATA_NAME, attachment.getDigests().getSha256() );
 
         // FIXME check sha256
 
