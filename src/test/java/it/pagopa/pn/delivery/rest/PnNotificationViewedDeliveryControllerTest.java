@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.delivery.svc.notificationacknoledgement.NotificationViewedService;
+import it.pagopa.pn.delivery.svc.notificationviewed.NotificationViewedService;
 
 @WebFluxTest(PnNotificationViewedDeliveryController.class)
 class PnNotificationViewedDeliveryControllerTest {

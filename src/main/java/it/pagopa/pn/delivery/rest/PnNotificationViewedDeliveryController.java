@@ -19,7 +19,7 @@ import com.typesafe.config.Optional;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodNotificationViewed;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.svc.notificationacknoledgement.NotificationViewedService;
+import it.pagopa.pn.delivery.svc.notificationviewed.NotificationViewedService;
 
 @RestController
 public class PnNotificationViewedDeliveryController implements PnDeliveryRestApi_methodNotificationViewed {

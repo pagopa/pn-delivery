@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc.notificationacknoledgement;
+package it.pagopa.pn.delivery.svc.notificationviewed;
 
 import java.time.Clock;
 import java.time.Instant;
