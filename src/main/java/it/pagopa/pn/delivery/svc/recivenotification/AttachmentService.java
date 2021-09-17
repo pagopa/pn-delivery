@@ -3,11 +3,25 @@ package it.pagopa.pn.delivery.svc.recivenotification;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
+import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,11 +30,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class SaveAttachmentService {
+public class AttachmentService {
 
-    private final FileStorage fileStorage;
+    private static final String SHA256_METADATA_NAME = "sha256";
+	private static final String CONTENT_TYPE_METADATA_NAME = "content-type";
+	private final FileStorage fileStorage;
 
-    public SaveAttachmentService(FileStorage fileStorage) {
+    public AttachmentService(FileStorage fileStorage) {
         this.fileStorage = fileStorage;
     }
 
@@ -51,6 +67,43 @@ public class SaveAttachmentService {
                 .collect(Collectors.toList())
         );
     }
+    
+    public ResponseEntity<Resource> loadDocument(String iun, int documentIndex) {
+    	String documentKey = String.format("%s/documents/%d", iun, documentIndex );
+    	
+    	FileData fileData = fileStorage.getFileByKey( documentKey );
+    			
+		ResponseEntity<Resource> response = ResponseEntity.ok()
+	            .headers( headers() )
+	            .contentLength( fileData.getContentLength() )
+	            .contentType( extractMediaType( fileData.getMetadata() ) )
+	            .body( new InputStreamResource (fileData.getContent() ) );
+		
+		log.debug("downloadDocument: response {}", response);
+	    return response;
+    }
+
+	private MediaType extractMediaType(Map<String, String> metadata ) {
+		MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+		String contentType = metadata.get( CONTENT_TYPE_METADATA_NAME );
+				
+		try {
+			if ( StringUtils.isNotBlank( contentType ) ) {
+				mediaType = MediaType.parseMediaType( contentType );
+			}
+		} catch (InvalidMediaTypeException exc)  {
+			// using default
+		}
+		return mediaType;
+	}
+    
+    private HttpHeaders headers() {
+		HttpHeaders headers = new HttpHeaders();
+        headers.add( "Cache-Control", "no-cache, no-store, must-revalidate" );
+        headers.add( "Pragma", "no-cache" );
+        headers.add( "Expires", "0" );
+		return headers;
+	}
 
     private void saveF24(Notification notification, String iun, Notification.NotificationBuilder builder) {
         NotificationPaymentInfo paymentsInfo = notification.getPayment();
@@ -112,8 +165,8 @@ public class SaveAttachmentService {
     private String saveOneAttachmentToFileStorage( String key, NotificationAttachment attachment ) {
 
         Map<String, String> metadata = new HashMap<>();
-        metadata.put("content-type", attachment.getContentType() );
-        metadata.put("sha256", attachment.getDigests().getSha256() );
+        metadata.put(CONTENT_TYPE_METADATA_NAME, attachment.getContentType() );
+        metadata.put(SHA256_METADATA_NAME, attachment.getDigests().getSha256() );
 
         byte[] body = Base64.getDecoder().decode( attachment.getBody() );
 

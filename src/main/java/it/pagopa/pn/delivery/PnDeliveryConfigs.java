@@ -1,8 +1,9 @@
 package it.pagopa.pn.delivery;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+import lombok.Data;
 
 @Configuration
 @ConfigurationProperties( prefix = "pn.delivery")
@@ -15,6 +16,5 @@ public class PnDeliveryConfigs {
     public static class Topics {
 
         private String newNotifications;
-
     }
 }
