@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc.recivenotification;
 
-import it.pagopa.pn.api.dto.notification.*;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import org.springframework.stereotype.Component;
 
@@ -27,5 +28,4 @@ public class NotificationReceiverValidator {
     public Set<ConstraintViolation<Notification>> checkNewNotificationBeforeInsert(Notification notification) {
         return validator.validate( notification, NotificationJsonViews.New.class );
     }
-
 }
