@@ -1,25 +1,37 @@
 package it.pagopa.pn.delivery.svc.recivenotification;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.api.dto.notification.*;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.util.Base64Utils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Path;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Set;
 
 class NotificationReceiverValidationTest {
+
+    public static final String ATTACHMENT_BODY_STR = "Body";
+    public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
+    public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
+    public static final NotificationAttachment NOTIFICATION_ATTACHMENT = NotificationAttachment.builder()
+            .body(BASE64_BODY)
+            .contentType("Content/Type")
+            .digests(NotificationAttachment.Digests.builder()
+                    .sha256(SHA256_BODY)
+                    .build()
+            )
+            .build();
 
     private NotificationReceiverValidator validator;
 
@@ -151,6 +163,7 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "recipients[0].denomination" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile" );
         Assertions.assertEquals( 6, errors.size() );
+        Assertions.assertTrue(!errors.isEmpty());
     }
 
     @Test
@@ -171,7 +184,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 )
                 .documents( Collections.singletonList(NotificationAttachment.builder()
-                        .body("Body")
+                        .body( BASE64_BODY )
                         .contentType("Content/Type")
                         .digests( NotificationAttachment.Digests.builder().build())
                         .build())
@@ -187,6 +200,7 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.address" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.type" );
         Assertions.assertEquals( 3, errors.size() );
+        Assertions.assertTrue(!errors.isEmpty());
     }
 
     @Test
@@ -194,6 +208,20 @@ class NotificationReceiverValidationTest {
 
         // GIVEN
         Notification n = validDocumentWithoutPayments();
+
+        // WHEN
+        Set<ConstraintViolation<Notification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( n );
+
+        // THEN
+        Assertions.assertEquals( 0, errors.size() );
+    }
+
+    @Test
+    void validDocumentAndRecipientWitPayments() {
+
+        // GIVEN
+        Notification n = validDocumentWithPayments();
 
         // WHEN
         Set<ConstraintViolation<Notification>> errors;
@@ -228,6 +256,82 @@ class NotificationReceiverValidationTest {
         Assertions.assertEquals( 1, errors.size() );
     }
 
+
+    @Test
+    void testCheckNotificationAttachmentsBas64Fail() {
+
+        NotificationAttachment attachmentNoBase64Body = NotificationAttachment.builder()
+                .contentType("content/Type")
+                .body("MalformedBase64--")
+                .build();
+
+        Notification notification = validDocumentWithPayments().toBuilder()
+                .documents( Collections.singletonList(
+                        attachmentNoBase64Body
+                ))
+                .payment( NotificationPaymentInfo.builder()
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog( attachmentNoBase64Body )
+                                .flatRate( attachmentNoBase64Body )
+                                .digital( attachmentNoBase64Body )
+                                .build())
+                        .build())
+                .build();
+
+        // WHEN
+        Set<ConstraintViolation<Notification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( notification );
+
+        // THEN
+        assertConstraintViolationPresentByField( errors, "documents[0].body" );
+        assertConstraintViolationPresentByField( errors, "documents[0].digests" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.flatRate.body" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.flatRate.digests" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.digital.body" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.digital.digests" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.analog.body" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.analog.digests" );
+        Assertions.assertEquals( 8, errors.size() );
+    }
+
+    @Test
+    void testCheckNotificationAttachmentsSha256Fail() {
+
+        NotificationAttachment attachmentWithWrongSha256 = NotificationAttachment.builder()
+                .contentType("content/Type")
+                .body("Body") // body is a valid Base64 string
+                .digests( NotificationAttachment.Digests.builder()
+                        // - well formed but wrong digest
+                        .sha256("1234567890123456789012345678901234567890123456789012345678901234")
+                        .build())
+                .build();
+
+        Notification notification = validDocumentWithPayments().toBuilder()
+                .documents( Collections.singletonList(
+                        attachmentWithWrongSha256
+                ))
+                .payment( NotificationPaymentInfo.builder()
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog( attachmentWithWrongSha256 )
+                                .flatRate( attachmentWithWrongSha256 )
+                                .digital( attachmentWithWrongSha256 )
+                                .build())
+                        .build())
+                .build();
+
+        // WHEN
+        Set<ConstraintViolation<Notification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( notification );
+
+        // THEN
+        assertConstraintViolationPresentByField( errors, "documents[0]" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.flatRate" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.analog" );
+        assertConstraintViolationPresentByField( errors, "payment.f24.digital" );
+        Assertions.assertEquals( 4, errors.size() );
+    }
+
+
     private <T> void assertConstraintViolationPresentByField( Set<ConstraintViolation<T>> set, String propertyPath ) {
         long actual = set.stream()
                 .filter( cv -> propertyPathToString( cv.getPropertyPath() ).equals( propertyPath ) )
@@ -257,15 +361,37 @@ class NotificationReceiverValidationTest {
                         )
                         .build())
                 )
-                .documents( Collections.singletonList(NotificationAttachment.builder()
-                        .body("Body")
-                        .contentType("Content/Type")
-                        .digests( NotificationAttachment.Digests.builder()
-                                .sha256("sha256")
+                .documents( Collections.singletonList( NOTIFICATION_ATTACHMENT ) )
+                .build();
+    }
+
+    private Notification validDocumentWithPayments() {
+        return Notification.builder()
+                .paNotificationId( "protocol1" )
+                .subject( "subject" )
+                .sender(NotificationSender.builder()
+                        .paId("paId")
+                        .build()
+                )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile( DigitalAddress.builder()
+                                .type( DigitalAddressType.PEC )
+                                .address("account@domain.it")
                                 .build()
                         )
                         .build())
                 )
+                .documents( Collections.singletonList( NOTIFICATION_ATTACHMENT ))
+                .payment( NotificationPaymentInfo.builder()
+                        .f24(NotificationPaymentInfo.F24.builder()
+                                .analog( NOTIFICATION_ATTACHMENT )
+                                .flatRate( NOTIFICATION_ATTACHMENT )
+                                .digital( NOTIFICATION_ATTACHMENT )
+                                .build())
+                        .build())
                 .build();
     }
+
 }

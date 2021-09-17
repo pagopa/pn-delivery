@@ -168,8 +168,6 @@ public class AttachmentService {
         metadata.put(CONTENT_TYPE_METADATA_NAME, attachment.getContentType() );
         metadata.put(SHA256_METADATA_NAME, attachment.getDigests().getSha256() );
 
-        // FIXME check sha256
-
         byte[] body = Base64.getDecoder().decode( attachment.getBody() );
 
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );

@@ -1,12 +1,14 @@
+#!/bin/bash
+
+if ( [ 1 = 1 ] ) then 
+  echo "Usage: paId paNotificationId recipientCf recipientDenomination recipientPec attachement"
+  exit 1
+fi
+
 paId="pa_id"
 paNotificationId=$1
-#baseUrl='http://3.67.133.88:8080'
 #baseUrl='https://h4hcl6trzf.execute-api.eu-central-1.amazonaws.com/beta/'
-#apiKeySecret=zewBLfImEB3PEuwwwoxxk8DxJ1TkZxRD7ZpZ5qb4
-#baseUrl='https://e9t7rm7qkg.execute-api.eu-central-1.amazonaws.com/beta/'
-#baseUrl='http://18.194.140.160:8080'
-baseUrl='http://127.0.0.1:8080'
-apiKeySecret="hlNDsrXXfT9yRfoDv8w9FaVEul3AmonX73sVPHTB"
+#apiKeySecret=spikey
 filePath=$2
 
 mkdir ./tmp
@@ -17,11 +19,11 @@ echo -n '{
   "cancelledIun": "string",
   "recipients": [
     {
-      "fc": "string",
+      "taxId": "CGNNMO80A01H501M",
       "denomination": "string",
       "digitalDomicile": {
         "type": "PEC",
-        "address": "string"
+        "address": "nome1.cognome1@fail-first.mypec.it"
       },
       "physicalAddress": {
         "at": "string",
