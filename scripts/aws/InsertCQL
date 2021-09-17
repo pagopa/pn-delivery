@@ -1,0 +1,20 @@
+INSERT INTO "TestKeySpace".iun_cluster_by_senderid ("senderid", "sentat", "iun", "notificationstatus", "panotificationid", "recipientsjson", "subject")
+VALUES ('sender1', toTimestamp(now()) ,'202109-4a70b12e-af61-47ac-bfab-c507f537b8e7', 'ricevuta', 'proto23' ,{'CodiceFiscale':'{ taxid : CodiceFiscale, denomination : Name1 Surname1 }'}, 'Hello World' ) IF NOT EXISTS;
+
+
+UPDATE "TestKeySpace".iun_by_senderid SET "recipientsjson" = {'CodiceFiscale':'{taxid : CodiceFiscale, denomination : Name1 Surname1 }'}
+WHERE senderid='sender1' AND sentat='2021-09-14 07:46:54.851+0000'AND iun='202109-0bedd487-2ba8-4750-bb22-3021827a07ac';
+
+SELECT * FROM "TestKeySpace".iun_by_senderid WHERE senderid='sender1' and sentat = '2021-09-14 07:46:54.851+0000'; // OK
+SELECT * FROM "TestKeySpace".iun_by_senderid WHERE senderid='sender1' and sentat < '2021-09-14 07:46:54.851+0000'; // FULL SCAN
+
+-------------- senderid PK sentat and iun cluster columns ----------------
+// cluster column sentat OK ma fare query anche per iun ---> NOK
+
+
+--------------- senderid PK sentat cluster columns ---------------
+SELECT * FROM "TestKeySpace".iun_by_senderid WHERE senderid='sender2' AND sentat < '2021-10-14' AND sentat > '2021-09-14' ; // OK
+
+
+
+

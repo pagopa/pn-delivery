@@ -1,0 +1,3006 @@
+[
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-0bedd487-2ba8-4750-bb22-3021827a07ac",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:51.40+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "ontwnnCaESf2l5w0SA4bCo1nA1w4JPZ8"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-4a70b12e-af61-47ac-bfab-c507f537b8e7",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:55.157+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "ZxYe.4aJqtCIY45.rsEtkm8q_9YuXwrx"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-1a843f57-ac2d-4f05-a8c9-eb53549aefd4",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:58:56.403+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "bNVRvBC8k04UbFSgHf6SaUOYk0DanOsn"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-776f41d1-a433-4fe8-97db-124ff3124672",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:28.634+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "ij7PotBTwBkNWu.wKocM291Z0vBx2OlC"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-a5bc02a0-94f1-4a3f-92d5-96c48900a27a",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:10.41+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "dlOVR3ysd8W6dtmWr6WYxYkQPiU8L4Ti"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-b5ab6dde-b831-4ca0-8817-7e7178c55160",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:08.186+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "EO53ip_wUim7zL9Llp2beOtwQ6POw0OJ"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-96a96d5b-d969-43f9-94d3-134853c1389a",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:59:09.782+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "CiGNFlLCYC9lsuiXkkTAV2noAKttUnHZ"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-82af22a2-41c0-404c-b9d4-d28a116280b6",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:59:03.748+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "8b6ftFBlb2Fk28VBQt1hGg3QoFIgsxb3"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-97d40063-0ad1-4fb5-b4bb-c175a47e9829",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:58:43.518+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "FkTtrBFhkCpKYiOYhPIZmjb3SC0rvxx0"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-65fb4f48-e9d2-489c-8031-86cc1d9d6789",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:58:45.554+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "UWyaBHtno_ghyCCucYMq3eaXnj0lBaAD"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-1ed34479-39e0-4b01-a8ba-b0fe6d205cfb",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:57.116+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "CVUoAyR1KLHrpGA8hMRKhQjpPWQiw8Np"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-013682eb-a678-42ba-b7c3-7390cbc8838e",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:03:55.521+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "6NxwZa2WxY.caighi6nJO2ViDhdncdRk"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-99a7ddda-cbe0-47f5-8836-8ad00b02de47",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:33.904+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "zybTfLz3g2zMAOA4p07xVtQbpqiuz2id"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-27ac31d4-5a60-4d25-bba9-4c79d0f2409f",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:32.84+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "QDuYr.2J6LsF.peQDJNKiYprwjbY_uJT"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-1c64fb3b-92bb-4cb4-b88f-083e901a53e3",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:27.7+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "P97PnQLyp_SCOHoNAnkYwFfgcRW.NSl2"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-d100e736-f35a-4348-8812-4c4c72fe0cd3",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:57.474+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "XxVYWgWq7J53vkePuAXy6kn9JMQG2YR2"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-52493790-7f08-4a29-9389-cffb9738cdc3",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:05:00.148+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "uz3qmhb36IX5gnQ1yYSGUlwZlJr_8dGv"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-dc12951c-ecd0-47de-a63c-a02947c8b5e7",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:03:02.700+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "fNgB6YHLrqB0woTcSpOj.infF4V24SgS"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-769a94be-c682-4031-ab2d-6167882dddf9",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:38.950+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "N4A9GUQWj8cZr5a7nJ5tv6Tr2rEgURO2"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-72d6ce66-08fc-4d4e-bcea-00bc49a10bbf",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:32.347+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "_Jblvfa_teT5WPB6.KnG83vJ4i2CMie6"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-20997619-fe24-4571-92ad-674e24896088",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:30.723+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "i04xUBJzfQPK3_XA1Xf7VuOa3CX0wYQZ"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-92d3897d-5255-4a9c-950e-9b2865a3de31",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:48.121+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "3srJoo1KEosenBpZTML82v1Nb7MmDNrs"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-2014726a-f179-4219-84cc-b4cdb26b31b2",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:52.185+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "_hEDVs0VhXS3kNvD6KJ2zqnhy4NX4o1X"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-df8ce15d-d5b8-47f7-885d-48613e6d718d",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:03:53.577+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "VzwivkZfl.W9JjKw9GCEZnNiE0XPEswE"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-95223304-cf2d-47c1-b8ed-7ba632777931",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:05:08.610+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "zh0lwQ3zubnExa_.8YFUZp8k0xGoQwLP"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-55a615f5-646b-4351-8b6b-7ab1e642961c",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:43.801+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "QSZ_rS4R6YGTXq1m3O4ADhy_HJHPsW2H"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-8a9dced6-8b75-4dbb-82df-c29a451edb25",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:20.726+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "Co_BB8lQKzKjb.BlkOVJ_n7IkiM4dkHi"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-c6c15c51-2501-4e6c-826f-e5c774629075",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:57.652+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "Lg88SmMOvY.tighE9IGhyz9Li7jFtDkp"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-72ed2cd9-198d-4bef-81ba-26ed9936ad57",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:56:11.516+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      ".bd4aVfiUtlKX4G6vrMu1nm1YGKbmXJF"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-69ff10b2-13dd-41a1-8587-ded62897e470",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:09.534+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "Dths5YdrpqfhjWmSGvoSxIUpVa_J2uIa"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-d3ec15b1-7ee9-4d29-b2b3-dcd9bd843a3e",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:45.868+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "Ruq0Qjdg3leHjFnh9BA7tNMR_J1Zl2tj"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-eb149404-cae6-43c8-9773-7e14e0e43bbd",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:56.76+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "lWdNe6_NOWD0J95vsbT_UpxrNcML_fLr"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-c3273a65-3b7c-4b3d-baaa-7e14cb8a8e9f",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:50.104+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "p83gPMwmOYU5KCvSoEWeSScwD6Rn0_j9"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-e510d0eb-4f99-4744-a0b9-0193ade6ff4c",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:56.868+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "WkI8u8Ikp6jyb.D6llARhRo_FzfH37Xu"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-fd5196f3-5fd2-43e2-bee7-76b2f72be637",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:07.192+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "maQFMtnBfrE5D_ssmzQyL3G5J5EzSyab"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-2861b26f-e8d6-4ed1-8b3b-0f0feb460843",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:48.360+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "bzZAgEu36Ss95Vr4OdFe5IGFxm7xOy1p"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-bd57d7cf-d548-441d-a7a2-01c0a53c22e1",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:27.333+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "4yVznhxv2lHFBGtWzAQ4f4ALN8shGHXE"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-a45d744b-ac6b-4762-9aee-87358a56d68c",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:29.89+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "t45xTrVAzoXyMXvi.PEcutmm3YVVnM7u"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-125f7a6b-4974-44d5-bae6-2fbe455f0d57",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:55.583+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "DH6Vd6qQ4mgnxHF15olstCE6MaZ9kAXf"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-c7ee2a5f-bbe0-4d78-8170-e2a395bc2974",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:58:49.992+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "rKtydy28_hLZMUsaCHYBtt3.KU_lMI18"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-ed23f356-3bff-49db-9e46-f9abd323909d",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:22.435+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "umoupPKXccH7hq2Kstc4khPtqeS_13Dv"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-ea85c428-efc2-4ffb-b633-c1b54ebaa251",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:15.419+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "6LvVkH2lZjtKddoG9czImAzTvXceJFgp"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-717590d3-a1ed-4698-93a5-fc13944e9040",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:06.547+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "1CiXW5foN0S9KURRYi4IsRkwtR3lClCc"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-64427d08-723b-4c77-8a4b-07f8db21019b",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:24.158+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "v1eZOPAhgxQpLJ4tMGdVYsjPZKpn1_Hq"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-8f81dbac-00ad-4162-84ad-50bc6f554a00",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:03:02.181+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "IDiATz0dobgC8M6UkYMHi0SkiE0WgieI"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-ae11e458-bb7b-4cb6-957a-cd104c1227da",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:11:07.397+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "e6XmpaTKJ_RD2Dnpwz82bfciK9n55h9s"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-20a03036-58ad-4582-ab91-a4c79a7aad4e",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:59:07.58+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "WM3TYSGxgNkLTtRbkYLFtkHRAoukUqV3"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-f35c5183-62b2-451b-8c01-5dce680b0512",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:38.730+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "JPo3ruzCBCQ3ss_LX4jrn1rxokUOieFF"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-ea74e864-e7e3-47e9-8af6-4d6fc1c15b52",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:08.485+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "2wD.PbjobkGVo41jyrNhkUZJtEVhlcbr"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-94e6020d-e8e5-43f2-a5af-6626d17e8511",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:04.451+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      ".zKmVj2LlujTYZm688iZmcBZe7VqGIFv"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-b57c1f8a-dbe2-46c9-8506-b43a4831742b",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:40.921+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "bFSbq7qG287B0dGJeQuOKzmm9DI7GLMF"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-0bfec0ec-1f68-40e7-9f62-8cf89ab8d8f4",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:49.20+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "C7b.jXdBmhVwfIvzXKl5yXYvcWLP4Vco"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-5a7d5ee2-812f-4a70-a938-3217de2fdc02",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:29.942+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "pwn3mTLY0fB.Lt7vpKpJsh_.jmWAN3Hc"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-cc1933e7-43d4-4862-935a-2a7841ef550b",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:11:14.52+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "VX17zrsA9M_G9KyiWvF6iseYsh1kDJll"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-f811021a-5a48-4544-82ee-6397c4673b02",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:04.258+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "7VZ2kSTCJhn79AhLceh63y2UFsIV.ieP"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-8eefa393-f6a6-43c8-94f3-aab0e4a19342",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:11:12.108+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "4xXuV.j1IE_L3ew1ZHgS_Zl1OPOTE7C5"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-6e2184d6-1473-4965-a522-8ee416143e2a",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:10.856+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "97Q5OR79hABb5Fggs7287NcvWfOI0qNT"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-3817bc0f-c25f-4d1a-b2e9-0607687051da",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:40.107+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "ZiqUF43O1ayDBc6eh7Q7bdDkLenTlpUF"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-4de59f77-5533-4439-9325-75c0475c4162",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:05:00.735+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "bKattzRrH3SZkUa_V4rC.aYRZIoQlIt5"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-c5558143-ebd3-44ec-86f9-0b3fa271aec0",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:07.354+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "vAV26KlrJHmRM9TKtAYXCYEvkRBCPssQ"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-425637a9-bbe2-4482-b42a-e08630341be5",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:59:16.162+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "ycc758EZRbB6Y5ae2sxERm.AfDdgzlnG"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-bae623b4-93c7-4251-8b68-64e6fed7870c",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:58:55.312+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "7xLmTRS3oQirhDHJsv6VQ2270.qskNxD"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-0cbfcac3-e58f-4442-b0c4-a67f2cb1420a",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:05.826+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "YQCS13UmIppAaNds8nKh3nlCabxLXddi"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-b45f7fc6-4e5b-4a55-bd5d-39a5e10ba65f",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:36.164+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "dQj4ZgFbjkg_2x6qelTuUdYRyYVlGyUb"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-0f608226-1e92-4380-b8c2-e0110ec3cf3c",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:04.472+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "at_xTzuNb60Zhiqknea2yU.GO0.8ahly"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-bb3e1218-4536-42c4-926c-9bec2c01dc2c",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:46.244+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "p18EmYGisiAHuWKdXYMigPcLYF582bDg"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-0bc217fa-450d-41fd-af08-1792c4b547cf",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:57.387+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "hagFUOkwxcjBmmtuZtPl0INKmw0MkQh5"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-9d525ea2-a99f-48bc-9e39-d01adf358818",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:54.943+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "4LDCFPFVrmqzmp.l6vKtr1XLcK2yNZuN"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-f9860f45-a591-42fa-abc8-51b6d8d3d29e",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:47.927+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "0wjKBabuKrceN8_.ApVBRLBVbsGp0fxO"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-008c04ee-fbfc-46f4-a633-2f443f07d1c5",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:15.785+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "i5OjaONzsNchzDgn.MzR760l.uy_sH_Y"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-6a5caed1-4a49-4335-9a43-6c47e2386c9d",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:36.577+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "hYva5mKa0M8l.XA2uYOsaqTpNjOGvQcx"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-6773b088-3882-4ced-9683-d81e892a715d",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:11:13.232+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "TqcaV6SptOHIFSY6M6dRgzoz.vTeiglI"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-f640f749-6740-4342-9cae-bd3e57cfdf3d",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:01.588+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "xCHvQkQfO_pw2wkLKNe8I00ViJEeTXkS"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-6d333f64-0b38-4c44-a280-c225b7aef42c",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:45.701+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "xeNovdxm835lUStk2UWJMZNAM1rQIkWL"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-0e854bc0-20e4-4833-8717-3a52bbe0e742",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:03:54.982+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "Nll8WVoyrFt6UUgRLPTgbpNtNqMm4bw8"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-da43aec4-0128-4b9f-98dd-51ab01399e66",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:36.3+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "ndmUEABthP6PPGI3AR0nbEOKe.UDo2KD"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-9434dd3f-296c-429d-9265-6cf0bb6e5bd6",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:36.793+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "5QFyMfmFUmYHC2wZYqzrUzdLIfzFZyGb"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-fbb096b3-467e-40d8-8d35-44128374ba48",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:59:08.969+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "KMJrZ6ZPf6lRGLT39I3nnRndhi6YKCMg"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-031f33bc-4d85-4343-861d-cd62aabd089a",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Subject 1",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CGNNMO80A01H501M": "{\"taxId\":\"CGNNMO80A01H501M\",\"denomination\":\"Nome1 Cognome1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"nome1.cognome1@fail-both.domicilio-digitale.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}",
+      "CGNNMO80A02H501R": "{\"taxId\":\"CGNNMO80A02H501R\",\"denomination\":\"Nome2 Cognome2\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"nome2.cognome2@fail-first.domicilio-digitale.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-13 15:47:01.171+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "ev_TjQqcO5vXMCxO1_E2sUohsv6QFuEZ",
+      "k16MDVT5cnur1jrcaf3pfdla3V011oou"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CGNNMO80A01H501M",
+      "CGNNMO80A02H501R"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "596b7bd66618b86571ac76b589a20841410301050afc20425f705a4b4eaf0348",
+      "733607de3cda348dae597fb93f21ffc7db16cf596bc59420679643c703342360"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-ad4a3433-5d8e-4aa8-a9f0-c7d9cfa6eca1",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:39.908+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "asosCvEvgS7OYrjSSJ8KXor0PfNc.ajt"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-bd01ed9c-04a6-4d08-9d9d-db74ab828862",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:06:14.79+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "bhDmuqzDUo9AVMPXHyIFR7qsbNCh2xhb"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-83872c2c-4da9-4c67-84b2-f9698aa6e602",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:56:11.925+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "aa5A6VtnrPqJVcuZeppPHwxugTic9rQy"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-9e39f436-b63a-4659-86d4-e36676beda74",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:42.913+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "FR5OG9hqxpWqFhKwon8GlDsG7lOXxy9O"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-4101b9aa-6521-40f3-8a7e-82462afcca52",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:11:13.440+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "mjSlT3Dv3gH8M3th2LFMxej7ZG9xH5Tm"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-af01c90d-69a7-46a5-80d6-3015cb4fbd73",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:52.209+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "wXbHiUJ1zzRMqK80YkZgz05_yK2VHt6G"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-ba177594-1fd2-481d-a01b-0aeba0452acd",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:01.108+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "5l__9SNz2PXUC2FSuz6nF2bTbDvwLpu4"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-7ece2401-822f-48cc-9b07-cc908feeac20",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:59:13.699+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "kdwEAyb4_IDDacIf184r9KGy_EC2cVop"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-121134d9-9bf4-4117-a5d7-73679410cff0",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:38.517+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "Mn6Jov50y4cnpeJxV_XnKV60pIqeTVKA"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-1529c3f4-c823-4945-b863-3e16645c44a5",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:02:44.864+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "Dwjg..KKNH2bL9OHI90fKRvILaWC9Qxd"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-983d0f2a-5783-4520-a9bd-a88decd0e2b3",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:05:09.476+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "HJXuQjHynwNOfMhyzLhO0gi.KpvMUeCg"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-09c5eace-6f08-4ef0-95ff-eceaf2c4e462",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:58:53.986+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "QfGBh32TpoA0WGqpCAzXrCd057IQbMnL"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-9b63f061-d2a8-4a19-a915-775cfe0422d4",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:27.426+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "pov3sgkT.Tuk6F3S9A66M.qMZ8cy2bgu"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-5e2867df-c011-4bfe-845f-99f2bee96eb0",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:03:52.699+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "NTcFvTMyUf45w7yPWZCLSxOo1Um.C9ti"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-abe65493-ce95-41a7-ac4c-8424baded3b7",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:56:08.510+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "5kdrEljH0GPROshLuU7rOqJtGCAH.DCW"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-4d98d9f4-89d5-4b63-8101-2791c468fc02",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:58:50.493+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "EnqEO0TcDIyRYrg6W4J8Pt4PVgLqA_fr"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-2284c611-6fc9-4fc8-85ab-f05a591b3c00",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:59:02.870+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "hN0iHEv5wvGqzoWlHP.cplT.BFCQ626n"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-9a0253ed-d19c-4296-840a-b7ecbb19e957",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:55:17.285+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "9b2p6520HHu2unDcA.z_xSAoYDnr8ng_"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-c7f0cbf5-33e9-4a32-83ba-072075c0d3ef",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 15:04:03.464+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "VYBNb8cDLkE5VCi8q6QMR5OQnQ0MzNVn"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-02c30397-db44-410a-9e5e-5d23d3e7709d",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:58:44.167+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "Mt9hPXYl93XoeDvDAP_fXGXAYwxP9CtF"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  },
+  {
+    "f24analogdigestsha256": null,
+    "iun": "202109-ee6f9a99-05af-4791-8171-d7e1153a98d2",
+    "senderpaid": "pa1",
+    "cancelledbyiun": null,
+    "subject": "Hello World",
+    "notificationstatus": null,
+    "panotificationid": "proto23",
+    "recipientsjson": {
+      "CodiceFiscale": "{\"taxId\":\"CodiceFiscale\",\"denomination\":\"Name1 Surname1\",\"digitalDomicile\":{\"type\":\"PEC\",\"address\":\"hello@world.it\"},\"physicalAddress\":{\"at\":\"string\",\"address\":\"string\",\"addressDetails\":\"string\",\"zip\":\"string\",\"municipality\":\"string\",\"province\":\"string\"}}"
+    },
+    "notificationfeepolicy": null,
+    "f24digitaldigestsha256": null,
+    "iuv": null,
+    "sentat": "2021-09-07 14:59:16.582+0000",
+    "cancellediun": null,
+    "documentsversionids": [
+      "I9SOj4zQWlD.BPEM7WCXGDgZBHFS7Vz9"
+    ],
+    "f24flatrateversionid": null,
+    "f24analogversionid": null,
+    "f24flatratedigestsha256": null,
+    "recipientsorder": [
+      "CodiceFiscale"
+    ],
+    "f24digitalversionid": null,
+    "documentsdigestssha256": [
+      "string"
+    ]
+  }
+]
