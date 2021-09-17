@@ -3,12 +3,14 @@ package it.pagopa.pn.delivery.svc.recivenotification;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
+import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -28,13 +30,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class SaveAttachmentService {
+public class AttachmentService {
 
     private static final String SHA256_METADATA_NAME = "sha256";
 	private static final String CONTENT_TYPE_METADATA_NAME = "content-type";
 	private final FileStorage fileStorage;
 
-    public SaveAttachmentService(FileStorage fileStorage) {
+    public AttachmentService(FileStorage fileStorage) {
         this.fileStorage = fileStorage;
     }
 
@@ -69,35 +71,25 @@ public class SaveAttachmentService {
     public ResponseEntity<Resource> loadDocument(String iun, int documentIndex) {
     	String documentKey = String.format("%s/documents/%d", iun, documentIndex );
     	
-    	ResponseInputStream<GetObjectResponse> s3Object = fileStorage.getFileByKey( documentKey );
-    	
-	    InputStreamResource resource = null;
-	    Long contentLength = null;
-		try {
-			byte[] bytes = s3Object.readAllBytes();
-			resource = new InputStreamResource( new ByteArrayInputStream( bytes ) );
-			contentLength = s3Object.response().contentLength();
-		} catch ( IOException e ) {
-			log.debug( "Error while retrieving document to download for iun: " + iun + " and documentIndex: " + documentIndex );
-			throw new PnInternalException( "Error while retrieving document to download for iun: " + iun + " and documentIndex: " + documentIndex, e );
-		}
-		
+    	FileData fileData = fileStorage.getFileByKey( documentKey );
+    			
 		ResponseEntity<Resource> response = ResponseEntity.ok()
 	            .headers( headers() )
-	            .contentLength( contentLength )
-	            .contentType( extractMediaType(s3Object) )
-	            .body( resource );
+	            .contentLength( fileData.getContentLength() )
+	            .contentType( extractMediaType( fileData.getMetadata() ) )
+	            .body( new InputStreamResource (fileData.getContent() ) );
 		
 		log.debug("downloadDocument: response {}", response);
 	    return response;
     }
 
-	private MediaType extractMediaType(ResponseInputStream<GetObjectResponse> s3Object) {
+	private MediaType extractMediaType(Map<String, String> metadata ) {
 		MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+		String contentType = metadata.get( CONTENT_TYPE_METADATA_NAME );
+				
 		try {
-			GetObjectResponse s3Response = s3Object.response();
-			if ( s3Response.hasMetadata() ) {
-				mediaType = MediaType.parseMediaType( s3Response.metadata().get( CONTENT_TYPE_METADATA_NAME ) );
+			if ( StringUtils.isNotBlank( contentType ) ) {
+				mediaType = MediaType.parseMediaType( contentType );
 			}
 		} catch (InvalidMediaTypeException exc)  {
 			// using default

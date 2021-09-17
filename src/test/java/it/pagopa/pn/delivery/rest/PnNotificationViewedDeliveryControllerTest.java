@@ -1,7 +1,5 @@
 package it.pagopa.pn.delivery.rest;
 
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import it.pagopa.pn.delivery.svc.notificationacknoledgement.NotificationAcknoledgementService;
+import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.delivery.svc.notificationacknoledgement.NotificationViewedService;
 
-@WebFluxTest(PnNotificationAcknowledgementDeliveryController.class)
-class PnNotificationAcknowledgementDeliveryControllerTest {
+@WebFluxTest(PnNotificationViewedDeliveryController.class)
+class PnNotificationViewedDeliveryControllerTest {
 	
 	private static final String IUN = "IUN";
 	private static final int DOCUMENT_INDEX = 0;
@@ -27,7 +26,7 @@ class PnNotificationAcknowledgementDeliveryControllerTest {
     WebTestClient webTestClient;
 	
 	@MockBean
-	private NotificationAcknoledgementService svc;
+	private NotificationViewedService svc;
 	
 	@Test
 	void getSuccess() {
@@ -38,18 +37,18 @@ class PnNotificationAcknowledgementDeliveryControllerTest {
 		resource = ResponseEntity.status( HttpStatus.OK ).headers( headers ).build();
 		
 		// When
-		Mockito.when( svc.notificationAcknowledgement( Mockito.anyString(), Mockito.anyInt(), Mockito.anyString() ) ).thenReturn( resource );
-		
+		Mockito.when( svc.notificationViewed( Mockito.anyString(), Mockito.anyInt(), Mockito.anyString() ) ).thenReturn( resource );
+				
 		// Then
 		webTestClient.get()
-                .uri("/delivery/notifications/acknowledgement/" + IUN + "/" + DOCUMENT_INDEX)
-                .accept( MediaType.APPLICATION_JSON )
+                .uri( "/delivery/notifications/received/" + IUN + "/documents/" + DOCUMENT_INDEX )
+                .accept( MediaType.ALL )
                 .header( "X-PagoPA-User-Id", USER_ID)
                 .exchange()
                 .expectStatus()
                 .isOk();
 		
-		Mockito.verify( svc ).notificationAcknowledgement(IUN, DOCUMENT_INDEX, USER_ID);
+		Mockito.verify( svc ).notificationViewed(IUN, DOCUMENT_INDEX, USER_ID);
 	}
 
 }

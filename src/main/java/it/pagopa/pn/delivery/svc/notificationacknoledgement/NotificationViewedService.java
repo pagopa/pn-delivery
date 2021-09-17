@@ -14,23 +14,23 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.NotificationAcknowledgementProducer;
-import it.pagopa.pn.delivery.svc.recivenotification.SaveAttachmentService;
+import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.svc.recivenotification.AttachmentService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class NotificationAcknoledgementService {
+public class NotificationViewedService {
 
-	private final SaveAttachmentService attachmentService;
+	private final AttachmentService attachmentService;
 	private final Clock clock;
-	private final NotificationAcknowledgementProducer notificationAcknowledgementProducer;
+	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
 
 	@Autowired
-	public NotificationAcknoledgementService( Clock clock,
-			SaveAttachmentService attachmentService,
-			NotificationAcknowledgementProducer notificationAcknowledgementProducer, NotificationDao notificationDao ) {
+	public NotificationViewedService( Clock clock,
+			AttachmentService attachmentService,
+			NotificationViewedProducer notificationAcknowledgementProducer, NotificationDao notificationDao ) {
 		this.clock = clock;
 		this.attachmentService = attachmentService;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
@@ -47,7 +47,7 @@ public class NotificationAcknoledgementService {
  	 *	of the document to download
 	 * 
 	 */
-	public ResponseEntity<Resource> notificationAcknowledgement(String iun, int documentIndex, String userId ) {
+	public ResponseEntity<Resource> notificationViewed(String iun, int documentIndex, String userId ) {
 		log.debug( "Document download START for iun and documentIndex {} " , iun, documentIndex);
 		
 		log.info( "Retrieve notification with iun={} ", iun );
@@ -71,7 +71,7 @@ public class NotificationAcknoledgementService {
 		
 		log.debug("Send \"notification acknowlwdgement\" event for iun {}", iun);
 		Instant createdAt = clock.instant();
-		notificationAcknowledgementProducer.sendNotificationAcknowlwdgement( iun, createdAt, recepientIndex );
+		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recepientIndex );
 	
 		log.debug("downloadDocument: response {}", response);
 	    return response;

@@ -26,7 +26,7 @@ public class NotificationReceiverService {
 	private final Clock clock;
 	private final NotificationDao notificationDao;
 	private final NewNotificationProducer newNotificationEventProducer;
-	private final SaveAttachmentService attachmentSaver;
+	private final AttachmentService attachmentSaver;
 	private final NotificationReceiverValidator validator;
 
 	@Autowired
@@ -34,7 +34,7 @@ public class NotificationReceiverService {
 			Clock clock,
 			NotificationDao notificationDao,
 			NewNotificationProducer newNotificationEventProducer,
-			SaveAttachmentService attachmentSaver,
+			AttachmentService attachmentSaver,
 			NotificationReceiverValidator validator
 	) {
 		this.clock = clock;

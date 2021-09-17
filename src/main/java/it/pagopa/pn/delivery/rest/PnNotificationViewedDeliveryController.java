@@ -16,24 +16,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.typesafe.config.Optional;
 
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodNotificationAcknowledgement;
+import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodNotificationViewed;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.svc.notificationacknoledgement.NotificationAcknoledgementService;
+import it.pagopa.pn.delivery.svc.notificationacknoledgement.NotificationViewedService;
 
 @RestController
-public class PnNotificationAcknowledgementDeliveryController implements PnDeliveryRestApi_methodNotificationAcknowledgement {
+public class PnNotificationViewedDeliveryController implements PnDeliveryRestApi_methodNotificationViewed {
 
-    private final NotificationAcknoledgementService svc;
+    private final NotificationViewedService svc;
 
-    public PnNotificationAcknowledgementDeliveryController(NotificationAcknoledgementService svc) {
+    public PnNotificationViewedDeliveryController(NotificationViewedService svc) {
         this.svc = svc;
     }
 
 	@Override
-    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_ACKNOWLEDGEMENT_PATH + "/{iun}/{documentIndex}" )
+    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_VIEWED_PATH )
 	@ResponseBody
-    public ResponseEntity<Resource> notificationAcknowledgement(
+    public ResponseEntity<Resource> notificationViewed(
     		@NotBlank @PathVariable("iun") String iun,
     		@NotBlank @PathVariable("documentIndex") int documentIndex,
     		@RequestHeader(name =  PnDeliveryRestConstants.USER_ID_HEADER, required = false) String userId1, 	// FIXME GA RENDERE OBBLIGATORIO
@@ -52,7 +52,7 @@ public class PnNotificationAcknowledgementDeliveryController implements PnDelive
 		}
 		// FIXME GA FINE CODICE DA RIMUOVERE
 
-		ResponseEntity<Resource> resource = svc.notificationAcknowledgement( iun, documentIndex, userId );
+		ResponseEntity<Resource> resource = svc.notificationViewed( iun, documentIndex, userId );
 			
 		String extension;
 		if ( resource.getHeaders().getContentType() != null ) {
