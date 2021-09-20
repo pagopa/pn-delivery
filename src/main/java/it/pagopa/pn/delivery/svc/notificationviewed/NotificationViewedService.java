@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -75,6 +77,31 @@ public class NotificationViewedService {
 	
 		log.debug("downloadDocument: response {}", response);
 	    return response;
+	}
+
+	/**
+	 * Get the full detail of a notification by IUN
+	 *
+	 * @param iun unique identifier of a Notification
+	 * 
+	 * @return Notification DTO
+	 * 
+	 */
+	public Notification receivedNotification(@NotBlank String iun) {
+		log.debug( "Received Notification START {} " , iun);
+		Notification notification = null;
+		
+		log.info( "Retrieve notification with iun={} ", iun );
+        Optional<Notification> optNotification = notificationDao.getNotificationByIun( iun );
+        
+        if (optNotification.isPresent() ) {
+        	notification = optNotification.get();
+        } else {
+        	log.debug( "Error in retrieving Notification with iun {}", iun );
+			throw new PnInternalException( "Error in retrieving Notification with iun " + iun );
+        }
+        
+		return notification;
 	}
 
 }

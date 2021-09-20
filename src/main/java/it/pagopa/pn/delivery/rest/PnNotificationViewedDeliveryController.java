@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -14,8 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.typesafe.config.Optional;
-
+import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodNotificationViewed;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -69,5 +67,17 @@ public class PnNotificationViewedDeliveryController implements PnDeliveryRestApi
 	
 		return ResponseEntity.status(resource.getStatusCode()).headers( headers ).body( resource.getBody() );
     }
+	
+	@Override
+    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_RECEIVED_PATH )
+	@ResponseBody
+    public Notification receivedNotification(
+    		@NotBlank @PathVariable("iun") String iun,
+    		@RequestHeader(name =  PnDeliveryRestConstants.USER_ID_HEADER, required = false) String userId1, 	// FIXME GA RENDERE OBBLIGATORIO
+    		@RequestParam(name = PnDeliveryRestConstants.USER_ID_HEADER, required = false ) String userId2	 	// FIXME GA RIMUOVERE
+    ) {
+		return svc.receivedNotification( iun );
+	}
+    		
 
 }

@@ -43,7 +43,7 @@ class PnNotificationViewedDeliveryControllerTest {
 		webTestClient.get()
                 .uri( "/delivery/notifications/received/" + IUN + "/documents/" + DOCUMENT_INDEX )
                 .accept( MediaType.ALL )
-                .header( "X-PagoPA-User-Id", USER_ID)
+                .header( "X-PagoPA-User-Id", USER_ID )
                 .exchange()
                 .expectStatus()
                 .isOk();
