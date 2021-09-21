@@ -23,7 +23,7 @@ public class PnSentNotificationController implements PnDeliveryRestApi_methodGet
     }
 	
     @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_PATH )
+    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH )
     @JsonView(value = NotificationJsonViews.Sent.class )
     public Notification getSentNotification(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
