@@ -380,6 +380,38 @@ Resources:
         - ColumnName: timestamp
           ColumnType: timestamp
 
+  NotificationBySenderTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: iun_by_senderid
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: notificationstatus
+          ColumnType: text
+        - ColumnName: senderid
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: sentat
+            ColumnType: timestamp
+          OrderBy: ASC
+        - Column:
+            ColumnName: recipientid
+            ColumnType: text
+          OrderBy: ASC
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: panotificationid
+          ColumnType: text
+        - ColumnName: subject
+          ColumnType: text
+        - ColumnName: recipientsjson
+          ColumnType: map<text, text>
+
 Outputs:
   CluserArn:
     Description: ARN del cluster fargate
