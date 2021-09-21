@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @WebFluxTest(NotificationSearchForSenderController.class)
-public class NotificationSearchForSenderControllerTest {
+class NotificationSearchForSenderControllerTest {
 
     private static final String SENDER_ID = "test";
     private static final Instant START_DATE = Instant.parse("2021-09-17T00:00:00.00Z");
