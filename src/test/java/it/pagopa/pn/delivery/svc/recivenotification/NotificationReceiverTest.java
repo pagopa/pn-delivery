@@ -19,6 +19,10 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
+import it.pagopa.pn.delivery.svc.receivenotification.AttachmentService;
+import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverService;
+import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverValidator;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.codec.digest.DigestUtils;

@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc.recivenotification;
+package it.pagopa.pn.delivery.svc.receivenotification;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;

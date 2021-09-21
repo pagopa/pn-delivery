@@ -13,15 +13,15 @@ import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.delivery.svc.recivenotification.NotificationReceiverService;
+import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverService;
 
 @RestController
-public class PnSentDeliveryController implements PnDeliveryRestApi_methodReceiveNotification {
+public class PnReceiveDeliveryController implements PnDeliveryRestApi_methodReceiveNotification {
 
 
     private final NotificationReceiverService svc;
 
-    public PnSentDeliveryController(NotificationReceiverService svc) {
+    public PnReceiveDeliveryController(NotificationReceiverService svc) {
         this.svc = svc;
     }
 

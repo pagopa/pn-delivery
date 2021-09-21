@@ -68,16 +68,4 @@ public class PnNotificationViewedDeliveryController implements PnDeliveryRestApi
 		return ResponseEntity.status(resource.getStatusCode()).headers( headers ).body( resource.getBody() );
     }
 	
-	@Override
-    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_RECEIVED_PATH )
-	@ResponseBody
-    public Notification receivedNotification(
-    		@NotBlank @PathVariable("iun") String iun,
-    		@RequestHeader(name =  PnDeliveryRestConstants.USER_ID_HEADER, required = false) String userId1, 	// FIXME GA RENDERE OBBLIGATORIO
-    		@RequestParam(name = PnDeliveryRestConstants.USER_ID_HEADER, required = false ) String userId2	 	// FIXME GA RIMUOVERE
-    ) {
-		return svc.receivedNotification( iun );
-	}
-    		
-
 }
