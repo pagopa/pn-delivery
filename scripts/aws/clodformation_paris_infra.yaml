@@ -5,13 +5,13 @@ Resources:
   Keyspace:
     Type: AWS::Cassandra::Keyspace
     Properties:
-      KeyspaceName: TestKeySpace
+      KeyspaceName: !Ref Keyspace
 
-  NotificationIunTable:
+  NotificationBySenderTable:
     Type: AWS::Cassandra::Table
     Properties:
-      TableName: iun_cluster_by_senderid
-      KeyspaceName: TestKeySpace
+      TableName: iun_by_senderid
+      KeyspaceName: !Ref Keyspace
       PointInTimeRecoveryEnabled: true
       PartitionKeyColumns:
         - ColumnName: notificationstatus
