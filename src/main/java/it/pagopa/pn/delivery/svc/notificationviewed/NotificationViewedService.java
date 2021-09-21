@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +17,7 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
-import it.pagopa.pn.delivery.svc.recivenotification.AttachmentService;
+import it.pagopa.pn.delivery.svc.receivenotification.AttachmentService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service

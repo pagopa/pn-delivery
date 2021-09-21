@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.svc.notificationviewed.NotificationViewedService;
 
 @WebFluxTest(PnNotificationViewedDeliveryController.class)
@@ -29,7 +28,7 @@ class PnNotificationViewedDeliveryControllerTest {
 	private NotificationViewedService svc;
 	
 	@Test
-	void getSuccess() {
+	void getNotificationViewedSuccess() {
 		// Given		
 		ResponseEntity<Resource> resource;
 		HttpHeaders headers = new HttpHeaders();
@@ -43,12 +42,12 @@ class PnNotificationViewedDeliveryControllerTest {
 		webTestClient.get()
                 .uri( "/delivery/notifications/received/" + IUN + "/documents/" + DOCUMENT_INDEX )
                 .accept( MediaType.ALL )
-                .header( "X-PagoPA-User-Id", USER_ID)
+                .header( "X-PagoPA-User-Id", USER_ID )
                 .exchange()
                 .expectStatus()
                 .isOk();
 		
 		Mockito.verify( svc ).notificationViewed(IUN, DOCUMENT_INDEX, USER_ID);
 	}
-
+	
 }
