@@ -36,18 +36,18 @@ class PnSentNotificationLegalFactsControllerTest {
 		Mockito.when( svc.sentNotificationLegalFacts( IUN ) ).thenReturn( list );
 				
 		// Then		
-//		webTestClient.get()
-//			.uri( "/delivery/notifications/sent/" + IUN + "/legalfacts/" )
-//			.accept( MediaType.ALL )
-//			.header(HttpHeaders.ACCEPT, "application/json")
-//			.header( "X-PagoPA-PN-PA", PA_ID )
-//			.exchange()
-//			.expectStatus()
-//			.isOk()
-//			.expectBodyList( LegalFactsRow.class )
-//			;
-//		
-//		Mockito.verify( svc ).sentNotificationLegalFacts( IUN );
+		webTestClient.get()
+			.uri( "/delivery/notifications/sent/" + IUN + "/legalfacts/" )
+			.accept( MediaType.ALL )
+			.header(HttpHeaders.ACCEPT, "application/json")
+			.header( "X-PagoPA-PN-PA", PA_ID )
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBodyList( LegalFactsRow.class )
+			;
+		
+		Mockito.verify( svc ).sentNotificationLegalFacts( IUN );
 	}
 	
 }
