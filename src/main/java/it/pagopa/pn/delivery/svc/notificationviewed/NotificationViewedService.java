@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 
 import javax.validation.constraints.NotBlank;
 
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +59,9 @@ public class NotificationViewedService {
             log.debug("Notification not found for iun {}", iun );
 			throw new PnInternalException( "Notification not found for iun " + iun );
         }
-                
+
+		NotificationAttachment doc = notification.get().getDocuments().get( documentIndex );
+
         int recepientIndex = IntStream.range( 0, notification.get().getRecipients().size() )
                 						.filter( i -> userId.equals( notification.get().getRecipients().get( i ).getTaxId() ) )
                 						.findFirst()
@@ -69,7 +72,7 @@ public class NotificationViewedService {
 			throw new PnInternalException( "Notification not found for iun " + iun + " and userId " + userId );
         }
 		 			
-		ResponseEntity<Resource> response = attachmentService.loadDocument( iun, documentIndex );
+		ResponseEntity<Resource> response = attachmentService.loadDocument( iun, documentIndex, doc.getSavedVersionId() );
 		
 		log.debug("Send \"notification acknowlwdgement\" event for iun {}", iun);
 		Instant createdAt = clock.instant();

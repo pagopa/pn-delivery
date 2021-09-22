@@ -68,10 +68,10 @@ public class AttachmentService {
         );
     }
     
-    public ResponseEntity<Resource> loadDocument(String iun, int documentIndex) {
+    public ResponseEntity<Resource> loadDocument(String iun, int documentIndex, String savedVersionId) {
     	String documentKey = String.format("%s/documents/%d", iun, documentIndex );
     	
-    	FileData fileData = fileStorage.getFileByKey( documentKey );
+    	FileData fileData = fileStorage.getFileVersion( documentKey, savedVersionId );
     			
 		ResponseEntity<Resource> response = ResponseEntity.ok()
 	            .headers( headers() )
