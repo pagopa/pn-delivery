@@ -1,14 +1,11 @@
 package it.pagopa.pn.delivery.svc.receivenotification;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import java.io.ByteArrayInputStream;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.InputStreamResource;
@@ -19,14 +16,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
+import it.pagopa.pn.commons.abstractions.FileData;
+import it.pagopa.pn.commons.abstractions.FileStorage;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -172,4 +167,11 @@ public class AttachmentService {
 
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );
     }
+
+	public Notification getNotificationLegalFacts(String iun) {
+
+		fileStorage.getFiles( iun );
+		
+		return null;
+	}
 }
