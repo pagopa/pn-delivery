@@ -1,8 +1,10 @@
 package it.pagopa.pn.delivery.svc.receivenotification;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -16,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import it.pagopa.pn.api.dto.LegalFactsRow;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
@@ -167,11 +170,20 @@ public class AttachmentService {
 
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );
     }
-
-	public Notification getNotificationLegalFacts(String iun) {
-
-		fileStorage.getFiles( iun );
+  
+	public List<LegalFactsRow> sentNotificationLegalFacts(String iun) {
+		List<LegalFactsRow> response  = new ArrayList<>();
+		List<String> legalFacts = new ArrayList<>();
+		String prefix = iun + "/legalfacts/";
 		
-		return null;
+		legalFacts = fileStorage.getDocumentsByPrefix( prefix );
+		
+		for ( String legalFact : legalFacts ) {
+			response.add( LegalFactsRow.builder()
+										.id( legalFact )
+										.build() );
+		}
+		
+		return response;
 	}
 }
