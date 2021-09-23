@@ -1,5 +1,11 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.api.dto.NewNotificationResponse;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
+import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
+import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -7,12 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import it.pagopa.pn.api.dto.NewNotificationResponse;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
-import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverService;
 
 @RestController

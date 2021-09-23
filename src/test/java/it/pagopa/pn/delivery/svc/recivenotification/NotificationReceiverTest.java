@@ -26,6 +26,7 @@ import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverValidat
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.commons.codec.digest.DigestUtils;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

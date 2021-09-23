@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 
 @WebFluxTest(PnReceiveDeliveryController.class)
 class PnReceiveDeliveryControllerTest {
-	
+
 	private static final String PA_ID = "paId";
 	private static final String IUN = "IUN";
 	private static final String PA_NOTIFICATION_ID = "paNotificationId";
