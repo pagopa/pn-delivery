@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.delivery.svc.sendersearch.NotificationSearchForSenderService;
+import it.pagopa.pn.delivery.svc.searchnotification.NotificationSearchService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ class NotificationSearchForSenderControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private NotificationSearchForSenderService svc;
+    private NotificationSearchService svc;
 
     @Test
     void getSuccess() {
@@ -48,7 +48,9 @@ class NotificationSearchForSenderControllerTest {
         resource.add(searchRow);
 
         //When
-        Mockito.when(svc.searchSentNotification(Mockito.anyString(),
+        Mockito.when(svc.searchNotification(
+                Mockito.anyBoolean(),
+                Mockito.anyString(),
                 Mockito.any(Instant.class),
                 Mockito.any(Instant.class),
                 Mockito.anyString(),
@@ -74,6 +76,6 @@ class NotificationSearchForSenderControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(svc).searchSentNotification(SENDER_ID, START_DATE, END_DATE, RECIPIENT_ID, STATUS, SUBJECT_REG_EXP);
+        Mockito.verify(svc).searchNotification(true, SENDER_ID, START_DATE, END_DATE, RECIPIENT_ID, STATUS, SUBJECT_REG_EXP);
     }
 }

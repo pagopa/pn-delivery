@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc.sendersearch;
+package it.pagopa.pn.delivery.svc.searchnotification;
 
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
@@ -9,18 +9,18 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
-public class NotificationSearchForSenderService {
+public class NotificationSearchService {
 
     private final NotificationDao notificationDao;
 
-    public NotificationSearchForSenderService(NotificationDao notificationDao) {
+    public NotificationSearchService(NotificationDao notificationDao) {
         this.notificationDao = notificationDao;
     }
 
-    public List<NotificationSearchRow> searchSentNotification(
-            String senderId, Instant startDate, Instant endDate,
+    public List<NotificationSearchRow> searchNotification(
+            boolean bySender, String senderId, Instant startDate, Instant endDate,
             String recipientId, NotificationStatus status, String subjectRegExp
     ) {
-        return notificationDao.searchSentNotification(senderId, startDate, endDate, recipientId, status, subjectRegExp);
+        return notificationDao.searchNotification(bySender, senderId, startDate, endDate, recipientId, status, subjectRegExp);
     }
 }

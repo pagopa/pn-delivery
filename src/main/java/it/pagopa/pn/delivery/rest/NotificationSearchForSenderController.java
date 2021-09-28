@@ -4,7 +4,7 @@ import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodSearchSentNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.delivery.svc.sendersearch.NotificationSearchForSenderService;
+import it.pagopa.pn.delivery.svc.searchnotification.NotificationSearchService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,9 +15,9 @@ import java.util.List;
 @RestController
 public class NotificationSearchForSenderController implements PnDeliveryRestApi_methodSearchSentNotification {
 
-    private final NotificationSearchForSenderService svc;
+    private final NotificationSearchService svc;
 
-    public NotificationSearchForSenderController(NotificationSearchForSenderService svc) {
+    public NotificationSearchForSenderController(NotificationSearchService svc) {
         this.svc = svc;
     }
 
@@ -30,6 +30,6 @@ public class NotificationSearchForSenderController implements PnDeliveryRestApi_
             @RequestParam(name = "status", required = false) NotificationStatus status,
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp
     ) {
-        return svc.searchSentNotification(senderId, startDate, endDate, recipientId, status, subjectRegExp);
+        return svc.searchNotification(true ,senderId, startDate, endDate, recipientId, status, subjectRegExp);
     }
 }
