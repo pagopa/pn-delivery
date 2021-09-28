@@ -6,7 +6,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -20,14 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import it.pagopa.pn.api.dto.LegalFactsRow;
-import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -38,11 +34,9 @@ public class AttachmentService {
 	private static final String CONTENT_TYPE_METADATA_NAME = "content-type";
 	
 	private final FileStorage fileStorage;
-	private final NotificationDao notificationDao;
 
-    public AttachmentService(FileStorage fileStorage, NotificationDao notificationDao) {
+    public AttachmentService(FileStorage fileStorage) {
         this.fileStorage = fileStorage;
-        this.notificationDao = notificationDao;
     }
 
     public Notification saveAttachments(Notification notification ) {
@@ -180,22 +174,15 @@ public class AttachmentService {
   
 	public List<LegalFactsRow> sentNotificationLegalFacts(String iun) {
 		List<LegalFactsRow> response  = new ArrayList<>();
-		List<String> legalFacts = new ArrayList<>();
 		String prefix = iun + "/legalfacts/";
 		
-		Optional<Notification> notification = notificationDao.getNotificationByIun( iun );
-        if( !notification.isPresent() ) {
-            log.debug("Notification not found for iun {}", iun );
-			throw new PnInternalException( "Notification not found for iun " + iun );
-        }
+		List<FileData> legalFacts = fileStorage.getDocumentsByPrefix( prefix );
 		
-		legalFacts = fileStorage.getDocumentsByPrefix( prefix );
-		
-		for ( String legalFact : legalFacts ) {
+		for ( FileData legalFact : legalFacts ) {
 			response.add( LegalFactsRow.builder()
-										.id( legalFact )
-										// .type(  ) 
-										// .taxId(  )
+										.id( legalFact.getKey() )
+										.type( legalFact.getMetadata().get( "type" ) ) 
+										.taxId( legalFact.getMetadata().get( "taxid" ) )
 										.build() );
 		}
 		
