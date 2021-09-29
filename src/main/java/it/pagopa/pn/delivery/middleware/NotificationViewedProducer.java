@@ -21,7 +21,7 @@ public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotifi
         return PnDeliveryNotificationViewedEvent.builder()
                 .header( StandardEventHeader.builder()
                         .iun( iun )
-                        .eventId( iun + "_notification_viewed_" + recipientIndex )
+                        .eventId( iun + "_notification_viewed" + recipientIndex )
                         .createdAt( when )
                         .eventType( EventType.NOTIFICATION_VIEWED.name() )
                         .publisher( EventPublisher.DELIVERY.name() )
