@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import it.pagopa.pn.delivery.svc.notificationviewed.NotificationViewedService;
 
-@WebFluxTest(PnNotificationViewedDeliveryController.class)
+@WebFluxTest(PnReceivedNotificationsController.class)
 class PnNotificationViewedDeliveryControllerTest {
 	
 	private static final String IUN = "IUN";
@@ -22,10 +22,10 @@ class PnNotificationViewedDeliveryControllerTest {
 	private static final String USER_ID = "USER_ID";
 	
 	@Autowired
-    WebTestClient webTestClient;
-	
+    private WebTestClient webTestClient;
+
 	@MockBean
-	private NotificationViewedService svc;
+	private NotificationRetrieverService svc;
 	
 	@Test
 	void getNotificationViewedSuccess() {
@@ -36,7 +36,7 @@ class PnNotificationViewedDeliveryControllerTest {
 		resource = ResponseEntity.status( HttpStatus.OK ).headers( headers ).build();
 		
 		// When
-		Mockito.when( svc.notificationViewed( Mockito.anyString(), Mockito.anyInt(), Mockito.anyString() ) ).thenReturn( resource );
+		Mockito.when( svc.downloadDocument( Mockito.anyString(), Mockito.anyInt(), Mockito.anyString() ) ).thenReturn( resource );
 				
 		// Then
 		webTestClient.get()
@@ -47,7 +47,7 @@ class PnNotificationViewedDeliveryControllerTest {
                 .expectStatus()
                 .isOk();
 		
-		Mockito.verify( svc ).notificationViewed(IUN, DOCUMENT_INDEX, USER_ID);
+		Mockito.verify( svc ).downloadDocument(IUN, DOCUMENT_INDEX, USER_ID);
 	}
 	
 }

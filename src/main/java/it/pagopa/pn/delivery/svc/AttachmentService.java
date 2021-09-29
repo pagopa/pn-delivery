@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc.receivenotification;
+package it.pagopa.pn.delivery.svc;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -18,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import it.pagopa.pn.api.dto.LegalFactsRow;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
@@ -34,9 +35,11 @@ public class AttachmentService {
 	private static final String CONTENT_TYPE_METADATA_NAME = "content-type";
 	
 	private final FileStorage fileStorage;
+	private final LegalfactsMetadataUtils legalfactMetadataUtils;
 
-    public AttachmentService(FileStorage fileStorage) {
+    public AttachmentService(FileStorage fileStorage, LegalfactsMetadataUtils legalfactMetadataUtils) {
         this.fileStorage = fileStorage;
+        this.legalfactMetadataUtils = legalfactMetadataUtils;
     }
 
     public Notification saveAttachments(Notification notification ) {
@@ -67,22 +70,7 @@ public class AttachmentService {
         );
     }
     
-    public ResponseEntity<Resource> loadDocument(String iun, int documentIndex, String savedVersionId) {
-    	String documentKey = String.format("%s/documents/%d", iun, documentIndex );
-    	
-    	FileData fileData = fileStorage.getFileVersion( documentKey, savedVersionId );
-    			
-		ResponseEntity<Resource> response = ResponseEntity.ok()
-	            .headers( headers() )
-	            .contentLength( fileData.getContentLength() )
-	            .contentType( extractMediaType( fileData.getMetadata() ) )
-	            .body( new InputStreamResource (fileData.getContent() ) );
-		
-		log.debug("downloadDocument: response {}", response);
-	    return response;
-    }
-
-	private MediaType extractMediaType(Map<String, String> metadata ) {
+    private MediaType extractMediaType(Map<String, String> metadata ) {
 		MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
 		String contentType = metadata.get( CONTENT_TYPE_METADATA_NAME );
 				
@@ -171,21 +159,45 @@ public class AttachmentService {
 
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );
     }
-  
-	public List<LegalFactsRow> sentNotificationLegalFacts(String iun) {
-		List<LegalFactsRow> response  = new ArrayList<>();
+
+
+
+
+    public ResponseEntity<Resource> loadDocument(String iun, int documentIndex, String savedVersionId) {
+        String documentKey = String.format("documents/%d", documentIndex );
+        return loadAttachment( iun, documentKey, savedVersionId );
+    }
+
+    public ResponseEntity<Resource> loadLegalfact(String iun, String legalfactId, String savedVersionId) {
+        return loadAttachment( iun, "legalfacts/" + legalfactId, savedVersionId );
+    }
+
+    private ResponseEntity<Resource> loadAttachment(String iun, String subKey, String savedVersionId) {
+        String documentKey = String.format("%s/%s", iun, subKey );
+
+        FileData fileData = fileStorage.getFileVersion( documentKey, savedVersionId );
+
+        ResponseEntity<Resource> response = ResponseEntity.ok()
+                .headers( headers() )
+                .contentLength( fileData.getContentLength() )
+                .contentType( extractMediaType( fileData.getMetadata() ) )
+                .body( new InputStreamResource (fileData.getContent() ) );
+
+        log.debug("downloadDocument: response {}", response);
+        return response;
+    }
+
+
+
+	public List<LegalFactsListEntry> listNotificationLegalFacts(String iun) {
+		List<LegalFactsListEntry> response  = new ArrayList<>();
 		String prefix = iun + "/legalfacts/";
 		
-		List<FileData> legalFacts = fileStorage.getDocumentsByPrefix( prefix );
-		
-		for ( FileData legalFact : legalFacts ) {
-			response.add( LegalFactsRow.builder()
-										.id( legalFact.getKey() )
-										.type( legalFact.getMetadata().get( "type" ) ) 
-										.taxId( legalFact.getMetadata().get( "taxid" ) )
-										.build() );
-		}
-		
-		return response;
+		List<FileData> legalFacts = fileStorage.getDocumentsListing( prefix );
+
+		return legalFacts.stream().map( fd ->
+                    legalfactMetadataUtils.fromMetadata( fd.getKey(), fd.getMetadata() )
+                )
+                .collect(Collectors.toList());
 	}
 }
