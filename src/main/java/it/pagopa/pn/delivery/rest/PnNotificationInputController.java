@@ -4,8 +4,11 @@ import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.api.dto.preload.PreloadRequest;
+import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -18,11 +21,12 @@ import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 @RestController
 public class PnNotificationInputController implements PnDeliveryRestApi_methodReceiveNotification {
 
-
     private final NotificationReceiverService svc;
+    private final S3PresignedUrlService presignSvc;
 
-    public PnNotificationInputController(NotificationReceiverService svc) {
+    public PnNotificationInputController(NotificationReceiverService svc, S3PresignedUrlService presignSvc) {
         this.svc = svc;
+        this.presignSvc = presignSvc;
     }
 
     @Override
@@ -40,6 +44,15 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
                 .build();
 
         return svc.receiveNotification( withSender );
+    }
+
+    @Override
+    @PostMapping( PnDeliveryRestConstants.ATTACHMENT_PRELOAD_REQUEST)
+    public PreloadResponse presignedUploadRequest(
+            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @RequestBody PreloadRequest request
+    ) {
+        return presignSvc.presignedUpload( paId, request.getKey() );
     }
 
 }

@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
+import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,10 @@ class PnNotificationInputControllerTest {
 	
 	@MockBean
 	private NotificationReceiverService deliveryService;
-	
+
+	@MockBean
+	private S3PresignedUrlService presignService;
+
 	@Test
 	void postSuccess() {
 		// Given
