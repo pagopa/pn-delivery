@@ -3,6 +3,8 @@ package it.pagopa.pn.delivery.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import it.pagopa.pn.api.dto.LegalFactsRow;
-import it.pagopa.pn.delivery.svc.receivenotification.AttachmentService;
-
-@WebFluxTest(PnSentNotificationLegalFactsController.class)
+@WebFluxTest(PnSentNotificationsController.class)
 class PnSentNotificationLegalFactsControllerTest {
 	
 	private static final String IUN = "IUN";
@@ -25,15 +24,15 @@ class PnSentNotificationLegalFactsControllerTest {
     WebTestClient webTestClient;
 	
 	@MockBean
-	private AttachmentService svc;
+	private NotificationRetrieverService svc;
 
 	@Test
 	void sentNotificationLegalFactsSuccess() {
 		// Given		
-		List<LegalFactsRow> list = new ArrayList<>();
+		List<LegalFactsListEntry> list = new ArrayList<>();
 		
 		// When
-		Mockito.when( svc.sentNotificationLegalFacts( IUN ) ).thenReturn( list );
+		Mockito.when( svc.listNotificationLegalFacts( IUN ) ).thenReturn( list );
 				
 		// Then		
 		webTestClient.get()
@@ -44,10 +43,10 @@ class PnSentNotificationLegalFactsControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBodyList( LegalFactsRow.class )
+			.expectBodyList( LegalFactsListEntry.class )
 			;
 		
-		Mockito.verify( svc ).sentNotificationLegalFacts( IUN );
+		Mockito.verify( svc ).listNotificationLegalFacts( IUN );
 	}
 	
 }

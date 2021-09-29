@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverService;
+import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,8 +14,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import reactor.core.publisher.Mono;
 
-@WebFluxTest(PnReceiveDeliveryController.class)
-class PnReceiveDeliveryControllerTest {
+@WebFluxTest(PnNotificationInputController.class)
+class PnNotificationInputControllerTest {
 
 	private static final String PA_ID = "paId";
 	private static final String IUN = "IUN";

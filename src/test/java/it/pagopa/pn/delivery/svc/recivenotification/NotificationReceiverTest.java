@@ -18,10 +18,11 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
-import it.pagopa.pn.delivery.svc.receivenotification.AttachmentService;
-import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverService;
-import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverValidator;
+import it.pagopa.pn.delivery.svc.AttachmentService;
+import it.pagopa.pn.delivery.svc.NotificationReceiverService;
+import it.pagopa.pn.delivery.svc.NotificationReceiverValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -68,7 +69,7 @@ class NotificationReceiverTest {
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
-		AttachmentService attachmentSaver = new AttachmentService( fileStorage );
+		AttachmentService attachmentSaver = new AttachmentService( fileStorage, new LegalfactsMetadataUtils());
 
 		deliveryService = new NotificationReceiverService(
 				clock,

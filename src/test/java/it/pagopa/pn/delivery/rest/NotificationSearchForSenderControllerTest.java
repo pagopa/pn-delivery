@@ -2,7 +2,8 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.delivery.svc.searchnotification.NotificationSearchService;
+import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebFluxTest(NotificationSearchForSenderController.class)
+@WebFluxTest(PnSentNotificationsController.class)
 class NotificationSearchForSenderControllerTest {
 
     private static final String SENDER_ID = "test";
@@ -30,7 +31,7 @@ class NotificationSearchForSenderControllerTest {
     WebTestClient webTestClient;
 
     @MockBean
-    private NotificationSearchService svc;
+    private NotificationRetrieverService svc;
 
     @Test
     void getSuccess() {
@@ -62,8 +63,7 @@ class NotificationSearchForSenderControllerTest {
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path("/delivery/notifications/sent/")
-                                .queryParam("senderId", SENDER_ID)
+                                .path( "/" + PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH )
                                 .queryParam("startDate", START_DATE)
                                 .queryParam("endDate", END_DATE)
                                 .queryParam("recipientId", RECIPIENT_ID)
@@ -71,7 +71,7 @@ class NotificationSearchForSenderControllerTest {
                                 .queryParam("subjectRegExp", SUBJECT_REG_EXP)
                                 .build())
                 .accept(MediaType.ALL)
-                .header("X-PagoPA-User-Id", SENDER_ID)
+                .header( PnDeliveryRestConstants.PA_ID_HEADER, SENDER_ID)
                 .exchange()
                 .expectStatus()
                 .isOk();

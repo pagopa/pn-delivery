@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import java.util.Arrays;
 import java.util.Collections;
 
+import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,8 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.delivery.svc.sentnotification.NotificationSentService;
 
-@WebFluxTest(PnSentNotificationController.class)
+@WebFluxTest(PnSentNotificationsController.class)
 class PnSentNotificationControllerTest {
 	
 	private static final String IUN = "IUN";
@@ -30,7 +30,7 @@ class PnSentNotificationControllerTest {
     WebTestClient webTestClient;
 	
 	@MockBean
-	private NotificationSentService svc;
+	private NotificationRetrieverService svc;
 
 	@Test
 	void getSentNotificationSuccess() {
@@ -38,11 +38,11 @@ class PnSentNotificationControllerTest {
 		Notification notification = newNotification();
 		
 		// When
-		Mockito.when( svc.getSentNotification( Mockito.anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString() ) ).thenReturn( notification );
 				
 		// Then		
 		webTestClient.get()
-			.uri( "/delivery/notifications/received/" + IUN  )
+			.uri( "/delivery/notifications/sent/" + IUN  )
 			.accept( MediaType.ALL )
 			.header(HttpHeaders.ACCEPT, "application/json")
 			.header( "X-PagoPA-PN-PA", USER_ID )
@@ -51,7 +51,7 @@ class PnSentNotificationControllerTest {
 			.isOk()
 			.expectBody(Notification.class);
 		
-		Mockito.verify( svc ).getSentNotification(IUN);
+		Mockito.verify( svc ).getNotificationInformation(IUN);
 	}
 
 	private Notification newNotification() {
