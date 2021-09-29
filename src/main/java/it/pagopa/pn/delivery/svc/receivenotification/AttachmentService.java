@@ -1,14 +1,13 @@
 package it.pagopa.pn.delivery.svc.receivenotification;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.core.ResponseInputStream;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.InputStreamResource;
@@ -19,14 +18,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import it.pagopa.pn.api.dto.LegalFactsRow;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
+import it.pagopa.pn.commons.abstractions.FileData;
+import it.pagopa.pn.commons.abstractions.FileStorage;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -34,6 +32,7 @@ public class AttachmentService {
 
     private static final String SHA256_METADATA_NAME = "sha256";
 	private static final String CONTENT_TYPE_METADATA_NAME = "content-type";
+	
 	private final FileStorage fileStorage;
 
     public AttachmentService(FileStorage fileStorage) {
@@ -172,4 +171,21 @@ public class AttachmentService {
 
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, metadata );
     }
+  
+	public List<LegalFactsRow> sentNotificationLegalFacts(String iun) {
+		List<LegalFactsRow> response  = new ArrayList<>();
+		String prefix = iun + "/legalfacts/";
+		
+		List<FileData> legalFacts = fileStorage.getDocumentsByPrefix( prefix );
+		
+		for ( FileData legalFact : legalFacts ) {
+			response.add( LegalFactsRow.builder()
+										.id( legalFact.getKey() )
+										.type( legalFact.getMetadata().get( "type" ) ) 
+										.taxId( legalFact.getMetadata().get( "taxid" ) )
+										.build() );
+		}
+		
+		return response;
+	}
 }
