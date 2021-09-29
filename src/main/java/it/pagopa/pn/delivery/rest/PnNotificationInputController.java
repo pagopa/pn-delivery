@@ -16,17 +16,17 @@ import com.fasterxml.jackson.annotation.JsonView;
 import it.pagopa.pn.delivery.svc.receivenotification.NotificationReceiverService;
 
 @RestController
-public class PnReceiveDeliveryController implements PnDeliveryRestApi_methodReceiveNotification {
+public class PnNotificationInputController implements PnDeliveryRestApi_methodReceiveNotification {
 
 
     private final NotificationReceiverService svc;
 
-    public PnReceiveDeliveryController(NotificationReceiverService svc) {
+    public PnNotificationInputController(NotificationReceiverService svc) {
         this.svc = svc;
     }
 
     @Override
-    @PostMapping(PnDeliveryRestConstants.SENDER_NOTIFICATIONS_PATH )
+    @PostMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH )
     public NewNotificationResponse receiveNotification(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
             @RequestBody @JsonView(value = NotificationJsonViews.New.class ) Notification notification

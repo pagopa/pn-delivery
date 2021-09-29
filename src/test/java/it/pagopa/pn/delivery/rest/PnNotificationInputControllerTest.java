@@ -14,8 +14,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import reactor.core.publisher.Mono;
 
-@WebFluxTest(PnReceiveDeliveryController.class)
-class PnReceiveDeliveryControllerTest {
+@WebFluxTest(PnNotificationInputController.class)
+class PnNotificationInputControllerTest {
 
 	private static final String PA_ID = "paId";
 	private static final String IUN = "IUN";
