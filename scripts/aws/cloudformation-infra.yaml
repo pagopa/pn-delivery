@@ -395,7 +395,7 @@ Resources:
         - Column:
             ColumnName: sentat
             ColumnType: timestamp
-          OrderBy: ASC
+          OrderBy: DESC
         - Column:
             ColumnName: recipientid
             ColumnType: text
@@ -427,7 +427,7 @@ Resources:
         - Column:
             ColumnName: sentat
             ColumnType: timestamp
-          OrderBy: ASC
+          OrderBy: DESC
         - Column:
             ColumnName: senderid
             ColumnType: text
