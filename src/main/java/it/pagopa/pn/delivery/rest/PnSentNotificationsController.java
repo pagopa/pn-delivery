@@ -29,6 +29,19 @@ public class PnSentNotificationsController implements
     }
 
     @Override
+    @GetMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH)
+    public List<NotificationSearchRow> searchSentNotification(
+            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String senderId,
+            @RequestParam(name = "startDate") Instant startDate,
+            @RequestParam(name = "endDate") Instant endDate,
+            @RequestParam(name = "recipientId", required = false) String recipientId,
+            @RequestParam(name = "status", required = false) NotificationStatus status,
+            @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp
+    ) {
+        return retrieveSvc.searchNotification( true, senderId, startDate, endDate, recipientId, status, subjectRegExp );
+    }
+
+    @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH)
     @JsonView(value = NotificationJsonViews.Sent.class )
     public Notification getSentNotification(
@@ -67,19 +80,6 @@ public class PnSentNotificationsController implements
     ) {
         ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact( iun, legalFactId );
         return AttachmentRestUtils.prepareAttachment( resource, iun, legalFactId.replaceFirst("\\.pdf$", "") );
-    }
-
-    @Override
-    @GetMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH)
-    public List<NotificationSearchRow> searchSentNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String senderId,
-            @RequestParam(name = "startDate") Instant startDate,
-            @RequestParam(name = "endDate") Instant endDate,
-            @RequestParam(name = "recipientId", required = false) String recipientId,
-            @RequestParam(name = "status", required = false) NotificationStatus status,
-            @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp
-    ) {
-        return retrieveSvc.searchNotification( true, senderId, startDate, endDate, recipientId, status, subjectRegExp );
     }
 
 }

@@ -39,7 +39,7 @@ public class PnReceivedNotificationsController implements
             @RequestParam(name = "status", required = false) NotificationStatus status,
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp
     ) {
-        return retrieveSvc.searchNotification( false, senderId, startDate, endDate, recipientId, status, subjectRegExp );
+        return retrieveSvc.searchNotification( false, recipientId, startDate, endDate, senderId, status, subjectRegExp );
     }
 
     @Override

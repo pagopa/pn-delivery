@@ -59,10 +59,10 @@ public class NotificationRetrieverService {
 	}
 
 	public List<NotificationSearchRow> searchNotification(
-			boolean bySender, String senderId, Instant startDate, Instant endDate,
-			String recipientId, NotificationStatus status, String subjectRegExp
+			boolean bySender, String senderReceiverId, Instant startDate, Instant endDate,
+			String filterId, NotificationStatus status, String subjectRegExp
 	) {
-		return notificationDao.searchNotification(bySender, senderId, startDate, endDate, recipientId, status, subjectRegExp);
+		return notificationDao.searchNotification(bySender, senderReceiverId, startDate, endDate, filterId, status, subjectRegExp);
 	}
 
 	/**
