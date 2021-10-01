@@ -16,6 +16,8 @@ public class PnDeliveryConfigs {
 
     private Duration preloadUrlDuration;
 
+    private Duration downloadUrlDuration;
+
     @Data
     public static class Topics {
 
