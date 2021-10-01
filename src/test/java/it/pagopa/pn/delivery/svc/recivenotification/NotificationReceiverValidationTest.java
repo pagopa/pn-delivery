@@ -80,12 +80,13 @@ class NotificationReceiverValidationTest {
         PnValidationException validationException;
         validationException = Assertions.assertThrows(PnValidationException.class, todo );
 
-        Set<ConstraintViolation<Notification>> errors = validationException.getValidationErrors();
-        assertConstraintViolationPresentByField( errors, "documents" );
-        assertConstraintViolationPresentByField( errors, "sender" );
-        assertConstraintViolationPresentByField( errors, "recipients" );
-        assertConstraintViolationPresentByField( errors, "paNotificationId" );
-        assertConstraintViolationPresentByField( errors, "subject" );
+        Set<ConstraintViolation<?>> errors = validationException.getValidationErrors();
+        Set<ConstraintViolation<Object>> errorsCast = (Set<ConstraintViolation<Object>>) ((Object) errors);
+        assertConstraintViolationPresentByField( errorsCast, "documents" );
+        assertConstraintViolationPresentByField( errorsCast, "sender" );
+        assertConstraintViolationPresentByField( errorsCast, "recipients" );
+        assertConstraintViolationPresentByField( errorsCast, "paNotificationId" );
+        assertConstraintViolationPresentByField( errorsCast, "subject" );
         Assertions.assertEquals( 5, errors.size() );
     }
 
@@ -153,6 +154,9 @@ class NotificationReceiverValidationTest {
                         .build())
                 )
                 .documents( Collections.singletonList(NotificationAttachment.builder()
+                        .ref( NotificationAttachment.Ref.builder()
+                                .build()
+                        )
                         .build())
                 )
                 .build();
@@ -162,14 +166,13 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
-        assertConstraintViolationPresentByField( errors, "documents[0].contentType" );
-        assertConstraintViolationPresentByField( errors, "documents[0].body" );
         assertConstraintViolationPresentByField( errors, "documents[0].digests" );
+        assertConstraintViolationPresentByField( errors, "documents[0].ref.key" );
+        assertConstraintViolationPresentByField( errors, "documents[0].ref.versionToken" );
         assertConstraintViolationPresentByField( errors, "recipients[0].taxId" );
         assertConstraintViolationPresentByField( errors, "recipients[0].denomination" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile" );
         Assertions.assertEquals( 6, errors.size() );
-        Assertions.assertTrue(!errors.isEmpty());
     }
 
     @Test
@@ -206,7 +209,6 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.address" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.type" );
         Assertions.assertEquals( 3, errors.size() );
-        Assertions.assertTrue(!errors.isEmpty());
     }
 
     @Test
@@ -335,6 +337,28 @@ class NotificationReceiverValidationTest {
         Assertions.assertEquals( 4, errors.size() );
     }
 
+    @Test
+    void successAttachmentDigest() {
+        validator.checkPreloadedDigests( "attachmentKey",
+                NotificationAttachment.Digests.builder().sha256("expected").build(),
+                NotificationAttachment.Digests.builder().sha256("expected").build()
+            );
+    }
+
+    @Test
+    void failAttachmentDigest() {
+        // Given
+        NotificationAttachment.Digests expected = NotificationAttachment.Digests.builder().sha256("expected").build();
+        NotificationAttachment.Digests actual = NotificationAttachment.Digests.builder().sha256("wrong").build();
+        // When
+        PnValidationException exc = Assertions.assertThrows( PnValidationException.class, () ->
+                validator.checkPreloadedDigests( "attachmentKey", expected, actual )
+            );
+        Path propPath = exc.getValidationErrors().iterator().next().getPropertyPath();
+
+        // Then
+        Assertions.assertEquals( "attachmentKey", propertyPathToString( propPath ));
+    }
 
     private <T> void assertConstraintViolationPresentByField( Set<ConstraintViolation<T>> set, String propertyPath ) {
         long actual = set.stream()

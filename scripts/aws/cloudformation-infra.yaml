@@ -337,6 +337,8 @@ Resources:
           ColumnType: map<text, text>
         - ColumnName: recipientsorder
           ColumnType: list<text>
+        - ColumnName: documentskeys
+          ColumnType: list<text>
         - ColumnName: documentsdigestssha256
           ColumnType: list<text>
         - ColumnName: documentsversionids
@@ -345,13 +347,19 @@ Resources:
           ColumnType: text
         - ColumnName: notificationfeepolicy
           ColumnType: text
+        - ColumnName: f24flatratekey
+          ColumnType: text
         - ColumnName: f24flatratedigestsha256
           ColumnType: text
         - ColumnName: f24flatrateversionid
           ColumnType: text
+        - ColumnName: f24digitalkey
+          ColumnType: text
         - ColumnName: f24digitaldigestsha256
           ColumnType: text
         - ColumnName: f24digitalversionid
+          ColumnType: text
+        - ColumnName: f24analogkey
           ColumnType: text
         - ColumnName: f24analogdigestsha256
           ColumnType: text

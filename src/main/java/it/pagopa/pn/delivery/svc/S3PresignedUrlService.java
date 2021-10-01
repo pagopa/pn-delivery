@@ -2,9 +2,9 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -20,11 +20,17 @@ import java.util.UUID;
 @Service
 public class S3PresignedUrlService {
 
-    private final AwsConfigs props;
-    private final S3Presigner presigner;;
+    public static final String PRELOAD_URL_SECRET_HEADER = "secret";
 
-    public S3PresignedUrlService(AwsConfigs props) {
+    private final AwsConfigs props;
+    private final PnDeliveryConfigs cfgs;
+    private final AttachmentService attachementService;
+    private final S3Presigner presigner;
+
+    public S3PresignedUrlService(AwsConfigs props, PnDeliveryConfigs cfgs, AttachmentService attachementService ) {
         this.props = props;
+        this.cfgs = cfgs;
+        this.attachementService = attachementService;
         this.presigner = buildPresigner();
     }
 
@@ -53,20 +59,20 @@ public class S3PresignedUrlService {
     }
 
 
-    public PreloadResponse presignedUpload(String paId, String key) {
-        String fullKey = "preload/" + paId + "/" + key;
+    public PreloadResponse presignedUpload(String paId, String key ) {
+        Duration urlDuration = cfgs.getPreloadUrlDuration();
+        String fullKey = attachementService.buildPreloadFullKey( paId, key );
 
         String secret = UUID.randomUUID().toString();
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(props.getBucketName() )
                 .key( fullKey )
-                .contentType("application/pdf")
-                .metadata(Collections.singletonMap("secret", secret))
+                .metadata(Collections.singletonMap( PRELOAD_URL_SECRET_HEADER, secret))
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration( Duration.ofMinutes(10) )
+                .signatureDuration( urlDuration )
                 .putObjectRequest(objectRequest)
                 .build();
 

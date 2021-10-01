@@ -28,6 +28,7 @@ public class PnSentNotificationsController implements
         this.retrieveSvc = retrieveSvc;
     }
 
+    @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH)
     @JsonView(value = NotificationJsonViews.Sent.class )
     public Notification getSentNotification(
@@ -37,16 +38,18 @@ public class PnSentNotificationsController implements
         return retrieveSvc.getNotificationInformation( iun );
     }
 
+    @Override
     @GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
     public ResponseEntity<Resource> getSentNotificationDocument(
+            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
             @PathVariable("iun") String iun,
-            @PathVariable("documentIndex") int documentIndex,
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId
+            @PathVariable("documentIndex") int documentIndex
     ) {
         ResponseEntity<Resource> resource = retrieveSvc.downloadDocument( iun, documentIndex, null );
         return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
     }
 
+    @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_LEGALFACTS_PATH)
     public List<LegalFactsListEntry> getSentNotificationLegalFacts(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
@@ -55,6 +58,7 @@ public class PnSentNotificationsController implements
         return retrieveSvc.listNotificationLegalFacts( iun );
     }
 
+    @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_LEGALFACTS_PATH + "{id}")
     public ResponseEntity<Resource> getSentNotificationLegalFact(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
@@ -65,6 +69,7 @@ public class PnSentNotificationsController implements
         return AttachmentRestUtils.prepareAttachment( resource, iun, legalFactId.replaceFirst("\\.pdf$", "") );
     }
 
+    @Override
     @GetMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH)
     public List<NotificationSearchRow> searchSentNotification(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String senderId,

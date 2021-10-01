@@ -69,7 +69,7 @@ class NotificationReceiverTest {
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
-		AttachmentService attachmentSaver = new AttachmentService( fileStorage, new LegalfactsMetadataUtils());
+		AttachmentService attachmentSaver = new AttachmentService( fileStorage, new LegalfactsMetadataUtils(), validator);
 
 		deliveryService = new NotificationReceiverService(
 				clock,
@@ -99,7 +99,7 @@ class NotificationReceiverTest {
 		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
 
 		Mockito.verify( fileStorage, Mockito.times(4) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap() );
+				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
@@ -121,7 +121,7 @@ class NotificationReceiverTest {
 		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
 
 		Mockito.verify( fileStorage, Mockito.times(3) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap() );
+				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
@@ -143,7 +143,7 @@ class NotificationReceiverTest {
 		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
 
 		Mockito.verify( fileStorage, Mockito.times(2) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap() );
+				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
@@ -200,7 +200,7 @@ class NotificationReceiverTest {
 		Mockito.verify( notificationDao, Mockito.times( 2 ) )
 				.addNotification( Mockito.any( Notification.class ));
 		Mockito.verify( fileStorage, Mockito.times( 8 ) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyMap() );
+				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 	}
 
 

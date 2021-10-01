@@ -117,7 +117,7 @@ public class NotificationRetrieverService {
 			log.debug("Document download START for iun {} and documentIndex {} ", iun, documentIndex);
 
 			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
-			response = attachmentService.loadDocument(iun, documentIndex, doc.getSavedVersionId());
+			response = attachmentService.loadAttachment( doc.getRef() );
 
 			if (StringUtils.isNotBlank(downloaderRecipientId)) {
 				notifyNotificationViewedEvent( notification, downloaderRecipientId );
@@ -143,7 +143,7 @@ public class NotificationRetrieverService {
 
 		if( recipientIndex == -1 ) {
 			log.debug("Recipient not found for iun and userId{} ", iun, userId );
-			throw new PnInternalException( "Notification not found for iun " + iun + " and userId " + userId );
+			throw new PnInternalException( "Notification with iun " + iun + " do not have recipient " + userId );
 		}
 
 		log.debug("Send \"notification acknowlwdgement\" event for iun {}", iun);
@@ -157,6 +157,6 @@ public class NotificationRetrieverService {
 	}
 
 	public ResponseEntity<Resource> downloadLegalFact(String iun, String legalfactId) {
-		return attachmentService.loadLegalfact( iun, legalfactId, null );
+		return attachmentService.loadLegalfact( iun, legalfactId );
 	}
 }
