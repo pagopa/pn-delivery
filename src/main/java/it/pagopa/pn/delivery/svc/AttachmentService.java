@@ -178,8 +178,8 @@ public class AttachmentService {
                             .build()
                 );
 
-        } catch (IOException e) {
-            throw new PnInternalException("Checking sha256 of " + attachmentRef );
+        } catch (IOException exc) {
+            throw new PnInternalException("Checking sha256 of " + attachmentRef, exc );
         }
     }
 
