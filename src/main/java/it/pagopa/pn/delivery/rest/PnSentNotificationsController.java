@@ -28,43 +28,7 @@ public class PnSentNotificationsController implements
         this.retrieveSvc = retrieveSvc;
     }
 
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH)
-    @JsonView(value = NotificationJsonViews.Sent.class )
-    public Notification getSentNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
-            @PathVariable( name = "iun") String iun
-    ) {
-        return retrieveSvc.getNotificationInformation( iun );
-    }
-
-    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
-    public ResponseEntity<Resource> getSentNotificationDocument(
-            @PathVariable("iun") String iun,
-            @PathVariable("documentIndex") int documentIndex,
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId
-    ) {
-        ResponseEntity<Resource> resource = retrieveSvc.downloadDocument( iun, documentIndex, null );
-        return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
-    }
-
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_LEGALFACTS_PATH)
-    public List<LegalFactsListEntry> getSentNotificationLegalFacts(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
-            @PathVariable( name = "iun") String iun
-    ) {
-        return retrieveSvc.listNotificationLegalFacts( iun );
-    }
-
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_LEGALFACTS_PATH + "{id}")
-    public ResponseEntity<Resource> getSentNotificationLegalFact(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
-            @PathVariable( name = "iun") String iun,
-            @PathVariable( name = "id") String legalFactId
-    ) {
-        ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact( iun, legalFactId );
-        return AttachmentRestUtils.prepareAttachment( resource, iun, legalFactId.replaceFirst("\\.pdf$", "") );
-    }
-
+    @Override
     @GetMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH)
     public List<NotificationSearchRow> searchSentNotification(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String senderId,
@@ -75,6 +39,47 @@ public class PnSentNotificationsController implements
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp
     ) {
         return retrieveSvc.searchNotification( true, senderId, startDate, endDate, recipientId, status, subjectRegExp );
+    }
+
+    @Override
+    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH)
+    @JsonView(value = NotificationJsonViews.Sent.class )
+    public Notification getSentNotification(
+            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @PathVariable( name = "iun") String iun
+    ) {
+        return retrieveSvc.getNotificationInformation( iun );
+    }
+
+    @Override
+    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
+    public ResponseEntity<Resource> getSentNotificationDocument(
+            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @PathVariable("iun") String iun,
+            @PathVariable("documentIndex") int documentIndex
+    ) {
+        ResponseEntity<Resource> resource = retrieveSvc.downloadDocument( iun, documentIndex, null );
+        return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
+    }
+
+    @Override
+    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_LEGALFACTS_PATH)
+    public List<LegalFactsListEntry> getSentNotificationLegalFacts(
+            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @PathVariable( name = "iun") String iun
+    ) {
+        return retrieveSvc.listNotificationLegalFacts( iun );
+    }
+
+    @Override
+    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_LEGALFACTS_PATH + "{id}")
+    public ResponseEntity<Resource> getSentNotificationLegalFact(
+            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @PathVariable( name = "iun") String iun,
+            @PathVariable( name = "id") String legalFactId
+    ) {
+        ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact( iun, legalFactId );
+        return AttachmentRestUtils.prepareAttachment( resource, iun, legalFactId.replaceFirst("\\.pdf$", "") );
     }
 
 }
