@@ -72,7 +72,7 @@ public class PnReceivedNotificationsController implements
     }
 
     @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH + "{id}")
+    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH + "/{id}")
     public ResponseEntity<Resource> getReceivedNotificationLegalFact(
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String userId,
             @PathVariable( name = "iun") String iun,
