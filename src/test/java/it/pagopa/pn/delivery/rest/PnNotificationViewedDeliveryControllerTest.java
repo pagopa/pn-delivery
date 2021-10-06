@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -26,6 +27,9 @@ class PnNotificationViewedDeliveryControllerTest {
 
 	@MockBean
 	private NotificationRetrieverService svc;
+
+	@MockBean
+	private PnDeliveryConfigs cfg;
 	
 	@Test
 	void getNotificationViewedSuccess() {
