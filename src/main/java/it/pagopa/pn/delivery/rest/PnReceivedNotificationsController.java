@@ -7,11 +7,15 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.*;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 
@@ -22,11 +26,12 @@ public class PnReceivedNotificationsController implements
         PnDeliveryRestApi_methodGetReceivedNotificationLegalFacts,
         PnDeliveryRestApi_methodSearchReceivedNotification {
     private final NotificationRetrieverService retrieveSvc;
+    private final PnDeliveryConfigs cfg;
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc) {
+    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg) {
         this.retrieveSvc = retrieveSvc;
+        this.cfg = cfg;
     }
-
 
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
@@ -38,7 +43,7 @@ public class PnReceivedNotificationsController implements
             @RequestParam(name = "status", required = false) NotificationStatus status,
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp
     ) {
-        return retrieveSvc.searchNotification(false, recipientId, startDate, endDate, senderId, status, subjectRegExp);
+        return retrieveSvc.searchNotification( false, recipientId, startDate, endDate, senderId, status, subjectRegExp );
     }
 
     @Override
@@ -56,10 +61,18 @@ public class PnReceivedNotificationsController implements
     public ResponseEntity<Resource> getReceivedNotificationDocument(
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String userId,
             @PathVariable("iun") String iun,
-            @PathVariable("documentIndex") int documentIndex
+            @PathVariable("documentIndex") int documentIndex,
+            ServerHttpResponse response
     ) {
-        ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex, userId);
-        return AttachmentRestUtils.prepareAttachment(resource, iun, "doc" + documentIndex);
+        if(cfg.isDownloadWithPresignedUrl()){
+            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect( iun, documentIndex, userId );
+            response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
+            response.getHeaders().setLocation(URI.create( redirectUrl ));
+            return null;
+        }else {
+            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument( iun, documentIndex, userId );
+            return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
+        }
     }
 
     @Override

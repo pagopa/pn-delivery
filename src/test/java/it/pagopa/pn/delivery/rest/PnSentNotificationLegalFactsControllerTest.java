@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,6 +26,9 @@ class PnSentNotificationLegalFactsControllerTest {
 	
 	@MockBean
 	private NotificationRetrieverService svc;
+
+	@MockBean
+	private PnDeliveryConfigs cfg;
 
 	@Test
 	void sentNotificationLegalFactsSuccess() {

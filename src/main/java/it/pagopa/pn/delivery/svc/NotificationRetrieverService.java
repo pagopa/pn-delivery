@@ -16,6 +16,7 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationRetrieverService {
 
 	private final AttachmentService attachmentService;
+	private final S3PresignedUrlService presignedUrlSvc;
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
@@ -45,6 +47,7 @@ public class NotificationRetrieverService {
 	@Autowired
 	public NotificationRetrieverService(Clock clock,
 										AttachmentService attachmentService,
+										S3PresignedUrlService presignedUrlSvc,
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										TimelineDao timelineDao,
@@ -52,6 +55,7 @@ public class NotificationRetrieverService {
 	) {
 		this.clock = clock;
 		this.attachmentService = attachmentService;
+		this.presignedUrlSvc = presignedUrlSvc;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.timelineDao = timelineDao;
@@ -128,6 +132,31 @@ public class NotificationRetrieverService {
 		}
 
 		return response;
+	}
+
+	public String downloadDocumentWithRedirect(String iun, int documentIndex, String downloaderRecipientId ) {
+		PreloadResponse response;
+
+		log.info("Retrieve notification with iun={} ", iun);
+		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+
+		if (optNotification.isPresent()) {
+			Notification notification = optNotification.get();
+			log.debug("Document download START for iun {} and documentIndex {} ", iun, documentIndex);
+
+			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
+			String fileName = iun + "doc_" + documentIndex;
+			response = presignedUrlSvc.presignedDownload( fileName, doc );
+
+			if (StringUtils.isNotBlank(downloaderRecipientId)) {
+				notifyNotificationViewedEvent( notification, downloaderRecipientId );
+			}
+		} else {
+			log.error("Notification not found for iun {}", iun);
+			throw new PnInternalException("Notification not found for iun " + iun);
+		}
+
+		return response.getUrl();
 	}
 
 	private void notifyNotificationViewedEvent(Notification notification, String userId) {

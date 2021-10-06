@@ -1,5 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
+
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -7,8 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
@@ -24,13 +29,13 @@ public class S3PresignedUrlService {
 
     private final AwsConfigs props;
     private final PnDeliveryConfigs cfgs;
-    private final AttachmentService attachementService;
+    private final AttachmentService attachmentService;
     private final S3Presigner presigner;
 
-    public S3PresignedUrlService(AwsConfigs props, PnDeliveryConfigs cfgs, AttachmentService attachementService ) {
+    public S3PresignedUrlService(AwsConfigs props, PnDeliveryConfigs cfgs, AttachmentService attachmentService ) {
         this.props = props;
         this.cfgs = cfgs;
-        this.attachementService = attachementService;
+        this.attachmentService = attachmentService;
         this.presigner = buildPresigner();
     }
 
@@ -58,11 +63,9 @@ public class S3PresignedUrlService {
         return builder.build();
     }
 
-
     public PreloadResponse presignedUpload(String paId, String key ) {
         Duration urlDuration = cfgs.getPreloadUrlDuration();
-        String fullKey = attachementService.buildPreloadFullKey( paId, key );
-
+        String fullKey = attachmentService.buildPreloadFullKey( paId, key );
         String secret = UUID.randomUUID().toString();
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
@@ -88,4 +91,38 @@ public class S3PresignedUrlService {
                 .key( key )
                 .build();
     }
+
+    public PreloadResponse presignedDownload( String name, NotificationAttachment attachment ) {
+        Duration urlDuration = cfgs.getDownloadUrlDuration();
+        String secret = UUID.randomUUID().toString();
+
+        String fullName = name + ".pdf"; // FIXME gestire meglio le estensioni
+
+        NotificationAttachment.Ref attachmentRef = attachment.getRef();
+        GetObjectRequest objectRequest = GetObjectRequest.builder()
+                .bucket(props.getBucketName() )
+                .key( attachmentRef.getKey() )
+                .versionId( attachmentRef.getVersionToken() )
+                .responseCacheControl("no-store, max-age=0")
+                .responseContentDisposition("attachment; filename=\"" + fullName + "\"")
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration( urlDuration )
+                .getObjectRequest(objectRequest)
+                .build();
+
+        PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+
+        String httpMethodForDownload = presignedRequest.httpRequest().method().toString();
+        String urlForDownload = presignedRequest.url().toString();
+
+        return PreloadResponse.builder()
+                .url( urlForDownload )
+                .httpMethod( httpMethodForDownload )
+                .secret( secret )
+                .key( null )
+                .build();
+    }
+
 }
