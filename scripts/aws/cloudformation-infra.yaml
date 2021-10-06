@@ -106,11 +106,6 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              #- ecr:GetAuthorizationToken
-              #- ecr:BatchCheckLayerAvailability
-              #- ecr:BatchGetImage
-              #- ecr:DescribeRepositories
-              #- ecr:GetDownloadUrlForLayer
               - sqs:ChangeMessageVisibility
               - sqs:ChangeMessageVisibilityBatch
               - sqs:DeleteMessage
@@ -143,6 +138,11 @@ Resources:
                 - '/'
                 - - !ImportValue { "Fn::Sub": '${EnvName}-attachments-bucket-arn' }
                   - '*'
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource:
+              - !ImportValue { "Fn::Sub": '${EnvName}-attachments-bucket-arn' }
           - Effect: Allow
             Action:
               - cassandra:Modify

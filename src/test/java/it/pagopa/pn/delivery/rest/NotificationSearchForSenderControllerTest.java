@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,6 +33,9 @@ class NotificationSearchForSenderControllerTest {
 
     @MockBean
     private NotificationRetrieverService svc;
+
+    @MockBean
+    private PnDeliveryConfigs cfg;
 
     @Test
     void getSuccess() {

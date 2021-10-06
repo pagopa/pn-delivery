@@ -7,6 +7,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.*;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -26,9 +27,11 @@ public class PnSentNotificationsController implements
         PnDeliveryRestApi_methodSearchSentNotification {
 
     private final NotificationRetrieverService retrieveSvc;
+    private final PnDeliveryConfigs cfg;
 
-    public PnSentNotificationsController(NotificationRetrieverService retrieveSvc) {
+    public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg) {
         this.retrieveSvc = retrieveSvc;
+        this.cfg = cfg;
     }
 
     @Override
@@ -59,22 +62,19 @@ public class PnSentNotificationsController implements
     public ResponseEntity<Resource> getSentNotificationDocument(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
             @PathVariable("iun") String iun,
-            @PathVariable("documentIndex") int documentIndex
-    ) {
-        ResponseEntity<Resource> resource = retrieveSvc.downloadDocument( iun, documentIndex, null );
-        return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
-    }
-
-    @GetMapping("delivery/notifications/sent/{iun}/documents_redir/{documentIndex}")
-    public void getSentNotificationDocumentWithRedirect(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
-            @PathVariable("iun") String iun,
             @PathVariable("documentIndex") int documentIndex,
             ServerHttpResponse response
     ) {
-        String redirectUrl = retrieveSvc.downloadDocumentWithRedirect( iun, documentIndex, null );
-        response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-        response.getHeaders().setLocation(URI.create( redirectUrl ));
+        if(cfg.isDownloadWithPresignedUrl()) {
+            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect( iun, documentIndex, null );
+            response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
+            response.getHeaders().setLocation(URI.create( redirectUrl ));
+            return null;
+        } else {
+            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument( iun, documentIndex, null );
+            return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
+        }
+
     }
 
     @Override
@@ -87,7 +87,7 @@ public class PnSentNotificationsController implements
     }
 
     @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_LEGALFACTS_PATH + "{id}")
+    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_LEGALFACTS_PATH + "/{id}")
     public ResponseEntity<Resource> getSentNotificationLegalFact(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
             @PathVariable( name = "iun") String iun,

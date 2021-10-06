@@ -24,8 +24,7 @@ public class PnReceivedNotificationsController implements
         PnDeliveryRestApi_methodGetReceivedNotification,
         PnDeliveryRestApi_methodGetReceivedNotificationDocuments,
         PnDeliveryRestApi_methodGetReceivedNotificationLegalFacts,
-        PnDeliveryRestApi_methodSearchReceivedNotification
-{
+        PnDeliveryRestApi_methodSearchReceivedNotification {
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
 
@@ -34,11 +33,10 @@ public class PnReceivedNotificationsController implements
         this.cfg = cfg;
     }
 
-
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
     public List<NotificationSearchRow> searchReceivedNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String recipientId,
+            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String recipientId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
             @RequestParam(name = "senderId", required = false) String senderId,
@@ -50,12 +48,12 @@ public class PnReceivedNotificationsController implements
 
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_PATH)
-    @JsonView(value = NotificationJsonViews.Sent.class )
+    @JsonView(value = NotificationJsonViews.Sent.class)
     public Notification getReceivedNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String userId,
-            @PathVariable( name = "iun") String iun
+            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String userId,
+            @PathVariable(name = "iun") String iun
     ) {
-        return retrieveSvc.getNotificationInformation( iun );
+        return retrieveSvc.getNotificationInformation(iun);
     }
 
     @Override
@@ -83,18 +81,18 @@ public class PnReceivedNotificationsController implements
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String userId,
             @PathVariable( name = "iun") String iun
     ) {
-        return retrieveSvc.listNotificationLegalFacts( iun );
+        return retrieveSvc.listNotificationLegalFacts(iun);
     }
 
     @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH + "{id}")
+    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH + "/{id}")
     public ResponseEntity<Resource> getReceivedNotificationLegalFact(
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String userId,
             @PathVariable( name = "iun") String iun,
             @PathVariable( name = "id") String legalFactId
     ) {
-        ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact( iun, legalFactId );
-        return AttachmentRestUtils.prepareAttachment( resource, iun, legalFactId.replaceFirst("\\.pdf$", "") );
+        ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact(iun, legalFactId);
+        return AttachmentRestUtils.prepareAttachment(resource, iun, legalFactId.replaceFirst("\\.pdf$", ""));
     }
 
 }

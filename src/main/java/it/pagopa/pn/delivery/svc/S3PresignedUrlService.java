@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
@@ -31,10 +32,10 @@ public class S3PresignedUrlService {
     private final AttachmentService attachmentService;
     private final S3Presigner presigner;
 
-    public S3PresignedUrlService(AwsConfigs props, PnDeliveryConfigs cfgs, AttachmentService attachementService ) {
+    public S3PresignedUrlService(AwsConfigs props, PnDeliveryConfigs cfgs, AttachmentService attachmentService ) {
         this.props = props;
         this.cfgs = cfgs;
-        this.attachmentService = attachementService;
+        this.attachmentService = attachmentService;
         this.presigner = buildPresigner();
     }
 
@@ -62,11 +63,9 @@ public class S3PresignedUrlService {
         return builder.build();
     }
 
-
     public PreloadResponse presignedUpload(String paId, String key ) {
         Duration urlDuration = cfgs.getPreloadUrlDuration();
         String fullKey = attachmentService.buildPreloadFullKey( paId, key );
-
         String secret = UUID.randomUUID().toString();
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
@@ -125,4 +124,5 @@ public class S3PresignedUrlService {
                 .key( null )
                 .build();
     }
+
 }
