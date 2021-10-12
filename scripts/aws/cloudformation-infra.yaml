@@ -323,8 +323,6 @@ Resources:
           ColumnType: text
         - ColumnName: cancellediun
           ColumnType: text
-        - ColumnName: notificationstatus
-          ColumnType: text
         - ColumnName: panotificationid
           ColumnType: text
         - ColumnName: subject
@@ -364,6 +362,8 @@ Resources:
         - ColumnName: f24analogdigestsha256
           ColumnType: text
         - ColumnName: f24analogversionid
+          ColumnType: text
+        - ColumnName: physicalCommunicationType
           ColumnType: text
 
   TimelineTable:
