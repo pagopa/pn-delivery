@@ -40,8 +40,7 @@ class NotificationReceiverValidationTest {
                     .build()
             )
             .build();
-    
-    public static final ServiceLevelType SERVICE_LEVEL_TYPE = ServiceLevelType.REGISTERED_LETTER_890;
+
     		
     private NotificationReceiverValidator validator;
 
@@ -84,7 +83,7 @@ class NotificationReceiverValidationTest {
         PnValidationException validationException;
         validationException = Assertions.assertThrows(PnValidationException.class, todo );
 
-        Set<ConstraintViolation<?>> errors = validationException.getValidationErrors(); 
+        Set<ConstraintViolation> errors = validationException.getValidationErrors();
         Set<ConstraintViolation<Object>> errorsCast = (Set<ConstraintViolation<Object>>) ((Object) errors);
         assertConstraintViolationPresentByField( errorsCast, "documents" );
         assertConstraintViolationPresentByField( errorsCast, "sender" );
@@ -99,8 +98,7 @@ class NotificationReceiverValidationTest {
     void invalidEmptyCollections() {
     	
         // GIVEN   	
-    	Notification n = notificationWithPhysicalCommunicationType();
-    	Notification n2 = n.toBuilder()
+    	Notification n = notificationWithPhysicalCommunicationType().toBuilder()
     			.sender( NotificationSender.builder().build() )
     			.recipients( Collections.emptyList() )
     			.documents( Collections.emptyList() )
@@ -108,7 +106,7 @@ class NotificationReceiverValidationTest {
     			
         // WHEN
         Set<ConstraintViolation<Notification>> errors;
-        errors = validator.checkNewNotificationBeforeInsert( n2 );
+        errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
         assertConstraintViolationPresentByField( errors, "sender.paId" );
@@ -121,15 +119,14 @@ class NotificationReceiverValidationTest {
     void invalidNullValuesInCollections() {
 
         // GIVEN        
-        Notification n = notificationWithPhysicalCommunicationType();
-    	Notification n2 = n.toBuilder()
+        Notification n = notificationWithPhysicalCommunicationType().toBuilder()
     			.recipients( Collections.singletonList( null ) )
                 .documents( Collections.singletonList( null ) )
     			.build();
 
         // WHEN
         Set<ConstraintViolation<Notification>> errors;
-        errors = validator.checkNewNotificationBeforeInsert( n2 );
+        errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
         assertConstraintViolationPresentByField( errors, "documents[0]" );
@@ -141,8 +138,7 @@ class NotificationReceiverValidationTest {
     void invalidDocumentAndRecipientWithEmptyFields() {
 
         // GIVEN    	
-        Notification n = notificationWithPhysicalCommunicationType();
-    	Notification n2 = n.toBuilder()
+        Notification n = notificationWithPhysicalCommunicationType().toBuilder()
     			.recipients( Collections.singletonList(NotificationRecipient.builder()
                       .build())
     			)
@@ -156,7 +152,7 @@ class NotificationReceiverValidationTest {
 
         // WHEN
         Set<ConstraintViolation<Notification>> errors;
-        errors = validator.checkNewNotificationBeforeInsert( n2 );
+        errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
         assertConstraintViolationPresentByField( errors, "documents[0].digests" );
@@ -172,8 +168,7 @@ class NotificationReceiverValidationTest {
     void invalidDocumentAndRecipientWithEmptyDigestsAndDigitalDomicile() {
 
         // GIVEN
-    	Notification n = notificationWithPhysicalCommunicationType();
-    	Notification n2 = n.toBuilder()
+    	Notification n = notificationWithPhysicalCommunicationType().toBuilder()
     						.recipients( Collections.singletonList(NotificationRecipient.builder()
     								.taxId("FiscalCode")
     								.denomination("Nome Cognome / Ragione Sociale")
@@ -190,7 +185,7 @@ class NotificationReceiverValidationTest {
     	    	
         // WHEN
         Set<ConstraintViolation<Notification>> errors;
-        errors = validator.checkNewNotificationBeforeInsert( n2 );
+        errors = validator.checkNewNotificationBeforeInsert( n );
 
         // THEN
         assertConstraintViolationPresentByField( errors, "documents[0].digests.sha256" );
@@ -397,7 +392,7 @@ class NotificationReceiverValidationTest {
     
     private Notification notificationWithPhysicalCommunicationType() {
     	return newNotification().toBuilder()
-    			.physicalCommunicationType( SERVICE_LEVEL_TYPE )
+    			.physicalCommunicationType( ServiceLevelType.REGISTERED_LETTER_890 )
     			.build();
     }
     
