@@ -21,7 +21,7 @@ public class PnDeliveryApplication {
 
 		@GetMapping("/")
 		public RedirectView home() {
-			return new RedirectView("swagger-ui.html");
+			return new RedirectView("swagger-ui.html?configUrl=/delivery/v3/api-docs/swagger-config");
 		}
 	}
 
