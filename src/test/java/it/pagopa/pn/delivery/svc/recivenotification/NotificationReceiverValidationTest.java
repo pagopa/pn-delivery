@@ -160,8 +160,7 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "documents[0].ref.versionToken" );
         assertConstraintViolationPresentByField( errors, "recipients[0].taxId" );
         assertConstraintViolationPresentByField( errors, "recipients[0].denomination" );
-        assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile" );
-        Assertions.assertEquals( 6, errors.size() );
+        Assertions.assertEquals( 5, errors.size() );
     }
 
     @Test
@@ -189,9 +188,9 @@ class NotificationReceiverValidationTest {
 
         // THEN
         assertConstraintViolationPresentByField( errors, "documents[0].digests.sha256" );
-        //assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.address" );
+        assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.address" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.type" );
-        Assertions.assertEquals( 2, errors.size() );
+        Assertions.assertEquals( 3, errors.size() );
     }
 
     @Test
