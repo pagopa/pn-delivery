@@ -363,7 +363,7 @@ Resources:
           ColumnType: text
         - ColumnName: f24analogversionid
           ColumnType: text
-        - ColumnName: physicalCommunicationType
+        - ColumnName: physical_communication_type
           ColumnType: text
 
   TimelineTable:
