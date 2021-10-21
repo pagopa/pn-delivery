@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
+import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
@@ -35,6 +36,11 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
             @RequestBody @JsonView(value = NotificationJsonViews.New.class ) Notification notification
     ) {
+        if( notification.getPhysicalCommunicationType() == null ) {
+            notification = notification.toBuilder()
+                    .physicalCommunicationType(ServiceLevelType.REGISTERED_LETTER_890)
+                    .build();
+        }
 
         Notification withSender = notification.toBuilder()
                 .sender( NotificationSender.builder()
