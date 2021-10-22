@@ -10,8 +10,10 @@ import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.rest.model.ResErrorModel;
+import it.pagopa.pn.delivery.rest.dto.ErrorDto;
+import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +23,12 @@ import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 public class PnNotificationInputController implements PnDeliveryRestApi_methodReceiveNotification {
 
+    public static final String NOTIFICATION_VALIDATION_ERROR_STATUS = "Notification validation error";
     private final NotificationReceiverService svc;
     private final S3PresignedUrlService presignSvc;
 
@@ -66,11 +70,22 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
     }
 
     @ExceptionHandler({PnValidationException.class})
-    public ResponseEntity<Map> handleValidationException(PnValidationException ex){
-        List<String> messages = ex.getValidationErrors().stream()
-                .map(msg -> ResErrorModel.builder().message(msg.getMessage()).path(msg.getPropertyPath())
-                        .toString()).collect(Collectors.toList());
+    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
+        List<ErrorDto> listErrorDto = ex.getValidationErrors().stream()
+                .map(msg ->
+                                ErrorDto.builder()
+                                        .message(msg.getMessage())
+                                        .property(msg.getPropertyPath().toString())
+                                        .code(msg.getConstraintDescriptor().getAnnotation().getClass().getSimpleName())
+                                        .build()
+                )
+                .collect(Collectors.toList());
+
         return ResponseEntity.badRequest()
-                .body(Collections.singletonMap("errors",messages));
+                .body(ResErrorDto.builder()
+                        .paNotificationId(ex.getValidationTargetId())
+                        .status(NOTIFICATION_VALIDATION_ERROR_STATUS)
+                        .errorDtoList(listErrorDto)
+                        .build());
     }
 }

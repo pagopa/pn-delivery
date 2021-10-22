@@ -335,10 +335,11 @@ class NotificationReceiverValidationTest {
 
     @Test
     void successAttachmentDigest() {
-        validator.checkPreloadedDigests( "attachmentKey",
+        validator.checkPreloadedDigests( "paNotificationId","attachmentKey",
                 NotificationAttachment.Digests.builder().sha256("expected").build(),
                 NotificationAttachment.Digests.builder().sha256("expected").build()
             );
+        //if fails throw exception
     }
 
     @Test
@@ -348,7 +349,7 @@ class NotificationReceiverValidationTest {
         NotificationAttachment.Digests actual = NotificationAttachment.Digests.builder().sha256("wrong").build();
         // When
         PnValidationException exc = Assertions.assertThrows( PnValidationException.class, () ->
-                validator.checkPreloadedDigests( "attachmentKey", expected, actual )
+                validator.checkPreloadedDigests( "paNotificationId","attachmentKey", expected, actual )
             );
         Path propPath = exc.getValidationErrors().iterator().next().getPropertyPath();
 
