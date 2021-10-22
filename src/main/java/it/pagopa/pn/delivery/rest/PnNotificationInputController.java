@@ -9,15 +9,18 @@ import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.rest.model.ResErrorModel;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class PnNotificationInputController implements PnDeliveryRestApi_methodReceiveNotification {
@@ -59,6 +62,15 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
             @RequestBody PreloadRequest request
     ) {
         return presignSvc.presignedUpload( paId, request.getKey() );
+
     }
 
+    @ExceptionHandler({PnValidationException.class})
+    public ResponseEntity<Map> handleValidationException(PnValidationException ex){
+        List<String> messages = ex.getValidationErrors().stream()
+                .map(msg -> ResErrorModel.builder().message(msg.getMessage()).path(msg.getPropertyPath())
+                        .toString()).collect(Collectors.toList());
+        return ResponseEntity.badRequest()
+                .body(Collections.singletonMap("errors",messages));
+    }
 }
