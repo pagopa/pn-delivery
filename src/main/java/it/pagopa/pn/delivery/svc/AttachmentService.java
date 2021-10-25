@@ -131,7 +131,7 @@ public class AttachmentService {
                             .build()
                     )
                     .build();
-            checkAttachmentDigests( updatedAttachment );
+            checkAttachmentDigests( updatedAttachment, notification.getPaNotificationId());
         }
         return updatedAttachment;
     }
@@ -162,7 +162,7 @@ public class AttachmentService {
                 .build();
     }
 
-    private void checkAttachmentDigests(NotificationAttachment attachment) {
+    private void checkAttachmentDigests(NotificationAttachment attachment, String paNotificationId) {
         NotificationAttachment.Ref attachmentRef = attachment.getRef();
 
         try {
@@ -171,6 +171,7 @@ public class AttachmentService {
 
             String actualSha256 = DigestUtils.sha256Hex( fd.getContent() );
             validator.checkPreloadedDigests(
+                    paNotificationId,
                     attachmentRef.getKey(),
                     attachment.getDigests(),
                     NotificationAttachment.Digests.builder()
