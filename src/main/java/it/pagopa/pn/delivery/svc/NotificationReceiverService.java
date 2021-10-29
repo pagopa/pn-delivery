@@ -9,9 +9,12 @@ import java.util.*;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
+import it.pagopa.pn.api.dto.notification.directaccesstoken.DirectAccessToken;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,7 @@ public class NotificationReceiverService {
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;
+	private final DirectAccessTokenDao directAccessTokenDao;
 	private final NewNotificationProducer newNotificationEventProducer;
 	private final AttachmentService attachmentSaver;
 	private final NotificationReceiverValidator validator;
@@ -33,12 +37,14 @@ public class NotificationReceiverService {
 	public NotificationReceiverService(
 			Clock clock,
 			NotificationDao notificationDao,
+			DirectAccessTokenDao directAccessTokenDao,
 			NewNotificationProducer newNotificationEventProducer,
 			AttachmentService attachmentSaver,
 			NotificationReceiverValidator validator
 	) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
+		this.directAccessTokenDao = directAccessTokenDao;
 		this.newNotificationEventProducer = newNotificationEventProducer;
 		this.attachmentSaver = attachmentSaver;
 		this.validator = validator;
@@ -98,6 +104,19 @@ public class NotificationReceiverService {
 				)
 				.build();
 
+		log.debug("Generate tokens for iun {}", iun);
+		// generazione token per ogni destinatario
+		List<NotificationRecipient> recipients = notificationWithIun.getRecipients();
+		for ( NotificationRecipient recipient: recipients ) {
+			String token = generateToken( );
+			// chiamata al dao per inserimento tokens
+			directAccessTokenDao.addDirectAccessToken(DirectAccessToken.builder()
+							.token( token )
+							.iun( iun )
+							.taxId( recipient.getTaxId() )
+					.build());
+		}
+
 		log.debug("Start Attachment save for iun {}", iun);
 		Notification notificationWithCompleteMetadata = attachmentSaver.saveAttachments( notificationWithIun );
 
@@ -116,6 +135,10 @@ public class NotificationReceiverService {
 		int year = nowUtc.get( ChronoField.YEAR_OF_ERA);
 		int month = nowUtc.get( ChronoField.MONTH_OF_YEAR);
 		return String.format("%04d%02d-%s", year, month, uuid);
+	}
+
+	private String generateToken() {
+		return UUID.randomUUID().toString();
 	}
 
 }

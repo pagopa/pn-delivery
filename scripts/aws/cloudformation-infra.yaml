@@ -452,6 +452,21 @@ Resources:
         - ColumnName: recipientsjson
           ColumnType: map<text, text>
 
+  DirectAccessTokenTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: direct_access_tokens
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: token
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: iun
+          ColumnType: text
+        - ColumnName: taxid
+          ColumnType: text
+
 Outputs:
   CluserArn:
     Description: ARN del cluster fargate
