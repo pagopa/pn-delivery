@@ -452,19 +452,19 @@ Resources:
         - ColumnName: recipientsjson
           ColumnType: map<text, text>
 
-    PaperNotificationFailed:
-      Type: AWS::Cassandra::Table
-      Properties:
-        TableName: paper_notification_failed
-        KeyspaceName: !Ref Keyspace
-        PointInTimeRecoveryEnabled: true
-        PartitionKeyColumns:
-          - ColumnName: recipientid
+  PaperNotificationFailed:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: paper_notification_failed
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: recipientid
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: iun
             ColumnType: text
-        ClusteringKeyColumns:
-          - Column:
-              ColumnName: iun
-              ColumnType: text
 
 Outputs:
   CluserArn:
