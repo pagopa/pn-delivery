@@ -18,6 +18,7 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
@@ -55,6 +56,7 @@ class NotificationReceiverTest {
 			.build();
 
 	private NotificationDao notificationDao;
+	private DirectAccessTokenDao directAccessTokenDao;
 	private NewNotificationProducer notificationEventProducer;
 	private NotificationReceiverService deliveryService;
 	private FileStorage fileStorage;
@@ -64,6 +66,7 @@ class NotificationReceiverTest {
 		Clock clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
 
 		notificationDao = Mockito.mock(NotificationDao.class);
+		directAccessTokenDao = Mockito.mock(DirectAccessTokenDao.class);
 		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
 		fileStorage = Mockito.mock( FileStorage.class );
 
@@ -75,6 +78,7 @@ class NotificationReceiverTest {
 		deliveryService = new NotificationReceiverService(
 				clock,
 				notificationDao,
+				directAccessTokenDao,
 				notificationEventProducer,
 				attachmentSaver,
 				validator
