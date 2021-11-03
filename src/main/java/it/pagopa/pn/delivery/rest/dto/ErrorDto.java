@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.rest.dto;
 
 import lombok.*;
 
-import javax.validation.Path;
 
 @Builder(toBuilder = true)
 @AllArgsConstructor

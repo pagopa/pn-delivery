@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.rest.dto;
 
 import lombok.*;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 

@@ -13,7 +13,6 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.rest.dto.ErrorDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +22,6 @@ import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 public class PnNotificationInputController implements PnDeliveryRestApi_methodReceiveNotification {
