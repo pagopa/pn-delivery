@@ -95,6 +95,11 @@ public class NotificationReceiverService {
 	private void doSave( Notification notification, String iun) throws IdConflictException {
 		Instant createdAt = clock.instant();
 		String paId = notification.getSender().getPaId();
+
+		log.debug("Generate tokens for iun {}", iun);
+		// generazione token per ogni destinatario
+		List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
+
 		Notification notificationWithIun = notification.toBuilder()
 				.iun( iun )
 				.sentAt( createdAt )
@@ -102,20 +107,8 @@ public class NotificationReceiverService {
 						.paId( paId )
 						.build()
 				)
+				.recipients( recipientsWithToken )
 				.build();
-
-		log.debug("Generate tokens for iun {}", iun);
-		// generazione token per ogni destinatario
-		List<NotificationRecipient> recipients = notificationWithIun.getRecipients();
-		for ( NotificationRecipient recipient: recipients ) {
-			String token = generateToken( );
-			// chiamata al dao per inserimento tokens
-			directAccessTokenDao.addDirectAccessToken(DirectAccessToken.builder()
-							.token( token )
-							.iun( iun )
-							.taxId( recipient.getTaxId() )
-					.build());
-		}
 
 		log.debug("Start Attachment save for iun {}", iun);
 		Notification notificationWithCompleteMetadata = attachmentSaver.saveAttachments( notificationWithIun );
@@ -126,6 +119,23 @@ public class NotificationReceiverService {
 
 		log.debug("Finally store the notification metadata for iun {}", iun);
 		notificationDao.addNotification( notificationWithCompleteMetadata );
+	}
+	
+	private List<NotificationRecipient> addDirectAccessTokenToRecipients(Notification notification, String iun) throws IdConflictException {
+		List<NotificationRecipient> recipients = notification.getRecipients();
+		List<NotificationRecipient> recipientsWithToken = new ArrayList<>(recipients.size());
+		for (NotificationRecipient recipient : recipients) {
+			String token = generateToken( );
+			// chiamata al dao per inserimento tokens
+			directAccessTokenDao.addDirectAccessToken(DirectAccessToken.builder()
+					.token( token )
+					.iun(iun)
+					.taxId( recipient.getTaxId() )
+					.build());
+
+			recipientsWithToken.add( recipient.toBuilder().token( token ).build() );
+		}
+		return recipientsWithToken;
 	}
 
 	private String generateIun() {
