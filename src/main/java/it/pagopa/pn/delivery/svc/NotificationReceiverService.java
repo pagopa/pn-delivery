@@ -18,7 +18,6 @@ import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -121,8 +120,7 @@ public class NotificationReceiverService {
 		log.debug("Finally store the notification metadata for iun {}", iun);
 		notificationDao.addNotification( notificationWithCompleteMetadata );
 	}
-
-	@NotNull
+	
 	private List<NotificationRecipient> addDirectAccessTokenToRecipients(Notification notification, String iun) throws IdConflictException {
 		List<NotificationRecipient> recipients = notification.getRecipients();
 		List<NotificationRecipient> recipientsWithToken = new ArrayList<>(recipients.size());
