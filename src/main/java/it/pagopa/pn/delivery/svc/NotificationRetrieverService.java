@@ -1,5 +1,26 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.preload.PreloadResponse;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
+import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
@@ -7,30 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import it.pagopa.pn.api.dto.NotificationSearchRow;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.preload.PreloadResponse;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.commons_delivery.utils.StatusUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
-import it.pagopa.pn.delivery.svc.AttachmentService;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -78,16 +75,39 @@ public class NotificationRetrieverService {
 	 * 
 	 */
 	public Notification getNotificationInformation(String iun) {
-		Optional<Notification> optNotification = notificationDao.getNotificationByIun( iun );
-        
-        if (optNotification.isPresent() ) {
+		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+
+		if (optNotification.isPresent()) {
 			Notification notification = optNotification.get();
 
 			return enrichWithTimelineAndStatusHistory(iun, notification);
 		} else {
-        	log.debug( "Error in retrieving Notification with iun {}", iun );
-			throw new PnInternalException( "Error in retrieving Notification with iun " + iun );
-        }
+			log.debug("Error in retrieving Notification with iun {}", iun);
+			throw new PnInternalException("Error in retrieving Notification with iun " + iun);
+		}
+	}
+
+	/**
+	 * Get the full detail of a notification by IUN and notify viewed event
+	 *
+	 * @param iun    unique identifier of a Notification
+	 * @param userId identifier of a user
+	 * @return Notification
+	 */
+	public Notification getNotificationAndNotifyViewedEvent(String iun, String userId) {
+		log.debug("Start getNotificationAndSetViewed for {}", iun);
+		Notification notification = getNotificationInformation(iun);
+		handleNotificationViewedEvent(iun, userId, notification);
+		return notification;
+	}
+
+	private void handleNotificationViewedEvent(String iun, String userId, Notification notification) {
+		if (StringUtils.isNotBlank(userId)) {
+			notifyNotificationViewedEvent(notification, userId);
+		} else {
+			log.error("UserId is not present, can't update state {}", iun);
+			throw new PnInternalException("UserId is not present, can't update state " + iun);
+		}
 	}
 
 	private Notification enrichWithTimelineAndStatusHistory(String iun, Notification notification) {
@@ -110,7 +130,7 @@ public class NotificationRetrieverService {
 				.build();
 	}
 
-	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex, String downloaderRecipientId ) {
+	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex) {
 		ResponseEntity<Resource> response;
 
 		log.info("Retrieve notification with iun={} ", iun);
@@ -122,10 +142,6 @@ public class NotificationRetrieverService {
 
 			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
 			response = attachmentService.loadAttachment( doc.getRef() );
-
-			if (StringUtils.isNotBlank(downloaderRecipientId)) {
-				notifyNotificationViewedEvent( notification, downloaderRecipientId );
-			}
 		} else {
 			log.error("Notification not found for iun {}", iun);
 			throw new PnInternalException("Notification not found for iun " + iun);
@@ -134,7 +150,7 @@ public class NotificationRetrieverService {
 		return response;
 	}
 
-	public String downloadDocumentWithRedirect(String iun, int documentIndex, String downloaderRecipientId ) {
+	public String downloadDocumentWithRedirect(String iun, int documentIndex) {
 		PreloadResponse response;
 
 		log.info("Retrieve notification with iun={} ", iun);
@@ -147,10 +163,6 @@ public class NotificationRetrieverService {
 			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
 			String fileName = iun + "doc_" + documentIndex;
 			response = presignedUrlSvc.presignedDownload( fileName, doc );
-
-			if (StringUtils.isNotBlank(downloaderRecipientId)) {
-				notifyNotificationViewedEvent( notification, downloaderRecipientId );
-			}
 		} else {
 			log.error("Notification not found for iun {}", iun);
 			throw new PnInternalException("Notification not found for iun " + iun);
