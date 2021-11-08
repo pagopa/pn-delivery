@@ -77,9 +77,12 @@ public class NotificationReceiverService {
 
 	private String doSaveWithRethrow( Notification notification ) {
 
-		String iun = generateIun();
+		NotificationSender sender = notification.getSender();
+		String paId = sender.getPaId();
+		String paNotificationId = notification.getPaNotificationId();
+		String iun = generatePredictedIun( paId, paNotificationId );
 		log.info( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
-					                                     iun, notification.getPaNotificationId() );
+					                                     iun, paNotificationId );
 
 		try {
 			doSave(notification, iun);
@@ -136,6 +139,10 @@ public class NotificationReceiverService {
 			recipientsWithToken.add( recipient.toBuilder().token( token ).build() );
 		}
 		return recipientsWithToken;
+	}
+
+	private String generatePredictedIun(String paId, String paNotificationId) {
+		return String.format("%s-%s", paId, paNotificationId);
 	}
 
 	private String generateIun() {
