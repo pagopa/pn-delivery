@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.notification.directaccesstoken.DirectAccessToken;
 import it.pagopa.pn.commons.pnclients.recipientschallenge.RecipientsChallenge;
 import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
