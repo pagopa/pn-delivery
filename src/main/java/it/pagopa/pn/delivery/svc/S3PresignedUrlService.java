@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -19,7 +20,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -61,6 +64,17 @@ public class S3PresignedUrlService {
         }
 
         return builder.build();
+    }
+
+    public List<PreloadResponse> presignedUpload(String paId, List<PreloadRequest> requestList ) {
+        List<PreloadResponse> preloadResponseList = new ArrayList<>( requestList.size() );
+
+        for ( PreloadRequest request : requestList ) {
+            String key = request.getKey();
+            final PreloadResponse preloadResponse = presignedUpload(paId, key);
+            preloadResponseList.add( preloadResponse );
+        }
+        return preloadResponseList;
     }
 
     public PreloadResponse presignedUpload(String paId, String key ) {
