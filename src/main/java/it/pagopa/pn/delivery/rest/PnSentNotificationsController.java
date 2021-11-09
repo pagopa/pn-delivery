@@ -66,12 +66,12 @@ public class PnSentNotificationsController implements
             ServerHttpResponse response
     ) {
         if(cfg.isDownloadWithPresignedUrl()) {
-            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect( iun, documentIndex, null );
+            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
             response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
             response.getHeaders().setLocation(URI.create( redirectUrl ));
             return null;
         } else {
-            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument( iun, documentIndex, null );
+            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
             return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
         }
 

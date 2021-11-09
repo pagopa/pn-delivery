@@ -53,7 +53,7 @@ public class PnReceivedNotificationsController implements
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String userId,
             @PathVariable(name = "iun") String iun
     ) {
-        return retrieveSvc.getNotificationInformation(iun);
+        return retrieveSvc.getNotificationAndNotifyViewedEvent(iun, userId);
     }
 
     @Override
@@ -65,12 +65,12 @@ public class PnReceivedNotificationsController implements
             ServerHttpResponse response
     ) {
         if(cfg.isDownloadWithPresignedUrl()){
-            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect( iun, documentIndex, userId );
+            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
             response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
             response.getHeaders().setLocation(URI.create( redirectUrl ));
             return null;
         }else {
-            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument( iun, documentIndex, userId );
+            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
             return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
         }
     }

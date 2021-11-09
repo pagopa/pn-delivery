@@ -40,7 +40,7 @@ class PnNotificationViewedDeliveryControllerTest {
 		resource = ResponseEntity.status( HttpStatus.OK ).headers( headers ).build();
 		
 		// When
-		Mockito.when( svc.downloadDocument( Mockito.anyString(), Mockito.anyInt(), Mockito.anyString() ) ).thenReturn( resource );
+		Mockito.when(svc.downloadDocument(Mockito.anyString(), Mockito.anyInt())).thenReturn(resource);
 				
 		// Then
 		webTestClient.get()
@@ -50,8 +50,8 @@ class PnNotificationViewedDeliveryControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
-		
-		Mockito.verify( svc ).downloadDocument(IUN, DOCUMENT_INDEX, USER_ID);
+
+		Mockito.verify(svc).downloadDocument(IUN, DOCUMENT_INDEX);
 	}
 	
 }
