@@ -9,9 +9,9 @@ import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ErrorDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
@@ -63,16 +63,19 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
 
     @Override
     @PostMapping( PnDeliveryRestConstants.ATTACHMENT_PRELOAD_REQUEST)
-    public ResponseEntity<List<PreloadResponse>> presignedUploadRequest(
+    public List<PreloadResponse> presignedUploadRequest(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
             @RequestBody List<PreloadRequest> request
     ) {
         Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
-        if ( request.size() <= numberOfPresignedRequest ) {
-            return ResponseEntity.ok().body( presignSvc.presignedUpload( paId, request ) );
-        } else {
-            return ResponseEntity.badRequest().body(Collections.emptyList());
+        if ( request.size() > numberOfPresignedRequest ) {
+            throw new PnValidationException("request",
+                    Collections.singleton( new ConstraintViolationImpl<>(
+                            String.format( "request.length = %d is more than maximum allowed = %d",
+                                    request.size(),
+                                    numberOfPresignedRequest))));
         }
+        return presignSvc.presignedUpload( paId, request );
     }
 
     @ExceptionHandler({PnValidationException.class})
@@ -81,8 +84,11 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
                 .map(msg ->
                                 ErrorDto.builder()
                                         .message(msg.getMessage())
-                                        .property(msg.getPropertyPath().toString())
-                                        .code(msg.getConstraintDescriptor().getAnnotation().getClass().getSimpleName())
+                                        .property(msg.getPropertyPath()!= null ? msg.getPropertyPath().toString() : "")
+                                        .code(msg.getConstraintDescriptor()!= null ? msg.getConstraintDescriptor()
+                                                .getAnnotation()
+                                                .getClass()
+                                                .getSimpleName() : "")
                                         .build()
                 )
                 .collect(Collectors.toList());
