@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
@@ -30,6 +31,9 @@ class PnNotificationInputControllerTest {
 
 	@MockBean
 	private S3PresignedUrlService presignService;
+
+	@MockBean
+	private PnDeliveryConfigs cfg;
 
 	@Test
 	void postSuccess() {

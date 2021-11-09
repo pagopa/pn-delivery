@@ -20,6 +20,8 @@ public class PnDeliveryConfigs {
 
     private boolean downloadWithPresignedUrl;
 
+    private Integer numberOfPresignedRequest;
+
     @Data
     public static class Topics {
 
