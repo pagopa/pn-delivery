@@ -14,7 +14,7 @@ public class ConstraintViolationImpl< T > implements ConstraintViolation< T > {
 
     @Override
     public String getMessage() {
-        return null;
+        return message;
     }
 
     @Override

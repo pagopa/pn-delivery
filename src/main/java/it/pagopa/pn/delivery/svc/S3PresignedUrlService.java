@@ -67,39 +67,12 @@ public class S3PresignedUrlService {
     }
 
     public List<PreloadResponse> presignedUpload(String paId, List<PreloadRequest> requestList ) {
-        Duration urlDuration = cfgs.getPreloadUrlDuration();
-        final String bucketName = props.getBucketName();
-
         List<PreloadResponse> preloadResponseList = new ArrayList<>( requestList.size() );
 
         for ( PreloadRequest request : requestList ) {
             String key = request.getKey();
-            String fullKey = attachmentService.buildPreloadFullKey( paId, key );
-            String secret = UUID.randomUUID().toString();
-
-
-            PutObjectRequest objectRequest = PutObjectRequest.builder()
-                    .bucket( bucketName )
-                    .key( fullKey )
-                    .metadata(Collections.singletonMap( PRELOAD_URL_SECRET_HEADER, secret))
-                    .build();
-
-            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                    .signatureDuration( urlDuration )
-                    .putObjectRequest( objectRequest )
-                    .build();
-
-            PresignedPutObjectRequest presignedRequest = presigner.presignPutObject( presignRequest );
-
-            String httpMethodForUpload = presignedRequest.httpRequest().method().toString();
-            String urlForUpload = presignedRequest.url().toString();
-
-            preloadResponseList.add( PreloadResponse.builder()
-                    .url( urlForUpload )
-                    .httpMethod( httpMethodForUpload )
-                    .secret( secret )
-                    .key( key )
-                    .build());
+            final PreloadResponse preloadResponse = presignedUpload(paId, key);
+            preloadResponseList.add( preloadResponse );
         }
         return preloadResponseList;
     }
