@@ -262,15 +262,18 @@ public class AttachmentService {
         for (TimelineElement paperFeedback : paperFeedbackElements) {
             SendPaperFeedbackDetails feedbackDetails = (SendPaperFeedbackDetails) paperFeedback.getDetails();
             List<String> attachmentKeys = feedbackDetails.getAttachmentKeys();
-            for (String key : attachmentKeys) {
-                LegalFactsListEntry feedbackLegalFact = LegalFactsListEntry.builder()
-                        .iun(iun)
-                        .legalFactId( EXTERNAL_CHANNEL_LEGAL_FACT + key.replace("/", "~") )
-                        .type( LegalFactType.ANALOG_DELIVERY )
-                        .taxId( feedbackDetails.getTaxId() )
-                        .build();
-                result.add( feedbackLegalFact );
+            if (attachmentKeys != null) {
+                for (String key : attachmentKeys) {
+                    LegalFactsListEntry feedbackLegalFact = LegalFactsListEntry.builder()
+                            .iun(iun)
+                            .legalFactId( EXTERNAL_CHANNEL_LEGAL_FACT + key.replace("/", "~") )
+                            .type( LegalFactType.ANALOG_DELIVERY )
+                            .taxId( feedbackDetails.getTaxId() )
+                            .build();
+                    result.add( feedbackLegalFact );
+                }
             }
+
         }
         return result;
     }
