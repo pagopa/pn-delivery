@@ -54,6 +54,8 @@ Resources:
               Value: !Ref AWS::Region
             - Name: PN_DELIVERY_TOPICS_NEWNOTIFICATIONS
               Value: !ImportValue { "Fn::Sub": '${EnvName}-delpush-input-queue-name' }
+            - Name: PN_DELIVERY_EXTERNALCHANNELBASEURL
+              Value: !Join [ '', [ "http://", { 'Fn::ImportValue': { 'Fn::Sub': '${EnvName}-extcha-alb-domain' } }, ":8080/external-channel" ] ]
             - Name: AWS_BUCKETNAME
               Value: !ImportValue { "Fn::Sub": '${EnvName}-attachments-bucket-name' }
             - Name: PN_DELIVERY_IUNRETRY

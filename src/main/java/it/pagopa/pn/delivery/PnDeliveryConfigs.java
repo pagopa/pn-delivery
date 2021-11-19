@@ -12,6 +12,8 @@ import java.time.Duration;
 @Data
 public class PnDeliveryConfigs {
 
+    private String externalChannelBaseUrl;
+
     private Topics topics;
 
     private Duration preloadUrlDuration;
