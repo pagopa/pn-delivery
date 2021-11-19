@@ -41,7 +41,7 @@ public class AttachmentService {
 
     private static final String SHA256_METADATA_NAME = "sha256";
     private static final String EXTERNAL_CHANNEL_LEGAL_FACT = "extcha";
-    public static final String EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS = "/external-channel/attachments/getDownloadLinks?attachmentKey=%s";
+    public static final String EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS = "/attachments/getDownloadLinks?attachmentKey=%s";
     public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun: %s with id: %s from external channel API";
 
     private final FileStorage fileStorage;
