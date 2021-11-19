@@ -16,8 +16,8 @@
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
           <collectionProp name="Arguments.arguments"/>
         </elementProp>
-        <stringProp name="HTTPSampler.domain">localhost</stringProp>
-        <stringProp name="HTTPSampler.port">8080</stringProp>
+        <stringProp name="HTTPSampler.domain">${ip}</stringProp>
+        <stringProp name="HTTPSampler.port">${port}</stringProp>
         <stringProp name="HTTPSampler.protocol"></stringProp>
         <stringProp name="HTTPSampler.contentEncoding"></stringProp>
         <stringProp name="HTTPSampler.path"></stringProp>
@@ -25,6 +25,51 @@
         <stringProp name="HTTPSampler.connect_timeout"></stringProp>
         <stringProp name="HTTPSampler.response_timeout"></stringProp>
       </ConfigTestElement>
+      <hashTree/>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="numUser" elementType="Argument">
+            <stringProp name="Argument.name">numUser</stringProp>
+            <stringProp name="Argument.value">3</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="rampUp" elementType="Argument">
+            <stringProp name="Argument.name">rampUp</stringProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="loop" elementType="Argument">
+            <stringProp name="Argument.name">loop</stringProp>
+            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="timestamp" elementType="Argument">
+            <stringProp name="Argument.name">timestamp</stringProp>
+            <stringProp name="Argument.value">${__time(yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSZ,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="requestIndex" elementType="Argument">
+            <stringProp name="Argument.name">requestIndex</stringProp>
+            <stringProp name="Argument.value">${__UUID()}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="configPath" elementType="Argument">
+            <stringProp name="Argument.name">configPath</stringProp>
+            <stringProp name="Argument.value">${__BeanShell(import org.apache.jmeter.services.FileServer; FileServer.getFileServer().getBaseDir();)}${__BeanShell(File.separator,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ip" elementType="Argument">
+            <stringProp name="Argument.name">ip</stringProp>
+            <stringProp name="Argument.value">localhost</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="port" elementType="Argument">
+            <stringProp name="Argument.name">port</stringProp>
+            <stringProp name="Argument.value">8080</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group Invio notifiche" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -40,41 +85,6 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-          <collectionProp name="Arguments.arguments">
-            <elementProp name="numUser" elementType="Argument">
-              <stringProp name="Argument.name">numUser</stringProp>
-              <stringProp name="Argument.value">1</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-            <elementProp name="rampUp" elementType="Argument">
-              <stringProp name="Argument.name">rampUp</stringProp>
-              <stringProp name="Argument.value">1</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-            <elementProp name="loop" elementType="Argument">
-              <stringProp name="Argument.name">loop</stringProp>
-              <stringProp name="Argument.value">1</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-            <elementProp name="timestamp" elementType="Argument">
-              <stringProp name="Argument.name">timestamp</stringProp>
-              <stringProp name="Argument.value">${__time(yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSZ,)}</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-            <elementProp name="requestIndex" elementType="Argument">
-              <stringProp name="Argument.name">requestIndex</stringProp>
-              <stringProp name="Argument.value">${__UUID()}</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-            <elementProp name="configPath" elementType="Argument">
-              <stringProp name="Argument.name">configPath</stringProp>
-              <stringProp name="Argument.value">${__BeanShell(import org.apache.jmeter.services.FileServer; FileServer.getFileServer().getBaseDir();)}${__BeanShell(File.separator,)}</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-          </collectionProp>
-        </Arguments>
-        <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request Post /delivery/notifications/sent" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
@@ -82,23 +92,23 @@
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <stringProp name="Argument.value">{&#xd;
-   &quot;paNotificationId&quot;:&quot;${requestIndex}&quot;,&#xd;
-   &quot;subject&quot;:&quot;15&quot;,&#xd;
-   &quot;physicalCommunicationType&quot;:&quot;REGISTERED_LETTER_890&quot;,&#xd;
+   &quot;paNotificationId&quot;:&quot;${__UUID()}&quot;,&#xd;
+   &quot;subject&quot;:&quot;${subject}&quot;,&#xd;
+   &quot;physicalCommunicationType&quot;:&quot;${physicalCommunicationType}&quot;,&#xd;
    &quot;cancelledIun&quot;:null,&#xd;
    &quot;recipients&quot;:[&#xd;
       {&#xd;
-         &quot;taxId&quot;:&quot;CGNNMO80A03H501F&quot;,&#xd;
-         &quot;denomination&quot;:&quot;Analogico Fail&quot;,&#xd;
+         &quot;taxId&quot;:&quot;${taxId}&quot;,&#xd;
+         &quot;denomination&quot;:&quot;${denomination}&quot;,&#xd;
          &quot;digitalDomicile&quot;:null,&#xd;
          &quot;physicalAddress&quot;:{&#xd;
-            &quot;at&quot;:&quot;Presso qualcuno&quot;,&#xd;
-            &quot;address&quot;:&quot;ImmediateResponse(NEW_ADDR:ImmediateResponse(FAIL) Irreperibile totale)&quot;,&#xd;
-            &quot;addressDetails&quot;:&quot;scala A&quot;,&#xd;
-            &quot;zip&quot;:&quot;00100&quot;,&#xd;
-            &quot;municipality&quot;:&quot;Comune&quot;,&#xd;
-            &quot;province&quot;:&quot;PROV&quot;,&#xd;
-            &quot;state&quot;:&quot;IT&quot;&#xd;
+            &quot;at&quot;:&quot;${at}&quot;,&#xd;
+            &quot;address&quot;:&quot;${address}&quot;,&#xd;
+            &quot;addressDetails&quot;:&quot;${addressDetails}&quot;,&#xd;
+            &quot;zip&quot;:&quot;${zip}&quot;,&#xd;
+            &quot;municipality&quot;:&quot;${municipality}&quot;,&#xd;
+            &quot;province&quot;:&quot;${province}&quot;,&#xd;
+            &quot;state&quot;:&quot;${state}&quot;&#xd;
          }&#xd;
       }&#xd;
    ],&#xd;
@@ -152,12 +162,12 @@
           <stringProp name="delimiter">,</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="filename">${configPath}../resources/jmeter/pa_protocol_input.csv</stringProp>
-          <boolProp name="ignoreFirstLine">false</boolProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
           <boolProp name="quotedData">false</boolProp>
           <boolProp name="recycle">true</boolProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
           <boolProp name="stopThread">false</boolProp>
-          <stringProp name="variableNames">pa</stringProp>
+          <stringProp name="variableNames">pa,subject,physicalCommunicationType,cancelledIun,taxId,denomination,digitalDomicile,at,address,addressDetails,zip,municipality,province, state</stringProp>
         </CSVDataSet>
         <hashTree/>
         <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
@@ -231,7 +241,7 @@
               <connectTime>true</connectTime>
             </value>
           </objProp>
-          <stringProp name="filename">send_notifications_user-${numUser}_rampUp-${rampUp}_loop-${loop}_${timestamp}.csv</stringProp>
+          <stringProp name="filename">${configPath}test-result/send_notifications_user-${numUser}_rampUp-${rampUp}_loop-${loop}_${timestamp}.csv</stringProp>
         </ResultCollector>
         <hashTree/>
       </hashTree>
