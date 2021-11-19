@@ -2,24 +2,28 @@ package it.pagopa.pn.delivery.svc;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.InvalidMediaTypeException;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -28,21 +32,34 @@ import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.MimeType;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @Slf4j
 public class AttachmentService {
 
     private static final String SHA256_METADATA_NAME = "sha256";
-	
-	private final FileStorage fileStorage;
+    private static final String EXTERNAL_CHANNEL_LEGAL_FACT = "extcha";
+    public static final String EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS = "/external-channel/attachments/getDownloadLinks?attachmentKey=%s";
+    public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun: %s with id: %s from external channel API";
+
+    private final FileStorage fileStorage;
 	private final LegalfactsMetadataUtils legalfactMetadataUtils;
 	private final NotificationReceiverValidator validator;
+    private final TimelineDao timelineDao;
+    private final PnDeliveryConfigs cfg;
 
-    public AttachmentService(FileStorage fileStorage, LegalfactsMetadataUtils legalfactMetadataUtils, NotificationReceiverValidator validator) {
+    public AttachmentService(FileStorage fileStorage,
+                             LegalfactsMetadataUtils legalfactMetadataUtils,
+                             NotificationReceiverValidator validator,
+                             TimelineDao timelineDao,
+                             PnDeliveryConfigs cfg) {
         this.fileStorage = fileStorage;
         this.legalfactMetadataUtils = legalfactMetadataUtils;
         this.validator = validator;
+        this.timelineDao = timelineDao;
+        this.cfg = cfg;
     }
 
     public String buildPreloadFullKey( String paId, String key) {
@@ -224,18 +241,74 @@ public class AttachmentService {
 
 
 	public List<LegalFactsListEntry> listNotificationLegalFacts(String iun) {
+        List<LegalFactsListEntry> result = getPaperFeedbackLegalFacts( iun );
 
         String prefix = legalfactMetadataUtils.baseKey(iun);
 		List<FileData> files = fileStorage.getDocumentsListing( prefix );
+        result.addAll( files.stream().map( legalfactMetadataUtils::fromFileData )
+                .collect(Collectors.toList()) );
 
-		return files.stream().map( legalfactMetadataUtils::fromFileData )
-                .collect(Collectors.toList());
+        return result;
 	}
 
-    public ResponseEntity<Resource> loadLegalfact(String iun, String legalfactId ) {
-        NotificationAttachment.Ref ref = legalfactMetadataUtils.fromIunAndLegalFactId( iun, legalfactId );
-        return loadAttachment( ref );
+    @NotNull
+    private List<LegalFactsListEntry> getPaperFeedbackLegalFacts(String iun) {
+        List<LegalFactsListEntry> result = new ArrayList<>();
+        Set<TimelineElement> timelineElements = timelineDao.getTimeline(iun);
+        List<TimelineElement> paperFeedbackElements = timelineElements
+                .stream()
+                .filter( el -> el.getCategory().equals( TimelineElementCategory.SEND_PAPER_FEEDBACK ))
+                .collect(Collectors.toList());
+        for (TimelineElement paperFeedback : paperFeedbackElements) {
+            SendPaperFeedbackDetails feedbackDetails = (SendPaperFeedbackDetails) paperFeedback.getDetails();
+            List<String> attachmentKeys = feedbackDetails.getAttachmentKeys();
+            for (String key : attachmentKeys) {
+                LegalFactsListEntry feedbackLegalFact = LegalFactsListEntry.builder()
+                        .iun(iun)
+                        .legalFactId( EXTERNAL_CHANNEL_LEGAL_FACT + key.replace("/", "~") )
+                        .type( LegalFactType.ANALOG_DELIVERY )
+                        .taxId( feedbackDetails.getTaxId() )
+                        .build();
+                result.add( feedbackLegalFact );
+            }
+        }
+        return result;
     }
 
+    public ResponseEntity<Resource> loadLegalfact(String iun, String legalfactId ) {
+        if ( legalfactId.startsWith( EXTERNAL_CHANNEL_LEGAL_FACT )) {
+            return getPaperFeedbackLegalFact(iun, legalfactId);
+        } else {
+            NotificationAttachment.Ref ref = legalfactMetadataUtils.fromIunAndLegalFactId( iun, legalfactId );
+            return loadAttachment( ref );
+        }
+    }
 
+    @NotNull
+    private ResponseEntity<Resource> getPaperFeedbackLegalFact(String iun, String legalfactId) {
+        RestTemplate template = new RestTemplate();
+        final String attachmentId = legalfactId.replace("~","/")
+                .replaceFirst(EXTERNAL_CHANNEL_LEGAL_FACT, "");
+        final String baseUrl = cfg.getExternalChannelBaseUrl() + EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS;
+        String url = String.format(baseUrl, attachmentId);
+        String[] response = template.getForObject(url, String[].class);
+
+        if ( response != null && response.length > 0 ) {
+            try {
+                final UrlResource urlResource = new UrlResource(URI.create(response[0]));
+                return ResponseEntity.ok()
+                        .headers( headers() )
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .body( urlResource );
+
+            } catch (MalformedURLException e) {
+                throw new PnInternalException( "Unable to retrieve resource " + response[0], e );
+            }
+
+        } else {
+            final String message = String.format(MISSING_EXT_CHA_ATTACHMENT_MESSAGE, iun, legalfactId);
+            log.error(message);
+            throw new PnInternalException(message);
+        }
+    }
 }
