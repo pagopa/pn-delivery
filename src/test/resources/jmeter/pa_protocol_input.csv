@@ -1,4 +1,0 @@
-pa,subject,physicalCommunicationType,cancelledIun,taxId,denomination,digitalDomicile,at,address,addressDetails,zip,municipality,province, state
-paMilano1,multa,REGISTERED_LETTER_890,,CGNNMO80A03H501F,Analogico Fail,,Presso qualcuno,ImmediateResponse(NEW_ADDR:ImmediateResponse(FAIL) Irreperibile totale),scala A,00100,Comune,PROV,IT
-paMilano2,multa,REGISTERED_LETTER_890,,CGNNMO80A03H501F,Analogico Fail,null,Presso qualcuno,ImmediateResponse(NEW_ADDR:ImmediateResponse(FAIL) Irreperibile totale),scala A,00100,Comune,PROV,IT
-paMilano3,multa,REGISTERED_LETTER_890,,CGNNMO80A03H501F,Analogico Fail,null,Presso qualcuno,ImmediateResponse(NEW_ADDR:ImmediateResponse(FAIL) Irreperibile totale),scala A,00100,Comune,PROV,IT

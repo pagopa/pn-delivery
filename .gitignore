@@ -5,7 +5,8 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-/src/test/jmeter/test-result/
+/src/test/load-test/jmeter/test-result/
+/src/test/load-test/outputs/
 
 ### STS ###
 .apt_generated

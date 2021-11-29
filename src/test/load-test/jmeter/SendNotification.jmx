@@ -30,7 +30,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="numUser" elementType="Argument">
             <stringProp name="Argument.name">numUser</stringProp>
-            <stringProp name="Argument.value">3</stringProp>
+            <stringProp name="Argument.value">15</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="rampUp" elementType="Argument">

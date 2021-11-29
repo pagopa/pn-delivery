@@ -1,0 +1,24 @@
+settings:
+  env:
+    CONCURRENCY: 2
+    TEST_TIME: 1m
+    RAMP_UP: 0m
+    SCENARIO: SendNotification
+    INPUT_FILE: inputs/pa_protocol_input.csv
+    API_KEY: fakeapikey
+
+execution:
+  - executor: jmeter
+    concurrency: ${CONCURRENCY}
+    hold-for: ${TEST_TIME}
+    ramp-up: ${RAMP_UP}
+    scenario: ${SCENARIO}
+      #script: ${SCRIPT}
+
+reporting:
+  - module: final-stats
+    dump-cvs: output.csv
+
+included-configs:
+  - taurus/SendNotificationScenarios.yaml
+  - taurus/SearchNotificationScenarios.yaml
