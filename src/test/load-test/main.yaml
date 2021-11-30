@@ -1,11 +1,12 @@
 settings:
   env:
-    CONCURRENCY: 2
+    CONCURRENCY: 3
     TEST_TIME: 1m
     RAMP_UP: 0m
     SCENARIO: SendNotification
     INPUT_FILE: inputs/pa_protocol_input.csv
     API_KEY: fakeapikey
+    PA: LoadTestPa
 
 execution:
   - executor: jmeter

@@ -30,7 +30,7 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${pa}
+          X-PagoPA-PN-PA: ${PA}
           x-api-key: ${API_KEY}
     data-sources:
       - path: ${INPUT_FILE}
@@ -47,14 +47,13 @@ scenarios:
         url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/attachments/preload
         #url: http://localhost:8080/delivery/attachments/preload
         method: POST
-        #body-file: /test/preload_request.json
         body:
           - key: "doc_1"
           - contentType: "application/pdf"
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${pa}
+          X-PagoPA-PN-PA: ${PA}
           x-api-key: ${API_KEY}
         extract-jsonpath:
           preload_secret: $[0].secret
@@ -102,7 +101,7 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${pa}
+          X-PagoPA-PN-PA: ${PA}
           x-api-key: ${API_KEY}
     data-sources:
       - path: ${INPUT_FILE}

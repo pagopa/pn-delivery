@@ -25,7 +25,7 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${pa}
+          X-PagoPA-PN-PA: ${PA}
           x-api-key: ${API_KEY}
     data-sources:
       - path: ${INPUT_FILE}
