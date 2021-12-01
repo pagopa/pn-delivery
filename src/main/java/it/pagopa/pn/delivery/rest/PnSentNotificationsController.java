@@ -57,7 +57,6 @@ public class PnSentNotificationsController implements
 
     @Override
     @GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
-    @CrossOrigin(origins = "*")
     public ResponseEntity<Resource> getSentNotificationDocument(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
             @PathVariable("iun") String iun,
