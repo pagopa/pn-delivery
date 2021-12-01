@@ -16,6 +16,15 @@ execution:
       #script: ${SCRIPT}
 
 reporting:
+#  - module: passfail
+#    criteria:
+#      - avg-rt of IndexPage>150ms for 10s, stop as failed
+#      - fail of CheckoutPage>50% for 10s, stop as failed
+#  - module: junit-xml
+#    data-source: pass-fail
+  - module: final-stats
+  - module: junit-xml
+    data-source: pass-fail
   - module: final-stats
     dump-cvs: output.csv
 

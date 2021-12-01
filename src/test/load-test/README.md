@@ -1,6 +1,6 @@
 Comando per la creazione dell'immagine docker:
 ```
-docker build -t pn-load-test
+docker build -t pn-load-test .
 ```
 Comando per il lancio dell'immagine:
 ```
