@@ -10,12 +10,10 @@ import it.pagopa.pn.api.rest.*;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 
@@ -59,6 +57,7 @@ public class PnSentNotificationsController implements
 
     @Override
     @GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
+    @CrossOrigin(origins = "*")
     public ResponseEntity<Resource> getSentNotificationDocument(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
             @PathVariable("iun") String iun,
@@ -67,8 +66,7 @@ public class PnSentNotificationsController implements
     ) {
         if(cfg.isDownloadWithPresignedUrl()) {
             String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
-            response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-            response.getHeaders().setLocation(URI.create( redirectUrl ));
+            retrieveSvc.setResponseForRedirect(response, redirectUrl);
             return null;
         } else {
             ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
@@ -96,5 +94,5 @@ public class PnSentNotificationsController implements
         ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact( iun, legalFactId );
         return AttachmentRestUtils.prepareAttachment( resource, iun, legalFactId.replaceFirst("\\.pdf$", "") );
     }
-
+    
 }

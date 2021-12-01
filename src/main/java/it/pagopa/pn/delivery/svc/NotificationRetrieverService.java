@@ -18,15 +18,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -199,5 +199,13 @@ public class NotificationRetrieverService {
 
 	public ResponseEntity<Resource> downloadLegalFact(String iun, String legalfactId) {
 		return attachmentService.loadLegalfact( iun, legalfactId );
+	}
+	
+	public void setResponseForRedirect(ServerHttpResponse response, String redirectUrl) {
+		response.setStatusCode(HttpStatus.OK);
+		response.getHeaders().setLocation(URI.create(redirectUrl));
+		List<String> listHeaders = new ArrayList<>();
+		listHeaders.add("Location");
+		response.getHeaders().setAccessControlExposeHeaders(listHeaders);
 	}
 }

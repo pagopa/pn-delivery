@@ -10,12 +10,10 @@ import it.pagopa.pn.api.rest.*;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 
@@ -66,15 +64,14 @@ public class PnReceivedNotificationsController implements
     ) {
         if(cfg.isDownloadWithPresignedUrl()){
             String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
-            response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-            response.getHeaders().setLocation(URI.create( redirectUrl ));
+            retrieveSvc.setResponseForRedirect(response, redirectUrl);
             return null;
         }else {
             ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
             return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
         }
     }
-
+    
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH)
     public List<LegalFactsListEntry> getReceivedNotificationLegalFacts(
@@ -94,5 +91,5 @@ public class PnReceivedNotificationsController implements
         ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact(iun, legalFactId);
         return AttachmentRestUtils.prepareAttachment(resource, iun, legalFactId.replaceFirst("\\.pdf$", ""));
     }
-
+    
 }
