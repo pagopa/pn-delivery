@@ -1,6 +1,6 @@
 scenarios:
   SendNotification:
-    think-time: 0.1
+    think-time: 0.05
     requests:
       - label: send_notification
         url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/notifications/sent
@@ -41,7 +41,7 @@ scenarios:
         random-order: false
 
   SendNotificationPresigned:
-    think-time: 0.1
+    think-time: 0.05
     requests:
       - label: reserve_load
         url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/attachments/preload
