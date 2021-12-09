@@ -58,7 +58,6 @@ public class NotificationReceiverService {
 	 * @return A model with the generated IUN and the paNotificationId sent by the
 	 *         Public Administration
 	 */
-	// FIXME: manca gestione annullamento
 	public NewNotificationResponse receiveNotification(Notification notification) {
 		log.debug("New notification storing START for {}", notification );
 		validator.checkNewNotificationBeforeInsertAndThrow( notification );
@@ -144,14 +143,6 @@ public class NotificationReceiverService {
 		return String.format("%s-%s", paId, paNotificationId);
 	}
 
-	private String generateIun() {
-		String uuid = UUID.randomUUID().toString();
-		Instant now = Instant.now(clock);
-		OffsetDateTime nowUtc = now.atOffset( ZoneOffset.UTC );
-		int year = nowUtc.get( ChronoField.YEAR_OF_ERA);
-		int month = nowUtc.get( ChronoField.MONTH_OF_YEAR);
-		return String.format("%04d%02d-%s", year, month, uuid);
-	}
 
 	private String generateToken() {
 		return UUID.randomUUID().toString();

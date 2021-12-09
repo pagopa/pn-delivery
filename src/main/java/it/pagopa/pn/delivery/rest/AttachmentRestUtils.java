@@ -13,7 +13,7 @@ public class AttachmentRestUtils {
 
     public static final ResponseEntity<Resource> prepareAttachment( ResponseEntity<Resource> resource, String iun, String suffix ) {
         String extension = getExtension( resource );
-        String fileName = iun + "_" + suffix + "." + extension; 	//FIXME gestire meglio estensione in base al content-type
+        String fileName = iun + "_" + suffix + "." + extension;
 
         HttpHeaders headers = new HttpHeaders();
         headers.addAll( resource.getHeaders() );
