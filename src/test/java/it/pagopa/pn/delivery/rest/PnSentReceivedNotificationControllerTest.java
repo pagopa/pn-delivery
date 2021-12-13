@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -25,6 +27,8 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class PnSentReceivedNotificationControllerTest {
@@ -159,6 +163,30 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk();
 
 		Mockito.verify( svc ).downloadDocument( IUN, DOCUMENT_INDEX );
+	}
+
+	@Test
+	void getSentNotificationDocumentsFailure() {
+		//Given
+		ResponseEntity<Resource> response = ResponseEntity.ok()
+				.headers( headers() )
+				.contentLength( CONTENT_LENGTH )
+				.body( new InputStreamResource( InputStream.nullInputStream() ));
+
+		// When
+		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+		Mockito.when( svc.downloadDocument( Mockito.anyString(), Mockito.anyInt() ))
+				.thenReturn( response );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/sent/" + IUN + "/documents/" + DOCUMENT_INDEX)
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( "X-PagoPA-PN-PA", USER_ID )
+				.exchange().expectStatus().is5xxServerError();
+
+		//assertThrows(IllegalStateException.class, todo);
 	}
 
 	@Test
