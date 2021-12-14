@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -14,6 +15,7 @@ import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.*;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -24,12 +26,10 @@ import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
-import it.pagopa.pn.delivery.svc.AttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationReceiverService;
-import it.pagopa.pn.delivery.svc.NotificationReceiverValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import org.junit.jupiter.api.Assertions;
@@ -48,13 +48,25 @@ class NotificationReceiverTest {
 	public static final String ATTACHMENT_BODY_STR = "Body";
 	public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
-	public static final NotificationAttachment NOTIFICATION_ATTACHMENT = NotificationAttachment.builder()
+	public static final NotificationAttachment NOTIFICATION_INLINE_ATTACHMENT = NotificationAttachment.builder()
 			.body(BASE64_BODY)
 			.contentType("Content/Type")
 			.digests(NotificationAttachment.Digests.builder()
 					.sha256(SHA256_BODY)
 					.build()
 			)
+			.build();
+	private static final String VERSION_TOKEN = "VERSION_TOKEN";
+	private static final String KEY = "KEY";
+	public static final NotificationAttachment NOTIFICATION_REFERRED_ATTACHMENT = NotificationAttachment.builder()
+			.ref( NotificationAttachment.Ref.builder()
+					.versionToken( VERSION_TOKEN )
+					.key( KEY )
+					.build() )
+			.digests( NotificationAttachment.Digests.builder()
+					.sha256(SHA256_BODY)
+					.build() )
+			.contentType("Content/Type")
 			.build();
 
 	private NotificationDao notificationDao;
@@ -163,6 +175,34 @@ class NotificationReceiverTest {
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
+	@Test
+	void successWritingNotificationWithoutPaymentsAttachment() throws IdConflictException {
+		ArgumentCaptor<Notification> savedNotification = ArgumentCaptor.forClass(Notification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Notification notification = newNotificationWithoutPaymentsRef();
+
+		// When
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( notification );
+
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
+		assertEquals( savedNotification.getValue().getIun(), addedNotification.getIun(), "Saved iun differ from returned one");
+		assertEquals( notification.getPaNotificationId(), savedNotification.getValue().getPaNotificationId(), "Wrong protocol number");
+		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
+
+		//Mockito.verify( fileStorage, Mockito.times(2) )
+				//.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
+
+		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
+	}
+
 
 	@Test
 	void throwsPnValidationExceptionForInvalidFormatNotification() {
@@ -242,8 +282,16 @@ class NotificationReceiverTest {
 								.build()
 				))
 				.documents(Arrays.asList(
-						NOTIFICATION_ATTACHMENT,
-						NOTIFICATION_ATTACHMENT
+						NOTIFICATION_INLINE_ATTACHMENT,
+						NOTIFICATION_INLINE_ATTACHMENT
+				))
+				.build();
+	}
+
+	private Notification newNotificationWithoutPaymentsRef( ) {
+		return newNotificationWithoutPayments().toBuilder()
+				.documents(Arrays.asList(
+						NOTIFICATION_REFERRED_ATTACHMENT
 				))
 				.build();
 	}
@@ -254,8 +302,8 @@ class NotificationReceiverTest {
 						.iuv( "IUV_01" )
 						.notificationFeePolicy( NotificationPaymentInfoFeePolicies.DELIVERY_MODE )
 						.f24( NotificationPaymentInfo.F24.builder()
-								.digital( NOTIFICATION_ATTACHMENT )
-								.analog( NOTIFICATION_ATTACHMENT )
+								.digital(NOTIFICATION_INLINE_ATTACHMENT)
+								.analog(NOTIFICATION_INLINE_ATTACHMENT)
 								.build()
 						)
 						.build()
@@ -269,7 +317,7 @@ class NotificationReceiverTest {
 						.iuv( "IUV_01" )
 						.notificationFeePolicy( NotificationPaymentInfoFeePolicies.FLAT_RATE )
 						.f24( NotificationPaymentInfo.F24.builder()
-								.flatRate( NOTIFICATION_ATTACHMENT )
+								.flatRate(NOTIFICATION_INLINE_ATTACHMENT)
 								.build()
 						)
 						.build()

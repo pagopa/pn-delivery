@@ -4,11 +4,14 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.util.Base64Utils;
 import software.amazon.awssdk.http.SdkHttpMethod;
 import software.amazon.awssdk.http.SdkHttpRequest;
@@ -34,6 +37,18 @@ class S3PresignedUrlServiceTest {
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     public static final String VERSION_TOKEN = "VERSION_TOKEN";
     public static final NotificationAttachment NOTIFICATION_ATTACHMENT = NotificationAttachment.builder()
+            .body(BASE64_BODY)
+            .contentType("application/pdf")
+            .digests(NotificationAttachment.Digests.builder()
+                    .sha256(SHA256_BODY)
+                    .build()
+            )
+            .ref( NotificationAttachment.Ref.builder()
+                    .key( KEY )
+                    .versionToken( VERSION_TOKEN )
+                    .build() )
+            .build();
+    public static final NotificationAttachment NOTIFICATION_ATTACHMENT_FAIL_CONTENT = NotificationAttachment.builder()
             .body(BASE64_BODY)
             .contentType("Content/Type")
             .digests(NotificationAttachment.Digests.builder()
@@ -99,8 +114,6 @@ class S3PresignedUrlServiceTest {
 
     @Test
     void presignedDownloadSuccess() {
-        //Given
-        
         //When
         Mockito.when( presigner.presignGetObject( Mockito.any(GetObjectPresignRequest.class)) )
                 .thenReturn(PresignedGetObjectRequest.builder()
@@ -119,5 +132,26 @@ class S3PresignedUrlServiceTest {
         assertNotNull( response.getUrl() );
         assertNotNull( response.getHttpMethod() );
         assertNotNull( response.getSecret() );
+    }
+
+    @Test
+    void presignedDownloadFailure() {
+        //When
+        Mockito.when( presigner.presignGetObject( Mockito.any(GetObjectPresignRequest.class)) )
+                .thenReturn(PresignedGetObjectRequest.builder()
+                        .expiration( Instant.MAX )
+                        .isBrowserExecutable( true )
+                        .httpRequest( SdkHttpRequest.builder()
+                                .protocol( "http" )
+                                .host( "host" )
+                                .method( SdkHttpMethod.POST )
+                                .build() )
+                        .signedHeaders( Map.of( "k1", Collections.singletonList("v1")) )
+                        .build());
+        Executable todo = () -> service.presignedDownload( FILE_NAME, NOTIFICATION_ATTACHMENT_FAIL_CONTENT );
+
+        //Then
+        assertThrows( PnInternalException.class, todo );
+
     }
 }

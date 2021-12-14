@@ -13,7 +13,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PaperNotificationFailedServiceTest {
+class PaperNotificationFailedServiceTest {
     private static final String IUN = "IUN";
     private static final String RECIPIENT_ID = "RECIPIENT_ID";
     private PaperNotificationFailedDao paperNotificationFailedDao;

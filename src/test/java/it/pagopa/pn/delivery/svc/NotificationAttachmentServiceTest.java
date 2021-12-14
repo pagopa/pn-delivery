@@ -12,16 +12,12 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.svc.AttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationReceiverValidator;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 
@@ -39,7 +35,7 @@ class NotificationAttachmentServiceTest {
     public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     public static final String VERSION_TOKEN = "VERSION_TOKEN";
-    public static final NotificationAttachment NOTIFICATION_ATTACHMENT = NotificationAttachment.builder()
+    public static final NotificationAttachment NOTIFICATION_INLINE_ATTACHMENT = NotificationAttachment.builder()
             .body(BASE64_BODY)
             .contentType("Content/Type")
             .digests(NotificationAttachment.Digests.builder()
@@ -84,17 +80,16 @@ class NotificationAttachmentServiceTest {
                 cfg);
     }
 
-    //@Test
+    @Test
     void buildPreloadFullKeySuccess() {
         //Given
         String paId = "PA_ID";
         String key = "KEY";
         //When
-        attachmentService.buildPreloadFullKey( Mockito.anyString(), Mockito.anyString() );
+        String result = attachmentService.buildPreloadFullKey( paId, key );
 
         //Then
-
-        //assertEquals( "preload/" + paId + "/" + key,  );
+        assertEquals( "preload/" + paId + "/" + key, result );
     }
 
     @Test
@@ -109,7 +104,7 @@ class NotificationAttachmentServiceTest {
 
         //When
         Mockito.when(fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString() )).thenReturn( fileData );
-        ResponseEntity<Resource> response = attachmentService.loadAttachment( NOTIFICATION_ATTACHMENT.getRef() );
+        ResponseEntity<Resource> response = attachmentService.loadAttachment( NOTIFICATION_INLINE_ATTACHMENT.getRef() );
 
         //Then
         assertEquals( response.getBody() , new InputStreamResource( fileData.getContent() ));
@@ -128,13 +123,6 @@ class NotificationAttachmentServiceTest {
 
         //Then
         Mockito.verify( fileStorage ).getDocumentsListing( Mockito.anyString() );
-    }
-
-    //@Test
-    void loadLegalFactSuccess() {
-
-
-        attachmentService.loadLegalfact( Mockito.anyString(), Mockito.anyString() );
     }
 
     private Notification newNotificationWithoutPayments( ) {
@@ -160,8 +148,8 @@ class NotificationAttachmentServiceTest {
                                 .build()
                 ))
                 .documents(Arrays.asList(
-                        NOTIFICATION_ATTACHMENT,
-                        NOTIFICATION_ATTACHMENT
+                        NOTIFICATION_INLINE_ATTACHMENT,
+                        NOTIFICATION_INLINE_ATTACHMENT
                 ))
                 .build();
     }
