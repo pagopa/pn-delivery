@@ -50,7 +50,7 @@ class S3PresignedUrlServiceTest {
             .build();
     public static final NotificationAttachment NOTIFICATION_ATTACHMENT_FAIL_CONTENT = NotificationAttachment.builder()
             .body(BASE64_BODY)
-            .contentType("Content/Type")
+            .contentType("asd")
             .digests(NotificationAttachment.Digests.builder()
                     .sha256(SHA256_BODY)
                     .build()

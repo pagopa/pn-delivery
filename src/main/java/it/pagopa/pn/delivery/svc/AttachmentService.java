@@ -1,5 +1,32 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.commons.abstractions.FileData;
+import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.delivery.clients.ExternalChannelClient;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -8,58 +35,30 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.MimeType;
-import org.springframework.web.client.RestTemplate;
-
 @Service
 @Slf4j
 public class AttachmentService {
 
     private static final String SHA256_METADATA_NAME = "sha256";
     private static final String EXTERNAL_CHANNEL_LEGAL_FACT = "extcha";
-    public static final String EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS = "/attachments/getDownloadLinks?attachmentKey=%s";
     public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun: %s with id: %s from external channel API";
 
     private final FileStorage fileStorage;
 	private final LegalfactsMetadataUtils legalfactMetadataUtils;
 	private final NotificationReceiverValidator validator;
     private final TimelineDao timelineDao;
-    private final PnDeliveryConfigs cfg;
+    private final ExternalChannelClient externalChannelClient;
 
     public AttachmentService(FileStorage fileStorage,
                              LegalfactsMetadataUtils legalfactMetadataUtils,
                              NotificationReceiverValidator validator,
                              TimelineDao timelineDao,
-                             PnDeliveryConfigs cfg) {
+                             ExternalChannelClient externalChannelClient) {
         this.fileStorage = fileStorage;
         this.legalfactMetadataUtils = legalfactMetadataUtils;
         this.validator = validator;
         this.timelineDao = timelineDao;
-        this.cfg = cfg;
+        this.externalChannelClient = externalChannelClient;
     }
 
     public String buildPreloadFullKey( String paId, String key) {
@@ -289,12 +288,9 @@ public class AttachmentService {
 
     @NotNull
     private ResponseEntity<Resource> getPaperFeedbackLegalFact(String iun, String legalfactId) {
-        RestTemplate template = new RestTemplate();
         final String attachmentId = legalfactId.replace("~","/")
                 .replaceFirst(EXTERNAL_CHANNEL_LEGAL_FACT, "");
-        final String baseUrl = cfg.getExternalChannelBaseUrl() + EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS;
-        String url = String.format(baseUrl, attachmentId);
-        String[] response = template.getForObject(url, String[].class);
+        String[] response = this.externalChannelClient.getResponseAttachmentUrl( new String[] {attachmentId} );
 
         if ( response != null && response.length > 0 ) {
             try {

@@ -25,11 +25,11 @@ import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.clients.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.apache.commons.codec.binary.Base64InputStream;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import org.junit.jupiter.api.Assertions;
@@ -75,7 +75,7 @@ class NotificationReceiverTest {
 	private NewNotificationProducer notificationEventProducer;
 	private NotificationReceiverService deliveryService;
 	private FileStorage fileStorage;
-	private PnDeliveryConfigs cfg;
+	private ExternalChannelClient externalChannelClient;
 
 	@BeforeEach
 	public void setup() {
@@ -86,7 +86,7 @@ class NotificationReceiverTest {
 		timelineDao = Mockito.mock(TimelineDao.class);
 		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
 		fileStorage = Mockito.mock( FileStorage.class );
-		cfg = Mockito.mock( PnDeliveryConfigs.class );
+		externalChannelClient = Mockito.mock( ExternalChannelClient.class );
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -95,7 +95,7 @@ class NotificationReceiverTest {
 				new LegalfactsMetadataUtils(),
 				validator,
 				timelineDao,
-				cfg);
+				externalChannelClient);
 
 		deliveryService = new NotificationReceiverService(
 				clock,

@@ -7,7 +7,9 @@ import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class S3PresignedUrlService {
 
     public static final String PRELOAD_URL_SECRET_HEADER = "secret";
@@ -144,13 +147,13 @@ public class S3PresignedUrlService {
 
     private String getExtension(NotificationAttachment attachment) {
         String extension;
-        MediaType contentType = MediaType.parseMediaType( attachment.getContentType() );
-        if ( contentType.isCompatibleWith( MediaType.APPLICATION_PDF ) ) {
+        try {
+            MediaType contentType = MediaType.parseMediaType( attachment.getContentType() );
             extension = contentType.getSubtype();
-        } else {
-            throw new PnInternalException( "Error while retrieving the content type of the file to download" );
+        } catch (InvalidMediaTypeException e) {
+            log.error( "Error parsing media type for attachment:" + attachment.getRef().toString(), e );
+            throw new PnInternalException( "Error parsing media type for attachment:" + attachment.getRef().toString());
         }
-
         return extension;
     }
 

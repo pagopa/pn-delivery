@@ -9,7 +9,12 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperDetails;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
@@ -18,7 +23,7 @@ import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.clients.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +34,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -87,7 +96,7 @@ class NotificationRetrieverServiceTest {
     private TimelineDao timelineDao;
     private StatusUtils statusUtils;
     private FileStorage fileStorage;
-    private PnDeliveryConfigs cfg;
+    private ExternalChannelClient externalChannelClient;
     private LegalfactsMetadataUtils legalFactMetadata;
     private NotificationRetrieverService notificationRetrieverService;
 
@@ -101,15 +110,14 @@ class NotificationRetrieverServiceTest {
         timelineDao = Mockito.mock( TimelineDao.class );
         statusUtils = Mockito.mock( StatusUtils.class );
         fileStorage = Mockito.mock( FileStorage.class );
-        cfg = Mockito.mock( PnDeliveryConfigs.class );
+        externalChannelClient = Mockito.mock( ExternalChannelClient.class );
         legalFactMetadata = Mockito.mock(LegalfactsMetadataUtils.class);
 
         attachmentService = new AttachmentService( fileStorage,
                 legalFactMetadata,
                 Mockito.mock( NotificationReceiverValidator.class ),
                 timelineDao,
-                cfg
-                );
+                externalChannelClient);
 
         notificationRetrieverService = new NotificationRetrieverService(
                 clock,
@@ -288,19 +296,45 @@ class NotificationRetrieverServiceTest {
 
     @Test
     void listNotificationLegalFactSuccess() {
+        //Given
+        Set<TimelineElement> timelineElements = new HashSet<>();
+        List<String> attachmentKeys = new ArrayList<>();
+        attachmentKeys.add( KEY );
+        timelineElements.add( TimelineElement.builder()
+                .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
+                        .details(new SendPaperFeedbackDetails (
+                                SendPaperDetails.builder()
+                                        .taxId( USER_ID )
+                                        .build(),
+                                PhysicalAddress.builder().build(),
+                                attachmentKeys ,
+                                Collections.emptyList()
+                        ))
+                .build());
+
         //When
+        Mockito.when( timelineDao.getTimeline( Mockito.anyString() ))
+                .thenReturn( timelineElements );
         List<LegalFactsListEntry> legalFactsListEntries = notificationRetrieverService.listNotificationLegalFacts( IUN );
 
         //Then
         assertNotNull( legalFactsListEntries );
     }
 
-    //@Test
+    @Test
     void downloadExtChaLegalFactSuccess() {
+        //Given
+        String[] urls = new String[1];
+        try {
+            Path path = Files.createTempFile( null,null );
+            urls[0] =  new File(path.toString()).toURI().toURL().toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         //When
-        Mockito.when( cfg.getExternalChannelBaseUrl() )
-                .thenReturn( "http://localhost:8082/external-channel" );
-        //Mockito.when(  )
+        Mockito.when( externalChannelClient.getResponseAttachmentUrl( Mockito.any(String[].class) ))
+                .thenReturn( urls );
          ResponseEntity<Resource> result = notificationRetrieverService.downloadLegalFact( IUN, EXT_CHA_LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
