@@ -5,8 +5,12 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class S3PresignedUrlService {
 
     public static final String PRELOAD_URL_SECRET_HEADER = "secret";
@@ -109,8 +114,9 @@ public class S3PresignedUrlService {
     public PreloadResponse presignedDownload( String name, NotificationAttachment attachment ) {
         Duration urlDuration = cfgs.getDownloadUrlDuration();
         String secret = UUID.randomUUID().toString();
+        String extension = getExtension( attachment );
 
-        String fullName = name + ".pdf"; // FIXME gestire meglio le estensioni
+        String fullName = name + "." + extension;
 
         NotificationAttachment.Ref attachmentRef = attachment.getRef();
         GetObjectRequest objectRequest = GetObjectRequest.builder()
@@ -137,6 +143,18 @@ public class S3PresignedUrlService {
                 .secret( secret )
                 .key( null )
                 .build();
+    }
+
+    private String getExtension(NotificationAttachment attachment) {
+        String extension;
+        try {
+            MediaType contentType = MediaType.parseMediaType( attachment.getContentType() );
+            extension = contentType.getSubtype();
+        } catch (InvalidMediaTypeException e) {
+            log.error( "Error parsing media type for attachment:" + attachment.getRef().toString(), e );
+            throw new PnInternalException( "Error parsing media type for attachment:" + attachment.getRef().toString());
+        }
+        return extension;
     }
 
 }
