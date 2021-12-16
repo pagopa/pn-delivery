@@ -141,7 +141,7 @@ public class NotificationReceiverService {
 		NotificationSender sender = notification.getSender();
 		String paId = sender.getPaId();
 		String paNotificationId = notification.getPaNotificationId();
-		String sqsSafePaNotificationId = paNotificationId.replaceAll( "[^a-zA-Z0-9-_]", "_" );
+		String sqsSafePaNotificationId = paNotificationId.replaceAll( "[^a-zA-Z0-9-_]", "-" );
 		return String.format("%s-%s", paId, sqsSafePaNotificationId);
 	}
 
