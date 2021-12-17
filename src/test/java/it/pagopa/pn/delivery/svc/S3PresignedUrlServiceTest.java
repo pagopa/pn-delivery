@@ -79,7 +79,13 @@ class S3PresignedUrlServiceTest {
         attachmentService = Mockito.mock( AttachmentService.class );
         presigner = Mockito.mock( S3Presigner.class );
         
-        service = new S3PresignedUrlService( awsConfigs, cfg, attachmentService );
+        service = new S3PresignedUrlService( awsConfigs, cfg, attachmentService ) {
+
+            @Override
+            protected S3Presigner buildPresigner() {
+                return presigner;
+            }
+        };
     }
     
     @Test

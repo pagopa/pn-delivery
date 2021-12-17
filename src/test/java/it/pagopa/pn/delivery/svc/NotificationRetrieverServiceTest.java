@@ -23,7 +23,7 @@ import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
-import it.pagopa.pn.delivery.clients.ExternalChannelClient;
+import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;

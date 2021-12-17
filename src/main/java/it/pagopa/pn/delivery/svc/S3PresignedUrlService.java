@@ -47,7 +47,7 @@ public class S3PresignedUrlService {
         this.presigner = buildPresigner();
     }
 
-    private S3Presigner buildPresigner( ) {
+    protected S3Presigner buildPresigner( ) {
         S3Presigner.Builder builder = S3Presigner.builder();
         if( props != null ) {
 

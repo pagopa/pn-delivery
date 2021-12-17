@@ -13,7 +13,7 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
-import it.pagopa.pn.delivery.clients.ExternalChannelClient;
+import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -290,6 +290,7 @@ public class AttachmentService {
     private ResponseEntity<Resource> getPaperFeedbackLegalFact(String iun, String legalfactId) {
         final String attachmentId = legalfactId.replace("~","/")
                 .replaceFirst(EXTERNAL_CHANNEL_LEGAL_FACT, "");
+
         String[] response = this.externalChannelClient.getResponseAttachmentUrl( new String[] {attachmentId} );
 
         if ( response != null && response.length > 0 ) {

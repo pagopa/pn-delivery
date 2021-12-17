@@ -24,8 +24,7 @@ import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.clients.ExternalChannelClient;
+import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

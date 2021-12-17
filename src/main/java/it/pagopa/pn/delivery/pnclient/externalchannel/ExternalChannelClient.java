@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.clients;
+package it.pagopa.pn.delivery.pnclient.externalchannel;
 
 public interface ExternalChannelClient {
 
