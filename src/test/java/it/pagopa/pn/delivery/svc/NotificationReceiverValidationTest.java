@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.svc.recivenotification;
+package it.pagopa.pn.delivery.svc;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;

@@ -17,12 +17,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebFluxTest(PnSentNotificationsController.class)
-class NotificationSearchForSenderControllerTest {
+@WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
+class NotificationSearchControllerTest {
 
     private static final String SENDER_ID = "test";
-    private static final Instant START_DATE = Instant.parse("2021-09-17T00:00:00.00Z");
-    private static final Instant END_DATE = Instant.parse("2021-09-18T00:00:00.00Z");
+    private static final Instant START_DATE = Instant.parse("2021-09-17T00:00:00.000Z");
+    private static final Instant END_DATE = Instant.parse("2021-09-18T00:00:00.000Z");
     private static final NotificationStatus STATUS = NotificationStatus.RECEIVED;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String SUBJECT_REG_EXP = "asd";
@@ -38,7 +38,7 @@ class NotificationSearchForSenderControllerTest {
     private PnDeliveryConfigs cfg;
 
     @Test
-    void getSuccess() {
+    void getSenderSuccess() {
         //Given
         List<NotificationSearchRow> resource = new ArrayList<>();
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
@@ -81,5 +81,52 @@ class NotificationSearchForSenderControllerTest {
                 .isOk();
 
         Mockito.verify(svc).searchNotification(true, SENDER_ID, START_DATE, END_DATE, RECIPIENT_ID, STATUS, SUBJECT_REG_EXP);
+    }
+
+    @Test
+    void getReceiverSuccess() {
+        //Given
+        List<NotificationSearchRow> resource = new ArrayList<>();
+        NotificationSearchRow searchRow = NotificationSearchRow.builder()
+                .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
+                .notificationStatus(STATUS)
+                .senderId(SENDER_ID)
+                .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
+                .recipientId(RECIPIENT_ID)
+                .paNotificationId("123")
+                .subject("asdasd")
+                .build();
+        resource.add(searchRow);
+
+        //When
+        Mockito.when(svc.searchNotification(
+                Mockito.anyBoolean(),
+                Mockito.anyString(),
+                Mockito.any(Instant.class),
+                Mockito.any(Instant.class),
+                Mockito.anyString(),
+                Mockito.any(NotificationStatus.class),
+                Mockito.anyString())
+        ).thenReturn(resource);
+
+        //Then
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path( "/" + PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH )
+                                //.queryParam( "recipientId", RECIPIENT_ID)
+                                .queryParam("startDate", START_DATE)
+                                .queryParam("endDate", END_DATE)
+                                .queryParam("senderId", SENDER_ID)
+                                .queryParam("status", STATUS)
+                                .queryParam("subjectRegExp", SUBJECT_REG_EXP)
+                                .build())
+                .accept(MediaType.ALL)
+                .header( PnDeliveryRestConstants.USER_ID_HEADER, RECIPIENT_ID)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        Mockito.verify(svc).searchNotification(false, RECIPIENT_ID, START_DATE, END_DATE, SENDER_ID, STATUS, SUBJECT_REG_EXP);
     }
 }
