@@ -1,0 +1,37 @@
+scenarios:
+  SearchNotificationByReceiver:
+    requests:
+      - label: get-notification-by-receiver
+        url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/notifications/received?recipientId=${taxId}&startDate=2021-09-01T00:00:00.000Z&endDate=2021-12-01T00:00:00.000Z
+        method: GET
+        headers:
+          Content-Type: application/json
+          accept: application/json
+          X-PagoPA-User-Id: ${taxId}
+          x-api-key: ${API_KEY}
+    data-sources:
+      - path: ${INPUT_FILE}
+        delimiter: ','
+        quoted: false
+        encoding: "utf-8"
+        loop: true
+        random-order: false
+
+  SearchNotificationBySender:
+    requests:
+      - label: get-notification-by-sender
+        url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/notifications/sent?startDate=2021-09-01T00:00:00.000Z&endDate=2021-12-01T00:00:00.000Z
+        method: GET
+        headers:
+          Content-Type: application/json
+          accept: application/json
+          X-PagoPA-PN-PA: ${PA}
+          x-api-key: ${API_KEY}
+    data-sources:
+      - path: ${INPUT_FILE}
+        delimiter: ','
+        quoted: false
+        encoding: "utf-8"
+        loop: true
+        random-order: false
+
