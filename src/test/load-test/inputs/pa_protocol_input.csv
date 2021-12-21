@@ -1,0 +1,4 @@
+subject,physicalCommunicationType,cancelledIun,taxId,denomination,digitalDomicile,at,address,addressDetails,zip,municipality,province, state
+multa lt,REGISTERED_LETTER_890,,CGNNMO80A03H501F,Analogico Fail,,Presso qualcuno,ImmediateResponse(NEW_ADDR:ImmediateResponse(FAIL) Irreperibile totale),scala A,00100,Comune,PROV,IT
+multa lt,REGISTERED_LETTER_890,,CGNNMO80A03H501F,Analogico Fail,null,Presso qualcuno,ImmediateResponse(NEW_ADDR:ImmediateResponse(FAIL) Irreperibile totale),scala A,00100,Comune,PROV,IT
+multa lt,REGISTERED_LETTER_890,,CGNNMO80A03H501F,Analogico Fail,null,Presso qualcuno,ImmediateResponse(NEW_ADDR:ImmediateResponse(FAIL) Irreperibile totale),scala A,00100,Comune,PROV,IT
