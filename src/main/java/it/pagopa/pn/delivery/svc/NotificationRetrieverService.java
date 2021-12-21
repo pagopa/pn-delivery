@@ -75,6 +75,7 @@ public class NotificationRetrieverService {
 	 * 
 	 */
 	public Notification getNotificationInformation(String iun) {
+		log.debug( "Retrieve notification by iun={} START", iun );
 		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
@@ -82,7 +83,7 @@ public class NotificationRetrieverService {
 
 			return enrichWithTimelineAndStatusHistory(iun, notification);
 		} else {
-			log.debug("Error in retrieving Notification with iun {}", iun);
+			log.debug("Error in retrieving Notification with iun={}", iun);
 			throw new PnInternalException("Error in retrieving Notification with iun " + iun);
 		}
 	}
@@ -111,6 +112,7 @@ public class NotificationRetrieverService {
 	}
 
 	private Notification enrichWithTimelineAndStatusHistory(String iun, Notification notification) {
+		log.debug( "Retrieve timeline for iun={}", iun );
 		Set<TimelineElement> rawTimeline = timelineDao.getTimeline(iun);
 		List<TimelineElement> timeline = rawTimeline
 				.stream()
@@ -119,6 +121,7 @@ public class NotificationRetrieverService {
 
 		int numberOfRecipients = notification.getRecipients().size();
 		Instant createdAt =  notification.getSentAt();
+		log.debug( "Retrieve status history for notification created at={}", createdAt );
 		List<NotificationStatusHistoryElement>  statusHistory = statusUtils
 							 .getStatusHistory( rawTimeline, numberOfRecipients, createdAt );
 
@@ -158,14 +161,14 @@ public class NotificationRetrieverService {
 
 		if (optNotification.isPresent()) {
 			Notification notification = optNotification.get();
-			log.debug("Document download START for iun {} and documentIndex {} ", iun, documentIndex);
+			log.debug("Document download START for iun={} and documentIndex={} ", iun, documentIndex);
 
 			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
 			String fileName = iun + "doc_" + documentIndex;
 			response = presignedUrlSvc.presignedDownload( fileName, doc );
 		} else {
-			log.error("Notification not found for iun {}", iun);
-			throw new PnInternalException("Notification not found for iun " + iun);
+			log.error("Notification not found for iun={}", iun);
+			throw new PnInternalException("Notification not found for iun=" + iun);
 		}
 
 		return response.getUrl();
@@ -183,11 +186,11 @@ public class NotificationRetrieverService {
 		}
 
 		if( recipientIndex == -1 ) {
-			log.debug("Recipient not found for iun and userId{} ", iun, userId );
-			throw new PnInternalException( "Notification with iun " + iun + " do not have recipient " + userId );
+			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
+			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient=" + userId );
 		}
 
-		log.debug("Send \"notification acknowlwdgement\" event for iun {}", iun);
+		log.debug("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
 		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex );
 	}

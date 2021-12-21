@@ -61,7 +61,7 @@ public class NotificationReceiverService {
 	public NewNotificationResponse receiveNotification(Notification notification) {
 		log.debug("New notification storing START for {}", notification );
 		validator.checkNewNotificationBeforeInsertAndThrow( notification );
-		log.debug("Validation OK for paNotificationId {}", notification.getPaNotificationId() );
+		log.debug("Validation OK for paNotificationId={}", notification.getPaNotificationId() );
 
 		String iun = doSaveWithRethrow( notification );
 
@@ -83,8 +83,8 @@ public class NotificationReceiverService {
 			doSave(notification, iun);
 		}
 		catch ( IdConflictException exc ) {
-			log.warn("duplicated iun {}", iun );
-			throw new PnInternalException( "Duplicated IUN " + iun, exc );
+			log.warn("duplicated iun={}", iun );
+			throw new PnInternalException( "Duplicated iun=" + iun, exc );
 		}
 
 		return iun;
@@ -94,7 +94,7 @@ public class NotificationReceiverService {
 		Instant createdAt = clock.instant();
 		String paId = notification.getSender().getPaId();
 
-		log.debug("Generate tokens for iun {}", iun);
+		log.debug("Generate tokens for iun={}", iun);
 		// generazione token per ogni destinatario
 		List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
 
@@ -108,14 +108,14 @@ public class NotificationReceiverService {
 				.recipients( recipientsWithToken )
 				.build();
 
-		log.debug("Start Attachment save for iun {}", iun);
+		log.debug("Start Attachment save for iun={}", iun);
 		Notification notificationWithCompleteMetadata = attachmentSaver.saveAttachments( notificationWithIun );
 
 		// - Will be delayed from the receiver
-		log.debug("Send \"new notification\" event for iun {}", iun);
+		log.debug("Send \"new notification\" event for iun={}", iun);
 		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
 
-		log.debug("Finally store the notification metadata for iun {}", iun);
+		log.debug("Finally store the notification metadata for iun={}", iun);
 		notificationDao.addNotification( notificationWithCompleteMetadata );
 	}
 	

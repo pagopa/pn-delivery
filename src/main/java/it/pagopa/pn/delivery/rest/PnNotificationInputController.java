@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ErrorDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 public class PnNotificationInputController implements PnDeliveryRestApi_methodReceiveNotification {
 
@@ -46,6 +48,7 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
             @RequestBody @JsonView(value = NotificationJsonViews.New.class ) Notification notification
     ) {
         if( notification.getPhysicalCommunicationType() == null ) {
+            log.debug( "Add default physical communication type" );
             notification = notification.toBuilder()
                     .physicalCommunicationType(ServiceLevelType.REGISTERED_LETTER_890)
                     .build();
@@ -69,6 +72,8 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
     ) {
         Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
         if ( request.size() > numberOfPresignedRequest ) {
+            log.error( "Presigned upload request lenght={} is more than maximum allowed={}",
+                    request.size(), numberOfPresignedRequest );
             throw new PnValidationException("request",
                     Collections.singleton( new ConstraintViolationImpl<>(
                             String.format( "request.length = %d is more than maximum allowed = %d",

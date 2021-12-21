@@ -83,6 +83,7 @@ public class S3PresignedUrlService {
     }
 
     public PreloadResponse presignedUpload(String paId, String key ) {
+        log.debug( "Presigned upload file for paId={} and key={}", paId, key );
         Duration urlDuration = cfgs.getPreloadUrlDuration();
         String fullKey = attachmentService.buildPreloadFullKey( paId, key );
         String secret = UUID.randomUUID().toString();
@@ -97,9 +98,9 @@ public class S3PresignedUrlService {
                 .signatureDuration( urlDuration )
                 .putObjectRequest(objectRequest)
                 .build();
-
+        log.debug( "Put presigned object START" );
         PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
-
+        log.debug( "Put presigned object END" );
         String httpMethodForUpload = presignedRequest.httpRequest().method().toString();
         String urlForUpload = presignedRequest.url().toString();
 
@@ -114,6 +115,7 @@ public class S3PresignedUrlService {
     public PreloadResponse presignedDownload( String name, NotificationAttachment attachment ) {
         Duration urlDuration = cfgs.getDownloadUrlDuration();
         String secret = UUID.randomUUID().toString();
+        log.debug( "Retrieve extension for attachment with name={}", name );
         String extension = getExtension( attachment );
 
         String fullName = name + "." + extension;
@@ -131,8 +133,9 @@ public class S3PresignedUrlService {
                 .signatureDuration( urlDuration )
                 .getObjectRequest(objectRequest)
                 .build();
-
+        log.debug( "GET presigned object START" );
         PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+        log.debug( "GET presigned object END" );
 
         String httpMethodForDownload = presignedRequest.httpRequest().method().toString();
         String urlForDownload = presignedRequest.url().toString();
