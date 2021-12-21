@@ -2,7 +2,7 @@ scenarios:
   SearchNotificationByReceiver:
     requests:
       - label: get-notification-by-receiver
-        url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/notifications/received?recipientId=${taxId}&startDate=2021-09-01T00:00:00.000Z&endDate=2021-12-01T00:00:00.000Z
+        url: ${BASE_URL}/delivery/notifications/received?recipientId=${taxId}&startDate=2021-09-01T00:00:00.000Z&endDate=2021-12-01T00:00:00.000Z
         method: GET
         headers:
           Content-Type: application/json
@@ -20,7 +20,7 @@ scenarios:
   SearchNotificationBySender:
     requests:
       - label: get-notification-by-sender
-        url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/notifications/sent?startDate=2021-09-01T00:00:00.000Z&endDate=2021-12-01T00:00:00.000Z
+        url: ${BASE_URL}/delivery/notifications/sent?startDate=2021-09-01T00:00:00.000Z&endDate=2021-12-01T00:00:00.000Z
         method: GET
         headers:
           Content-Type: application/json

@@ -5,12 +5,14 @@ docker build -t pn-load-test .
 Comando per il lancio dell'immagine:
 ```
 docker run --name load-test -v $(pwd)/outputs:/tmp/artifacts --rm pn-load-test \
+        -o settings.env.BASE_URL=https://dominio/stage/  \
         -o settings.env.API_KEY=<api-key> \
         -o settings.env.TEST_TIME=10s \
         -o settings.env.SCENARIO=SearchNotificationByReceiver \
          /test/main.yaml
 ```
 Settings:
+- BASE_URL ( Default: 'http://localhost:8080/' )
 - API_KEY
 - CONCURRENCY ( Default: 2 )
 - TEST_TIME ( Default: 1m )
