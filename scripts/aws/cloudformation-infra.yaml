@@ -231,7 +231,7 @@ Resources:
       Protocol: HTTP
       Port: 8080
       HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 600
+      HealthCheckIntervalSeconds: 300
       HealthCheckPath: /
       HealthCheckPort: 8080
       HealthCheckProtocol: HTTP
