@@ -67,7 +67,6 @@ public class S3PresignedUrlService {
             }
 
         }
-
         return builder.build();
     }
 
@@ -76,13 +75,14 @@ public class S3PresignedUrlService {
 
         for ( PreloadRequest request : requestList ) {
             String key = request.getKey();
-            final PreloadResponse preloadResponse = presignedUpload(paId, key);
-            preloadResponseList.add( preloadResponse );
+            String contentType = request.getContentType();
+            preloadResponseList.add( presignedUpload(paId, key, contentType) );
         }
         return preloadResponseList;
     }
 
-    public PreloadResponse presignedUpload(String paId, String key ) {
+    public PreloadResponse presignedUpload(String paId, String key, String contentType ) {
+        log.debug( "Presigned upload file for paId={} key={} contentType={}", paId, key, contentType );
         Duration urlDuration = cfgs.getPreloadUrlDuration();
         String fullKey = attachmentService.buildPreloadFullKey( paId, key );
         String secret = UUID.randomUUID().toString();
@@ -90,6 +90,7 @@ public class S3PresignedUrlService {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(props.getBucketName() )
                 .key( fullKey )
+                .contentType( contentType )
                 .metadata(Collections.singletonMap( PRELOAD_URL_SECRET_HEADER, secret))
                 .build();
 
@@ -151,8 +152,9 @@ public class S3PresignedUrlService {
             MediaType contentType = MediaType.parseMediaType( attachment.getContentType() );
             extension = contentType.getSubtype();
         } catch (InvalidMediaTypeException e) {
-            log.error( "Error parsing media type for attachment:" + attachment.getRef().toString(), e );
-            throw new PnInternalException( "Error parsing media type for attachment:" + attachment.getRef().toString());
+            log.error( "Error parsing media type for attachment=" + attachment.getRef().toString());
+            throw new PnInternalException( "Error parsing media type for attachment="
+                    + attachment.getRef().toString(), e);
         }
         return extension;
     }

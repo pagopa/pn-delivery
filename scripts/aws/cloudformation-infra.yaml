@@ -344,6 +344,8 @@ Resources:
           ColumnType: list<text>
         - ColumnName: documentsversionids
           ColumnType: list<text>
+        - ColumnName: documentscontenttypes
+          ColumnType: list<text>
         - ColumnName: iuv
           ColumnType: text
         - ColumnName: notificationfeepolicy
