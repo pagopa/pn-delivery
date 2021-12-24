@@ -231,7 +231,7 @@ Resources:
       Protocol: HTTP
       Port: 8080
       HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
+      HealthCheckIntervalSeconds: 300
       HealthCheckPath: /
       HealthCheckPort: 8080
       HealthCheckProtocol: HTTP
@@ -286,8 +286,8 @@ Resources:
   AutoScalingTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MinCapacity: 1
-      MaxCapacity: 1
+      MinCapacity: 2
+      MaxCapacity: 5
       ResourceId: !Join [ '/', [ service, !Ref Cluster, !GetAtt DeliveryService.Name ] ]
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs

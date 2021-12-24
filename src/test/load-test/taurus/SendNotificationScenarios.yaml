@@ -3,7 +3,7 @@ scenarios:
     think-time: 0.05
     requests:
       - label: send_notification
-        url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/notifications/sent
+        url: ${BASE_URL}/delivery/notifications/sent
         method: POST
         body:
           cancelledIun: null
@@ -41,11 +41,10 @@ scenarios:
         random-order: false
 
   SendNotificationPresigned:
-    think-time: 0.05
+    think-time: 0.1
     requests:
       - label: reserve_load
-        url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/attachments/preload
-        #url: http://localhost:8080/delivery/attachments/preload
+        url: ${BASE_URL}/delivery/attachments/preload
         method: POST
         body:
           - key: "doc_1"
@@ -72,7 +71,7 @@ scenarios:
             template: 1
             subject: headers
       - label: send_notification_presigned
-        url: https://dmx5vyhq5d.execute-api.eu-central-1.amazonaws.com/beta/delivery/notifications/sent
+        url: ${BASE_URL}/delivery/notifications/sent
         method: POST
         body:
           paNotificationId: ${__UUID()}
