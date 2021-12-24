@@ -148,7 +148,9 @@ public class AttachmentService {
                             .build()
                     )
                     .build();
+            log.debug( "Check attachment digest START" );
             checkAttachmentDigests( updatedAttachment, notification.getPaNotificationId());
+            log.debug( "Check attachment digest END" );
         }
         return updatedAttachment;
     }
@@ -185,8 +187,9 @@ public class AttachmentService {
         try {
             FileData fd = fileStorage.getFileVersion(
                     attachmentRef.getKey(), attachmentRef.getVersionToken() );
-
+            log.debug( "Compute sha256 START" );
             String actualSha256 = DigestUtils.sha256Hex( fd.getContent() );
+            log.debug( "Compute sha256 END" );
             log.debug( "Check preload digest START" );
             validator.checkPreloadedDigests(
                     paNotificationId,
