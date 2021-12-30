@@ -18,7 +18,7 @@ public class PaperNotificationFailedService {
     }
 
     public List<PaperNotificationFailed> getPaperNotificationsFailed(String recipientId) {
-        log.debug( "Retrieve paper notifications failed for recipientId={}", recipientId);
+        log.info( "Retrieve paper notifications failed for recipientId={}", recipientId);
         return new ArrayList<>(paperNotificationFailedDao.getNotificationByRecipientId(recipientId));
     }
 

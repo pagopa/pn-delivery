@@ -59,7 +59,8 @@ public class NotificationReceiverService {
 	 *         Public Administration
 	 */
 	public NewNotificationResponse receiveNotification(Notification notification) {
-		log.debug("New notification storing START for {}", notification );
+		log.info("New notification storing START");
+		log.debug("New notification storing START for={}", notification );
 		validator.checkNewNotificationBeforeInsertAndThrow( notification );
 		log.debug("Validation OK for paNotificationId={}", notification.getPaNotificationId() );
 
@@ -70,13 +71,13 @@ public class NotificationReceiverService {
 				.paNotificationId( notification.getPaNotificationId() )
 				.build();
 
-		log.debug("receiveNotification: response {}", response);
+		log.info("New notification storing END {}", response);
 		return response;
 	}
 
 	private String doSaveWithRethrow( Notification notification ) {
 		String iun = generatePredictedIun( notification );
-		log.info( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
+		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
 					                                     iun, notification.getPaNotificationId() );
 
 		try {
@@ -108,14 +109,14 @@ public class NotificationReceiverService {
 				.recipients( recipientsWithToken )
 				.build();
 
-		log.debug("Start Attachment save for iun={}", iun);
+		log.info("Start Attachment save for iun={}", iun);
 		Notification notificationWithCompleteMetadata = attachmentSaver.saveAttachments( notificationWithIun );
 
 		// - Will be delayed from the receiver
 		log.debug("Send \"new notification\" event for iun={}", iun);
 		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
 
-		log.debug("Finally store the notification metadata for iun={}", iun);
+		log.info("Store the notification metadata for iun={}", iun);
 		notificationDao.addNotification( notificationWithCompleteMetadata );
 	}
 	

@@ -14,7 +14,7 @@ public class AttachmentRestUtils {
     private AttachmentRestUtils() {}
 
     public static final ResponseEntity<Resource> prepareAttachment( ResponseEntity<Resource> resource, String iun, String suffix ) {
-        log.debug( "Prepare Attachment for iun={}", iun );
+        log.info( "Prepare Attachment for iun={}", iun );
         String extension = getExtension( resource );
         String fileName = iun + "_" + suffix + "." + extension;
 

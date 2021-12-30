@@ -48,7 +48,7 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
             @RequestBody @JsonView(value = NotificationJsonViews.New.class ) Notification notification
     ) {
         if( notification.getPhysicalCommunicationType() == null ) {
-            log.debug( "Add default physical communication type" );
+            log.warn( "Add default physical communication type" );
             notification = notification.toBuilder()
                     .physicalCommunicationType(ServiceLevelType.REGISTERED_LETTER_890)
                     .build();

@@ -24,7 +24,7 @@ public class DirectAccessService {
 	}
 
 	public Optional<DirectAccessToken> doChallenge( String directAccessToken, String userSecret ) {
-		log.debug( "Retrieve direct access token info for token={}", directAccessToken );
+		log.info( "Retrieve direct access token info for token={}", directAccessToken );
 		Optional<DirectAccessToken> directAccessTokenInfo = directAccessTokenDao.getDirectAccessToken( directAccessToken );
 		if (directAccessTokenInfo.isPresent()) {
 			log.debug( "Retrieve secret START" );
@@ -34,7 +34,7 @@ public class DirectAccessService {
 				directAccessTokenInfo = Optional.empty();
 			}
 		} else {
-			log.info( "Unable to retrieve direct access token info for direct access token={}", directAccessToken );
+			log.warn( "Unable to retrieve direct access token info for direct access token={}", directAccessToken );
 			directAccessTokenInfo = Optional.empty();
 		}
 		return directAccessTokenInfo;

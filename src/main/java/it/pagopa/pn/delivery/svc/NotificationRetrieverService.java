@@ -136,7 +136,7 @@ public class NotificationRetrieverService {
 	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex) {
 		ResponseEntity<Resource> response;
 
-		log.info("Retrieve notification with iun={} ", iun);
+		log.info("Retrieve notification with iun={} for direct download", iun);
 		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
@@ -190,7 +190,7 @@ public class NotificationRetrieverService {
 			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient=" + userId );
 		}
 
-		log.debug("Send \"notification acknowlwdgement\" event for iun={}", iun);
+		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
 		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex );
 	}

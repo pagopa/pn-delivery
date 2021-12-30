@@ -132,7 +132,7 @@ public class AttachmentService {
     private NotificationAttachment saveAndUpdateAttachment(Notification notification, NotificationAttachment attachment, String key) {
         String iun = notification.getIun();
         String paId = notification.getSender().getPaId();
-        log.debug("Saving attachment: iun={} key={}", iun, key);
+        log.info("Saving attachment: iun={} key={}", iun, key);
 
         NotificationAttachment updatedAttachment;
         if( attachment.getRef() == null ) {
@@ -185,21 +185,26 @@ public class AttachmentService {
         NotificationAttachment.Ref attachmentRef = attachment.getRef();
 
         try {
+            final String attachmentRefKey = attachmentRef.getKey();
             FileData fd = fileStorage.getFileVersion(
-                    attachmentRef.getKey(), attachmentRef.getVersionToken() );
-            log.debug( "Compute sha256 START" );
+                    attachmentRefKey, attachmentRef.getVersionToken() );
+            long startTime = System.currentTimeMillis();
+            log.debug( "Compute sha256 for attachment with key={} START", attachmentRefKey);
             String actualSha256 = DigestUtils.sha256Hex( fd.getContent() );
-            log.debug( "Compute sha256 END" );
-            log.debug( "Check preload digest START" );
+            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentRefKey,
+                    System.currentTimeMillis() - startTime);
+            startTime = System.currentTimeMillis();
+            log.debug( "Check preload digest for attachment with key={} START", attachmentRefKey );
             validator.checkPreloadedDigests(
                     paNotificationId,
-                    attachmentRef.getKey(),
+                    attachmentRefKey,
                     attachment.getDigests(),
                     NotificationAttachment.Digests.builder()
                             .sha256( actualSha256 )
                             .build()
                 );
-            log.debug( "Check preload digest END" );
+            log.debug( "Check preload digest for attachment with key={} END in={}ms", attachmentRefKey,
+                    System.currentTimeMillis() - startTime );
         } catch (IOException exc) {
             log.error( "Invalid sha256 for attachment={}", attachmentRef );
             throw new PnInternalException("Checking sha256 of " + attachmentRef, exc );
