@@ -41,7 +41,7 @@ public class AttachmentService {
 
     private static final String SHA256_METADATA_NAME = "sha256";
     private static final String EXTERNAL_CHANNEL_LEGAL_FACT = "extcha";
-    public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun: %s with id: %s from external channel API";
+    public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun=%s with id=%s from external channel API";
 
     private final FileStorage fileStorage;
 	private final LegalfactsMetadataUtils legalfactMetadataUtils;
@@ -71,14 +71,14 @@ public class AttachmentService {
         Notification.NotificationBuilder builder = notification.toBuilder();
 
         // - Save documents
-        log.debug("Saving documents for iun {} START", iun);
+        log.debug("Saving documents for iun={} START", iun);
         saveDocuments( notification, iun, builder );
-        log.debug("Saving documents for iun {} END", iun);
+        log.debug("Saving documents for iun={} END", iun);
 
         // - save F24
-        log.debug("Saving F24 for iun {} START", iun);
+        log.debug("Saving F24 for iun={} START", iun);
         saveF24( notification, iun, builder);
-        log.debug("Saving F24 for iun {} END", iun);
+        log.debug("Saving F24 for iun={} END", iun);
         return builder.build();
     }
 
@@ -132,7 +132,7 @@ public class AttachmentService {
     private NotificationAttachment saveAndUpdateAttachment(Notification notification, NotificationAttachment attachment, String key) {
         String iun = notification.getIun();
         String paId = notification.getSender().getPaId();
-        log.debug("Saving attachment: iun={} key={}", iun, key);
+        log.info("Saving attachment: iun={} key={}", iun, key);
 
         NotificationAttachment updatedAttachment;
         String contentType = attachment.getContentType();
@@ -142,6 +142,7 @@ public class AttachmentService {
             updatedAttachment = updateSavedAttachment( attachment, versionId, key, contentType );
         }
         else {
+            log.info( "UPDATED attachment iun={} key={}", iun, key );
             updatedAttachment = attachment.toBuilder()
                     .ref( attachment.getRef().toBuilder()
                             .key( buildPreloadFullKey( paId, attachment.getRef().getKey()) )
@@ -149,7 +150,9 @@ public class AttachmentService {
                     )
                     .contentType( contentType )
                     .build();
+            log.debug( "Check attachment digest START" );
             checkAttachmentDigests( updatedAttachment, notification.getPaNotificationId());
+            log.debug( "Check attachment digest END" );
         }
         return updatedAttachment;
     }
@@ -186,20 +189,28 @@ public class AttachmentService {
         NotificationAttachment.Ref attachmentRef = attachment.getRef();
 
         try {
+            final String attachmentRefKey = attachmentRef.getKey();
             FileData fd = fileStorage.getFileVersion(
-                    attachmentRef.getKey(), attachmentRef.getVersionToken() );
-
+                    attachmentRefKey, attachmentRef.getVersionToken() );
+            long startTime = System.currentTimeMillis();
+            log.debug( "Compute sha256 for attachment with key={} START", attachmentRefKey);
             String actualSha256 = DigestUtils.sha256Hex( fd.getContent() );
+            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentRefKey,
+                    System.currentTimeMillis() - startTime);
+            startTime = System.currentTimeMillis();
+            log.debug( "Check preload digest for attachment with key={} START", attachmentRefKey );
             validator.checkPreloadedDigests(
                     paNotificationId,
-                    attachmentRef.getKey(),
+                    attachmentRefKey,
                     attachment.getDigests(),
                     NotificationAttachment.Digests.builder()
                             .sha256( actualSha256 )
                             .build()
                 );
-
+            log.debug( "Check preload digest for attachment with key={} END in={}ms", attachmentRefKey,
+                    System.currentTimeMillis() - startTime );
         } catch (IOException exc) {
+            log.error( "Invalid sha256 for attachment={}", attachmentRef );
             throw new PnInternalException("Checking sha256 of " + attachmentRef, exc );
         }
     }
@@ -244,9 +255,11 @@ public class AttachmentService {
 
 
 	public List<LegalFactsListEntry> listNotificationLegalFacts(String iun) {
+        log.debug( "Retrieve notification legal facts for iun={}", iun );
         List<LegalFactsListEntry> result = getPaperFeedbackLegalFacts( iun );
 
         String prefix = legalfactMetadataUtils.baseKey(iun);
+        log.debug( "Retrieve documents listing for prefix={}", prefix );
 		List<FileData> files = fileStorage.getDocumentsListing( prefix );
         result.addAll( files.stream().map( legalfactMetadataUtils::fromFileData )
                 .collect(Collectors.toList()) );
@@ -257,6 +270,7 @@ public class AttachmentService {
     @NotNull
     private List<LegalFactsListEntry> getPaperFeedbackLegalFacts(String iun) {
         List<LegalFactsListEntry> result = new ArrayList<>();
+        log.debug( "Retrieve timeline elements for iun={}", iun );
         Set<TimelineElement> timelineElements = timelineDao.getTimeline(iun);
         List<TimelineElement> paperFeedbackElements = timelineElements
                 .stream()
@@ -285,6 +299,7 @@ public class AttachmentService {
         if ( legalfactId.startsWith( EXTERNAL_CHANNEL_LEGAL_FACT )) {
             return getPaperFeedbackLegalFact(iun, legalfactId);
         } else {
+            log.debug( "Retrieve notification attachment Ref for iun={} and legalfactId={}", iun, legalfactId );
             NotificationAttachment.Ref ref = legalfactMetadataUtils.fromIunAndLegalFactId( iun, legalfactId );
             return loadAttachment( ref );
         }
@@ -294,7 +309,7 @@ public class AttachmentService {
     private ResponseEntity<Resource> getPaperFeedbackLegalFact(String iun, String legalfactId) {
         final String attachmentId = legalfactId.replace("~","/")
                 .replaceFirst(EXTERNAL_CHANNEL_LEGAL_FACT, "");
-
+        log.debug( "Retrieve attachment url from External Channel with attachmentId={}", attachmentId );
         String[] response = this.externalChannelClient.getResponseAttachmentUrl( new String[] {attachmentId} );
 
         if ( response != null && response.length > 0 ) {
@@ -306,6 +321,9 @@ public class AttachmentService {
                         .body( urlResource );
 
             } catch (MalformedURLException e) {
+                log.error( "Unable to retrieve a valid attachment url for iun={} and attachmentId={}",
+                        iun,
+                        attachmentId );
                 throw new PnInternalException( "Unable to retrieve resource " + response[0], e );
             }
 
