@@ -135,10 +135,11 @@ public class AttachmentService {
         log.info("Saving attachment: iun={} key={}", iun, key);
 
         NotificationAttachment updatedAttachment;
+        String contentType = attachment.getContentType();
         if( attachment.getRef() == null ) {
             String versionId = saveOneAttachmentToFileStorage( key, attachment );
-            log.info("SAVED attachment iun={} key={} versionId={}", iun, key, versionId);
-            updatedAttachment = updateSavedAttachment( attachment, versionId, key );
+            log.info("SAVED attachment iun={} key={} versionId={} contentType={}", iun, key, versionId, contentType);
+            updatedAttachment = updateSavedAttachment( attachment, versionId, key, contentType );
         }
         else {
             log.info( "UPDATED attachment iun={} key={}", iun, key );
@@ -147,6 +148,7 @@ public class AttachmentService {
                             .key( buildPreloadFullKey( paId, attachment.getRef().getKey()) )
                             .build()
                     )
+                    .contentType( contentType )
                     .build();
             log.debug( "Check attachment digest START" );
             checkAttachmentDigests( updatedAttachment, notification.getPaNotificationId());
@@ -171,13 +173,15 @@ public class AttachmentService {
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, attachment.getContentType(), metadata );
     }
 
-    private NotificationAttachment updateSavedAttachment( NotificationAttachment attachment, String versionId, String fullKey ) {
+    private NotificationAttachment updateSavedAttachment( NotificationAttachment attachment,
+                                                          String versionId, String fullKey, String contentType ) {
         return attachment.toBuilder()
                 .ref( NotificationAttachment.Ref.builder()
                         .key( fullKey )
                         .versionToken( versionId )
                         .build()
                 )
+                .contentType( contentType )
                 .build();
     }
 
