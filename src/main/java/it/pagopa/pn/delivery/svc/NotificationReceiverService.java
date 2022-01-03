@@ -84,7 +84,7 @@ public class NotificationReceiverService {
 			doSave(notification, iun);
 		}
 		catch ( IdConflictException exc ) {
-			log.warn("duplicated iun={}", iun );
+			log.error("Duplicated iun={}", iun );
 			throw new PnInternalException( "Duplicated iun=" + iun, exc );
 		}
 
