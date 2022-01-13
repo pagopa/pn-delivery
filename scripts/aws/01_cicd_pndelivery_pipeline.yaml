@@ -193,8 +193,8 @@ Resources:
                 - cat maven-deploy-settings.xml
                 - export REPOSITORY_TOKEN=$( aws codeartifact get-authorization-token --domain $CODEARTIFACT_DOMAIN_NAME --query authorizationToken --output text )
                 - echo "Define variables"
-                - "export ARTIFACT_ID=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout )"
-                - "export VERSION=$( mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout )"
+                - "export ARTIFACT_ID=$( mvn --settings maven-deploy-settings.xml org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.artifactId -q -DforceStdout )"
+                - "export VERSION=$( mvn --settings maven-deploy-settings.xml org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout )"
                 - "export ECR_URL=$ECR_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com"
                 - echo "Build $ARTIFACT_ID version $VERSION to $ECR_URL"
                 - echo Logging in to Amazon ECR ...
