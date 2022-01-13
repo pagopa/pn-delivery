@@ -205,6 +205,7 @@ Resources:
       # This may need to be adjusted if the container takes a while to start up
       #HealthCheckGracePeriodSeconds: 30
       LaunchType: FARGATE
+      PlatformVersion: 1.3.0
       NetworkConfiguration:
         AwsvpcConfiguration:
           # change to DISABLED if you're using private subnets that have access to a NAT gateway
@@ -230,7 +231,7 @@ Resources:
       Protocol: HTTP
       Port: 8080
       HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 10
+      HealthCheckIntervalSeconds: 300
       HealthCheckPath: /
       HealthCheckPort: 8080
       HealthCheckProtocol: HTTP
@@ -285,8 +286,8 @@ Resources:
   AutoScalingTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MinCapacity: 1
-      MaxCapacity: 1
+      MinCapacity: 2
+      MaxCapacity: 5
       ResourceId: !Join [ '/', [ service, !Ref Cluster, !GetAtt DeliveryService.Name ] ]
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
@@ -342,6 +343,8 @@ Resources:
         - ColumnName: documentsdigestssha256
           ColumnType: list<text>
         - ColumnName: documentsversionids
+          ColumnType: list<text>
+        - ColumnName: documentscontenttypes
           ColumnType: list<text>
         - ColumnName: iuv
           ColumnType: text

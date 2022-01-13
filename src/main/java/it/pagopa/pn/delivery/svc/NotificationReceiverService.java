@@ -58,11 +58,11 @@ public class NotificationReceiverService {
 	 * @return A model with the generated IUN and the paNotificationId sent by the
 	 *         Public Administration
 	 */
-	// FIXME: manca gestione annullamento
 	public NewNotificationResponse receiveNotification(Notification notification) {
-		log.debug("New notification storing START for {}", notification );
+		log.info("New notification storing START");
+		log.debug("New notification storing START for={}", notification );
 		validator.checkNewNotificationBeforeInsertAndThrow( notification );
-		log.debug("Validation OK for paNotificationId {}", notification.getPaNotificationId() );
+		log.debug("Validation OK for paNotificationId={}", notification.getPaNotificationId() );
 
 		String iun = doSaveWithRethrow( notification );
 
@@ -71,21 +71,21 @@ public class NotificationReceiverService {
 				.paNotificationId( notification.getPaNotificationId() )
 				.build();
 
-		log.debug("receiveNotification: response {}", response);
+		log.info("New notification storing END {}", response);
 		return response;
 	}
 
 	private String doSaveWithRethrow( Notification notification ) {
 		String iun = generatePredictedIun( notification );
-		log.info( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
+		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
 					                                     iun, notification.getPaNotificationId() );
 
 		try {
 			doSave(notification, iun);
 		}
 		catch ( IdConflictException exc ) {
-			log.warn("duplicated iun {}", iun );
-			throw new PnInternalException( "Duplicated IUN " + iun, exc );
+			log.error("Duplicated iun={}", iun );
+			throw new PnInternalException( "Duplicated iun=" + iun, exc );
 		}
 
 		return iun;
@@ -95,7 +95,7 @@ public class NotificationReceiverService {
 		Instant createdAt = clock.instant();
 		String paId = notification.getSender().getPaId();
 
-		log.debug("Generate tokens for iun {}", iun);
+		log.debug("Generate tokens for iun={}", iun);
 		// generazione token per ogni destinatario
 		List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
 
@@ -109,14 +109,14 @@ public class NotificationReceiverService {
 				.recipients( recipientsWithToken )
 				.build();
 
-		log.debug("Start Attachment save for iun {}", iun);
+		log.info("Start Attachment save for iun={}", iun);
 		Notification notificationWithCompleteMetadata = attachmentSaver.saveAttachments( notificationWithIun );
 
 		// - Will be delayed from the receiver
-		log.debug("Send \"new notification\" event for iun {}", iun);
+		log.debug("Send \"new notification\" event for iun={}", iun);
 		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
 
-		log.debug("Finally store the notification metadata for iun {}", iun);
+		log.info("Store the notification metadata for iun={}", iun);
 		notificationDao.addNotification( notificationWithCompleteMetadata );
 	}
 	
@@ -141,17 +141,10 @@ public class NotificationReceiverService {
 		NotificationSender sender = notification.getSender();
 		String paId = sender.getPaId();
 		String paNotificationId = notification.getPaNotificationId();
-		return String.format("%s-%s", paId, paNotificationId);
+		String sqsSafePaNotificationId = paNotificationId.replaceAll( "[^a-zA-Z0-9-_]", "-" );
+		return String.format("%s-%s", paId, sqsSafePaNotificationId);
 	}
 
-	private String generateIun() {
-		String uuid = UUID.randomUUID().toString();
-		Instant now = Instant.now(clock);
-		OffsetDateTime nowUtc = now.atOffset( ZoneOffset.UTC );
-		int year = nowUtc.get( ChronoField.YEAR_OF_ERA);
-		int month = nowUtc.get( ChronoField.MONTH_OF_YEAR);
-		return String.format("%04d%02d-%s", year, month, uuid);
-	}
 
 	private String generateToken() {
 		return UUID.randomUUID().toString();

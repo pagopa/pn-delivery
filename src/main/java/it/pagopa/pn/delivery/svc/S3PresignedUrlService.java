@@ -5,8 +5,12 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class S3PresignedUrlService {
 
     public static final String PRELOAD_URL_SECRET_HEADER = "secret";
@@ -42,7 +47,7 @@ public class S3PresignedUrlService {
         this.presigner = buildPresigner();
     }
 
-    private S3Presigner buildPresigner( ) {
+    protected S3Presigner buildPresigner( ) {
         S3Presigner.Builder builder = S3Presigner.builder();
         if( props != null ) {
 
@@ -62,7 +67,6 @@ public class S3PresignedUrlService {
             }
 
         }
-
         return builder.build();
     }
 
@@ -71,13 +75,15 @@ public class S3PresignedUrlService {
 
         for ( PreloadRequest request : requestList ) {
             String key = request.getKey();
-            final PreloadResponse preloadResponse = presignedUpload(paId, key);
-            preloadResponseList.add( preloadResponse );
+            String contentType = request.getContentType();
+            preloadResponseList.add( presignedUpload(paId, key, contentType) );
         }
         return preloadResponseList;
     }
 
-    public PreloadResponse presignedUpload(String paId, String key ) {
+
+    public PreloadResponse presignedUpload(String paId, String key, String contentType ) {
+        log.debug( "Presigned upload file for paId={} key={} contentType={}", paId, key, contentType );
         Duration urlDuration = cfgs.getPreloadUrlDuration();
         String fullKey = attachmentService.buildPreloadFullKey( paId, key );
         String secret = UUID.randomUUID().toString();
@@ -85,6 +91,7 @@ public class S3PresignedUrlService {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(props.getBucketName() )
                 .key( fullKey )
+                .contentType( contentType )
                 .metadata(Collections.singletonMap( PRELOAD_URL_SECRET_HEADER, secret))
                 .build();
 
@@ -92,9 +99,9 @@ public class S3PresignedUrlService {
                 .signatureDuration( urlDuration )
                 .putObjectRequest(objectRequest)
                 .build();
-
+        log.debug( "Put presigned object START" );
         PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
-
+        log.debug( "Put presigned object END" );
         String httpMethodForUpload = presignedRequest.httpRequest().method().toString();
         String urlForUpload = presignedRequest.url().toString();
 
@@ -109,8 +116,10 @@ public class S3PresignedUrlService {
     public PreloadResponse presignedDownload( String name, NotificationAttachment attachment ) {
         Duration urlDuration = cfgs.getDownloadUrlDuration();
         String secret = UUID.randomUUID().toString();
+        log.debug( "Retrieve extension for attachment with name={}", name );
+        String extension = getExtension( attachment );
 
-        String fullName = name + ".pdf"; // FIXME gestire meglio le estensioni
+        String fullName = name + "." + extension;
 
         NotificationAttachment.Ref attachmentRef = attachment.getRef();
         GetObjectRequest objectRequest = GetObjectRequest.builder()
@@ -125,8 +134,9 @@ public class S3PresignedUrlService {
                 .signatureDuration( urlDuration )
                 .getObjectRequest(objectRequest)
                 .build();
-
+        log.debug( "GET presigned object START" );
         PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+        log.debug( "GET presigned object END" );
 
         String httpMethodForDownload = presignedRequest.httpRequest().method().toString();
         String urlForDownload = presignedRequest.url().toString();
@@ -137,6 +147,19 @@ public class S3PresignedUrlService {
                 .secret( secret )
                 .key( null )
                 .build();
+    }
+
+    private String getExtension(NotificationAttachment attachment) {
+        String extension;
+        try {
+            MediaType contentType = MediaType.parseMediaType( attachment.getContentType() );
+            extension = contentType.getSubtype();
+        } catch (InvalidMediaTypeException e) {
+            log.error( "Error parsing media type for attachment=" + attachment.getRef().toString());
+            throw new PnInternalException( "Error parsing media type for attachment="
+                    + attachment.getRef().toString(), e);
+        }
+        return extension;
     }
 
 }

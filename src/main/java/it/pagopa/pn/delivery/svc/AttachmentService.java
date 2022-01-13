@@ -1,5 +1,32 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
+import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.commons.abstractions.FileData;
+import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -8,58 +35,30 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
-import it.pagopa.pn.api.dto.notification.timeline.SendPaperFeedbackDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.*;
-import org.springframework.stereotype.Service;
-
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
-import it.pagopa.pn.commons.abstractions.FileData;
-import it.pagopa.pn.commons.abstractions.FileStorage;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.MimeType;
-import org.springframework.web.client.RestTemplate;
-
 @Service
 @Slf4j
 public class AttachmentService {
 
     private static final String SHA256_METADATA_NAME = "sha256";
     private static final String EXTERNAL_CHANNEL_LEGAL_FACT = "extcha";
-    public static final String EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS = "/attachments/getDownloadLinks?attachmentKey=%s";
-    public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun: %s with id: %s from external channel API";
+    public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun=%s with id=%s from external channel API";
 
     private final FileStorage fileStorage;
 	private final LegalfactsMetadataUtils legalfactMetadataUtils;
 	private final NotificationReceiverValidator validator;
     private final TimelineDao timelineDao;
-    private final PnDeliveryConfigs cfg;
+    private final ExternalChannelClient externalChannelClient;
 
     public AttachmentService(FileStorage fileStorage,
                              LegalfactsMetadataUtils legalfactMetadataUtils,
                              NotificationReceiverValidator validator,
                              TimelineDao timelineDao,
-                             PnDeliveryConfigs cfg) {
+                             ExternalChannelClient externalChannelClient) {
         this.fileStorage = fileStorage;
         this.legalfactMetadataUtils = legalfactMetadataUtils;
         this.validator = validator;
         this.timelineDao = timelineDao;
-        this.cfg = cfg;
+        this.externalChannelClient = externalChannelClient;
     }
 
     public String buildPreloadFullKey( String paId, String key) {
@@ -72,14 +71,14 @@ public class AttachmentService {
         Notification.NotificationBuilder builder = notification.toBuilder();
 
         // - Save documents
-        log.debug("Saving documents for iun {} START", iun);
+        log.debug("Saving documents for iun={} START", iun);
         saveDocuments( notification, iun, builder );
-        log.debug("Saving documents for iun {} END", iun);
+        log.debug("Saving documents for iun={} END", iun);
 
         // - save F24
-        log.debug("Saving F24 for iun {} START", iun);
+        log.debug("Saving F24 for iun={} START", iun);
         saveF24( notification, iun, builder);
-        log.debug("Saving F24 for iun {} END", iun);
+        log.debug("Saving F24 for iun={} END", iun);
         return builder.build();
     }
 
@@ -133,22 +132,27 @@ public class AttachmentService {
     private NotificationAttachment saveAndUpdateAttachment(Notification notification, NotificationAttachment attachment, String key) {
         String iun = notification.getIun();
         String paId = notification.getSender().getPaId();
-        log.debug("Saving attachment: iun={} key={}", iun, key);
+        log.info("Saving attachment: iun={} key={}", iun, key);
 
         NotificationAttachment updatedAttachment;
+        String contentType = attachment.getContentType();
         if( attachment.getRef() == null ) {
             String versionId = saveOneAttachmentToFileStorage( key, attachment );
-            log.info("SAVED attachment iun={} key={} versionId={}", iun, key, versionId);
-            updatedAttachment = updateSavedAttachment( attachment, versionId, key );
+            log.info("SAVED attachment iun={} key={} versionId={} contentType={}", iun, key, versionId, contentType);
+            updatedAttachment = updateSavedAttachment( attachment, versionId, key, contentType );
         }
         else {
+            log.info( "UPDATED attachment iun={} key={}", iun, key );
             updatedAttachment = attachment.toBuilder()
                     .ref( attachment.getRef().toBuilder()
                             .key( buildPreloadFullKey( paId, attachment.getRef().getKey()) )
                             .build()
                     )
+                    .contentType( contentType )
                     .build();
+            log.debug( "Check attachment digest START" );
             checkAttachmentDigests( updatedAttachment, notification.getPaNotificationId());
+            log.debug( "Check attachment digest END" );
         }
         return updatedAttachment;
     }
@@ -169,13 +173,15 @@ public class AttachmentService {
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, attachment.getContentType(), metadata );
     }
 
-    private NotificationAttachment updateSavedAttachment( NotificationAttachment attachment, String versionId, String fullKey ) {
+    private NotificationAttachment updateSavedAttachment( NotificationAttachment attachment,
+                                                          String versionId, String fullKey, String contentType ) {
         return attachment.toBuilder()
                 .ref( NotificationAttachment.Ref.builder()
                         .key( fullKey )
                         .versionToken( versionId )
                         .build()
                 )
+                .contentType( contentType )
                 .build();
     }
 
@@ -183,20 +189,28 @@ public class AttachmentService {
         NotificationAttachment.Ref attachmentRef = attachment.getRef();
 
         try {
+            final String attachmentRefKey = attachmentRef.getKey();
             FileData fd = fileStorage.getFileVersion(
-                    attachmentRef.getKey(), attachmentRef.getVersionToken() );
-
+                    attachmentRefKey, attachmentRef.getVersionToken() );
+            long startTime = System.currentTimeMillis();
+            log.debug( "Compute sha256 for attachment with key={} START", attachmentRefKey);
             String actualSha256 = DigestUtils.sha256Hex( fd.getContent() );
+            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentRefKey,
+                    System.currentTimeMillis() - startTime);
+            startTime = System.currentTimeMillis();
+            log.debug( "Check preload digest for attachment with key={} START", attachmentRefKey );
             validator.checkPreloadedDigests(
                     paNotificationId,
-                    attachmentRef.getKey(),
+                    attachmentRefKey,
                     attachment.getDigests(),
                     NotificationAttachment.Digests.builder()
                             .sha256( actualSha256 )
                             .build()
                 );
-
+            log.debug( "Check preload digest for attachment with key={} END in={}ms", attachmentRefKey,
+                    System.currentTimeMillis() - startTime );
         } catch (IOException exc) {
+            log.error( "Invalid sha256 for attachment={}", attachmentRef );
             throw new PnInternalException("Checking sha256 of " + attachmentRef, exc );
         }
     }
@@ -214,7 +228,7 @@ public class AttachmentService {
                 .contentType( extractMediaType( fileData.getContentType() ) )
                 .body( new InputStreamResource (fileData.getContent() ) );
 
-        log.debug("AttachmentKey: response {}", response);
+        log.debug("AttachmentKey: response={}", response);
         return response;
     }
 
@@ -241,9 +255,11 @@ public class AttachmentService {
 
 
 	public List<LegalFactsListEntry> listNotificationLegalFacts(String iun) {
+        log.debug( "Retrieve notification legal facts for iun={}", iun );
         List<LegalFactsListEntry> result = getPaperFeedbackLegalFacts( iun );
 
         String prefix = legalfactMetadataUtils.baseKey(iun);
+        log.debug( "Retrieve documents listing for prefix={}", prefix );
 		List<FileData> files = fileStorage.getDocumentsListing( prefix );
         result.addAll( files.stream().map( legalfactMetadataUtils::fromFileData )
                 .collect(Collectors.toList()) );
@@ -254,6 +270,7 @@ public class AttachmentService {
     @NotNull
     private List<LegalFactsListEntry> getPaperFeedbackLegalFacts(String iun) {
         List<LegalFactsListEntry> result = new ArrayList<>();
+        log.debug( "Retrieve timeline elements for iun={}", iun );
         Set<TimelineElement> timelineElements = timelineDao.getTimeline(iun);
         List<TimelineElement> paperFeedbackElements = timelineElements
                 .stream()
@@ -282,6 +299,7 @@ public class AttachmentService {
         if ( legalfactId.startsWith( EXTERNAL_CHANNEL_LEGAL_FACT )) {
             return getPaperFeedbackLegalFact(iun, legalfactId);
         } else {
+            log.debug( "Retrieve notification attachment Ref for iun={} and legalfactId={}", iun, legalfactId );
             NotificationAttachment.Ref ref = legalfactMetadataUtils.fromIunAndLegalFactId( iun, legalfactId );
             return loadAttachment( ref );
         }
@@ -289,12 +307,10 @@ public class AttachmentService {
 
     @NotNull
     private ResponseEntity<Resource> getPaperFeedbackLegalFact(String iun, String legalfactId) {
-        RestTemplate template = new RestTemplate();
         final String attachmentId = legalfactId.replace("~","/")
                 .replaceFirst(EXTERNAL_CHANNEL_LEGAL_FACT, "");
-        final String baseUrl = cfg.getExternalChannelBaseUrl() + EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS;
-        String url = String.format(baseUrl, attachmentId);
-        String[] response = template.getForObject(url, String[].class);
+        log.debug( "Retrieve attachment url from External Channel with attachmentId={}", attachmentId );
+        String[] response = this.externalChannelClient.getResponseAttachmentUrl( new String[] {attachmentId} );
 
         if ( response != null && response.length > 0 ) {
             try {
@@ -305,6 +321,9 @@ public class AttachmentService {
                         .body( urlResource );
 
             } catch (MalformedURLException e) {
+                log.error( "Unable to retrieve a valid attachment url for iun={} and attachmentId={}",
+                        iun,
+                        attachmentId );
                 throw new PnInternalException( "Unable to retrieve resource " + response[0], e );
             }
 
