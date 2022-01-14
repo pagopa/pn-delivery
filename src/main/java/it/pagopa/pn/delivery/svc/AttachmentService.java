@@ -134,24 +134,27 @@ public class AttachmentService {
         String paId = notification.getSender().getPaId();
         log.info("Saving attachment: iun={} key={}", iun, key);
 
+        NotificationAttachment.Ref attachmentRef = attachment.getRef();
+
         NotificationAttachment updatedAttachment;
-        String contentType = attachment.getContentType();
-        if( attachment.getRef() == null ) {
+        if( attachmentRef == null ) {
+            log.info("Direct load for attachment iun={} key={}", iun, key);
+            String contentType = attachment.getContentType();
             String versionId = saveOneAttachmentToFileStorage( key, attachment );
             log.info("SAVED attachment iun={} key={} versionId={} contentType={}", iun, key, versionId, contentType);
-            updatedAttachment = updateSavedAttachment( attachment, versionId, key, contentType );
+            updatedAttachment = updateAttachmentMetadata( attachment, versionId, key, contentType );
         }
         else {
-            log.info( "UPDATED attachment iun={} key={}", iun, key );
-            updatedAttachment = attachment.toBuilder()
-                    .ref( attachment.getRef().toBuilder()
-                            .key( buildPreloadFullKey( paId, attachment.getRef().getKey()) )
-                            .build()
-                    )
-                    .contentType( contentType )
-                    .build();
+            log.info( "Retrieve attachment by ref iun={} key={}", iun, key );
+            String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
+            String versionId = attachmentRef.getVersionToken();
+
+            FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
+
+            updatedAttachment = updateAttachmentMetadata( attachment, versionId, fullKey, fd.getContentType() );
+
             log.debug( "Check attachment digest START" );
-            checkAttachmentDigests( updatedAttachment, notification.getPaNotificationId());
+            checkAttachmentDigests( fd, updatedAttachment.getDigests() );
             log.debug( "Check attachment digest END" );
         }
         return updatedAttachment;
@@ -173,8 +176,8 @@ public class AttachmentService {
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, attachment.getContentType(), metadata );
     }
 
-    private NotificationAttachment updateSavedAttachment( NotificationAttachment attachment,
-                                                          String versionId, String fullKey, String contentType ) {
+    private NotificationAttachment updateAttachmentMetadata(NotificationAttachment attachment,
+                                                            String versionId, String fullKey, String contentType ) {
         return attachment.toBuilder()
                 .ref( NotificationAttachment.Ref.builder()
                         .key( fullKey )
@@ -185,33 +188,31 @@ public class AttachmentService {
                 .build();
     }
 
-    private void checkAttachmentDigests(NotificationAttachment attachment, String paNotificationId) {
-        NotificationAttachment.Ref attachmentRef = attachment.getRef();
+
+    private void checkAttachmentDigests(FileData fd, NotificationAttachment.Digests digests ) {
+        String attachmentKey = fd.getKey();
 
         try {
-            final String attachmentRefKey = attachmentRef.getKey();
-            FileData fd = fileStorage.getFileVersion(
-                    attachmentRefKey, attachmentRef.getVersionToken() );
             long startTime = System.currentTimeMillis();
-            log.debug( "Compute sha256 for attachment with key={} START", attachmentRefKey);
+            log.debug( "Compute sha256 for attachment with key={} START", attachmentKey);
             String actualSha256 = DigestUtils.sha256Hex( fd.getContent() );
-            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentRefKey,
+            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentKey,
                     System.currentTimeMillis() - startTime);
             startTime = System.currentTimeMillis();
-            log.debug( "Check preload digest for attachment with key={} START", attachmentRefKey );
+            log.debug( "Check preload digest for attachment with key={} START", attachmentKey);
             validator.checkPreloadedDigests(
-                    paNotificationId,
-                    attachmentRefKey,
-                    attachment.getDigests(),
+                    attachmentKey,
+                    digests,
                     NotificationAttachment.Digests.builder()
                             .sha256( actualSha256 )
                             .build()
                 );
-            log.debug( "Check preload digest for attachment with key={} END in={}ms", attachmentRefKey,
+            log.debug( "Check preload digest for attachment with key={} END in={}ms", attachmentKey,
                     System.currentTimeMillis() - startTime );
         } catch (IOException exc) {
-            log.error( "Invalid sha256 for attachment={}", attachmentRef );
-            throw new PnInternalException("Checking sha256 of " + attachmentRef, exc );
+            String msg = "Error validating sha256 for attachment=" + attachmentKey + " version=" + fd.getVersionId();
+            log.error( msg );
+            throw new PnInternalException( msg, exc );
         }
     }
 

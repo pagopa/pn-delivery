@@ -31,7 +31,7 @@ public class NotificationReceiverValidator {
         return validator.validate( notification, NotificationJsonViews.New.class );
     }
 
-    public void checkPreloadedDigests(String paNotificationId, String key, NotificationAttachment.Digests expected, NotificationAttachment.Digests actual) throws PnValidationException {
+    public void checkPreloadedDigests(String key, NotificationAttachment.Digests expected, NotificationAttachment.Digests actual) throws PnValidationException {
         Set<ConstraintViolation<DigestEqualityBean>> errors = validator.validate( DigestEqualityBean.builder()
                 .key( key )
                 .expected( expected )
@@ -39,7 +39,7 @@ public class NotificationReceiverValidator {
                 .build()
             );
         if( ! errors.isEmpty() ) {
-            throw new PnValidationException(paNotificationId, errors );
+            throw new PnValidationException(key, errors );
         }
     }
 }
