@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
@@ -192,12 +193,14 @@ public class AttachmentService {
     private void checkAttachmentDigests(FileData fd, NotificationAttachment.Digests digests ) {
         String attachmentKey = fd.getKey();
 
-        try {
+        try(InputStream contentStream = fd.getContent() ) {
+
             long startTime = System.currentTimeMillis();
             log.debug( "Compute sha256 for attachment with key={} START", attachmentKey);
-            String actualSha256 = DigestUtils.sha256Hex( fd.getContent() );
-            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentKey,
-                    System.currentTimeMillis() - startTime);
+            String actualSha256 = DigestUtils.sha256Hex( contentStream );
+            long deltaTime = System.currentTimeMillis() - startTime;
+            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentKey, deltaTime );
+
             startTime = System.currentTimeMillis();
             log.debug( "Check preload digest for attachment with key={} START", attachmentKey);
             validator.checkPreloadedDigests(
