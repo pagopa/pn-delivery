@@ -1,10 +1,10 @@
 settings:
   env:
-    CONCURRENCY: 3
+    CONCURRENCY: 1
     TEST_TIME: 1m
     RAMP_UP: 0m
     SCENARIO: SendNotification
-    INPUT_FILE: inputs/pa_protocol_input.csv
+    INPUT_FILE: inputs/new_notifications.csv
     API_KEY: fakeapikey
     PA: LoadTestPa
     BASE_URL: http://localhost:8080

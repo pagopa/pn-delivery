@@ -4,7 +4,9 @@ docker build -t pn-load-test .
 ```
 Comando per il lancio dell'immagine:
 ```
-docker run --name load-test -v $(pwd)/outputs:/tmp/artifacts --rm pn-load-test \
+docker run --name load-test --rm pn-load-test \
+        -v $(pwd)/outputs:/tmp/artifacts \
+        -v $(pwd)/outputs:/minimal_outputs \
         -o settings.env.BASE_URL=https://dominio/stage/  \
         -o settings.env.API_KEY=<api-key> \
         -o settings.env.TEST_TIME=10s \
@@ -19,6 +21,13 @@ Settings:
 - RAMP_UP ( Default: 0m )
 - SCENARIO ( Default: SendNotification )
 - INPUT_FILE ( Default: pa_protocol_input.csv )
+
+Volumi:
+- **/tmp/artifacts** contiene tutti i file generati da taurus.  
+- **/minimal_outputs** contiene solo l'elenco degli errori e i kpi prodotti da 
+  jmeter + un summary contenente alcuni indicatori statistici relativi ai tempi 
+  di risposta.   
+
 
 Scenari:
 - SendNotificationScenarios.yaml

@@ -41,7 +41,7 @@ scenarios:
         random-order: false
 
   SendNotificationPresigned:
-    think-time: 0.1
+    think-time: 0.05
     requests:
       - label: reserve_load
         url: ${BASE_URL}/delivery/attachments/preload
@@ -60,7 +60,7 @@ scenarios:
       - label: preload
         url: ${preload_url}
         method: PUT
-        body-file: /test/inputs/multa.pdf
+        body-file: ${documentFile}
         headers:
           Content-Type: application/pdf
           x-amz-meta-secret: ${preload_secret}
@@ -94,9 +94,8 @@ scenarios:
             - ref:
                 key: "doc_1"
                 versionToken: ${version_id}
-              contentType: null
               digests:
-                sha256: "06e21dbe27ac8e41251a2cfa7003d697c04aea7591ca358c1218071c9ceb3875"
+                sha256: ${documentSha}
         headers:
           Content-Type: application/json
           accept: application/json

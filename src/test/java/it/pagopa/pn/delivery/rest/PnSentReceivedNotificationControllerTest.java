@@ -185,8 +185,6 @@ class PnSentReceivedNotificationControllerTest {
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( "X-PagoPA-PN-PA", USER_ID )
 				.exchange().expectStatus().is5xxServerError();
-
-		//assertThrows(IllegalStateException.class, todo);
 	}
 
 	@Test

@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 data = pd.read_csv('kpi.jtl', header=0)
 
@@ -11,8 +11,8 @@ print( errors )
 
 toPlot = oks[[ 'elapsed', 'label' ]].set_index('label')
 
-toPlot.boxplot(by='label', rot=45, fontsize=12, figsize=(8,10))
-plt.savefig('chart.png')
+#toPlot.boxplot(by='label', rot=45, fontsize=12, figsize=(8,10))
+#plt.savefig('chart.png')
 
 
 def percentile(n):

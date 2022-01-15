@@ -1,5 +1,9 @@
 FROM blazemeter/taurus
 
+RUN apt-get update && apt-get install -y \
+       jq \
+       && rm -rf /var/lib/apt/lists/*
+
 RUN pip install pandas && pip install matplotlib
 
 ADD entrypoint.sh /entrypoint.sh
