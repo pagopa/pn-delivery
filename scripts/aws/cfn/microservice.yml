@@ -11,6 +11,10 @@ Parameters:
     Type: String
     Description: 'Exact container image URI with full repository and image digest'
 
+  MicroserviceNumber:
+    Type: Number
+    Description: 'Disambiguation useful for load balancer rules'
+
   TemplateBucketBaseUrl:
     Type: String
     Description: 'The S3 bucket from which to fetch the templates used by this stack.'
@@ -77,7 +81,7 @@ Resources:
         Subnets: !Ref SubnetsIds
         VpcId: !Ref VpcId
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
-        LoadbalancerRulePriority: 1
+        LoadbalancerRulePriority: !Ref MicroserviceNumber
 
   # Grant operational rights to Example microservice
   DeliveryMicroserviceTaskPolicy:

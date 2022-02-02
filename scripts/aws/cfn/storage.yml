@@ -6,6 +6,11 @@ Parameters:
     Type: String
     Description: Nome dell'ambiente destinazione
 
+  MicroserviceNumber:
+    Type: Number
+    Description: unused
+
+
   TemplateBucketBaseUrl:
     Type: String
     Description: URL da cui caricare i frammenti di template di infrastruttura
