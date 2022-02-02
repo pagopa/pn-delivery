@@ -15,7 +15,7 @@ Resources:
   Keyspace:
     Type: AWS::Cassandra::Keyspace
     Properties:
-      KeyspaceName: !Sub '${ProjectName}-delivery'
+      KeyspaceName: !Sub '${ProjectName}_delivery'
 
   NotificationTable:
     Type: AWS::Cassandra::Table
