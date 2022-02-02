@@ -35,6 +35,10 @@ Parameters:
     Type: String
     Description: 'Where to write documents files'
 
+  AttachmentsBucketArn:
+    Type: String
+    Description: 'Where to write documents files'
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -126,12 +130,18 @@ Resources:
               - s3:PutObjectTagging
               - s3:PutObjectVersionTagging
             Resource:
-              - '*'
+              - !Sub '${AttachmentsBucketArn}/*'
           - Effect: Allow
             Action:
               - s3:ListBucket
             Resource:
-              - '*'
+              - !Ref AttachmentsBucketArn
+          - Effect: Allow
+            Action:
+              - cassandra:Modify
+              - cassandra:Select
+            Resource:
+              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
 
 
   # Expose Example public API with API-GW
