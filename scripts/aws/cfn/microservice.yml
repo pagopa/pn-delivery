@@ -89,7 +89,7 @@ Resources:
     Properties:
       PolicyName: !Sub '${ProjectName}-delivery-CustomTaskPolicy'
       Roles:
-        - !GetAtt ExampleMicroservice.Outputs.TaskRoleName
+        - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
