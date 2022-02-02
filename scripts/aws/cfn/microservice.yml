@@ -31,7 +31,7 @@ Parameters:
     Type: String
     Description: 'Where to write database data'
 
-  DocumentBucketName:
+  AttachmentsBucketName:
     Type: String
     Description: 'Where to write documents files'
 
@@ -75,7 +75,7 @@ Resources:
         ContainerEnvEntry1: !Sub 'PROJECT_NAME=${ProjectName}'
         ContainerEnvEntry2: !Sub 'QUEUE_NAME=${DeliveryPushInputsQueueName}'
         ContainerEnvEntry3: 'REQUIRED_ROOT_PATH=example2'
-        ContainerEnvEntry4: !Sub 'BucketName=${DocumentBucketName}'
+        ContainerEnvEntry4: !Sub 'BucketName=${AttachmentsBucketName}'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
