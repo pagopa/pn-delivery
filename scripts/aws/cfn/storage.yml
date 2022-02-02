@@ -1,0 +1,237 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Some storage with input and output
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Nome dell'ambiente destinazione
+
+  TemplateBucketBaseUrl:
+    Type: String
+    Description: URL da cui caricare i frammenti di template di infrastruttura
+
+Resources:
+
+  Keyspace:
+    Type: AWS::Cassandra::Keyspace
+    Properties:
+      KeyspaceName: !Sub '${ProjectName}-delivery'
+
+  NotificationTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: notifications
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: iun
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: cancelledbyiun
+          ColumnType: text
+        - ColumnName: cancellediun
+          ColumnType: text
+        - ColumnName: panotificationid
+          ColumnType: text
+        - ColumnName: subject
+          ColumnType: text
+        - ColumnName: senderpaid
+          ColumnType: text
+        - ColumnName: sentat
+          ColumnType: timestamp
+        - ColumnName: recipientsjson
+          ColumnType: map<text, text>
+        - ColumnName: recipientsorder
+          ColumnType: list<text>
+        - ColumnName: documentskeys
+          ColumnType: list<text>
+        - ColumnName: documentsdigestssha256
+          ColumnType: list<text>
+        - ColumnName: documentsversionids
+          ColumnType: list<text>
+        - ColumnName: documentscontenttypes
+          ColumnType: list<text>
+        - ColumnName: iuv
+          ColumnType: text
+        - ColumnName: notificationfeepolicy
+          ColumnType: text
+        - ColumnName: f24flatratekey
+          ColumnType: text
+        - ColumnName: f24flatratedigestsha256
+          ColumnType: text
+        - ColumnName: f24flatrateversionid
+          ColumnType: text
+        - ColumnName: f24digitalkey
+          ColumnType: text
+        - ColumnName: f24digitaldigestsha256
+          ColumnType: text
+        - ColumnName: f24digitalversionid
+          ColumnType: text
+        - ColumnName: f24analogkey
+          ColumnType: text
+        - ColumnName: f24analogdigestsha256
+          ColumnType: text
+        - ColumnName: f24analogversionid
+          ColumnType: text
+        - ColumnName: physical_communication_type
+          ColumnType: text
+
+  TimelineTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: timelines
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: iun
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: timeline_element_id
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: category
+          ColumnType: text
+        - ColumnName: details
+          ColumnType: text
+        - ColumnName: timestamp
+          ColumnType: timestamp
+
+  NotificationBySenderTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: iun_by_senderid
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: notificationstatus
+          ColumnType: text
+        - ColumnName: senderid
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: sentat
+            ColumnType: timestamp
+          OrderBy: DESC
+        - Column:
+            ColumnName: recipientid
+            ColumnType: text
+          OrderBy: ASC
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: panotificationid
+          ColumnType: text
+        - ColumnName: subject
+          ColumnType: text
+        - ColumnName: recipientsjson
+          ColumnType: map<text, text>
+
+  NotificationByReceiverTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: iun_by_recipientid
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: notificationstatus
+          ColumnType: text
+        - ColumnName: recipientid
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: sentat
+            ColumnType: timestamp
+          OrderBy: DESC
+        - Column:
+            ColumnName: senderid
+            ColumnType: text
+          OrderBy: ASC
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+          OrderBy: ASC
+      RegularColumns:
+        - ColumnName: panotificationid
+          ColumnType: text
+        - ColumnName: subject
+          ColumnType: text
+        - ColumnName: recipientsjson
+          ColumnType: map<text, text>
+
+  DirectAccessTokenTable:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: direct_access_tokens
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: token
+          ColumnType: text
+      RegularColumns:
+        - ColumnName: iun
+          ColumnType: text
+        - ColumnName: taxid
+            ColumnType: text
+
+  PaperNotificationFailed:
+    Type: AWS::Cassandra::Table
+    Properties:
+      TableName: paper_notification_failed
+      KeyspaceName: !Ref Keyspace
+      PointInTimeRecoveryEnabled: true
+      PartitionKeyColumns:
+        - ColumnName: recipientid
+          ColumnType: text
+      ClusteringKeyColumns:
+        - Column:
+            ColumnName: iun
+            ColumnType: text
+
+  AttachmentsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      # No default retentin neither legal hold.
+      # Can define retention period or legal hold when upload new object or version
+      ObjectLockEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              #- { 'Fn::ImportValue': { 'Fn::Sub':'${EnvName}-cdn-url'}}
+              - "*"
+            ExposedHeaders:
+                - "x-amz-version-id"
+
+Outputs:
+  KeyspaceName:
+    Description: Keyspace Name used by application to access the key-value store
+    Value: !Ref Keyspace
+
+  DocumentBucketName:
+    Description: name of bucket going to contains notification documents
+    Value: !Ref DocumentBucket
+
+  DocumentsBucketArn:
+    Description: ARN of bucket going to contains notification documents
+    Value: !Sub '${DocumentBucket.Arn}'
+
+
