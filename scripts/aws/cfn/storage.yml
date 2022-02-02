@@ -226,12 +226,12 @@ Outputs:
     Description: Keyspace Name used by application to access the key-value store
     Value: !Ref Keyspace
 
-  DocumentBucketName:
+  AttachmentsBucketName:
     Description: name of bucket going to contains notification documents
-    Value: !Ref DocumentBucket
+    Value: !Ref AttachmentsBucket
 
-  DocumentsBucketArn:
+  AttachmentsBucketArn:
     Description: ARN of bucket going to contains notification documents
-    Value: !Sub '${DocumentBucket.Arn}'
+    Value: !Sub '${AttachmentsBucket.Arn}'
 
 
