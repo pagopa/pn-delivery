@@ -84,6 +84,9 @@ Resources:
         ContainerEnvEntry6: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
         ContainerEnvEntry7: !Sub 'SPRING_DATA_CASSANDRA_SSL=true'
         ContainerEnvEntry8: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
+        ContainerEnvEntry9: 'cors.allowed.domains[0]=http://pippo.it:8080'
+        ContainerEnvEntry10: 'cors.allowed.domains[1]=http://localhost:8090'
+
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
