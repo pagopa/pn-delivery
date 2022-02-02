@@ -72,10 +72,14 @@ Resources:
         CpuValue: 1024
         MemoryAmount: 2GB
         ContainerImageURI: !Sub '${ContainerImageUri}'
-        ContainerEnvEntry1: !Sub 'PROJECT_NAME=${ProjectName}'
-        ContainerEnvEntry2: !Sub 'QUEUE_NAME=${DeliveryPushInputsQueueName}'
-        ContainerEnvEntry3: 'REQUIRED_ROOT_PATH=example2'
-        ContainerEnvEntry4: !Sub 'BucketName=${AttachmentsBucketName}'
+        ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
+        ContainerEnvEntry2: !Sub 'PN_DELIVERY_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
+        ContainerEnvEntry3: !Sub 'PN_DELIVERY_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080/external-channel'
+        ContainerEnvEntry4: !Sub 'AWS_BUCKETNAME=${AttachmentsBucketName}'
+        ContainerEnvEntry5: !Sub 'PN_DELIVERY_IUNRETRY=3'
+        ContainerEnvEntry6: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
+        ContainerEnvEntry7: !Sub 'SPRING_DATA_CASSANDRA_SSL=true'
+        ContainerEnvEntry8: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
