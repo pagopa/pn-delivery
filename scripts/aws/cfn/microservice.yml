@@ -7,6 +7,10 @@ Parameters:
     Description: 'Usually pn can be pnXYZ where XYZ are the feature number, useful to create
       experimental environments without crash official development environment'
 
+  ApiDnsName:
+    Type: String
+    Description: 'The DNS name used for B2B rest API.'
+
   ContainerImageUri:
     Type: String
     Description: 'Exact container image URI with full repository and image digest'
@@ -86,7 +90,6 @@ Resources:
         ContainerEnvEntry8: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
         ContainerEnvEntry9: 'CORS_ALLOWED_DOMAINS[0]=http://pippo.it:8080'
         ContainerEnvEntry10: 'CORS_ALLOWED_DOMAINS[1]=http://localhost:8090'
-
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -154,6 +157,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
+        ApiDnsName: !Ref ApiDnsName
         ServiceApiPath: 'delivery'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
