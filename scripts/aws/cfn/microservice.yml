@@ -80,12 +80,12 @@ Resources:
         ContainerEnvEntry2: !Sub 'PN_DELIVERY_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
         ContainerEnvEntry3: !Sub 'PN_DELIVERY_EXTERNALCHANNELBASEURL=http://${ApplicationLoadBalancerDomain}:8080/external-channel'
         ContainerEnvEntry4: !Sub 'AWS_BUCKETNAME=${AttachmentsBucketName}'
-        ContainerEnvEntry5: !Sub 'PN_DELIVERY_IUNRETRY=3'
+        ContainerEnvEntry5: 'PN_DELIVERY_IUNRETRY=3'
         ContainerEnvEntry6: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
-        ContainerEnvEntry7: !Sub 'SPRING_DATA_CASSANDRA_SSL=true'
+        ContainerEnvEntry7: 'SPRING_DATA_CASSANDRA_SSL=true'
         ContainerEnvEntry8: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
-        ContainerEnvEntry9: 'cors.allowed.domains[0]=http://pippo.it:8080'
-        ContainerEnvEntry10: 'cors.allowed.domains[1]=http://localhost:8090'
+        ContainerEnvEntry9: 'CORS_ALLOWED_DOMAINS[0]=http://pippo.it:8080'
+        ContainerEnvEntry10: 'CORS_ALLOWED_DOMAINS[1]=http://localhost:8090'
 
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
