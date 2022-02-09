@@ -150,7 +150,7 @@ Resources:
               - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
 
 
-  # Expose Example public API with API-GW
+  # Expose Example public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -159,6 +159,19 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         IntendedUsage: B2B
         DnsName: !Ref ApiDnsName
+        ServiceApiPath: 'delivery'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+
+  # Expose Example public API with API-GW for WEB usage
+  DeliveryMicroservicePublicWebAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
+        IntendedUsage: WEB
+        DnsName: !Ref WebApiDnsName
         ServiceApiPath: 'delivery'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
