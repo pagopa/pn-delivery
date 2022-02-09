@@ -157,6 +157,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
+        IntendedUsage: B2B
         ApiDnsName: !Ref ApiDnsName
         ServiceApiPath: 'delivery'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
