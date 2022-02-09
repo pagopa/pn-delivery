@@ -158,7 +158,7 @@ Resources:
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         IntendedUsage: B2B
-        ApiDnsName: !Ref ApiDnsName
+        DnsName: !Ref ApiDnsName
         ServiceApiPath: 'delivery'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
