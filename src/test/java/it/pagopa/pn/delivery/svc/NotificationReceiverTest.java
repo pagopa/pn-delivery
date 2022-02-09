@@ -23,6 +23,7 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
+import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
@@ -120,13 +121,10 @@ class NotificationReceiverTest {
 		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture() );
 
 		Notification savedNotification = savedNotificationCaptor.getValue();
-		assertEquals( savedNotification.getIun(), addedNotification.getIun(), "Saved iun differ from returned one");
+		assertEquals( EncodingUtils.base64Encoding(savedNotification.getIun()), addedNotification.getNotificationId(), "Saved iun differ from returned one");
 		assertEquals( notification.getPaNotificationId(), savedNotification.getPaNotificationId(), "Wrong protocol number");
 		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
-
-		Mockito.verify( fileStorage, Mockito.times(4) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
-
+		
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
@@ -142,13 +140,10 @@ class NotificationReceiverTest {
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
-		assertEquals( savedNotification.getValue().getIun(), addedNotification.getIun(), "Saved iun differ from returned one");
+		assertEquals(EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationId(), "Saved iun differ from returned one");
 		assertEquals( notification.getPaNotificationId(), savedNotification.getValue().getPaNotificationId(), "Wrong protocol number");
 		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
-
-		Mockito.verify( fileStorage, Mockito.times(3) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
-
+		
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
@@ -164,13 +159,10 @@ class NotificationReceiverTest {
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
-		assertEquals( savedNotification.getValue().getIun(), addedNotification.getIun(), "Saved iun differ from returned one");
+		assertEquals( EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationId(), "Saved iun differ from returned one");
 		assertEquals( notification.getPaNotificationId(), savedNotification.getValue().getPaNotificationId(), "Wrong protocol number");
 		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
-
-		Mockito.verify( fileStorage, Mockito.times(2) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
-
+		
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
@@ -178,13 +170,6 @@ class NotificationReceiverTest {
 	void successWritingNotificationWithoutPaymentsAttachment() throws IdConflictException {
 		ArgumentCaptor<Notification> savedNotification = ArgumentCaptor.forClass(Notification.class);
 
-		FileData fileData = FileData.builder()
-				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
-				.build();
-
-		// Given
-		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
-				.thenReturn( fileData );
 		Notification notification = newNotificationWithoutPaymentsRef();
 
 		// When
@@ -192,7 +177,7 @@ class NotificationReceiverTest {
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
-		assertEquals( savedNotification.getValue().getIun(), addedNotification.getIun(), "Saved iun differ from returned one");
+		assertEquals( EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationId(), "Saved iun differ from returned one");
 		assertEquals( notification.getPaNotificationId(), savedNotification.getValue().getPaNotificationId(), "Wrong protocol number");
 		assertEquals( notification.getPaNotificationId(), addedNotification.getPaNotificationId(), "Wrong protocol number");
 
@@ -253,8 +238,6 @@ class NotificationReceiverTest {
 		// Then
 		Mockito.verify( notificationDao, Mockito.times( 2 ) )
 				.addNotification( Mockito.any( Notification.class ));
-		Mockito.verify( fileStorage, Mockito.times( 8 ) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 	}
 
 
