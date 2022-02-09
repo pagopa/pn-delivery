@@ -11,6 +11,10 @@ Parameters:
     Type: String
     Description: 'The DNS name used for B2B rest API.'
 
+  WebApiDnsName:
+    Type: String
+    Description: 'The DNS name used for WEB rest API.'
+
   ContainerImageUri:
     Type: String
     Description: 'Exact container image URI with full repository and image digest'
