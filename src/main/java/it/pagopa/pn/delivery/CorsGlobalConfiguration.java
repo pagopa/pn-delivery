@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableWebFlux
 public class CorsGlobalConfiguration implements WebFluxConfigurer {
 
     @Value("${cors.allowed.domains:}")
