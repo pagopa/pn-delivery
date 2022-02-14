@@ -5,6 +5,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
@@ -53,7 +54,7 @@ class PnNotificationInputControllerTest {
 				.paNotificationId( PA_NOTIFICATION_ID )
 				.build();
 
-		NewNotificationResponse savedNotification = NewNotificationResponse.builder().notificationId( IUN ).build();
+		NewNotificationResponse savedNotification = NewNotificationResponse.builder().notificationId( EncodingUtils.base64Encoding(IUN) ).build();
 				
 		// When
 		Mockito.when(deliveryService.receiveNotification( Mockito.any( Notification.class )))

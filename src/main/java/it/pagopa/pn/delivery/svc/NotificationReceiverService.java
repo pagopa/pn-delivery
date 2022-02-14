@@ -114,13 +114,16 @@ public class NotificationReceiverService {
 				)
 				.recipients( recipientsWithToken )
 				.build();
-		
+
+		log.info("Start Attachment save for iun={}", iun);
+		Notification notificationWithCompleteMetadata = attachmentSaver.saveAttachments( notificationWithIun );
+
 		// - Will be delayed from the receiver
 		log.debug("Send \"new notification\" event for iun={}", iun);
 		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
 
 		log.info("Store the notification metadata for iun={}", iun);
-		notificationDao.addNotification( notificationWithIun );
+		notificationDao.addNotification( notificationWithCompleteMetadata );
 	}
 	
 	private List<NotificationRecipient> addDirectAccessTokenToRecipients(Notification notification, String iun) throws IdConflictException {
