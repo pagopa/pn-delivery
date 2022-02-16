@@ -1,6 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
@@ -23,10 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,12 +57,57 @@ public class NotificationRetrieverService {
 		this.timelineDao = timelineDao;
 		this.statusUtils = statusUtils;
 	}
+	
+	//TODO Questo è un Workaround. Logica da cambiare quando si passerà a DYNAMODB
+	
+	public ResultPaginationDto<NotificationSearchRow, Instant> searchNotification( InputSearchNotificationDto searchDto ) {
+		Instant dateToFilter = null;
+		
+		//Verifica presenza nextPageKey, che sta ad indicare la chiave per la prossima pagina della paginazione (in questo caso è stata utilizzata la data)
+		if(searchDto.getNextPagesKey() != null){
+			dateToFilter = Instant.parse(searchDto.getNextPagesKey());
+		}else {
+			dateToFilter = searchDto.getStartDate();
+		}
 
-	public List<NotificationSearchRow> searchNotification(
-			boolean bySender, String senderReceiverId, Instant startDate, Instant endDate,
-			String filterId, NotificationStatus status, String subjectRegExp
-	) {
-		return notificationDao.searchNotification(bySender, senderReceiverId, startDate, endDate, filterId, status, subjectRegExp);
+		searchDto.setStartDate(dateToFilter);
+		
+		List<NotificationSearchRow> rows = notificationDao.searchNotification(searchDto);
+		
+		List<Instant> listNextPagesKey = null;
+
+		boolean isNotLastSlice = rows.size() > searchDto.getSize();
+		
+		//Se il numero di risultati ottenuti è > della size della singola pagina ...
+		if(isNotLastSlice){
+			List<NotificationSearchRow> initialList = rows;
+			//... viene ottenuto lo slice della lista per essere restituito ...
+			rows = rows.subList(0, searchDto.getSize());
+			//... viene restituita la lista delle successive chiavi per la navigazione
+			listNextPagesKey = getListNextPagesKey(searchDto.getSize(), initialList);
+		}
+		
+		return ResultPaginationDto.<NotificationSearchRow, Instant>builder()
+						.result(rows)
+						.nextPagesKey(listNextPagesKey)
+						.moreResult(isNotLastSlice)
+						.build();
+	}
+
+	private List<Instant> getListNextPagesKey(Integer size, List<NotificationSearchRow> listRows) {
+		List<Instant> listNextPagesKey = new ArrayList<>();
+
+		int index = 1;
+		int nextSize = size * index;
+
+		while(listRows.size() > nextSize && index < 4){
+			NotificationSearchRow firstElementNextPage = listRows.get(nextSize);
+			listNextPagesKey.add(firstElementNextPage.getSentAt());
+			index++;
+			nextSize = size * index;
+		}
+		
+		return listNextPagesKey;
 	}
 
 	/**

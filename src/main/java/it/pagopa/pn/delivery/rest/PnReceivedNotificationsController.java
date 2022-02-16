@@ -1,7 +1,9 @@
 package it.pagopa.pn.delivery.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
@@ -35,15 +37,29 @@ public class PnReceivedNotificationsController implements
 
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
-    public List<NotificationSearchRow> searchReceivedNotification(
+    public ResultPaginationDto<NotificationSearchRow, Instant> searchReceivedNotification(
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String recipientId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
             @RequestParam(name = "senderId", required = false) String senderId,
             @RequestParam(name = "status", required = false) NotificationStatus status,
-            @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp
+            @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
+            @RequestParam(name = "size", required = false) Integer size,
+            @RequestParam(name = "nextPagesKey", required = false) String nextPagesKey
     ) {
-        return retrieveSvc.searchNotification( false, recipientId, startDate, endDate, senderId, status, subjectRegExp );
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(true)
+                .senderReceiverId(recipientId)
+                .startDate(startDate)
+                .endDate(endDate)
+                .filterId(senderId)
+                .status(status)
+                .subjectRegExp(subjectRegExp)
+                .size(size)
+                .nextPagesKey(nextPagesKey)
+                .build();
+
+        return retrieveSvc.searchNotification( searchDto );
     }
 
     @Override
