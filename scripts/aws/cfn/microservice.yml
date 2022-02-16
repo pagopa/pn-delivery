@@ -14,6 +14,10 @@ Parameters:
   WebApiDnsName:
     Type: String
     Description: 'The DNS name used for WEB rest API.'
+  
+  CorsAllowedDomains:
+    Type: String
+    Description: 'Comma separated list of domains allowed to make cross origin request'
 
   ContainerImageUri:
     Type: String
@@ -92,8 +96,7 @@ Resources:
         ContainerEnvEntry6: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
         ContainerEnvEntry7: 'SPRING_DATA_CASSANDRA_SSL=true'
         ContainerEnvEntry8: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
-        ContainerEnvEntry9: 'CORS_ALLOWED_DOMAINS[0]=http://pippo.it:8080'
-        ContainerEnvEntry10: 'CORS_ALLOWED_DOMAINS[1]=http://localhost:8090'
+        ContainerEnvEntry9: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds

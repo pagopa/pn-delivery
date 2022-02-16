@@ -2,13 +2,9 @@ package it.pagopa.pn.delivery;
 
 import it.pagopa.pn.commons.configs.PnSpringBootApplication;
 import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.reactive.result.view.RedirectView;
 
 @PnSpringBootApplication

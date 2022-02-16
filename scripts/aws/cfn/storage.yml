@@ -6,11 +6,12 @@ Parameters:
     Type: String
     Description: Nome dell'ambiente destinazione
 
+  # Unused but required by CD pipeline
   MicroserviceNumber:
     Type: Number
-    Description: unused
+    Description: An unique number that identify the microservice inside the ECS cluster.
 
-
+  # Unused but required by CD pipeline
   TemplateBucketBaseUrl:
     Type: String
     Description: URL da cui caricare i frammenti di template di infrastruttura

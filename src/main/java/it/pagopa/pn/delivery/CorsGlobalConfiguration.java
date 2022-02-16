@@ -16,13 +16,6 @@ public class CorsGlobalConfiguration implements WebFluxConfigurer {
     @Value("${cors.allowed.domains:}")
     private List<String> corsAllowedDomains;
 
-    @PostConstruct
-    private void init() {
-        if( corsAllowedDomains == null || corsAllowedDomains.isEmpty() ) {
-            corsAllowedDomains = Arrays.asList("http://localhost:8080", "http://localhost:8090");
-        }
-    }
-
     @Override
     public void addCorsMappings(CorsRegistry corsRegistry) {
         corsRegistry.addMapping("/**")
