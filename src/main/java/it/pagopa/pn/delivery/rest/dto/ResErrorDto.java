@@ -9,7 +9,7 @@ import java.util.List;
 @ToString
 @Getter
 public class ResErrorDto {
-    private String paNotificationId;
+    private String identificationId;
     private String status;
     private List<ErrorDto> errorDtoList;
 }

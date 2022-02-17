@@ -9,7 +9,10 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.*;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleValidationException;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -30,6 +33,7 @@ public class PnSentNotificationsController implements
 
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
+    public static final String VALIDATION_ERROR_STATUS = "Validation error";
 
     public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg) {
         this.retrieveSvc = retrieveSvc;
@@ -112,6 +116,11 @@ public class PnSentNotificationsController implements
     ) {
         ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact( iun, legalFactId );
         return AttachmentRestUtils.prepareAttachment( resource, iun, legalFactId.replaceFirst("\\.pdf$", "") );
+    }
+
+    @ExceptionHandler({PnValidationException.class})
+    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
+        return HandleValidationException.handleValidationException(ex, VALIDATION_ERROR_STATUS);
     }
 
 }

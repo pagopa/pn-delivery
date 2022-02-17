@@ -12,6 +12,7 @@ import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
@@ -23,6 +24,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
@@ -61,53 +66,76 @@ public class NotificationRetrieverService {
 	//TODO Questo è un Workaround. Logica da cambiare quando si passerà a DYNAMODB
 	
 	public ResultPaginationDto<NotificationSearchRow, Instant> searchNotification( InputSearchNotificationDto searchDto ) {
-		Instant dateToFilter = null;
+		validateInput(searchDto);
 		
+		List<NotificationSearchRow> rows = getNotificationSearchRows(searchDto);
+
+		return getPaginationResult(searchDto.getSize(), rows);
+	}
+
+	private void validateInput(InputSearchNotificationDto searchDto) {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		Validator validator = factory.getValidator();
+
+		Set<ConstraintViolation<InputSearchNotificationDto>> errors = validator.validate(searchDto);
+		if( ! errors.isEmpty() ) {
+			throw new PnValidationException(searchDto.getSenderReceiverId(), errors);
+		}
+	}
+	
+	private List<NotificationSearchRow> getNotificationSearchRows(InputSearchNotificationDto searchDto) {
+		Instant dateToFilter = null;
+
 		//Verifica presenza nextPageKey, che sta ad indicare la chiave per la prossima pagina della paginazione (in questo caso è stata utilizzata la data)
 		if(searchDto.getNextPagesKey() != null){
 			dateToFilter = Instant.parse(searchDto.getNextPagesKey());
 		}else {
 			dateToFilter = searchDto.getStartDate();
 		}
-
 		searchDto.setStartDate(dateToFilter);
-		
-		List<NotificationSearchRow> rows = notificationDao.searchNotification(searchDto);
-		
-		List<Instant> listNextPagesKey = null;
 
-		boolean isNotLastSlice = rows.size() > searchDto.getSize();
-		
-		//Se il numero di risultati ottenuti è > della size della singola pagina ...
-		if(isNotLastSlice){
-			List<NotificationSearchRow> initialList = rows;
-			//... viene ottenuto lo slice della lista per essere restituito ...
-			rows = rows.subList(0, searchDto.getSize());
-			//... viene restituita la lista delle successive chiavi per la navigazione
-			listNextPagesKey = getListNextPagesKey(searchDto.getSize(), initialList);
-		}
-		
-		return ResultPaginationDto.<NotificationSearchRow, Instant>builder()
-						.result(rows)
-						.nextPagesKey(listNextPagesKey)
-						.moreResult(isNotLastSlice)
-						.build();
+		return notificationDao.searchNotification(searchDto);
 	}
 
-	private List<Instant> getListNextPagesKey(Integer size, List<NotificationSearchRow> listRows) {
-		List<Instant> listNextPagesKey = new ArrayList<>();
+	private ResultPaginationDto<NotificationSearchRow, Instant> getPaginationResult(Integer pageSize, List<NotificationSearchRow> rows) {
+		ResultPaginationDto <NotificationSearchRow, Instant> result = ResultPaginationDto.<NotificationSearchRow, Instant>builder()
+				.result(rows)
+				.moreResult(false)
+				.nextPagesKey(null)
+				.build();
+		
+		boolean isLastSlice = rows == null || rows.isEmpty() || rows.size() <= pageSize;
+		
+		//Se il numero di risultati ottenuti è > della size della singola pagina ...
+		if(! isLastSlice){
+			//... viene ottenuto lo slice della lista per essere restituito ...
+			List<NotificationSearchRow> subListToReturn = rows.subList(0, pageSize);
+			//... viene restituita la lista delle successive chiavi per la navigazione
+			result = getListNextPagesKey(pageSize, rows, subListToReturn);
+		}
+		return result;
+	}
 
+	private ResultPaginationDto <NotificationSearchRow, Instant> getListNextPagesKey(
+			Integer size, List<NotificationSearchRow> completeResultList, List<NotificationSearchRow> subListToReturn){
+		List<Instant> listNextPagesKey = new ArrayList<>();
+		int maxNextKeyToReturn = 4;
 		int index = 1;
 		int nextSize = size * index;
 
-		while(listRows.size() > nextSize && index < 4){
-			NotificationSearchRow firstElementNextPage = listRows.get(nextSize);
+		while(completeResultList.size() > nextSize && index < maxNextKeyToReturn){
+			//Vengono ottenute le key dei prossimi elementi
+			NotificationSearchRow firstElementNextPage = completeResultList.get(nextSize);
 			listNextPagesKey.add(firstElementNextPage.getSentAt());
 			index++;
 			nextSize = size * index;
 		}
 		
-		return listNextPagesKey;
+		return ResultPaginationDto.<NotificationSearchRow, Instant>builder()
+				.result(subListToReturn)
+				.nextPagesKey(listNextPagesKey)
+				.moreResult(completeResultList.size() > nextSize)
+				.build();
 	}
 
 	/**
