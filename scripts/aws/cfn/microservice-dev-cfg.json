@@ -1,0 +1,5 @@
+{
+  "Parameters" : {
+    "CorsAllowedDomains" : "https://portale-pa-develop.fe.dev.pn.pagopa.it/,https://portale-develop.fe.dev.pn.pagopa.it/,https://www.dev.pn.pagopa.it"
+  }
+}
