@@ -1,6 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -25,6 +27,7 @@ import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import jnr.ffi.annotations.In;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +46,7 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -129,8 +133,10 @@ class NotificationRetrieverServiceTest {
                 statusUtils);
     }
 
+    
     @Test
     void searchNotificationSuccess() {
+        
         //Given
         List<NotificationSearchRow> notificationSearchRowList = new ArrayList<>();
         notificationSearchRowList.add( NotificationSearchRow.builder()
@@ -144,26 +150,267 @@ class NotificationRetrieverServiceTest {
                         .build());
 
         //Where
-        Mockito.when( notificationDao.searchNotification(
-                Mockito.anyBoolean(),
-                Mockito.anyString(),
-                Mockito.any( Instant.class),
-                Mockito.any( Instant.class),
-                Mockito.anyString(),
-                Mockito.any(NotificationStatus.class),
-                Mockito.anyString())).thenReturn( notificationSearchRowList );
-        List<NotificationSearchRow> result = notificationRetrieverService.searchNotification(
-                BY_SENDER,
-                SENDER_ID,
-                START_DATE,
-                END_DATE,
-                USER_ID,
-                NotificationStatus.VIEWED,
-                SUBJECT);
+        Mockito.when( notificationDao.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn( notificationSearchRowList );
+
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(BY_SENDER)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .filterId(USER_ID)
+                .status(NotificationStatus.VIEWED)
+                .subjectRegExp(SUBJECT)
+                .size(10)
+                .nextPagesKey(null)
+                .build();
+        
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
         //Then
-        assertEquals(notificationSearchRowList, result );
+        assertEquals(notificationSearchRowList, result.getResult() );
     }
 
+    @Test
+    void searchNotificationOneResultPagination() {
+
+        //Given
+        List<NotificationSearchRow> notificationSearchRowList = new ArrayList<>();
+        notificationSearchRowList.add( NotificationSearchRow.builder()
+                .paNotificationId( PA_NOTIFICATION_ID )
+                .subject( SUBJECT )
+                .sentAt( TIMESTAMP )
+                .notificationStatus( NotificationStatus.VIEWED )
+                .iun( IUN )
+                .recipientId(USER_ID)
+                .senderId( SENDER_ID )
+                .build());
+
+        //Where
+        Mockito.when( notificationDao.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn( notificationSearchRowList );
+
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(BY_SENDER)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .filterId(USER_ID)
+                .status(NotificationStatus.VIEWED)
+                .subjectRegExp(SUBJECT)
+                .size(10)
+                .nextPagesKey(null)
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
+        //Then
+        assertEquals(notificationSearchRowList, result.getResult() );
+        assertFalse(result.isMoreResult());
+        assertNull(result.getNextPagesKey());
+    }
+
+    @Test
+    void searchNotificationPaginationNoResult() {
+        //Where
+        Mockito.when( notificationDao.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn( null );
+
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(BY_SENDER)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .filterId(USER_ID)
+                .status(NotificationStatus.VIEWED)
+                .subjectRegExp(SUBJECT)
+                .size(10)
+                .nextPagesKey(null)
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
+        //Then
+        assertNull(result.getResult() );
+        assertFalse(result.isMoreResult());
+        assertNull(result.getNextPagesKey());
+
+        //Where
+        Mockito.when( notificationDao.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn( Collections.emptyList() );
+
+        result = notificationRetrieverService.searchNotification(searchDto);
+        //Then
+        assertEquals(Collections.emptyList(), result.getResult() );
+        assertFalse(result.isMoreResult());
+        assertNull(result.getNextPagesKey());
+    }
+
+    @Test
+    void searchNotificationPaginationSizeEqualsResult() {
+
+        //Given
+        List<NotificationSearchRow> notificationSearchRowList = new ArrayList<>();
+        notificationSearchRowList.add( NotificationSearchRow.builder()
+                .paNotificationId( PA_NOTIFICATION_ID )
+                .subject( SUBJECT )
+                .sentAt( TIMESTAMP )
+                .notificationStatus( NotificationStatus.VIEWED )
+                .iun( IUN )
+                .recipientId(USER_ID)
+                .senderId( SENDER_ID )
+                .build());
+        notificationSearchRowList.add( NotificationSearchRow.builder()
+                .paNotificationId( PA_NOTIFICATION_ID )
+                .subject( SUBJECT )
+                .sentAt( TIMESTAMP )
+                .notificationStatus( NotificationStatus.VIEWED )
+                .iun( IUN )
+                .recipientId(USER_ID)
+                .senderId( SENDER_ID )
+                .build());
+
+        //Where
+        Mockito.when( notificationDao.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn( notificationSearchRowList );
+
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(BY_SENDER)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .filterId(USER_ID)
+                .status(NotificationStatus.VIEWED)
+                .subjectRegExp(SUBJECT)
+                .size(2)
+                .nextPagesKey(null)
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
+        //Then
+        assertEquals(notificationSearchRowList, result.getResult() );
+        assertFalse(result.isMoreResult());
+        assertNull(result.getNextPagesKey());
+    }
+
+    @Test
+    void searchNotificationPaginationResultBiggerThenSize() {
+        Instant dateFirstElementNextPage = Instant.now();
+        
+        //Given
+        List<NotificationSearchRow> notificationSearchRowList = new ArrayList<>();
+        NotificationSearchRow notSearchRow = NotificationSearchRow.builder()
+                .paNotificationId(PA_NOTIFICATION_ID)
+                .subject(SUBJECT)
+                .sentAt(TIMESTAMP)
+                .notificationStatus(NotificationStatus.VIEWED)
+                .iun(IUN)
+                .recipientId(USER_ID)
+                .senderId(SENDER_ID)
+                .build();
+        notificationSearchRowList.add(notSearchRow);
+        notificationSearchRowList.add(notSearchRow);
+        notificationSearchRowList.add( NotificationSearchRow.builder()
+                .paNotificationId( PA_NOTIFICATION_ID )
+                .subject( SUBJECT )
+                .sentAt( dateFirstElementNextPage )
+                .notificationStatus( NotificationStatus.VIEWED )
+                .iun( IUN )
+                .recipientId(USER_ID)
+                .senderId( SENDER_ID )
+                .build());
+        notificationSearchRowList.add(notSearchRow);
+
+        //Where
+        Mockito.when( notificationDao.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn( notificationSearchRowList);
+
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(BY_SENDER)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .filterId(USER_ID)
+                .status(NotificationStatus.VIEWED)
+                .subjectRegExp(SUBJECT)
+                .size(2)
+                .nextPagesKey(null)
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
+        //Then
+        assertEquals(notificationSearchRowList.subList(0, searchDto.getSize()), result.getResult() );
+        assertFalse(result.isMoreResult());
+        assertEquals(dateFirstElementNextPage.toString(), result.getNextPagesKey().get(0));
+    }
+
+    @Test
+    void searchNotificationPaginationResultBiggerThenSizeWithMoreResult() {
+        Instant dateFirstElementNextPage = Instant.now();
+        Instant dateSecondElementNextPage = Instant.now().plus(2, ChronoUnit.DAYS);
+        Instant dateThirdElementNextPage = Instant.now().plus(3, ChronoUnit.DAYS);
+
+        //Given
+        List<NotificationSearchRow> notificationSearchRowList = new ArrayList<>();
+        NotificationSearchRow notSearchRow = NotificationSearchRow.builder()
+                .paNotificationId(PA_NOTIFICATION_ID)
+                .subject(SUBJECT)
+                .sentAt(TIMESTAMP)
+                .notificationStatus(NotificationStatus.VIEWED)
+                .iun(IUN)
+                .recipientId(USER_ID)
+                .senderId(SENDER_ID)
+                .build();
+        
+        notificationSearchRowList.add(notSearchRow);
+        notificationSearchRowList.add(notSearchRow);
+        notificationSearchRowList.add( NotificationSearchRow.builder()
+                .paNotificationId( PA_NOTIFICATION_ID )
+                .subject( SUBJECT )
+                .sentAt( dateFirstElementNextPage )
+                .notificationStatus( NotificationStatus.VIEWED )
+                .iun( IUN )
+                .recipientId(USER_ID)
+                .senderId( SENDER_ID )
+                .build());
+        notificationSearchRowList.add(notSearchRow);
+        notificationSearchRowList.add(NotificationSearchRow.builder()
+                .paNotificationId( PA_NOTIFICATION_ID )
+                .subject( SUBJECT )
+                .sentAt( dateSecondElementNextPage )
+                .notificationStatus( NotificationStatus.VIEWED )
+                .iun( IUN )
+                .recipientId(USER_ID)
+                .senderId( SENDER_ID )
+                .build());
+        notificationSearchRowList.add(notSearchRow);
+        notificationSearchRowList.add(NotificationSearchRow.builder()
+                .paNotificationId( PA_NOTIFICATION_ID )
+                .subject( SUBJECT )
+                .sentAt( dateThirdElementNextPage )
+                .notificationStatus( NotificationStatus.VIEWED )
+                .iun( IUN )
+                .recipientId(USER_ID)
+                .senderId( SENDER_ID )
+                .build());
+        notificationSearchRowList.add(notSearchRow);
+        notificationSearchRowList.add(notSearchRow);
+
+        //Where
+        Mockito.when( notificationDao.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn( notificationSearchRowList);
+
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(BY_SENDER)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .filterId(USER_ID)
+                .status(NotificationStatus.VIEWED)
+                .subjectRegExp(SUBJECT)
+                .size(2)
+                .nextPagesKey(null) 
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
+        //Then
+        assertEquals(notificationSearchRowList.subList(0, searchDto.getSize()), result.getResult() );
+        assertTrue(result.isMoreResult());
+        assertEquals(dateFirstElementNextPage.toString(), result.getNextPagesKey().get(0));
+        assertEquals(dateSecondElementNextPage.toString(), result.getNextPagesKey().get(1));
+        assertEquals(dateThirdElementNextPage.toString(), result.getNextPagesKey().get(2));
+    }
+    
     @Test
     void getNotificationInformationSuccess() {
         //Given
@@ -423,4 +670,5 @@ class NotificationRetrieverServiceTest {
                 ))
                 .build();
     }
+  
 }

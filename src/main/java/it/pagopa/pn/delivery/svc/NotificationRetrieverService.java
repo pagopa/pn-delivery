@@ -1,15 +1,17 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
@@ -21,12 +23,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +43,8 @@ public class NotificationRetrieverService {
 	private final NotificationDao notificationDao;
 	private final TimelineDao timelineDao;
 	private final StatusUtils statusUtils;
+
+	static final int MAX_KEY_TO_RETURN = 4;
 
 	@Autowired
 	public NotificationRetrieverService(Clock clock,
@@ -58,12 +63,85 @@ public class NotificationRetrieverService {
 		this.timelineDao = timelineDao;
 		this.statusUtils = statusUtils;
 	}
+	
+	//TODO Questo è un Workaround. Logica da cambiare quando si passerà a DYNAMODB
+	
+	public ResultPaginationDto<NotificationSearchRow> searchNotification( InputSearchNotificationDto searchDto ) {
+		log.debug("Start search notification - senderReceiverId {}", searchDto.getSenderReceiverId());
+		
+		validateInput(searchDto);
+		
+		List<NotificationSearchRow> rows = getNotificationSearchRows(searchDto);
 
-	public List<NotificationSearchRow> searchNotification(
-			boolean bySender, String senderReceiverId, Instant startDate, Instant endDate,
-			String filterId, NotificationStatus status, String subjectRegExp
-	) {
-		return notificationDao.searchNotification(bySender, senderReceiverId, startDate, endDate, filterId, status, subjectRegExp);
+		return getPaginationResult(searchDto.getSize(), rows);
+	}
+
+	private void validateInput(InputSearchNotificationDto searchDto) {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		Validator validator = factory.getValidator();
+
+		Set<ConstraintViolation<InputSearchNotificationDto>> errors = validator.validate(searchDto);
+		if( ! errors.isEmpty() ) {
+			log.error("Validation search input ERROR {} - senderReceiverId {}",errors, searchDto.getSenderReceiverId());
+			throw new PnValidationException(searchDto.getSenderReceiverId(), errors);
+		}
+
+		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());
+	}
+	
+	private List<NotificationSearchRow> getNotificationSearchRows(InputSearchNotificationDto searchDto) {
+		Instant dateToFilter = null;
+
+		//Verifica presenza nextPageKey, che sta ad indicare la chiave per la prossima pagina della paginazione (in questo caso è stata utilizzata la data)
+		if(searchDto.getNextPagesKey() != null){
+			dateToFilter = Instant.parse(searchDto.getNextPagesKey());
+		}else {
+			dateToFilter = searchDto.getStartDate();
+		}
+		searchDto.setStartDate(dateToFilter);
+		log.debug("dateToFilter is {}",dateToFilter);
+
+		return notificationDao.searchNotification(searchDto);
+	}
+
+	private ResultPaginationDto<NotificationSearchRow> getPaginationResult(Integer pageSize, List<NotificationSearchRow> rows) {
+		ResultPaginationDto <NotificationSearchRow> result = ResultPaginationDto.<NotificationSearchRow>builder()
+				.result(rows)
+				.moreResult(false)
+				.nextPagesKey(null)
+				.build();
+		
+		boolean isLastSlice = rows == null || rows.isEmpty() || rows.size() <= pageSize;
+		
+		//Se il numero di risultati ottenuti è > della size della singola pagina ...
+		if(! isLastSlice){
+			//... viene ottenuto lo slice della lista per essere restituito ...
+			List<NotificationSearchRow> subListToReturn = rows.subList(0, pageSize);
+			//... viene restituita la lista delle successive chiavi per la navigazione
+			result = getListNextPagesKey(pageSize, rows, subListToReturn);
+		}
+		return result;
+	}
+
+	private ResultPaginationDto <NotificationSearchRow> getListNextPagesKey(
+			Integer size, List<NotificationSearchRow> completeResultList, List<NotificationSearchRow> subListToReturn){
+		List<String> listNextPagesKey = new ArrayList<>();
+		int index = 1;
+		int nextSize = size * index;
+
+		while(completeResultList.size() > nextSize && index < MAX_KEY_TO_RETURN){
+			//Vengono ottenute le key dei prossimi elementi
+			NotificationSearchRow firstElementNextPage = completeResultList.get(nextSize);
+			listNextPagesKey.add(firstElementNextPage.getSentAt() != null ?  firstElementNextPage.getSentAt().toString() : null);
+			index++;
+			nextSize = size * index;
+		}
+		
+		return ResultPaginationDto.<NotificationSearchRow>builder()
+				.result(subListToReturn)
+				.nextPagesKey(listNextPagesKey)
+				.moreResult(completeResultList.size() > nextSize)
+				.build();
 	}
 
 	/**

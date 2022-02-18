@@ -1,6 +1,8 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -15,6 +17,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
@@ -40,7 +43,6 @@ class NotificationSearchControllerTest {
     @Test
     void getSenderSuccess() {
         //Given
-        List<NotificationSearchRow> resource = new ArrayList<>();
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
@@ -50,18 +52,15 @@ class NotificationSearchControllerTest {
                 .paNotificationId("123")
                 .subject("asdasd")
                 .build();
-        resource.add(searchRow);
 
+        ResultPaginationDto<NotificationSearchRow> result =
+        ResultPaginationDto.<NotificationSearchRow>builder()
+                .result(Collections.singletonList(searchRow))
+                .moreResult(false)
+                .nextPagesKey(null).build();
+        
         //When
-        Mockito.when(svc.searchNotification(
-                Mockito.anyBoolean(),
-                Mockito.anyString(),
-                Mockito.any(Instant.class),
-                Mockito.any(Instant.class),
-                Mockito.anyString(),
-                Mockito.any(NotificationStatus.class),
-                Mockito.anyString())
-        ).thenReturn(resource);
+        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
 
         //Then
         webTestClient.get()
@@ -80,13 +79,25 @@ class NotificationSearchControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(svc).searchNotification(true, SENDER_ID, START_DATE, END_DATE, RECIPIENT_ID, STATUS, SUBJECT_REG_EXP);
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(true)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .filterId(RECIPIENT_ID)
+                .status(STATUS)
+                .subjectRegExp(SUBJECT_REG_EXP)
+                .size(null)
+                .nextPagesKey(null)
+                .build();
+
+        Mockito.verify(svc).searchNotification(searchDto);
     }
 
+    
     @Test
     void getReceiverSuccess() {
         //Given
-        List<NotificationSearchRow> resource = new ArrayList<>();
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
@@ -96,18 +107,15 @@ class NotificationSearchControllerTest {
                 .paNotificationId("123")
                 .subject("asdasd")
                 .build();
-        resource.add(searchRow);
 
+        ResultPaginationDto<NotificationSearchRow> result =
+                ResultPaginationDto.<NotificationSearchRow>builder()
+                        .result(Collections.singletonList(searchRow))
+                        .moreResult(false)
+                        .nextPagesKey(null).build();
+        
         //When
-        Mockito.when(svc.searchNotification(
-                Mockito.anyBoolean(),
-                Mockito.anyString(),
-                Mockito.any(Instant.class),
-                Mockito.any(Instant.class),
-                Mockito.anyString(),
-                Mockito.any(NotificationStatus.class),
-                Mockito.anyString())
-        ).thenReturn(resource);
+        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
 
         //Then
         webTestClient.get()
@@ -127,6 +135,18 @@ class NotificationSearchControllerTest {
                 .expectStatus()
                 .isOk();
 
-        Mockito.verify(svc).searchNotification(false, RECIPIENT_ID, START_DATE, END_DATE, SENDER_ID, STATUS, SUBJECT_REG_EXP);
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(false)
+                .senderReceiverId(RECIPIENT_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .filterId(SENDER_ID)
+                .status(STATUS)
+                .subjectRegExp(SUBJECT_REG_EXP)
+                .size(null)
+                .nextPagesKey(null)
+                .build();
+        
+        Mockito.verify(svc).searchNotification(searchDto);
     }
 }
