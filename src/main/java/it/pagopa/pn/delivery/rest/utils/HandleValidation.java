@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class HandleValidationException {
-    private HandleValidationException (){}
+public class HandleValidation {
+    private HandleValidation(){}
     
     public static ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex, String statusError){
         List<ErrorDto> listErrorDto = ex.getValidationErrors().stream()

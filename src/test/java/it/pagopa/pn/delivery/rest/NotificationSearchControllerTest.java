@@ -53,8 +53,8 @@ class NotificationSearchControllerTest {
                 .subject("asdasd")
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow, Instant> result =
-        ResultPaginationDto.<NotificationSearchRow, Instant>builder()
+        ResultPaginationDto<NotificationSearchRow> result =
+        ResultPaginationDto.<NotificationSearchRow>builder()
                 .result(Collections.singletonList(searchRow))
                 .moreResult(false)
                 .nextPagesKey(null).build();
@@ -108,8 +108,8 @@ class NotificationSearchControllerTest {
                 .subject("asdasd")
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow, Instant> result =
-                ResultPaginationDto.<NotificationSearchRow, Instant>builder()
+        ResultPaginationDto<NotificationSearchRow> result =
+                ResultPaginationDto.<NotificationSearchRow>builder()
                         .result(Collections.singletonList(searchRow))
                         .moreResult(false)
                         .nextPagesKey(null).build();

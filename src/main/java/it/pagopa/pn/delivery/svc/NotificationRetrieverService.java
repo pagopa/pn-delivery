@@ -7,7 +7,6 @@ import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
@@ -45,6 +44,8 @@ public class NotificationRetrieverService {
 	private final TimelineDao timelineDao;
 	private final StatusUtils statusUtils;
 
+	static final int MAX_KEY_TO_RETURN = 4;
+
 	@Autowired
 	public NotificationRetrieverService(Clock clock,
 										AttachmentService attachmentService,
@@ -65,7 +66,9 @@ public class NotificationRetrieverService {
 	
 	//TODO Questo è un Workaround. Logica da cambiare quando si passerà a DYNAMODB
 	
-	public ResultPaginationDto<NotificationSearchRow, Instant> searchNotification( InputSearchNotificationDto searchDto ) {
+	public ResultPaginationDto<NotificationSearchRow> searchNotification( InputSearchNotificationDto searchDto ) {
+		log.debug("Start search notification - senderReceiverId {}", searchDto.getSenderReceiverId());
+		
 		validateInput(searchDto);
 		
 		List<NotificationSearchRow> rows = getNotificationSearchRows(searchDto);
@@ -79,8 +82,11 @@ public class NotificationRetrieverService {
 
 		Set<ConstraintViolation<InputSearchNotificationDto>> errors = validator.validate(searchDto);
 		if( ! errors.isEmpty() ) {
+			log.error("Validation search input ERROR {} - senderReceiverId {}",errors, searchDto.getSenderReceiverId());
 			throw new PnValidationException(searchDto.getSenderReceiverId(), errors);
 		}
+
+		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());
 	}
 	
 	private List<NotificationSearchRow> getNotificationSearchRows(InputSearchNotificationDto searchDto) {
@@ -93,12 +99,13 @@ public class NotificationRetrieverService {
 			dateToFilter = searchDto.getStartDate();
 		}
 		searchDto.setStartDate(dateToFilter);
+		log.debug("dateToFilter is {}",dateToFilter);
 
 		return notificationDao.searchNotification(searchDto);
 	}
 
-	private ResultPaginationDto<NotificationSearchRow, Instant> getPaginationResult(Integer pageSize, List<NotificationSearchRow> rows) {
-		ResultPaginationDto <NotificationSearchRow, Instant> result = ResultPaginationDto.<NotificationSearchRow, Instant>builder()
+	private ResultPaginationDto<NotificationSearchRow> getPaginationResult(Integer pageSize, List<NotificationSearchRow> rows) {
+		ResultPaginationDto <NotificationSearchRow> result = ResultPaginationDto.<NotificationSearchRow>builder()
 				.result(rows)
 				.moreResult(false)
 				.nextPagesKey(null)
@@ -116,22 +123,21 @@ public class NotificationRetrieverService {
 		return result;
 	}
 
-	private ResultPaginationDto <NotificationSearchRow, Instant> getListNextPagesKey(
+	private ResultPaginationDto <NotificationSearchRow> getListNextPagesKey(
 			Integer size, List<NotificationSearchRow> completeResultList, List<NotificationSearchRow> subListToReturn){
-		List<Instant> listNextPagesKey = new ArrayList<>();
-		int maxNextKeyToReturn = 4;
+		List<String> listNextPagesKey = new ArrayList<>();
 		int index = 1;
 		int nextSize = size * index;
 
-		while(completeResultList.size() > nextSize && index < maxNextKeyToReturn){
+		while(completeResultList.size() > nextSize && index < MAX_KEY_TO_RETURN){
 			//Vengono ottenute le key dei prossimi elementi
 			NotificationSearchRow firstElementNextPage = completeResultList.get(nextSize);
-			listNextPagesKey.add(firstElementNextPage.getSentAt());
+			listNextPagesKey.add(firstElementNextPage.getSentAt() != null ?  firstElementNextPage.getSentAt().toString() : null);
 			index++;
 			nextSize = size * index;
 		}
 		
-		return ResultPaginationDto.<NotificationSearchRow, Instant>builder()
+		return ResultPaginationDto.<NotificationSearchRow>builder()
 				.result(subListToReturn)
 				.nextPagesKey(listNextPagesKey)
 				.moreResult(completeResultList.size() > nextSize)

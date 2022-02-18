@@ -27,6 +27,7 @@ import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import jnr.ffi.annotations.In;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -163,7 +164,7 @@ class NotificationRetrieverServiceTest {
                 .nextPagesKey(null)
                 .build();
         
-        ResultPaginationDto<NotificationSearchRow, Instant> result = notificationRetrieverService.searchNotification(searchDto);
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
         //Then
         assertEquals(notificationSearchRowList, result.getResult() );
     }
@@ -198,7 +199,7 @@ class NotificationRetrieverServiceTest {
                 .nextPagesKey(null)
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow, Instant> result = notificationRetrieverService.searchNotification(searchDto);
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
         //Then
         assertEquals(notificationSearchRowList, result.getResult() );
         assertFalse(result.isMoreResult());
@@ -222,7 +223,7 @@ class NotificationRetrieverServiceTest {
                 .nextPagesKey(null)
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow, Instant> result = notificationRetrieverService.searchNotification(searchDto);
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
         //Then
         assertNull(result.getResult() );
         assertFalse(result.isMoreResult());
@@ -277,7 +278,7 @@ class NotificationRetrieverServiceTest {
                 .nextPagesKey(null)
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow, Instant> result = notificationRetrieverService.searchNotification(searchDto);
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
         //Then
         assertEquals(notificationSearchRowList, result.getResult() );
         assertFalse(result.isMoreResult());
@@ -327,11 +328,11 @@ class NotificationRetrieverServiceTest {
                 .nextPagesKey(null)
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow, Instant> result = notificationRetrieverService.searchNotification(searchDto);
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
         //Then
         assertEquals(notificationSearchRowList.subList(0, searchDto.getSize()), result.getResult() );
         assertFalse(result.isMoreResult());
-        assertEquals(dateFirstElementNextPage, result.getNextPagesKey().get(0));
+        assertEquals(dateFirstElementNextPage.toString(), result.getNextPagesKey().get(0));
     }
 
     @Test
@@ -401,13 +402,13 @@ class NotificationRetrieverServiceTest {
                 .nextPagesKey(null) 
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow, Instant> result = notificationRetrieverService.searchNotification(searchDto);
+        ResultPaginationDto<NotificationSearchRow> result = notificationRetrieverService.searchNotification(searchDto);
         //Then
         assertEquals(notificationSearchRowList.subList(0, searchDto.getSize()), result.getResult() );
         assertTrue(result.isMoreResult());
-        assertEquals(dateFirstElementNextPage, result.getNextPagesKey().get(0));
-        assertEquals(dateSecondElementNextPage, result.getNextPagesKey().get(1));
-        assertEquals(dateThirdElementNextPage, result.getNextPagesKey().get(2));
+        assertEquals(dateFirstElementNextPage.toString(), result.getNextPagesKey().get(0));
+        assertEquals(dateSecondElementNextPage.toString(), result.getNextPagesKey().get(1));
+        assertEquals(dateThirdElementNextPage.toString(), result.getNextPagesKey().get(2));
     }
     
     @Test
