@@ -1,15 +1,18 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.NotificationUpdateStatusDto;
+import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
 import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
+import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationByRecipientEntityDao;
 import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationBySenderEntityDao;
 import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationEntityDao;
 import it.pagopa.pn.commons_delivery.model.notification.cassandra.NotificationEntity;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -80,12 +83,15 @@ class StatusServiceTest {
                 .build();
 
         
-        NotificationUpdateStatusDto dto = NotificationUpdateStatusDto.builder()
+        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
                 .currentTimeline(set)
                 .newTimelineElement(newTimelineElement)
                 .build();
-        
-        statusService.updateStatus(dto);
+
+        ResponseUpdateStatusDto responseDto = statusService.updateStatus(dto);
+
+        Assertions.assertEquals(NotificationStatus.DELIVERING, responseDto.getCurrentStatus());
+        Assertions.assertEquals(NotificationStatus.DELIVERED, responseDto.getNextStatus());
     }
 }

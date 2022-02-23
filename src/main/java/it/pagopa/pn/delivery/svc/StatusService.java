@@ -1,9 +1,10 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.NotificationUpdateStatusDto;
+import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationByRecipientEntityDao;
 import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationBySenderEntityDao;
@@ -35,8 +36,10 @@ public class StatusService {
     }
 
 
-    public void updateStatus(NotificationUpdateStatusDto dto) {
+    public ResponseUpdateStatusDto updateStatus(RequestUpdateStatusDto dto) {
         Optional<NotificationEntity> notificationEntityOptional = notificationEntityDao.get(dto.getIun());
+        
+        ResponseUpdateStatusDto responseDto;
         
         if (notificationEntityOptional.isPresent()) {
             NotificationEntity notificationEntity = notificationEntityOptional.get();
@@ -65,11 +68,16 @@ public class StatusService {
                 addNewSearchEntries(nextSearchBySenderEntry, nextSearchByRecipientEntry, notificationEntity);
                 deleteOldSearchEntries(currentSearchBySenderEntry, currentSearchByRecipientEntry, notificationEntity);
             }
-            
+
+            responseDto = ResponseUpdateStatusDto.builder()
+                    .currentStatus(currentState)
+                    .nextStatus(nextState)
+                    .build();
         } else {
             throw new PnInternalException("Try to update status for non existing iun " + dto.getIun());
         }
         
+        return responseDto;
     }
 
 

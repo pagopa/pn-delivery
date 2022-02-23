@@ -1,10 +1,10 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.NotificationUpdateStatusDto;
-import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
+import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,7 +27,7 @@ class PnStatusControllerTest {
 
     @Test
     void updateStatus() {
-        NotificationUpdateStatusDto dto = NotificationUpdateStatusDto.builder()
+        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun("iun")
                 .build();
         
@@ -35,16 +35,17 @@ class PnStatusControllerTest {
                 .uri("/" + PnDeliveryRestConstants.NOTIFICATION_UPDATE_STATUS_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(dto), NotificationUpdateStatusDto.class)
+                .body(Mono.just(dto), RequestUpdateStatusDto.class)
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk()
+                .expectBody(ResponseUpdateStatusDto.class);
     }
 
     @Test
     void updateStatusKo() {
         doThrow(new PnInternalException("exception")).when(svc).updateStatus(Mockito.any());
 
-        NotificationUpdateStatusDto dto = NotificationUpdateStatusDto.builder()
+        RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun("iun")
                 .build();
 
@@ -52,7 +53,7 @@ class PnStatusControllerTest {
                 .uri("/" + PnDeliveryRestConstants.NOTIFICATION_UPDATE_STATUS_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(dto), NotificationUpdateStatusDto.class)
+                .body(Mono.just(dto), RequestUpdateStatusDto.class)
                 .exchange()
                 .expectStatus().is5xxServerError();
     }
