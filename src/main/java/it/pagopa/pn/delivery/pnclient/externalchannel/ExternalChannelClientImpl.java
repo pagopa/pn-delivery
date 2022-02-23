@@ -28,10 +28,9 @@ public class ExternalChannelClientImpl implements ExternalChannelClient{
         String queryString = Arrays.asList( attachmentIds ).stream()
                 .map( el ->  "attachmentKey=" + el)
                 .collect(Collectors.joining( "&" ));
-        RestTemplate template = new RestTemplate();
         final String baseUrl = cfg.getExternalChannelBaseUrl() + EXTERNAL_CHANNEL_GET_DOWNLOAD_LINKS;
         String url = String.format(baseUrl, queryString);
-        return template.getForObject(url, String[].class);
+        return restTemplate.getForObject(url, String[].class);
     }
 
 }
