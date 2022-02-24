@@ -5,13 +5,12 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -55,7 +54,7 @@ class PnNotificationInputControllerTest {
 				.paNotificationId( PA_NOTIFICATION_ID )
 				.build();
 
-		NewNotificationResponse savedNotification = NewNotificationResponse.builder().iun( IUN ).build();
+		NewNotificationResponse savedNotification = NewNotificationResponse.builder().notificationId( EncodingUtils.base64Encoding(IUN) ).build();
 				
 		// When
 		Mockito.when(deliveryService.receiveNotification( Mockito.any( Notification.class )))

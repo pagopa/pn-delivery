@@ -333,30 +333,6 @@ class NotificationReceiverValidationTest {
         Assertions.assertEquals( 4, errors.size() );
     }
 
-    @Test
-    void successAttachmentDigest() {
-        validator.checkPreloadedDigests( "paNotificationId/attachmentKey",
-                NotificationAttachment.Digests.builder().sha256("expected").build(),
-                NotificationAttachment.Digests.builder().sha256("expected").build()
-            );
-        //if fails throw exception
-    }
-
-    @Test
-    void failAttachmentDigest() {
-        // Given
-        NotificationAttachment.Digests expected = NotificationAttachment.Digests.builder().sha256("expected").build();
-        NotificationAttachment.Digests actual = NotificationAttachment.Digests.builder().sha256("wrong").build();
-        // When
-        PnValidationException exc = Assertions.assertThrows( PnValidationException.class, () ->
-                validator.checkPreloadedDigests( "paNotificationId/attachmentKey", expected, actual )
-            );
-        Path propPath = exc.getValidationErrors().iterator().next().getPropertyPath();
-
-        // Then
-        Assertions.assertEquals( "paNotificationId/attachmentKey", propertyPathToString( propPath ));
-    }
-
     private <T> void assertConstraintViolationPresentByField( Set<ConstraintViolation<T>> set, String propertyPath ) {
         long actual = set.stream()
                 .filter( cv -> propertyPathToString( cv.getPropertyPath() ).equals( propertyPath ) )
