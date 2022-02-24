@@ -12,8 +12,8 @@ import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
-import it.pagopa.pn.delivery.rest.dto.ErrorDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -86,24 +85,6 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
 
     @ExceptionHandler({PnValidationException.class})
     public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
-        List<ErrorDto> listErrorDto = ex.getValidationErrors().stream()
-                .map(msg ->
-                                ErrorDto.builder()
-                                        .message(msg.getMessage())
-                                        .property(msg.getPropertyPath()!= null ? msg.getPropertyPath().toString() : "")
-                                        .code(msg.getConstraintDescriptor()!= null ? msg.getConstraintDescriptor()
-                                                .getAnnotation()
-                                                .getClass()
-                                                .getSimpleName() : "")
-                                        .build()
-                )
-                .collect(Collectors.toList());
-
-        return ResponseEntity.badRequest()
-                .body(ResErrorDto.builder()
-                        .paNotificationId(ex.getValidationTargetId())
-                        .status(NOTIFICATION_VALIDATION_ERROR_STATUS)
-                        .errorDtoList(listErrorDto)
-                        .build());
+        return HandleValidation.handleValidationException(ex,NOTIFICATION_VALIDATION_ERROR_STATUS );
     }
 }

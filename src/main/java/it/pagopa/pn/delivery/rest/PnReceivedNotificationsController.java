@@ -1,13 +1,18 @@
 package it.pagopa.pn.delivery.rest;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.*;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -27,6 +32,7 @@ public class PnReceivedNotificationsController implements
         PnDeliveryRestApi_methodSearchReceivedNotification {
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
+    public static final String VALIDATION_ERROR_STATUS = "Validation error";
 
     public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg) {
         this.retrieveSvc = retrieveSvc;
@@ -35,15 +41,29 @@ public class PnReceivedNotificationsController implements
 
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
-    public List<NotificationSearchRow> searchReceivedNotification(
+    public ResultPaginationDto<NotificationSearchRow> searchReceivedNotification(
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String recipientId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
             @RequestParam(name = "senderId", required = false) String senderId,
             @RequestParam(name = "status", required = false) NotificationStatus status,
-            @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp
+            @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
+            @RequestParam(name = "size", required = false) Integer size,
+            @RequestParam(name = "nextPagesKey", required = false) String nextPagesKey
     ) {
-        return retrieveSvc.searchNotification( false, recipientId, startDate, endDate, senderId, status, subjectRegExp );
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(false)
+                .senderReceiverId(recipientId)
+                .startDate(startDate)
+                .endDate(endDate)
+                .filterId(senderId)
+                .status(status)
+                .subjectRegExp(subjectRegExp)
+                .size(size)
+                .nextPagesKey(nextPagesKey)
+                .build();
+
+        return retrieveSvc.searchNotification( searchDto );
     }
 
     @Override
@@ -95,4 +115,8 @@ public class PnReceivedNotificationsController implements
         return AttachmentRestUtils.prepareAttachment(resource, iun, legalFactId.replaceFirst("\\.pdf$", ""));
     }
 
+    @ExceptionHandler({PnValidationException.class})
+    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
+        return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
+    }
 }
