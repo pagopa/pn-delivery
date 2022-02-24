@@ -1,5 +1,5 @@
 {
   "Parameters" : {
-    "CorsAllowedDomains" : "https://portale-pa-demo.fe.dev.pn.pagopa.it/,https://portale-demo.fe.dev.pn.pagopa.it/,https://www.uat.pn.pagopa.it"
+    "CorsAllowedDomains" : "http://localhost:8090,https://portale-pa-demo.fe.dev.pn.pagopa.it/,https://portale-demo.fe.dev.pn.pagopa.it/,https://www.uat.pn.pagopa.it"
   }
 }
