@@ -23,7 +23,7 @@ public class PnStatusController {
     public ResponseEntity<ResponseUpdateStatusDto> updateStatus (
             @RequestBody RequestUpdateStatusDto requestDto
     ){
-        log.info("Update status for iun {}", requestDto.getIun());
+        log.info("Starting Update status for iun {}", requestDto.getIun());
         ResponseUpdateStatusDto responseDto = statusService.updateStatus(requestDto);
         return ResponseEntity.ok().body(responseDto);
     }

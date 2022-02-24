@@ -9,6 +9,7 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
@@ -200,8 +201,16 @@ public class NotificationRetrieverService {
 		int numberOfRecipients = notification.getRecipients().size();
 		Instant createdAt =  notification.getSentAt();
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
+		
+		Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
+					 TimelineInfoDto.builder()
+							 .category(elem.getCategory())
+							 .timestamp(elem.getTimestamp())
+							 .build()
+		).collect(Collectors.toSet());
+		
 		List<NotificationStatusHistoryElement>  statusHistory = statusUtils
-							 .getStatusHistory( rawTimeline, numberOfRecipients, createdAt );
+							 .getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
 
 		return notification
 				.toBuilder()

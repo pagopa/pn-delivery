@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
@@ -45,7 +46,7 @@ public class StatusService {
             NotificationEntity notificationEntity = notificationEntityOptional.get();
             log.debug("Notification entity is present {} for iun {}", notificationEntity.getPaNotificationId(), dto.getIun());
 
-            Set<TimelineElement> currentTimeline = dto.getCurrentTimeline();
+            Set<TimelineInfoDto> currentTimeline = dto.getCurrentTimeline();
 
             // - Calcolare lo stato corrente
             NotificationBySenderEntity currentSearchBySenderEntry = computeSearchBySenderEntry(notificationEntity, currentTimeline);
@@ -119,7 +120,7 @@ public class StatusService {
 
     }
 
-    private NotificationBySenderEntity computeSearchBySenderEntry(NotificationEntity notificationEntity, Set<TimelineElement> currentTimeline) {
+    private NotificationBySenderEntity computeSearchBySenderEntry(NotificationEntity notificationEntity, Set<TimelineInfoDto> currentTimeline) {
         int numberOfRecipient = notificationEntity.getRecipientsOrder().size();
         Instant notificationCreatedAt = notificationEntity.getSentAt();
 
@@ -145,7 +146,7 @@ public class StatusService {
                 .build();
     }
 
-    private NotificationByRecipientEntity computeSearchByRecipientEntry(NotificationEntity notificationEntity, Set<TimelineElement> currentTimeline) {
+    private NotificationByRecipientEntity computeSearchByRecipientEntry(NotificationEntity notificationEntity, Set<TimelineInfoDto> currentTimeline) {
         int numberOfRecipient = notificationEntity.getRecipientsOrder().size();
         Instant notificationCreatedAt = notificationEntity.getSentAt();
 

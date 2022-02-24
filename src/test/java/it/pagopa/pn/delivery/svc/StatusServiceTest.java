@@ -1,11 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationPathChooseDetails;
-import it.pagopa.pn.api.dto.notification.timeline.ReceivedDetails;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationByRecipientEntityDao;
 import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationBySenderEntityDao;
@@ -54,34 +51,22 @@ class StatusServiceTest {
                 .build());
         Mockito.when(notificationEntityDao.get(iun)).thenReturn(notification);
 
-        String id1 = "sender_ack";
-        TimelineElement row1 = TimelineElement.builder()
-                .iun(iun)
-                .elementId(id1)
+        TimelineInfoDto row1 = TimelineInfoDto.builder()
                 .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .details(new ReceivedDetails())
-                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                .timestamp(Instant.parse("2021-09-16T15:28:00.00Z"))
                 .build();
-        String id2 = "path_choose";
-        TimelineElement row2 = TimelineElement.builder()
-                .iun(iun)
-                .elementId(id2)
+        TimelineInfoDto row2 = TimelineInfoDto.builder()
                 .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                .details(new NotificationPathChooseDetails())
-                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                .timestamp(Instant.parse("2021-09-16T16:28:00.00Z"))
                 .build();
-        Set<TimelineElement> set = new HashSet<>();
+        Set<TimelineInfoDto> set = new HashSet<>();
         set.add(row1);
         set.add(row2);
 
-        TimelineElement newTimelineElement = TimelineElement.builder()
-                .iun(iun)
-                .elementId(id2)
+        TimelineInfoDto newTimelineElement = TimelineInfoDto.builder()
                 .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
-                .details(new NotificationPathChooseDetails())
-                .timestamp(Instant.ofEpochMilli(System.currentTimeMillis()))
+                .timestamp(Instant.parse("2021-09-16T17:28:00.00Z"))
                 .build();
-
         
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
