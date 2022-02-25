@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -94,11 +95,11 @@ class PnSentReceivedNotificationLegalFactsControllerTest {
 				.body( new InputStreamResource( InputStream.nullInputStream() ));
 
 		// When
-		Mockito.when( svc.downloadLegalFact( IUN, LEGAL_FACT_ID ) ).thenReturn( response );
+		Mockito.when( svc.downloadLegalFact( IUN, LegalFactType.ANALOG_DELIVERY, LEGAL_FACT_ID ) ).thenReturn( response );
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/notifications/sent/" + IUN + "/legalfacts/" + LEGAL_FACT_ID )
+				.uri( "/delivery/notifications/sent/" + IUN + "/legalfacts/" + LegalFactType.ANALOG_DELIVERY + "/" + LEGAL_FACT_ID )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( "X-PagoPA-PN-PA", PA_ID )
@@ -106,7 +107,7 @@ class PnSentReceivedNotificationLegalFactsControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( svc ).downloadLegalFact( IUN, LEGAL_FACT_ID );
+		Mockito.verify( svc ).downloadLegalFact( IUN, LegalFactType.ANALOG_DELIVERY, LEGAL_FACT_ID );
 	}
 
 	@Test
@@ -119,11 +120,11 @@ class PnSentReceivedNotificationLegalFactsControllerTest {
 				.body( new InputStreamResource( InputStream.nullInputStream() ));
 
 		// When
-		Mockito.when( svc.downloadLegalFact( IUN, LEGAL_FACT_ID ) ).thenReturn( response );
+		Mockito.when( svc.downloadLegalFact( IUN, LegalFactType.ANALOG_DELIVERY, LEGAL_FACT_ID ) ).thenReturn( response );
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/notifications/received/" + IUN + "/legalfacts/" + LEGAL_FACT_ID )
+				.uri( "/delivery/notifications/received/" + IUN + "/legalfacts/" + LegalFactType.ANALOG_DELIVERY + "/" + LEGAL_FACT_ID )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.USER_ID_HEADER, USER_ID )
@@ -131,7 +132,7 @@ class PnSentReceivedNotificationLegalFactsControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( svc ).downloadLegalFact( IUN, LEGAL_FACT_ID );
+		Mockito.verify( svc ).downloadLegalFact( IUN, LegalFactType.ANALOG_DELIVERY, LEGAL_FACT_ID );
 	}
 
 	private HttpHeaders headers() {

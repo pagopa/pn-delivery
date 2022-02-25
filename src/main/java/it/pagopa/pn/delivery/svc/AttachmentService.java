@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
@@ -15,7 +16,6 @@ import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.InputStreamResource;
@@ -28,8 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
@@ -41,23 +39,19 @@ import java.util.stream.Collectors;
 public class AttachmentService {
 
     private static final String SHA256_METADATA_NAME = "sha256";
-    private static final String EXTERNAL_CHANNEL_LEGAL_FACT = "extcha";
     public static final String MISSING_EXT_CHA_ATTACHMENT_MESSAGE = "Unable to retrieve paper feedback for iun=%s with id=%s from external channel API";
 
     private final FileStorage fileStorage;
 	private final LegalfactsMetadataUtils legalfactMetadataUtils;
-	private final NotificationReceiverValidator validator;
     private final TimelineDao timelineDao;
     private final ExternalChannelClient externalChannelClient;
 
     public AttachmentService(FileStorage fileStorage,
                              LegalfactsMetadataUtils legalfactMetadataUtils,
-                             NotificationReceiverValidator validator,
                              TimelineDao timelineDao,
                              ExternalChannelClient externalChannelClient) {
         this.fileStorage = fileStorage;
         this.legalfactMetadataUtils = legalfactMetadataUtils;
-        this.validator = validator;
         this.timelineDao = timelineDao;
         this.externalChannelClient = externalChannelClient;
     }
@@ -248,13 +242,12 @@ public class AttachmentService {
                 .collect(Collectors.toList());
         for (TimelineElement paperFeedback : paperFeedbackElements) {
             SendPaperFeedbackDetails feedbackDetails = (SendPaperFeedbackDetails) paperFeedback.getDetails();
-            List<String> attachmentKeys = feedbackDetails.getAttachmentKeys();
+            List<LegalFactsListEntryId> attachmentKeys = paperFeedback.getLegalFactsIds();
             if (attachmentKeys != null) {
-                for (String key : attachmentKeys) {
+                for (LegalFactsListEntryId key : attachmentKeys) {
                     LegalFactsListEntry feedbackLegalFact = LegalFactsListEntry.builder()
                             .iun(iun)
-                            .legalFactId( EXTERNAL_CHANNEL_LEGAL_FACT + key.replace("/", "~") )
-                            .type( LegalFactType.ANALOG_DELIVERY )
+                            .legalFactsId( key )
                             .taxId( feedbackDetails.getTaxId() )
                             .build();
                     result.add( feedbackLegalFact );
@@ -265,8 +258,8 @@ public class AttachmentService {
         return result;
     }
 
-    public ResponseEntity<Resource> loadLegalfact(String iun, String legalfactId ) {
-        if ( legalfactId.startsWith( EXTERNAL_CHANNEL_LEGAL_FACT )) {
+    public ResponseEntity<Resource> loadLegalfact(String iun, LegalFactType type, String legalfactId ) {
+        if ( LegalFactType.ANALOG_DELIVERY.equals( type ) ) {
             return getPaperFeedbackLegalFact(iun, legalfactId);
         } else {
             log.debug( "Retrieve notification attachment Ref for iun={} and legalfactId={}", iun, legalfactId );
@@ -277,8 +270,7 @@ public class AttachmentService {
 
     @NotNull
     private ResponseEntity<Resource> getPaperFeedbackLegalFact(String iun, String legalfactId) {
-        final String attachmentId = legalfactId.replace("~","/")
-                .replaceFirst(EXTERNAL_CHANNEL_LEGAL_FACT, "");
+        final String attachmentId = legalfactId.replace("~","/");
         log.debug( "Retrieve attachment url from External Channel with attachmentId={}", attachmentId );
         String[] response = this.externalChannelClient.getResponseAttachmentUrl( new String[] {attachmentId} );
 

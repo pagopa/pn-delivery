@@ -4,7 +4,9 @@ import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -119,7 +121,6 @@ class NotificationRetrieverServiceTest {
 
         attachmentService = new AttachmentService( fileStorage,
                 legalFactMetadata,
-                Mockito.mock( NotificationReceiverValidator.class ),
                 timelineDao,
                 externalChannelClient);
 
@@ -545,8 +546,10 @@ class NotificationRetrieverServiceTest {
     void listNotificationLegalFactSuccess() {
         //Given
         Set<TimelineElement> timelineElements = new HashSet<>();
-        List<String> attachmentKeys = new ArrayList<>();
-        attachmentKeys.add( KEY );
+        List<LegalFactsListEntryId> attachmentKeys = Collections.singletonList( LegalFactsListEntryId.builder()
+                        .key( KEY )
+                        .type( LegalFactType.ANALOG_DELIVERY )
+                    .build() );
         timelineElements.add( TimelineElement.builder()
                 .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
                         .details(new SendPaperFeedbackDetails (
@@ -554,9 +557,9 @@ class NotificationRetrieverServiceTest {
                                         .taxId( USER_ID )
                                         .build(),
                                 PhysicalAddress.builder().build(),
-                                attachmentKeys ,
                                 Collections.emptyList()
                         ))
+                        .legalFactsIds( attachmentKeys )
                 .build());
 
         //When
@@ -582,7 +585,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when( externalChannelClient.getResponseAttachmentUrl( Mockito.any(String[].class) ))
                 .thenReturn( urls );
-         ResponseEntity<Resource> result = notificationRetrieverService.downloadLegalFact( IUN, EXT_CHA_LEGAL_FACT_ID);
+         ResponseEntity<Resource> result = notificationRetrieverService.downloadLegalFact( IUN, LegalFactType.ANALOG_DELIVERY , EXT_CHA_LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
     }
@@ -606,7 +609,7 @@ class NotificationRetrieverServiceTest {
                 .thenReturn( ref );
         Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString() ))
                 .thenReturn( fileStorageResponse );
-        ResponseEntity<Resource> result = notificationRetrieverService.downloadLegalFact( IUN, LEGAL_FACT_ID);
+        ResponseEntity<Resource> result = notificationRetrieverService.downloadLegalFact( IUN, LegalFactType.SENDER_ACK, LEGAL_FACT_ID);
         //Then
         assertNotNull( result );
     }

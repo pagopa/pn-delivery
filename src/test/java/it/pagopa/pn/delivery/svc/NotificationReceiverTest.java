@@ -93,7 +93,6 @@ class NotificationReceiverTest {
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
 		AttachmentService attachmentSaver = new AttachmentService( fileStorage,
 				new LegalfactsMetadataUtils(),
-				validator,
 				timelineDao,
 				externalChannelClient);
 

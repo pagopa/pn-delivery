@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
@@ -278,7 +279,7 @@ public class NotificationRetrieverService {
 		return attachmentService.listNotificationLegalFacts( iun );
 	}
 
-	public ResponseEntity<Resource> downloadLegalFact(String iun, String legalfactId) {
-		return attachmentService.loadLegalfact( iun, legalfactId );
+	public ResponseEntity<Resource> downloadLegalFact(String iun, LegalFactType type, String legalfactId) {
+		return attachmentService.loadLegalfact( iun, type, legalfactId );
 	}
 }

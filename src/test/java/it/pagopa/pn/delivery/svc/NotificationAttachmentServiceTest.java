@@ -77,7 +77,6 @@ class NotificationAttachmentServiceTest {
         attachmentService = new AttachmentService(
                 fileStorage,
                 legalfactsMetadataUtils,
-                validator,
                 timelineDao,
                 externalChannelClient);
     }

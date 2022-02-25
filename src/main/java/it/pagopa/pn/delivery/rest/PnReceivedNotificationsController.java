@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
 import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
@@ -107,13 +108,14 @@ public class PnReceivedNotificationsController implements
     }
 
     @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH + "/{id}")
+    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH + "/{type}/{id}")
     public ResponseEntity<Resource> getReceivedNotificationLegalFact(
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String userId,
             @PathVariable( name = "iun") String iun,
+            @PathVariable( name = "type") LegalFactType type,
             @PathVariable( name = "id") String legalFactId
     ) {
-        ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact(iun, legalFactId);
+        ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact(iun, type, legalFactId);
         return AttachmentRestUtils.prepareAttachment(resource, iun, legalFactId.replaceFirst("\\.pdf$", ""));
     }
 
