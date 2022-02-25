@@ -49,6 +49,7 @@ public class PnSentNotificationsController implements
             @RequestParam(name = "recipientId", required = false) String recipientId,
             @RequestParam(name = "status", required = false) NotificationStatus status,
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
+            @RequestParam(name = "iunMatch", required = false) String iunMatch,
             @RequestParam(name = "size", required = false) Integer size,
             @RequestParam(name = "nextPagesKey", required = false) String nextPagesKey
     ) {
@@ -61,6 +62,7 @@ public class PnSentNotificationsController implements
                 .filterId(recipientId)
                 .status(status)
                 .subjectRegExp(subjectRegExp)
+                .iunMatch(iunMatch)
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();

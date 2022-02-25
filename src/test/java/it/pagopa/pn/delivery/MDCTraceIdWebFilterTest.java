@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = { "pn.log.trace-id-header=X-Amzn-Trace-Id" })
-public class MDCTraceIdWebFilterTest {
+class MDCTraceIdWebFilterTest {
 
     public static final String MY_HEADER = "Root=1-61b1d38b-752391d8200695e11e2e5bac;";
 
@@ -42,7 +42,7 @@ public class MDCTraceIdWebFilterTest {
     MDCTraceIdWebFilter mdcTraceIdWebFilter;
 
     @Test
-    public void filterTraceIdConfig() {
+    void filterTraceIdConfig() {
 
         MockServerHttpRequest request = MockServerHttpRequest.get("http://localhost")
                 .header("X-Amzn-Trace-Id", MY_HEADER).build();

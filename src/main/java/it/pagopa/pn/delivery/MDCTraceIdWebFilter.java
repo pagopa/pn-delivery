@@ -34,9 +34,7 @@ public class MDCTraceIdWebFilter implements WebFilter {
             }
         };
 
-        Consumer mdcCleaner = (ignored) -> {
-            MDC.remove("trace_id");
-        };
+        Consumer mdcCleaner = ignored -> MDC.remove(MDC_TRACE_ID_KEY);
 
         return webFilterChain.filter(serverWebExchange)
                 .doFirst(mdcSetter)
