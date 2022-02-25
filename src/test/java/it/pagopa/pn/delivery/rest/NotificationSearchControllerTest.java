@@ -24,7 +24,7 @@ class NotificationSearchControllerTest {
     private static final String SENDER_ID = "test";
     private static final Instant START_DATE = Instant.parse("2021-09-17T00:00:00.000Z");
     private static final Instant END_DATE = Instant.parse("2021-09-18T00:00:00.000Z");
-    private static final NotificationStatus STATUS = NotificationStatus.RECEIVED;
+    private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String SUBJECT_REG_EXP = "asd";
 

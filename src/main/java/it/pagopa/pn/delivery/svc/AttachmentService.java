@@ -154,9 +154,6 @@ public class AttachmentService {
 
             updatedAttachment = updateAttachmentMetadata( attachment, versionId, fullKey, fd.getContentType() );
 
-            log.debug( "Check attachment digest START" );
-            checkAttachmentDigests( fd, updatedAttachment.getDigests() );
-            log.debug( "Check attachment digest END" );
         }
         return updatedAttachment;
     }
@@ -188,37 +185,6 @@ public class AttachmentService {
                 .contentType( contentType )
                 .build();
     }
-
-
-    private void checkAttachmentDigests(FileData fd, NotificationAttachment.Digests digests ) {
-        String attachmentKey = fd.getKey();
-
-        try(InputStream contentStream = fd.getContent() ) {
-
-            long startTime = System.currentTimeMillis();
-            log.debug( "Compute sha256 for attachment with key={} START", attachmentKey);
-            String actualSha256 = DigestUtils.sha256Hex( contentStream );
-            long deltaTime = System.currentTimeMillis() - startTime;
-            log.debug( "Compute sha256 for attachment with key={} END in={}ms", attachmentKey, deltaTime );
-
-            startTime = System.currentTimeMillis();
-            log.debug( "Check preload digest for attachment with key={} START", attachmentKey);
-            validator.checkPreloadedDigests(
-                    attachmentKey,
-                    digests,
-                    NotificationAttachment.Digests.builder()
-                            .sha256( actualSha256 )
-                            .build()
-                );
-            log.debug( "Check preload digest for attachment with key={} END in={}ms", attachmentKey,
-                    System.currentTimeMillis() - startTime );
-        } catch (IOException exc) {
-            String msg = "Error validating sha256 for attachment=" + attachmentKey + " version=" + fd.getVersionId();
-            log.error( msg );
-            throw new PnInternalException( msg, exc );
-        }
-    }
-
 
     public ResponseEntity<Resource> loadAttachment(NotificationAttachment.Ref attachmentRef) {
         String attachmentKey = attachmentRef.getKey();
