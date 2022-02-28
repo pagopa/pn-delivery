@@ -204,6 +204,7 @@ public class NotificationRetrieverService {
 		
 		Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
 					 TimelineInfoDto.builder()
+							 .elementId(elem.getElementId())
 							 .category(elem.getCategory())
 							 .timestamp(elem.getTimestamp())
 							 .build()
