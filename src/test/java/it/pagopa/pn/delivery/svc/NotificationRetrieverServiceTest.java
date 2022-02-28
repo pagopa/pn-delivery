@@ -428,6 +428,29 @@ class NotificationRetrieverServiceTest {
     }
 
     @Test
+    void getNotificationInformationSuccessWithTimeline() {
+        //Given
+        Notification notification = newNotificationWithTimeline();
+        Set<TimelineElement> timelineElements = new HashSet<>();
+        timelineElements.add( notification.getTimeline().get(0));
+
+        //When
+        Mockito.when( timelineDao.getTimeline( Mockito.anyString() ))
+                .thenReturn( timelineElements );
+        //When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ))
+                .thenReturn( Optional.of(notification) );
+        Mockito.when( timelineDao.getTimeline( Mockito.anyString()) ).thenReturn( timelineElements );
+        Mockito.when( statusUtils.getStatusHistory( Mockito.anySet(), Mockito.anyInt(), Mockito.any( Instant.class ) ) )
+                .thenReturn( Collections.emptyList() );
+        Notification result = notificationRetrieverService.getNotificationInformation( IUN );
+
+        //Then
+        assertEquals( result, notification );
+    }
+
+
+    @Test
     void getNotificationInformationFailure() {
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ))
@@ -610,6 +633,45 @@ class NotificationRetrieverServiceTest {
         assertNotNull( result );
     }
 
+    private Notification newNotificationWithTimeline( ) {
+        List<String> attachmentKeys = new ArrayList<>();
+        attachmentKeys.add( KEY );
+
+        return Notification.builder()
+                .iun(IUN)
+                .paNotificationId(PA_NOTIFICATION_ID)
+                .subject(SUBJECT)
+                .physicalCommunicationType(ServiceLevelType.SIMPLE_REGISTERED_LETTER)
+                .sender(NotificationSender.builder()
+                        .paId(SENDER_ID)
+                        .build()
+                )
+                .recipients(Collections.singletonList(
+                        NotificationRecipient.builder()
+                                .taxId(USER_ID)
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(DigitalAddress.builder()
+                                        .type(DigitalAddressType.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .build()))
+                .timeline( Collections.singletonList(TimelineElement.builder()
+                        .iun(IUN)
+                        .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
+                        .timestamp(Instant.now())
+                        .details(new SendPaperFeedbackDetails (
+                                SendPaperDetails.builder()
+                                        .taxId( USER_ID )
+                                        .build(),
+                                PhysicalAddress.builder().build(),
+                                attachmentKeys ,
+                                Collections.emptyList()
+                        ))
+                        .build()) )
+                .notificationStatusHistory( Collections.emptyList() )
+                .build();
+    }
+    
     private Notification newNotificationWithoutPayments( ) {
         return Notification.builder()
                 .iun(IUN)
