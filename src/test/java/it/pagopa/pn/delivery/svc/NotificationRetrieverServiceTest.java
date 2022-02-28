@@ -435,12 +435,9 @@ class NotificationRetrieverServiceTest {
         timelineElements.add( notification.getTimeline().get(0));
 
         //When
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString() ))
-                .thenReturn( timelineElements );
-        //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ))
                 .thenReturn( Optional.of(notification) );
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString()) ).thenReturn( timelineElements );
+        Mockito.when( pnDeliveryPushClient.getTimelineElements( Mockito.anyString()) ).thenReturn( timelineElements );
         Mockito.when( statusUtils.getStatusHistory( Mockito.anySet(), Mockito.anyInt(), Mockito.any( Instant.class ) ) )
                 .thenReturn( Collections.emptyList() );
         Notification result = notificationRetrieverService.getNotificationInformation( IUN );
