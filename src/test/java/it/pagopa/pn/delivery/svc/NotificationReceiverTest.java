@@ -22,9 +22,9 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 
@@ -71,7 +71,7 @@ class NotificationReceiverTest {
 
 	private NotificationDao notificationDao;
 	private DirectAccessTokenDao directAccessTokenDao;
-	private TimelineDao timelineDao;
+	private PnDeliveryPushClient pnDeliveryPushClient;
 	private NewNotificationProducer notificationEventProducer;
 	private NotificationReceiverService deliveryService;
 	private FileStorage fileStorage;
@@ -83,7 +83,7 @@ class NotificationReceiverTest {
 
 		notificationDao = Mockito.mock(NotificationDao.class);
 		directAccessTokenDao = Mockito.mock(DirectAccessTokenDao.class);
-		timelineDao = Mockito.mock(TimelineDao.class);
+		pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClient.class);
 		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
 		fileStorage = Mockito.mock( FileStorage.class );
 		externalChannelClient = Mockito.mock( ExternalChannelClient.class );
@@ -94,7 +94,7 @@ class NotificationReceiverTest {
 		AttachmentService attachmentSaver = new AttachmentService( fileStorage,
 				new LegalfactsMetadataUtils(),
 				validator,
-				timelineDao,
+				pnDeliveryPushClient,
 				externalChannelClient);
 
 		deliveryService = new NotificationReceiverService(

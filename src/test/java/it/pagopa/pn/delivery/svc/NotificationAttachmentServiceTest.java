@@ -9,9 +9,9 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +53,7 @@ class NotificationAttachmentServiceTest {
     private FileStorage fileStorage;
     private LegalfactsMetadataUtils legalfactsMetadataUtils;
     private NotificationReceiverValidator validator;
-    private TimelineDao timelineDao;
+    private PnDeliveryPushClient pnDeliveryPushClient;
     private PnDeliveryConfigs cfg;
     private ExternalChannelClient externalChannelClient;
 
@@ -62,7 +62,7 @@ class NotificationAttachmentServiceTest {
         fileStorage = Mockito.mock( FileStorage.class );
         legalfactsMetadataUtils = new LegalfactsMetadataUtils();
         validator = Mockito.mock( NotificationReceiverValidator.class );
-        timelineDao = Mockito.mock(TimelineDao.class);
+        pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClient.class);
         externalChannelClient = Mockito.mock( ExternalChannelClient.class );
 
         /*// - Separate Tests
@@ -78,7 +78,7 @@ class NotificationAttachmentServiceTest {
                 fileStorage,
                 legalfactsMetadataUtils,
                 validator,
-                timelineDao,
+                pnDeliveryPushClient,
                 externalChannelClient);
     }
 

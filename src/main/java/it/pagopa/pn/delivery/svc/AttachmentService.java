@@ -11,11 +11,10 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.InputStreamResource;
@@ -28,8 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
@@ -47,19 +44,19 @@ public class AttachmentService {
     private final FileStorage fileStorage;
 	private final LegalfactsMetadataUtils legalfactMetadataUtils;
 	private final NotificationReceiverValidator validator;
-    private final TimelineDao timelineDao;
     private final ExternalChannelClient externalChannelClient;
-
+    private final PnDeliveryPushClient pnDeliveryPushClient;
+    
     public AttachmentService(FileStorage fileStorage,
                              LegalfactsMetadataUtils legalfactMetadataUtils,
                              NotificationReceiverValidator validator,
-                             TimelineDao timelineDao,
+                             PnDeliveryPushClient pnDeliveryPushClient,
                              ExternalChannelClient externalChannelClient) {
         this.fileStorage = fileStorage;
         this.legalfactMetadataUtils = legalfactMetadataUtils;
         this.validator = validator;
-        this.timelineDao = timelineDao;
         this.externalChannelClient = externalChannelClient;
+        this.pnDeliveryPushClient = pnDeliveryPushClient;
     }
 
     public String buildPreloadFullKey( String paId, String key) {
@@ -241,7 +238,7 @@ public class AttachmentService {
     private List<LegalFactsListEntry> getPaperFeedbackLegalFacts(String iun) {
         List<LegalFactsListEntry> result = new ArrayList<>();
         log.debug( "Retrieve timeline elements for iun={}", iun );
-        Set<TimelineElement> timelineElements = timelineDao.getTimeline(iun);
+        Set<TimelineElement> timelineElements = pnDeliveryPushClient.getTimelineElements(iun);
         List<TimelineElement> paperFeedbackElements = timelineElements
                 .stream()
                 .filter( el -> el.getCategory().equals( TimelineElementCategory.SEND_PAPER_FEEDBACK ))

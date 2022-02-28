@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
@@ -41,6 +42,7 @@ class NotificationSearchControllerTest {
     @Test
     void getSenderSuccess() {
         //Given
+        
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
