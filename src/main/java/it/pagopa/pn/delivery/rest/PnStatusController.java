@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RestController
 public class PnStatusController {
@@ -21,7 +23,7 @@ public class PnStatusController {
 
     @PostMapping(PnDeliveryRestConstants.NOTIFICATION_UPDATE_STATUS_PATH )
     public ResponseEntity<ResponseUpdateStatusDto> updateStatus (
-            @RequestBody RequestUpdateStatusDto requestDto
+            @RequestBody @Valid RequestUpdateStatusDto requestDto
     ){
         log.info("Starting Update status for iun {}", requestDto.getIun());
         ResponseUpdateStatusDto responseDto = statusService.updateStatus(requestDto);
