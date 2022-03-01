@@ -1,5 +1,5 @@
 {
   "Parameters" : {
-    "CorsAllowedDomains" : "http://localhost:8090,https://portale-pa-develop.fe.dev.pn.pagopa.it/,https://portale-develop.fe.dev.pn.pagopa.it/,https://www.dev.pn.pagopa.it"
+    "CorsAllowedDomains" : "http://localhost:8090,https://portale-pa-develop.fe.dev.pn.pagopa.it/,https://portale-pf-develop.fe.dev.pn.pagopa.it/,https://www.dev.pn.pagopa.it"
   }
 }
