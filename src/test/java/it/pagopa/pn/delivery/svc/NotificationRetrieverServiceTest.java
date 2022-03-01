@@ -4,19 +4,24 @@ import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactType;
+import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntryId;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
+import it.pagopa.pn.api.dto.notification.address.PhysicalAddress;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,11 +77,10 @@ class NotificationRetrieverServiceTest {
     private static final Instant END_DATE = Instant.parse( "2021-12-10T00:00:00Z" );
     private static final String DOWNLOAD_URL = "http://fake-download-url";
 
-    private AttachmentService attachmentService;
     private S3PresignedUrlService s3PresignedUrlService;
     private NotificationViewedProducer notificationViewedProducer;
     private NotificationDao notificationDao;
-    private TimelineDao timelineDao;
+    private PnDeliveryPushClient pnDeliveryPushClient;
     private StatusUtils statusUtils;
     private FileStorage fileStorage;
     private NotificationRetrieverService notificationRetrieverService;
@@ -88,7 +92,7 @@ class NotificationRetrieverServiceTest {
         s3PresignedUrlService = Mockito.mock( S3PresignedUrlService.class );
         notificationViewedProducer = Mockito.mock( NotificationViewedProducer.class );
         notificationDao = Mockito.mock( NotificationDao.class );
-        timelineDao = Mockito.mock( TimelineDao.class );
+        pnDeliveryPushClient = Mockito.mock( PnDeliveryPushClient.class );
         statusUtils = Mockito.mock( StatusUtils.class );
         fileStorage = Mockito.mock( FileStorage.class );
 
@@ -98,7 +102,7 @@ class NotificationRetrieverServiceTest {
                 s3PresignedUrlService,
                 notificationViewedProducer,
                 notificationDao,
-                timelineDao,
+                pnDeliveryPushClient,
                 statusUtils);
     }
 
@@ -388,7 +392,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ))
                 .thenReturn( Optional.of(notification) );
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString()) ).thenReturn( Collections.emptySet() );
+        Mockito.when( pnDeliveryPushClient.getTimelineElements( Mockito.anyString()) ).thenReturn( Collections.emptySet() );
         Mockito.when( statusUtils.getStatusHistory( Mockito.anySet(), Mockito.anyInt(), Mockito.any( Instant.class ) ) )
                 .thenReturn( Collections.emptyList() );
         Notification result = notificationRetrieverService.getNotificationInformation( IUN );
@@ -396,6 +400,26 @@ class NotificationRetrieverServiceTest {
         //Then
         assertEquals( result, notification );
     }
+
+    @Test
+    void getNotificationInformationSuccessWithTimeline() {
+        //Given
+        Notification notification = newNotificationWithTimeline();
+        Set<TimelineElement> timelineElements = new HashSet<>();
+        timelineElements.add( notification.getTimeline().get(0));
+
+        //When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ))
+                .thenReturn( Optional.of(notification) );
+        Mockito.when( pnDeliveryPushClient.getTimelineElements( Mockito.anyString()) ).thenReturn( timelineElements );
+        Mockito.when( statusUtils.getStatusHistory( Mockito.anySet(), Mockito.anyInt(), Mockito.any( Instant.class ) ) )
+                .thenReturn( Collections.emptyList() );
+        Notification result = notificationRetrieverService.getNotificationInformation( IUN );
+
+        //Then
+        assertEquals( result, notification );
+    }
+
 
     @Test
     void getNotificationInformationFailure() {
@@ -487,6 +511,41 @@ class NotificationRetrieverServiceTest {
 
         //Then
         assertThrows( PnInternalException.class, todo );
+    }
+
+    private Notification newNotificationWithTimeline( ) {
+        return Notification.builder()
+                .iun(IUN)
+                .paNotificationId(PA_NOTIFICATION_ID)
+                .subject(SUBJECT)
+                .physicalCommunicationType(ServiceLevelType.SIMPLE_REGISTERED_LETTER)
+                .sender(NotificationSender.builder()
+                        .paId(SENDER_ID)
+                        .build()
+                )
+                .recipients(Collections.singletonList(
+                        NotificationRecipient.builder()
+                                .taxId(USER_ID)
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(DigitalAddress.builder()
+                                        .type(DigitalAddressType.PEC)
+                                        .address("account@dominio.it")
+                                        .build())
+                                .build()))
+                .timeline( Collections.singletonList(TimelineElement.builder()
+                        .iun(IUN)
+                        .category( TimelineElementCategory.SEND_PAPER_FEEDBACK )
+                        .timestamp(Instant.now())
+                                        .details( SendPaperFeedbackDetails.sendPaperFeedbackBuilder()
+                                                .newAddress( PhysicalAddress.builder().build() )
+                                                .build()  )
+                                        .legalFactsIds( Collections.singletonList( LegalFactsListEntryId.builder()
+                                                        .type( LegalFactType.ANALOG_DELIVERY )
+                                                        .key( KEY )
+                                                        .build()))
+                        .build()))
+                .notificationStatusHistory( Collections.emptyList() )
+                .build();
     }
 
     private Notification newNotificationWithoutPayments( ) {

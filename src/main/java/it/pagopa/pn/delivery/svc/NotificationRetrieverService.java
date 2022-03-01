@@ -8,14 +8,15 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class NotificationRetrieverService {
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
-	private final TimelineDao timelineDao;
+	private final PnDeliveryPushClient pnDeliveryPushClient;
 	private final StatusUtils statusUtils;
 
 	static final int MAX_KEY_TO_RETURN = 4;
@@ -52,7 +53,7 @@ public class NotificationRetrieverService {
 										S3PresignedUrlService presignedUrlSvc,
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
-										TimelineDao timelineDao,
+										PnDeliveryPushClient pnDeliveryPushClient,
 										StatusUtils statusUtils
 	) {
 		this.fileStorage = fileStorage;
@@ -60,7 +61,7 @@ public class NotificationRetrieverService {
 		this.presignedUrlSvc = presignedUrlSvc;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
-		this.timelineDao = timelineDao;
+		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.statusUtils = statusUtils;
 	}
 	
@@ -191,7 +192,7 @@ public class NotificationRetrieverService {
 
 	private Notification enrichWithTimelineAndStatusHistory(String iun, Notification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
-		Set<TimelineElement> rawTimeline = timelineDao.getTimeline(iun);
+		Set<TimelineElement> rawTimeline = pnDeliveryPushClient.getTimelineElements(iun);
 		List<TimelineElement> timeline = rawTimeline
 				.stream()
 				.sorted( Comparator.comparing( TimelineElement::getTimestamp ))
@@ -200,8 +201,17 @@ public class NotificationRetrieverService {
 		int numberOfRecipients = notification.getRecipients().size();
 		Instant createdAt =  notification.getSentAt();
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
+		
+		Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
+					 TimelineInfoDto.builder()
+							 .elementId(elem.getElementId())
+							 .category(elem.getCategory())
+							 .timestamp(elem.getTimestamp())
+							 .build()
+		).collect(Collectors.toSet());
+		
 		List<NotificationStatusHistoryElement>  statusHistory = statusUtils
-							 .getStatusHistory( rawTimeline, numberOfRecipients, createdAt );
+							 .getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
 
 		return notification
 				.toBuilder()
