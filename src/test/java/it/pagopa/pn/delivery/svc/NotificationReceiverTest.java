@@ -1,15 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Collections;
-
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.*;
@@ -24,14 +15,8 @@ import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
-import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.apache.commons.codec.digest.DigestUtils;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +27,16 @@ import org.springframework.util.Base64Utils;
 
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NotificationReceiverTest {
 
@@ -75,7 +70,6 @@ class NotificationReceiverTest {
 	private NewNotificationProducer notificationEventProducer;
 	private NotificationReceiverService deliveryService;
 	private FileStorage fileStorage;
-	private ExternalChannelClient externalChannelClient;
 
 	@BeforeEach
 	public void setup() {
@@ -86,15 +80,11 @@ class NotificationReceiverTest {
 		timelineDao = Mockito.mock(TimelineDao.class);
 		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
 		fileStorage = Mockito.mock( FileStorage.class );
-		externalChannelClient = Mockito.mock( ExternalChannelClient.class );
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
-		AttachmentService attachmentSaver = new AttachmentService( fileStorage,
-				new LegalfactsMetadataUtils(),
-				timelineDao,
-				externalChannelClient);
+		AttachmentService attachmentSaver = new AttachmentService( fileStorage, timelineDao);
 
 		deliveryService = new NotificationReceiverService(
 				clock,

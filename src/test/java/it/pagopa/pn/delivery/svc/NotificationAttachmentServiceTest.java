@@ -7,28 +7,20 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
-import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NotificationAttachmentServiceTest {
     public static final String ATTACHMENT_BODY_STR = "Body";
@@ -51,19 +43,15 @@ class NotificationAttachmentServiceTest {
 
     private AttachmentService attachmentService;
     private FileStorage fileStorage;
-    private LegalfactsMetadataUtils legalfactsMetadataUtils;
     private NotificationReceiverValidator validator;
     private TimelineDao timelineDao;
     private PnDeliveryConfigs cfg;
-    private ExternalChannelClient externalChannelClient;
 
     @BeforeEach
     public void setup() {
         fileStorage = Mockito.mock( FileStorage.class );
-        legalfactsMetadataUtils = new LegalfactsMetadataUtils();
         validator = Mockito.mock( NotificationReceiverValidator.class );
         timelineDao = Mockito.mock(TimelineDao.class);
-        externalChannelClient = Mockito.mock( ExternalChannelClient.class );
 
         /*// - Separate Tests
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -76,9 +64,7 @@ class NotificationAttachmentServiceTest {
 
         attachmentService = new AttachmentService(
                 fileStorage,
-                legalfactsMetadataUtils,
-                timelineDao,
-                externalChannelClient);
+                timelineDao);
     }
 
     @Test
@@ -91,39 +77,6 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertEquals( "preload/" + paId + "/" + key, result );
-    }
-
-    @Test
-    void loadAttachmentSuccess() {
-        //Given
-        FileData fileData = FileData.builder()
-                .key( KEY )
-                .contentType( "Content/Type" )
-                .contentLength( BASE64_BODY.length() )
-                .content(InputStream.nullInputStream())
-                .build();
-
-        //When
-        Mockito.when(fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString() )).thenReturn( fileData );
-        ResponseEntity<Resource> response = attachmentService.loadAttachment( NOTIFICATION_INLINE_ATTACHMENT.getRef() );
-
-        //Then
-        assertEquals( response.getBody() , new InputStreamResource( fileData.getContent() ));
-        assertTrue( response.getStatusCode().is2xxSuccessful() );
-        assertTrue( response.getHeaders().containsKey( "Content-Length" ) );
-        assertTrue( response.getHeaders().containsKey( "Content-Type" ) );
-    }
-
-    //@Test
-    void listNotificationLegalFacts() {
-        //Given
-        String iun = "iun";
-
-        //When
-        attachmentService.listNotificationLegalFacts( iun );
-
-        //Then
-        Mockito.verify( fileStorage ).getDocumentsListing( Mockito.anyString() );
     }
 
     private Notification newNotificationWithoutPayments( ) {
