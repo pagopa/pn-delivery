@@ -22,12 +22,11 @@ import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.LegalfactsMetadataUtils;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import it.pagopa.pn.delivery.pnclient.externalchannel.ExternalChannelClient;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
-import jnr.ffi.annotations.In;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,7 +96,7 @@ class NotificationRetrieverServiceTest {
     private S3PresignedUrlService s3PresignedUrlService;
     private NotificationViewedProducer notificationViewedProducer;
     private NotificationDao notificationDao;
-    private TimelineDao timelineDao;
+    private PnDeliveryPushClient pnDeliveryPushClient;
     private StatusUtils statusUtils;
     private FileStorage fileStorage;
     private ExternalChannelClient externalChannelClient;
@@ -111,7 +110,7 @@ class NotificationRetrieverServiceTest {
         s3PresignedUrlService = Mockito.mock( S3PresignedUrlService.class );
         notificationViewedProducer = Mockito.mock( NotificationViewedProducer.class );
         notificationDao = Mockito.mock( NotificationDao.class );
-        timelineDao = Mockito.mock( TimelineDao.class );
+        pnDeliveryPushClient = Mockito.mock( PnDeliveryPushClient.class );
         statusUtils = Mockito.mock( StatusUtils.class );
         fileStorage = Mockito.mock( FileStorage.class );
         externalChannelClient = Mockito.mock( ExternalChannelClient.class );
@@ -120,7 +119,7 @@ class NotificationRetrieverServiceTest {
         attachmentService = new AttachmentService( fileStorage,
                 legalFactMetadata,
                 Mockito.mock( NotificationReceiverValidator.class ),
-                timelineDao,
+                pnDeliveryPushClient,
                 externalChannelClient);
 
         notificationRetrieverService = new NotificationRetrieverService(
@@ -129,7 +128,7 @@ class NotificationRetrieverServiceTest {
                 s3PresignedUrlService,
                 notificationViewedProducer,
                 notificationDao,
-                timelineDao,
+                pnDeliveryPushClient,
                 statusUtils);
     }
 
@@ -419,7 +418,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ))
                 .thenReturn( Optional.of(notification) );
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString()) ).thenReturn( Collections.emptySet() );
+        Mockito.when( pnDeliveryPushClient.getTimelineElements( Mockito.anyString()) ).thenReturn( Collections.emptySet() );
         Mockito.when( statusUtils.getStatusHistory( Mockito.anySet(), Mockito.anyInt(), Mockito.any( Instant.class ) ) )
                 .thenReturn( Collections.emptyList() );
         Notification result = notificationRetrieverService.getNotificationInformation( IUN );
@@ -436,12 +435,9 @@ class NotificationRetrieverServiceTest {
         timelineElements.add( notification.getTimeline().get(0));
 
         //When
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString() ))
-                .thenReturn( timelineElements );
-        //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ))
                 .thenReturn( Optional.of(notification) );
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString()) ).thenReturn( timelineElements );
+        Mockito.when( pnDeliveryPushClient.getTimelineElements( Mockito.anyString()) ).thenReturn( timelineElements );
         Mockito.when( statusUtils.getStatusHistory( Mockito.anySet(), Mockito.anyInt(), Mockito.any( Instant.class ) ) )
                 .thenReturn( Collections.emptyList() );
         Notification result = notificationRetrieverService.getNotificationInformation( IUN );
@@ -583,7 +579,7 @@ class NotificationRetrieverServiceTest {
                 .build());
 
         //When
-        Mockito.when( timelineDao.getTimeline( Mockito.anyString() ))
+        Mockito.when( pnDeliveryPushClient.getTimelineElements( Mockito.anyString() ))
                 .thenReturn( timelineElements );
         List<LegalFactsListEntry> legalFactsListEntries = notificationRetrieverService.listNotificationLegalFacts( IUN );
 

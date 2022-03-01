@@ -41,6 +41,7 @@ class NotificationSearchControllerTest {
     @Test
     void getSenderSuccess() {
         //Given
+        
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)

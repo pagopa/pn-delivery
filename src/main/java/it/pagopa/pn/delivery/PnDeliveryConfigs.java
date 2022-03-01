@@ -14,6 +14,8 @@ public class PnDeliveryConfigs {
 
     private String externalChannelBaseUrl;
 
+    private String deliveryPushBaseUrl;
+
     private Topics topics;
 
     private Duration preloadUrlDuration;
