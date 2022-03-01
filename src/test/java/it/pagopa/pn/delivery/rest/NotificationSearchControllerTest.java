@@ -4,7 +4,6 @@ import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
