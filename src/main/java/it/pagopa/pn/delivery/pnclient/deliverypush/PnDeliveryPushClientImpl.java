@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class PnDeliveryPushClientImpl implements PnDeliveryPushClient {
 
     private static final String TIMELINE_PATH ="timelines";
 
-    public PnDeliveryPushClientImpl(RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+    public PnDeliveryPushClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
         this.restTemplate = restTemplate;
         this.cfg = cfg;
     }
