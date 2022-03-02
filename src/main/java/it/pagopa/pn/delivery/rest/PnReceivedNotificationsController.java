@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
@@ -22,13 +21,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.List;
 
 @RestController
 public class PnReceivedNotificationsController implements
         PnDeliveryRestApi_methodGetReceivedNotification,
         PnDeliveryRestApi_methodGetReceivedNotificationDocuments,
-        PnDeliveryRestApi_methodGetReceivedNotificationLegalFacts,
         PnDeliveryRestApi_methodSearchReceivedNotification {
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
@@ -95,26 +92,6 @@ public class PnReceivedNotificationsController implements
             ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
             return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
         }
-    }
-
-    @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH)
-    public List<LegalFactsListEntry> getReceivedNotificationLegalFacts(
-            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String userId,
-            @PathVariable( name = "iun") String iun
-    ) {
-        return retrieveSvc.listNotificationLegalFacts(iun);
-    }
-
-    @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_LEGALFACTS_PATH + "/{id}")
-    public ResponseEntity<Resource> getReceivedNotificationLegalFact(
-            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER ) String userId,
-            @PathVariable( name = "iun") String iun,
-            @PathVariable( name = "id") String legalFactId
-    ) {
-        ResponseEntity<Resource> resource = retrieveSvc.downloadLegalFact(iun, legalFactId);
-        return AttachmentRestUtils.prepareAttachment(resource, iun, legalFactId.replaceFirst("\\.pdf$", ""));
     }
 
     @ExceptionHandler({PnValidationException.class})

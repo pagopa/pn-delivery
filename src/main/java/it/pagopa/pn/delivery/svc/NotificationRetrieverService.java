@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.legalfacts.LegalFactsListEntry;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
@@ -11,6 +10,7 @@ import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
+import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NotificationRetrieverService {
 
-	private final AttachmentService attachmentService;
+	private final FileStorage fileStorage;
 	private final S3PresignedUrlService presignedUrlSvc;
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
@@ -49,15 +49,15 @@ public class NotificationRetrieverService {
 
 	@Autowired
 	public NotificationRetrieverService(Clock clock,
-										AttachmentService attachmentService,
+										FileStorage fileStorage,
 										S3PresignedUrlService presignedUrlSvc,
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClient pnDeliveryPushClient,
 										StatusUtils statusUtils
 	) {
+		this.fileStorage = fileStorage;
 		this.clock = clock;
-		this.attachmentService = attachmentService;
 		this.presignedUrlSvc = presignedUrlSvc;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
@@ -232,7 +232,7 @@ public class NotificationRetrieverService {
 			log.debug("Document download START for iun {} and documentIndex {} ", iun, documentIndex);
 
 			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
-			response = attachmentService.loadAttachment( doc.getRef() );
+			response = fileStorage.loadAttachment( doc.getRef() );
 		} else {
 			log.error("Notification not found for iun {}", iun);
 			throw new PnInternalException("Notification not found for iun " + iun);
@@ -281,14 +281,5 @@ public class NotificationRetrieverService {
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
 		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex );
-	}
-
-
-	public List<LegalFactsListEntry> listNotificationLegalFacts(String iun) {
-		return attachmentService.listNotificationLegalFacts( iun );
-	}
-
-	public ResponseEntity<Resource> downloadLegalFact(String iun, String legalfactId) {
-		return attachmentService.loadLegalfact( iun, legalfactId );
 	}
 }
