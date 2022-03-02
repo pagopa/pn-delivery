@@ -101,6 +101,8 @@ Resources:
           ColumnType: text
         - ColumnName: details
           ColumnType: text
+        - ColumnName: legalFactId
+          ColumnType: text
         - ColumnName: timestamp
           ColumnType: timestamp
 
