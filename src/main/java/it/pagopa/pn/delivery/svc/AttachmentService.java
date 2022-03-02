@@ -5,7 +5,6 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +22,9 @@ public class AttachmentService {
     private static final String SHA256_METADATA_NAME = "sha256";
 
     private final FileStorage fileStorage;
-    private final TimelineDao timelineDao;
 
-    public AttachmentService(FileStorage fileStorage, TimelineDao timelineDao) {
+    public AttachmentService(FileStorage fileStorage) {
         this.fileStorage = fileStorage;
-        this.timelineDao = timelineDao;
     }
 
     public String buildPreloadFullKey( String paId, String key) {

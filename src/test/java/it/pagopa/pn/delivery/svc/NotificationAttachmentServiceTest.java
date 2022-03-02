@@ -8,7 +8,6 @@ import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,27 +43,14 @@ class NotificationAttachmentServiceTest {
     private AttachmentService attachmentService;
     private FileStorage fileStorage;
     private NotificationReceiverValidator validator;
-    private TimelineDao timelineDao;
     private PnDeliveryConfigs cfg;
 
     @BeforeEach
     public void setup() {
         fileStorage = Mockito.mock( FileStorage.class );
         validator = Mockito.mock( NotificationReceiverValidator.class );
-        timelineDao = Mockito.mock(TimelineDao.class);
 
-        /*// - Separate Tests
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
-        AttachmentService attachmentSaver = new AttachmentService( fileStorage,
-                new LegalfactsMetadataUtils(),
-                validator,
-                timelineDao,
-                cfg);*/
-
-        attachmentService = new AttachmentService(
-                fileStorage,
-                timelineDao);
+        attachmentService = new AttachmentService( fileStorage );
     }
 
     @Test

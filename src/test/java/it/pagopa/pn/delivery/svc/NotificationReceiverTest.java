@@ -13,7 +13,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
-import it.pagopa.pn.commons_delivery.middleware.TimelineDao;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -66,7 +65,6 @@ class NotificationReceiverTest {
 
 	private NotificationDao notificationDao;
 	private DirectAccessTokenDao directAccessTokenDao;
-	private TimelineDao timelineDao;
 	private NewNotificationProducer notificationEventProducer;
 	private NotificationReceiverService deliveryService;
 	private FileStorage fileStorage;
@@ -77,14 +75,13 @@ class NotificationReceiverTest {
 
 		notificationDao = Mockito.mock(NotificationDao.class);
 		directAccessTokenDao = Mockito.mock(DirectAccessTokenDao.class);
-		timelineDao = Mockito.mock(TimelineDao.class);
 		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
 		fileStorage = Mockito.mock( FileStorage.class );
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
-		AttachmentService attachmentSaver = new AttachmentService( fileStorage, timelineDao);
+		AttachmentService attachmentSaver = new AttachmentService( fileStorage );
 
 		deliveryService = new NotificationReceiverService(
 				clock,
