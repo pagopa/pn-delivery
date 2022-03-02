@@ -13,13 +13,16 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 @RestController
@@ -85,9 +88,13 @@ public class PnReceivedNotificationsController implements
     ) {
         if(cfg.isDownloadWithPresignedUrl()){
             String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
-            response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-            response.getHeaders().setLocation(URI.create( redirectUrl ));
-            return null;
+            //response.setStatusCode(HttpStatus.OK);
+            //response.getHeaders().setLocation(URI.create( redirectUrl ));
+
+            response.getHeaders().setContentType( MediaType.APPLICATION_JSON );
+            String responseString  = "{ \"url\": \"" + redirectUrl + "\"}";
+            Resource resource = new ByteArrayResource( responseString.getBytes(StandardCharsets.UTF_8) );
+            return ResponseEntity.ok( resource );
         }else {
             ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
             return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );

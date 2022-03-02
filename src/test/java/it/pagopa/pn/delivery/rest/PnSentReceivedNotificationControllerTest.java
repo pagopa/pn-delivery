@@ -111,7 +111,8 @@ class PnSentReceivedNotificationControllerTest {
 				.header( "location" , REDIRECT_URL )
 				.exchange()
 				.expectStatus()
-				.is3xxRedirection();
+				//.is3xxRedirection()
+		        .isOk();
 
 		Mockito.verify( svc ).downloadDocumentWithRedirect( IUN, DOCUMENT_INDEX );
 	}
@@ -133,7 +134,8 @@ class PnSentReceivedNotificationControllerTest {
 				.header( "location" , REDIRECT_URL )
 				.exchange()
 				.expectStatus()
-				.is3xxRedirection();
+				//.is3xxRedirection()
+		        .isOk();
 
 		Mockito.verify( svc ).downloadDocumentWithRedirect( IUN, DOCUMENT_INDEX );
 	}
