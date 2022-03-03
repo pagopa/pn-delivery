@@ -259,6 +259,7 @@ class NotificationReceiverTest {
 				)
 				.recipients( Collections.singletonList(
 						NotificationRecipient.builder()
+								.recipientType( NotificationRecipientType.PF )
 								.taxId("Codice Fiscale 01")
 								.denomination("Nome Cognome/Ragione Sociale")
 								.digitalDomicile(DigitalAddress.builder()
