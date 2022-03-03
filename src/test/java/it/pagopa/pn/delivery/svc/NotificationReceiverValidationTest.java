@@ -9,6 +9,7 @@ import javax.validation.Path;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
+import it.pagopa.pn.api.dto.notification.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +18,6 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.util.Base64Utils;
 
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
@@ -158,9 +154,10 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "documents[0].digests" );
         assertConstraintViolationPresentByField( errors, "documents[0].ref.key" );
         assertConstraintViolationPresentByField( errors, "documents[0].ref.versionToken" );
+        assertConstraintViolationPresentByField( errors, "recipients[0].recipientType" );
         assertConstraintViolationPresentByField( errors, "recipients[0].taxId" );
         assertConstraintViolationPresentByField( errors, "recipients[0].denomination" );
-        Assertions.assertEquals( 5, errors.size() );
+        Assertions.assertEquals( 6, errors.size() );
     }
 
     @Test
@@ -188,9 +185,10 @@ class NotificationReceiverValidationTest {
 
         // THEN
         assertConstraintViolationPresentByField( errors, "documents[0].digests.sha256" );
+        assertConstraintViolationPresentByField( errors, "recipients[0].recipientType" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.address" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.type" );
-        Assertions.assertEquals( 3, errors.size() );
+        Assertions.assertEquals( 4, errors.size() );
     }
 
     @Test
@@ -354,6 +352,7 @@ class NotificationReceiverValidationTest {
                         .build()
                 )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .recipientType( NotificationRecipientType.PF )
                         .taxId( "FiscalCode" )
                         .denomination( "Nome Cognome / Ragione Sociale" )
                         .digitalDomicile( DigitalAddress.builder()
