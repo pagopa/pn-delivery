@@ -206,8 +206,6 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      # Eliminare il nome alla chiusura di https://pagopa.atlassian.net/browse/PN-727
-      BucketName: !Sub '${ProjectName}-notifications-documents-${AWS::AccountId}'
       # No default retention neither legal hold.
       # Can define retention period or legal hold when upload new object or version
       ObjectLockEnabled: true
