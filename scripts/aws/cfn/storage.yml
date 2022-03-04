@@ -206,6 +206,8 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
+      # No default retention neither legal hold.
+      # Can define retention period or legal hold when upload new object or version
       ObjectLockEnabled: true
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
