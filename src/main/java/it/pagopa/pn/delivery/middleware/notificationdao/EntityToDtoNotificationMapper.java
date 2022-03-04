@@ -132,12 +132,12 @@ public class EntityToDtoNotificationMapper {
         List<String> documentsContentTypes = entity.getDocumentsContentTypes();
         List<String> documentsTitles = entity.getDocumentsTitles();
 
-        int lengthShas = documentsDigestsSha256 == null ? 0 : documentsDigestsSha256.size();
-        int lengthKeys = documentsKeys == null ? 0 : documentsKeys.size();
-        int lengthVersionIds = documentsVersionIds == null ? 0 : documentsVersionIds.size();
-        int lengthContentTypes = documentsContentTypes == null ? 0 : documentsContentTypes.size();
-        int lengthTitles = documentsTitles == null ? 0 : documentsTitles.size();
-        if ( lengthShas != lengthKeys || lengthKeys != lengthVersionIds || lengthVersionIds != lengthContentTypes || lengthTitles != lengthContentTypes  ) {
+        int lengthShas = nullSafeGetLength(documentsDigestsSha256);
+        int lengthKeys = nullSafeGetLength(documentsKeys);
+        int lengthVersionIds = nullSafeGetLength(documentsVersionIds);
+        int lengthContentTypes = nullSafeGetLength(documentsContentTypes);
+        int lengthTitles = nullSafeGetLength(documentsTitles);
+        if (areAllEquals(lengthShas, lengthKeys, lengthVersionIds, lengthContentTypes, lengthTitles)) {
             throw new PnInternalException(" Notification entity with iun " + entity.getIun() +
                     " hash different quantity of document versions, sha256s, keys, content types and titles");
         }
@@ -157,6 +157,17 @@ public class EntityToDtoNotificationMapper {
         }
 
         return result;
+    }
+
+    private boolean areAllEquals(int lengthShas, int lengthKeys, int lengthVersionIds, int lengthContentTypes, int lengthTitles) {
+        return lengthShas != lengthKeys
+                || lengthKeys != lengthVersionIds
+                || lengthVersionIds != lengthContentTypes
+                || lengthTitles != lengthContentTypes;
+    }
+
+    private int nullSafeGetLength(List<String> documentsDigestsSha256) {
+        return documentsDigestsSha256 == null ? 0 : documentsDigestsSha256.size();
     }
 
     private List<NotificationRecipient> buildRecipientsList( NotificationEntity entity ) {
