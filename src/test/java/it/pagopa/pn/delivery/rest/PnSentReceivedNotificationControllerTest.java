@@ -68,7 +68,7 @@ class PnSentReceivedNotificationControllerTest {
 			.isOk()
 			.expectBody(Notification.class);
 		
-		Mockito.verify( svc ).getNotificationInformation(IUN);
+		Mockito.verify( svc ).getNotificationInformation(IUN, true);
 	}
 
 	@Test

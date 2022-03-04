@@ -13,8 +13,8 @@ import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons_delivery.middleware.NotificationDao;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import lombok.extern.slf4j.Slf4j;
@@ -153,18 +153,25 @@ public class NotificationRetrieverService {
 	 * @return Notification DTO
 	 * 
 	 */
-	public Notification getNotificationInformation(String iun) {
-		log.debug( "Retrieve notification by iun={} START", iun );
+	public Notification getNotificationInformation(String iun, boolean withTimeline) {
+		log.debug( "Retrieve notification by iun={} withTimeline={} START", iun, withTimeline );
 		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
 			Notification notification = optNotification.get();
-
-			return enrichWithTimelineAndStatusHistory(iun, notification);
+			if (withTimeline) {
+				notification = enrichWithTimelineAndStatusHistory(iun, notification);
+			}
+			return notification;
 		} else {
-			log.debug("Error in retrieving Notification with iun={}", iun);
-			throw new PnInternalException("Error in retrieving Notification with iun " + iun);
+			String msg = String.format( "Error retrieving Notification with iun=%s withTimeline=%b", iun, withTimeline );
+			log.debug( msg );
+			throw new PnInternalException( msg );
 		}
+	}
+
+	public Notification getNotificationInformation(String iun) {
+		return getNotificationInformation( iun, true );
 	}
 
 	/**
