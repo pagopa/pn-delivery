@@ -15,13 +15,11 @@ import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
@@ -75,9 +73,10 @@ public class PnSentNotificationsController implements
     @JsonView(value = NotificationJsonViews.Sent.class )
     public Notification getSentNotification(
             @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
-            @PathVariable( name = "iun") String iun
+            @PathVariable( name = "iun") String iun,
+            @RequestParam( name = "with_timeline", defaultValue = "true", required = false ) boolean withTimeline
     ) {
-        return retrieveSvc.getNotificationInformation( iun );
+            return retrieveSvc.getNotificationInformation( iun, withTimeline );
     }
 
     @Override

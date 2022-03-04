@@ -4,14 +4,13 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationByRecipientEntityDao;
-import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationBySenderEntityDao;
-import it.pagopa.pn.commons_delivery.middleware.notificationdao.CassandraNotificationEntityDao;
 import it.pagopa.pn.commons_delivery.model.notification.cassandra.*;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationByRecipientEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationBySenderEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationEntityDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
