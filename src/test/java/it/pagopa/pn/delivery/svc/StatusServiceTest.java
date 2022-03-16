@@ -9,6 +9,7 @@ import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationByRecipientEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationBySenderEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationEntityDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,11 +23,11 @@ import java.util.*;
 
 class StatusServiceTest {
     @Mock
-    private CassandraNotificationEntityDao notificationEntityDao;
-    @Mock
-    private CassandraNotificationBySenderEntityDao notificationBySenderEntityDao;
-    @Mock
-    private CassandraNotificationByRecipientEntityDao notificationByRecipientEntityDao;
+    private NotificationEntityDao notificationEntityDao;
+    //@Mock
+    //private CassandraNotificationBySenderEntityDao notificationBySenderEntityDao;
+    //@Mock
+    //private CassandraNotificationByRecipientEntityDao notificationByRecipientEntityDao;
 
     private StatusUtils statusUtils = new StatusUtils();
 
@@ -34,7 +35,7 @@ class StatusServiceTest {
 
     @BeforeEach
     public void setup() {
-        statusService = new StatusService(notificationEntityDao, statusUtils, notificationBySenderEntityDao, notificationByRecipientEntityDao);
+        statusService = new StatusService(notificationEntityDao, statusUtils/*, notificationBySenderEntityDao, notificationByRecipientEntityDao*/);
     }
 
 

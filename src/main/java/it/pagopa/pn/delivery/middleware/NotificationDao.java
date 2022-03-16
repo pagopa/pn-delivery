@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface NotificationDao {
 
-    static final String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.delivery-dao";
+    static final String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-dao";
 
     void addNotification(Notification notification) throws IdConflictException;
 

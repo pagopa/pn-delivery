@@ -3,12 +3,10 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.KeyValueStore;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.model.notification.cassandra.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -18,6 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+@Deprecated
 class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
 
     private EntityToDtoNotificationMapper entity2dto;
@@ -36,41 +35,7 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
         dao = specificDao;
     }
 
-    @Override
-    @Test
-    void insertSuccessWithoutPayments() throws IdConflictException {
-        super.insertSuccessWithoutPayments();
-    }
 
-    @Override
-    @Test
-    void insertSuccessWithPaymentsDeliveryMode() throws IdConflictException {
-        super.insertSuccessWithPaymentsDeliveryMode();
-    }
-
-    @Override
-    @Test
-    void insertSuccessWithPaymentsFlat() throws IdConflictException {
-        super.insertSuccessWithPaymentsFlat();
-    }
-
-    @Override
-    @Test
-    void insertSuccessWithPaymentsIuvOnly() throws IdConflictException {
-        super.insertSuccessWithPaymentsIuvOnly();
-    }
-
-    @Override
-    @Test
-    void insertSuccessWithPaymentsNoIuv() throws IdConflictException {
-        super.insertSuccessWithPaymentsNoIuv();
-    }
-
-    @Override
-    @Test
-    void insertFailForIunConflict() throws IdConflictException {
-        super.insertFailForIunConflict();
-    }
 
     @Test
     void testWrongRecipientJson() {
@@ -82,10 +47,10 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> entity2dto.entity2Dto(entity);
+        //Executable todo = () -> entity2dto.entity2Dto(entity);
 
         // THEN
-        Assertions.assertThrows(PnInternalException.class, todo);
+        //Assertions.assertThrows(PnInternalException.class, todo);
     }
 
     @Test
@@ -99,10 +64,10 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> entity2dto.entity2Dto(entity);
+        //Executable todo = () -> entity2dto.entity2Dto(entity);
 
         // THEN
-        Assertions.assertThrows(PnInternalException.class, todo);
+        //Assertions.assertThrows(PnInternalException.class, todo);
     }
 
     @Test
@@ -118,10 +83,10 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> entity2dto.entity2Dto(entity);
+        //Executable todo = () -> entity2dto.entity2Dto(entity);
 
         // THEN
-        Assertions.assertThrows(PnInternalException.class, todo);
+        //Assertions.assertThrows(PnInternalException.class, todo);
     }
 
     @Test
@@ -137,10 +102,10 @@ class CassandraNotificationDaoTest extends AbstractNotificationDaoTest {
                 .build();
 
         // WHEN
-        Executable todo = () -> entity2dto.entity2Dto(entity);
+        //Executable todo = () -> entity2dto.entity2Dto(entity);
 
         // THEN
-        Assertions.assertThrows(PnInternalException.class, todo);
+        //Assertions.assertThrows(PnInternalException.class, todo);
     }
 
     @Test

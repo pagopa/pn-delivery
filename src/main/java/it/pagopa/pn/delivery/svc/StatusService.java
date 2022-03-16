@@ -1,16 +1,16 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
-import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
+import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.model.notification.cassandra.*;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationByRecipientEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationBySenderEntityDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.CassandraNotificationEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationEntityDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +22,17 @@ import java.util.Set;
 @Slf4j
 @Service
 public class StatusService {
-    private final CassandraNotificationEntityDao notificationEntityDao;
+    private final NotificationEntityDao notificationEntityDao;
     private final StatusUtils statusUtils;
-    private final CassandraNotificationBySenderEntityDao notificationBySenderEntityDao;
-    private final CassandraNotificationByRecipientEntityDao notificationByRecipientEntityDao;
+    //private final CassandraNotificationBySenderEntityDao notificationBySenderEntityDao;
+    //private final CassandraNotificationByRecipientEntityDao notificationByRecipientEntityDao;
 
-    public StatusService(CassandraNotificationEntityDao notificationEntityDao, StatusUtils statusUtils,
-                         CassandraNotificationBySenderEntityDao notificationBySenderEntityDao, CassandraNotificationByRecipientEntityDao notificationByRecipientEntityDao) {
+    public StatusService(NotificationEntityDao notificationEntityDao, StatusUtils statusUtils
+                         /*CassandraNotificationBySenderEntityDao notificationBySenderEntityDao, CassandraNotificationByRecipientEntityDao notificationByRecipientEntityDao*/) {
         this.notificationEntityDao = notificationEntityDao;
         this.statusUtils = statusUtils;
-        this.notificationBySenderEntityDao = notificationBySenderEntityDao;
-        this.notificationByRecipientEntityDao = notificationByRecipientEntityDao;
+        //this.notificationBySenderEntityDao = notificationBySenderEntityDao;
+        //this.notificationByRecipientEntityDao = notificationByRecipientEntityDao;
     }
 
 
@@ -65,8 +65,8 @@ public class StatusService {
             // - se i due stati differiscono
             if (!currentState.equals(nextState)) {
                 log.info("Change status from {} to {} for iun {}",currentState, nextState, dto.getIun());
-                addNewSearchEntries(nextSearchBySenderEntry, nextSearchByRecipientEntry, notificationEntity);
-                deleteOldSearchEntries(currentSearchBySenderEntry, currentSearchByRecipientEntry, notificationEntity);
+                //addNewSearchEntries(nextSearchBySenderEntry, nextSearchByRecipientEntry, notificationEntity);
+                //deleteOldSearchEntries(currentSearchBySenderEntry, currentSearchByRecipientEntry, notificationEntity);
             }
 
             responseDto = ResponseUpdateStatusDto.builder()
@@ -81,7 +81,7 @@ public class StatusService {
     }
 
 
-    private void deleteOldSearchEntries(NotificationBySenderEntity nextSearchBySenderEntry, NotificationByRecipientEntity nextSearchByRecipientEntry, NotificationEntity notificationEntity) {
+/*    private void deleteOldSearchEntries(NotificationBySenderEntity nextSearchBySenderEntry, NotificationByRecipientEntity nextSearchByRecipientEntry, NotificationEntity notificationEntity) {
 
         for (String recipientId : notificationEntity.getRecipientsOrder()) {
             notificationBySenderEntityDao.delete(
@@ -96,9 +96,9 @@ public class StatusService {
             );
         }
 
-    }
+    }*/
 
-    private void addNewSearchEntries(NotificationBySenderEntity currentSearchBySenderEntry, NotificationByRecipientEntity currentSearchByRecipientEntry, NotificationEntity notificationEntity) {
+    /*private void addNewSearchEntries(NotificationBySenderEntity currentSearchBySenderEntry, NotificationByRecipientEntity currentSearchByRecipientEntry, NotificationEntity notificationEntity) {
 
         for (String recipientId : notificationEntity.getRecipientsOrder()) {
             notificationBySenderEntityDao.put(currentSearchBySenderEntry.toBuilder()
@@ -117,7 +117,7 @@ public class StatusService {
                     .build());
         }
 
-    }
+    }*/
 
     private NotificationBySenderEntity computeSearchBySenderEntry(NotificationEntity notificationEntity, Set<TimelineInfoDto> currentTimeline) {
         int numberOfRecipient = notificationEntity.getRecipientsOrder().size();

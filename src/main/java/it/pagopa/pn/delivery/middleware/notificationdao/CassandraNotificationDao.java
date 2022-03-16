@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 @Component
 @ConditionalOnProperty(name = NotificationDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.CASSANDRA)
 @Slf4j
+@Deprecated
 public class CassandraNotificationDao implements NotificationDao {
 
     private final CassandraOperations cassandraTemplate;
@@ -63,14 +64,13 @@ public class CassandraNotificationDao implements NotificationDao {
                 .dto2RecipientEntity(notification, NotificationStatus.IN_VALIDATION)
                 .forEach( notificationByRecipientEntityDao::put );
         
-        NotificationEntity entity = dto2entityMapper.dto2Entity(notification);
-        notificationEntityDao.putIfAbsent(entity);
+        it.pagopa.pn.delivery.middleware.model.notification.NotificationEntity entity = dto2entityMapper.dto2Entity(notification);
+        //notificationEntityDao.putIfAbsent(entity);
     }
 
     @Override
     public Optional<Notification> getNotificationByIun(String iun) {
-        return notificationEntityDao.get(iun)
-                .map(entity2dtoMapper::entity2Dto);
+        return Optional.empty();
     }
 
     @Override

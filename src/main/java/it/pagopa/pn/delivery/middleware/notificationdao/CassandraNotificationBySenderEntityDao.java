@@ -11,6 +11,7 @@ import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.stereotype.Component;
 
 @Component
+@Deprecated
 @ConditionalOnProperty( name = NotificationDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.CASSANDRA )
 public class CassandraNotificationBySenderEntityDao extends AbstractCassandraKeyValueStore<NotificationBySenderEntityId, NotificationBySenderEntity> {
 
