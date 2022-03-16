@@ -155,6 +155,20 @@ Resources:
               - cassandra:Select
             Resource:
               - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
+          - Effect: Allow
+              Action:
+                - 'dynamodb:GetItem'
+                - 'dynamodb:Query'
+                - 'dynamodb:PutItem'
+              Resource:
+                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Notifications"
+          - Effect: Allow
+              Action:
+                - 'dynamodb:GetItem'
+                - 'dynamodb:Query'
+                - 'dynamodb:PutItem'
+              Resource:
+                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/NotificationsMetadata"
 
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
