@@ -1,6 +1,8 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.api.dto.InputSearchNotificationDto;
+import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.*;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
@@ -8,16 +10,14 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.model.notification.NotificationMetadataEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -32,7 +32,8 @@ class NotificationDaoDynamoTest {
         DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(objMapper);
         entity2dto = new EntityToDtoNotificationMapper(objMapper);
         NotificationEntityDao<Key,NotificationEntity> entityDao = new EntityDaoMock();
-        dao = new NotificationDaoDynamo( entityDao, dto2Entity, entity2dto );
+        NotificationMetadataEntityDao<Key,NotificationMetadataEntity> metadataEntityDao = new MetadataEntityDaoMock();
+        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto );
     }
 
     @Test
@@ -245,6 +246,34 @@ class NotificationDaoDynamoTest {
         @Override
         public void delete(Key key) {
             storage.remove( key );
+        }
+    }
+
+    private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao<Key,NotificationMetadataEntity> {
+
+        @Override
+        public List<NotificationSearchRow> searchNotificationMetadata(InputSearchNotificationDto inputSearchNotificationDto) {
+            return null;
+        }
+
+        @Override
+        public void put(NotificationMetadataEntity notificationMetadataEntity) {
+
+        }
+
+        @Override
+        public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) throws IdConflictException {
+
+        }
+
+        @Override
+        public Optional<NotificationMetadataEntity> get(Key key) {
+            return Optional.empty();
+        }
+
+        @Override
+        public void delete(Key key) {
+
         }
     }
 

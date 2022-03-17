@@ -117,7 +117,7 @@ class NotificationRetrieverServiceTest {
                         .sentAt( TIMESTAMP )
                         .notificationStatus( NotificationStatus.VIEWED )
                         .iun( IUN )
-                        .recipientId(USER_ID)
+                        .recipientIds(Collections.singletonList(USER_ID))
                         .senderId( SENDER_ID )
                         .build());
 
@@ -152,7 +152,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt( TIMESTAMP )
                 .notificationStatus( NotificationStatus.VIEWED )
                 .iun( IUN )
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId( SENDER_ID )
                 .build());
 
@@ -222,7 +222,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt( TIMESTAMP )
                 .notificationStatus( NotificationStatus.VIEWED )
                 .iun( IUN )
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId( SENDER_ID )
                 .build());
         notificationSearchRowList.add( NotificationSearchRow.builder()
@@ -231,7 +231,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt( TIMESTAMP )
                 .notificationStatus( NotificationStatus.VIEWED )
                 .iun( IUN )
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId( SENDER_ID )
                 .build());
 
@@ -269,7 +269,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt(TIMESTAMP)
                 .notificationStatus(NotificationStatus.VIEWED)
                 .iun(IUN)
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId(SENDER_ID)
                 .build();
         notificationSearchRowList.add(notSearchRow);
@@ -280,7 +280,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt( dateFirstElementNextPage )
                 .notificationStatus( NotificationStatus.VIEWED )
                 .iun( IUN )
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId( SENDER_ID )
                 .build());
         notificationSearchRowList.add(notSearchRow);
@@ -321,7 +321,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt(TIMESTAMP)
                 .notificationStatus(NotificationStatus.VIEWED)
                 .iun(IUN)
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId(SENDER_ID)
                 .build();
         
@@ -333,7 +333,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt( dateFirstElementNextPage )
                 .notificationStatus( NotificationStatus.VIEWED )
                 .iun( IUN )
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId( SENDER_ID )
                 .build());
         notificationSearchRowList.add(notSearchRow);
@@ -343,7 +343,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt( dateSecondElementNextPage )
                 .notificationStatus( NotificationStatus.VIEWED )
                 .iun( IUN )
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId( SENDER_ID )
                 .build());
         notificationSearchRowList.add(notSearchRow);
@@ -353,7 +353,7 @@ class NotificationRetrieverServiceTest {
                 .sentAt( dateThirdElementNextPage )
                 .notificationStatus( NotificationStatus.VIEWED )
                 .iun( IUN )
-                .recipientId(USER_ID)
+                .recipientIds(Collections.singletonList(USER_ID))
                 .senderId( SENDER_ID )
                 .build());
         notificationSearchRowList.add(notSearchRow);

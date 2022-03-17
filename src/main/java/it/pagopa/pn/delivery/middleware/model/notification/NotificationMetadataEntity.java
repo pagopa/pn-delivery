@@ -1,12 +1,18 @@
 package it.pagopa.pn.delivery.middleware.model.notification;
 
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import lombok.*;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@DynamoDbBean
 public class NotificationMetadataEntity {
 
     public static final String NOTIFICATIONS_METADATA_TABLE_NAME = "NotificationsMetadata";
@@ -14,7 +20,7 @@ public class NotificationMetadataEntity {
     private String iun_recipientId;
     private Instant sentAt;
     private String senderId;
-    private String recipientId;
+    private List<String> recipientIds;
     private boolean recipientOne;
     private String notificationGroup;
     private String notificationStatus;
@@ -22,6 +28,7 @@ public class NotificationMetadataEntity {
     private String senderId_creationMonth;
     private String recipientId_creationMonth;
     private String senderId_recipientId;
+
 
     @DynamoDbPartitionKey
     public String getIun_recipientId() {
@@ -33,6 +40,7 @@ public class NotificationMetadataEntity {
     }
 
     @DynamoDbSortKey
+    @DynamoDbSecondarySortKey( indexNames = { "senderId", "senderId_recipientId", "recipientId" })
     @DynamoDbAttribute(value = "sentAt")
     public Instant getSentAt() {
         return sentAt;
@@ -51,13 +59,13 @@ public class NotificationMetadataEntity {
         this.senderId = senderId;
     }
 
-    @DynamoDbAttribute(value = "recipientId")
-    public String getRecipientId() {
-        return recipientId;
+    @DynamoDbAttribute(value = "recipientIds")
+    public List<String> getRecipientIds() {
+        return recipientIds;
     }
 
-    public void setRecipientId(String recipientId) {
-        this.recipientId = recipientId;
+    public void setRecipientIds(List<String> recipientIds) {
+        this.recipientIds = recipientIds;
     }
 
     @DynamoDbAttribute(value = "recipientOne")
@@ -96,6 +104,7 @@ public class NotificationMetadataEntity {
         this.tableRow = tableRow;
     }
 
+    @DynamoDbSecondaryPartitionKey(indexNames = { "senderId" })
     @DynamoDbAttribute(value = "senderId_creationMonth")
     public String getSenderId_creationMonth() {
         return senderId_creationMonth;
@@ -105,6 +114,7 @@ public class NotificationMetadataEntity {
         this.senderId_creationMonth = senderId_creationMonth;
     }
 
+    @DynamoDbSecondaryPartitionKey(indexNames = { "recipientId" })
     @DynamoDbAttribute(value = "recipientId_creationMonth")
     public String getRecipientId_creationMonth() {
         return recipientId_creationMonth;
@@ -114,6 +124,7 @@ public class NotificationMetadataEntity {
         this.recipientId_creationMonth = recipientId_creationMonth;
     }
 
+    @DynamoDbSecondaryPartitionKey(indexNames = { "senderId_recipientId" })
     @DynamoDbAttribute(value = "senderId_recipientId")
     public String getSenderId_recipientId() {
         return senderId_recipientId;

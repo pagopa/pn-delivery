@@ -7,7 +7,10 @@ import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.rest.*;
+import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodGetReceivedNotification;
+import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodGetReceivedNotificationDocuments;
+import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodSearchReceivedNotification;
+import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
@@ -15,13 +18,11 @@ import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 

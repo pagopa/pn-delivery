@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.model.notification.NotificationMetadataEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -24,14 +25,16 @@ import java.util.regex.Pattern;
 public class NotificationDaoDynamo implements NotificationDao {
 
     private final NotificationEntityDao<Key,NotificationEntity> entityDao;
+    private final NotificationMetadataEntityDao<Key,NotificationMetadataEntity> metadataEntityDao;
     private final DtoToEntityNotificationMapper dto2entityMapper;
     private final EntityToDtoNotificationMapper entity2DtoMapper;
 
     public NotificationDaoDynamo(
-            NotificationEntityDao<Key,NotificationEntity> entityDao,
-            DtoToEntityNotificationMapper dto2entityMapper,
+            NotificationEntityDao<Key, NotificationEntity> entityDao,
+            NotificationMetadataEntityDao<Key, NotificationMetadataEntity> metadataEntityDao, DtoToEntityNotificationMapper dto2entityMapper,
             EntityToDtoNotificationMapper entity2DtoMapper) {
         this.entityDao = entityDao;
+        this.metadataEntityDao = metadataEntityDao;
         this.dto2entityMapper = dto2entityMapper;
         this.entity2DtoMapper = entity2DtoMapper;
     }
@@ -54,7 +57,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 
     @Override
     public List<NotificationSearchRow> searchNotification(InputSearchNotificationDto inputSearchNotificationDto) {
-        return null;
+        return metadataEntityDao.searchNotificationMetadata( inputSearchNotificationDto );
     }
 
     Predicate<String> buildRegexpPredicate(String subjectRegExp) {

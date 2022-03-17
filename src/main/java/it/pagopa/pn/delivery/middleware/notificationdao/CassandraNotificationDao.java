@@ -73,7 +73,7 @@ public class CassandraNotificationDao implements NotificationDao {
         return Optional.empty();
     }
 
-    @Override
+
     public List<NotificationSearchRow> searchNotification(InputSearchNotificationDto searchDto) {
         Predicate<String> matchSubject = buildRegexpPredicate(searchDto.getSubjectRegExp());
         Predicate<String> matchFilter = buildEqualsPredicate(searchDto.getFilterId());
@@ -91,12 +91,12 @@ public class CassandraNotificationDao implements NotificationDao {
             }
         }
         
-        return result.stream()
+        return Collections.emptyList(); /*result.stream()
                 .filter(row -> matchFilter.test(searchDto.isBySender() ? row.getRecipientId() : row.getSenderId()))
                 .filter(row -> matchSubject.test(row.getSubject()))
                 .filter(row -> matchIun.test(row.getIun()))
                 .sorted(Comparator.comparing(NotificationSearchRow::getSentAt))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
     }
 
     Predicate<String> buildRegexpPredicate(String subjectRegExp) {
@@ -131,7 +131,7 @@ public class CassandraNotificationDao implements NotificationDao {
                             .sentAt(entity.getNotificationBySenderId().getSentat())
                             .senderId(entity.getNotificationBySenderId().getSenderId())
                             .notificationStatus(entity.getNotificationBySenderId().getNotificationStatus())
-                            .recipientId(entity.getNotificationBySenderId().getRecipientId())
+                            //.recipientId(entity.getNotificationBySenderId().getRecipientId())
                             .paNotificationId(entity.getPaNotificationId())
                             .subject(entity.getSubject())
                             .build()
@@ -144,7 +144,7 @@ public class CassandraNotificationDao implements NotificationDao {
                             .sentAt(entity.getNotificationByRecipientId().getSentat())
                             .senderId(entity.getNotificationByRecipientId().getSenderId())
                             .notificationStatus(entity.getNotificationByRecipientId().getNotificationStatus())
-                            .recipientId(entity.getNotificationByRecipientId().getRecipientId())
+                            //.recipientId(entity.getNotificationByRecipientId().getRecipientId())
                             .paNotificationId(entity.getPaNotificationId())
                             .subject(entity.getSubject())
                             .build()

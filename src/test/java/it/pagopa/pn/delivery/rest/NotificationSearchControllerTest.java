@@ -47,7 +47,7 @@ class NotificationSearchControllerTest {
                 .notificationStatus(STATUS)
                 .senderId(SENDER_ID)
                 .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
-                .recipientId(RECIPIENT_ID)
+                .recipientIds(Collections.singletonList(RECIPIENT_ID))
                 .paNotificationId("123")
                 .subject("asdasd")
                 .build();
@@ -102,7 +102,7 @@ class NotificationSearchControllerTest {
                 .notificationStatus(STATUS)
                 .senderId(SENDER_ID)
                 .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
-                .recipientId(RECIPIENT_ID)
+                .recipientIds(Collections.singletonList(RECIPIENT_ID))
                 .paNotificationId("123")
                 .subject("asdasd")
                 .build();
