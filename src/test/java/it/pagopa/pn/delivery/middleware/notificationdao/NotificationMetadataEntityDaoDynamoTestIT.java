@@ -2,10 +2,12 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,12 +16,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,12 +42,31 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-16T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-03-18T00:00:00.00Z" ) )
-                .senderReceiverId( "SenderId" )
+                .startDate( Instant.parse( "2022-02-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
+                .senderReceiverId( "MI" )
+                .size( 10 )
+                .nextPagesKey( null )
                 .build();
+        List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
+        PnLastEvaluatedKey lastEvaluatedKey = null;
+        do {
+            ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result =  notificationMetadataEntityDao.searchNotificationMetadata( inputSearch, lastEvaluatedKey );
+            if (!result.getNextPagesKey().isEmpty() ) {
+                lastEvaluatedKey = result.getNextPagesKey().get( 0 );
+            } else {
+                lastEvaluatedKey = null;
+            }
+            resultList.add( result );
+        } while (lastEvaluatedKey !=null);
+        /*Map<String, AttributeValue> internalLastEvaluatedKey = new HashMap<>();
+        internalLastEvaluatedKey.put( "iun_recipientId", AttributeValue.builder().s( "0020##PF003" ).build() );
+        internalLastEvaluatedKey.put( "sentAt", AttributeValue.builder().s( "2022-03-20T20:20:20Z" ).build() );
+        internalLastEvaluatedKey.put( "senderId_creationMonth", AttributeValue.builder().s( "MI##202203" ).build() );
 
-        List<NotificationSearchRow> result = notificationMetadataEntityDao.searchNotificationMetadata( inputSearch );
+        PnLastEvaluatedKey pnLastEvaluatedKey = new PnLastEvaluatedKey();
+        pnLastEvaluatedKey.setExternalLastEvaluatedKey( "MI##202203" );
+        pnLastEvaluatedKey.setInternalLastEvaluatedKey( internalLastEvaluatedKey );*/
     }
 
     @Test
@@ -55,12 +74,24 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( false )
-                .startDate( Instant.parse( "2022-03-16T00:00:00.00Z" ) )
+                .startDate( Instant.parse( "2022-02-16T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-03-18T00:00:00.00Z" ) )
-                .senderReceiverId( "RecipientId" )
+                .senderReceiverId( "PF003" )
+                .size( 10 )
+                .nextPagesKey( null )
                 .build();
 
-        List<NotificationSearchRow> result = notificationMetadataEntityDao.searchNotificationMetadata( inputSearch );
+        List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
+        PnLastEvaluatedKey lastEvaluatedKey = null;
+        do {
+            ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result =  notificationMetadataEntityDao.searchNotificationMetadata( inputSearch, lastEvaluatedKey );
+            if (!result.getNextPagesKey().isEmpty() ) {
+                lastEvaluatedKey = result.getNextPagesKey().get( 0 );
+            } else {
+                lastEvaluatedKey = null;
+            }
+            resultList.add( result );
+        } while (lastEvaluatedKey !=null);
     }
 
     @Test
@@ -68,13 +99,24 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-16T00:00:00.00Z" ) )
+                .startDate( Instant.parse( "2022-02-16T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-03-18T00:00:00.00Z" ) )
-                .senderReceiverId( "SenderId" )
-                .status( NotificationStatus.ACCEPTED )
+                .senderReceiverId( "MI" )
+                .size( 10 )
+                .status( NotificationStatus.DELIVERED )
                 .build();
 
-        List<NotificationSearchRow> result = notificationMetadataEntityDao.searchNotificationMetadata( inputSearch );
+        List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
+        PnLastEvaluatedKey lastEvaluatedKey = null;
+        do {
+            ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result =  notificationMetadataEntityDao.searchNotificationMetadata( inputSearch, lastEvaluatedKey );
+            if (!result.getNextPagesKey().isEmpty() ) {
+                lastEvaluatedKey = result.getNextPagesKey().get( 0 );
+            } else {
+                lastEvaluatedKey = null;
+            }
+            resultList.add( result );
+        } while (lastEvaluatedKey !=null);
     }
 
     @Test
@@ -94,7 +136,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .groups( groupList  )
                 .build();
 
-        List<NotificationSearchRow> result = notificationMetadataEntityDao.searchNotificationMetadata( inputSearch );
+        //List<NotificationSearchRow> result = notificationMetadataEntityDao.searchNotificationMetadata( inputSearch );
     }
 
     @Test
@@ -117,6 +159,10 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     }
 
     private NotificationMetadataEntity newNotificationMetadata() {
+        Map<String,String> tableRowMap = new HashMap<>();
+        tableRowMap.put( "iun", "IUN" );
+        tableRowMap.put( "recipientsIds", "[PF003]" );
+        tableRowMap.put( "subject", "Notifica IUN" );
         return NotificationMetadataEntity.builder()
                 .iun_recipientId( "IUN##RecipientId" )
                 .notificationGroup( "NotificationGroup1" )
@@ -128,7 +174,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .senderId_creationMonth("SenderId##202203")
                 .senderId_recipientId( "SenderId##RecipientId" )
                 .sentAt( Instant.parse( "2022-03-17T17:51:00.00Z" ) )
-                //.tableRow(  )
+                .tableRow( tableRowMap )
                 .build();
     }
 }

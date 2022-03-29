@@ -3,14 +3,17 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.*;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -252,7 +255,7 @@ class NotificationDaoDynamoTest {
     private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao<Key,NotificationMetadataEntity> {
 
         @Override
-        public List<NotificationSearchRow> searchNotificationMetadata(InputSearchNotificationDto inputSearchNotificationDto) {
+        public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchNotificationMetadata(InputSearchNotificationDto inputSearchNotificationDto, PnLastEvaluatedKey lastEvaluatedKey) {
             return null;
         }
 

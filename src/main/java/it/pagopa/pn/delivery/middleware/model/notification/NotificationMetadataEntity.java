@@ -20,6 +20,7 @@ public class NotificationMetadataEntity {
     private String iun_recipientId;
     private Instant sentAt;
     private String senderId;
+    private String recipientId;
     private List<String> recipientIds;
     private boolean recipientOne;
     private String notificationGroup;
@@ -57,6 +58,13 @@ public class NotificationMetadataEntity {
 
     public void setSenderId(String senderId) {
         this.senderId = senderId;
+    }
+
+    @DynamoDbAttribute(value = "recipientId")
+    public String getRecipientId() { return recipientId; }
+
+    public void setRecipientId(String recipientId) {
+        this.recipientId = recipientId;
     }
 
     @DynamoDbAttribute(value = "recipientIds")

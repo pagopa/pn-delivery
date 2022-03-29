@@ -15,7 +15,7 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
-import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -42,7 +42,7 @@ public class PnReceivedNotificationsController implements
 
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
-    public ResultPaginationDto<NotificationSearchRow> searchReceivedNotification(
+    public ResultPaginationDto<NotificationSearchRow,String> searchReceivedNotification(
             @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String recipientId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,

@@ -2,18 +2,19 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
+import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -56,8 +57,8 @@ public class NotificationDaoDynamo implements NotificationDao {
     }
 
     @Override
-    public List<NotificationSearchRow> searchNotification(InputSearchNotificationDto inputSearchNotificationDto) {
-        return metadataEntityDao.searchNotificationMetadata( inputSearchNotificationDto );
+    public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchNotification(InputSearchNotificationDto inputSearchNotificationDto, PnLastEvaluatedKey lastEvaluatedKey) {
+        return metadataEntityDao.searchNotificationMetadata( inputSearchNotificationDto, lastEvaluatedKey );
     }
 
     Predicate<String> buildRegexpPredicate(String subjectRegExp) {

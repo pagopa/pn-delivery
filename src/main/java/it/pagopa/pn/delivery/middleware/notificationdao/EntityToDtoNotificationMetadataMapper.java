@@ -12,8 +12,10 @@ public class EntityToDtoNotificationMetadataMapper {
         return NotificationSearchRow.builder()
                 .iun( entity.getIun_recipientId().substring(0 ,entity.getIun_recipientId().indexOf("##")) )
                 .senderId( entity.getSenderId() )
-                .recipientIds( entity.getRecipientIds() )
+                .recipientId( entity.getRecipientId() )
                 .sentAt( entity.getSentAt() )
+                .subject( entity.getTableRow().get( "subject" ) )
+                //.paNotificationId(  ) //TODO non presente in NotificationMetadataEntity aggiungerla nel TableRow ??
                 .notificationStatus( NotificationStatus.valueOf( entity.getNotificationStatus() ))
                 .build();
     }

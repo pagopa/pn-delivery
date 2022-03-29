@@ -6,7 +6,8 @@ import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,16 +48,17 @@ class NotificationSearchControllerTest {
                 .notificationStatus(STATUS)
                 .senderId(SENDER_ID)
                 .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
-                .recipientIds(Collections.singletonList(RECIPIENT_ID))
+                .recipientId(RECIPIENT_ID)
                 .paNotificationId("123")
                 .subject("asdasd")
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow> result =
-        ResultPaginationDto.<NotificationSearchRow>builder()
+        ResultPaginationDto<NotificationSearchRow,String> result =
+        ResultPaginationDto.<NotificationSearchRow,String>builder()
                 .result(Collections.singletonList(searchRow))
                 .moreResult(false)
-                .nextPagesKey(null).build();
+                .nextPagesKey(Collections.singletonList( null ))
+                .build();
         
         //When
         Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
@@ -102,13 +104,13 @@ class NotificationSearchControllerTest {
                 .notificationStatus(STATUS)
                 .senderId(SENDER_ID)
                 .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
-                .recipientIds(Collections.singletonList(RECIPIENT_ID))
+                .recipientId(RECIPIENT_ID)
                 .paNotificationId("123")
                 .subject("asdasd")
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow> result =
-                ResultPaginationDto.<NotificationSearchRow>builder()
+        ResultPaginationDto<NotificationSearchRow,String> result =
+                ResultPaginationDto.<NotificationSearchRow,String>builder()
                         .result(Collections.singletonList(searchRow))
                         .moreResult(false)
                         .nextPagesKey(null).build();
