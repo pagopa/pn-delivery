@@ -1,0 +1,2238 @@
+
+openapi: 3.0.1
+info:
+  title: OpenAPI definition for PN
+  description: Sistema di notifica a valore legale per l'invio di atti a qualsiasi persona fisica o giuridica, ente o associazione dotati di codice fiscale.
+  version: v1.0
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+- url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080
+  description: Generated server url
+paths:
+  "/delivery/notifications/sent":
+    get:    
+      summary: servizio di consultazione dello stato di invio delle notifiche individuate dai parametri di rcerca specificati
+      tags:
+      - pn-sent-notifications-controller
+      operationId: searchSentNotification
+      parameters:
+      
+      - name: X-PagoPA-PN-PA
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: startDate
+        in: query
+        required: true
+        description: data/ora di inizio dell'intervallo entro cui eseguire la ricercva
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        required: true
+        description: data/ora di fine dell'intervallo entro cui eseguire la ricercva
+        schema:
+          type: string
+          format: date-time
+      - name: recipientId
+        in: query
+        required: false
+        description: identificativo del destinatario
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: stato della notifica
+        schema:
+          type: string
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+      - name: subjectRegExp
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: iunMatch
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: nextPagesKey
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/ResultPaginationDtoNotificationSearchRow"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request       
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'      
+    post:
+      summary: servizio per richiedere l'invio di notifiche
+      tags:
+      - pn-notification-input-controller
+      operationId: receiveNotification
+      parameters:
+      - name: X-PagoPA-PN-PA
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/NotificationInfo"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                 "$ref": "#/components/schemas/NotificationResponse"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'                    
+  
+  "/delivery/attachments/preload":
+    post:
+      summary: servizio di precaricamento dei documenti firmati da notificare
+      tags:
+      - pn-notification-input-controller
+      operationId: presignedUploadRequest
+      parameters:
+      - name: X-PagoPA-PN-PA
+        in: header
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                "$ref": "#/components/schemas/PreloadRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/PreloadResponse"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'                    
+
+  "/delivery-private/notifications/update-status":
+    post:
+      summary: servizio per l'aggiornamento dello stato di invio della notifica
+      tags:
+      - pn-status-controller
+      operationId: updateStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestUpdateStatusDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/ResponseUpdateStatusDto"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/":
+    get:
+      summary: servizi offerti da PN Delivery
+      tags:
+      - home-controller
+      operationId: home
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/notifications/sent/{iun}":
+    get:
+      summary: servizio di consultazione dello stato di invio della notifica <specificata da <iun>
+      tags:
+      - pn-sent-notifications-controller
+      operationId: getSentNotification
+      parameters:
+      - name: X-PagoPA-PN-PA
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: iun
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: with_timeline
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Notification_Sent"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/notifications/sent/{iun}/documents/{documentIndex}":
+    get:
+      summary: servizio di lettura del documento <documentIndex> che appartiene alla notifica <iun>
+      tags:
+      - pn-sent-notifications-controller
+      operationId: getSentNotificationDocument
+      parameters:
+      - name: X-PagoPA-PN-PA
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: iun
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: documentIndex
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/delivery/notifications/received":
+    get:
+      summary: TODO
+      tags:
+      - pn-received-notifications-controller
+      operationId: searchReceivedNotification
+      parameters:
+      - name: X-PagoPA-User-Id
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: startDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: senderId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+      - name: subjectRegExp
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: iunMatch
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: nextPagesKey
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/ResultPaginationDtoNotificationSearchRow"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/notifications/received/{iun}":
+    get:
+      summary: TODO
+      tags:
+      - pn-received-notifications-controller
+      operationId: getReceivedNotification
+      parameters:
+      - name: X-PagoPA-User-Id
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: iun
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Notification_Sent"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/delivery/notifications/received/{iun}/documents/{documentIndex}":
+    get:
+      summary: TODO
+      tags:
+      - pn-received-notifications-controller
+      operationId: getReceivedNotificationDocument
+      parameters:
+      - name: X-PagoPA-User-Id
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: iun
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: documentIndex
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/delivery/notifications/paper-failed":
+    get:
+      summary: TODO
+      tags:
+      - pn-paper-notification-failed-controller
+      operationId: searchPaperNotificationsFailed
+      parameters:
+      - name: recipientId
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/PaperNotificationFailed"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/delivery/direct_access":
+    get:
+      summary: TODO
+      tags:
+      - pn-direct-access-controller
+      operationId: directAccessChallenge
+      parameters:
+      - name: user_secret
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: token
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/DirectAccessToken"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/delivery-private/notifications/{iun}":
+    get:
+      summary: TODO
+      tags:
+      - pn-internal-notifications-controller
+      operationId: getSentNotification_1
+      parameters:
+      - name: iun
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                "$ref": "#/components/schemas/Notification"
+        '401':
+          description: Unauthorized
+          x-noqa: RFC6749
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+components:
+  schemas:
+    Digests_New:
+      required:
+      - sha256
+      type: object
+      properties:
+        sha256:
+          type: string
+          description: Digest "sha256" della codifica binaria dell'allegato
+      description: codice di controllo del allegato
+    F24_New:
+      type: object
+      properties:
+        flatRate:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        digital:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        digital_RS:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        analog_AR_single:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        analog_AR_double:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        analog_890_single:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        analog_890_double:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        analog_AR_RI:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        analog_890_RI:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+        analog_RI_double:
+          "$ref": "#/components/schemas/NotificationAttachment_New"
+      description: Moduli di pagamento F24
+    NotificationAttachment_New:
+      required:
+      - digests
+      type: object
+      properties:
+        digests:
+          "$ref": "#/components/schemas/Digests_New"
+        contentType:
+          type: string
+          description: tipo di contenuto dell'allegato
+        title:
+          type: string
+          description: Titolo del documento allegato
+        body:
+          type: string
+          description: corpo dell'allegato
+        ref:
+          "$ref": "#/components/schemas/Ref_New"
+      description: Modulo F24 per spese di notifica analogica
+    NotificationPaymentInfo_New:
+      type: object
+      properties:
+        iuv:
+          type: string
+          description: Identificativo Univoco del Versamento
+        notificationFeePolicy:
+          type: string
+          description: Politica di addebitamento dei costi di notifica
+          enum:
+          - FLAT_RATE
+          - DELIVERY_MODE
+        f24:
+          "$ref": "#/components/schemas/F24_New"
+      description: Informazioni per effttuare il pagamento
+    NotificationRecipient_New:
+      required:
+      - denomination
+      - recipientType
+      - taxId
+      type: object
+      properties:
+        recipientType:
+          type: string
+          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)'
+          enum:
+          - PF
+          - PG
+        taxId:
+          type: string
+          description: Codice Fiscale del destinatario
+        denomination:
+          type: string
+          description: Nome e cognome / ragione sociale
+        digitalDomicile:
+          "$ref": "#/components/schemas/DigitalAddress"
+        physicalAddress:
+          "$ref": "#/components/schemas/PhysicalAddress_New"
+        token:
+          type: string
+        payment:
+            "$ref": "#/components/schemas/NotificationPaymentInfo_New"
+      description: Informazioni sui destinatari
+    NotificationInfo:
+      required:
+      - documents
+      - paNotificationId
+      - physicalCommunicationType
+      - recipients
+      - subject
+      type: object
+      properties:
+        paNotificationId:
+          type: string
+          description: Numero di protocollo che la PA mittente assegna alla notifica
+            stessa
+        subject:
+          type: string
+          description: titolo della notifica
+        cancelledIun:
+          type: string
+          description: IUN della notifica rettificata da questa notifica
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            "$ref": "#/components/schemas/NotificationRecipient_New"
+        documents:
+          type: array
+          description: Documenti notificati e lettere di accompagnamento
+          items:
+            "$ref": "#/components/schemas/NotificationAttachment_New"
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+          - SIMPLE_REGISTERED_LETTER
+          - REGISTERED_LETTER_890
+      description: Le notifiche di Piattaforma Notifiche
+      externalDocs:
+        description: MarkDown
+        url: http://google.it/
+    PhysicalAddress_New:
+      type: object
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune in cui l'indirizzo si trova
+        province:
+          type: string
+          description: Provincia in cui si trova l'indirizzo
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+      description: indirizzo fisico del destinatario
+    Ref_New:
+      required:
+      - key
+      - versionToken
+      type: object
+      properties:
+        key:
+          type: string
+          description: Chiave in cui è stato salvato l'allegato
+        versionToken:
+          type: string
+          description: Token per recuperare l'esatta istanza dell'allegato
+      description: Riferimento all'allegato precaricato
+#    NewNotificationResponse:
+    NotificationResponse:
+      type: object
+      properties:
+        notificationId:
+          type: string
+          description: Identificativo di correlazione della notifica
+        paNotificationId:
+          type: string
+          description: Identificativo inviato dalla pubblica amministrazione
+    PreloadRequest:
+      type: object
+      properties:
+        key:
+          type: string
+        contentType:
+          type: string
+    PreloadResponse:
+      type: object
+      properties:
+        secret:
+          type: string
+        httpMethod:
+          type: string
+        url:
+          type: string
+        key:
+          type: string
+    RequestUpdateStatusDto:
+      type: object
+      properties:
+        iun:
+          pattern: "[A-Za-z0-9-_]+"
+          type: string
+        currentTimeline:
+          uniqueItems: true
+          type: array
+          items:
+            "$ref": "#/components/schemas/TimelineInfoDto"
+        newTimelineElement:
+          "$ref": "#/components/schemas/TimelineInfoDto"
+    TimelineInfoDto:
+      type: object
+      properties:
+        elementId:
+          type: string
+        category:
+          type: string
+          enum:
+          - REQUEST_ACCEPTED
+          - SEND_COURTESY_MESSAGE
+          - NOTIFICATION_PATH_CHOOSE
+          - GET_ADDRESS
+          - PUBLIC_REGISTRY_CALL
+          - PUBLIC_REGISTRY_RESPONSE
+          - SCHEDULE_ANALOG_WORKFLOW
+          - SCHEDULE_DIGITAL_WORKFLOW
+          - SEND_DIGITAL_DOMICILE
+          - SEND_DIGITAL_DOMICILE_FEEDBACK
+          - SEND_DIGITAL_FEEDBACK
+          - SEND_DIGITAL_DOMICILE_FAILURE
+          - REFINEMENT
+          - SCHEDULE_REFINEMENT
+          - DIGITAL_SUCCESS_WORKFLOW
+          - DIGITAL_FAILURE_WORKFLOW
+          - ANALOG_SUCCESS_WORKFLOW
+          - ANALOG_FAILURE_WORKFLOW
+          - SEND_SIMPLE_REGISTERED_LETTER
+          - END_OF_DIGITAL_DELIVERY_WORKFLOW
+          - END_OF_ANALOG_DELIVERY_WORKFLOW
+          - NOTIFICATION_VIEWED
+          - SEND_ANALOG_DOMICILE
+          - SEND_PAPER_FEEDBACK
+          - PAYMENT
+          - COMPLETELY_UNREACHABLE
+          - REQUEST_REFUSED
+        timestamp:
+          type: string
+          format: date-time
+    ResponseUpdateStatusDto:
+      type: object
+      properties:
+        currentStatus:
+          type: string
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+        nextStatus:
+          type: string
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+    NotificationSearchRow:
+      type: object
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco Notifica
+        paNotificationId:
+          type: string
+          description: Numero protocollo associato alla notifica da parte della PA
+        senderId:
+          type: string
+          description: Identificativo IPA della PA mittente
+        sentAt:
+          type: string
+          description: Data spedizione notifica
+          format: date-time
+        subject:
+          type: string
+          description: Oggetto della notifica
+        notificationStatus:
+          type: string
+          description: Stato del workflow della notifica
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+        recipientId:
+          type: string
+          description: Identificativo opaco del destinatario
+    ResultPaginationDtoNotificationSearchRow:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            "$ref": "#/components/schemas/NotificationSearchRow"
+        moreResult:
+          type: boolean
+        nextPagesKey:
+          type: array
+          items:
+            type: string
+    AnalogFailureWorkflow:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    AnalogSuccessWorkflow:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/PhysicalAddress"
+    CompletlyUnreachableDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    Digests:
+      required:
+      - sha256
+      type: object
+      properties:
+        sha256:
+          type: string
+          description: Digest "sha256" della codifica binaria dell'allegato
+      description: codice di controllo del F24 per spese di notifica analogica
+    Digests_Sent:
+      required:
+      - sha256
+      type: object
+      properties:
+        sha256:
+          type: string
+          description: Digest "sha256" della codifica binaria dell'allegato
+      description: codice di controllo del allegato
+    DigitalAddress:
+      required:
+      - address
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+          enum:
+          - PEC
+          - EMAIL
+        address:
+          type: string
+          description: account@domain
+      description: Indirizzo di invio della notifica
+    DigitalAddressInfo:
+      type: object
+      properties:
+        address:
+          "$ref": "#/components/schemas/DigitalAddress"
+        addressSource:
+          type: string
+          enum:
+          - PLATFORM
+          - SPECIAL
+          - GENERAL
+        sentAttemptMade:
+          type: integer
+          format: int32
+        lastAttemptDate:
+          type: string
+          format: date-time
+      description: 'Informazioni ultimo tentativo effettuato '
+    DigitalAddress_Sent:
+      required:
+      - address
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+          enum:
+          - PEC
+          - EMAIL
+        address:
+          type: string
+          description: account@domain
+      description: indirizzo digitale del destinatario
+    DigitalFailureWorkflow:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    DigitalSuccessWorkflow:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/DigitalAddress"
+    DownstreamId:
+      type: object
+      properties:
+        systemId:
+          type: string
+          description: Identificativo del sistema a valle di inoltro messaggistica
+        messageId:
+          type: string
+          description: Identificativo del messaggio inoltrato
+      description: identificativo del messaggio nel sistema a valle
+    EndOfAnalogDeliveryWorkflowDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    EndOfDigitalDeliveryWorkflowDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    F24Digests:
+      type: object
+      properties:
+        flatRate:
+          "$ref": "#/components/schemas/Digests"
+        digital:
+          "$ref": "#/components/schemas/Digests"
+        analog:
+          "$ref": "#/components/schemas/Digests"
+      description: Codici di controllo dei moduli di pagamento F24 inviati dalla PA
+    F24_Sent:
+      type: object
+      properties:
+        flatRate:
+          "$ref": "#/components/schemas/NotificationAttachment_Sent"
+        digital:
+          "$ref": "#/components/schemas/NotificationAttachment_Sent"
+        analog:
+          "$ref": "#/components/schemas/NotificationAttachment_Sent"
+      description: Moduli di pagamento F24
+    FailedContact:
+      type: object
+      properties:
+        address:
+          "$ref": "#/components/schemas/DigitalAddress"
+        when:
+          type: string
+          description: Momento dell'invio
+          format: date-time
+      description: indirizzi di invio della notifica e quando sono stati contattati
+    GetAddressInfo:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          source:
+            type: string
+            description: Sorgente indirizzo
+            enum:
+            - PLATFORM
+            - SPECIAL
+            - GENERAL
+          isAvailable:
+            type: boolean
+            description: Disponibilità indirizzo
+          attemptDate:
+            type: string
+            description: Data tentativo
+            format: date-time
+          available:
+            type: boolean
+    LegalFactsListEntryId_Sent:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Chiave dell'atto opponibile a terzi generato durante il processo
+            di consegna
+        type:
+          type: string
+          description: Tipo dell'atto opponibile a terzi generato durante il processo
+            di consegna
+          enum:
+          - SENDER_ACK
+          - DIGITAL_DELIVERY
+          - ANALOG_DELIVERY
+          - RECIPIENT_ACCESS
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+    NotificationAttachment_Sent:
+      required:
+      - digests
+      type: object
+      properties:
+        digests:
+          "$ref": "#/components/schemas/Digests_Sent"
+        contentType:
+          type: string
+          description: tipo di contenuto dell'allegato
+        title:
+          type: string
+          description: Titolo del documento allegato
+      description: Modulo F24 per spese di notifica analogica
+    NotificationPathChooseDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice fiscale destinatario
+          deliveryMode:
+            type: string
+            description: Specifica se la notifica al destinatario segue il percorso
+              analogico o quello digitale
+            enum:
+            - DIGITAL
+            - ANALOG
+          physicalAddress:
+            "$ref": "#/components/schemas/PhysicalAddress"
+          platform:
+            "$ref": "#/components/schemas/DigitalAddress"
+          special:
+            "$ref": "#/components/schemas/DigitalAddress"
+          general:
+            "$ref": "#/components/schemas/DigitalAddress"
+          courtesyAddresses:
+            type: array
+            description: Elenco recapiti digitali del destinatario
+            items:
+              "$ref": "#/components/schemas/DigitalAddress"
+    NotificationPaymentInfo_Sent:
+      type: object
+      properties:
+        iuv:
+          type: string
+          description: Identificativo Univoco del Versamento
+        notificationFeePolicy:
+          type: string
+          description: Politica di addebitamento dei costi di notifica
+          enum:
+          - FLAT_RATE
+          - DELIVERY_MODE
+        f24:
+          "$ref": "#/components/schemas/F24_Sent"
+      description: Informazioni per effttuare il pagamento
+    NotificationRecipient:
+      required:
+      - denomination
+      - recipientType
+      - taxId
+      type: object
+      properties:
+        recipientType:
+          type: string
+          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)'
+          enum:
+          - PF
+          - PG
+        taxId:
+          type: string
+          description: Codice Fiscale del destinatario
+        denomination:
+          type: string
+          description: Nome e cognome / ragione sociale
+        digitalDomicile:
+          "$ref": "#/components/schemas/DigitalAddress_Sent"
+        physicalAddress:
+          "$ref": "#/components/schemas/PhysicalAddress_Sent"
+        token:
+          type: string
+      description: informazioni sui destinatari
+    NotificationRecipient_Sent:
+      required:
+      - denomination
+      - recipientType
+      - taxId
+      type: object
+      properties:
+        recipientType:
+          type: string
+          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)'
+          enum:
+          - PF
+          - PG
+        taxId:
+          type: string
+          description: Codice Fiscale del destinatario
+        denomination:
+          type: string
+          description: Nome e cognome / ragione sociale
+        digitalDomicile:
+          "$ref": "#/components/schemas/DigitalAddress_Sent"
+        physicalAddress:
+          "$ref": "#/components/schemas/PhysicalAddress_Sent"
+        token:
+          type: string
+      description: Informazioni sui destinatari
+    NotificationStatusHistoryElement_Sent:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Stato di avanzamento del processo di notifica
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            type: string
+            description: Eventi avvenuti nello stato
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+    NotificationViewedDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    Notification_Sent:
+      required:
+      - documents
+      - paNotificationId
+      - physicalCommunicationType
+      - recipients
+      - subject
+      type: object
+      properties:
+        iun:
+          type: string
+          description: L'Identificativo Univoco Notifica assegnato da PN
+        paNotificationId:
+          type: string
+          description: Numero di protocollo che la PA mittente assegna alla notifica
+            stessa
+        subject:
+          type: string
+          description: titolo della notifica
+        sentAt:
+          type: string
+          description: Momento di ricezione della notifica da parte di PN
+          format: date-time
+        cancelledIun:
+          type: string
+          description: IUN della notifica rettificata da questa notifica
+        cancelledByIun:
+          type: string
+          description: IUN della notifica che ha rettificato questa notifica
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            "$ref": "#/components/schemas/NotificationRecipient_Sent"
+        documents:
+          type: array
+          description: Documenti notificati e lettere di accompagnamento
+          items:
+            "$ref": "#/components/schemas/NotificationAttachment_Sent"
+        payment:
+          "$ref": "#/components/schemas/NotificationPaymentInfo_Sent"
+        notificationStatus:
+          type: string
+          description: stato di avanzamento del processo di notifica
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+        notificationStatusHistory:
+          type: array
+          description: elenco degli avanzamenti effettuati dal processo di notifica
+          items:
+            "$ref": "#/components/schemas/NotificationStatusHistoryElement_Sent"
+        timeline:
+          type: array
+          description: elenco dettagliato di tutto ciò che è accaduto durrante il
+            processo di notifica
+          items:
+            "$ref": "#/components/schemas/TimelineElement_Sent"
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+          - SIMPLE_REGISTERED_LETTER
+          - REGISTERED_LETTER_890
+      description: Le notifiche di Piattaforma Notifiche
+      externalDocs:
+        description: MarkDown
+        url: http://google.it/
+    PhysicalAddress:
+      type: object
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune in cui l'indirizzo si trova
+        province:
+          type: string
+          description: Provincia in cui si trova l'indirizzo
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+      description: Indirizzo fisico scoperto durante fase di consegna
+    PhysicalAddress_Sent:
+      type: object
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune in cui l'indirizzo si trova
+        province:
+          type: string
+          description: Provincia in cui si trova l'indirizzo
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+      description: indirizzo fisico del destinatario
+    PublicRegistryCallDetails:
+      required:
+      - contactPhase
+      - taxId
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          deliveryMode:
+            type: string
+            description: Tipologia Domiciliazione
+            enum:
+            - DIGITAL
+            - ANALOG
+          contactPhase:
+            type: string
+            description: Fase in cui è avvenuta la richiesta
+            enum:
+            - CHOOSE_DELIVERY
+            - SEND_ATTEMPT
+          sentAttemptMade:
+            type: integer
+            description: Numero di tentativi di notificazione già effettuati
+            format: int32
+          sendDate:
+            type: string
+            description: Data invio richiesta ai public registry
+            format: date-time
+    PublicRegistryResponseDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          digitalAddress:
+            "$ref": "#/components/schemas/DigitalAddress"
+          physicalAddress:
+            "$ref": "#/components/schemas/PhysicalAddress"
+    ReceivedDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          recipients:
+            type: array
+            description: informazioni sui destinatari
+            items:
+              "$ref": "#/components/schemas/NotificationRecipient"
+          documentsDigests:
+            type: array
+            description: Codici di controllo dei documenti inviati
+            items:
+              "$ref": "#/components/schemas/Digests"
+          f24Digests:
+            "$ref": "#/components/schemas/F24Digests"
+    RefinementDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    RequestRefusedDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          errors:
+            type: array
+            description: Motivazioni che hanno portato al rifiuto della notifica
+            items:
+              type: string
+              description: Motivazioni che hanno portato al rifiuto della notifica
+    ScheduleAnalogWorkflow:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    ScheduleDigitalWorkflow:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          lastAttemptInfo:
+            "$ref": "#/components/schemas/DigitalAddressInfo"
+    ScheduleRefinement:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+    SendCourtesyMessageDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/DigitalAddress"
+          sendDate:
+            type: string
+            description: data invio messaggio di cortesia
+            format: date-time
+    SendDigitalDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/DigitalAddress"
+          addressSource:
+            type: string
+            description: sorgente indirizzo di invio della notifica
+            enum:
+            - PLATFORM
+            - SPECIAL
+            - GENERAL
+          retryNumber:
+            type: integer
+            description: numero dei tentativi effettuati
+            format: int32
+          downstreamId:
+            "$ref": "#/components/schemas/DownstreamId"
+    SendDigitalFailureDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          addresses:
+            type: array
+            description: indirizzi di invio della notifica e quando sono stati contattati
+            items:
+              "$ref": "#/components/schemas/FailedContact"
+    SendDigitalFeedback:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/DigitalAddress"
+          responseStatus:
+            type: string
+            description: stato risposta ricevuta da externalChannel
+            enum:
+            - OK
+            - KO
+          notificationDate:
+            type: string
+            description: data notifica
+            format: date-time
+          errors:
+            type: array
+            description: Lista errori, vuota in caso di successo
+            items:
+              type: string
+              description: Lista errori, vuota in caso di successo
+    SendDigitalFeedbackDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/DigitalAddress"
+          addressSource:
+            type: string
+            description: sorgente indirizzo di invio della notifica
+            enum:
+            - PLATFORM
+            - SPECIAL
+            - GENERAL
+          retryNumber:
+            type: integer
+            description: numero dei tentativi effettuati
+            format: int32
+          downstreamId:
+            "$ref": "#/components/schemas/DownstreamId"
+          errors:
+            type: array
+            description: Lista errori, vuota in caso di successo
+            items:
+              type: string
+              description: Lista errori, vuota in caso di successo
+    SendPaperDetails:
+      required:
+      - investigation
+      - serviceLevel
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/PhysicalAddress"
+          serviceLevel:
+            type: string
+            description: Livello Servizio
+            enum:
+            - SIMPLE_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+          sentAttemptMade:
+            type: integer
+            description: numero dei tentativi effettuati
+            format: int32
+          investigation:
+            type: boolean
+            description: E' richiesta investigazione indirizzo fisico alternativo
+    SendPaperFeedbackDetails:
+      required:
+      - investigation
+      - serviceLevel
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/PhysicalAddress"
+          serviceLevel:
+            type: string
+            description: Livello Servizio
+            enum:
+            - SIMPLE_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+          sentAttemptMade:
+            type: integer
+            description: numero dei tentativi effettuati
+            format: int32
+          investigation:
+            type: boolean
+            description: E' richiesta investigazione indirizzo fisico alternativo
+          newAddress:
+            "$ref": "#/components/schemas/PhysicalAddress"
+          errors:
+            type: array
+            description: Lista errori, vuota in caso di successo
+            items:
+              type: string
+              description: Lista errori, vuota in caso di successo
+    SimpleRegisteredLetterDetails:
+      type: object
+      allOf:
+      - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+      - type: object
+        properties:
+          taxId:
+            type: string
+            description: Codice Fiscale destinatario notifica digitale
+          address:
+            "$ref": "#/components/schemas/PhysicalAddress"
+    TimelineElementDetails_Sent:
+      required:
+      - category
+      type: object
+      properties:
+        category:
+          type: string
+      description: 'dettagli sull''evento: variano in base al "eventCategory"'
+      discriminator:
+        propertyName: category
+      oneOf:
+      - "$ref": "#/components/schemas/ReceivedDetails"
+      - "$ref": "#/components/schemas/NotificationPathChooseDetails"
+      - "$ref": "#/components/schemas/SendDigitalDetails"
+      - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+    TimelineElement_Sent:
+      type: object
+      properties:
+        elementId:
+          type: string
+          description: Insieme allo IUN della notifica definisce in maniera univoca
+            l'elemento di timeline
+        timestamp:
+          type: string
+          description: Momento in cui avviene l'evento desritto in questo elemento
+            di timeline
+          format: date-time
+        category:
+          type: string
+          description: tipo di evento registrato
+          enum:
+          - REQUEST_ACCEPTED
+          - SEND_COURTESY_MESSAGE
+          - NOTIFICATION_PATH_CHOOSE
+          - GET_ADDRESS
+          - PUBLIC_REGISTRY_CALL
+          - PUBLIC_REGISTRY_RESPONSE
+          - SCHEDULE_ANALOG_WORKFLOW
+          - SCHEDULE_DIGITAL_WORKFLOW
+          - SEND_DIGITAL_DOMICILE
+          - SEND_DIGITAL_DOMICILE_FEEDBACK
+          - SEND_DIGITAL_FEEDBACK
+          - SEND_DIGITAL_DOMICILE_FAILURE
+          - REFINEMENT
+          - SCHEDULE_REFINEMENT
+          - DIGITAL_SUCCESS_WORKFLOW
+          - DIGITAL_FAILURE_WORKFLOW
+          - ANALOG_SUCCESS_WORKFLOW
+          - ANALOG_FAILURE_WORKFLOW
+          - SEND_SIMPLE_REGISTERED_LETTER
+          - END_OF_DIGITAL_DELIVERY_WORKFLOW
+          - END_OF_ANALOG_DELIVERY_WORKFLOW
+          - NOTIFICATION_VIEWED
+          - SEND_ANALOG_DOMICILE
+          - SEND_PAPER_FEEDBACK
+          - PAYMENT
+          - COMPLETELY_UNREACHABLE
+          - REQUEST_REFUSED
+        details:
+          oneOf:
+          - "$ref": "#/components/schemas/AnalogFailureWorkflow"
+          - "$ref": "#/components/schemas/AnalogSuccessWorkflow"
+          - "$ref": "#/components/schemas/CompletlyUnreachableDetails"
+          - "$ref": "#/components/schemas/DigitalFailureWorkflow"
+          - "$ref": "#/components/schemas/DigitalSuccessWorkflow"
+          - "$ref": "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
+          - "$ref": "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
+          - "$ref": "#/components/schemas/GetAddressInfo"
+          - "$ref": "#/components/schemas/NotificationPathChooseDetails"
+          - "$ref": "#/components/schemas/NotificationViewedDetails"
+          - "$ref": "#/components/schemas/PublicRegistryCallDetails"
+          - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
+          - "$ref": "#/components/schemas/ReceivedDetails"
+          - "$ref": "#/components/schemas/RefinementDetails"
+          - "$ref": "#/components/schemas/RequestRefusedDetails"
+          - "$ref": "#/components/schemas/ScheduleAnalogWorkflow"
+          - "$ref": "#/components/schemas/ScheduleDigitalWorkflow"
+          - "$ref": "#/components/schemas/ScheduleRefinement"
+          - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
+          - "$ref": "#/components/schemas/SendDigitalDetails"
+          - "$ref": "#/components/schemas/SendDigitalFailureDetails"
+          - "$ref": "#/components/schemas/SendDigitalFeedback"
+          - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+          - "$ref": "#/components/schemas/SendPaperDetails"
+          - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
+          - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+        legalFactsIds:
+          type: array
+          description: Chiavi dei documenti generati durante il processo di consegna
+            cartacea
+          items:
+            "$ref": "#/components/schemas/LegalFactsListEntryId_Sent"
+      description: elenco dettagliato di tutto ciò che è accaduto durrante il processo
+        di notifica
+    PaperNotificationFailed:
+      type: object
+      properties:
+        recipientId:
+          type: string
+          description: L'Identificativo univico del ricevente
+        iun:
+          type: string
+          description: L'Identificativo Univoco Notifica assegnato da PN
+    DirectAccessToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token univoco relativo alla notifica e al destinatario
+        iun:
+          type: string
+          description: L'Identificativo Univoco Notifica assegnato da PN
+        taxId:
+          type: string
+          description: Codice Fiscale del destinatario
+    F24:
+      type: object
+      properties:
+        flatRate:
+          "$ref": "#/components/schemas/NotificationAttachment"
+        digital:
+          "$ref": "#/components/schemas/NotificationAttachment"
+        analog:
+          "$ref": "#/components/schemas/NotificationAttachment"
+      description: Moduli di pagamento F24
+    LegalFactsListEntryId:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Chiave dell'atto opponibile a terzi generato durante il processo
+            di consegna
+        type:
+          type: string
+          description: Tipo dell'atto opponibile a terzi generato durante il processo
+            di consegna
+          enum:
+          - SENDER_ACK
+          - DIGITAL_DELIVERY
+          - ANALOG_DELIVERY
+          - RECIPIENT_ACCESS
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+    Notification:
+      required:
+      - documents
+      - paNotificationId
+      - physicalCommunicationType
+      - recipients
+      - sender
+      - subject
+      type: object
+      properties:
+        iun:
+          type: string
+          description: L'Identificativo Univoco Notifica assegnato da PN
+        paNotificationId:
+          type: string
+          description: Numero di protocollo che la PA mittente assegna alla notifica
+            stessa
+        subject:
+          type: string
+          description: titolo della notifica
+        sentAt:
+          type: string
+          description: Momento di ricezione della notifica da parte di PN
+          format: date-time
+        cancelledIun:
+          type: string
+          description: IUN della notifica rettificata da questa notifica
+        cancelledByIun:
+          type: string
+          description: IUN della notifica che ha rettificato questa notifica
+        sender:
+          "$ref": "#/components/schemas/NotificationSender"
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            "$ref": "#/components/schemas/NotificationRecipient"
+        documents:
+          type: array
+          description: Documenti notificati e lettere di accompagnamento
+          items:
+            "$ref": "#/components/schemas/NotificationAttachment"
+        payment:
+          "$ref": "#/components/schemas/NotificationPaymentInfo"
+        notificationStatus:
+          type: string
+          description: stato di avanzamento del processo di notifica
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+        notificationStatusHistory:
+          type: array
+          description: elenco degli avanzamenti effettuati dal processo di notifica
+          items:
+            "$ref": "#/components/schemas/NotificationStatusHistoryElement"
+        timeline:
+          type: array
+          description: elenco dettagliato di tutto ciò che è accaduto durrante il
+            processo di notifica
+          items:
+            "$ref": "#/components/schemas/TimelineElement"
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+          - SIMPLE_REGISTERED_LETTER
+          - REGISTERED_LETTER_890
+      description: Le notifiche di Piattaforma Notifiche
+      externalDocs:
+        description: MarkDown
+        url: http://google.it/
+    NotificationAttachment:
+      required:
+      - digests
+      type: object
+      properties:
+        digests:
+          "$ref": "#/components/schemas/Digests"
+        contentType:
+          type: string
+          description: tipo di contenuto dell'allegato
+        title:
+          type: string
+          description: Titolo del documento allegato
+        body:
+          type: string
+          description: corpo dell'allegato
+        ref:
+          "$ref": "#/components/schemas/Ref"
+      description: Modulo F24 per spese di notifica analogica
+    NotificationPaymentInfo:
+      type: object
+      properties:
+        iuv:
+          type: string
+          description: Identificativo Univoco del Versamento
+        notificationFeePolicy:
+          type: string
+          description: Politica di addebitamento dei costi di notifica
+          enum:
+          - FLAT_RATE
+          - DELIVERY_MODE
+        f24:
+          "$ref": "#/components/schemas/F24"
+      description: Informazioni per effttuare il pagamento
+    NotificationSender:
+      required:
+      - paId
+      type: object
+      properties:
+        paId:
+          type: string
+          description: Identificativo IPA della PA
+        paDenomination:
+          type: string
+          description: Denominazione IPA della PA mittente
+        taxId:
+          type: string
+          description: Denominazione IPA della PA mittente
+      description: Informazioni sul mittente
+    NotificationStatusHistoryElement:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Stato di avanzamento del processo di notifica
+          enum:
+          - IN_VALIDATION
+          - ACCEPTED
+          - DELIVERING
+          - DELIVERED
+          - VIEWED
+          - EFFECTIVE_DATE
+          - PAID
+          - UNREACHABLE
+          - REFUSED
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            type: string
+            description: Eventi avvenuti nello stato
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+    Ref:
+      required:
+      - key
+      - versionToken
+      type: object
+      properties:
+        key:
+          type: string
+          description: Chiave in cui è stato salvato l'allegato
+        versionToken:
+          type: string
+          description: Token per recuperare l'esatta istanza dell'allegato
+      description: Riferimento all'allegato precaricato
+    TimelineElement:
+      type: object
+      properties:
+        elementId:
+          type: string
+          description: Insieme allo IUN della notifica definisce in maniera univoca
+            l'elemento di timeline
+        timestamp:
+          type: string
+          description: Momento in cui avviene l'evento desritto in questo elemento
+            di timeline
+          format: date-time
+        category:
+          type: string
+          description: tipo di evento registrato
+          enum:
+          - REQUEST_ACCEPTED
+          - SEND_COURTESY_MESSAGE
+          - NOTIFICATION_PATH_CHOOSE
+          - GET_ADDRESS
+          - PUBLIC_REGISTRY_CALL
+          - PUBLIC_REGISTRY_RESPONSE
+          - SCHEDULE_ANALOG_WORKFLOW
+          - SCHEDULE_DIGITAL_WORKFLOW
+          - SEND_DIGITAL_DOMICILE
+          - SEND_DIGITAL_DOMICILE_FEEDBACK
+          - SEND_DIGITAL_FEEDBACK
+          - SEND_DIGITAL_DOMICILE_FAILURE
+          - REFINEMENT
+          - SCHEDULE_REFINEMENT
+          - DIGITAL_SUCCESS_WORKFLOW
+          - DIGITAL_FAILURE_WORKFLOW
+          - ANALOG_SUCCESS_WORKFLOW
+          - ANALOG_FAILURE_WORKFLOW
+          - SEND_SIMPLE_REGISTERED_LETTER
+          - END_OF_DIGITAL_DELIVERY_WORKFLOW
+          - END_OF_ANALOG_DELIVERY_WORKFLOW
+          - NOTIFICATION_VIEWED
+          - SEND_ANALOG_DOMICILE
+          - SEND_PAPER_FEEDBACK
+          - PAYMENT
+          - COMPLETELY_UNREACHABLE
+          - REQUEST_REFUSED
+        details:
+          oneOf:
+          - "$ref": "#/components/schemas/AnalogFailureWorkflow"
+          - "$ref": "#/components/schemas/AnalogSuccessWorkflow"
+          - "$ref": "#/components/schemas/CompletlyUnreachableDetails"
+          - "$ref": "#/components/schemas/DigitalFailureWorkflow"
+          - "$ref": "#/components/schemas/DigitalSuccessWorkflow"
+          - "$ref": "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
+          - "$ref": "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
+          - "$ref": "#/components/schemas/GetAddressInfo"
+          - "$ref": "#/components/schemas/NotificationPathChooseDetails"
+          - "$ref": "#/components/schemas/NotificationViewedDetails"
+          - "$ref": "#/components/schemas/PublicRegistryCallDetails"
+          - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
+          - "$ref": "#/components/schemas/ReceivedDetails"
+          - "$ref": "#/components/schemas/RefinementDetails"
+          - "$ref": "#/components/schemas/RequestRefusedDetails"
+          - "$ref": "#/components/schemas/ScheduleAnalogWorkflow"
+          - "$ref": "#/components/schemas/ScheduleDigitalWorkflow"
+          - "$ref": "#/components/schemas/ScheduleRefinement"
+          - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
+          - "$ref": "#/components/schemas/SendDigitalDetails"
+          - "$ref": "#/components/schemas/SendDigitalFailureDetails"
+          - "$ref": "#/components/schemas/SendDigitalFeedback"
+          - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+          - "$ref": "#/components/schemas/SendPaperDetails"
+          - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
+          - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+        legalFactsIds:
+          type: array
+          description: Chiavi dei documenti generati durante il processo di consegna
+            cartacea
+          items:
+            "$ref": "#/components/schemas/LegalFactsListEntryId"
+      description: elenco dettagliato di tutto ciò che è accaduto durrante il processo
+        di notifica
+    Problem:
+      properties:
+        type:
+          description: URI reference of type definition
+          type: string
+        status:
+          description: The HTTP status code generated by the origin server for this occurrence of the problem.
+          example: 400
+          exclusiveMaximum: true
+          format: int32
+          maximum: 600
+          minimum: 100
+          type: integer
+        title:
+          description: A short, summary of the problem type. Written in english and readable
+          example: Service Unavailable
+          maxLength: 64
+          pattern: '^[ -~]{0,64}$'
+          type: string
+        detail:
+          description: A human readable explanation of the problem.
+          example: Request took too long to complete.
+          maxLength: 4096
+          pattern: '^.{0,1024}$'
+          type: string
+        errors:
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/ProblemError'
+      additionalProperties: false
+      required:       
+        - type
+        - status
+        - title
+        - errors
+    ProblemError:
+      properties:
+        code:
+          description: Internal code of the error
+          example: 123-4567
+          minLength: 8
+          maxLength: 8
+          pattern: '^[0-9]{3}-[0-9]{4}$'
+          type: string
+        detail:
+          description: A human readable explanation specific to this occurrence of the problem.
+          example: Parameter not valid
+          maxLength: 4096
+          pattern: '^.{0,1024}$'
+          type: string
+      required:
+        - code
+        - detail
