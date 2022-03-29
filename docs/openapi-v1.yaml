@@ -275,7 +275,7 @@ paths:
 
   "/delivery/notifications/sent/{iun}":
     get:
-      summary: servizio di consultazione dello stato di invio della notifica <specificata da <iun>
+      summary: servizio di consultazione dello stato di invio della notifica specificata da <iun>
       tags:
       - pn-sent-notifications-controller
       operationId: getSentNotification
@@ -375,7 +375,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   "/delivery/notifications/received":
     get:
-      summary: TODO
+      summary: servizio di ricerca delle notifiche individuate dai parametri di rcerca specificati
       tags:
       - pn-received-notifications-controller
       operationId: searchReceivedNotification
@@ -467,7 +467,7 @@ paths:
 
   "/delivery/notifications/received/{iun}":
     get:
-      summary: TODO
+      summary: servizio per verificare la ricezione della notifica specificata da <iun>
       tags:
       - pn-received-notifications-controller
       operationId: getReceivedNotification
@@ -510,7 +510,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   "/delivery/notifications/received/{iun}/documents/{documentIndex}":
     get:
-      summary: TODO
+      summary: servizio per verificare se il <documentIndex> apparetiene alla notifica <iun>
       tags:
       - pn-received-notifications-controller
       operationId: getReceivedNotificationDocument
@@ -560,7 +560,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   "/delivery/notifications/paper-failed":
     get:
-      summary: TODO
+      summary: servizio di ricerca delle notifiche cartacee fallite
       tags:
       - pn-paper-notification-failed-controller
       operationId: searchPaperNotificationsFailed
@@ -600,7 +600,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   "/delivery/direct_access":
     get:
-      summary: TODO
+      summary: servizio per ricavare <iun> associato al token (TODO)
       tags:
       - pn-direct-access-controller
       operationId: directAccessChallenge
@@ -643,7 +643,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   "/delivery-private/notifications/{iun}":
     get:
-      summary: TODO
+      summary: servizio per cercare una notifica dato <iun>
       tags:
       - pn-internal-notifications-controller
       operationId: getSentNotification_1
