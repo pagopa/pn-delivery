@@ -1,5 +1,4 @@
-
-openapi: 3.0.1
+openapi: 3.0.3
 info:
   title: OpenAPI definition for PN
   description: Sistema di notifica a valore legale per l'invio di atti a qualsiasi persona fisica o giuridica, ente o associazione dotati di codice fiscale.
@@ -681,74 +680,31 @@ paths:
                 $ref: '#/components/schemas/Problem'
 components:
   schemas:
-    Digests_New:
-      required:
-      - sha256
-      type: object
-      properties:
-        sha256:
-          type: string
-          description: Digest "sha256" della codifica binaria dell'allegato
-      description: codice di controllo del allegato
-    F24_New:
+    F24:
       type: object
       properties:
         flatRate:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         digital:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         digital_RS:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         analog_AR_single:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         analog_AR_double:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         analog_890_single:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         analog_890_double:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         analog_AR_RI:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         analog_890_RI:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
         analog_RI_double:
-          "$ref": "#/components/schemas/NotificationAttachment_New"
+          "$ref": "#/components/schemas/NotificationAttachment"
       description: Moduli di pagamento F24
-    NotificationAttachment_New:
-      required:
-      - digests
-      type: object
-      properties:
-        digests:
-          "$ref": "#/components/schemas/Digests_New"
-        contentType:
-          type: string
-          description: tipo di contenuto dell'allegato
-        title:
-          type: string
-          description: Titolo del documento allegato
-        body:
-          type: string
-          description: corpo dell'allegato
-        ref:
-          "$ref": "#/components/schemas/Ref_New"
-      description: Modulo F24 per spese di notifica analogica
-    NotificationPaymentInfo_New:
-      type: object
-      properties:
-        iuv:
-          type: string
-          description: Identificativo Univoco del Versamento
-        notificationFeePolicy:
-          type: string
-          description: Politica di addebitamento dei costi di notifica
-          enum:
-          - FLAT_RATE
-          - DELIVERY_MODE
-        f24:
-          "$ref": "#/components/schemas/F24_New"
-      description: Informazioni per effttuare il pagamento
-    NotificationRecipient_New:
+    NotificationRecipient:
       required:
       - denomination
       - recipientType
@@ -771,11 +727,11 @@ components:
         digitalDomicile:
           "$ref": "#/components/schemas/DigitalAddress"
         physicalAddress:
-          "$ref": "#/components/schemas/PhysicalAddress_New"
+          "$ref": "#/components/schemas/PhysicalAddress"
         token:
           type: string
         payment:
-            "$ref": "#/components/schemas/NotificationPaymentInfo_New"
+            "$ref": "#/components/schemas/NotificationPaymentInfo"
       description: Informazioni sui destinatari
     NotificationInfo:
       required:
@@ -800,12 +756,12 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            "$ref": "#/components/schemas/NotificationRecipient_New"
+            "$ref": "#/components/schemas/NotificationRecipient"
         documents:
           type: array
           description: Documenti notificati e lettere di accompagnamento
           items:
-            "$ref": "#/components/schemas/NotificationAttachment_New"
+            "$ref": "#/components/schemas/NotificationAttachment"
         physicalCommunicationType:
           type: string
           description: Tipologia comunicazione fisica
@@ -816,44 +772,7 @@ components:
       externalDocs:
         description: MarkDown
         url: http://google.it/
-    PhysicalAddress_New:
-      type: object
-      properties:
-        at:
-          type: string
-          description: Campo "presso" dell'indirizzo
-        address:
-          type: string
-          description: Indirizzo del domicilio fisico
-        addressDetails:
-          type: string
-          description: Seconda riga dell'indirizzo fisico
-        zip:
-          type: string
-          description: Codice di avviamento postale
-        municipality:
-          type: string
-          description: Comune in cui l'indirizzo si trova
-        province:
-          type: string
-          description: Provincia in cui si trova l'indirizzo
-        foreignState:
-          type: string
-          description: Denominazione paese estero
-      description: indirizzo fisico del destinatario
-    Ref_New:
-      required:
-      - key
-      - versionToken
-      type: object
-      properties:
-        key:
-          type: string
-          description: Chiave in cui è stato salvato l'allegato
-        versionToken:
-          type: string
-          description: Token per recuperare l'esatta istanza dell'allegato
-      description: Riferimento all'allegato precaricato
+
 #    NewNotificationResponse:
     NotificationResponse:
       type: object
@@ -1046,15 +965,6 @@ components:
           type: string
           description: Digest "sha256" della codifica binaria dell'allegato
       description: codice di controllo del F24 per spese di notifica analogica
-    Digests_Sent:
-      required:
-      - sha256
-      type: object
-      properties:
-        sha256:
-          type: string
-          description: Digest "sha256" della codifica binaria dell'allegato
-      description: codice di controllo del allegato
     DigitalAddress:
       required:
       - address
@@ -1089,22 +999,6 @@ components:
           type: string
           format: date-time
       description: 'Informazioni ultimo tentativo effettuato '
-    DigitalAddress_Sent:
-      required:
-      - address
-      - type
-      type: object
-      properties:
-        type:
-          type: string
-          description: tipo di indirizzo PEC, REM, SERCQ, ...
-          enum:
-          - PEC
-          - EMAIL
-        address:
-          type: string
-          description: account@domain
-      description: indirizzo digitale del destinatario
     DigitalFailureWorkflow:
       type: object
       allOf:
@@ -1163,16 +1057,6 @@ components:
         analog:
           "$ref": "#/components/schemas/Digests"
       description: Codici di controllo dei moduli di pagamento F24 inviati dalla PA
-    F24_Sent:
-      type: object
-      properties:
-        flatRate:
-          "$ref": "#/components/schemas/NotificationAttachment_Sent"
-        digital:
-          "$ref": "#/components/schemas/NotificationAttachment_Sent"
-        analog:
-          "$ref": "#/components/schemas/NotificationAttachment_Sent"
-      description: Moduli di pagamento F24
     FailedContact:
       type: object
       properties:
@@ -1208,37 +1092,6 @@ components:
             format: date-time
           available:
             type: boolean
-    LegalFactsListEntryId_Sent:
-      type: object
-      properties:
-        key:
-          type: string
-          description: Chiave dell'atto opponibile a terzi generato durante il processo
-            di consegna
-        type:
-          type: string
-          description: Tipo dell'atto opponibile a terzi generato durante il processo
-            di consegna
-          enum:
-          - SENDER_ACK
-          - DIGITAL_DELIVERY
-          - ANALOG_DELIVERY
-          - RECIPIENT_ACCESS
-      description: Chiavi dei documenti generati durante il processo di consegna cartacea
-    NotificationAttachment_Sent:
-      required:
-      - digests
-      type: object
-      properties:
-        digests:
-          "$ref": "#/components/schemas/Digests_Sent"
-        contentType:
-          type: string
-          description: tipo di contenuto dell'allegato
-        title:
-          type: string
-          description: Titolo del documento allegato
-      description: Modulo F24 per spese di notifica analogica
     NotificationPathChooseDetails:
       type: object
       allOf:
@@ -1268,102 +1121,6 @@ components:
             description: Elenco recapiti digitali del destinatario
             items:
               "$ref": "#/components/schemas/DigitalAddress"
-    NotificationPaymentInfo_Sent:
-      type: object
-      properties:
-        iuv:
-          type: string
-          description: Identificativo Univoco del Versamento
-        notificationFeePolicy:
-          type: string
-          description: Politica di addebitamento dei costi di notifica
-          enum:
-          - FLAT_RATE
-          - DELIVERY_MODE
-        f24:
-          "$ref": "#/components/schemas/F24_Sent"
-      description: Informazioni per effttuare il pagamento
-    NotificationRecipient:
-      required:
-      - denomination
-      - recipientType
-      - taxId
-      type: object
-      properties:
-        recipientType:
-          type: string
-          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
-            (PG)'
-          enum:
-          - PF
-          - PG
-        taxId:
-          type: string
-          description: Codice Fiscale del destinatario
-        denomination:
-          type: string
-          description: Nome e cognome / ragione sociale
-        digitalDomicile:
-          "$ref": "#/components/schemas/DigitalAddress_Sent"
-        physicalAddress:
-          "$ref": "#/components/schemas/PhysicalAddress_Sent"
-        token:
-          type: string
-      description: informazioni sui destinatari
-    NotificationRecipient_Sent:
-      required:
-      - denomination
-      - recipientType
-      - taxId
-      type: object
-      properties:
-        recipientType:
-          type: string
-          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
-            (PG)'
-          enum:
-          - PF
-          - PG
-        taxId:
-          type: string
-          description: Codice Fiscale del destinatario
-        denomination:
-          type: string
-          description: Nome e cognome / ragione sociale
-        digitalDomicile:
-          "$ref": "#/components/schemas/DigitalAddress_Sent"
-        physicalAddress:
-          "$ref": "#/components/schemas/PhysicalAddress_Sent"
-        token:
-          type: string
-      description: Informazioni sui destinatari
-    NotificationStatusHistoryElement_Sent:
-      type: object
-      properties:
-        status:
-          type: string
-          description: Stato di avanzamento del processo di notifica
-          enum:
-          - IN_VALIDATION
-          - ACCEPTED
-          - DELIVERING
-          - DELIVERED
-          - VIEWED
-          - EFFECTIVE_DATE
-          - PAID
-          - UNREACHABLE
-          - REFUSED
-        activeFrom:
-          type: string
-          description: data e ora di raggiungimento dello stato di avanzamento
-          format: date-time
-        relatedTimelineElements:
-          type: array
-          description: Eventi avvenuti nello stato
-          items:
-            type: string
-            description: Eventi avvenuti nello stato
-      description: elenco degli avanzamenti effettuati dal processo di notifica
     NotificationViewedDetails:
       type: object
       allOf:
@@ -1406,14 +1163,14 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            "$ref": "#/components/schemas/NotificationRecipient_Sent"
+            "$ref": "#/components/schemas/NotificationRecipient"
         documents:
           type: array
           description: Documenti notificati e lettere di accompagnamento
           items:
-            "$ref": "#/components/schemas/NotificationAttachment_Sent"
+            "$ref": "#/components/schemas/NotificationAttachment"
         payment:
-          "$ref": "#/components/schemas/NotificationPaymentInfo_Sent"
+          "$ref": "#/components/schemas/NotificationPaymentInfo"
         notificationStatus:
           type: string
           description: stato di avanzamento del processo di notifica
@@ -1431,7 +1188,7 @@ components:
           type: array
           description: elenco degli avanzamenti effettuati dal processo di notifica
           items:
-            "$ref": "#/components/schemas/NotificationStatusHistoryElement_Sent"
+            "$ref": "#/components/schemas/NotificationStatusHistoryElement"
         timeline:
           type: array
           description: elenco dettagliato di tutto ciò che è accaduto durrante il
@@ -1473,31 +1230,7 @@ components:
           type: string
           description: Denominazione paese estero
       description: Indirizzo fisico scoperto durante fase di consegna
-    PhysicalAddress_Sent:
-      type: object
-      properties:
-        at:
-          type: string
-          description: Campo "presso" dell'indirizzo
-        address:
-          type: string
-          description: Indirizzo del domicilio fisico
-        addressDetails:
-          type: string
-          description: Seconda riga dell'indirizzo fisico
-        zip:
-          type: string
-          description: Codice di avviamento postale
-        municipality:
-          type: string
-          description: Comune in cui l'indirizzo si trova
-        province:
-          type: string
-          description: Provincia in cui si trova l'indirizzo
-        foreignState:
-          type: string
-          description: Denominazione paese estero
-      description: indirizzo fisico del destinatario
+
     PublicRegistryCallDetails:
       required:
       - contactPhase
@@ -1885,7 +1618,7 @@ components:
           description: Chiavi dei documenti generati durante il processo di consegna
             cartacea
           items:
-            "$ref": "#/components/schemas/LegalFactsListEntryId_Sent"
+            "$ref": "#/components/schemas/LegalFactsListEntryId"
       description: elenco dettagliato di tutto ciò che è accaduto durrante il processo
         di notifica
     PaperNotificationFailed:
@@ -1909,16 +1642,6 @@ components:
         taxId:
           type: string
           description: Codice Fiscale del destinatario
-    F24:
-      type: object
-      properties:
-        flatRate:
-          "$ref": "#/components/schemas/NotificationAttachment"
-        digital:
-          "$ref": "#/components/schemas/NotificationAttachment"
-        analog:
-          "$ref": "#/components/schemas/NotificationAttachment"
-      description: Moduli di pagamento F24
     LegalFactsListEntryId:
       type: object
       properties:
