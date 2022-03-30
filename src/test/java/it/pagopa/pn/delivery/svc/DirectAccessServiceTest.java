@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.notification.directaccesstoken.DirectAccessToken;
 import it.pagopa.pn.commons.pnclients.recipientschallenge.RecipientsChallenge;
-import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
+import it.pagopa.pn.delivery.middleware.directaccesstokendao.DirectAccessTokenDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

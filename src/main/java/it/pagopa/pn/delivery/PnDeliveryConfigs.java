@@ -25,10 +25,17 @@ public class PnDeliveryConfigs {
     private boolean downloadWithPresignedUrl;
 
     private Integer numberOfPresignedRequest;
-
+    
+    private DirectAccessTokenDao directAccessTokenDao;
+    
     @Data
     public static class Topics {
 
         private String newNotifications;
+    }
+
+    @Data
+    public static class DirectAccessTokenDao {
+        private String tableName;
     }
 }
