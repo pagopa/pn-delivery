@@ -689,17 +689,11 @@ components:
           "$ref": "#/components/schemas/NotificationAttachment"
         digital_RS:
           "$ref": "#/components/schemas/NotificationAttachment"
-        analog_AR_single:
+        analog_RACC_single:
           "$ref": "#/components/schemas/NotificationAttachment"
-        analog_AR_double:
+        analog_RACC_double:
           "$ref": "#/components/schemas/NotificationAttachment"
-        analog_890_single:
-          "$ref": "#/components/schemas/NotificationAttachment"
-        analog_890_double:
-          "$ref": "#/components/schemas/NotificationAttachment"
-        analog_AR_RI:
-          "$ref": "#/components/schemas/NotificationAttachment"
-        analog_890_RI:
+        analog_RACC_RI:
           "$ref": "#/components/schemas/NotificationAttachment"
         analog_RI_double:
           "$ref": "#/components/schemas/NotificationAttachment"
@@ -1054,7 +1048,15 @@ components:
           "$ref": "#/components/schemas/Digests"
         digital:
           "$ref": "#/components/schemas/Digests"
-        analog:
+        digital_RS:
+          "$ref": "#/components/schemas/Digests"
+        analog_RACC_single:
+          "$ref": "#/components/schemas/Digests"
+        analog_RACC_double:
+          "$ref": "#/components/schemas/Digests"
+        analog_RACC_RI:
+          "$ref": "#/components/schemas/Digests"
+        analog_RI_double:
           "$ref": "#/components/schemas/Digests"
       description: Codici di controllo dei moduli di pagamento F24 inviati dalla PA
     FailedContact:
