@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -17,11 +18,15 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private final DynamoDbTable<NotificationEntity> dynamoDbtable;
 
-    public NotificationEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
-        super(dynamoDbEnhancedClient.table(NotificationEntity.NOTIFICATIONS_TABLE_NAME, TableSchema.fromClass(NotificationEntity.class)));
+    public NotificationEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryConfigs cfg) {
+        super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationEntity.class)));
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
-        this.dynamoDbtable = dynamoDbEnhancedClient.table(NotificationEntity.NOTIFICATIONS_TABLE_NAME, TableSchema.fromClass(NotificationEntity.class));
+        this.dynamoDbtable = dynamoDbEnhancedClient.table(tableName( cfg), TableSchema.fromClass(NotificationEntity.class));
 
+    }
+
+    private static String tableName( PnDeliveryConfigs cfg ) {
+        return cfg.getNotificationDao().getTableName();
     }
 
     @Override

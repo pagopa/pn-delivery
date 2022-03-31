@@ -6,6 +6,7 @@ import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.model.notification.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +33,14 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     private DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private EntityToDtoNotificationMetadataMapper entityToDto;
 
-    protected NotificationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, EntityToDtoNotificationMetadataMapper entityToDto) {
-        super(dynamoDbEnhancedClient.table(NotificationMetadataEntity.NOTIFICATIONS_METADATA_TABLE_NAME, TableSchema.fromClass(NotificationMetadataEntity.class)));
+    protected NotificationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, EntityToDtoNotificationMetadataMapper entityToDto, PnDeliveryConfigs cfg) {
+        super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationMetadataEntity.class)));
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.entityToDto = entityToDto;
+    }
+
+    private static String tableName( PnDeliveryConfigs cfg ) {
+        return cfg.getNotificationMetadataDao().getTableName();
     }
 
     @Override

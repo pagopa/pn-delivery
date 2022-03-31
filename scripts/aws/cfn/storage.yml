@@ -180,4 +180,16 @@ Outputs:
     Description: ARN of bucket going to contains notification documents
     Value: !Sub '${AttachmentsBucket.Arn}'
 
-
+  # Dynamo table
+  NotificationsDynamoTableName:
+    Description: Name of dynamodb table containing notifications
+    Value: !Ref NotificationsTable
+  NotificationsDynamoTableArn:
+    Description: ARN of dynamodb table containing notifications
+    Value: !Sub '${NotificationsTable.Arn}'
+  NotificationsMetadataDynamoTableName:
+    Description: Name of dynamodb table containing notifications metadata
+    Value: !Ref NotificationsMetadataTable
+  NotificationsMetadataDynamoTableArn:
+    Description: ARN of dynamodb table containing notifications metadata
+    Value: !Sub '${NotificationsMetadataTable.Arn}'

@@ -16,13 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
@@ -148,6 +144,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .partitionValue(metadataEntityToInsert.getIun_recipientId())
                 .sortValue( metadataEntityToInsert.getSentAt().toString() )
                 .build();
+
         //When
         notificationMetadataEntityDao.putIfAbsent( metadataEntityToInsert );
 

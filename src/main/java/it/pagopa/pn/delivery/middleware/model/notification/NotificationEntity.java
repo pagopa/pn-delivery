@@ -20,7 +20,32 @@ import java.util.Map;
 @DynamoDbBean
 public class NotificationEntity {
 
-    public static final String NOTIFICATIONS_TABLE_NAME = "Notifications";
+    public static final String FIELD_IUN = "iun";
+    public static final String FIELD_PA_NOTIFICATION_ID = "paNotificationId";
+    public static final String FIELD_SUBJECT = "subject";
+    public static final String FIELD_SENT_AT = "sentAt";
+    public static final String FIELD_CANCELLED_IUN = "cancelledIun";
+    public static final String FIELD_CANCELLED_BY_IUN = "cancelledByIun";
+    public static final String FIELD_SENDER_PA_ID = "senderPaId";
+    public static final String FIELD_RECIPIENTS_ORDER = "recipientsOrder";
+    public static final String FIELD_RECIPIENTS_JSON = "recipientsJson";
+    public static final String FIELD_DOCUMENTS_KEYS = "documentsKeys";
+    public static final String FIELD_DOCUMENTS_DIGESTS_SHA_256 = "documentsDigestsSha256";
+    public static final String FIELD_DOCUMENTS_VERSION_IDS = "documentsVersionIds";
+    public static final String FIELD_DOCUMENTS_CONTENT_TYPES = "documentsContentTypes";
+    public static final String FIELD_DOCUMENTS_TITLES = "documentsTitles";
+    public static final String FIELD_IUV = "iuv";
+    public static final String FIELD_NOTIFICATION_FEE_POLICY = "notificationFeePolicy";
+    public static final String FIELD_F24_FLAT_RATE_KEY = "f24FlatRateKey";
+    public static final String FIELD_F24_FLAT_RATE_DIGEST_SHA256 = "f24FlatRateDigestSha256";
+    public static final String FIELD_F24_FLAT_RATE_VERSION_ID = "f24FlatRateVersionId";
+    public static final String FIELD_F24_DIGITAL_KEY = "f24DigitalKey";
+    public static final String FIELD_F24_DIGITAL_DIGEST_SHA256 = "f24DigitalDigestSha256";
+    public static final String FIELD_F24_DIGITAL_VERSION_ID = "f24DigitalVersionId";
+    public static final String FIELD_F24_ANALOG_KEY = "f24AnalogKey";
+    public static final String FIELD_F24_ANALOG_DIGEST_SHA256 = "f24AnalogDigestSha256";
+    public static final String FIELD_F24_ANALOG_VERSION_ID = "f24AnalogVersionId";
+    public static final String FIELD_PHYSICAL_COMMUNICATION_TYPE = "physicalCommunicationType";
 
     private String iun;
     private String paNotificationId;
@@ -50,6 +75,7 @@ public class NotificationEntity {
     private ServiceLevelType physicalCommunicationType;
 
     @DynamoDbPartitionKey
+    @DynamoDbAttribute(value = FIELD_IUN)
     public String getIun() {
         return iun;
     }
@@ -58,7 +84,7 @@ public class NotificationEntity {
         this.iun = iun;
     }
 
-    @DynamoDbAttribute(value = "paNotificationId")
+    @DynamoDbAttribute(value = FIELD_PA_NOTIFICATION_ID)
     public String getPaNotificationId() {
         return paNotificationId;
     }
@@ -67,7 +93,7 @@ public class NotificationEntity {
         this.paNotificationId = paNotificationId;
     }
 
-    @DynamoDbAttribute(value = "subject")
+    @DynamoDbAttribute(value = FIELD_SUBJECT)
     public String getSubject() {
         return subject;
     }
@@ -76,7 +102,7 @@ public class NotificationEntity {
         this.subject = subject;
     }
 
-    @DynamoDbAttribute(value = "sentAt")
+    @DynamoDbAttribute(value = FIELD_SENT_AT)
     public Instant getSentAt() {
         return sentAt;
     }
@@ -85,7 +111,7 @@ public class NotificationEntity {
         this.sentAt = sentAt;
     }
 
-    @DynamoDbAttribute(value = "cancelledIun")
+    @DynamoDbAttribute(value = FIELD_CANCELLED_IUN)
     public String getCancelledIun() {
         return cancelledIun;
     }
@@ -94,7 +120,7 @@ public class NotificationEntity {
         this.cancelledIun = cancelledIun;
     }
 
-    @DynamoDbAttribute(value = "cancelledByIun")
+    @DynamoDbAttribute(value = FIELD_CANCELLED_BY_IUN)
     public String getCancelledByIun() {
         return cancelledByIun;
     }
@@ -103,7 +129,7 @@ public class NotificationEntity {
         this.cancelledByIun = cancelledByIun;
     }
 
-    @DynamoDbAttribute(value = "senderPaId")
+    @DynamoDbAttribute(value = FIELD_SENDER_PA_ID)
     public String getSenderPaId() {
         return senderPaId;
     }
@@ -112,7 +138,7 @@ public class NotificationEntity {
         this.senderPaId = senderPaId;
     }
 
-    @DynamoDbAttribute(value = "recipientsOrder")
+    @DynamoDbAttribute(value = FIELD_RECIPIENTS_ORDER)
     public List<String> getRecipientsOrder() {
         return recipientsOrder;
     }
@@ -121,7 +147,7 @@ public class NotificationEntity {
         this.recipientsOrder = recipientsOrder;
     }
 
-    @DynamoDbAttribute(value = "recipientsJson")
+    @DynamoDbAttribute(value = FIELD_RECIPIENTS_JSON)
     public Map<String, String> getRecipientsJson() {
         return recipientsJson;
     }
@@ -130,7 +156,7 @@ public class NotificationEntity {
         this.recipientsJson = recipientsJson;
     }
 
-    @DynamoDbAttribute(value = "documentsKeys")
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_KEYS)
     public List<String> getDocumentsKeys() {
         return documentsKeys;
     }
@@ -139,7 +165,7 @@ public class NotificationEntity {
         this.documentsKeys = documentsKeys;
     }
 
-    @DynamoDbAttribute(value = "documentsDigestsSha256")
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_DIGESTS_SHA_256)
     public List<String> getDocumentsDigestsSha256() {
         return documentsDigestsSha256;
     }
@@ -148,7 +174,7 @@ public class NotificationEntity {
         this.documentsDigestsSha256 = documentsDigestsSha256;
     }
 
-    @DynamoDbAttribute(value = "documentsVersionIds")
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_VERSION_IDS)
     public List<String> getDocumentsVersionIds() {
         return documentsVersionIds;
     }
@@ -157,7 +183,7 @@ public class NotificationEntity {
         this.documentsVersionIds = documentsVersionIds;
     }
 
-    @DynamoDbAttribute(value = "documentsContentTypes")
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_CONTENT_TYPES)
     public List<String> getDocumentsContentTypes() {
         return documentsContentTypes;
     }
@@ -166,7 +192,7 @@ public class NotificationEntity {
         this.documentsContentTypes = documentsContentTypes;
     }
 
-    @DynamoDbAttribute(value = "documentsTitles")
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_TITLES)
     public List<String> getDocumentsTitles() {
         return documentsTitles;
     }
@@ -175,7 +201,7 @@ public class NotificationEntity {
         this.documentsTitles = documentsTitles;
     }
 
-    @DynamoDbAttribute(value = "iuv")
+    @DynamoDbAttribute(value = FIELD_IUV)
     public String getIuv() {
         return iuv;
     }
@@ -184,7 +210,7 @@ public class NotificationEntity {
         this.iuv = iuv;
     }
 
-    @DynamoDbAttribute(value = "notificationFeePolicy")
+    @DynamoDbAttribute(value = FIELD_NOTIFICATION_FEE_POLICY)
     public NotificationPaymentInfoFeePolicies getNotificationFeePolicy() {
         return notificationFeePolicy;
     }
@@ -193,7 +219,7 @@ public class NotificationEntity {
         this.notificationFeePolicy = notificationFeePolicy;
     }
 
-    @DynamoDbAttribute(value = "f24FlatRateKey")
+    @DynamoDbAttribute(value = FIELD_F24_FLAT_RATE_KEY)
     public String getF24FlatRateKey() {
         return f24FlatRateKey;
     }
@@ -202,7 +228,7 @@ public class NotificationEntity {
         this.f24FlatRateKey = f24FlatRateKey;
     }
 
-    @DynamoDbAttribute(value = "f24FlatRateDigestSha256")
+    @DynamoDbAttribute(value = FIELD_F24_FLAT_RATE_DIGEST_SHA256)
     public String getF24FlatRateDigestSha256() {
         return f24FlatRateDigestSha256;
     }
@@ -211,7 +237,7 @@ public class NotificationEntity {
         this.f24FlatRateDigestSha256 = f24FlatRateDigestSha256;
     }
 
-    @DynamoDbAttribute(value = "f24FlatRateVersionId")
+    @DynamoDbAttribute(value = FIELD_F24_FLAT_RATE_VERSION_ID)
     public String getF24FlatRateVersionId() {
         return f24FlatRateVersionId;
     }
@@ -220,7 +246,7 @@ public class NotificationEntity {
         this.f24FlatRateVersionId = f24FlatRateVersionId;
     }
 
-    @DynamoDbAttribute(value = "f24DigitalKey")
+    @DynamoDbAttribute(value = FIELD_F24_DIGITAL_KEY)
     public String getF24DigitalKey() {
         return f24DigitalKey;
     }
@@ -229,7 +255,7 @@ public class NotificationEntity {
         this.f24DigitalKey = f24DigitalKey;
     }
 
-    @DynamoDbAttribute(value = "f24DigitalDigestSha256")
+    @DynamoDbAttribute(value = FIELD_F24_DIGITAL_DIGEST_SHA256)
     public String getF24DigitalDigestSha256() {
         return f24DigitalDigestSha256;
     }
@@ -238,7 +264,7 @@ public class NotificationEntity {
         this.f24DigitalDigestSha256 = f24DigitalDigestSha256;
     }
 
-    @DynamoDbAttribute(value = "f24DigitalVersionId")
+    @DynamoDbAttribute(value = FIELD_F24_DIGITAL_VERSION_ID)
     public String getF24DigitalVersionId() {
         return f24DigitalVersionId;
     }
@@ -247,7 +273,7 @@ public class NotificationEntity {
         this.f24DigitalVersionId = f24DigitalVersionId;
     }
 
-    @DynamoDbAttribute(value = "f24AnalogKey")
+    @DynamoDbAttribute(value = FIELD_F24_ANALOG_KEY)
     public String getF24AnalogKey() {
         return f24AnalogKey;
     }
@@ -256,7 +282,7 @@ public class NotificationEntity {
         this.f24AnalogKey = f24AnalogKey;
     }
 
-    @DynamoDbAttribute(value = "f24AnalogDigestSha256")
+    @DynamoDbAttribute(value = FIELD_F24_ANALOG_DIGEST_SHA256)
     public String getF24AnalogDigestSha256() {
         return f24AnalogDigestSha256;
     }
@@ -265,7 +291,7 @@ public class NotificationEntity {
         this.f24AnalogDigestSha256 = f24AnalogDigestSha256;
     }
 
-    @DynamoDbAttribute(value = "f24AnalogVersionId")
+    @DynamoDbAttribute(value = FIELD_F24_ANALOG_VERSION_ID)
     public String getF24AnalogVersionId() {
         return f24AnalogVersionId;
     }
@@ -274,7 +300,7 @@ public class NotificationEntity {
         this.f24AnalogVersionId = f24AnalogVersionId;
     }
 
-    @DynamoDbAttribute(value = "physicalCommunicationType")
+    @DynamoDbAttribute(value = FIELD_PHYSICAL_COMMUNICATION_TYPE)
     public ServiceLevelType getPhysicalCommunicationType() {
         return physicalCommunicationType;
     }

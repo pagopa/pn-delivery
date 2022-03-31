@@ -43,6 +43,22 @@ Parameters:
     Type: String
     Description: 'Where to write database data'
 
+  NotificationsDynamoTableName:
+    Type: String
+    Description: 'Notifications Dynamo table name'
+
+  NotificationsDynamoTableArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing notifications'
+
+  NotificationsMetadataDynamoTableName:
+    Type: String
+    Description: 'NotificationsMetadata Dynamo table name'
+
+  NotificationsMetadataDynamoTableArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing notifications metadata'
+
   AttachmentsBucketName:
     Type: String
     Description: 'Where to write documents files'
@@ -96,7 +112,9 @@ Resources:
         ContainerEnvEntry6: 'SPRING_DATA_CASSANDRA_SSL=true'
         ContainerEnvEntry7: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
         ContainerEnvEntry8: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry19: !Sub 'PN_DELIVERY_DELIVERYPUSHBASEURL=http://${ApplicationLoadBalancerDomain}:8080/delivery-push'
+        ContainerEnvEntry9: !Sub 'PN_DELIVERY_DELIVERYPUSHBASEURL=http://${ApplicationLoadBalancerDomain}:8080/delivery-push'
+        ContainerEnvEntry10: !Sub 'PN_DELIVERY_NOTIFICATIONSDAO_TABLENAME=${NotificationsDynamoTableName}'
+        ContainerEnvEntry11: !Sub 'PN_DELIVERY_NOTIFICATIONSMETADATADAO_TABLENAME=${NotificationsMetadataDynamoTableName}'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -161,14 +179,8 @@ Resources:
                 - 'dynamodb:Query'
                 - 'dynamodb:PutItem'
               Resource:
-                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Notifications"
-          - Effect: Allow
-              Action:
-                - 'dynamodb:GetItem'
-                - 'dynamodb:Query'
-                - 'dynamodb:PutItem'
-              Resource:
-                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/NotificationsMetadata"
+                - !Sub "${NotificationsDynamoTableArn}"
+                - !Sub "${NotificationsMetadataDynamoTableArn}"
 
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
