@@ -1761,7 +1761,7 @@ components:
     NotificationPaymentInfo:
       type: object
       properties:
-        iuv:
+        numeroAvviso:
           type: string
           description: Identificativo Univoco del Versamento
         notificationFeePolicy:
