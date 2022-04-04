@@ -272,6 +272,7 @@ class NotificationReceiverTest {
 						NOTIFICATION_INLINE_ATTACHMENT,
 						NOTIFICATION_INLINE_ATTACHMENT
 				))
+				.group( "Group_1" )
 				.build();
 	}
 

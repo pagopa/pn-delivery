@@ -80,6 +80,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId( "pa_02" )
+                .group( "Group_1" )
                 .recipientsJson(Collections.emptyMap())
                 .build();
     }

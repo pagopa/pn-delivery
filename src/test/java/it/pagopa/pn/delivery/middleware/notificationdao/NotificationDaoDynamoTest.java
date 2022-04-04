@@ -290,6 +290,7 @@ class NotificationDaoDynamoTest {
                 .physicalCommunicationType( ServiceLevelType.SIMPLE_REGISTERED_LETTER )
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
+                .group( "Group_1" )
                 .sender(NotificationSender.builder()
                         .paId(" pa_02")
                         .build()
