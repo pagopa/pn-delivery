@@ -82,7 +82,7 @@ public class NotificationReceiverService {
 	private String doSaveWithRethrow( Notification notification ) {
 		String iun = generatePredictedIun( notification );
 		
-		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} notificationId={} paNotificationId={}",
+		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
 				iun, notification.getPaNotificationId() );
 
 		try {
@@ -130,7 +130,7 @@ public class NotificationReceiverService {
 		List<NotificationRecipient> recipients = notification.getRecipients();
 		List<NotificationRecipient> recipientsWithToken = new ArrayList<>(recipients.size());
 		for (NotificationRecipient recipient : recipients) {
-			String token = generateToken( );
+			String token = generateToken(iun, recipient.getTaxId());
 			// chiamata al dao per inserimento tokens
 			directAccessTokenDao.addDirectAccessToken(DirectAccessToken.builder()
 					.token( token )
@@ -152,8 +152,8 @@ public class NotificationReceiverService {
 	}
 
 
-	private String generateToken() {
-		return UUID.randomUUID().toString();
+	private String generateToken(String iun, String taxId) {
+		return iun + "_" + taxId;
 	}
 
 }

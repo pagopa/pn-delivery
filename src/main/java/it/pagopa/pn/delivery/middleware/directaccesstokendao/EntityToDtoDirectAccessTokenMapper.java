@@ -8,7 +8,7 @@ public class EntityToDtoDirectAccessTokenMapper {
 
     public DirectAccessToken entity2Dto(TokenEntity tokenEntity) {
         return DirectAccessToken.builder()
-                .token( tokenEntity.getToken() )
+                .token( tokenEntity.getTokenId() )
                 .iun( tokenEntity.getIun() )
                 .taxId( tokenEntity.getTaxId() )
                 .build();

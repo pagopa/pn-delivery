@@ -172,21 +172,6 @@ Resources:
         - ColumnName: recipientsjson
           ColumnType: map<text, text>
 
-  DirectAccessTokenTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: direct_access_tokens
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: token
-          ColumnType: text
-      RegularColumns:
-        - ColumnName: iun
-          ColumnType: text
-        - ColumnName: taxid
-          ColumnType: text
-
   PaperNotificationFailed:
     Type: AWS::Cassandra::Table
     Properties:
@@ -232,6 +217,28 @@ Resources:
             ExposedHeaders:
                 - "x-amz-version-id"
 
+  # DynamoDB tables
+  DirectAccessTokenTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-DirectAccessToken'
+      AttributeDefinitions:
+        - AttributeName: "tokenId"
+          AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "tokenId"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+      GlobalSecondaryIndexes:
+        - IndexName: iunIndex
+          KeySchema:
+            - AttributeName: iun
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+            
 Outputs:
   KeyspaceName:
     Description: Keyspace Name used by application to access the key-value store
@@ -245,4 +252,11 @@ Outputs:
     Description: ARN of bucket going to contains notification documents
     Value: !Sub '${AttachmentsBucket.Arn}'
 
+  # Dynamo tables
+  DirectAccessTokenTableName:
+    Description: Name of dynamodb table containing DirectAccessToken
+    Value: !Ref DirectAccessTokenTable
+  DirectAccessTokenTableArn:
+    Description: ARN of dynamodb table containing DirectAccessToken
+    Value: !Sub '${DirectAccessTokenTable.Arn}'
 

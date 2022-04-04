@@ -40,6 +40,11 @@ public class DynamoDirectAccessTokenDao implements DirectAccessTokenDao {
 
     @Override
     public void deleteByIun(String iun) {
-        
+        entityDao.findByIun(iun).forEach(entity ->{
+            Key keyToDelete = Key.builder()
+                    .partitionValue(entity.getTokenId())
+                    .build();
+            entityDao.delete(keyToDelete);
+        });
     }
 }
