@@ -7,8 +7,12 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.util.Base64Utils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +40,8 @@ public class PnLastEvaluatedKey {
         this.internalLastEvaluatedKey = internalLastEvaluatedKey;
     }
 
-    public static PnLastEvaluatedKey deserializeInternalLastEvaluatedKey( String jsonString ) throws JsonProcessingException {
+    public static PnLastEvaluatedKey deserializeInternalLastEvaluatedKey( String encodedString ) throws JsonProcessingException {
+        String jsonString = new String( Base64Utils.decodeFromUrlSafeString( encodedString ), StandardCharsets.UTF_8 );
         KeyPair keyPair = objectReader.readValue( jsonString );
         PnLastEvaluatedKey pnLastEvaluatedKey = new PnLastEvaluatedKey();
         pnLastEvaluatedKey.setExternalLastEvaluatedKey( keyPair.getEk() );
@@ -53,6 +58,7 @@ public class PnLastEvaluatedKey {
         String result;
         try {
             result = objectWriter.writeValueAsString( toSerialize );
+            result = Base64Utils.encodeToUrlSafeString( result.getBytes(StandardCharsets.UTF_8) );
         } catch ( JsonProcessingException e ) {
             throw new PnInternalException( "Unable to serialize internal LastEvaluatedKey", e );
         }
