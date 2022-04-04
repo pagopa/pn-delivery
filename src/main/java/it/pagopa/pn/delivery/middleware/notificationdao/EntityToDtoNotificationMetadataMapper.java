@@ -21,5 +21,5 @@ public class EntityToDtoNotificationMetadataMapper {
                 .notificationStatus( NotificationStatus.valueOf( entity.getNotificationStatus() ))
                 .build();
     }
-    
+
 }
