@@ -645,7 +645,7 @@ paths:
       summary: servizio per cercare una notifica dato <iun>
       tags:
       - pn-internal-notifications-controller
-      operationId: getSentNotification_1
+      operationId: getSentNotification
       parameters:
       - name: iun
         in: path
@@ -715,6 +715,15 @@ components:
         taxId:
           type: string
           description: Codice Fiscale del destinatario
+        abrastract:
+          type: string
+          description: descrizione sintetica della notifica
+        numeroAvviso:
+          type: string
+          description: numero avviso di pagamento
+        senderTaxId:
+          type: string
+          description: Codice fiscale ente creditore
         denomination:
           type: string
           description: Nome e cognome / ragione sociale
@@ -1786,7 +1795,7 @@ components:
           description: Denominazione IPA della PA mittente
         taxId:
           type: string
-          description: Denominazione IPA della PA mittente
+          description: Codice Fiscale del mittente
       description: Informazioni sul mittente
     NotificationStatusHistoryElement:
       type: object
