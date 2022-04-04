@@ -23,155 +23,6 @@ Resources:
     Properties:
       KeyspaceName: !Sub '${ProjectName}_delivery'
 
-  NotificationTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: notifications
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: iun
-          ColumnType: text
-      RegularColumns:
-        - ColumnName: cancelledbyiun
-          ColumnType: text
-        - ColumnName: cancellediun
-          ColumnType: text
-        - ColumnName: panotificationid
-          ColumnType: text
-        - ColumnName: subject
-          ColumnType: text
-        - ColumnName: senderpaid
-          ColumnType: text
-        - ColumnName: sentat
-          ColumnType: timestamp
-        - ColumnName: recipientsjson
-          ColumnType: map<text, text>
-        - ColumnName: recipientsorder
-          ColumnType: list<text>
-        - ColumnName: documentskeys
-          ColumnType: list<text>
-        - ColumnName: documentsdigestssha256
-          ColumnType: list<text>
-        - ColumnName: documentsversionids
-          ColumnType: list<text>
-        - ColumnName: documentscontenttypes
-          ColumnType: list<text>
-        - ColumnName: documentstitles
-          ColumnType: list<text>
-        - ColumnName: iuv
-          ColumnType: text
-        - ColumnName: notificationfeepolicy
-          ColumnType: text
-        - ColumnName: f24flatratekey
-          ColumnType: text
-        - ColumnName: f24flatratedigestsha256
-          ColumnType: text
-        - ColumnName: f24flatrateversionid
-          ColumnType: text
-        - ColumnName: f24digitalkey
-          ColumnType: text
-        - ColumnName: f24digitaldigestsha256
-          ColumnType: text
-        - ColumnName: f24digitalversionid
-          ColumnType: text
-        - ColumnName: f24analogkey
-          ColumnType: text
-        - ColumnName: f24analogdigestsha256
-          ColumnType: text
-        - ColumnName: f24analogversionid
-          ColumnType: text
-        - ColumnName: physical_communication_type
-          ColumnType: text
-
-  TimelineTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: timelines
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: iun
-          ColumnType: text
-      ClusteringKeyColumns:
-        - Column:
-            ColumnName: timeline_element_id
-            ColumnType: text
-          OrderBy: ASC
-      RegularColumns:
-        - ColumnName: category
-          ColumnType: text
-        - ColumnName: details
-          ColumnType: text
-        - ColumnName: legalfactid
-          ColumnType: text
-        - ColumnName: timestamp
-          ColumnType: timestamp
-
-  NotificationBySenderTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: iun_by_senderid
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: notificationstatus
-          ColumnType: text
-        - ColumnName: senderid
-          ColumnType: text
-      ClusteringKeyColumns:
-        - Column:
-            ColumnName: sentat
-            ColumnType: timestamp
-          OrderBy: DESC
-        - Column:
-            ColumnName: recipientid
-            ColumnType: text
-          OrderBy: ASC
-        - Column:
-            ColumnName: iun
-            ColumnType: text
-          OrderBy: ASC
-      RegularColumns:
-        - ColumnName: panotificationid
-          ColumnType: text
-        - ColumnName: subject
-          ColumnType: text
-        - ColumnName: recipientsjson
-          ColumnType: map<text, text>
-
-  NotificationByReceiverTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: iun_by_recipientid
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: notificationstatus
-          ColumnType: text
-        - ColumnName: recipientid
-          ColumnType: text
-      ClusteringKeyColumns:
-        - Column:
-            ColumnName: sentat
-            ColumnType: timestamp
-          OrderBy: DESC
-        - Column:
-            ColumnName: senderid
-            ColumnType: text
-          OrderBy: ASC
-        - Column:
-            ColumnName: iun
-            ColumnType: text
-          OrderBy: ASC
-      RegularColumns:
-        - ColumnName: panotificationid
-          ColumnType: text
-        - ColumnName: subject
-          ColumnType: text
-        - ColumnName: recipientsjson
-          ColumnType: map<text, text>
-
   DirectAccessTokenTable:
     Type: AWS::Cassandra::Table
     Properties:
@@ -186,20 +37,6 @@ Resources:
           ColumnType: text
         - ColumnName: taxid
           ColumnType: text
-
-  PaperNotificationFailed:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: paper_notification_failed
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: recipientid
-          ColumnType: text
-      ClusteringKeyColumns:
-        - Column:
-            ColumnName: iun
-            ColumnType: text
 
   AttachmentsBucket:
     Type: AWS::S3::Bucket
@@ -231,6 +68,66 @@ Resources:
               - "*"
             ExposedHeaders:
                 - "x-amz-version-id"
+  
+  # Dynamo Table
+  NotificationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-Notifications'
+      AttributeDefinitions:
+        - AttributeName: "iun"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "iun"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
+  NotificationsMetadataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-NotificationsMetadata'
+      AttributeDefinitions:
+        - AttributeName: "iun_recipientId"
+          AttributeType: "S"
+        - AttributeName: "sentAt"
+          AttributeType: "S"
+        - AttributeName: "senderId_creationMonth"
+          AttributeType: "S"
+        - AttributeName: "senderId_recipientId"
+          AttributeType: "S"
+        - AttributeName: "recipientId_creationMonth"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "iun_recipientId"
+          KeyType: "HASH"
+        - AttributeName: "sentAt"
+          KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: "senderId"
+          KeySchema:
+            - AttributeName: "senderId_creationMonth"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "senderId_recipientId"
+          KeySchema:
+            - AttributeName: "senderId_recipientId"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "recipientId"
+          KeySchema:
+            - AttributeName: "recipientId_creationMonth"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+      BillingMode: "PAY_PER_REQUEST"
 
 Outputs:
   KeyspaceName:
@@ -245,4 +142,17 @@ Outputs:
     Description: ARN of bucket going to contains notification documents
     Value: !Sub '${AttachmentsBucket.Arn}'
 
+  # Dynamo table
+  NotificationsDynamoTableName:
+    Description: Name of dynamodb table containing notifications
+    Value: !Ref NotificationsTable
+  NotificationsDynamoTableArn:
+    Description: ARN of dynamodb table containing notifications
+    Value: !Sub '${NotificationsTable.Arn}'
 
+  NotificationsMetadataDynamoTableName:
+    Description: Name of dynamodb table containing notifications metadata
+    Value: !Ref NotificationsMetadataTable
+  NotificationsMetadataDynamoTableArn:
+    Description: ARN of dynamodb table containing notifications metadata
+    Value: !Sub '${NotificationsMetadataTable.Arn}'
