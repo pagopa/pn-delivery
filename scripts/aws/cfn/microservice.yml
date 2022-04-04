@@ -174,13 +174,13 @@ Resources:
             Resource:
               - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
           - Effect: Allow
-              Action:
-                - 'dynamodb:GetItem'
-                - 'dynamodb:Query'
-                - 'dynamodb:PutItem'
-              Resource:
-                - !Sub "${NotificationsDynamoTableArn}"
-                - !Sub "${NotificationsMetadataDynamoTableArn}"
+            Action:
+              - 'dynamodb:GetItem'
+              - 'dynamodb:Query'
+              - 'dynamodb:PutItem'
+            Resource:
+              - !Sub "${NotificationsDynamoTableArn}"
+              - !Sub "${NotificationsMetadataDynamoTableArn}"
 
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
