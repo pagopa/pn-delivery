@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.delivery.middleware.model.notification.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import org.springframework.stereotype.Component;
 
 @Component

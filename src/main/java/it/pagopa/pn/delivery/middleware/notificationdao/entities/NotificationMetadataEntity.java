@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.middleware.model.notification;
+package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;

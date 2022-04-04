@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.delivery.middleware.model.notification.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

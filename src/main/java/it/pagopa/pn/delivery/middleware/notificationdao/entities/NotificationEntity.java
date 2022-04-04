@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.middleware.model.notification;
+package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
