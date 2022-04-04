@@ -75,15 +75,6 @@ Parameters:
     Type: String
     Description: 'network load balancer link for API-GW'
 
-  DirectAccessTokenTableName:
-    Type: String
-    Description: Name of dynamodb table containing DirectAccessToken
-
-  DirectAccessTokenTableArn:
-    Type: String
-    Description: ARN of dynamodb table containing DirectAccessToken
-
-
 
 Resources:
 
@@ -105,8 +96,9 @@ Resources:
         ContainerEnvEntry6: 'SPRING_DATA_CASSANDRA_SSL=true'
         ContainerEnvEntry7: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
         ContainerEnvEntry8: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
-        ContainerEnvEntry19: !Sub 'PN_DELIVERY_DELIVERYPUSHBASEURL=http://${ApplicationLoadBalancerDomain}:8080/delivery-push'
-        ContainerEnvEntry20: !Sub 'PN_DELIVERY_DIRECTACCESSTOKENDAO_TABLENAME=${DirectAccessTokenTableName}'
+        ContainerEnvEntry9: !Sub 'PN_DELIVERY_DELIVERYPUSHBASEURL=http://${ApplicationLoadBalancerDomain}:8080/delivery-push'
+        ContainerEnvEntry10: !Sub 'PN_DELIVERY_NOTIFICATIONDAO_TABLENAME=${NotificationsDynamoTableName}'
+        ContainerEnvEntry11: !Sub 'PN_DELIVERY_NOTIFICATIONMETADATADAO_TABLENAME=${NotificationsMetadataDynamoTableName}'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -166,12 +158,16 @@ Resources:
             Resource:
               - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
           - Effect: Allow
-              Action:
-                - 'dynamodb:GetItem'
-                - 'dynamodb:Query'
-                - 'dynamodb:PutItem'
-              Resource:
-                - !Sub "${DirectAccessTokenTableArn}"
+            Action:
+              - 'dynamodb:GetItem'
+              - 'dynamodb:Query'
+              - 'dynamodb:PutItem'
+            Resource:
+              - !Sub "${NotificationsDynamoTableArn}"
+              - !Sub "${NotificationsMetadataDynamoTableArn}"
+              - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+
+
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
