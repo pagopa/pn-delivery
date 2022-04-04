@@ -5,6 +5,8 @@ import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class EntityToDtoNotificationMetadataMapper {
 
@@ -15,8 +17,9 @@ public class EntityToDtoNotificationMetadataMapper {
                 .recipientId( entity.getRecipientId() )
                 .sentAt( entity.getSentAt() )
                 .subject( entity.getTableRow().get( "subject" ) )
-                //.paNotificationId(  ) //TODO non presente in NotificationMetadataEntity aggiungerla nel TableRow ??
+                .paNotificationId( entity.getTableRow().get("paNotificationId") )
                 .notificationStatus( NotificationStatus.valueOf( entity.getNotificationStatus() ))
                 .build();
     }
+    
 }

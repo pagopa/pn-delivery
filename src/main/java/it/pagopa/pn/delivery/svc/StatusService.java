@@ -114,6 +114,7 @@ public class StatusService {
                 .tableRow( Map.ofEntries(
                         Map.entry( "iun", notification.getIun() ),
                         Map.entry( "recipientsIds", recipientIds.toString() ),
+                        Map.entry( "paNotificationId", notification.getPaNotificationId() ),
                         Map.entry( "subject", notification.getSubject())  ) )
                 .senderId_recipientId( createConcatenation( notification.getSender().getPaId(), recipient.getTaxId()  ) )
                 .senderId_creationMonth( createConcatenation( notification.getSender().getPaId(), creationMonth ) )
