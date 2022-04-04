@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.svc.NotificationRetrieverService;
+import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

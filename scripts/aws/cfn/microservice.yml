@@ -43,6 +43,22 @@ Parameters:
     Type: String
     Description: 'Where to write database data'
 
+  NotificationsDynamoTableName:
+    Type: String
+    Description: 'Notifications Dynamo table name'
+
+  NotificationsDynamoTableArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing notifications'
+
+  NotificationsMetadataDynamoTableName:
+    Type: String
+    Description: 'NotificationsMetadata Dynamo table name'
+
+  NotificationsMetadataDynamoTableArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing notifications metadata'
+
   AttachmentsBucketName:
     Type: String
     Description: 'Where to write documents files'

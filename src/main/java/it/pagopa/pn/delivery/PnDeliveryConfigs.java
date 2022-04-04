@@ -1,9 +1,8 @@
 package it.pagopa.pn.delivery;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
-import lombok.Data;
 
 import java.time.Duration;
 
@@ -25,17 +24,23 @@ public class PnDeliveryConfigs {
     private boolean downloadWithPresignedUrl;
 
     private Integer numberOfPresignedRequest;
-    
-    private DirectAccessTokenDao directAccessTokenDao;
-    
+
+    private NotificationDao notificationDao;
+
+    private NotificationMetadataDao notificationMetadataDao;
+
     @Data
     public static class Topics {
-
         private String newNotifications;
     }
 
     @Data
-    public static class DirectAccessTokenDao {
+    public static class NotificationDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class NotificationMetadataDao {
         private String tableName;
     }
 }

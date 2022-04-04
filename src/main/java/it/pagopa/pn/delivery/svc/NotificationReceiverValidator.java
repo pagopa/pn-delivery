@@ -1,10 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.svc.preloaded_digest_error.DigestEqualityBean;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
