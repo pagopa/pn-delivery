@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.util.Base64Utils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -67,6 +68,7 @@ public class PnLastEvaluatedKey {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class KeyPair {
         private String ek;
         private Map<String,String> ik;
