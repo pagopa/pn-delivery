@@ -14,14 +14,14 @@ import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledExcepti
 
 @Component
 @Slf4j
-public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<NotificationEntity> implements NotificationEntityDao<Key, NotificationEntity> {
+public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<NotificationEntity> implements NotificationEntityDao {
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
-    private final DynamoDbTable<NotificationEntity> dynamoDbtable;
+    private final DynamoDbTable<NotificationEntity> dynamoDbTable;
 
     public NotificationEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryConfigs cfg) {
         super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationEntity.class)));
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
-        this.dynamoDbtable = dynamoDbEnhancedClient.table(tableName( cfg), TableSchema.fromClass(NotificationEntity.class));
+        this.dynamoDbTable = dynamoDbEnhancedClient.table(tableName( cfg), TableSchema.fromClass(NotificationEntity.class));
 
     }
 
@@ -50,8 +50,8 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                 .build();
 
         TransactWriteItemsEnhancedRequest enhancedRequest = TransactWriteItemsEnhancedRequest.builder()
-                .addPutItem( dynamoDbtable, request1 )
-                .addPutItem( dynamoDbtable, request2 )
+                .addPutItem(dynamoDbTable, request1 )
+                .addPutItem(dynamoDbTable, request2 )
                 .build();
 
         try {

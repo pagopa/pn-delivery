@@ -24,7 +24,7 @@ import java.util.*;
 @TestPropertySource(properties = {
         NotificationMetadataEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "aws.region-code=us-east-1",
-        "aws.profile-name=default",
+        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
         "aws.endpoint-url=http://localhost:4566",
 })
 @SpringBootTest

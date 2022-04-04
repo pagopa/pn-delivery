@@ -23,30 +23,6 @@ Resources:
     Properties:
       KeyspaceName: !Sub '${ProjectName}_delivery'
 
-  TimelineTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: timelines
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: iun
-          ColumnType: text
-      ClusteringKeyColumns:
-        - Column:
-            ColumnName: timeline_element_id
-            ColumnType: text
-          OrderBy: ASC
-      RegularColumns:
-        - ColumnName: category
-          ColumnType: text
-        - ColumnName: details
-          ColumnType: text
-        - ColumnName: legalfactid
-          ColumnType: text
-        - ColumnName: timestamp
-          ColumnType: timestamp
-
   DirectAccessTokenTable:
     Type: AWS::Cassandra::Table
     Properties:
@@ -61,20 +37,6 @@ Resources:
           ColumnType: text
         - ColumnName: taxid
           ColumnType: text
-
-  PaperNotificationFailed:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: paper_notification_failed
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: recipientid
-          ColumnType: text
-      ClusteringKeyColumns:
-        - Column:
-            ColumnName: iun
-            ColumnType: text
 
   AttachmentsBucket:
     Type: AWS::S3::Bucket
@@ -111,6 +73,7 @@ Resources:
   NotificationTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: !Sub '${ProjectName}-Notifications'
       AttributeDefinitions:
         - AttributeName: "iun"
           AttributeType: "S"
@@ -118,11 +81,11 @@ Resources:
         - AttributeName: "iun"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
-      TableName: "Notifications"
 
   NotificationsMetadataTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: !Sub '${ProjectName}-NotificationsMetadata'
       AttributeDefinitions:
         - AttributeName: "iun_recipientId"
           AttributeType: "S"
@@ -139,8 +102,6 @@ Resources:
           KeyType: "HASH"
         - AttributeName: "sentAt"
           KeyType: "RANGE"
-      BillingMode: "PAY_PER_REQUEST"
-      TableName: "NotificationsMetadata"
       GlobalSecondaryIndexes:
         - IndexName: "senderId"
           KeySchema:
@@ -166,7 +127,8 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
-      
+      BillingMode: "PAY_PER_REQUEST"
+
 Outputs:
   KeyspaceName:
     Description: Keyspace Name used by application to access the key-value store
@@ -187,6 +149,7 @@ Outputs:
   NotificationsDynamoTableArn:
     Description: ARN of dynamodb table containing notifications
     Value: !Sub '${NotificationsTable.Arn}'
+
   NotificationsMetadataDynamoTableName:
     Description: Name of dynamodb table containing notifications metadata
     Value: !Ref NotificationsMetadataTable

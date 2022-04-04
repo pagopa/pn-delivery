@@ -19,16 +19,18 @@ import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
-    NotificationEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
+        NotificationEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "aws.region-code=us-east-1",
-        "aws.profile-name=default",
+        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
         "aws.endpoint-url=http://localhost:4566",
-})
+        "pn.delivery.notification-dao.table-name=Notifications",
+        "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata"
+    })
 @SpringBootTest
 class NotificationEntityDaoDynamoTestIT {
 
     @Autowired
-    private NotificationEntityDao<Key, NotificationEntity> notificationEntityDao;
+    private NotificationEntityDao notificationEntityDao;
 
     @Test
     void putSuccess() throws IdConflictException {

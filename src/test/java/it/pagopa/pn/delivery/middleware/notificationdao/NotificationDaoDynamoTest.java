@@ -36,7 +36,7 @@ class NotificationDaoDynamoTest {
         ObjectMapper objMapper = new ObjectMapper();
         DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(objMapper);
         entity2dto = new EntityToDtoNotificationMapper(objMapper);
-        NotificationEntityDao<Key,NotificationEntity> entityDao = new EntityDaoMock();
+        NotificationEntityDao entityDao = new EntityDaoMock();
         NotificationMetadataEntityDao<Key,NotificationMetadataEntity> metadataEntityDao = new MetadataEntityDaoMock();
         dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto );
     }
@@ -218,7 +218,7 @@ class NotificationDaoDynamoTest {
 
     }
 
-    private static class EntityDaoMock implements NotificationEntityDao<Key,NotificationEntity> {
+    private static class EntityDaoMock implements NotificationEntityDao {
 
         private final Map<Key, NotificationEntity> storage = new ConcurrentHashMap<>();
 

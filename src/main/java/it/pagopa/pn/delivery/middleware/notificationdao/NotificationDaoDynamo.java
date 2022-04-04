@@ -25,13 +25,13 @@ import java.util.regex.Pattern;
 @Slf4j
 public class NotificationDaoDynamo implements NotificationDao {
 
-    private final NotificationEntityDao<Key,NotificationEntity> entityDao;
+    private final NotificationEntityDao entityDao;
     private final NotificationMetadataEntityDao<Key,NotificationMetadataEntity> metadataEntityDao;
     private final DtoToEntityNotificationMapper dto2entityMapper;
     private final EntityToDtoNotificationMapper entity2DtoMapper;
 
     public NotificationDaoDynamo(
-            NotificationEntityDao<Key, NotificationEntity> entityDao,
+            NotificationEntityDao entityDao,
             NotificationMetadataEntityDao<Key, NotificationMetadataEntity> metadataEntityDao, DtoToEntityNotificationMapper dto2entityMapper,
             EntityToDtoNotificationMapper entity2DtoMapper) {
         this.entityDao = entityDao;
