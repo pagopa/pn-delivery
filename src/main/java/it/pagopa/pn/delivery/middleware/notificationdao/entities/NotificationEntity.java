@@ -46,6 +46,7 @@ public class NotificationEntity {
     public static final String FIELD_F24_ANALOG_DIGEST_SHA256 = "f24AnalogDigestSha256";
     public static final String FIELD_F24_ANALOG_VERSION_ID = "f24AnalogVersionId";
     public static final String FIELD_PHYSICAL_COMMUNICATION_TYPE = "physicalCommunicationType";
+    public static final String FIELD_GROUP = "group";
 
     private String iun;
     private String paNotificationId;
@@ -73,6 +74,7 @@ public class NotificationEntity {
     private String f24AnalogDigestSha256;
     private String f24AnalogVersionId;
     private ServiceLevelType physicalCommunicationType;
+    private String group;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN)
@@ -307,5 +309,14 @@ public class NotificationEntity {
 
     public void setPhysicalCommunicationType(ServiceLevelType physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
+    }
+
+    @DynamoDbAttribute(value = FIELD_GROUP)
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 }
