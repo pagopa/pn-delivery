@@ -95,6 +95,8 @@ class NotificationSearchControllerTest {
         Mockito.verify(svc).searchNotification(searchDto);
     }
 
+    //TODO aggoingere test seconda pagina per serializzazione
+
     
     @Test
     void getReceiverSuccess() {

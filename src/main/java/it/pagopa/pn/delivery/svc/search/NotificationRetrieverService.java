@@ -49,6 +49,7 @@ public class NotificationRetrieverService {
 	private final NotificationDao notificationDao;
 	private final PnDeliveryPushClient pnDeliveryPushClient;
 	private final StatusUtils statusUtils;
+	private final MultiPageSearch multiPageSearch;
 
 
 	@Autowired
@@ -58,8 +59,8 @@ public class NotificationRetrieverService {
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClient pnDeliveryPushClient,
-										StatusUtils statusUtils
-	) {
+										StatusUtils statusUtils,
+										MultiPageSearch multiPageSearch) {
 		this.fileStorage = fileStorage;
 		this.clock = clock;
 		this.presignedUrlSvc = presignedUrlSvc;
@@ -67,6 +68,7 @@ public class NotificationRetrieverService {
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.statusUtils = statusUtils;
+		this.multiPageSearch = multiPageSearch;
 	}
 	
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {
@@ -84,16 +86,17 @@ public class NotificationRetrieverService {
 		}
 		
 
-		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = notificationDao.
-				searchNotification(searchDto, lastEvaluatedKey);
+		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata( searchDto, lastEvaluatedKey);
 
-		return ResultPaginationDto.<NotificationSearchRow,String>builder()
-				.moreResult( searchResult.isMoreResult() )
-				.result( searchResult.getResult() )
-				.nextPagesKey( searchResult.getNextPagesKey()
-						.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
-						.collect(Collectors.toList()) )
-				.build();
+		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
+				builder.moreResult( searchResult.isMoreResult() )
+				.result( searchResult.getResult() );
+				if ( searchResult.getNextPagesKey() != null ) {
+					builder.nextPagesKey( searchResult.getNextPagesKey()
+							.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
+							.collect(Collectors.toList()) );
+				}
+				return builder.build();
 	}
 
 	private void validateInput(InputSearchNotificationDto searchDto) {

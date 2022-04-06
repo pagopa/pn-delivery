@@ -51,11 +51,11 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             throw new PnInternalException( "Unable to paginate search result without requested size" );
         }
 
-        Instant startDateInstant = inputSearchNotificationDto.getStartDate();
+        Instant endDateInstant = inputSearchNotificationDto.getEndDate();
         if (lastEvaluatedKey != null) {
-            startDateInstant = Instant.parse( lastEvaluatedKey.getInternalLastEvaluatedKey().get( "sentAt" ).s() );
+            endDateInstant = Instant.parse( lastEvaluatedKey.getInternalLastEvaluatedKey().get( "sentAt" ).s() );
         }
-        final Instant endDateInstant = inputSearchNotificationDto.getEndDate();
+        final Instant startDateInstant = inputSearchNotificationDto.getStartDate();
         final String startDate = startDateInstant.toString();
         final String endDate = endDateInstant.toString();
 
@@ -89,7 +89,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 lastEvaluatedKey = null;
             }
             if (maxRowNum <= 0) {
-                break;
+                maxRowNum = inputSearchNotificationDto.getSize();
             }
         }
         boolean moreResult = rows.size() >= inputSearchNotificationDto.getSize();
@@ -101,7 +101,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     @NotNull
-    private ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
+    public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
             InputSearchNotificationDto inputSearchNotificationDto,
             String indexName,
             String startDate,
@@ -112,7 +112,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     ) {
 
         String partitionValue = computePartitionValue( inputSearchNotificationDto, oneMonth, lastEvaluatedKey );
-
 
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
         Key key = builder.build();
@@ -128,7 +127,10 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder();
 
-        requestBuilder.queryConditional( queryConditional ).queryConditional( betweenConditional ).limit( size );
+        requestBuilder.queryConditional( queryConditional )
+                .queryConditional( betweenConditional )
+                .limit( size )
+                .scanIndexForward( false );
 
         addFilterExpression(inputSearchNotificationDto, requestBuilder);
 
@@ -147,7 +149,9 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             PnLastEvaluatedKey pnLastEvaluatedKey = new PnLastEvaluatedKey();
             pnLastEvaluatedKey.setExternalLastEvaluatedKey( partitionValue  );
             pnLastEvaluatedKey.setInternalLastEvaluatedKey( page.lastEvaluatedKey() );
-            resultPaginationDtoBuilder.nextPagesKey( Collections.singletonList( pnLastEvaluatedKey ) )
+            List<PnLastEvaluatedKey> lastEvaluatedKeyList = new ArrayList<>();
+            lastEvaluatedKeyList.add( pnLastEvaluatedKey );
+            resultPaginationDtoBuilder.nextPagesKey( lastEvaluatedKeyList )
                     .moreResult( true );
         }
         return resultPaginationDtoBuilder.build();
@@ -169,7 +173,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return partitionValue;
     }
 
-    private String retrieveIndexName(InputSearchNotificationDto inputSearchNotificationDto) {
+    public String retrieveIndexName(InputSearchNotificationDto inputSearchNotificationDto) {
         String indexName;
         final String filterId = inputSearchNotificationDto.getFilterId();
         if(inputSearchNotificationDto.isBySender()) {
@@ -235,7 +239,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return result;
     }
 
-    private List<String> retrieveCreationMonth(Instant startDate, Instant endDate) {
+    public List<String> retrieveCreationMonth(Instant startDate, Instant endDate) {
         List<String> creationMonths = new ArrayList<>();
         ZonedDateTime currentMonth = ZonedDateTime.ofInstant( startDate, ZoneId.of( "UTC" ) )
                 .truncatedTo(ChronoUnit.DAYS)
@@ -246,6 +250,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             creationMonths.add( currentMonthString );
             currentMonth = currentMonth.plus( 1, ChronoUnit.MONTHS );
         }
+        Collections.reverse( creationMonths );
         return creationMonths;
     }
 
