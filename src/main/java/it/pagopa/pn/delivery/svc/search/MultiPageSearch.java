@@ -3,28 +3,41 @@ package it.pagopa.pn.delivery.svc.search;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDaoDynamo;
-import org.springframework.stereotype.Component;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-@Component
 public class MultiPageSearch {
 
-    private static final int MAX_PAGES = 4; // TODO da prendere dalla cfg
-    private final NotificationMetadataEntityDaoDynamo notificationDao;
+    private final NotificationDao notificationDao;
+    private String indexName;
+    private final PnLastEvaluatedKey lastEvaluatedKey;
+    private final InputSearchNotificationDto inputSearchNotificationDto;
+    private final PnDeliveryConfigs cfg;
 
-    public MultiPageSearch(NotificationMetadataEntityDaoDynamo notificationDao) {
+    public MultiPageSearch(NotificationDao notificationDao,
+                           InputSearchNotificationDto inputSearchNotificationDto,
+                           PnLastEvaluatedKey lastEvaluatedKey,
+                           PnDeliveryConfigs cfg) {
         this.notificationDao = notificationDao;
+        this.inputSearchNotificationDto = inputSearchNotificationDto;
+        this.lastEvaluatedKey = lastEvaluatedKey;
+        this.cfg = cfg;
     }
 
-    public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchNotificationMetadata(
-            InputSearchNotificationDto inputSearchNotificationDto,
-            PnLastEvaluatedKey lastEvaluatedKey
-    ) {
+    public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchNotificationMetadata() {
+
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> globalResult = new ResultPaginationDto<>();
-        String indexName = notificationDao.retrieveIndexName(inputSearchNotificationDto);
+
+        retrieveIndexName(inputSearchNotificationDto);
 
         List<String> partitions = listMonthPartitions( inputSearchNotificationDto, lastEvaluatedKey );
 
@@ -32,12 +45,12 @@ public class MultiPageSearch {
         int numPages = 0;
         int numeroDiRigheMancantiNellaPagina = inputSearchNotificationDto.getSize();
 
-        while ( numPages < MAX_PAGES && pIdx < partitions.size() ) {
+        while ( numPages < cfg.getMaxPageSize() && pIdx < partitions.size() ) {
 
             String partition = partitions.get( pIdx );
 
-            String startDate = inputSearchNotificationDto.getStartDate().toString();
-            String endDate = inputSearchNotificationDto.getEndDate().toString();
+            Instant startDate = inputSearchNotificationDto.getStartDate();
+            Instant endDate = inputSearchNotificationDto.getEndDate();
 
             PnLastEvaluatedKey oneMonthKey;
             if( globalResult.getNextPagesKey() != null && !globalResult.getNextPagesKey().isEmpty() ) {
@@ -48,13 +61,15 @@ public class MultiPageSearch {
                 oneMonthKey = lastEvaluatedKey;
             }
 
+            String partitionValue = computePartitionValue( inputSearchNotificationDto, partition, lastEvaluatedKey );
+
             ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> oneQueryResult;
             oneQueryResult = notificationDao.searchForOneMonth(
                     inputSearchNotificationDto,
                     indexName,
                     startDate,
                     endDate,
-                    partition,
+                    partitionValue,
                     numeroDiRigheMancantiNellaPagina,
                     oneMonthKey);
 
@@ -80,17 +95,32 @@ public class MultiPageSearch {
 
             if( oneQueryResult.getNextPagesKey() != null ) {
                 List<PnLastEvaluatedKey> oldLastEvaluatedKey = globalResult.getNextPagesKey();
-                if ( oldLastEvaluatedKey != null )
-                    oldLastEvaluatedKey.addAll( oneQueryResult.getNextPagesKey() );
+                if ( oldLastEvaluatedKey != null ) {
+                    oldLastEvaluatedKey.addAll(oneQueryResult.getNextPagesKey());
+                    globalResult.setNextPagesKey(oldLastEvaluatedKey);
+                }
                 else {
                     globalResult.setNextPagesKey( oneQueryResult.getNextPagesKey() );
                 }
                 numPages = globalResult.getNextPagesKey().size();
             }
-
         }
-
         return globalResult;
+    }
+
+    private void retrieveIndexName(InputSearchNotificationDto inputSearchNotificationDto) {
+        final String filterId = inputSearchNotificationDto.getFilterId();
+        if(inputSearchNotificationDto.isBySender()) {
+            indexName = "senderId";
+            if (filterId != null) {
+                indexName += "_recipientId";
+            }
+        } else {
+            indexName = "recipientId";
+            if (filterId != null) {
+                indexName = "senderId_" + indexName;
+            }
+        }
     }
 
     private List<String> listMonthPartitions( InputSearchNotificationDto inputSearchNotificationDto, PnLastEvaluatedKey lastEvaluatedKey ) {
@@ -98,6 +128,37 @@ public class MultiPageSearch {
         if (lastEvaluatedKey != null) {
             endDate = Instant.parse( lastEvaluatedKey.getInternalLastEvaluatedKey().get( "sentAt" ).s() );
         }
-        return notificationDao.retrieveCreationMonth(inputSearchNotificationDto.getStartDate(), endDate);
+        return retrieveCreationMonth(inputSearchNotificationDto.getStartDate(), endDate);
+    }
+
+    private List<String> retrieveCreationMonth(Instant startDate, Instant endDate) {
+        List<String> creationMonths = new ArrayList<>();
+        ZonedDateTime currentMonth = ZonedDateTime.ofInstant( startDate, ZoneId.of( "UTC" ) )
+                .truncatedTo(ChronoUnit.DAYS)
+                .with(TemporalAdjusters.firstDayOfMonth());
+        while ( currentMonth.toInstant().isBefore( endDate )  || currentMonth.toInstant().equals( endDate )) {
+            String[] splitCurrentMonth = currentMonth.toString().split( "-" );
+            String currentMonthString = splitCurrentMonth[0] + splitCurrentMonth[1];
+            creationMonths.add( currentMonthString );
+            currentMonth = currentMonth.plus( 1, ChronoUnit.MONTHS );
+        }
+        Collections.reverse( creationMonths );
+        return creationMonths;
+    }
+
+    private String computePartitionValue(InputSearchNotificationDto inputSearchNotificationDto, String oneMonth, PnLastEvaluatedKey lastEvaluatedKey) {
+        String partitionValue;
+        final String senderReceiverId = inputSearchNotificationDto.getSenderReceiverId();
+        final String filterId = inputSearchNotificationDto.getFilterId();
+        if (filterId != null) {
+            partitionValue = senderReceiverId
+                    + "##" + filterId;
+        } else if (lastEvaluatedKey != null && oneMonth.equals( lastEvaluatedKey.getExternalLastEvaluatedKey()
+                .substring( lastEvaluatedKey.getExternalLastEvaluatedKey().indexOf( "##" )+2 ) )) {
+            partitionValue = lastEvaluatedKey.getExternalLastEvaluatedKey();
+        } else {
+            partitionValue = senderReceiverId + "##" + oneMonth;
+        }
+        return partitionValue;
     }
 }

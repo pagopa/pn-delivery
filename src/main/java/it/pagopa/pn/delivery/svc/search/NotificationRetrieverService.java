@@ -15,6 +15,7 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
@@ -49,7 +50,7 @@ public class NotificationRetrieverService {
 	private final NotificationDao notificationDao;
 	private final PnDeliveryPushClient pnDeliveryPushClient;
 	private final StatusUtils statusUtils;
-	private final MultiPageSearch multiPageSearch;
+	private final PnDeliveryConfigs cfg;
 
 
 	@Autowired
@@ -60,7 +61,7 @@ public class NotificationRetrieverService {
 										NotificationDao notificationDao,
 										PnDeliveryPushClient pnDeliveryPushClient,
 										StatusUtils statusUtils,
-										MultiPageSearch multiPageSearch) {
+										PnDeliveryConfigs cfg) {
 		this.fileStorage = fileStorage;
 		this.clock = clock;
 		this.presignedUrlSvc = presignedUrlSvc;
@@ -68,7 +69,7 @@ public class NotificationRetrieverService {
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.statusUtils = statusUtils;
-		this.multiPageSearch = multiPageSearch;
+		this.cfg = cfg;
 	}
 	
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {
@@ -84,9 +85,15 @@ public class NotificationRetrieverService {
 				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey", e );
 			}
 		}
-		
 
-		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata( searchDto, lastEvaluatedKey);
+		MultiPageSearch multiPageSearch = new MultiPageSearch(
+				notificationDao,
+				searchDto,
+				lastEvaluatedKey,
+				cfg
+		);
+
+		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 				builder.moreResult( searchResult.isMoreResult() )

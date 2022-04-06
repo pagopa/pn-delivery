@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -37,7 +38,7 @@ class NotificationDaoDynamoTest {
         DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(objMapper);
         entity2dto = new EntityToDtoNotificationMapper(objMapper);
         NotificationEntityDao entityDao = new EntityDaoMock();
-        NotificationMetadataEntityDao<Key,NotificationMetadataEntity> metadataEntityDao = new MetadataEntityDaoMock();
+        NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
         dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto );
     }
 
@@ -254,12 +255,7 @@ class NotificationDaoDynamoTest {
         }
     }
 
-    private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao<Key,NotificationMetadataEntity> {
-
-        @Override
-        public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchNotificationMetadata(InputSearchNotificationDto inputSearchNotificationDto, PnLastEvaluatedKey lastEvaluatedKey) {
-            return null;
-        }
+    private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao {
 
         @Override
         public void put(NotificationMetadataEntity notificationMetadataEntity) {
@@ -279,6 +275,11 @@ class NotificationDaoDynamoTest {
         @Override
         public void delete(Key key) {
 
+        }
+
+        @Override
+        public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, Instant startDate, Instant endDate, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+            return null;
         }
     }
 

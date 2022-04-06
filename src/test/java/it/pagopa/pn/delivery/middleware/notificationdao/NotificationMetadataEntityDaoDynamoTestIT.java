@@ -31,10 +31,10 @@ import java.util.*;
 class NotificationMetadataEntityDaoDynamoTestIT {
 
     @Autowired
-    private NotificationMetadataEntityDao<Key, NotificationMetadataEntity> notificationMetadataEntityDao;
+    private NotificationMetadataEntityDao notificationMetadataEntityDao;
 
     @Test
-    void searchNotificationBySenderMetadata() {
+    void searchNotificationMetadataBySender() {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
@@ -44,7 +44,9 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
-        List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
+
+        //notificationMetadataEntityDao.searchForOneMonth( inputSearch,  )
+        /*List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
         PnLastEvaluatedKey lastEvaluatedKey = null;
         do {
             ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result =  notificationMetadataEntityDao.searchNotificationMetadata( inputSearch, lastEvaluatedKey );
@@ -54,7 +56,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 lastEvaluatedKey = null;
             }
             resultList.add( result );
-        } while (lastEvaluatedKey !=null);
+        } while (lastEvaluatedKey !=null);*/
         /*Map<String, AttributeValue> internalLastEvaluatedKey = new HashMap<>();
         internalLastEvaluatedKey.put( "iun_recipientId", AttributeValue.builder().s( "0020##PF003" ).build() );
         internalLastEvaluatedKey.put( "sentAt", AttributeValue.builder().s( "2022-03-20T20:20:20Z" ).build() );
@@ -66,7 +68,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     }
 
     @Test
-    void searchNotificationByRecipientMetadata() {
+    void searchNotificationMetadataByRecipient() {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( false )
@@ -77,17 +79,17 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .nextPagesKey( null )
                 .build();
 
-        List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
-        PnLastEvaluatedKey lastEvaluatedKey = null;
-        do {
-            ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result =  notificationMetadataEntityDao.searchNotificationMetadata( inputSearch, lastEvaluatedKey );
-            if (!result.getNextPagesKey().isEmpty() ) {
-                lastEvaluatedKey = result.getNextPagesKey().get( 0 );
-            } else {
-                lastEvaluatedKey = null;
-            }
-            resultList.add( result );
-        } while (lastEvaluatedKey !=null);
+//        List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
+//        PnLastEvaluatedKey lastEvaluatedKey = null;
+//        do {
+//            ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result =  notificationMetadataEntityDao.searchNotificationMetadata( inputSearch, lastEvaluatedKey );
+//            if (!result.getNextPagesKey().isEmpty() ) {
+//                lastEvaluatedKey = result.getNextPagesKey().get( 0 );
+//            } else {
+//                lastEvaluatedKey = null;
+//            }
+//            resultList.add( result );
+//        } while (lastEvaluatedKey !=null);
     }
 
     @Test
@@ -102,17 +104,17 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .status( NotificationStatus.DELIVERED )
                 .build();
 
-        List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
-        PnLastEvaluatedKey lastEvaluatedKey = null;
-        do {
-            ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result =  notificationMetadataEntityDao.searchNotificationMetadata( inputSearch, lastEvaluatedKey );
-            if (!result.getNextPagesKey().isEmpty() ) {
-                lastEvaluatedKey = result.getNextPagesKey().get( 0 );
-            } else {
-                lastEvaluatedKey = null;
-            }
-            resultList.add( result );
-        } while (lastEvaluatedKey !=null);
+//        List<ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey>> resultList = new ArrayList<>();
+//        PnLastEvaluatedKey lastEvaluatedKey = null;
+//        do {
+//            ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result =  notificationMetadataEntityDao.searchNotificationMetadata( inputSearch, lastEvaluatedKey );
+//            if (!result.getNextPagesKey().isEmpty() ) {
+//                lastEvaluatedKey = result.getNextPagesKey().get( 0 );
+//            } else {
+//                lastEvaluatedKey = null;
+//            }
+//            resultList.add( result );
+//        } while (lastEvaluatedKey !=null);
     }
 
     @Test

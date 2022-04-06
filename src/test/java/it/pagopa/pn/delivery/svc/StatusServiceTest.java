@@ -28,7 +28,7 @@ class StatusServiceTest {
     private NotificationDao notificationDao;
 
     @Mock
-    private NotificationMetadataEntityDao<Key, NotificationMetadataEntity> notificationMetadataEntityDao;
+    private NotificationMetadataEntityDao notificationMetadataEntityDao;
 
     private StatusUtils statusUtils = new StatusUtils();
 

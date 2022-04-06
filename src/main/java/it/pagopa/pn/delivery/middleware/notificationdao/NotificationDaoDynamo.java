@@ -8,13 +8,13 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -26,13 +26,13 @@ import java.util.regex.Pattern;
 public class NotificationDaoDynamo implements NotificationDao {
 
     private final NotificationEntityDao entityDao;
-    private final NotificationMetadataEntityDao<Key,NotificationMetadataEntity> metadataEntityDao;
+    private final NotificationMetadataEntityDao metadataEntityDao;
     private final DtoToEntityNotificationMapper dto2entityMapper;
     private final EntityToDtoNotificationMapper entity2DtoMapper;
 
     public NotificationDaoDynamo(
             NotificationEntityDao entityDao,
-            NotificationMetadataEntityDao<Key, NotificationMetadataEntity> metadataEntityDao, DtoToEntityNotificationMapper dto2entityMapper,
+            NotificationMetadataEntityDao metadataEntityDao, DtoToEntityNotificationMapper dto2entityMapper,
             EntityToDtoNotificationMapper entity2DtoMapper) {
         this.entityDao = entityDao;
         this.metadataEntityDao = metadataEntityDao;
@@ -57,9 +57,10 @@ public class NotificationDaoDynamo implements NotificationDao {
     }
 
     @Override
-    public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchNotification(InputSearchNotificationDto inputSearchNotificationDto, PnLastEvaluatedKey lastEvaluatedKey) {
-        return metadataEntityDao.searchNotificationMetadata( inputSearchNotificationDto, lastEvaluatedKey );
+    public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, Instant startDate, Instant endDate, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+        return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, startDate, endDate, partitionValue, size, lastEvaluatedKey );
     }
+
 
     Predicate<String> buildRegexpPredicate(String subjectRegExp) {
         Predicate<String> matchSubject;
