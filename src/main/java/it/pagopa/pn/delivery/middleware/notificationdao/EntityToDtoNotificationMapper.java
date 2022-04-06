@@ -39,7 +39,7 @@ public class EntityToDtoNotificationMapper {
                 .cancelledByIun( entity.getCancelledByIun() )
                 .cancelledIun( entity.getCancelledIun() )
                 .physicalCommunicationType( entity.getPhysicalCommunicationType() )
-                
+                .group( entity.getGroup() )
                 .sender( NotificationSender.builder()
                         .paId( entity.getSenderPaId() )
                         .build()

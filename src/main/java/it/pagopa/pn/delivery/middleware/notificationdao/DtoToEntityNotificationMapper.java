@@ -53,6 +53,7 @@ public class DtoToEntityNotificationMapper {
                 .documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
                 .documentsTitles( listDocumentsTitles( dto.getDocuments() ))
                 .physicalCommunicationType (dto.getPhysicalCommunicationType() )
+                .group( dto.getGroup() )
             ;
 
         NotificationPaymentInfo paymentInfo = dto.getPayment();

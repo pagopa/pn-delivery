@@ -145,7 +145,7 @@ public class StatusService {
                 .senderId( notification.getSender().getPaId() )
                 .recipientId( recipientId )
                 .sentAt( notification.getSentAt() )
-                //.notificationGroup( notification.getGroup() )
+                .notificationGroup( notification.getGroup() )
                 .recipientIds( recipientsIds )
                 .tableRow( Map.ofEntries(
                         Map.entry( "iun", notification.getIun() ),
