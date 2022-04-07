@@ -66,7 +66,6 @@ public class DirectAccessService {
 		return (token != null && token.contains("_")) ? token.substring(0, token.indexOf("_")) : null;
 	}
 
-	@NotNull
 	private Optional<DirectAccessToken> getDirectAccessToken(String token, String iun, Notification notification) {
 
 		Optional<String> taxIdOtp =
