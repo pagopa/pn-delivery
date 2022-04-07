@@ -11,4 +11,46 @@ components:
         - EFFECTIVE_DATE
         - PAID
         - UNREACHABLE
+    
+    NotificationStatus:
+      type: string
+      description: stato di avanzamento del processo di notifica
+      enum:
+        - IN_VALIDATION
+        - ACCEPTED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+        - REFUSED
+    
+    NotificationStatusHistory: 
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: array
+      items:
+        $ref: "#/components/schemas/NotificationStatusHistoryElement"
+    
+    NotificationStatusHistoryElement:
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: object
+      required:
+        - status
+        - activeFrom
+        - relatedTimelineElements
+      properties:
+        status:
+          $ref: "#/components/schemas/NotificationStatus"
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            $ref: "./schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElementId"
+      
+        
 

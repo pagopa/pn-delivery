@@ -22,7 +22,7 @@ components:
         subject:
           type: string
           description: titolo della notifica
-        abrastract:
+        abstract:
           type: string
           description: descrizione sintetica della notifica
         recipients:
@@ -34,18 +34,25 @@ components:
           type: array
           description: Documenti notificati
           items:
-            $ref: "#/components/schemas/NotificationAttachment"
-        
+            $ref: "#/components/schemas/NotificationDocument"      
         cancelledIun:
           type: string
           description: IUN della notifica rettificata da questa notifica
-        
         physicalCommunicationType:
           type: string
           description: Tipologia comunicazione fisica
           enum:
           - SIMPLE_REGISTERED_LETTER
           - REGISTERED_LETTER_890
+        senderDenomination:
+          description: Denominazione dell'ente mittente
+          type: string
+        senderTaxId:
+          description: Codice Fiscale dell'ente mittente
+          type: string
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
     
     NotificationRecipient:
       description: Informazioni sui destinatari
@@ -76,28 +83,35 @@ components:
           $ref: "#/components/schemas/NotificationPaymentInfo"
 
     NotificationAttachment:
-      description: Modulo F24 per spese di notifica analogica
+      description: >-
+        Un allegato della notifica utile per il pagamento
       type: object
       required:
         - digests
+        - contentType
+        - ref
       properties:
         digests:
-          "$ref": "#/components/schemas/NotificationAttachmentDigests"
+          $ref: "#/components/schemas/NotificationAttachmentDigests"
         contentType:
           type: string
-          description: tipo di contenuto dell'allegato
-        title:
-          type: string
-          description: Titolo del documento allegato
-        body:
-          type: string
-          description: corpo dell'allegato
+          description: tipo di contenuto dell'allegato, supportato application/pdf
         ref:
           $ref: "#/components/schemas/NotificationAttachmentBodyRef"
-      
+
+    NotificationDocument:
+      description: >-
+        Un documento da notifcare
+      allOf: 
+        - $ref: "#/components/schemas/NotificationAttachment"
+        - type: object
+          properties:
+            title:
+              type: string
+              description: Titolo del documento allegato
 
     NotificationAttachmentDigests:
-      description: codice di controllo del F24 per spese di notifica analogica
+      description: Codici per la verifica del corretto caricamento di un allegato
       type: object
       required:
         - sha256
@@ -139,6 +153,10 @@ components:
 
     NotificationPhysicalAddress:
       type: object
+      required:
+        - address
+        - municipality
+        - zip
       properties:
         at:
           type: string
@@ -155,6 +173,9 @@ components:
         municipality:
           type: string
           description: Comune in cui l'indirizzo si trova
+        municipalityDetails:
+          type: string
+          description: Frazione o località
         province:
           type: string
           description: Provincia in cui si trova l'indirizzo
@@ -165,7 +186,27 @@ components:
     
 
     NotificationPaymentInfo:
-      description: Informazioni per effttuare il pagamento
+      title: Informazioni per effettuare il pagamento
+      description: >-
+       Informazioni utili per effettuare il pagamento di una notifica, sono associate al 
+       destinatario perché legate alle spese di notifica. <br/>
+         - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o 
+           calcolato puntualmente. <br/>
+         - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+         - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+         - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+         - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
+         - _f24digital_: riferimento al PDF contenete l'F24 con spese di notifica digitale<br/>
+         - _f24digitalWithRs_: riferimento al PDF contenete l'F24 con spese di notifica digitale 
+           fallita a cui è seguita una raccomandata semplice<br/>
+         - _f24analogRaccSingle_: riferimento al PDF contenete l'F24 con spese di notifica 
+           analogica tramite __una__ Raccomandata A/R o Raccomandata a norma di legge 890/82<br/>
+         - _f24analogRaccDouble_: riferimento al PDF contenete l'F24 con spese di notifica 
+           analogica tramite __due__ Raccomandate A/R o Raccomandate a norma di legge 890/82 <br/>
+         - _f24analogRiSingle_: riferimento al PDF contenete l'F24 con spese di notifica 
+           analogica tramite __una__ Raccomandata Internazionale<br/>
+         - _f24analogRiDouble_: riferimento al PDF contenete l'F24 con spese di notifica 
+           analogica tramite __due__ Raccomandata Internazionali <br/>
       type: object
       required:
         - notificationFeePolicy
@@ -175,11 +216,14 @@ components:
       properties:
         notificationFeePolicy:
           type: string
-          description: Politica di addebitamento dei costi di notifica
+          description: >-
+            Politica di addebitamento dei costi di notifica. <br/>
+            - _FLAT_RATE_: costo forfettario fisso. <br/>
+            - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
           enum:
           - FLAT_RATE
           - DELIVERY_MODE
-        noticeNumber:
+        noticeCode:
           type: string
           description: Numero Avviso di pagamento del sistema pagoPA, usato per pagamento online
         creditorTaxId:
@@ -187,110 +231,48 @@ components:
           description: Codice fiscale dell'ente a cui fa riferimento il "numero avviso".
         pagoPaForm:
           $ref: "#/components/schemas/NotificationAttachment"
-        f24:
-          $ref: "#/components/schemas/SetOfF24"
-
-    SetOfF24:
-      type: object
-      title: Elenco moduli di pagamento F24
-      description: >-
-        ## Moduli di pagamento F24 da compilare in riferimento al notificationFeePolicy
-        - _flatRate_: 
-        - _digital_: 
-        - _digitalWithRs_: 
-        - _analogRaccSingle_: 
-        - _analogRaccDouble_: 
-        - _analogRiSingle_: 
-        - _analogRiDouble_: 
-      properties:
-        flatRate:
+        f24flatRate:
           $ref: "#/components/schemas/NotificationAttachment"
-        digital:
+        f24digital:
           $ref: "#/components/schemas/NotificationAttachment"
-        digitalWithRs:
+        f24digitalWithRs:
           $ref: "#/components/schemas/NotificationAttachment"
-        analogRaccSingle:
+        f24analogRaccSingle:
           $ref: "#/components/schemas/NotificationAttachment"
-        analogRaccDouble:
+        f24analogRaccDouble:
           $ref: "#/components/schemas/NotificationAttachment"
-        analogRiSingle:
+        f24analogRiSingle:
           $ref: "#/components/schemas/NotificationAttachment"
-        analogRiDouble:
+        f24analogRiDouble:
           $ref: "#/components/schemas/NotificationAttachment"
+        
     
-    Notification_Sent:
-      description: Le notifiche di Piattaforma Notifiche
-      required:
-      - documents
-      - paNotificationId
-      - physicalCommunicationType
-      - recipients
-      - subject
-      type: object
-      properties:
-        iun:
-          type: string
-          description: L'Identificativo Univoco Notifica assegnato da PN
-        paNotificationId:
-          type: string
-          description: Numero di protocollo che la PA mittente assegna alla notifica
-            stessa
-        subject:
-          type: string
-          description: titolo della notifica
-        sentAt:
-          type: string
-          description: Momento di ricezione della notifica da parte di PN
-          format: date-time
-        cancelledIun:
-          type: string
-          description: IUN della notifica rettificata da questa notifica
-        cancelledByIun:
-          type: string
-          description: IUN della notifica che ha rettificato questa notifica
-        recipients:
-          type: array
-          description: Informazioni sui destinatari
-          items:
-            "$ref": "#/components/schemas/NotificationRecipient"
-        documents:
-          type: array
-          description: Documenti notificati e lettere di accompagnamento
-          items:
-            "$ref": "#/components/schemas/NotificationAttachment"
-        payment:
-          "$ref": "#/components/schemas/NotificationPaymentInfo"
-        #notificationStatus:
-        #  type: string
-        #  description: stato di avanzamento del processo di notifica
-        #  enum:
-        #  - IN_VALIDATION
-        #  - ACCEPTED
-        #  - DELIVERING
-        #  - DELIVERED
-        #  - VIEWED
-        #  - EFFECTIVE_DATE
-        #  - PAID
-        #  - UNREACHABLE
-        #  - REFUSED
-        #notificationStatusHistory:
-        #  type: array
-        #  description: elenco degli avanzamenti effettuati dal processo di notifica
-        #  items:
-        #    $ref: "#/components/schemas/NotificationStatusHistoryElement"
-        #timeline:
-        #  type: array
-        #  description: elenco dettagliato di tutto ciò che è accaduto durrante il
-        #    processo di notifica
-        #  items:
-        #    $ref: "#/components/schemas/TimelineElement"
-        physicalCommunicationType:
-          type: string
-          description: Tipologia comunicazione fisica
-          enum:
-          - SIMPLE_REGISTERED_LETTER
-          - REGISTERED_LETTER_890
+    SentNotification:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata
+      allOf: 
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
+            iun:
+              type: string
+              description: L'Identificativo Univoco Notifica assegnato da PN
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              type: string
+              description: IUN della notifica che ha rettificato questa notifica
 
+
+        
     
 
       

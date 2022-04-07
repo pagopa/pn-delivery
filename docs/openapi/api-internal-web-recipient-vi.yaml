@@ -1,0 +1,5 @@
+
+
+  - name: RecipientRead
+    description: >-
+      Invocazioni utlizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.

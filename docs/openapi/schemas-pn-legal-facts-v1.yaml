@@ -5,14 +5,16 @@ components:
     LegalFactsId:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
+      required:
+        - key
+        - category
       properties:
         key:
           description: >-
             Chiave dell'atto opponibile a terzi generato durante il processo di consegna
           type: string
-          
         category:
-          $Ref: '#/components/schemas/LegalFactCategory'
+          $ref: '#/components/schemas/LegalFactCategory'
 
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi

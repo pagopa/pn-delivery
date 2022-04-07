@@ -1,7 +1,9 @@
 
 components:
   schemas:
-
+    TimelineElementId:
+      type: string
+    
     TimelineElementCategory:
       type: string
       enum:
@@ -33,6 +35,17 @@ components:
         - COMPLETELY_UNREACHABLE
         - REQUEST_REFUSED
     
+    DownstreamId:
+      description: identificativo del messaggio nel sistema a valle
+      type: object
+      properties:
+        systemId:
+          type: string
+          description: Identificativo del sistema a valle di inoltro messaggistica
+        messageId:
+          type: string
+          description: Identificativo del messaggio inoltrato
+    
     TimelineElement:
       type: object
       properties:
@@ -49,20 +62,18 @@ components:
         legalFactsIds:
           type: array
           items:
-            $ref: "./legal-facts-schemas-v1.yaml#/components/schemas/LegalFactsId"
+            $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactsId"
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
-          
         category:
           $ref: '#/components/schemas/TimelineElementCategory'
-          
         details:
           oneOf:
-            - $ref: "#/components/schemas/AnalogFailureWorkflow"
-            - $ref: "#/components/schemas/AnalogSuccessWorkflow"
-            - $ref: "#/components/schemas/CompletelyUnreachableDetails"
-            - $ref: "#/components/schemas/DigitalFailureWorkflow"
+            - "$ref": "#/components/schemas/AnalogFailureWorkflow"
+            - "$ref": "#/components/schemas/AnalogSuccessWorkflow"
+            - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
+            - "$ref": "#/components/schemas/DigitalFailureWorkflow"
             - "$ref": "#/components/schemas/DigitalSuccessWorkflow"
             - "$ref": "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
             - "$ref": "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
@@ -71,7 +82,6 @@ components:
             - "$ref": "#/components/schemas/NotificationViewedDetails"
             - "$ref": "#/components/schemas/PublicRegistryCallDetails"
             - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
-            - "$ref": "#/components/schemas/ReceivedDetails"
             - "$ref": "#/components/schemas/RefinementDetails"
             - "$ref": "#/components/schemas/RequestRefusedDetails"
             - "$ref": "#/components/schemas/ScheduleAnalogWorkflow"
@@ -85,34 +95,327 @@ components:
             - "$ref": "#/components/schemas/SendPaperDetails"
             - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
             - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
-        
-      
-      AnalogFailureWorkflow:
-        type: object
-        allOf:
-        - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
-        - type: object
-          properties:
-            taxId:
-              type: string
-              description: Codice Fiscale destinatario notifica digitale
-      AnalogSuccessWorkflow:
-        type: object
-        allOf:
-        - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
-        - type: object
-          properties:
-            taxId:
-              type: string
-              description: Codice Fiscale destinatario notifica digitale
-            address:
-              "$ref": "#/components/schemas/PhysicalAddress"
-      CompletlyUnreachableDetails:
-        type: object
-        allOf:
-        - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
-        - type: object
-          properties:
-            taxId:
-              type: string
-              description: Codice Fiscale destinatario notifica digitale
+
+    AnalogFailureWorkflow:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    AnalogSuccessWorkflow:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationPhysicalAddress"
+    DigitalFailureWorkflow:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    DigitalSuccessWorkflow:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+    CompletelyUnreachableDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    EndOfAnalogDeliveryWorkflowDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    EndOfDigitalDeliveryWorkflowDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    GetAddressInfo:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        source:
+          type: string
+          description: Sorgente indirizzo
+          enum:
+          - PLATFORM
+          - SPECIAL
+          - GENERAL
+        isAvailable:
+          type: boolean
+          description: Disponibilità indirizzo
+        attemptDate:
+          type: string
+          description: Data tentativo
+          format: date-time
+        available:
+          type: boolean
+    NotificationPathChooseDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice fiscale destinatario
+        deliveryMode:
+          type: string
+          description: Specifica se la notifica al destinatario segue il percorso
+            analogico o quello digitale
+          enum:
+          - DIGITAL
+          - ANALOG
+        physicalAddress:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationPhysicalAddress"
+        platform:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+        special:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+        general:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+        courtesyAddresses:
+          type: array
+          description: Elenco recapiti digitali del destinatario
+          items:
+            $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+    NotificationViewedDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    PublicRegistryCallDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        deliveryMode:
+          type: string
+          description: Tipologia Domiciliazione
+          enum:
+          - DIGITAL
+          - ANALOG
+        contactPhase:
+          type: string
+          description: Fase in cui è avvenuta la richiesta
+          enum:
+          - CHOOSE_DELIVERY
+          - SEND_ATTEMPT
+        sentAttemptMade:
+          type: integer
+          description: Numero di tentativi di notificazione già effettuati
+          format: int32
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+    PublicRegistryResponseDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        digitalAddress:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+        physicalAddress:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationPhysicalAddress"
+    RefinementDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    RequestRefusedDetails:
+      type: object
+      properties:
+        errors:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            type: string
+            description: Motivazioni che hanno portato al rifiuto della notifica
+    ScheduleAnalogWorkflow:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    ScheduleDigitalWorkflow:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    ScheduleRefinement:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    SendCourtesyMessageDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+        sendDate:
+          type: string
+          description: data invio messaggio di cortesia
+          format: date-time
+    SendDigitalDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+        addressSource:
+          type: string
+          description: sorgente indirizzo di invio della notifica
+          enum:
+          - PLATFORM
+          - SPECIAL
+          - GENERAL
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        downstreamId:
+          "$ref": "#/components/schemas/DownstreamId"
+    SendDigitalFailureDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+    SendDigitalFeedback:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+        responseStatus:
+          type: string
+          description: stato risposta ricevuta da externalChannel
+          enum:
+          - OK
+          - KO
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        errors:
+          type: array
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+    SendDigitalFeedbackDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDigitalAddress"
+        addressSource:
+          type: string
+          description: sorgente indirizzo di invio della notifica
+          enum:
+          - PLATFORM
+          - SPECIAL
+          - GENERAL
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        downstreamId:
+          "$ref": "#/components/schemas/DownstreamId"
+        errors:
+          type: array
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+    SendPaperDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationPhysicalAddress"
+        serviceLevel:
+          type: string
+          description: Livello Servizio
+          enum:
+          - SIMPLE_REGISTERED_LETTER
+          - REGISTERED_LETTER_890
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        investigation:
+          type: boolean
+          description: E' richiesta investigazione indirizzo fisico alternativo
+    SendPaperFeedbackDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationPhysicalAddress"
+        serviceLevel:
+          type: string
+          description: Livello Servizio
+          enum:
+          - SIMPLE_REGISTERED_LETTER
+          - REGISTERED_LETTER_890
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        investigation:
+          type: boolean
+          description: E' richiesta investigazione indirizzo fisico alternativo
+        newAddress:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationPhysicalAddress"
+        errors:
+          type: array
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+    SimpleRegisteredLetterDetails:
+      type: object
+      properties:
+        taxId:
+          type: string
+          description: Codice Fiscale destinatario notifica digitale
+        address:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationPhysicalAddress"
+
+    
+
+
+
+

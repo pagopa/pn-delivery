@@ -48,10 +48,6 @@ tags:
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
       di notifica inviate e delle notifiche accettate.
-  - name: RecipientRead
-    description: >-
-      Invocazioni utlizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.
-
 
 paths:
     ###########################################################################################
@@ -128,7 +124,7 @@ paths:
         required: true
       responses:
         '202':
-          description: OK
+          description: Accepted
           content:
             application/json:
               schema:
@@ -206,7 +202,7 @@ paths:
           content:
             "*/*":
               schema:
-                $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/Notification_Sent"
+                $ref: "#/components/schemas/FullSentNotification"
         '400':
           description: Bad request
           content:
@@ -374,6 +370,11 @@ components:
                 - __ACCEPTED__: richiesta di notifica accettata, lo IUN è valorizzato
                 - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_
               type: string
+            retryAfter:
+              type: number
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova richiesta per 
+                la stessa entità; valorizzato quando lo status è _WARNING_.
             iun:
               $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/IUN"
             errors:
@@ -382,6 +383,31 @@ components:
               type: array
               items:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/ProblemError'
+
+    FullSentNotification:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
+        inoltro della notifica verso il cittadino.
+      allOf: 
+        - $ref: './schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
+        - type: object
+          required: 
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:  
+            notificationStatus:
+              $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              type: array
+              items:
+                $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+
+
 
               
 
