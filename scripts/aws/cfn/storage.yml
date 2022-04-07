@@ -23,21 +23,6 @@ Resources:
     Properties:
       KeyspaceName: !Sub '${ProjectName}_delivery'
 
-  DirectAccessTokenTable:
-    Type: AWS::Cassandra::Table
-    Properties:
-      TableName: direct_access_tokens
-      KeyspaceName: !Ref Keyspace
-      PointInTimeRecoveryEnabled: true
-      PartitionKeyColumns:
-        - ColumnName: token
-          ColumnType: text
-      RegularColumns:
-        - ColumnName: iun
-          ColumnType: text
-        - ColumnName: taxid
-          ColumnType: text
-
   AttachmentsBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain

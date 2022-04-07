@@ -55,6 +55,7 @@ class StatusServiceTest {
                 .sender(NotificationSender.builder()
                         .paId( "PAID" )
                         .build())
+                .paNotificationId("PAID")
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( "CodiceFiscale" )
                         .build()) )
