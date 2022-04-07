@@ -1,0 +1,118 @@
+
+components:
+  schemas:
+
+    TimelineElementCategory:
+      type: string
+      enum:
+        - REQUEST_ACCEPTED
+        - SEND_COURTESY_MESSAGE
+        - NOTIFICATION_PATH_CHOOSE
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SCHEDULE_ANALOG_WORKFLOW
+        - SCHEDULE_DIGITAL_WORKFLOW
+        - SEND_DIGITAL_DOMICILE
+        - SEND_DIGITAL_DOMICILE_FEEDBACK
+        - SEND_DIGITAL_FEEDBACK
+        - SEND_DIGITAL_DOMICILE_FAILURE
+        - REFINEMENT
+        - SCHEDULE_REFINEMENT
+        - DIGITAL_SUCCESS_WORKFLOW
+        - DIGITAL_FAILURE_WORKFLOW
+        - ANALOG_SUCCESS_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW
+        - SEND_SIMPLE_REGISTERED_LETTER
+        - END_OF_DIGITAL_DELIVERY_WORKFLOW
+        - END_OF_ANALOG_DELIVERY_WORKFLOW
+        - NOTIFICATION_VIEWED
+        - SEND_ANALOG_DOMICILE
+        - SEND_PAPER_FEEDBACK
+        - PAYMENT
+        - COMPLETELY_UNREACHABLE
+        - REQUEST_REFUSED
+    
+    TimelineElement:
+      type: object
+      properties:
+        elementId:
+          type: string
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in 
+            maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          description: Momento in cui avviene l'evento desritto in questo elemento
+            di timeline
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: "./legal-facts-schemas-v1.yaml#/components/schemas/LegalFactsId"
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
+            Questo elemento
+          
+        category:
+          $ref: '#/components/schemas/TimelineElementCategory'
+          
+        details:
+          oneOf:
+            - $ref: "#/components/schemas/AnalogFailureWorkflow"
+            - $ref: "#/components/schemas/AnalogSuccessWorkflow"
+            - $ref: "#/components/schemas/CompletelyUnreachableDetails"
+            - $ref: "#/components/schemas/DigitalFailureWorkflow"
+            - "$ref": "#/components/schemas/DigitalSuccessWorkflow"
+            - "$ref": "#/components/schemas/EndOfAnalogDeliveryWorkflowDetails"
+            - "$ref": "#/components/schemas/EndOfDigitalDeliveryWorkflowDetails"
+            - "$ref": "#/components/schemas/GetAddressInfo"
+            - "$ref": "#/components/schemas/NotificationPathChooseDetails"
+            - "$ref": "#/components/schemas/NotificationViewedDetails"
+            - "$ref": "#/components/schemas/PublicRegistryCallDetails"
+            - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
+            - "$ref": "#/components/schemas/ReceivedDetails"
+            - "$ref": "#/components/schemas/RefinementDetails"
+            - "$ref": "#/components/schemas/RequestRefusedDetails"
+            - "$ref": "#/components/schemas/ScheduleAnalogWorkflow"
+            - "$ref": "#/components/schemas/ScheduleDigitalWorkflow"
+            - "$ref": "#/components/schemas/ScheduleRefinement"
+            - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
+            - "$ref": "#/components/schemas/SendDigitalDetails"
+            - "$ref": "#/components/schemas/SendDigitalFailureDetails"
+            - "$ref": "#/components/schemas/SendDigitalFeedback"
+            - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+            - "$ref": "#/components/schemas/SendPaperDetails"
+            - "$ref": "#/components/schemas/SendPaperFeedbackDetails"
+            - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+        
+      
+      AnalogFailureWorkflow:
+        type: object
+        allOf:
+        - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+        - type: object
+          properties:
+            taxId:
+              type: string
+              description: Codice Fiscale destinatario notifica digitale
+      AnalogSuccessWorkflow:
+        type: object
+        allOf:
+        - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+        - type: object
+          properties:
+            taxId:
+              type: string
+              description: Codice Fiscale destinatario notifica digitale
+            address:
+              "$ref": "#/components/schemas/PhysicalAddress"
+      CompletlyUnreachableDetails:
+        type: object
+        allOf:
+        - "$ref": "#/components/schemas/TimelineElementDetails_Sent"
+        - type: object
+          properties:
+            taxId:
+              type: string
+              description: Codice Fiscale destinatario notifica digitale

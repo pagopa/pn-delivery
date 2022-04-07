@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
+  version: v1.0
+  description: >- 
+    ## Abstract
+      API utilizzate dalle pubbliche amministrazioni per inviare notifiche e ottenere, in modalità pull,
+      informazioni sullo stato della notifica e sugli eventi del percorso di notifica.
+    
+    ## Operazioni utilizzate, in sequenza temporale
+
+    ### Creazione richesta notifica:
+      1. i sistemi della PA invocano l'operazione _presignedUploadRequest_ con cui prenotano
+         il caricamento di documenti e altri allegati alla notifica;
+      2. i sistemi della PA utilizzano gli URL e le altre informazioni ottenute al punto (1) per
+         caricare i file che verranno allegati alla notifica;
+      3. per effettuare una richiesta di invio notifica, viene invocata l'operazione 
+         _sendNewNotification_ utilizzando i riferimenti dei file caricati ottenuti al punto 2.
+    
+    ### Monitorare l'avanzamento di una notifica: 
+      4. Se il passo (3) avviene con successo si utilizza l'operazione _getNotificationRequestStatus_
+         per ottenere informazioni riguardo allo stato della "richiesta di notifica"
+      5. Da quando l'operazione al passo (4) restituisce il campo __iun__ valorizzato con valore 
+         diverso da `null` significa che la richiesta di invio notifica è stata accettata.
+      6. Da ora in poi la "richiesta di notifica" viene trasformata in una "notifica" e sarà
+         ricercabile anche con le operazioni _getByIun_ e _search_
+        
+    ## Webhook
+      Mettere riferimento ad apposito documento.
+
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
+servers:
+- url: https://api.pn.pagopa.it
+  description: Ambiente di produzione
+- url: https://api.uat.pn.pagopa.it
+  description: Ambiente di test
+- url: https://api.dev.pn.pagopa.it
+  description: Ambiente di sviluppo
+tags:
+  - name: NewNotification
+    description: >-
+      Invocazioni per precaricare allegati e inviare notifiche
+  - name: SenderRead
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
+      di notifica inviate e delle notifiche accettate.
+  - name: RecipientRead
+    description: >-
+      Invocazioni utlizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.
+
+
+paths:
+    ###########################################################################################
+    ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
+    ###########################################################################################
+  "/delivery/attachments/preload":
+    post:
+      summary: Precaricamento allegati notifica
+      description: >-
+        Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
+        a precaricare uno o più file da allegare a una notifica. <br/>
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - NewNotification
+      operationId: presignedUploadRequest
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/PreLoadRequest"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PreLoadResponse"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
+    ###########################################################################################
+    ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
+    ###########################################################################################
+
+  "/delivery/notifications":
+    post:
+      summary: Richiede l'invio di una notifica
+      description: >-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
+
+        La restituzione di uno stato HTTP 202 significa semplicemente che la richiesta è sintatticamente
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+        Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - NewNotification
+      operationId: sendNewNotification
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
+        required: true
+      responses:
+        '202':
+          description: OK
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/NewNotificationResponse"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    
+
+    ###########################################################################################
+    ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
+    ###########################################################################################
+    get:
+      operationId: getNotificationRequestStatus
+      tags:
+        - NewNotification
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
+        lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        _paNotificationId_ e _cancelledIun_. <br/>
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paNotificationId'
+        - $ref: '#/components/parameters/cancelledIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                 $ref: "#/components/schemas/NewNotificationRequestStatusResponse"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    
+    
+    ###########################################################################################
+    ###                             RICERCA NOTIFICHE ACCETTATE                             ###
+    ###########################################################################################
+  
+  "/delivery/notifications/sent/{iun}":
+    get:
+      summary: 'Mittente: lettura dettagli notifica'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica generata da una 
+        richiesta di notifica che è stata accettata. <br/>
+        <br/>
+        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - SenderRead
+      operationId: getSentNotification
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/Notification_Sent"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+
+
+components:
+  
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+    cxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+    cxGroupsAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'      
+    uidAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+
+    ############################################################################################
+    ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
+    ############################################################################################
+    notificationRequestId:
+      in: query
+      required: false
+      name: requestId
+      description: identificativo della richiesta di notifica
+      schema:
+        type: string
+    paNotificationId:
+      name: paNotificationId
+      in: query
+      required: false
+      description: >-
+        Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
+        Forma un identificativo univoco per la PA moittente se unito al parametro _cancelledIun_.
+      schema:
+        type: string
+    cancelledIun:
+      name: cancelledIun
+      description: >-
+        Identificativo Univoco della Notifica che deve essere rettificata, corretta.
+      in: query
+      required: false
+      schema:
+        type: string
+    
+    ############################################################################################
+    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
+    ############################################################################################
+    pathIun:
+      description: >-
+        Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+
+
+
+  schemas:
+    
+    ###########################################################################################
+    ###                             DTO PRECARICAMENTO ALLEGATI                             ###
+    ###########################################################################################
+    PreLoadRequest:
+      title: Richiesta di precaricamento di un File
+      type: object
+      properties:
+        requestId:
+          title: Id della richiesta
+          description: >-
+            Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. 
+          type: string
+        contentType:
+          title: MIME type del file che verrà caricato
+          description: >-
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
+              - application/pdf
+          type: string
+          
+    PreLoadResponse:
+      title: Informazioni utili al caricamento file
+      description: >-
+        Per ogni richiesta che è stata fatta viene fornito un presigned URL e le 
+        informazioni per usarlo.
+      type: object
+      properties:
+        requestId:
+          description: per correlazione con la richiesta
+          type: string
+        secret:
+          description: >-
+            __discutibile__ Token aggiuntivo per far si che sia necessario intercettare anche gli 
+            header e non solo l'URL di upload del contenuto del documento.
+          example: AZ23RF12
+          type: string
+        httpMethod:
+          description: >-
+            Indica se per l'upload del contenuto file bisogna utilizzare il metodo PUT o POST
+          type: string
+          enum:
+            - POST
+            - PUT
+        url:
+          description: >-
+            URL a cui effettuare l'upload del contenuto del documento.
+          example: 'https://preloadpn.aws.amazon.......'
+          type: string
+        key:
+          description: >-
+            la chiave restituita deve essere globalmente unica per installazione di SafeStorage e 
+            persistente attraverso i processi di disaster recovery.
+          example: '8F7E/9A3B/1234/AB87'
+          type: string
+    
+
+    ###########################################################################################
+    ###                              DTO RICHIESTE DI NOTIFICA                              ###
+    ###########################################################################################
+
+    NewNotificationResponse:
+      title: Identificativi della richiesta di notifica
+      description: >-
+        Contiene le informazioni utili per identificare una richiesta di invio notifica
+        che non è ancora stata accettata da Piattaforma notifiche.
+      type: object
+      required:
+        - notificationRequestId
+        - paNotificationId
+      properties:
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo IUN
+        paNotificationId:
+          type: string
+          description: Identificativo inviato dalla pubblica amministrazione
+        cancelledIun:
+          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/IUN"
+          description: >-
+            Identificativo della notifica invalidata, costituisce chiave univoca se associato al 
+            campo _paNotificationId_
+    
+    NewNotificationRequestStatusResponse:
+      allOf: 
+        - $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
+        - type: object
+          required:
+            - notificationRequestId
+            - notificationRequestStatus
+          properties:
+            notificationRequestId: 
+              description: >-
+                identificativo univoco di una richiesta di invio notifica, non è lo IUN
+              type: string
+            notificationRequestStatus:
+              description: >-
+                - __WAITING__: in attesa di essere valutata
+                - __ACCEPTED__: richiesta di notifica accettata, lo IUN è valorizzato
+                - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_
+              type: string
+            iun:
+              $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/IUN"
+            errors:
+              description: >-
+                Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
+              type: array
+              items:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/ProblemError'
+
+              
+
+
+  

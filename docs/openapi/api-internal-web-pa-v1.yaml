@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
+  version: v1.0
+  description: >- 
+    ## Abstract
+      API utilizzate dal portale di Piattaforma Notifiche dedicato alle Pubbliche Amministrazioni
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
+servers:
+- url: https://webapi.pn.pagopa.it
+  description: Ambiente di produzione
+- url: https://webapi.uat.pn.pagopa.it
+  description: Ambiente di test
+- url: https://webapi.dev.pn.pagopa.it
+  description: Ambiente di sviluppo
+tags:
+  - name: SenderRead
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle notifiche inviate
+
+
+paths:
+    ###########################################################################################
+    ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
+    ###########################################################################################
+
+
+
+
+components:
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+    cxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+    cxGroupsAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'      
+    uidAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+
+
+    ############################################################################################
+    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
+    ############################################################################################
+    notificationSearchStartDate:
+      name: startDate
+      in: query
+      required: true
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricercva
+      schema:
+        type: string
+        format: date-time
+    notificationSearchEndDate:
+      name: endDate
+      in: query
+      required: true
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricercva
+      schema:
+        type: string
+        format: date-time
+    notificationSearchRecipientId:
+      name: recipientId
+      in: query
+      required: false
+      description: identificativo del destinatario
+      schema:
+        type: string
+    notificationSearchStatus:
+      name: status
+      in: query
+      required: false
+      description: stato della notifica
+      schema:
+        $ref: './schemas-pn-status-v1.yaml#/components/schemas/SearchableNotificationStatus'
+    notificationSearchSubject:
+      name: subjectRegExp
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchIun:
+      name: iunMatch
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchPageSize:
+      name: size
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+    notificationSearchNextPagesKey:
+      name: nextPagesKey
+      in: query
+      required: false
+      schema:
+        type: string
+    

@@ -1,0 +1,14 @@
+components:
+  schemas:
+    
+    SearchableNotificationStatus:
+      type: string
+      enum:
+        - ACCEPTED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+
