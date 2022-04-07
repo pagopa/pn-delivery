@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.api.dto.notification.*;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.model.notification.cassandra.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +39,7 @@ public class EntityToDtoNotificationMapper {
                 .cancelledByIun( entity.getCancelledByIun() )
                 .cancelledIun( entity.getCancelledIun() )
                 .physicalCommunicationType( entity.getPhysicalCommunicationType() )
-                
+                .group( entity.getGroup() )
                 .sender( NotificationSender.builder()
                         .paId( entity.getSenderPaId() )
                         .build()

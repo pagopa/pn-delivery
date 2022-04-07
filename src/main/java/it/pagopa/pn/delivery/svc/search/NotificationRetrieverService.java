@@ -1,5 +1,6 @@
-package it.pagopa.pn.delivery.svc;
+package it.pagopa.pn.delivery.svc.search;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
@@ -17,6 +18,7 @@ import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
+import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,10 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +50,6 @@ public class NotificationRetrieverService {
 	private final PnDeliveryPushClient pnDeliveryPushClient;
 	private final StatusUtils statusUtils;
 
-	static final int MAX_KEY_TO_RETURN = 4;
 
 	@Autowired
 	public NotificationRetrieverService(Clock clock,
@@ -65,16 +69,31 @@ public class NotificationRetrieverService {
 		this.statusUtils = statusUtils;
 	}
 	
-	//TODO Questo è un Workaround. Logica da cambiare quando si passerà a DYNAMODB
-	
-	public ResultPaginationDto<NotificationSearchRow> searchNotification( InputSearchNotificationDto searchDto ) {
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {
 		log.debug("Start search notification - senderReceiverId {}", searchDto.getSenderReceiverId());
 		
 		validateInput(searchDto);
-		
-		List<NotificationSearchRow> rows = getNotificationSearchRows(searchDto);
 
-		return getPaginationResult(searchDto.getSize(), rows);
+		PnLastEvaluatedKey lastEvaluatedKey = null;
+		if ( searchDto.getNextPagesKey() != null ) {
+			try {
+				lastEvaluatedKey = PnLastEvaluatedKey.deserializeInternalLastEvaluatedKey( searchDto.getNextPagesKey() );
+			} catch (JsonProcessingException e) {
+				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey", e );
+			}
+		}
+		
+
+		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = notificationDao.
+				searchNotification(searchDto, lastEvaluatedKey);
+
+		return ResultPaginationDto.<NotificationSearchRow,String>builder()
+				.moreResult( searchResult.isMoreResult() )
+				.result( searchResult.getResult() )
+				.nextPagesKey( searchResult.getNextPagesKey()
+						.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
+						.collect(Collectors.toList()) )
+				.build();
 	}
 
 	private void validateInput(InputSearchNotificationDto searchDto) {
@@ -88,61 +107,6 @@ public class NotificationRetrieverService {
 		}
 
 		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());
-	}
-	
-	private List<NotificationSearchRow> getNotificationSearchRows(InputSearchNotificationDto searchDto) {
-		Instant dateToFilter = null;
-
-		//Verifica presenza nextPageKey, che sta ad indicare la chiave per la prossima pagina della paginazione (in questo caso è stata utilizzata la data)
-		if(searchDto.getNextPagesKey() != null){
-			dateToFilter = Instant.parse(searchDto.getNextPagesKey());
-		}else {
-			dateToFilter = searchDto.getStartDate();
-		}
-		searchDto.setStartDate(dateToFilter);
-		log.debug("dateToFilter is {}",dateToFilter);
-
-		return notificationDao.searchNotification(searchDto);
-	}
-
-	private ResultPaginationDto<NotificationSearchRow> getPaginationResult(Integer pageSize, List<NotificationSearchRow> rows) {
-		ResultPaginationDto <NotificationSearchRow> result = ResultPaginationDto.<NotificationSearchRow>builder()
-				.result(rows)
-				.moreResult(false)
-				.nextPagesKey(null)
-				.build();
-		
-		boolean isLastSlice = rows == null || rows.isEmpty() || rows.size() <= pageSize;
-		
-		//Se il numero di risultati ottenuti è > della size della singola pagina ...
-		if(! isLastSlice){
-			//... viene ottenuto lo slice della lista per essere restituito ...
-			List<NotificationSearchRow> subListToReturn = rows.subList(0, pageSize);
-			//... viene restituita la lista delle successive chiavi per la navigazione
-			result = getListNextPagesKey(pageSize, rows, subListToReturn);
-		}
-		return result;
-	}
-
-	private ResultPaginationDto <NotificationSearchRow> getListNextPagesKey(
-			Integer size, List<NotificationSearchRow> completeResultList, List<NotificationSearchRow> subListToReturn){
-		List<String> listNextPagesKey = new ArrayList<>();
-		int index = 1;
-		int nextSize = size * index;
-
-		while(completeResultList.size() > nextSize && index < MAX_KEY_TO_RETURN){
-			//Vengono ottenute le key dei prossimi elementi
-			NotificationSearchRow firstElementNextPage = completeResultList.get(nextSize);
-			listNextPagesKey.add(firstElementNextPage.getSentAt() != null ?  firstElementNextPage.getSentAt().toString() : null);
-			index++;
-			nextSize = size * index;
-		}
-		
-		return ResultPaginationDto.<NotificationSearchRow>builder()
-				.result(subListToReturn)
-				.nextPagesKey(listNextPagesKey)
-				.moreResult(completeResultList.size() > nextSize)
-				.build();
 	}
 
 	/**

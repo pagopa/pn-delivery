@@ -7,7 +7,7 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.commons_delivery.model.notification.cassandra.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -53,6 +53,7 @@ public class DtoToEntityNotificationMapper {
                 .documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
                 .documentsTitles( listDocumentsTitles( dto.getDocuments() ))
                 .physicalCommunicationType (dto.getPhysicalCommunicationType() )
+                .group( dto.getGroup() )
             ;
 
         NotificationPaymentInfo paymentInfo = dto.getPayment();
