@@ -6,7 +6,6 @@ import it.pagopa.pn.api.dto.notification.directaccesstoken.DirectAccessToken;
 import it.pagopa.pn.commons.pnclients.recipientschallenge.RecipientsChallenge;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
