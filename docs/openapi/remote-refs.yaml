@@ -1,0 +1,27 @@
+components:
+  
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+    cxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+    cxGroupsAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'      
+    uidAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+
+
+  schemas:
+    
+    ############################################################################################
+    ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
+    ############################################################################################
+    TimelineElement:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/feature/PN-1010/docs/openapi/schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+    NotificationStatus:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/feature/PN-1010/docs/openapi/schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+    NotificationStatusHistory:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/feature/PN-1010/docs/openapi/schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'

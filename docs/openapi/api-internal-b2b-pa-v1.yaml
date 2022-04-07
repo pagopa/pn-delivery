@@ -218,13 +218,13 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
     cxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'
     cxGroupsAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'      
+      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
     uidAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'
 
     ############################################################################################
     ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
@@ -397,16 +397,24 @@ components:
             - timeline
           properties:  
             notificationStatus:
-              $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+              $ref: '#/components/schemas/NotificationStatus'
             notificationStatusHistory:
-              $ref: './schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
+              $ref: '#/components/schemas/NotificationStatusHistory'
             timeline:
               description: >-
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: './schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElement'
+    
+    TimelineElement:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+    NotificationStatus:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+    NotificationStatusHistory:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
 
+   
 
 
               

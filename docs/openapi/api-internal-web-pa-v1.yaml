@@ -25,9 +25,43 @@ tags:
 
 paths:
     ###########################################################################################
-    ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
+    ###                                  RICERCA NOTIFICHE                                  ###
     ###########################################################################################
-
+  "/delivery/notifications/sent":
+    get:    
+      summary: Ricerca notifiche inviate
+      description: >-
+        servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
+        di rcerca specificati
+      tags:
+        - SenderRead
+      operationId: searchSentNotification
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'        
+        - $ref: '#/components/parameters/notificationSearchStartDate'
+        - $ref: '#/components/parameters/notificationSearchEndDate'
+        - $ref: '#/components/parameters/notificationSearchRecipientId'
+        - $ref: '#/components/parameters/notificationSearchStatus'
+        - $ref: '#/components/parameters/notificationSearchSubject'
+        - $ref: '#/components/parameters/notificationSearchIun'
+        - $ref: '#/components/parameters/notificationSearchPageSize'
+        - $ref: '#/components/parameters/notificationSearchNextPagesKey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultPaginationDtoNotificationSearchRow'
+        '400':
+          description: Bad request       
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
 
@@ -37,14 +71,14 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
     cxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'
     cxGroupsAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'      
+      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
     uidAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/main/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
-
+      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'
+    
 
     ############################################################################################
     ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
@@ -78,7 +112,7 @@ components:
       required: false
       description: stato della notifica
       schema:
-        $ref: './schemas-pn-status-v1.yaml#/components/schemas/SearchableNotificationStatus'
+        $ref: '#/components/schemas/NotificationStatus'
     notificationSearchSubject:
       name: subjectRegExp
       in: query
@@ -104,4 +138,55 @@ components:
       required: false
       schema:
         type: string
+
+  schemas:
+    
+
+    ############################################################################################
+    ###                             RISULTATO RICERCA NOTIFICHE                              ###
+    ############################################################################################
+    
+    ResultPaginationDtoNotificationSearchRow:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationSearchRow'
+        moreResult:
+          type: boolean
+        nextPagesKey:
+          type: array
+          items:
+            type: string
+
+    NotificationSearchRow:
+      type: object
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco Notifica
+        paNotificationId:
+          type: string
+          description: Numero protocollo associato alla notifica da parte della PA
+        sender:
+          type: string
+          description: Denominazione della PA che ha inviato l'atto.
+        sentAt:
+          type: string
+          description: Data spedizione notifica
+          format: date-time
+        subject:
+          type: string
+          description: Oggetto della notifica
+        notificationStatus:
+          $ref: '#/components/schemas/NotificationStatus'
+        recipients:
+          description: Elenco delle denominazioni dei destinatari della notifica
+          type: array
+          items:
+            type: string
+    
+    NotificationStatus:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     
