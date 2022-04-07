@@ -5,6 +5,7 @@ import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -43,14 +44,11 @@ public class MultiPageSearch {
 
         int pIdx = 0;
         int numPages = 0;
-        int numeroDiRigheMancantiNellaPagina = inputSearchNotificationDto.getSize();
+        int missingLinesOnPage = inputSearchNotificationDto.getSize();
 
         while ( numPages < cfg.getMaxPageSize() && pIdx < partitions.size() ) {
 
             String partition = partitions.get( pIdx );
-
-            Instant startDate = inputSearchNotificationDto.getStartDate();
-            Instant endDate = inputSearchNotificationDto.getEndDate();
 
             PnLastEvaluatedKey oneMonthKey;
             if( globalResult.getNextPagesKey() != null && !globalResult.getNextPagesKey().isEmpty() ) {
@@ -67,10 +65,8 @@ public class MultiPageSearch {
             oneQueryResult = notificationDao.searchForOneMonth(
                     inputSearchNotificationDto,
                     indexName,
-                    startDate,
-                    endDate,
                     partitionValue,
-                    numeroDiRigheMancantiNellaPagina,
+                    missingLinesOnPage,
                     oneMonthKey);
 
             if( numPages == 0 ) {
@@ -84,10 +80,10 @@ public class MultiPageSearch {
             }
 
             int retrievedRowsNum = oneQueryResult.getResult().size();
-            numeroDiRigheMancantiNellaPagina -= retrievedRowsNum;
+            missingLinesOnPage -= retrievedRowsNum;
 
-            if( numeroDiRigheMancantiNellaPagina == 0 ) {
-                numeroDiRigheMancantiNellaPagina = inputSearchNotificationDto.getSize();
+            if( missingLinesOnPage == 0 ) {
+                missingLinesOnPage = inputSearchNotificationDto.getSize();
             }
             else {
                 pIdx += 1;
@@ -111,19 +107,22 @@ public class MultiPageSearch {
     private void retrieveIndexName(InputSearchNotificationDto inputSearchNotificationDto) {
         final String filterId = inputSearchNotificationDto.getFilterId();
         if(inputSearchNotificationDto.isBySender()) {
-            indexName = "senderId";
+            indexName = NotificationMetadataEntity.INDEX_SENDER_ID;
             if (filterId != null) {
-                indexName += "_recipientId";
+                indexName = NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID;
             }
         } else {
-            indexName = "recipientId";
+            indexName = NotificationMetadataEntity.INDEX_RECIPIENT_ID;
             if (filterId != null) {
-                indexName = "senderId_" + indexName;
+                indexName = NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID;
             }
         }
     }
 
     private List<String> listMonthPartitions( InputSearchNotificationDto inputSearchNotificationDto, PnLastEvaluatedKey lastEvaluatedKey ) {
+        if ( inputSearchNotificationDto.getFilterId() != null ){
+            return Collections.singletonList( "noMonthPartition" );
+        }
         Instant endDate = inputSearchNotificationDto.getEndDate();
         if (lastEvaluatedKey != null) {
             endDate = Instant.parse( lastEvaluatedKey.getInternalLastEvaluatedKey().get( "sentAt" ).s() );

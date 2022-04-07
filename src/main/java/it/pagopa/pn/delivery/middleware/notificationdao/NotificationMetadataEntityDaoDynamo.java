@@ -4,6 +4,7 @@ import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
@@ -40,15 +41,15 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     @Override
-    public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey>    searchForOneMonth(
+    public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
             InputSearchNotificationDto inputSearchNotificationDto,
             String indexName,
-            Instant startDate,
-            Instant endDate,
             String partitionValue,
             int size,
             PnLastEvaluatedKey lastEvaluatedKey
     ) {
+        Instant startDate = inputSearchNotificationDto.getStartDate();
+        Instant endDate = inputSearchNotificationDto.getEndDate();
 
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
         Key key = builder.build();
@@ -72,8 +73,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         addFilterExpression(inputSearchNotificationDto, requestBuilder);
 
         if( lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty() ) {
-            //TODO recuperare attributeHashKey da indexName
-            if ( lastEvaluatedKey.getInternalLastEvaluatedKey().get( "senderId_creationMonth" ).s().equals( partitionValue ) ) {
+            String attributeName = retrieveAttributeName( indexName );
+            if ( lastEvaluatedKey.getInternalLastEvaluatedKey().get( attributeName ).s().equals( partitionValue ) ) {
                 requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
             }
         }
@@ -97,10 +98,29 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return resultPaginationDtoBuilder.build();
     }
 
+    private String retrieveAttributeName(String indexName) {
+        String attributeName;
+        switch ( indexName ) {
+            case NotificationMetadataEntity.FIELD_SENDER_ID:
+                attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH; break;
+            case NotificationMetadataEntity.FIELD_RECIPIENT_ID:
+                attributeName = NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH; break;
+            case NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID:
+                attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID; break;
+            default: {
+                String msg = String.format( "Unable to retrieve attributeName by indexName=%s", indexName );
+                log.error( msg );
+                throw new PnInternalException( msg );
+            }
+        }
+        return attributeName;
+    }
+
     private void addFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
                                      QueryEnhancedRequest.Builder requestBuilder) {
         addStatusFilterExpression(inputSearchNotificationDto, requestBuilder);
         addGroupFilterExpression(inputSearchNotificationDto, requestBuilder);
+        addIunFilterExpression( inputSearchNotificationDto, requestBuilder );
     }
 
     private void addStatusFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
@@ -115,6 +135,21 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                     .build()
                     ).build();
             requestBuilder.filterExpression( filterStatusExpression );
+        }
+    }
+
+    private void addIunFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
+                                        QueryEnhancedRequest.Builder requestBuilder) {
+        if ( inputSearchNotificationDto.getIunMatch() != null ) {
+            Expression filterIunExpression = Expression.builder()
+                    .expression( "begins_with(iun_recipientId, :iunValue)" )
+                    .putExpressionValue(
+                            ":iunValue",
+                            AttributeValue.builder()
+                                    .s( inputSearchNotificationDto.getIunMatch() )
+                                    .build()
+                    ).build();
+            requestBuilder.filterExpression( filterIunExpression );
         }
     }
 
@@ -145,8 +180,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         metadataEntityList.forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
         return result;
     }
-
-
 
     @Override
     public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) {

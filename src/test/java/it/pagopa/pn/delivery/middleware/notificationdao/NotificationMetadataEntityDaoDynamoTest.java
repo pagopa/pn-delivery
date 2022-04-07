@@ -22,8 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 class NotificationMetadataEntityDaoDynamoTest {
     private NotificationMetadataEntityDao metadataEntityDao;
 
-    @Autowired
-
 
     @BeforeEach
     void setup() {
@@ -69,8 +67,6 @@ class NotificationMetadataEntityDaoDynamoTest {
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = metadataEntityDao.searchForOneMonth(
                 searchDto,
                 "senderId",
-                Instant.parse("2022-04-01T17:48:00Z"),
-                Instant.parse("2022-04-30T17:48:00Z"),
                 "SenderId##CreationMonth",
                 10,
                 null);
@@ -109,7 +105,7 @@ class NotificationMetadataEntityDaoDynamoTest {
         }
 
         @Override
-        public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, Instant startDate, Instant endDate, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+        public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
             Key key = Key.builder()
                     .partitionValue( "IUN##RecipientId" )
                     .sortValue( "2022-04-06T17:48:00Z" )

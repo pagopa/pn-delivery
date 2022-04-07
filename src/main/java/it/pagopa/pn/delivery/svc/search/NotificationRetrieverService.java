@@ -96,7 +96,7 @@ public class NotificationRetrieverService {
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
-				builder.moreResult( searchResult.isMoreResult() )
+				builder.moreResult( searchResult.getNextPagesKey() != null )
 				.result( searchResult.getResult() );
 				if ( searchResult.getNextPagesKey() != null ) {
 					builder.nextPagesKey( searchResult.getNextPagesKey()

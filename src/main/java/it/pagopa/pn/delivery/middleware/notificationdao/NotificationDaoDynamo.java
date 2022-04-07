@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
-import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -57,8 +56,8 @@ public class NotificationDaoDynamo implements NotificationDao {
     }
 
     @Override
-    public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, Instant startDate, Instant endDate, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
-        return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, startDate, endDate, partitionValue, size, lastEvaluatedKey );
+    public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+        return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, partitionValue, size, lastEvaluatedKey );
     }
 
 

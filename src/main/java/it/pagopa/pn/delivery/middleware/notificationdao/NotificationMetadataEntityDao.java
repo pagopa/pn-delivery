@@ -8,16 +8,12 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMet
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
-import java.time.Instant;
-
 public interface NotificationMetadataEntityDao extends KeyValueStore<Key, NotificationMetadataEntity> {
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-dao";
 
     ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
             InputSearchNotificationDto inputSearchNotificationDto,
             String indexName,
-            Instant startDate,
-            Instant endDate,
             String partitionValue,
             int size,
             PnLastEvaluatedKey lastEvaluatedKey

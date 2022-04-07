@@ -7,7 +7,6 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 
-import java.time.Instant;
 import java.util.Optional;
 
 public interface NotificationDao {
@@ -21,8 +20,6 @@ public interface NotificationDao {
     ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
             InputSearchNotificationDto inputSearchNotificationDto,
             String indexName,
-            Instant startDate,
-            Instant endDate,
             String partitionValue,
             int size,
             PnLastEvaluatedKey lastEvaluatedKey

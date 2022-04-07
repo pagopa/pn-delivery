@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -278,7 +277,7 @@ class NotificationDaoDynamoTest {
         }
 
         @Override
-        public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, Instant startDate, Instant endDate, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+        public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
             return null;
         }
     }
