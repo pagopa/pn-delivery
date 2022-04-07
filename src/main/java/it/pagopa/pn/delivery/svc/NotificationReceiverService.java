@@ -8,10 +8,8 @@ import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.directaccesstoken.DirectAccessToken;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.middleware.DirectAccessTokenDao;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -26,7 +24,7 @@ public class NotificationReceiverService {
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;
-	private final DirectAccessTokenDao directAccessTokenDao;
+	private final DirectAccessService directAccessService;
 	private final NewNotificationProducer newNotificationEventProducer;
 	private final AttachmentService attachmentSaver;
 	private final NotificationReceiverValidator validator;
@@ -35,14 +33,14 @@ public class NotificationReceiverService {
 	public NotificationReceiverService(
 			Clock clock,
 			NotificationDao notificationDao,
-			DirectAccessTokenDao directAccessTokenDao,
+			DirectAccessService directAccessService,
 			NewNotificationProducer newNotificationEventProducer,
 			AttachmentService attachmentSaver,
 			NotificationReceiverValidator validator
 	) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
-		this.directAccessTokenDao = directAccessTokenDao;
+		this.directAccessService = directAccessService;
 		this.newNotificationEventProducer = newNotificationEventProducer;
 		this.attachmentSaver = attachmentSaver;
 		this.validator = validator;
@@ -82,7 +80,7 @@ public class NotificationReceiverService {
 	private String doSaveWithRethrow( Notification notification ) {
 		String iun = generatePredictedIun( notification );
 		
-		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} notificationId={} paNotificationId={}",
+		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
 				iun, notification.getPaNotificationId() );
 
 		try {
@@ -130,14 +128,7 @@ public class NotificationReceiverService {
 		List<NotificationRecipient> recipients = notification.getRecipients();
 		List<NotificationRecipient> recipientsWithToken = new ArrayList<>(recipients.size());
 		for (NotificationRecipient recipient : recipients) {
-			String token = generateToken( );
-			// chiamata al dao per inserimento tokens
-			directAccessTokenDao.addDirectAccessToken(DirectAccessToken.builder()
-					.token( token )
-					.iun(iun)
-					.taxId( recipient.getTaxId() )
-					.build());
-
+			String token = directAccessService.generateToken(iun, recipient.getTaxId());
 			recipientsWithToken.add( recipient.toBuilder().token( token ).build() );
 		}
 		return recipientsWithToken;
@@ -152,8 +143,6 @@ public class NotificationReceiverService {
 	}
 
 
-	private String generateToken() {
-		return UUID.randomUUID().toString();
-	}
+
 
 }
