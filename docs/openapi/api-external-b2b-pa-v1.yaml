@@ -64,10 +64,6 @@ paths:
       tags:
         - NewNotification
       operationId: presignedUploadRequest
-      parameters:                                               # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       requestBody:
         content:
           application/json:
@@ -111,11 +107,6 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotification
-      parameters:                                                  # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
       requestBody:
         content:
           application/json:
@@ -153,10 +144,6 @@ paths:
         <br/>
         L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paNotificationId'
         - $ref: '#/components/parameters/cancelledIun'
@@ -191,10 +178,6 @@ paths:
         - SenderRead
       operationId: getSentNotification
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
         - $ref: '#/components/parameters/pathIun'
       responses:
         '200':
@@ -221,10 +204,6 @@ paths:
         - SenderRead
       operationId: getSentNotificationDocument
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
       responses:
@@ -248,10 +227,6 @@ paths:
         - SenderRead
       operationId: getSentNotificationAttachment
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
@@ -511,14 +486,14 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
 
    
-#  securitySchemes:        # ONLY EXTERNAL
-#    ApiKeyAuth:           # ONLY EXTERNAL
-#      type: apiKey        # ONLY EXTERNAL
-#      in: header          # ONLY EXTERNAL
-#      name: x-api-key     # ONLY EXTERNAL
+  securitySchemes:        # ONLY EXTERNAL
+    ApiKeyAuth:           # ONLY EXTERNAL
+      type: apiKey        # ONLY EXTERNAL
+      in: header          # ONLY EXTERNAL
+      name: x-api-key     # ONLY EXTERNAL
 
-#security:                 # ONLY EXTERNAL
-#  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+security:                 # ONLY EXTERNAL
+  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
               
 
 
