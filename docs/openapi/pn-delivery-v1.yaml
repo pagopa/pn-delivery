@@ -51,57 +51,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
   
-
-  "/delivery/notifications/sent/{iun}/documents/{documentIndex}":
-    get:
-      summary: servizio di lettura del documento <documentIndex> che appartiene alla notifica <iun>
-      tags:
-      - pn-sent-notifications-controller
-      operationId: getSentNotificationDocument
-      parameters:
-      - name: X-PagoPA-PN-PA
-        in: header
-        required: true
-        schema:
-          type: string
-      - name: iun
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: documentIndex
-        in: path
-        required: true
-        schema:
-          type: integer
-          format: int32
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
-              schema:
-                type: string
-                format: binary
-        '401':
-          description: Unauthorized
-          x-noqa: RFC6749
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '501':
-          description: Internal error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
   "/delivery/notifications/received":
     get:
       summary: servizio di ricerca delle notifiche individuate dai parametri di rcerca specificati
