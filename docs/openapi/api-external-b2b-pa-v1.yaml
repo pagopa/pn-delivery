@@ -24,10 +24,7 @@ info:
          diverso da `null` significa che la richiesta di invio notifica è stata accettata.
       6. Da ora in poi la "richiesta di notifica" viene trasformata in una "notifica" e sarà
          ricercabile anche con le operazioni _getByIun_ e _search_
-        
-    ## Webhook
-      Mettere riferimento ad apposito documento.
-
+    
   contact:
     email: pn@pagopa.it
   license:
@@ -178,7 +175,7 @@ paths:
         - SenderRead
       operationId: getSentNotification
       parameters:
-        - $ref: '#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
       responses:
         '200':
           description: OK
@@ -204,7 +201,7 @@ paths:
         - SenderRead
       operationId: getSentNotificationDocument
       parameters:
-        - $ref: '#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
       responses:
         '200':
@@ -227,7 +224,7 @@ paths:
         - SenderRead
       operationId: getSentNotificationAttachment
       parameters:
-        - $ref: '#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
       responses:
@@ -256,7 +253,7 @@ paths:
         - LegalFacts                                                                # ONLY EXTERNAL
       operationId: getLegalFact                                                     # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
-        - $ref: '#/components/parameters/pathIun'                                   # ONLY EXTERNAL
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'                                   # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
       responses:                                                                    # ONLY EXTERNAL
@@ -315,19 +312,8 @@ components:
       schema:
         type: string
     
-    ############################################################################################
-    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
-    ############################################################################################
-    pathIun:
-      description: >-
-        Identificativo Univoco Notifica
-      name: iun
-      in: path
-      required: true
-      schema:
-        type: string
-
-
+    
+    
     ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
     ############################################################################################

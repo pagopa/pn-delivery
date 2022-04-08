@@ -41,14 +41,14 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'
         - $ref: '#/components/parameters/cxIdAuthFleet'
         - $ref: '#/components/parameters/cxGroupsAuthFleet'        
-        - $ref: '#/components/parameters/notificationSearchStartDate'
-        - $ref: '#/components/parameters/notificationSearchEndDate'
-        - $ref: '#/components/parameters/notificationSearchRecipientId'
-        - $ref: '#/components/parameters/notificationSearchStatus'
-        - $ref: '#/components/parameters/notificationSearchSubject'
-        - $ref: '#/components/parameters/notificationSearchIun'
-        - $ref: '#/components/parameters/notificationSearchPageSize'
-        - $ref: '#/components/parameters/notificationSearchNextPagesKey'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStartDate'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchEndDate'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchSenderId'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStatus'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchSubject'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchPageSize'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchNextPagesKey'
       responses:
         '200':
           description: OK
@@ -80,62 +80,5 @@ components:
       $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'
     
 
-    ############################################################################################
-    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
-    ############################################################################################
-    notificationSearchStartDate:
-      name: startDate
-      in: query
-      required: true
-      description: data/ora di inizio dell'intervallo entro cui eseguire la ricercva
-      schema:
-        type: string
-        format: date-time
-    notificationSearchEndDate:
-      name: endDate
-      in: query
-      required: true
-      description: data/ora di fine dell'intervallo entro cui eseguire la ricercva
-      schema:
-        type: string
-        format: date-time
-    notificationSearchRecipientId:
-      name: recipientId
-      in: query
-      required: false
-      description: identificativo del destinatario
-      schema:
-        type: string
-    notificationSearchStatus:
-      name: status
-      in: query
-      required: false
-      description: stato della notifica
-      schema:
-        $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationStatus'
-    notificationSearchSubject:
-      name: subjectRegExp
-      in: query
-      required: false
-      schema:
-        type: string
-    notificationSearchIun:
-      name: iunMatch
-      in: query
-      required: false
-      schema:
-        type: string
-    notificationSearchPageSize:
-      name: size
-      in: query
-      required: false
-      schema:
-        type: integer
-        format: int32
-    notificationSearchNextPagesKey:
-      name: nextPagesKey
-      in: query
-      required: false
-      schema:
-        type: string
-    
+
+
