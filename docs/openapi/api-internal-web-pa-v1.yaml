@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
+  title: 'Piattaforma Notifiche: API per il Front End delle PA'
   version: v1.0
   description: >- 
     ## Abstract
@@ -63,62 +63,7 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
   
-  "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}":
-    get:
-      summary: Download documento notificato
-      tags:
-        - SenderRead
-      operationId: getSentNotificationDocument
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathDocumentIdx'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-        
-  "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
-    get:
-      summary: Download allegato per pagamento
-      tags:
-        - SenderRead
-      operationId: getSentNotificationAttachment
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathRecipientIdx'
-        - $ref: '#/components/parameters/pathAttachmentName'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
   
-
 
 components:
   parameters:
@@ -194,46 +139,3 @@ components:
       schema:
         type: string
     
-
-    ############################################################################################
-    ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
-    ############################################################################################
-    pathIun:
-      description: >-
-        Identificativo Univoco Notifica
-      name: iun
-      in: path
-      required: true
-      schema:
-        type: string
-    pathDocumentIdx:
-      name: docIdx
-      in: path
-      required: true
-      schema:
-        type: number
-    pathRecipientIdx:
-      name: recipientIdx
-      in: path
-      required: true
-      schema:
-        type: number
-    pathAttachmentName:
-      name: attachmentName
-      in: path
-      required: true
-      schema:
-        oneOf:
-          - type: number
-          - type: string
-            enum:
-              - PAGOPA
-              - F24_FLAT
-              - F24_DIGITAL
-              - F24_DIGITAL_WITH_RS
-              - F24_ANALOG_NATIONAL_1
-              - F24_ANALOG_NATIONAL_2
-              - F24_ANALOG_INTERNATIONAL_1
-              - F24_ANALOG_INTERNATIONAL_2
-
-

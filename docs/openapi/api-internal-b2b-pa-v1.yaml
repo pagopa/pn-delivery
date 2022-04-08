@@ -209,6 +209,65 @@ paths:
             application/json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+    
+    ###########################################################################################
+    ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
+    ###########################################################################################
+
+  "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}":
+    get:
+      summary: Download documento notificato
+      tags:
+        - SenderRead
+      operationId: getSentNotificationDocument
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        
+  "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - SenderRead
+      operationId: getSentNotificationAttachment
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientIdx'
+        - $ref: '#/components/parameters/pathAttachmentName'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
 components:
@@ -267,6 +326,38 @@ components:
         type: string
 
 
+    ############################################################################################
+    ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
+    ############################################################################################
+    pathDocumentIdx:
+      name: docIdx
+      in: path
+      required: true
+      schema:
+        type: number
+    pathRecipientIdx:
+      name: recipientIdx
+      in: path
+      required: true
+      schema:
+        type: number
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        oneOf:
+          - type: number
+          - type: string
+            enum:
+              - PAGOPA
+              - F24_FLAT
+              - F24_DIGITAL
+              - F24_DIGITAL_WITH_RS
+              - F24_ANALOG_NATIONAL_1
+              - F24_ANALOG_NATIONAL_2
+              - F24_ANALOG_INTERNATIONAL_1
+              - F24_ANALOG_INTERNATIONAL_2
 
   schemas:
     
@@ -383,6 +474,11 @@ components:
               type: array
               items:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/ProblemError'
+
+
+    ###########################################################################################
+    ###                              DTO NOTIFICA CON DETTAGLI                              ###
+    ###########################################################################################
 
     FullSentNotification:
       description: >-
