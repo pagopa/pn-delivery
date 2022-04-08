@@ -58,8 +58,6 @@ paths:
       description: >-
         Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
         a precaricare uno o più file da allegare a una notifica. <br/>
-        <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - NewNotification
       operationId: presignedUploadRequest
@@ -101,8 +99,6 @@ paths:
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
         _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
-        <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - NewNotification
       operationId: sendNewNotification
@@ -140,8 +136,6 @@ paths:
         lo IUN associato a tale richiesta. <br/>
         Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
         _paNotificationId_ e _cancelledIun_. <br/>
-        <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       parameters:
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paNotificationId'
@@ -171,8 +165,6 @@ paths:
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica generata da una 
         richiesta di notifica che è stata accettata. <br/>
-        <br/>
-        L'unico valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - SenderRead
       operationId: getSentNotification
