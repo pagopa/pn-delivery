@@ -17,7 +17,13 @@ public interface NotificationDao {
 
     Optional<Notification> getNotificationByIun(String iun);
 
-    ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchNotification(InputSearchNotificationDto inputSearchNotificationDto, PnLastEvaluatedKey lastEvaluatedKey);
+    ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
+            InputSearchNotificationDto inputSearchNotificationDto,
+            String indexName,
+            String partitionValue,
+            int size,
+            PnLastEvaluatedKey lastEvaluatedKey
+    );
 }
 
 
