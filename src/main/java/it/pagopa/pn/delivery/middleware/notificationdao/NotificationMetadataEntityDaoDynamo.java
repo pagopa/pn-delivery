@@ -51,6 +51,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         Instant startDate = inputSearchNotificationDto.getStartDate();
         Instant endDate = inputSearchNotificationDto.getEndDate();
 
+        // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
         Key key = builder.build();
         Key key1 = builder.sortValue(startDate.toString()).build();
@@ -70,8 +71,12 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 .limit( size )
                 .scanIndexForward( false );
 
+        // aggiunta dei filtri alla query: status, groups, iun
         addFilterExpression(inputSearchNotificationDto, requestBuilder);
 
+        // se query su partizione precedente ha restituito una LEK
+        // recupero nome dell'attributo in base all'indice di ricerca ed imposto
+        // l'ultimo elemento valutato nella query precedente come exclusiveStartKey della query che segue
         if( lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty() ) {
             String attributeName = retrieveAttributeName( indexName );
             if ( lastEvaluatedKey.getInternalLastEvaluatedKey().get( attributeName ).s().equals( partitionValue ) ) {
@@ -79,13 +84,17 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             }
         }
 
+        // eseguo la query
         SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( requestBuilder.build() );
 
+        // recupero i risultati della query
         Page<NotificationMetadataEntity> page = notificationMetadataPages.iterator().next();
 
+        // imposto i risultati della query mappandoli da NotificationMetadata a NotificationSearchRow
         ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,PnLastEvaluatedKey> resultPaginationDtoBuilder = ResultPaginationDto.builder();
         resultPaginationDtoBuilder.result( fromNotificationMetadataToNotificationSearchRow( page.items() )).moreResult( false );
 
+        // imposto la LEK in base al risultato della query
         if ( page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty()) {
             PnLastEvaluatedKey pnLastEvaluatedKey = new PnLastEvaluatedKey();
             pnLastEvaluatedKey.setExternalLastEvaluatedKey( partitionValue  );

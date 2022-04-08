@@ -38,8 +38,11 @@ public class MultiPageSearch {
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> globalResult = new ResultPaginationDto<>();
 
+        // recupero dell'indice dove andrò ad eseguire la query di ricerca
         retrieveIndexName(inputSearchNotificationDto);
 
+        // nel caso di ricerche multi mese elenca le partizioni mensili di ricerca dalla partizione più recente a quella più lontana
+        // per ricerche che non dipendono dal mese restituisce una singola partizione
         List<String> partitions = listMonthPartitions( inputSearchNotificationDto, lastEvaluatedKey );
 
         int pIdx = 0;
@@ -50,6 +53,8 @@ public class MultiPageSearch {
 
             String partition = partitions.get( pIdx );
 
+            // recupero della LastEvaluatedKey se presente quella della query precedente
+            // altrimenti quella proveniente dal FE, null nel caso di prima ricerca
             PnLastEvaluatedKey oneMonthKey;
             if( globalResult.getNextPagesKey() != null && !globalResult.getNextPagesKey().isEmpty() ) {
                 int lastIndex = globalResult.getNextPagesKey().size();
@@ -59,6 +64,9 @@ public class MultiPageSearch {
                 oneMonthKey = lastEvaluatedKey;
             }
 
+            // calcolo del valore della partizione dove verrà effettuata la query
+            // nel caso di partizioni mensili dipende dal mese di interesse (partition)
+            // se valorizzata dipende dalla LastEvaluatedKey fornita dal FE per query a pagine successive alla prima
             String partitionValue = computePartitionValue( inputSearchNotificationDto, partition, lastEvaluatedKey );
 
             ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> oneQueryResult;
@@ -69,6 +77,7 @@ public class MultiPageSearch {
                     missingLinesOnPage,
                     oneMonthKey);
 
+            // inserisco i risultati della query ad una singola partizione nei risultati globali di ricerca
             if( numPages == 0 ) {
                 List<NotificationSearchRow> oldResult = globalResult.getResult();
                 if (oldResult != null ) {
@@ -79,9 +88,13 @@ public class MultiPageSearch {
 
             }
 
+            // aggiorno il numero di elementi ancora restituibili al FE in base ai risultati ottenuti
+            // dalla singola query sulla partizione
             int retrievedRowsNum = oneQueryResult.getResult().size();
             missingLinesOnPage -= retrievedRowsNum;
 
+            // se non posso restituire altri elementi al FE allora pagina dei risultati è completa,
+            // quindi proseguo per riempire altra pagina oppure mi sposto a partizione mensile precedente
             if( missingLinesOnPage == 0 ) {
                 missingLinesOnPage = inputSearchNotificationDto.getSize();
             }
@@ -89,6 +102,7 @@ public class MultiPageSearch {
                 pIdx += 1;
             }
 
+            // aggiorno la lista delle LastEvaluatedKey da restituire al FE per farmi interrogare direttamente la pagina richiesta
             if( oneQueryResult.getNextPagesKey() != null ) {
                 List<PnLastEvaluatedKey> oldLastEvaluatedKey = globalResult.getNextPagesKey();
                 if ( oldLastEvaluatedKey != null ) {
@@ -108,14 +122,11 @@ public class MultiPageSearch {
         final String filterId = inputSearchNotificationDto.getFilterId();
         if(inputSearchNotificationDto.isBySender()) {
             indexName = NotificationMetadataEntity.INDEX_SENDER_ID;
-            if (filterId != null) {
-                indexName = NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID;
-            }
         } else {
             indexName = NotificationMetadataEntity.INDEX_RECIPIENT_ID;
-            if (filterId != null) {
-                indexName = NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID;
-            }
+        }
+        if (filterId != null) {
+            indexName = NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID;
         }
     }
 
