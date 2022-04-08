@@ -9,6 +9,8 @@ info:
     
     ## Operazioni utilizzate, in sequenza temporale
 
+    <img src="./images/send-notification-sequence.png" ></div>
+    
     ### Creazione richesta notifica:
       1. i sistemi della PA invocano l'operazione _presignedUploadRequest_ con cui prenotano
          il caricamento di documenti e altri allegati alla notifica;
@@ -30,6 +32,8 @@ info:
   license:
     name: Licenza di PN
     url: 'https://da-definire/'
+externalDocs:
+  url: https://google.it
 servers:
 - url: https://api.pn.pagopa.it
   description: Ambiente di produzione

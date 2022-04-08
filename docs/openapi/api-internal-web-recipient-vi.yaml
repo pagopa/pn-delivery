@@ -27,9 +27,6 @@ paths:
     ###########################################################################################
     ###                             RICERCA NOTIFICHE RICEVUTE                             ###
     ###########################################################################################
-    ###########################################################################################
-    ###                                  RICERCA NOTIFICHE                                  ###
-    ###########################################################################################
   "/delivery/notifications/sent":
     get:    
       summary: Ricerca notifiche inviate
@@ -87,7 +84,7 @@ paths:
           content:
             "*/*":
               schema:
-                $ref: "#/components/schemas/FullSentNotification"
+                $ref: "#/components/schemas/FullReceivedNotification"
         '400':
           description: Bad request
           content:
@@ -206,18 +203,14 @@ components:
     pathLegalFactId:
       $ref: './remote-refs.yaml#/components/parameters/pathLegalFactId'
 
-
   schemas:
     
-    
-    
-
-    
+        
     ###########################################################################################
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotification:
+    FullReceivedNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso il cittadino.
