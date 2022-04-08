@@ -7,7 +7,10 @@ import it.pagopa.pn.api.dto.ResultPaginationDto;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.rest.*;
+import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodGetSentNotification;
+import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodGetSentNotificationDocuments;
+import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodSearchSentNotification;
+import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Arrays;
 
 @RestController
 public class PnSentNotificationsController implements
@@ -46,6 +50,7 @@ public class PnSentNotificationsController implements
             @RequestParam(name = "endDate") Instant endDate,
             @RequestParam(name = "recipientId", required = false) String recipientId,
             @RequestParam(name = "status", required = false) NotificationStatus status,
+            @RequestParam(name = "groups", required = false) String[] groups,
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
             @RequestParam(name = "iunMatch", required = false) String iunMatch,
             @RequestParam(name = "size", required = false) Integer size,
@@ -59,6 +64,7 @@ public class PnSentNotificationsController implements
                 .endDate(endDate)
                 .filterId(recipientId)
                 .status(status)
+                .groups( groups != null ? Arrays.asList( groups ) : null )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
                 .size(size)

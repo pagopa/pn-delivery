@@ -7,7 +7,6 @@ import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +24,11 @@ class NotificationSearchControllerTest {
     private static final String SENDER_ID = "test";
     private static final Instant START_DATE = Instant.parse("2021-09-17T00:00:00.000Z");
     private static final Instant END_DATE = Instant.parse("2021-09-18T00:00:00.000Z");
+    private static final Integer SIZE = 10;
     private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String SUBJECT_REG_EXP = "asd";
+    private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
 
 
     @Autowired
@@ -90,6 +91,59 @@ class NotificationSearchControllerTest {
                 .subjectRegExp(SUBJECT_REG_EXP)
                 .size(null)
                 .nextPagesKey(null)
+                .build();
+
+        Mockito.verify(svc).searchNotification(searchDto);
+    }
+
+    @Test
+    void getSenderNextPageSuccess() {
+        //Given
+        NotificationSearchRow searchRow = NotificationSearchRow.builder()
+                .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
+                .notificationStatus(STATUS)
+                .senderId(SENDER_ID)
+                .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
+                .recipientId(RECIPIENT_ID)
+                .paNotificationId("123")
+                .subject("asdasd")
+                .group( "group" )
+                .paNotificationId( "paNotificationId" )
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow,String> result =
+                ResultPaginationDto.<NotificationSearchRow,String>builder()
+                        .result(Collections.singletonList(searchRow))
+                        .moreResult(false)
+                        .nextPagesKey(Collections.singletonList( null ))
+                        .build();
+
+        //When
+        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path( "/" + PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH )
+                                .queryParam("startDate", START_DATE)
+                                .queryParam("endDate", END_DATE)
+                                .queryParam( "size", SIZE )
+                                .queryParam( "nextPagesKey", NEXT_PAGES_KEY )
+                                .build())
+                .accept(MediaType.ALL)
+                .header( PnDeliveryRestConstants.PA_ID_HEADER, SENDER_ID)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        //Then
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(true)
+                .senderReceiverId(SENDER_ID)
+                .startDate(START_DATE)
+                .endDate(END_DATE)
+                .size( SIZE )
+                .nextPagesKey( NEXT_PAGES_KEY )
                 .build();
 
         Mockito.verify(svc).searchNotification(searchDto);

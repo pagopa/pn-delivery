@@ -3,14 +3,12 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
@@ -21,15 +19,14 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
-public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueStore<NotificationMetadataEntity> implements NotificationMetadataEntityDao<Key, NotificationMetadataEntity> {
+public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueStore<NotificationMetadataEntity> implements NotificationMetadataEntityDao {
     private DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private EntityToDtoNotificationMetadataMapper entityToDto;
 
@@ -44,80 +41,21 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     @Override
-    public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchNotificationMetadata(InputSearchNotificationDto inputSearchNotificationDto, PnLastEvaluatedKey lastEvaluatedKey) {
-
-        Integer maxRowNum = inputSearchNotificationDto.getSize();
-        if ( maxRowNum == null || maxRowNum <= 0 ) {
-            throw new PnInternalException( "Unable to paginate search result without requested size" );
-        }
-
-        Instant startDateInstant = inputSearchNotificationDto.getStartDate();
-        if (lastEvaluatedKey != null) {
-            startDateInstant = Instant.parse( lastEvaluatedKey.getInternalLastEvaluatedKey().get( "sentAt" ).s() );
-        }
-        final Instant endDateInstant = inputSearchNotificationDto.getEndDate();
-        final String startDate = startDateInstant.toString();
-        final String endDate = endDateInstant.toString();
-
-        List<String> creationMonths = retrieveCreationMonth( startDateInstant, endDateInstant );
-
-        String indexName = retrieveIndexName( inputSearchNotificationDto ) ;
-
-        List<NotificationSearchRow> rows = new ArrayList<>();
-        List<PnLastEvaluatedKey> nextPagesKey = new ArrayList<>();
-
-        for ( String oneMonth : creationMonths) {
-            ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> oneMonthResults = searchForOneMonth(
-                    inputSearchNotificationDto,
-                    indexName,
-                    startDate,
-                    endDate,
-                    oneMonth,
-                    maxRowNum,
-                    lastEvaluatedKey);
-
-            rows.addAll( oneMonthResults.getResult() );
-            maxRowNum -= oneMonthResults.getResult().size();
-
-            if( oneMonthResults.getNextPagesKey() != null ){
-                nextPagesKey.addAll( oneMonthResults.getNextPagesKey() );
-                lastEvaluatedKey = oneMonthResults.getNextPagesKey().get( 0 );
-            } else {
-                lastEvaluatedKey = null;
-            }
-            if (maxRowNum > rows.size() ) {
-                lastEvaluatedKey = null;
-            }
-            if (maxRowNum <= 0) {
-                break;
-            }
-        }
-        boolean moreResult = rows.size() >= inputSearchNotificationDto.getSize();
-        return ResultPaginationDto.<NotificationSearchRow,PnLastEvaluatedKey>builder()
-                .result( rows )
-                .moreResult( moreResult )
-                .nextPagesKey( moreResult? nextPagesKey : Collections.emptyList() )
-                .build();
-    }
-
-    @NotNull
-    private ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
+    public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
             InputSearchNotificationDto inputSearchNotificationDto,
             String indexName,
-            String startDate,
-            String endDate,
-            String oneMonth,
+            String partitionValue,
             int size,
             PnLastEvaluatedKey lastEvaluatedKey
     ) {
+        Instant startDate = inputSearchNotificationDto.getStartDate();
+        Instant endDate = inputSearchNotificationDto.getEndDate();
 
-        String partitionValue = computePartitionValue( inputSearchNotificationDto, oneMonth, lastEvaluatedKey );
-
-
+        // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
         Key key = builder.build();
-        Key key1 = builder.sortValue(startDate).build();
-        Key key2 = builder.sortValue(endDate).build();
+        Key key1 = builder.sortValue(startDate.toString()).build();
+        Key key2 = builder.sortValue(endDate.toString()).build();
 
         QueryConditional queryConditional = QueryConditional
                 .keyEqualTo( key );
@@ -128,68 +66,70 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder();
 
-        requestBuilder.queryConditional( queryConditional ).queryConditional( betweenConditional ).limit( size );
+        requestBuilder.queryConditional( queryConditional )
+                .queryConditional( betweenConditional )
+                .limit( size )
+                .scanIndexForward( false );
 
+        // aggiunta dei filtri alla query: status, groups, iun
         addFilterExpression(inputSearchNotificationDto, requestBuilder);
 
+        // se query su partizione precedente ha restituito una LEK
+        // recupero nome dell'attributo in base all'indice di ricerca ed imposto
+        // l'ultimo elemento valutato nella query precedente come exclusiveStartKey della query che segue
         if( lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty() ) {
-            requestBuilder.exclusiveStartKey( lastEvaluatedKey.getInternalLastEvaluatedKey() );
+            String attributeName = retrieveAttributeName( indexName );
+            if ( lastEvaluatedKey.getInternalLastEvaluatedKey().get( attributeName ).s().equals( partitionValue ) ) {
+                requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
+            }
         }
 
+        // eseguo la query
         SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( requestBuilder.build() );
 
+        // recupero i risultati della query
         Page<NotificationMetadataEntity> page = notificationMetadataPages.iterator().next();
 
+        // imposto i risultati della query mappandoli da NotificationMetadata a NotificationSearchRow
         ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,PnLastEvaluatedKey> resultPaginationDtoBuilder = ResultPaginationDto.builder();
         resultPaginationDtoBuilder.result( fromNotificationMetadataToNotificationSearchRow( page.items() )).moreResult( false );
 
+        // imposto la LEK in base al risultato della query
         if ( page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty()) {
             PnLastEvaluatedKey pnLastEvaluatedKey = new PnLastEvaluatedKey();
             pnLastEvaluatedKey.setExternalLastEvaluatedKey( partitionValue  );
             pnLastEvaluatedKey.setInternalLastEvaluatedKey( page.lastEvaluatedKey() );
-            resultPaginationDtoBuilder.nextPagesKey( Collections.singletonList( pnLastEvaluatedKey ) )
+            List<PnLastEvaluatedKey> lastEvaluatedKeyList = new ArrayList<>();
+            lastEvaluatedKeyList.add( pnLastEvaluatedKey );
+            resultPaginationDtoBuilder.nextPagesKey( lastEvaluatedKeyList )
                     .moreResult( true );
         }
         return resultPaginationDtoBuilder.build();
     }
 
-    private String computePartitionValue(InputSearchNotificationDto inputSearchNotificationDto, String oneMonth, PnLastEvaluatedKey lastEvaluatedKey) {
-        String partitionValue;
-        final String senderReceiverId = inputSearchNotificationDto.getSenderReceiverId();
-        final String filterId = inputSearchNotificationDto.getFilterId();
-        if (filterId != null) {
-            partitionValue = senderReceiverId
-                    + "##" + filterId;
-        } else if (lastEvaluatedKey != null && oneMonth.equals( lastEvaluatedKey.getExternalLastEvaluatedKey()
-                .substring( lastEvaluatedKey.getExternalLastEvaluatedKey().indexOf( "##" )+2 ) )) {
-                partitionValue = lastEvaluatedKey.getExternalLastEvaluatedKey();
-            } else {
-            partitionValue = senderReceiverId + "##" + oneMonth;
-        }
-        return partitionValue;
-    }
-
-    private String retrieveIndexName(InputSearchNotificationDto inputSearchNotificationDto) {
-        String indexName;
-        final String filterId = inputSearchNotificationDto.getFilterId();
-        if(inputSearchNotificationDto.isBySender()) {
-            indexName = "senderId";
-            if (filterId != null) {
-                indexName += "_recipientId";
-            }
-        } else {
-            indexName = "recipientId";
-            if (filterId != null) {
-                indexName = "senderId_" + indexName;
+    private String retrieveAttributeName(String indexName) {
+        String attributeName;
+        switch ( indexName ) {
+            case NotificationMetadataEntity.FIELD_SENDER_ID:
+                attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH; break;
+            case NotificationMetadataEntity.FIELD_RECIPIENT_ID:
+                attributeName = NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH; break;
+            case NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID:
+                attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID; break;
+            default: {
+                String msg = String.format( "Unable to retrieve attributeName by indexName=%s", indexName );
+                log.error( msg );
+                throw new PnInternalException( msg );
             }
         }
-        return indexName;
+        return attributeName;
     }
 
     private void addFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
                                      QueryEnhancedRequest.Builder requestBuilder) {
         addStatusFilterExpression(inputSearchNotificationDto, requestBuilder);
         addGroupFilterExpression(inputSearchNotificationDto, requestBuilder);
+        addIunFilterExpression( inputSearchNotificationDto, requestBuilder );
     }
 
     private void addStatusFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
@@ -204,6 +144,21 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                     .build()
                     ).build();
             requestBuilder.filterExpression( filterStatusExpression );
+        }
+    }
+
+    private void addIunFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
+                                        QueryEnhancedRequest.Builder requestBuilder) {
+        if ( inputSearchNotificationDto.getIunMatch() != null ) {
+            Expression filterIunExpression = Expression.builder()
+                    .expression( "begins_with(iun_recipientId, :iunValue)" )
+                    .putExpressionValue(
+                            ":iunValue",
+                            AttributeValue.builder()
+                                    .s( inputSearchNotificationDto.getIunMatch() )
+                                    .build()
+                    ).build();
+            requestBuilder.filterExpression( filterIunExpression );
         }
     }
 
@@ -235,22 +190,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return result;
     }
 
-    private List<String> retrieveCreationMonth(Instant startDate, Instant endDate) {
-        List<String> creationMonths = new ArrayList<>();
-        ZonedDateTime currentMonth = ZonedDateTime.ofInstant( startDate, ZoneId.of( "UTC" ) )
-                .truncatedTo(ChronoUnit.DAYS)
-                .with(TemporalAdjusters.firstDayOfMonth());
-        while ( currentMonth.toInstant().isBefore( endDate )  || currentMonth.toInstant().equals( endDate )) {
-            String[] splitCurrentMonth = currentMonth.toString().split( "-" );
-            String currentMonthString = splitCurrentMonth[0] + splitCurrentMonth[1];
-            creationMonths.add( currentMonthString );
-            currentMonth = currentMonth.plus( 1, ChronoUnit.MONTHS );
-        }
-        return creationMonths;
-    }
-
     @Override
-    public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) throws IdConflictException {
+    public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) {
         PutItemEnhancedRequest<NotificationMetadataEntity> request = PutItemEnhancedRequest.
                 builder(NotificationMetadataEntity.class)
                 .item( notificationMetadataEntity )

@@ -29,6 +29,8 @@ public class PnDeliveryConfigs {
 
     private NotificationMetadataDao notificationMetadataDao;
 
+    private Integer maxPageSize;
+
     @Data
     public static class Topics {
         private String newNotifications;

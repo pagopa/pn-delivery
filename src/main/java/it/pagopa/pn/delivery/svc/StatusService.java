@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class StatusService {
     private final NotificationDao notificationDao;
     private final StatusUtils statusUtils;
-    private final NotificationMetadataEntityDao<Key, NotificationMetadataEntity> notificationMetadataEntityDao;
+    private final NotificationMetadataEntityDao notificationMetadataEntityDao;
 
 
     public StatusService(NotificationDao notificationDao, StatusUtils statusUtils,
@@ -55,7 +55,7 @@ public class StatusService {
             
             // - Calcolare il nuovo stato
             NotificationStatusHistoryElement nextState = computeLastStatusHistoryElement( notification, currentTimeline );
-            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(nextState, notification, currentTimeline);
+            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(nextState, notification);
 
             log.debug("Next state is {} for iun {}",nextState.getStatus(), dto.getIun());
 
@@ -93,12 +93,9 @@ public class StatusService {
     }
 
 
-    private List<NotificationMetadataEntity> computeMetadataEntry(NotificationStatusHistoryElement lastStatus, Notification notification, Set<TimelineInfoDto> currentTimeline) {
-        int numberOfRecipient = notification.getRecipients().size();
-        //Instant notificationCreatedAt = notification.getSentAt();
+    private List<NotificationMetadataEntity> computeMetadataEntry(NotificationStatusHistoryElement lastStatus, Notification notification) {
         String creationMonth = extractCreationMonth( notification.getSentAt() );
 
-        //List<NotificationMetadataEntity> resultList = new ArrayList<>();
 
         List<String> recipientIds = notification.getRecipients().stream()
                 .map( NotificationRecipient::getTaxId )
@@ -107,28 +104,6 @@ public class StatusService {
         return recipientIds.stream()
                     .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, recipientIds, creationMonth))
                     .collect(Collectors.toList());
-//
-//
-//        notification.getRecipients().forEach(recipient -> resultList.add( NotificationMetadataEntity.builder()
-//                .notificationStatus( NotificationStatus.valueOf(lastStatus.getStatus().toString() ).toString() )
-//                .senderId( notification.getSender().getPaId() )
-//                .recipientId( recipient.getTaxId() )
-//                .sentAt( notificationCreatedAt )
-//                //.notificationGroup( notification.getGroup() )
-//                .recipientIds( recipientIds )
-//                .tableRow( Map.ofEntries(
-//                        Map.entry( "iun", notification.getIun() ),
-//                        Map.entry( "recipientsIds", recipientIds.toString() ),
-//                        Map.entry( "paNotificationId", notification.getPaNotificationId() ),
-//                        Map.entry( "subject", notification.getSubject())  ) )
-//                .senderId_recipientId( createConcatenation( notification.getSender().getPaId(), recipient.getTaxId()  ) )
-//                .senderId_creationMonth( createConcatenation( notification.getSender().getPaId(), creationMonth ) )
-//                .recipientId_creationMonth( createConcatenation( recipient.getTaxId() , creationMonth ) )
-//                .iun_recipientId( createConcatenation( notification.getIun(), recipient.getTaxId() ) )
-//                .recipientOne( numberOfRecipient <= 1 )
-//                .build() ) );
-//
-//        return resultList;
     }
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(

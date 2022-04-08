@@ -15,6 +15,7 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
@@ -49,6 +50,7 @@ public class NotificationRetrieverService {
 	private final NotificationDao notificationDao;
 	private final PnDeliveryPushClient pnDeliveryPushClient;
 	private final StatusUtils statusUtils;
+	private final PnDeliveryConfigs cfg;
 
 
 	@Autowired
@@ -58,8 +60,8 @@ public class NotificationRetrieverService {
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClient pnDeliveryPushClient,
-										StatusUtils statusUtils
-	) {
+										StatusUtils statusUtils,
+										PnDeliveryConfigs cfg) {
 		this.fileStorage = fileStorage;
 		this.clock = clock;
 		this.presignedUrlSvc = presignedUrlSvc;
@@ -67,6 +69,7 @@ public class NotificationRetrieverService {
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.statusUtils = statusUtils;
+		this.cfg = cfg;
 	}
 	
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {
@@ -82,18 +85,25 @@ public class NotificationRetrieverService {
 				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey", e );
 			}
 		}
-		
 
-		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = notificationDao.
-				searchNotification(searchDto, lastEvaluatedKey);
+		MultiPageSearch multiPageSearch = new MultiPageSearch(
+				notificationDao,
+				searchDto,
+				lastEvaluatedKey,
+				cfg
+		);
 
-		return ResultPaginationDto.<NotificationSearchRow,String>builder()
-				.moreResult( searchResult.isMoreResult() )
-				.result( searchResult.getResult() )
-				.nextPagesKey( searchResult.getNextPagesKey()
-						.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
-						.collect(Collectors.toList()) )
-				.build();
+		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
+
+		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
+				builder.moreResult( searchResult.getNextPagesKey() != null )
+				.result( searchResult.getResult() );
+				if ( searchResult.getNextPagesKey() != null ) {
+					builder.nextPagesKey( searchResult.getNextPagesKey()
+							.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
+							.collect(Collectors.toList()) );
+				}
+				return builder.build();
 	}
 
 	private void validateInput(InputSearchNotificationDto searchDto) {
