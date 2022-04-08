@@ -1,10 +1,18 @@
 components:
   schemas:
 
+    ############################################################################################
+    ###                           IDENTIFICATIVI DELLE NOTIFICHE                             ###
+    ############################################################################################
+    
     IUN:
       description: Identificativo Univoco Notifica
       type: string
 
+    ############################################################################################
+    ###                                 DTO DELLE NOTIFICHE                                  ###
+    ############################################################################################
+    
     NewNotificationRequest:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
@@ -53,6 +61,35 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+    
+    SentNotification:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata
+      allOf: 
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
+            iun:
+              type: string
+              description: L'Identificativo Univoco Notifica assegnato da PN
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              type: string
+              description: IUN della notifica che ha rettificato questa notifica
+
+
+    ############################################################################################
+    ###                                ELEMENTI DI DETTAGLIO                                 ###
+    ############################################################################################
     
     NotificationRecipient:
       description: Informazioni sui destinatari
@@ -133,57 +170,7 @@ components:
         versionToken:
           type: string
           description: Token per recuperare l'esatta istanza dell'allegato
-    
-    NotificationDigitalAddress:
-      description: Indirizzo di invio della notifica
-      required:
-      - address
-      - type
-      type: object
-      properties:
-        type:
-          type: string
-          description: tipo di indirizzo PEC, REM, SERCQ, ...
-          enum:
-          - PEC
-        address:
-          type: string
-          description: account@domain
-      
 
-    NotificationPhysicalAddress:
-      type: object
-      required:
-        - address
-        - municipality
-        - zip
-      properties:
-        at:
-          type: string
-          description: Campo "presso" dell'indirizzo
-        address:
-          type: string
-          description: Indirizzo del domicilio fisico
-        addressDetails:
-          type: string
-          description: Seconda riga dell'indirizzo fisico
-        zip:
-          type: string
-          description: Codice di avviamento postale
-        municipality:
-          type: string
-          description: Comune in cui l'indirizzo si trova
-        municipalityDetails:
-          type: string
-          description: Frazione o località
-        province:
-          type: string
-          description: Provincia in cui si trova l'indirizzo
-        foreignState:
-          type: string
-          description: Denominazione paese estero
-      description: Indirizzo fisico scoperto durante fase di consegna
-    
 
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
@@ -245,32 +232,153 @@ components:
           $ref: "#/components/schemas/NotificationAttachment"
         f24analogRiDouble:
           $ref: "#/components/schemas/NotificationAttachment"
-        
-    
-    SentNotification:
-      description: >-
-        Le informazioni riguardanti una richiesta di notifica accettata
-      allOf: 
-        - $ref: '#/components/schemas/NewNotificationRequest'
-        - type: object
-          required:
-            - iun
-            - sentAt
-          properties:
-            senderPaId:
-              type: string
-              description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
-            iun:
-              type: string
-              description: L'Identificativo Univoco Notifica assegnato da PN
-            sentAt:
-              type: string
-              description: Momento di ricezione della notifica da parte di PN
-              format: date-time
-            cancelledByIun:
-              type: string
-              description: IUN della notifica che ha rettificato questa notifica
 
+
+    ############################################################################################
+    ### ???????????? RIPETIZIONE DI ELEMENTI ESTERNI, PER NON ACCOPPIARE TROPPO              ###
+    ############################################################################################
+    
+    NotificationDigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+      - address
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+          enum:
+          - PEC
+        address:
+          type: string
+          description: account@domain
+    
+    NotificationPhysicalAddress:
+      description: Indirizzo fisico scoperto durante fase di consegna
+      type: object
+      required:
+        - address
+        - municipality
+        - zip
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune in cui l'indirizzo si trova
+        municipalityDetails:
+          type: string
+          description: Frazione o località
+        province:
+          type: string
+          description: Provincia in cui si trova l'indirizzo
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+    
+    
+    ############################################################################################
+    ###                             RISULTATO RICERCA NOTIFICHE                              ###
+    ############################################################################################
+    
+    ResultPaginationDtoNotificationSearchRow:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationSearchRow'
+        moreResult:
+          type: boolean
+        nextPagesKey:
+          type: array
+          items:
+            type: string
+
+    NotificationSearchRow:
+      type: object
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco Notifica
+        paNotificationId:
+          type: string
+          description: Numero protocollo associato alla notifica da parte della PA
+        sender:
+          type: string
+          description: Denominazione della PA che ha inviato l'atto.
+        sentAt:
+          type: string
+          description: Data spedizione notifica
+          format: date-time
+        subject:
+          type: string
+          description: Oggetto della notifica
+        notificationStatus:
+          $ref: '#/components/schemas/NotificationStatus'
+        recipients:
+          description: Elenco delle denominazioni dei destinatari della notifica
+          type: array
+          items:
+            type: string
+    
+    NotificationStatus:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+
+
+    ############################################################################################
+    ###                                  DOWNLOAD ALLEGATI                                   ###
+    ############################################################################################
+    
+    NotificationAttachmentDownloadMetadataResponse:
+      title: Url e metadati per il download di un allegato di una notifica
+      description: >-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentType
+        - contentLength
+        - sha256
+      properties:
+        filename:
+          type: string
+        contentType:
+          type: string
+          example: 'application/pdf'
+        contentLength:
+          type: number
+          example: 54092
+          description: dmensione, in byte, del contenuto.
+        sha256:
+          type: string
+          description: >- 
+            SHA256 del contenuto del file. Il tipo di checksum cambia a seconda del 
+            documentType.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere il 
+            contenuto del documento. Presente solo se il documento è pronto per il download.
+        retryAfter:
+          type: number
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
 
         
     

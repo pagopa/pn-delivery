@@ -55,14 +55,69 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultPaginationDtoNotificationSearchRow'
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/ResultPaginationDtoNotificationSearchRow'
         '400':
           description: Bad request       
           content:
             application/json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-
+  
+  "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}":
+    get:
+      summary: Download documento notificato
+      tags:
+        - SenderRead
+      operationId: getSentNotificationDocument
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        
+  "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - SenderRead
+      operationId: getSentNotificationAttachment
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientIdx'
+        - $ref: '#/components/parameters/pathAttachmentName'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+  
 
 
 components:
@@ -112,7 +167,7 @@ components:
       required: false
       description: stato della notifica
       schema:
-        $ref: '#/components/schemas/NotificationStatus'
+        $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationStatus'
     notificationSearchSubject:
       name: subjectRegExp
       in: query
@@ -138,55 +193,47 @@ components:
       required: false
       schema:
         type: string
-
-  schemas:
     
 
     ############################################################################################
-    ###                             RISULTATO RICERCA NOTIFICHE                              ###
+    ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
     ############################################################################################
-    
-    ResultPaginationDtoNotificationSearchRow:
-      type: object
-      properties:
-        result:
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationSearchRow'
-        moreResult:
-          type: boolean
-        nextPagesKey:
-          type: array
-          items:
-            type: string
+    pathIun:
+      description: >-
+        Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+    pathDocumentIdx:
+      name: docIdx
+      in: path
+      required: true
+      schema:
+        type: number
+    pathRecipientIdx:
+      name: recipientIdx
+      in: path
+      required: true
+      schema:
+        type: number
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        oneOf:
+          - type: number
+          - type: string
+            enum:
+              - PAGOPA
+              - F24_FLAT
+              - F24_DIGITAL
+              - F24_DIGITAL_WITH_RS
+              - F24_ANALOG_NATIONAL_1
+              - F24_ANALOG_NATIONAL_2
+              - F24_ANALOG_INTERNATIONAL_1
+              - F24_ANALOG_INTERNATIONAL_2
 
-    NotificationSearchRow:
-      type: object
-      properties:
-        iun:
-          type: string
-          description: Identificativo Univoco Notifica
-        paNotificationId:
-          type: string
-          description: Numero protocollo associato alla notifica da parte della PA
-        sender:
-          type: string
-          description: Denominazione della PA che ha inviato l'atto.
-        sentAt:
-          type: string
-          description: Data spedizione notifica
-          format: date-time
-        subject:
-          type: string
-          description: Oggetto della notifica
-        notificationStatus:
-          $ref: '#/components/schemas/NotificationStatus'
-        recipients:
-          description: Elenco delle denominazioni dei destinatari della notifica
-          type: array
-          items:
-            type: string
-    
-    NotificationStatus:
-      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
-    
+
