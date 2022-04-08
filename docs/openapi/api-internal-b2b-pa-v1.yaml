@@ -24,10 +24,7 @@ info:
          diverso da `null` significa che la richiesta di invio notifica è stata accettata.
       6. Da ora in poi la "richiesta di notifica" viene trasformata in una "notifica" e sarà
          ricercabile anche con le operazioni _getByIun_ e _search_
-        
-    ## Webhook
-      Mettere riferimento ad apposito documento.
-
+    
   contact:
     email: pn@pagopa.it
   license:
@@ -96,7 +93,7 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/notifications":
+  "/delivery/requests":
     post:
       summary: Richiede l'invio di una notifica
       description: >-
@@ -268,8 +265,35 @@ paths:
             application/json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-
-
+  
+  
+    ###########################################################################################
+    ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
+    ###########################################################################################
+  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':                 # ONLY EXTERNAL
+    get:                                                                            # ONLY EXTERNAL
+      summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
+      description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
+      tags:                                                                         # ONLY EXTERNAL
+        - LegalFacts                                                                # ONLY EXTERNAL
+      operationId: getLegalFact                                                     # ONLY EXTERNAL
+      parameters:                                                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathIun'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
+      responses:                                                                    # ONLY EXTERNAL
+        '200':                                                                      # ONLY EXTERNAL
+          description: OK                                                           # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/json:                                                       # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      # ONLY EXTERNAL
+        '400':                                                                      # ONLY EXTERNAL
+          description: Bad request                                                  # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/json:                                                       # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
 components:
   
   parameters:
@@ -358,6 +382,16 @@ components:
               - F24_ANALOG_NATIONAL_2
               - F24_ANALOG_INTERNATIONAL_1
               - F24_ANALOG_INTERNATIONAL_2
+    
+    
+    ############################################################################################
+    ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
+    ############################################################################################
+    pathLegalFactType:
+      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactType'
+    pathLegalFactId:
+      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactId'
+
 
   schemas:
     
@@ -509,6 +543,8 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
+    LegalFactDownloadMetadataResponse:
+      $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
    
 #  securitySchemes:        # ONLY EXTERNAL
