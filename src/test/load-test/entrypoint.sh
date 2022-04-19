@@ -10,7 +10,7 @@ bzt -l /tmp/artifacts/bzt.log "$@" /test/main.yaml
 
 
 echo "#### Compute data summary"
-( cd /tmp/artifacts && python3 /summary.py )
+# ( cd /tmp/artifacts && python3 /summary.py )
 
 echo "#### Copy outputs"
 timestamp=$(date +%Y%m%d-%H%M%S)

@@ -30,7 +30,6 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${PA}
           x-api-key: ${API_KEY}
     data-sources:
       - path: ${INPUT_FILE}
@@ -52,7 +51,6 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${PA}
           x-api-key: ${API_KEY}
         extract-jsonpath:
           preload_secret: $[0].secret
@@ -78,9 +76,13 @@ scenarios:
           subject: ${subject}
           physicalCommunicationType: ${physicalCommunicationType}
           cancelledIun: null
+          group: "testGruppo"
           recipients:
           - denomination: ${denomination}
-            digitalDomicile: null
+            digitalDomicile:
+              type: "PEC"
+              address: "nome.cognome@works.demo.it"
+            recipientType: "PF"
             physicalAddress:
               address: ${address}
               addressDetails: ${addressDetails}
@@ -99,7 +101,6 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${PA}
           x-api-key: ${API_KEY}
     data-sources:
       - path: ${INPUT_FILE}
