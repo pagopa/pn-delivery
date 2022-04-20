@@ -17,13 +17,21 @@ components:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
-        - paNotificationId
+        - paProtocolNumber
         - subject
         - recipients
         - documents
         - physicalCommunicationType
       properties:
-        paNotificationId:
+        idempotenceToken:
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare differenti 
+            "richieste di notificazione" effetuate con lo stesso numero di protocollo 
+            (campo _paProtocolNumber_). Questo può essere necessario in caso di 
+            "richiesta di notifica" rifiutata per errori nei codici di verifica degli
+            allegati.
+          type: string
+        paProtocolNumber:
           description: >-
             Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
@@ -235,7 +243,9 @@ components:
 
 
     ############################################################################################
-    ### ???????????? RIPETIZIONE DI ELEMENTI ESTERNI, PER NON ACCOPPIARE TROPPO              ###
+    ###                              INDIRIZZI DIGITALE E FISICO                             ###
+    ### Ripetuti per non accoppiare i microservizi e avere più facilità di evoluzione, anche ###
+    ### se questo implica un po' di duplicazione.                                            ###
     ############################################################################################
     
     NotificationDigitalAddress:
@@ -276,13 +286,13 @@ components:
           description: Codice di avviamento postale
         municipality:
           type: string
-          description: Comune in cui l'indirizzo si trova
+          description: Comune
         municipalityDetails:
           type: string
           description: Frazione o località
         province:
           type: string
-          description: Provincia in cui si trova l'indirizzo
+          description: Provincia
         foreignState:
           type: string
           description: Denominazione paese estero
@@ -312,7 +322,7 @@ components:
         iun:
           type: string
           description: Identificativo Univoco Notifica
-        paNotificationId:
+        paProtocolNumber:
           type: string
           description: Numero protocollo associato alla notifica da parte della PA
         sender:

@@ -2,7 +2,7 @@ components:
   parameters:
     
     ############################################################################################
-    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
+    ###                             PARAMETRI RECUPERO NOTIFICA                              ###
     ############################################################################################
     pathIun:
       description: >-
@@ -15,7 +15,7 @@ components:
 
     
     ############################################################################################
-    ###                        PARAMETRI RICERCA NOTIFICA ACCETTATA                         ###
+    ###                               PARAMETRI RICERCA NOTIFICHE                            ###
     ############################################################################################
     notificationSearchStartDate:
       name: startDate

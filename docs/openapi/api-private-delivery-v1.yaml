@@ -1,7 +1,8 @@
 openapi: 3.0.3
 info:
-  title: OpenAPI definition for PN
-  description: Sistema di notifica a valore legale per l'invio di atti a qualsiasi persona fisica o giuridica, ente o associazione dotati di codice fiscale.
+  title: OpenAPI servizi ad uso solo interno
+  description: >- 
+    API accessibili solo da microservizi interni
   version: v1.0
   contact:
     email: pn@pagopa.it
@@ -31,13 +32,6 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/ResponseUpdateStatusDto"
-        '401':
-          description: Unauthorized
-          x-noqa: RFC6749
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         '400':
           description: Bad request
           content:
@@ -50,7 +44,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  
   
   "/delivery-private/notifications/{iun}":
     get:
@@ -71,13 +64,6 @@ paths:
             "*/*":
               schema:
                 "$ref": "#/components/schemas/Notification"
-        '401':
-          description: Unauthorized
-          x-noqa: RFC6749
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         '400':
           description: Bad request
           content:
@@ -149,6 +135,7 @@ components:
             "$ref": "#/components/schemas/NotificationPaymentInfo"
       description: Informazioni sui destinatari
     NotificationInfo:
+      description: Le notifiche di Piattaforma Notifiche
       required:
       - documents
       - paNotificationId
@@ -179,16 +166,13 @@ components:
             "$ref": "#/components/schemas/NotificationAttachment"
         physicalCommunicationType:
           type: string
-          description: Tipologia comunicazione fisica
+          description: Tipologia comunicazione cartacea
           enum:
           - SIMPLE_REGISTERED_LETTER
           - REGISTERED_LETTER_890
-      description: Le notifiche di Piattaforma Notifiche
-      externalDocs:
-        description: MarkDown
-        url: http://google.it/
+      
+      
 
-#    NewNotificationResponse:
     NotificationResponse:
       type: object
       properties:
