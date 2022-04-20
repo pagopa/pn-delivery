@@ -16,7 +16,7 @@ info:
     ### Creazione richesta notifica:
       1. invocare l'operazione _presignedUploadRequest_ con cui prenotare
          il caricamento di documenti e altri allegati della richiesta di notifica;
-      2. iper ogni allegato utilizzare gli URL e le altre informazioni ottenute al punto (1) per
+      2. per ogni allegato utilizzare gli URL e le altre informazioni ottenute al punto (1) per
          caricare i file che verranno allegati alla richiesta di notifica;
       3. per effettuare una richiesta di invio notifica, invocare l'operazione 
          _sendNewNotification_ utilizzando i riferimenti dei file caricati ottenuti al punto (2).
@@ -33,6 +33,27 @@ info:
          A tal punto si potranno utilizzare le operazioni _search_ e _getByIun_ per ottenere i 
          dettagli della notifica e, soprattutto, la _timeline_ che dettaglia il perfezionamento della
          notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
+    
+    ## Utilizzo dei presigned URL
+      L'operazione _presignedUploadRequest_ fornisce, tra le altre, le seguenti informazioni: <br/>
+        - httpMethod, <br/>
+        - secret, <br/>
+        - url. <br/>
+    
+      Per caricare un file che si ha intenzione di allegare a una notifica bisogna eseguire una 
+      richiesta HTTP con metodo _httpMethod_ (POST o PUT) all'url indicato dal campo _url_. In 
+      tale richiesta vanno aggiunti i seguenti header: <br/>
+        - _content-type_: valorizzato come il campo "contentType" della richiesta di cui al 
+          punto (1) <br/>
+        - _x-amz-meta-secret_: valorizzato con il valore del campo "secret" della risposta di 
+          cui al punto (1) <br/>
+        - _trailer_: valorizzato con ```x-amz-checksum-sha256``` <br/>
+        - _x-amz-sdk-checksum-algorithm_: valorizzato con ```SHA256``` <br/>
+        - _x-amz-checksum-sha256_: valorizzato con lo sha256 del file inviato. (__N.B.__ questo è 
+          un trailer HTTP non un header) <br/>
+    
+      Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
+      descritta al punto (3).
   contact:
     email: pn@pagopa.it
   license:
@@ -150,7 +171,7 @@ paths:
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
         Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
-        _paProtocolNumber_ e _cancelledIun_. <br/>
+        _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
@@ -159,7 +180,6 @@ paths:
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
         - $ref: '#/components/parameters/idempotenceToken'
-        - $ref: '#/components/parameters/cancelledIun'
       responses:
         '200':
           description: OK
@@ -325,7 +345,6 @@ components:
       required: false
       description: >-
         Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
-        Forma un identificativo univoco per la PA mittente se unito al parametro _cancelledIun_.
       schema:
         type: string
     idempotenceToken:
@@ -337,15 +356,6 @@ components:
       required: false
       schema:
         type: string
-    cancelledIun:
-      name: cancelledIun
-      description: >-
-        Identificativo Univoco della Notifica che deve essere rettificata, corretta.
-      in: query
-      required: false
-      schema:
-        type: string
-    
     
     
     ############################################################################################
@@ -474,10 +484,6 @@ components:
             Ripetizione del token usato per disambiguare "richieste di notificazione" 
             effetuate con lo stesso numero di protocollo (campo _paProtocolNumber_). 
           type: string
-        cancelledIun:
-          $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/IUN"
-          description: >-
-            Identificativo della notifica invalidata
     
     NewNotificationRequestStatusResponse:
       allOf: 

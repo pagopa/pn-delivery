@@ -154,6 +154,16 @@ components:
             title:
               type: string
               description: Titolo del documento allegato
+            requiresAck:
+              type: boolean
+              description: >-
+                Se presente e valorizzato __true__ il download del documento 
+                diventa necessario al fine del perfezionamento per presa visione.
+            sendByMail:
+              type: boolean
+              description: >- 
+                Se presente e valorizzato __true__ il documento verrà spedito 
+                nelle comunicazioni cartacee.
 
     NotificationAttachmentDigests:
       description: Codici per la verifica del corretto caricamento di un allegato
