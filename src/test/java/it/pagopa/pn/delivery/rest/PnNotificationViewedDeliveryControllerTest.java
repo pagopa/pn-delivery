@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ class PnNotificationViewedDeliveryControllerTest {
 		webTestClient.get()
                 .uri( "/delivery/notifications/received/" + IUN + "/documents/" + DOCUMENT_INDEX )
                 .accept( MediaType.ALL )
-                .header( "X-PagoPA-User-Id", USER_ID )
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
                 .exchange()
                 .expectStatus()
                 .isOk();

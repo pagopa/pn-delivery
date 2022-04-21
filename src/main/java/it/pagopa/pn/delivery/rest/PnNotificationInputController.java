@@ -43,7 +43,7 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
     @Override
     @PostMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH )
     public NewNotificationResponse receiveNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
             @RequestBody @JsonView(value = NotificationJsonViews.New.class ) Notification notification
     ) {
         if( notification.getPhysicalCommunicationType() == null ) {
@@ -67,7 +67,7 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
     @Override
     @PostMapping( PnDeliveryRestConstants.ATTACHMENT_PRELOAD_REQUEST)
     public List<PreloadResponse> presignedUploadRequest(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
             @RequestBody List<PreloadRequest> request
     ) {
         Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();

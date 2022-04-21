@@ -76,7 +76,7 @@ class NotificationSearchControllerTest {
                                 .queryParam("subjectRegExp", SUBJECT_REG_EXP)
                                 .build())
                 .accept(MediaType.ALL)
-                .header( PnDeliveryRestConstants.PA_ID_HEADER, SENDER_ID)
+                .header( PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -131,7 +131,7 @@ class NotificationSearchControllerTest {
                                 .queryParam( "nextPagesKey", NEXT_PAGES_KEY )
                                 .build())
                 .accept(MediaType.ALL)
-                .header( PnDeliveryRestConstants.PA_ID_HEADER, SENDER_ID)
+                .header( PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -185,7 +185,7 @@ class NotificationSearchControllerTest {
                                 .queryParam("subjectRegExp", SUBJECT_REG_EXP)
                                 .build())
                 .accept(MediaType.ALL)
-                .header( PnDeliveryRestConstants.USER_ID_HEADER, RECIPIENT_ID)
+                .header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
                 .exchange()
                 .expectStatus()
                 .isOk();
