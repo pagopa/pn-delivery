@@ -46,17 +46,17 @@ info:
     Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
     successiva di richiesta creazione della notifica.
     
-    #### 2. Richiesta di creazione della notifica
+    #### 2. Richiesta di invio della notifica
     
     Per effettuare una richiesta di invio notifica, invocare l'operazione 
     [sendNewNotification](#/NewNotification/sendNewNotification) utilizzando i riferimenti dei file 
     caricati ottenuti al punto (1.b).
     
-    #### 3. Verifica accettazione richiesta notifica
+    #### 3. Verifica accettazione richiesta di invio notifica
     
     Se il passo (2) avviene con successo si utilizza l'operazione 
     [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus)
-    per ottenere informazioni riguardo allo stato della "richiesta di notifica". </br>
+    per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
     
     Nel campo _notificationRequestStatus_ sarà indicato:</br>
     - WAITING: se la validazione è ancora in corso.</br>
@@ -65,9 +65,10 @@ info:
     
     #### 4. Monitorare l'avanzamento di una notifica
     
-    Se la "richiesta di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
+    Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
     identificata dalla IUN restituito dall'operazione 
     [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus).</br> 
+    
     A tal punto si potranno utilizzare le operazioni _search_ e _getByIun_ per ottenere i 
     dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
     notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.    
@@ -441,7 +442,7 @@ components:
           type: string
           
     PreLoadResponse:
-      title: Informazioni utili al caricamento file
+      title: Informazioni per il caricamento file
       description: >-
         Per ogni richiesta che è stata fatta viene fornito un presigned URL e le 
         informazioni per usarlo.
@@ -483,7 +484,7 @@ components:
     NewNotificationResponse:
       title: Identificativi della richiesta di notifica
       description: >-
-        Contiene le informazioni utili per identificare una richiesta di invio notifica
+        Contiene le informazioni per identificare una richiesta di invio notifica
         che non è ancora stata accettata da Piattaforma notifiche.
       type: object
       required:
