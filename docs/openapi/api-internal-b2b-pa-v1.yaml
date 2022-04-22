@@ -57,11 +57,10 @@ info:
     [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus)
     per ottenere informazioni riguardo allo stato della "richiesta di notifica". </br>
     
-    Nel campo _notificationRequestStatus_ sarà indicato:
-    
-    - WAITING: se la validazione è ancora in corso.
-    - ACCEPTED: se richiesta di notifica accettata, lo _IUN_ è valorizzato.
-    - REFUSED: se richiesta di notifica rifiutata, è valorizzato il campo _errors_.
+    Nel campo _notificationRequestStatus_ sarà indicato:</br>
+    - WAITING: se la validazione è ancora in corso.</br>
+    - ACCEPTED: se richiesta di notifica accettata, lo _IUN_ è valorizzato.</br>
+    - REFUSED: se richiesta di notifica rifiutata, è valorizzato il campo _errors_.</br>
     
     #### 4. Monitorare l'avanzamento di una notifica
     
