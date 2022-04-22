@@ -32,7 +32,7 @@ paths:
       summary: Ricerca notifiche inviate
       description: >-
         servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
-        di rcerca specificati
+        di ricerca specificati
       tags:
         - SenderRead
       operationId: searchSentNotification
