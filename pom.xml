@@ -92,6 +92,8 @@
                             <inputSpec>${project.basedir}/docs/wsclient/pn-mandate/pn-mandate-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
                             <configOptions>
                                 <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.mandate.api</apiPackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.mandate.model</modelPackage>

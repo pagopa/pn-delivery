@@ -29,6 +29,7 @@ class NotificationSearchControllerTest {
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String SUBJECT_REG_EXP = "asd";
     private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
+    private static final String USER_ID = "UserId";
 
 
     @Autowired
@@ -62,7 +63,7 @@ class NotificationSearchControllerTest {
                 .build();
         
         //When
-        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class), Mockito.anyString())).thenReturn(result);
 
         //Then
         webTestClient.get()
@@ -93,7 +94,7 @@ class NotificationSearchControllerTest {
                 .nextPagesKey(null)
                 .build();
 
-        Mockito.verify(svc).searchNotification(searchDto);
+        Mockito.verify(svc).searchNotification(searchDto, SENDER_ID);
     }
 
     @Test
@@ -119,7 +120,7 @@ class NotificationSearchControllerTest {
                         .build();
 
         //When
-        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class), Mockito.anyString())).thenReturn(result);
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -146,7 +147,7 @@ class NotificationSearchControllerTest {
                 .nextPagesKey( NEXT_PAGES_KEY )
                 .build();
 
-        Mockito.verify(svc).searchNotification(searchDto);
+        Mockito.verify(svc).searchNotification(searchDto, SENDER_ID);
     }
 
     
@@ -170,7 +171,7 @@ class NotificationSearchControllerTest {
                         .nextPagesKey(null).build();
         
         //When
-        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class), Mockito.anyString())).thenReturn(result);
 
         //Then
         webTestClient.get()
@@ -186,6 +187,7 @@ class NotificationSearchControllerTest {
                                 .build())
                 .accept(MediaType.ALL)
                 .header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
+                .header( PnDeliveryRestConstants.UID_HEADER, USER_ID )
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -202,6 +204,6 @@ class NotificationSearchControllerTest {
                 .nextPagesKey(null)
                 .build();
         
-        Mockito.verify(svc).searchNotification(searchDto);
+        Mockito.verify(svc).searchNotification(searchDto, USER_ID);
     }
 }
