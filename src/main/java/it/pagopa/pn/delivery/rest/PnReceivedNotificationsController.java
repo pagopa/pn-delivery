@@ -46,8 +46,8 @@ public class PnReceivedNotificationsController implements
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
     public ResultPaginationDto<NotificationSearchRow,String> searchReceivedNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String recipientId,
             //@RequestHeader(name = PnDeliveryRestConstants.UID_HEADER) String userId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String recipientId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
             @RequestParam(name = "senderId", required = false) String senderId,
@@ -77,7 +77,7 @@ public class PnReceivedNotificationsController implements
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_PATH)
     @JsonView(value = NotificationJsonViews.Sent.class)
     public Notification getReceivedNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String userId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String userId,
             @PathVariable(name = "iun") String iun
     ) {
         return retrieveSvc.getNotificationAndNotifyViewedEvent(iun, userId);
@@ -86,7 +86,7 @@ public class PnReceivedNotificationsController implements
     @Override
     @GetMapping( PnDeliveryRestConstants.NOTIFICATION_VIEWED_PATH )
     public ResponseEntity<Resource> getReceivedNotificationDocument(
-            @RequestHeader(name = PnDeliveryRestConstants.USER_ID_HEADER) String userId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String userId,
             @PathVariable("iun") String iun,
             @PathVariable("documentIndex") int documentIndex,
             ServerHttpResponse response

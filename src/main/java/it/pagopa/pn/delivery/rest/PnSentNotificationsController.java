@@ -45,7 +45,7 @@ public class PnSentNotificationsController implements
     @Override
     @GetMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH)
     public ResultPaginationDto<NotificationSearchRow,String> searchSentNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String senderId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String senderId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
             @RequestParam(name = "recipientId", required = false) String recipientId,
@@ -78,7 +78,7 @@ public class PnSentNotificationsController implements
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH)
     @JsonView(value = NotificationJsonViews.Sent.class )
     public Notification getSentNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
             @PathVariable( name = "iun") String iun,
             @RequestParam( name = "with_timeline", defaultValue = "true", required = false ) boolean withTimeline
     ) {
@@ -88,7 +88,7 @@ public class PnSentNotificationsController implements
     @Override
     @GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
     public ResponseEntity<Resource> getSentNotificationDocument(
-            @RequestHeader(name = PnDeliveryRestConstants.PA_ID_HEADER ) String paId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
             @PathVariable("iun") String iun,
             @PathVariable("documentIndex") int documentIndex,
             ServerHttpResponse response
