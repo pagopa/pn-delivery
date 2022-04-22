@@ -6,6 +6,7 @@
             <includeMdcKeyName>trace_id</includeMdcKeyName>
         </encoder>
     </appender>
+    <logger name="com.datastax" level="ERROR" />
     <root level="debug">
         <appender-ref ref="STDOUT" />
     </root>

@@ -66,7 +66,7 @@ class PnNotificationInputControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(notification), Notification.class)
-                .header(PnDeliveryRestConstants.PA_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
                 .exchange()
                 .expectStatus().isOk();
 		
@@ -100,7 +100,7 @@ class PnNotificationInputControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.body(Mono.just(requests), PreloadRequest.class)
-				.header(PnDeliveryRestConstants.PA_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.exchange()
 				.expectStatus().isOk();
 
@@ -126,7 +126,7 @@ class PnNotificationInputControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
 				.body(Mono.just(requests), PreloadRequest.class)
-				.header(PnDeliveryRestConstants.PA_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.exchange()
 				.expectStatus().isBadRequest();
 
