@@ -98,13 +98,12 @@
                         <goal>generate</goal>
                     </goals>
                     <configuration>
-                        <inputSpec>docs/openapi-v1.yaml</inputSpec>
+                        <inputSpec>docs/openapi/api-private-v1.yaml</inputSpec>
                         <language>java</language>
                         <output>${project.build.directory}/generated-sources</output>
                         <apiPackage>${default.package}.handler</apiPackage>
                         <modelPackage>${default.package}.model</modelPackage>
                         <invokerPackage>${default.package}.handler</invokerPackage>
-
                     </configuration>
                 </execution>
             </executions>
