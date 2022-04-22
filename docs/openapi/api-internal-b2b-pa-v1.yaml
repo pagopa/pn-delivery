@@ -21,12 +21,13 @@ info:
     (documenti e bollettini di pagamento). <br/>
     
     ##### 1.a. Richiesta presigned Url
-     Invocare l'operazione _presignedUploadRequest_ con cui prenotare il caricamento. </br> 
+    Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
+    con cui prenotare il caricamento. </br> 
      
-     In risposta di ottengono le seguenti informazioni:<br/>
-          - httpMethod <br/>
-          - secret <br/>
-          - url <br/>
+    In risposta di ottengono le seguenti informazioni:<br/>
+    - httpMethod <br/>
+    - secret <br/>
+    - url <br/>
     
     ##### 1.b Upload alleagti
     Per ogni allegato utilizzare un richiesta HTTP con metodo _httpMethod_ (POST o PUT) 
@@ -46,18 +47,23 @@ info:
       successiva di richiesta creazione della notifica.
     
     #### 2. Richiesta di creazione della notifica
-    Per effettuare una richiesta di invio notifica, invocare l'operazione _sendNewNotification_ 
-    utilizzando i riferimenti dei file caricati ottenuti al punto (1.b).
+    Per effettuare una richiesta di invio notifica, invocare l'operazione 
+    [sendNewNotification](#/NewNotification/sendNewNotification) utilizzando i riferimenti dei file 
+    caricati ottenuti al punto (1.b).
     
     ### 3. Verifica accettazione richiesta notifica
-    Se il passo (2) avviene con successo si utilizza l'operazione _getNotificationRequestStatus_
-    per ottenere informazioni riguardo allo stato della "richiesta di notifica"
-    Se la risposta contiene il campo __iun__ valorizzato (diverso da `null`) significa che la 
-    richiesta di invio notifica ha superato con successo la fase di validazione ed è stata accettata.
+    Se il passo (2) avviene con successo si utilizza l'operazione 
+    [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus)
+    per ottenere informazioni riguardo allo stato della "richiesta di notifica". </br>
+    Nel campo _notificationRequestStatus_ sarà indicato:
+    - WAITING: se la validazione è ancora in corso.
+    - ACCEPTED: se richiesta di notifica accettata, lo _IUN_ è valorizzato.
+    - REFUSED: se richiesta di notifica rifiutata, è valorizzato il campo _errors_.
     
     ### 4. Monitorare l'avanzamento di una notifica: 
     Se la "richiesta di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
-    identificata dalla IUN restituito dall'operazione __getNotificationRequestStatus__. 
+    identificata dalla IUN restituito dall'operazione 
+    [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus).</br> 
     A tal punto si potranno utilizzare le operazioni _search_ e _getByIun_ per ottenere i 
     dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
     notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.    
