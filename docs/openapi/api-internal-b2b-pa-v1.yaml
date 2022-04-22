@@ -35,15 +35,12 @@ info:
     Per ogni allegato utilizzare un richiesta HTTP con metodo _httpMethod_ (POST o PUT) 
     all'url indicato dal campo _url_. <br/>
     In tale richiesta vanno aggiunti i seguenti header: <br/>
-    - _content-type_: valorizzato come il campo "contentType" della richiesta di cui al 
-      punto (1.a) <br/>
-    - _x-amz-meta-secret_: valorizzato con il valore del campo "secret" della risposta di 
-      cui al punto (1.a) <br/>
+    - _content-type_: valorizzato come il campo "contentType" della richiesta di cui al punto (1.a) <br/>
+    - _x-amz-meta-secret_: valorizzato con il valore del campo "secret" della risposta di cui al punto (1.a) <br/>
     - _trailer_: valorizzato con ```x-amz-checksum-sha256``` <br/>
     - _x-amz-sdk-checksum-algorithm_: valorizzato con ```SHA256``` <br/>
-    - _x-amz-checksum-sha256_: valorizzato con lo sha256 del file inviato. (__N.B.__ questo è 
-      un trailer HTTP non un header).
-      [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
+    - _x-amz-checksum-sha256_: valorizzato con lo sha256 del file inviato. (__N.B.__ questo è un trailer HTTP non un header).
+      Vedi [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
 
       Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
       successiva di richiesta creazione della notifica.
@@ -59,7 +56,9 @@ info:
     Se il passo (2) avviene con successo si utilizza l'operazione 
     [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus)
     per ottenere informazioni riguardo allo stato della "richiesta di notifica". </br>
+    
     Nel campo _notificationRequestStatus_ sarà indicato:
+    
     - WAITING: se la validazione è ancora in corso.
     - ACCEPTED: se richiesta di notifica accettata, lo _IUN_ è valorizzato.
     - REFUSED: se richiesta di notifica rifiutata, è valorizzato il campo _errors_.
