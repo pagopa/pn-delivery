@@ -16,9 +16,12 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +54,7 @@ public class NotificationRetrieverService {
 	private final PnDeliveryPushClient pnDeliveryPushClient;
 	private final StatusUtils statusUtils;
 	private final PnDeliveryConfigs cfg;
+	private final PnMandateClientImpl pnMandateClient;
 
 
 	@Autowired
@@ -61,7 +65,8 @@ public class NotificationRetrieverService {
 										NotificationDao notificationDao,
 										PnDeliveryPushClient pnDeliveryPushClient,
 										StatusUtils statusUtils,
-										PnDeliveryConfigs cfg) {
+										PnDeliveryConfigs cfg,
+										PnMandateClientImpl pnMandateClient) {
 		this.fileStorage = fileStorage;
 		this.clock = clock;
 		this.presignedUrlSvc = presignedUrlSvc;
@@ -70,12 +75,35 @@ public class NotificationRetrieverService {
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.statusUtils = statusUtils;
 		this.cfg = cfg;
+		this.pnMandateClient = pnMandateClient;
 	}
 	
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {  //, String userId ) {
 		log.debug("Start search notification - senderReceiverId {}", searchDto.getSenderReceiverId());
+
+		String userId = "test";
+		String senderReceiverId = searchDto.getSenderReceiverId();
 		
 		validateInput(searchDto);
+
+		// se userId == senderReceiverId non faccio chiamata a pn-mandate
+
+		List<InternalMandateDto> mandates = this.pnMandateClient.getMandates( userId );
+
+		boolean validMandate = false;
+		for ( InternalMandateDto mandate : mandates ) {
+			if( mandate.getDelegator().equals( senderReceiverId ) ) {
+				searchDto.setStartDate( Instant.parse(mandate.getDatefrom()) );
+				validMandate = true;
+				break;
+			}
+		}
+
+		if (!validMandate){
+			String message = String.format("Unable to find valid mandate for user=%s", userId );
+			throw new PnNotFoundException( message );
+		}
+
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
 		if ( searchDto.getNextPagesKey() != null ) {
