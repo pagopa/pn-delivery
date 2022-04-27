@@ -5,10 +5,12 @@ import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -116,6 +118,13 @@ public class AttachmentService {
             String versionId = attachmentRef.getVersionToken();
 
             FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
+            try {
+                fd.getContent().close();
+            } catch (IOException e) {
+                String msg = "Error closing attachment Ref with key=" + attachmentRef.getKey()  + " version=" + fd.getVersionId();
+                log.error( msg );
+                throw new PnInternalException( msg, e );
+            }
 
             updatedAttachment = updateAttachmentMetadata( attachment, versionId, fullKey, fd.getContentType() );
 
