@@ -77,12 +77,16 @@ public class NotificationRetrieverService {
 		this.cfg = cfg;
 		this.pnMandateClient = pnMandateClient;
 	}
-	
+
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto, String userId ) {
 		log.debug("Start search notification - senderReceiverId {}", searchDto.getSenderReceiverId());
-		
+
 		validateInput(searchDto);
-		checkMandate(searchDto, userId);
+		String senderReceiverId = searchDto.getSenderReceiverId();
+		if (!userId.equals(senderReceiverId)) {
+			log.debug( "Start check mandate for user{}", userId );
+			checkMandate(searchDto, userId);
+		}
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
 		if ( searchDto.getNextPagesKey() != null ) {
@@ -103,42 +107,54 @@ public class NotificationRetrieverService {
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
-				builder.moreResult( searchResult.getNextPagesKey() != null )
+		builder.moreResult( searchResult.getNextPagesKey() != null )
 				.result( searchResult.getResult() );
-				if ( searchResult.getNextPagesKey() != null ) {
-					builder.nextPagesKey( searchResult.getNextPagesKey()
-							.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
-							.collect(Collectors.toList()) );
-				}
-				return builder.build();
+		if ( searchResult.getNextPagesKey() != null ) {
+			builder.nextPagesKey( searchResult.getNextPagesKey()
+					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
+					.collect(Collectors.toList()) );
+		}
+		return builder.build();
 	}
 
 	private void checkMandate(InputSearchNotificationDto searchDto, String userId) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
-		if (!userId.equals(senderReceiverId)) {
-			List<InternalMandateDto> mandates = this.pnMandateClient.getMandates(userId);
-			if(!mandates.isEmpty()) {
-				boolean validMandate = false;
-				for ( InternalMandateDto mandate : mandates ) {
-					assert mandate.getDelegator() != null;
-					if( mandate.getDelegator().equals(senderReceiverId) ) {
-						assert mandate.getDatefrom() != null;
-						searchDto.setStartDate( Instant.parse(mandate.getDatefrom()) );
-						validMandate = true;
-						break;
-					}
+		List<InternalMandateDto> mandates = this.pnMandateClient.getMandates(userId);
+		if(!mandates.isEmpty()) {
+			boolean validMandate = false;
+			for ( InternalMandateDto mandate : mandates ) {
+				assert mandate.getDelegator() != null;
+				if( mandate.getDelegator().equals(senderReceiverId) ) {
+					assert mandate.getDatefrom() != null;
+					Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
+					Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
+					adjustSearchDates( searchDto, mandateStartDate, mandateEndDate );
+					validMandate = true;
+					break;
 				}
-				if (!validMandate){
-					String message = String.format("Unable to find valid mandate for userId=%s and cx-id=%s", userId, senderReceiverId);
-					log.error( message );
-					throw new PnNotFoundException( message );
-				}
-			} else {
-				String message = String.format("Unable to find any mandate for userId=%s", userId);
+			}
+			if (!validMandate){
+				String message = String.format("Unable to find valid mandate for userId=%s and cx-id=%s", userId, senderReceiverId);
 				log.error( message );
 				throw new PnNotFoundException( message );
 			}
+		} else {
+			String message = String.format("Unable to find any mandate for userId=%s", userId);
+			log.error( message );
+			throw new PnNotFoundException( message );
 		}
+	}
+
+	private void adjustSearchDates(InputSearchNotificationDto searchDto,
+								   Instant mandateStartDate,
+								   Instant mandateEndDate) {
+		Instant searchStartDate = searchDto.getStartDate();
+		Instant searchEndDate = searchDto.getEndDate();
+		searchDto.setStartDate( searchStartDate.isBefore(mandateStartDate)? mandateStartDate : searchStartDate );
+		if (mandateEndDate != null) {
+			searchDto.setEndDate( searchEndDate.isBefore(mandateEndDate) ? searchEndDate : mandateEndDate );
+		}
+		log.debug( "Adjust search date, startDate{} endDate{}", searchDto.getStartDate(), searchDto.getEndDate() );
 	}
 
 	private void validateInput(InputSearchNotificationDto searchDto) {
@@ -158,9 +174,9 @@ public class NotificationRetrieverService {
 	 * Get the full detail of a notification by IUN
 	 *
 	 * @param iun unique identifier of a Notification
-	 * 
+	 *
 	 * @return Notification DTO
-	 * 
+	 *
 	 */
 	public Notification getNotificationInformation(String iun, boolean withTimeline) {
 		log.debug( "Retrieve notification by iun={} withTimeline={} START", iun, withTimeline );
@@ -217,17 +233,17 @@ public class NotificationRetrieverService {
 		int numberOfRecipients = notification.getRecipients().size();
 		Instant createdAt =  notification.getSentAt();
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
-		
+
 		Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
-					 TimelineInfoDto.builder()
-							 .elementId(elem.getElementId())
-							 .category(elem.getCategory())
-							 .timestamp(elem.getTimestamp())
-							 .build()
+				TimelineInfoDto.builder()
+						.elementId(elem.getElementId())
+						.category(elem.getCategory())
+						.timestamp(elem.getTimestamp())
+						.build()
 		).collect(Collectors.toSet());
-		
+
 		List<NotificationStatusHistoryElement>  statusHistory = statusUtils
-							 .getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
+				.getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
 
 		return notification
 				.toBuilder()
