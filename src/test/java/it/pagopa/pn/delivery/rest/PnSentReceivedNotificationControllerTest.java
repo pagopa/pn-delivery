@@ -60,7 +60,7 @@ class PnSentReceivedNotificationControllerTest {
 			.uri( "/delivery/notifications/sent/" + IUN  )
 			.accept( MediaType.ALL )
 			.header(HttpHeaders.ACCEPT, "application/json")
-			.header( "X-PagoPA-PN-PA", PA_ID )
+			.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 			.exchange()
 			.expectStatus()
 			.isOk()
@@ -83,7 +83,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri( "/delivery/notifications/received/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( PnDeliveryRestConstants.USER_ID_HEADER, USER_ID )
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
 				.exchange()
 				.expectStatus()
 				.isOk()
@@ -105,7 +105,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri( "/delivery/notifications/sent/" + IUN + "/documents/" + DOCUMENT_INDEX)
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( "X-PagoPA-PN-PA", PA_ID )
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header( "location" , REDIRECT_URL )
 				.exchange()
 				.expectStatus()
@@ -128,7 +128,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri( "/delivery/notifications/received/" + IUN + "/documents/" + DOCUMENT_INDEX)
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( PnDeliveryRestConstants.USER_ID_HEADER, USER_ID )
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
 				.header( "location" , REDIRECT_URL )
 				.exchange()
 				.expectStatus()
@@ -157,7 +157,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri( "/delivery/notifications/sent/" + IUN + "/documents/" + DOCUMENT_INDEX)
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( "X-PagoPA-PN-PA", USER_ID )
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
 				.exchange()
 				.expectStatus()
 				.isOk();
@@ -183,7 +183,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri( "/delivery/notifications/sent/" + IUN + "/documents/" + DOCUMENT_INDEX)
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( "X-PagoPA-PN-PA", USER_ID )
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
 				.exchange().expectStatus().is5xxServerError();
 	}
 
@@ -206,7 +206,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri( "/delivery/notifications/received/" + IUN + "/documents/" + DOCUMENT_INDEX)
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( PnDeliveryRestConstants.USER_ID_HEADER, USER_ID )
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
 				.exchange()
 				.expectStatus()
 				.isOk();
