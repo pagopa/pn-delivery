@@ -123,9 +123,9 @@ public class NotificationRetrieverService {
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {
-				assert mandate.getDelegator() != null;
+				if (mandate.getDelegator() == null) throw new PnNotFoundException( "Mandate without delegator" );
 				if( mandate.getDelegator().equals(senderReceiverId) ) {
-					assert mandate.getDatefrom() != null;
+					if ( mandate.getDatefrom() == null) throw new PnNotFoundException( "Mandate without start date" );
 					Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
 					Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
 					adjustSearchDates( searchDto, mandateStartDate, mandateEndDate );
