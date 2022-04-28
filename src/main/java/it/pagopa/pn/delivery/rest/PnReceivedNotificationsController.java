@@ -47,7 +47,7 @@ public class PnReceivedNotificationsController implements
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
     public ResultPaginationDto<NotificationSearchRow,String> searchReceivedNotification(
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String recipientId,
-            @RequestHeader(name = PnDeliveryRestConstants.UID_HEADER) String userId,
+            @RequestHeader(name = PnDeliveryRestConstants.UID_HEADER) String uid,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
             @RequestParam(name = "senderId", required = false) String senderId,
@@ -70,7 +70,7 @@ public class PnReceivedNotificationsController implements
                 .nextPagesKey(nextPagesKey)
                 .build();
 
-        return retrieveSvc.searchNotification( searchDto, userId );
+        return retrieveSvc.searchNotification( searchDto, uid );
     }
 
     @Override

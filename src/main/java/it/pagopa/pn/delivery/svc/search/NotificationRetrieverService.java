@@ -78,14 +78,14 @@ public class NotificationRetrieverService {
 		this.pnMandateClient = pnMandateClient;
 	}
 
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto, String userId ) {
-		log.debug("Start search notification - senderReceiverId {}", searchDto.getSenderReceiverId());
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto, String uid ) {
+		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
 
 		validateInput(searchDto);
 		String senderReceiverId = searchDto.getSenderReceiverId();
-		if (!userId.equals(senderReceiverId)) {
-			log.debug( "Start check mandate for user{}", userId );
-			checkMandate(searchDto, userId);
+		if (!uid.equals(senderReceiverId)) {
+			log.info( "Start check mandate for uid={}", uid );
+			checkMandate(searchDto, uid);
 		}
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
@@ -117,29 +117,28 @@ public class NotificationRetrieverService {
 		return builder.build();
 	}
 
-	private void checkMandate(InputSearchNotificationDto searchDto, String userId) {
+	private void checkMandate(InputSearchNotificationDto searchDto, String uid) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
-		List<InternalMandateDto> mandates = this.pnMandateClient.getMandates(userId);
+		List<InternalMandateDto> mandates = this.pnMandateClient.getMandates(uid);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {
-				if (mandate.getDelegator() == null) throw new PnNotFoundException( "Mandate without delegator" );
-				if( mandate.getDelegator().equals(senderReceiverId) ) {
-					if ( mandate.getDatefrom() == null) throw new PnNotFoundException( "Mandate without start date" );
+				if (mandate.getDelegator() != null && mandate.getDatefrom() != null && mandate.getDelegator().equals(senderReceiverId)) {
 					Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
 					Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
 					adjustSearchDates( searchDto, mandateStartDate, mandateEndDate );
 					validMandate = true;
+					log.info( "Valid mandate for uid={}", uid );
 					break;
 				}
 			}
 			if (!validMandate){
-				String message = String.format("Unable to find valid mandate for userId=%s and cx-id=%s", userId, senderReceiverId);
+				String message = String.format("Unable to find valid mandate for uid=%s and cx-id=%s", uid, senderReceiverId);
 				log.error( message );
 				throw new PnNotFoundException( message );
 			}
 		} else {
-			String message = String.format("Unable to find any mandate for userId=%s", userId);
+			String message = String.format("Unable to find any mandate for uid=%s", uid);
 			log.error( message );
 			throw new PnNotFoundException( message );
 		}
