@@ -1,4 +1,4 @@
-#commit 6e29231
+#commit 7288044	28 apr 2022, 11:37
 openapi: 3.0.1
 info:
   title: PN Mandate u-service
@@ -42,6 +42,8 @@ paths:
       description: Return total mandates based on required status if filter's specified. If no filter is present, returns total of all pending and active mandates
       operationId: countMandatesByDelegate
       parameters:
+        - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
         - name: status
           in: query
           schema:
@@ -65,6 +67,9 @@ paths:
         - mandate-service
       description: Create a new mandate, returns the just created mandate if successful
       operationId: createMandate
+      parameters:
+        - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
       requestBody:
         content:
           application/json:
@@ -90,6 +95,8 @@ paths:
       description: Accept a mandate
       operationId: acceptMandate
       parameters:
+        - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
         - name: mandateId
           in: path
           required: true
@@ -116,6 +123,8 @@ paths:
       description: Reject a mandate
       operationId: rejectMandate
       parameters:
+        - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
         - name: mandateId
           in: path
           required: true
@@ -137,6 +146,8 @@ paths:
       description: Revoke a mandate
       operationId: revokeMandate
       parameters:
+        - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
         - name: mandateId
           in: path
           required: true
@@ -158,6 +169,8 @@ paths:
       description: Return filtered mandates based on required status if filter's specified. If no filter is present, returns all pending and active mandates
       operationId: listMandatesByDelegate_1
       parameters:
+        - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
         - name: status
           in: query
           schema:
@@ -183,6 +196,9 @@ paths:
         - mandate-service
       description: Return all pending and active mandates
       operationId: listMandatesByDelegator_1
+      parameters:
+        - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
       responses:
         '200':
           description: OK

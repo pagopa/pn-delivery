@@ -117,6 +117,15 @@ public class NotificationRetrieverService {
 		return builder.build();
 	}
 
+	/**
+	 * Check mandates for uid and cx-id
+	 *
+	 * @param searchDto search input data
+	 * @param uid opaque login user id
+	 * @throws PnNotFoundException if no valid mandate for uid, cx-id
+	 *
+	 *
+	 */
 	private void checkMandate(InputSearchNotificationDto searchDto, String uid) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
 		List<InternalMandateDto> mandates = this.pnMandateClient.getMandates(uid);
@@ -144,6 +153,15 @@ public class NotificationRetrieverService {
 		}
 	}
 
+	/**
+	 * Adjust search range date with mandate info
+	 *
+	 * @param searchDto search input data
+	 * @param mandateStartDate mandate start date
+	 * @param mandateEndDate mandate end date
+	 *
+	 *
+	 */
 	private void adjustSearchDates(InputSearchNotificationDto searchDto,
 								   Instant mandateStartDate,
 								   Instant mandateEndDate) {
