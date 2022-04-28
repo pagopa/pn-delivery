@@ -1,8 +1,11 @@
 package it.pagopa.pn.delivery.svc;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.notification.Notification;
@@ -134,12 +137,57 @@ public class NotificationReceiverService {
 		return recipientsWithToken;
 	}
 
-	private String generatePredictedIun(Notification notification) {
+	/*private String generatePredictedIun(Notification notification) {
 		NotificationSender sender = notification.getSender();
 		String paId = sender.getPaId();
 		String paNotificationId = notification.getPaNotificationId();
 		String sqsSafePaNotificationId = paNotificationId.replaceAll( "[^a-zA-Z0-9-_]", "-" );
 		return String.format("%s-%s", paId, sqsSafePaNotificationId);
+	}*/
+
+	public String generatePredictedIun(Notification notification) {
+		String creationDate = notification.getSentAt().toString();
+		String[] creationDateSplited = creationDate.split( "-" );
+		String randStringPart = generateRandomString(4, 2, '-');
+		String monthPart = creationDateSplited[0] + creationDateSplited[1];
+		char controlChar = generateControlChar( randStringPart, monthPart );
+		//long controlChar = getCRC32Checksum( randPart.getBytes(StandardCharsets.UTF_8) );
+		return randStringPart + "-" + monthPart + "-" + controlChar + "-" + "1";
+	}
+
+	private char generateControlChar(String randStringPart, String monthPart) {
+		// caratteri mappati su numeri
+		// s1 decodifica con indexof dell'array IUN_CHARS e sommo
+		// s2 somma dei num corrispondenti alle singole cifre
+		//String strChecksum = String.valueOf(checksum);
+		//byte[] bytes = strChecksum.getBytes(StandardCharsets.UTF_8);
+		return 0;
+	}
+
+	// probabilità di collisione 25^8
+
+	private long getCRC32Checksum(byte[] bytes) {
+		Checksum crc32 = new CRC32();
+		crc32.update(bytes, 0, bytes.length);
+		return crc32.getValue();
+	}
+
+	private static char[] IUN_CHARS = new char[] {'A','B','Z'};
+
+	private String generateRandomString(int segmentLength, int segmentQuantity, char separator) {
+		Random random = new Random();
+		StringBuilder buffer = new StringBuilder((segmentLength + 1) * segmentQuantity);
+		for (int s = 0 ; s < segmentQuantity; s++) {
+			if (s > 0) {
+				buffer.append(separator);
+			}
+			for (int i = 0; i < segmentLength; i++) {
+				int randomLimitedInt = random.nextInt(IUN_CHARS.length);
+				buffer.append(IUN_CHARS[randomLimitedInt]);
+			}
+		}
+
+		return buffer.toString();
 	}
 
 
