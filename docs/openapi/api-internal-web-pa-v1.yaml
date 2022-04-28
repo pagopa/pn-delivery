@@ -55,7 +55,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/ResultPaginationDtoNotificationSearchRow'
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationSearchResponse'
         '400':
           description: Bad request       
           content:

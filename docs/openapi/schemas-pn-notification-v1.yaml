@@ -53,7 +53,7 @@ components:
             $ref: "#/components/schemas/NotificationDocument"      
         cancelledIun:
           type: string
-          description: IUN della notifica rettificata da questa notifica
+          description: IUN della notifica annullata da questa notifica
         physicalCommunicationType:
           type: string
           description: Tipologia comunicazione fisica
@@ -92,7 +92,10 @@ components:
               format: date-time
             cancelledByIun:
               type: string
-              description: IUN della notifica che ha rettificato questa notifica
+              description: IUN della notifica che ha annullato questa notifica
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
 
 
     ############################################################################################
@@ -129,7 +132,7 @@ components:
 
     NotificationAttachment:
       description: >-
-        Un allegato della notifica utile per il pagamento
+        Un allegato della notifica.
       type: object
       required:
         - digests
@@ -144,6 +147,12 @@ components:
         ref:
           $ref: "#/components/schemas/NotificationAttachmentBodyRef"
 
+    NotificationPaymentAttachment:
+      description: >-
+        Un modulo di pagamento allegato alla notifica
+      allOf: 
+        - $ref: "#/components/schemas/NotificationAttachment"
+    
     NotificationDocument:
       description: >-
         Un documento da notifcare
@@ -163,7 +172,8 @@ components:
               type: boolean
               description: >- 
                 Se presente e valorizzato __true__ il documento verrà spedito 
-                nelle comunicazioni cartacee.
+                nelle comunicazioni cartacee. In MVP questo flag sarà attivabile 
+                solo su un documento.
 
     NotificationAttachmentDigests:
       description: Codici per la verifica del corretto caricamento di un allegato
@@ -194,7 +204,8 @@ components:
       title: Informazioni per effettuare il pagamento
       description: >-
        Informazioni utili per effettuare il pagamento di una notifica, sono associate al 
-       destinatario perché legate alle spese di notifica. <br/>
+       destinatario perché le spese di notifica possono differire a seconda del canale di 
+       notifica utilizzato. <br/>
          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o 
            calcolato puntualmente. <br/>
          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
@@ -235,21 +246,21 @@ components:
           type: string
           description: Codice fiscale dell'ente a cui fa riferimento il "numero avviso".
         pagoPaForm:
-          $ref: "#/components/schemas/NotificationAttachment"
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24flatRate:
-          $ref: "#/components/schemas/NotificationAttachment"
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24digital:
-          $ref: "#/components/schemas/NotificationAttachment"
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24digitalWithRs:
-          $ref: "#/components/schemas/NotificationAttachment"
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24analogRaccSingle:
-          $ref: "#/components/schemas/NotificationAttachment"
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24analogRaccDouble:
-          $ref: "#/components/schemas/NotificationAttachment"
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24analogRiSingle:
-          $ref: "#/components/schemas/NotificationAttachment"
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24analogRiDouble:
-          $ref: "#/components/schemas/NotificationAttachment"
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
 
 
     ############################################################################################
@@ -272,7 +283,10 @@ components:
           - PEC
         address:
           type: string
-          description: account@domain
+          example: account@domain
+          description: >-
+            Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
+            raggiungere il destinatario.
     
     NotificationPhysicalAddress:
       description: Indirizzo fisico scoperto durante fase di consegna
@@ -312,16 +326,27 @@ components:
     ###                             RISULTATO RICERCA NOTIFICHE                              ###
     ############################################################################################
     
-    ResultPaginationDtoNotificationSearchRow:
+    NotificationSearchResponse:
+      title: Elenco di notifiche 
+      description: >-
+        Dto contenente i risultati di una ricerca di notifiche. Ogni risposta conterrà solo 
+        una pagina di risultati relativi a una ricerca e le indicazioni per raggiungere alcune
+        pagine successive.
       type: object
       properties:
-        result:
+        resultsPage:
+          description: Una pagina di risultati della query
           type: array
           items:
             $ref: '#/components/schemas/NotificationSearchRow'
         moreResult:
+          description: Indica se sono presenti ulteriori pagine di risultati
           type: boolean
         nextPagesKey:
+          description: >-
+            Elenco, non esaustivo, delle chiavi da usare per richiedere le 
+            pagine di risultati successive a quella corrente. <br/>
+            Valorizzato solo se il campo __moreResult__ ha valore __true__.
           type: array
           items:
             type: string
@@ -348,7 +373,9 @@ components:
         notificationStatus:
           $ref: '#/components/schemas/NotificationStatus'
         recipients:
-          description: Elenco delle denominazioni dei destinatari della notifica
+          description: >-
+            Elenco delle denominazioni dei destinatari della notifica. <br/>
+            __N.B:__ campo da utilizzare solo per visualizzazione.
           type: array
           items:
             type: string
@@ -366,7 +393,7 @@ components:
       description: >-
         I due campi più importanti sono __url__ e __retryAfter__. <br/>
           - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
             secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
       type: object
       required:
@@ -387,8 +414,7 @@ components:
         sha256:
           type: string
           description: >- 
-            SHA256 del contenuto del file. Il tipo di checksum cambia a seconda del 
-            documentType.
+            SHA256 del contenuto del file.
         url:
           type: string
           description: >-
@@ -398,7 +424,7 @@ components:
           type: number
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
+            documento sia disponibile per il download.
 
         
     

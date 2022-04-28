@@ -55,7 +55,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/ResultPaginationDtoNotificationSearchRow'
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationSearchResponse'
         '400':
           description: Bad request       
           content:
@@ -213,7 +213,7 @@ components:
     FullReceivedNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
-        inoltro della notifica verso il cittadino.
+        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
       allOf: 
         - $ref: './schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
         - type: object

@@ -49,18 +49,25 @@ components:
         $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationStatus'
     notificationSearchSubject:
       name: subjectRegExp
+      description: >-
+        Regular expression usata, se presente, per filtrare i risultati in base al subject 
+        delle notifiche.
       in: query
       required: false
       schema:
         type: string
     notificationSearchIun:
       name: iunMatch
+      description: >-
+        Se presente indica che lo IUN dei risultati deve essere uguale al valore di questo parametro.
       in: query
       required: false
       schema:
         type: string
     notificationSearchPageSize:
       name: size
+      description: >-
+        dmensione della pagina di risultati
       in: query
       required: false
       schema:
@@ -68,6 +75,9 @@ components:
         format: int32
     notificationSearchNextPagesKey:
       name: nextPagesKey
+      description: >-
+        Chiave indicante la pagina di risultati, da specificare solo se si vuole una pagina 
+        diversa dalla prima.
       in: query
       required: false
       schema:
