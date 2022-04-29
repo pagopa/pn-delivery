@@ -127,7 +127,7 @@ public class NotificationReceiverService {
 		notificationDao.addNotification( notificationWithCompleteMetadata );
 	}
 	
-	private List<NotificationRecipient> addDirectAccessTokenToRecipients(Notification notification, String iun) throws IdConflictException {
+	private List<NotificationRecipient> addDirectAccessTokenToRecipients(Notification notification, String iun) {
 		List<NotificationRecipient> recipients = notification.getRecipients();
 		List<NotificationRecipient> recipientsWithToken = new ArrayList<>(recipients.size());
 		for (NotificationRecipient recipient : recipients) {
