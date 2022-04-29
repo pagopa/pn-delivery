@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import java.time.Instant;
 import java.util.Random;
 
 public class IunGenerator {
@@ -7,7 +8,8 @@ public class IunGenerator {
     private static final char[] IUN_CHARS = new char[] {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
     private static final String SEPARATOR = "-";
 
-    public String generatePredictedIun(String creationDate) {
+    public String generatePredictedIun( Instant creationInstant) {
+        String creationDate = creationInstant.toString();
         String[] creationDateSplit = creationDate.split( SEPARATOR );
         String randStringPart = generateRandomString(4, 3, '-');
         String monthPart = creationDateSplit[0] + creationDateSplit[1];

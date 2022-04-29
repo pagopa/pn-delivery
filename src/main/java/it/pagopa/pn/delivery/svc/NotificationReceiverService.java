@@ -80,13 +80,14 @@ public class NotificationReceiverService {
 	}
 
 	private String doSaveWithRethrow( Notification notification ) {
-		String iun = iunGenerator.generatePredictedIun( notification.getSentAt().toString() );
-		
-		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
-				iun, notification.getPaNotificationId() );
+		log.debug( "tryMultipleTimesToHandleIunCollision: start paNotificationId={}",
+				notification.getPaNotificationId() );
 
+		String iun = null;
 		try {
-			doSave(notification, iun);
+			Instant createdAt = clock.instant();
+			iun = iunGenerator.generatePredictedIun( createdAt );
+			doSave(notification, createdAt, iun);
 		}
 		catch ( IdConflictException exc ) {
 			log.error("Duplicated iun={}", iun );
@@ -97,8 +98,7 @@ public class NotificationReceiverService {
 	}
 	
 
-	private void doSave( Notification notification, String iun) throws IdConflictException {
-		Instant createdAt = clock.instant();
+	private void doSave(Notification notification, Instant createdAt, String iun) throws IdConflictException {
 		String paId = notification.getSender().getPaId();
 
 		log.debug("Generate tokens for iun={}", iun);

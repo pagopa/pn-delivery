@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.notification.Notification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ public class IunGeneratorTest {
 
         long numberOfCollision = 0L;
         for (long i=0; i < numberOfTest; i++) {
-            if (!iunSet.add( iunGenerator.generatePredictedIun(Instant.now().toString() ))) {
+            if (!iunSet.add( iunGenerator.generatePredictedIun(Instant.now() ))) {
                 numberOfCollision++;
             }
         }
