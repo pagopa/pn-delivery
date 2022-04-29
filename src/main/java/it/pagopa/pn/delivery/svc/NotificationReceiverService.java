@@ -29,6 +29,8 @@ public class NotificationReceiverService {
 	private final AttachmentService attachmentSaver;
 	private final NotificationReceiverValidator validator;
 
+	private final IunGenerator iunGenerator = new IunGenerator();
+
 	@Autowired
 	public NotificationReceiverService(
 			Clock clock,
@@ -78,7 +80,7 @@ public class NotificationReceiverService {
 	}
 
 	private String doSaveWithRethrow( Notification notification ) {
-		String iun = generatePredictedIun( notification );
+		String iun = iunGenerator.generatePredictedIun( notification.getSentAt().toString() );
 		
 		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
 				iun, notification.getPaNotificationId() );
@@ -133,16 +135,6 @@ public class NotificationReceiverService {
 		}
 		return recipientsWithToken;
 	}
-
-	private String generatePredictedIun(Notification notification) {
-		NotificationSender sender = notification.getSender();
-		String paId = sender.getPaId();
-		String paNotificationId = notification.getPaNotificationId();
-		String sqsSafePaNotificationId = paNotificationId.replaceAll( "[^a-zA-Z0-9-_]", "-" );
-		return String.format("%s-%s", paId, sqsSafePaNotificationId);
-	}
-
-
 
 
 }
