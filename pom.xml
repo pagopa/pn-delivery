@@ -15,6 +15,9 @@
     <name>pn-delivery</name>
     <description>Receive new notifications and show notification history</description>
 
+    <properties>
+        <default.package>it.pagopa.pn.delivery</default.package>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
@@ -62,7 +65,6 @@
             <version>1.6.5</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -111,5 +113,6 @@
                 </executions>
             </plugin>
         </plugins>
+
     </build>
 </project>
