@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class NotificationReceiverService {
 
+	private static final char[] IUN_CHARS = new char[] {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+	private static final String SEPARATOR = "-";
+
 	private final Clock clock;
 	private final NotificationDao notificationDao;
 	private final DirectAccessService directAccessService;
@@ -137,42 +140,27 @@ public class NotificationReceiverService {
 		return recipientsWithToken;
 	}
 
-	/*private String generatePredictedIun(Notification notification) {
-		NotificationSender sender = notification.getSender();
-		String paId = sender.getPaId();
-		String paNotificationId = notification.getPaNotificationId();
-		String sqsSafePaNotificationId = paNotificationId.replaceAll( "[^a-zA-Z0-9-_]", "-" );
-		return String.format("%s-%s", paId, sqsSafePaNotificationId);
-	}*/
-
-	// TODO public for test
-	public String generatePredictedIun(String creationDate) {
-		String[] creationDateSplited = creationDate.split( "-" );
-		String randStringPart = generateRandomString(4, 2, '-');
-		String monthPart = creationDateSplited[0] + creationDateSplited[1];
+	private String generatePredictedIun(String creationDate) {
+		String[] creationDateSplit = creationDate.split( SEPARATOR );
+		String randStringPart = generateRandomString(4, 3, '-');
+		String monthPart = creationDateSplit[0] + creationDateSplit[1];
 		char controlChar = generateControlChar( randStringPart, monthPart );
-		//long controlChar = getCRC32Checksum( randPart.getBytes(StandardCharsets.UTF_8) );
-		return randStringPart + "-" + monthPart + "-" + controlChar + "-" + "1";
+		return randStringPart + SEPARATOR + monthPart + SEPARATOR + controlChar + SEPARATOR + "1";
 	}
 
 	private char generateControlChar(String randStringPart, String monthPart) {
-		// caratteri mappati su numeri
-		// s1 decodifica con indexof dell'array IUN_CHARS e sommo
-		// s2 somma dei num corrispondenti alle singole cifre
-		//String strChecksum = String.valueOf(checksum);
-		//byte[] bytes = strChecksum.getBytes(StandardCharsets.UTF_8);
-		return 0;
+		int sum=0;
+		for (int i = 0; i < randStringPart.length(); i++) {
+			char singleChar = randStringPart.charAt( i );
+			sum += new String(IUN_CHARS).indexOf( singleChar ) + 1;
+		}
+		for (int i = 0; i < monthPart.length(); i++) {
+			char singleChar = monthPart.charAt( i );
+			sum += Integer.parseInt(String.valueOf(singleChar));
+		}
+		int mod = (sum % IUN_CHARS.length);
+		return IUN_CHARS[mod];
 	}
-
-	// probabilità di collisione 25^8
-
-	private long getCRC32Checksum(byte[] bytes) {
-		Checksum crc32 = new CRC32();
-		crc32.update(bytes, 0, bytes.length);
-		return crc32.getValue();
-	}
-
-	private static char[] IUN_CHARS = new char[] {'A','B','Z'};
 
 	private String generateRandomString(int segmentLength, int segmentQuantity, char separator) {
 		Random random = new Random();
@@ -186,11 +174,6 @@ public class NotificationReceiverService {
 				buffer.append(IUN_CHARS[randomLimitedInt]);
 			}
 		}
-
 		return buffer.toString();
 	}
-
-
-
-
 }

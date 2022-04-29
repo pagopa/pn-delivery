@@ -31,9 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -244,14 +242,43 @@ class NotificationReceiverTest {
 				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 	}
 
-	@Test
-	public void generatePredictedIun() {
+	/*public long numberOfTest = 200000L;
+	//@Test
+	public long generatePredictedIun(long numberOfTest) {
+
 		Notification notification = newNotificationWithoutPayments();
-
-		String predictedIun = deliveryService.generatePredictedIun( notification.getSentAt().toString() );
-
-		System.out.println( predictedIun );
+		long numberOfCollision = 0L;
+		HashSet<String> iunSet = new HashSet<>();
+		for (long i=0; i < numberOfTest; i++) {
+			if (!iunSet.add( deliveryService.generatePredictedIun( notification.getSentAt().toString() ) ) ) {
+				numberOfCollision++;
+			}
+		}
+		System.out.println("Test ripetuto "+ numberOfTest + " volte");
+		System.out.println("Numero di collisioni: "+ numberOfCollision );
+		return numberOfCollision;
 	}
+
+	@Test
+	void generatePredictedIun(){
+		Notification notification = newNotificationWithoutPayments();
+		String result = deliveryService.generatePredictedIun( notification.getSentAt().toString() );
+		System.out.println(result);
+		String[] resultSplitted = result.split( "-" );
+		char controlChar = deliveryService.generateControlChar( resultSplitted[0]+ "-" + resultSplitted[1] + "-" + resultSplitted[2],  resultSplitted[3] );
+		Assertions.assertEquals( controlChar, resultSplitted[4].charAt(0) );
+	}
+
+	@Test
+	void collisionsLessThanOneInTenYears() {
+		List<Long> collisions = new ArrayList<>();
+
+		for( int m = 0; m<10*12; m++ ) {
+			collisions.add( generatePredictedIun( numberOfTest ) );
+		}
+		System.out.println( collisions );
+		Assertions.assertTrue( collisions.stream().reduce(0L,(a,b) -> a+b) < 1 );
+	}*/
 
 
 	private Notification newNotificationWithoutPayments( ) {
