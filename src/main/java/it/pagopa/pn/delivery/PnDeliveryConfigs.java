@@ -15,6 +15,8 @@ public class PnDeliveryConfigs {
 
     private String deliveryPushBaseUrl;
 
+    private String mandateBaseUrl;
+
     private Topics topics;
 
     private Duration preloadUrlDuration;

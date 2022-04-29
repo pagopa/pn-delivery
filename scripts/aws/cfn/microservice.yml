@@ -115,6 +115,7 @@ Resources:
         ContainerEnvEntry9: !Sub 'PN_DELIVERY_DELIVERYPUSHBASEURL=http://${ApplicationLoadBalancerDomain}:8080/delivery-push'
         ContainerEnvEntry10: !Sub 'PN_DELIVERY_NOTIFICATIONDAO_TABLENAME=${NotificationsDynamoTableName}'
         ContainerEnvEntry11: !Sub 'PN_DELIVERY_NOTIFICATIONMETADATADAO_TABLENAME=${NotificationsMetadataDynamoTableName}'
+        ContainerEnvEntry12: !Sub 'PN_DELIVERY_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
