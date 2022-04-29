@@ -78,14 +78,17 @@ public class NotificationRetrieverService {
 		this.pnMandateClient = pnMandateClient;
 	}
 
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto, String uid ) {
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {
 		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
 
 		validateInput(searchDto);
-		String senderReceiverId = searchDto.getSenderReceiverId();
-		if (!uid.equals(senderReceiverId)) {
-			log.info( "Start check mandate for uid={}", uid );
-			checkMandate(searchDto, uid);
+
+		if ( !searchDto.isBySender() ) {
+			String receiverId = searchDto.getSenderReceiverId();
+			String delegatorId = searchDto.getDelegator();
+			if (delegatorId != null && !delegatorId.equals(receiverId)) {
+				checkMandate(searchDto, delegatorId);
+			}
 		}
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
@@ -121,40 +124,40 @@ public class NotificationRetrieverService {
 	 * Check mandates for uid and cx-id
 	 *
 	 * @param searchDto search input data
-	 * @param uid opaque login user id
-	 * @throws PnNotFoundException if no valid mandate for uid, cx-id
+	 * @param delegator opaque login delegator id
+	 * @throws PnNotFoundException if no valid mandate for delegator, receiver
 	 *
 	 *
 	 */
-	private void checkMandate(InputSearchNotificationDto searchDto, String uid) {
+	private void checkMandate(InputSearchNotificationDto searchDto, String delegator) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
-		List<InternalMandateDto> mandates = this.pnMandateClient.getMandates(uid);
+		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {
-				if (mandate.getDelegator() != null && mandate.getDatefrom() != null && mandate.getDelegator().equals(senderReceiverId)) {
+				if (mandate.getDelegator() != null && mandate.getDatefrom() != null && mandate.getDelegator().equals(delegator)) {
 					Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
 					Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
-					adjustSearchDates( searchDto, mandateStartDate, mandateEndDate );
+					adjustSearchDatesAndReceiver( searchDto, mandateStartDate, mandateEndDate );
 					validMandate = true;
-					log.info( "Valid mandate for uid={}", uid );
+					log.info( "Valid mandate for delegator={}", delegator );
 					break;
 				}
 			}
 			if (!validMandate){
-				String message = String.format("Unable to find valid mandate for uid=%s and cx-id=%s", uid, senderReceiverId);
+				String message = String.format("Unable to find valid mandate for delegator=%s and receiver=%s", delegator, senderReceiverId);
 				log.error( message );
 				throw new PnNotFoundException( message );
 			}
 		} else {
-			String message = String.format("Unable to find any mandate for uid=%s", uid);
+			String message = String.format("Unable to find any mandate for delegator=%s", delegator);
 			log.error( message );
 			throw new PnNotFoundException( message );
 		}
 	}
 
 	/**
-	 * Adjust search range date with mandate info
+	 * Adjust search range date and receiver with mandate info
 	 *
 	 * @param searchDto search input data
 	 * @param mandateStartDate mandate start date
@@ -162,16 +165,22 @@ public class NotificationRetrieverService {
 	 *
 	 *
 	 */
-	private void adjustSearchDates(InputSearchNotificationDto searchDto,
-								   Instant mandateStartDate,
-								   Instant mandateEndDate) {
+	private void adjustSearchDatesAndReceiver(InputSearchNotificationDto searchDto,
+											  Instant mandateStartDate,
+											  Instant mandateEndDate) {
 		Instant searchStartDate = searchDto.getStartDate();
 		Instant searchEndDate = searchDto.getEndDate();
 		searchDto.setStartDate( searchStartDate.isBefore(mandateStartDate)? mandateStartDate : searchStartDate );
 		if (mandateEndDate != null) {
 			searchDto.setEndDate( searchEndDate.isBefore(mandateEndDate) ? searchEndDate : mandateEndDate );
 		}
-		log.debug( "Adjust search date, startDate{} endDate{}", searchDto.getStartDate(), searchDto.getEndDate() );
+		log.debug( "Adjust search date, startDate={} endDate={}", searchDto.getStartDate(), searchDto.getEndDate() );
+
+		String delegator = searchDto.getDelegator();
+		if (StringUtils.isNotBlank( delegator )) {
+			searchDto.setSenderReceiverId( delegator );
+		}
+		log.debug( "Adjust receiverId={}", delegator );
 	}
 
 	private void validateInput(InputSearchNotificationDto searchDto) {

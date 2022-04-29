@@ -46,10 +46,10 @@ public class PnReceivedNotificationsController implements
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
     public ResultPaginationDto<NotificationSearchRow,String> searchReceivedNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String recipientId,
-            @RequestHeader(name = PnDeliveryRestConstants.UID_HEADER) String uid,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String currentRecipientId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
+            @RequestParam(name = "delegatorRecipient", required = false) String delegatorRecipientId,
             @RequestParam(name = "senderId", required = false) String senderId,
             @RequestParam(name = "status", required = false) NotificationStatus status,
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
@@ -59,9 +59,10 @@ public class PnReceivedNotificationsController implements
     ) {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
-                .senderReceiverId(recipientId)
+                .senderReceiverId(currentRecipientId)
                 .startDate(startDate)
                 .endDate(endDate)
+                .delegator(delegatorRecipientId)
                 .filterId(senderId)
                 .status(status)
                 .subjectRegExp(subjectRegExp)
@@ -70,7 +71,7 @@ public class PnReceivedNotificationsController implements
                 .nextPagesKey(nextPagesKey)
                 .build();
 
-        return retrieveSvc.searchNotification( searchDto, uid );
+        return retrieveSvc.searchNotification( searchDto );
     }
 
     @Override

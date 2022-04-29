@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.Clock;
@@ -78,23 +77,6 @@ class NotificationRetrieverServiceTest {
     }
 
     @Test
-    void checkMandateFailure() {
-        //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
-                .bySender( false )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "receiverId" )
-                .size( 10 )
-                .nextPagesKey( null )
-                .build();
-        //When
-        Executable todo = () -> svc.searchNotification( inputSearch, "senderId" );
-        //Then
-        Assertions.assertThrows(PnNotFoundException.class, todo);
-    }
-
-    @Test
     void checkMandateSuccess() {
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( false )
@@ -113,9 +95,9 @@ class NotificationRetrieverServiceTest {
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
 
         //When
-        Mockito.when( pnMandateClient.getMandates( Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString() ) ).thenReturn( mandateResult );
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch, "senderId" );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
 
         Assertions.assertNotNull( result );
 
@@ -128,6 +110,7 @@ class NotificationRetrieverServiceTest {
                 .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
                 .senderReceiverId( "receiverId" )
+                .delegator( "delegatorId" )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
@@ -140,9 +123,9 @@ class NotificationRetrieverServiceTest {
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
 
         //When
-        Mockito.when( pnMandateClient.getMandates( Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString() ) ).thenReturn( mandateResult );
 
-        Executable todo = () -> svc.searchNotification( inputSearch, "senderId" );
+        Executable todo = () -> svc.searchNotification( inputSearch );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
