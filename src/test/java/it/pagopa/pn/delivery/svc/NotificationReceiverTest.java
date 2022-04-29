@@ -248,7 +248,7 @@ class NotificationReceiverTest {
 	public void generatePredictedIun() {
 		Notification notification = newNotificationWithoutPayments();
 
-		String predictedIun = deliveryService.generatePredictedIun( notification );
+		String predictedIun = deliveryService.generatePredictedIun( notification.getSentAt().toString() );
 
 		System.out.println( predictedIun );
 	}

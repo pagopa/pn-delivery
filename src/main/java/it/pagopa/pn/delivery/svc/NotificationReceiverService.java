@@ -81,7 +81,7 @@ public class NotificationReceiverService {
 	}
 
 	private String doSaveWithRethrow( Notification notification ) {
-		String iun = generatePredictedIun( notification );
+		String iun = generatePredictedIun( notification.getSentAt().toString() );
 		
 		log.debug( "tryMultipleTimesToHandleIunCollision: start iun={} paNotificationId={}",
 				iun, notification.getPaNotificationId() );
@@ -145,8 +145,8 @@ public class NotificationReceiverService {
 		return String.format("%s-%s", paId, sqsSafePaNotificationId);
 	}*/
 
-	public String generatePredictedIun(Notification notification) {
-		String creationDate = notification.getSentAt().toString();
+	// TODO public for test
+	public String generatePredictedIun(String creationDate) {
 		String[] creationDateSplited = creationDate.split( "-" );
 		String randStringPart = generateRandomString(4, 2, '-');
 		String monthPart = creationDateSplited[0] + creationDateSplited[1];
