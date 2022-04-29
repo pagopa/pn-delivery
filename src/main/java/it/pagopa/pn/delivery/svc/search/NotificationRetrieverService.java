@@ -16,9 +16,12 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +54,7 @@ public class NotificationRetrieverService {
 	private final PnDeliveryPushClient pnDeliveryPushClient;
 	private final StatusUtils statusUtils;
 	private final PnDeliveryConfigs cfg;
+	private final PnMandateClientImpl pnMandateClient;
 
 
 	@Autowired
@@ -61,7 +65,8 @@ public class NotificationRetrieverService {
 										NotificationDao notificationDao,
 										PnDeliveryPushClient pnDeliveryPushClient,
 										StatusUtils statusUtils,
-										PnDeliveryConfigs cfg) {
+										PnDeliveryConfigs cfg,
+										PnMandateClientImpl pnMandateClient) {
 		this.fileStorage = fileStorage;
 		this.clock = clock;
 		this.presignedUrlSvc = presignedUrlSvc;
@@ -70,12 +75,18 @@ public class NotificationRetrieverService {
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.statusUtils = statusUtils;
 		this.cfg = cfg;
+		this.pnMandateClient = pnMandateClient;
 	}
-	
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {
-		log.debug("Start search notification - senderReceiverId {}", searchDto.getSenderReceiverId());
-		
+
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto, String uid ) {
+		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
+
 		validateInput(searchDto);
+		String senderReceiverId = searchDto.getSenderReceiverId();
+		if (!uid.equals(senderReceiverId)) {
+			log.info( "Start check mandate for uid={}", uid );
+			checkMandate(searchDto, uid);
+		}
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
 		if ( searchDto.getNextPagesKey() != null ) {
@@ -96,14 +107,71 @@ public class NotificationRetrieverService {
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
-				builder.moreResult( searchResult.getNextPagesKey() != null )
+		builder.moreResult( searchResult.getNextPagesKey() != null )
 				.result( searchResult.getResult() );
-				if ( searchResult.getNextPagesKey() != null ) {
-					builder.nextPagesKey( searchResult.getNextPagesKey()
-							.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
-							.collect(Collectors.toList()) );
+		if ( searchResult.getNextPagesKey() != null ) {
+			builder.nextPagesKey( searchResult.getNextPagesKey()
+					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
+					.collect(Collectors.toList()) );
+		}
+		return builder.build();
+	}
+
+	/**
+	 * Check mandates for uid and cx-id
+	 *
+	 * @param searchDto search input data
+	 * @param uid opaque login user id
+	 * @throws PnNotFoundException if no valid mandate for uid, cx-id
+	 *
+	 *
+	 */
+	private void checkMandate(InputSearchNotificationDto searchDto, String uid) {
+		String senderReceiverId = searchDto.getSenderReceiverId();
+		List<InternalMandateDto> mandates = this.pnMandateClient.getMandates(uid);
+		if(!mandates.isEmpty()) {
+			boolean validMandate = false;
+			for ( InternalMandateDto mandate : mandates ) {
+				if (mandate.getDelegator() != null && mandate.getDatefrom() != null && mandate.getDelegator().equals(senderReceiverId)) {
+					Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
+					Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
+					adjustSearchDates( searchDto, mandateStartDate, mandateEndDate );
+					validMandate = true;
+					log.info( "Valid mandate for uid={}", uid );
+					break;
 				}
-				return builder.build();
+			}
+			if (!validMandate){
+				String message = String.format("Unable to find valid mandate for uid=%s and cx-id=%s", uid, senderReceiverId);
+				log.error( message );
+				throw new PnNotFoundException( message );
+			}
+		} else {
+			String message = String.format("Unable to find any mandate for uid=%s", uid);
+			log.error( message );
+			throw new PnNotFoundException( message );
+		}
+	}
+
+	/**
+	 * Adjust search range date with mandate info
+	 *
+	 * @param searchDto search input data
+	 * @param mandateStartDate mandate start date
+	 * @param mandateEndDate mandate end date
+	 *
+	 *
+	 */
+	private void adjustSearchDates(InputSearchNotificationDto searchDto,
+								   Instant mandateStartDate,
+								   Instant mandateEndDate) {
+		Instant searchStartDate = searchDto.getStartDate();
+		Instant searchEndDate = searchDto.getEndDate();
+		searchDto.setStartDate( searchStartDate.isBefore(mandateStartDate)? mandateStartDate : searchStartDate );
+		if (mandateEndDate != null) {
+			searchDto.setEndDate( searchEndDate.isBefore(mandateEndDate) ? searchEndDate : mandateEndDate );
+		}
+		log.debug( "Adjust search date, startDate{} endDate{}", searchDto.getStartDate(), searchDto.getEndDate() );
 	}
 
 	private void validateInput(InputSearchNotificationDto searchDto) {
@@ -123,9 +191,9 @@ public class NotificationRetrieverService {
 	 * Get the full detail of a notification by IUN
 	 *
 	 * @param iun unique identifier of a Notification
-	 * 
+	 *
 	 * @return Notification DTO
-	 * 
+	 *
 	 */
 	public Notification getNotificationInformation(String iun, boolean withTimeline) {
 		log.debug( "Retrieve notification by iun={} withTimeline={} START", iun, withTimeline );
@@ -182,17 +250,17 @@ public class NotificationRetrieverService {
 		int numberOfRecipients = notification.getRecipients().size();
 		Instant createdAt =  notification.getSentAt();
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
-		
+
 		Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
-					 TimelineInfoDto.builder()
-							 .elementId(elem.getElementId())
-							 .category(elem.getCategory())
-							 .timestamp(elem.getTimestamp())
-							 .build()
+				TimelineInfoDto.builder()
+						.elementId(elem.getElementId())
+						.category(elem.getCategory())
+						.timestamp(elem.getTimestamp())
+						.build()
 		).collect(Collectors.toSet());
-		
+
 		List<NotificationStatusHistoryElement>  statusHistory = statusUtils
-							 .getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
+				.getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
 
 		return notification
 				.toBuilder()
