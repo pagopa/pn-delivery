@@ -23,9 +23,9 @@ public class PnMandateClientImpl {
         this.mandatesApi = new MandatePrivateServiceApi( newApiClient );
     }
 
-    public List<InternalMandateDto> getMandates(String uid) {
-        log.debug("Start get mandates for uid={}", uid);
-        return mandatesApi.listMandatesByDelegate( uid );
+    public List<InternalMandateDto> listMandatesByDelegate(String delegated) {
+        log.debug("Start get mandates for delegated={}", delegated);
+        return mandatesApi.listMandatesByDelegate( delegated );
     }
 
 }

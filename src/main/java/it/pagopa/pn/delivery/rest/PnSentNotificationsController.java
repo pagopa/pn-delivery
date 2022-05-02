@@ -71,7 +71,7 @@ public class PnSentNotificationsController implements
                 .nextPagesKey(nextPagesKey)
                 .build();
         
-        return retrieveSvc.searchNotification( searchDto, senderId );
+        return retrieveSvc.searchNotification( searchDto );
     }
 
     @Override
