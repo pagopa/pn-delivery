@@ -9,4 +9,3 @@
     ./mvnw spring-boot:run
 ```
 
-
