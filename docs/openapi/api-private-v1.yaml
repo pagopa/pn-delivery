@@ -17,7 +17,7 @@ paths:
     post:
       summary: servizio per l'aggiornamento dello stato di invio della notifica
       tags:
-      - pn-status-controller
+      - internal-only
       operationId: updateStatus
       requestBody:
         content:
@@ -49,7 +49,7 @@ paths:
     get:
       summary: servizio per cercare una notifica dato <iun>
       tags:
-      - pn-internal-notifications-controller
+        - internal-only
       operationId: getSentNotification
       parameters:
       - name: iun

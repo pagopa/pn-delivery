@@ -6,6 +6,8 @@ import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,9 +93,9 @@ class S3PresignedUrlServiceTest {
     @Test
     void presignedUploadSuccess() {
         //Given
-        List<PreloadRequest> preloadRequests = new ArrayList<>();
-        preloadRequests.add( PreloadRequest.builder()
-                        .key( KEY )
+        List<PreLoadRequest> preloadRequests = new ArrayList<>();
+        preloadRequests.add( PreLoadRequest.builder()
+                        .preloadIdx( KEY )
                         .build());
         
         //When
@@ -110,7 +112,7 @@ class S3PresignedUrlServiceTest {
                                 .build() )
                         .signedHeaders( Map.of( "k1", Collections.singletonList("v1")) )
                         .build());
-        List<PreloadResponse> preloadResponses = service.presignedUpload( PA_ID, preloadRequests );
+        List<PreLoadResponse> preloadResponses = service.presignedUpload( PA_ID, preloadRequests );
         
         //Then
         assertNotNull(preloadResponses.get(0).getUrl());

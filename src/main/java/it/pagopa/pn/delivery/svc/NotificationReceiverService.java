@@ -4,13 +4,14 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 
-import it.pagopa.pn.api.dto.NewNotificationResponse;
+
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import lombok.extern.slf4j.Slf4j;
@@ -74,8 +75,8 @@ public class NotificationReceiverService {
 		String notificationId = EncodingUtils.base64Encoding(iun);
 		
 		return NewNotificationResponse.builder()
-				.notificationId( notificationId )
-				.paNotificationId( notification.getPaNotificationId() )
+				.notificationRequestId(notificationId)
+				.paProtocolNumber( notification.getPaNotificationId() )
 				.build();
 	}
 

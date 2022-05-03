@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.NewNotificationResponse;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
@@ -11,6 +10,8 @@ import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
@@ -27,7 +28,7 @@ import java.util.*;
 
 @Slf4j
 @RestController
-public class PnNotificationInputController implements PnDeliveryRestApi_methodReceiveNotification {
+public class PnNotificationInputController implements NewNotificationApi {
 
     public static final String NOTIFICATION_VALIDATION_ERROR_STATUS = "Notification validation error";
     private final PnDeliveryConfigs cfgs;
@@ -41,6 +42,24 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
     }
 
     @Override
+    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, NewNotificationRequest newNotificationRequest) {
+        NewNotificationResponse svcRes = svc.receiveNotification( this.convert(newNotificationRequest) );
+        return ResponseEntity.ok( svcRes );
+    }
+
+    private Notification convert(NewNotificationRequest newNotificationRequest) {
+        Notification notification = Notification.builder()
+                .build();
+        return notification;
+    }
+
+    @Override
+    public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
+        //presignSvc.presignedUpload( xPagopaPnCxId, preLoadRequest );
+        return null;
+    }
+
+    /*@Override
     @PostMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH )
     public NewNotificationResponse receiveNotification(
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
@@ -81,7 +100,7 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
                                     numberOfPresignedRequest))));
         }
         return presignSvc.presignedUpload( paId, request );
-    }
+    }*/
 
     @ExceptionHandler({PnValidationException.class})
     public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
