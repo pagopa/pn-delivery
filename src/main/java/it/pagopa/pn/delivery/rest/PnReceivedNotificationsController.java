@@ -49,7 +49,7 @@ public class PnReceivedNotificationsController implements
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String currentRecipientId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
-            @RequestParam(name = "delegatorRecipient", required = false) String delegatorRecipientId,
+            @RequestParam(name = "mandateId", required = false) String mandateId,
             @RequestParam(name = "senderId", required = false) String senderId,
             @RequestParam(name = "status", required = false) NotificationStatus status,
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
@@ -62,7 +62,7 @@ public class PnReceivedNotificationsController implements
                 .senderReceiverId(currentRecipientId)
                 .startDate(startDate)
                 .endDate(endDate)
-                .delegator(delegatorRecipientId)
+                .mandateId(mandateId)
                 .filterId(senderId)
                 .status(status)
                 .subjectRegExp(subjectRegExp)
