@@ -33,11 +33,11 @@ components:
       schema:
         type: string
         format: date-time
-    notificationSearchDelegatorRecipient:
-      name: delegatorRecipientId
+    notificationSearchMandateId:
+      name: mandateId
       in: query
       required: false
-      description: identificativo del delegante
+      description: identificativo della delega
       schema:
         type: string
     notificationSearchRecipientId:
