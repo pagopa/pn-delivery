@@ -14,7 +14,7 @@ import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.util.StatusUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -267,10 +267,13 @@ public class NotificationRetrieverService {
 						.timestamp(elem.getTimestamp())
 						.build()
 		).collect(Collectors.toSet());
+		
+		//TODO MODIFICARE
+		//List<NotificationStatusHistoryElement>  statusHistory = statusUtils
+		//		.getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
 
-		List<NotificationStatusHistoryElement>  statusHistory = statusUtils
-				.getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
-
+		List<NotificationStatusHistoryElement>  statusHistory = null;
+		
 		return notification
 				.toBuilder()
 				.timeline( timeline )

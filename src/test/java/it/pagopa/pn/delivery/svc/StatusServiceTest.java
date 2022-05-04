@@ -7,7 +7,7 @@ import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
-import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.util.StatusUtils;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
@@ -22,6 +22,8 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class StatusServiceTest {
     @Mock
@@ -73,21 +75,12 @@ class StatusServiceTest {
         Set<TimelineInfoDto> set = new HashSet<>();
         set.add(row1);
         set.add(row2);
-
-        TimelineInfoDto newTimelineElement = TimelineInfoDto.builder()
-                .category(TimelineElementCategory.DIGITAL_SUCCESS_WORKFLOW)
-                .timestamp(Instant.parse("2021-09-16T17:28:00.00Z"))
-                .build();
         
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
-                .currentTimeline(set)
-                .newTimelineElement(newTimelineElement)
+                .nextState(NotificationStatus.DELIVERED)
                 .build();
-
-        ResponseUpdateStatusDto responseDto = statusService.updateStatus(dto);
-
-        Assertions.assertEquals(NotificationStatus.DELIVERING, responseDto.getCurrentStatus());
-        Assertions.assertEquals(NotificationStatus.DELIVERED, responseDto.getNextStatus());
+        
+        assertDoesNotThrow(() -> statusService.updateStatus(dto));
     }
 }

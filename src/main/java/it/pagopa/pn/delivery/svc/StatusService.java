@@ -8,10 +8,11 @@ import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.utils.StatusUtils;
+import it.pagopa.pn.delivery.util.StatusUtils;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
+import it.pagopa.pn.delivery.util.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -34,66 +35,22 @@ public class StatusService {
         this.statusUtils = statusUtils;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
     }
-
-
-    public ResponseUpdateStatusDto updateStatus(RequestUpdateStatusDto dto) {
+    
+    public void updateStatus(RequestUpdateStatusDto dto) {
         Optional<Notification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun());
-        
-        ResponseUpdateStatusDto responseDto;
         
         if (notificationOptional.isPresent()) {
             Notification notification = notificationOptional.get();
             log.debug("Notification is present {} for iun {}", notification.getPaNotificationId(), dto.getIun());
 
-            Set<TimelineInfoDto> currentTimeline = dto.getCurrentTimeline();
-
-            // - Calcolare lo stato corrente
-            NotificationStatus currentState =  computeLastStatusHistoryElement( notification, currentTimeline ).getStatus();
-            log.debug("CurrentState is {} for iun {}",currentState, dto.getIun());
-            
-            currentTimeline.add(dto.getNewTimelineElement());
-            
-            // - Calcolare il nuovo stato
-            NotificationStatusHistoryElement nextState = computeLastStatusHistoryElement( notification, currentTimeline );
-            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(nextState, notification);
-
-            log.debug("Next state is {} for iun {}",nextState.getStatus(), dto.getIun());
-
-            // - se i due stati differiscono
-            if (!currentState.equals(nextState.getStatus()) && !nextState.getStatus().equals( NotificationStatus.REFUSED )) {
-                log.info("Change status from {} to {} for iun {}",currentState, nextState.getStatus(), dto.getIun());
-                addNotificationMetadataEntries( nextMetadataEntry );
-            }
-
-            responseDto = ResponseUpdateStatusDto.builder()
-                    .currentStatus(currentState)
-                    .nextStatus(nextState.getStatus())
-                    .build();
+            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto.getNextState(), notification);
+            nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
         } else {
             throw new PnInternalException("Try to update status for non existing iun " + dto.getIun());
         }
-        
-        return responseDto;
     }
 
-    private void addNotificationMetadataEntries(List<NotificationMetadataEntity> nextMetadataEntry) {
-        nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
-    }
-
-    private NotificationStatusHistoryElement computeLastStatusHistoryElement(Notification notification, Set<TimelineInfoDto> currentTimeline) {
-        int numberOfRecipient = notification.getRecipients().size();
-        Instant notificationCreatedAt = notification.getSentAt();
-
-        List<NotificationStatusHistoryElement> historyElementList = statusUtils.getStatusHistory(
-                currentTimeline,
-                numberOfRecipient,
-                notificationCreatedAt);
-
-        return historyElementList.get(historyElementList.size() - 1);
-    }
-
-
-    private List<NotificationMetadataEntity> computeMetadataEntry(NotificationStatusHistoryElement lastStatus, Notification notification) {
+    private List<NotificationMetadataEntity> computeMetadataEntry(NotificationStatus lastStatus, Notification notification) {
         String creationMonth = extractCreationMonth( notification.getSentAt() );
 
 
@@ -108,7 +65,7 @@ public class StatusService {
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(
             Notification notification,
-            NotificationStatusHistoryElement lastStatus,
+            NotificationStatus lastStatus,
             String recipientId,
             List<String> recipientsIds,
             String creationMonth
@@ -116,7 +73,7 @@ public class StatusService {
         int recipientIndex = recipientsIds.indexOf( recipientId );
 
         return NotificationMetadataEntity.builder()
-                .notificationStatus( lastStatus.getStatus().toString() )
+                .notificationStatus( lastStatus.toString() )
                 .senderId( notification.getSender().getPaId() )
                 .recipientId( recipientId )
                 .sentAt( notification.getSentAt() )
