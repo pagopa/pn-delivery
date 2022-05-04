@@ -1,4 +1,4 @@
-#commit 7288044	28 apr 2022, 11:37
+#commitId: 0d56dc70bd94037f1acfcb9268d2f061ca43dce3 3 maggio 2022, 17:07:04 CEST
 openapi: 3.0.1
 info:
   title: PN Mandate u-service
@@ -12,12 +12,16 @@ paths:
     get:
       tags:
         - mandate-private-service
-      description: Return only active mandates for delegate
+      description: Return only active mandates for delegate, optionally filtered by single mandateId
       operationId: listMandatesByDelegate
       parameters:
         - name: internaluserId
           in: path
           required: true
+          schema:
+            type: string
+        - name: mandateId
+          in: query
           schema:
             type: string
       responses:
@@ -34,7 +38,38 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+  /mandate-private/api/v1/mandates-by-internaldelegator/{internaluserId}:
+    get:
+      tags:
+        - mandate-private-service
+      description: Return only active mandates for delegator, optionally filtered by single mandateId
+      operationId: listMandatesByDelegator
+      parameters:
+        - name: internaluserId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mandateId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InternalMandateDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
   /mandate/api/v1/count-by-delegate:
     get:
       tags:
@@ -60,7 +95,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
   /mandate/api/v1/mandate:
     post:
       tags:
@@ -87,7 +122,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
   /mandate/api/v1/mandate/{mandateId}/accept:
     patch:
       tags:
@@ -115,7 +150,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
   /mandate/api/v1/mandate/{mandateId}/reject:
     patch:
       tags:
@@ -138,7 +173,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
   /mandate/api/v1/mandate/{mandateId}/revoke:
     patch:
       tags:
@@ -161,7 +196,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
   /mandate/api/v1/mandates-by-delegate:
     get:
       tags:
@@ -189,7 +224,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
   /mandate/api/v1/mandates-by-delegator:
     get:
       tags:
@@ -213,7 +248,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
 components:
   schemas:
     InternalMandateDto:
