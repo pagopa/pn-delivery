@@ -10,6 +10,7 @@ import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
+import it.pagopa.pn.api.dto.notification.timeline.TimelineStatusHistoryDto;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -250,29 +251,21 @@ public class NotificationRetrieverService {
 
 	private Notification enrichWithTimelineAndStatusHistory(String iun, Notification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
-		Set<TimelineElement> rawTimeline = pnDeliveryPushClient.getTimelineElements(iun);
+		int numberOfRecipients = notification.getRecipients().size();
+		Instant createdAt =  notification.getSentAt();
+		
+		TimelineStatusHistoryDto timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients,createdAt);
+
+		Set<TimelineElement> rawTimeline =timelineStatusHistoryDto.getTimelineElements();
+		
 		List<TimelineElement> timeline = rawTimeline
 				.stream()
 				.sorted( Comparator.comparing( TimelineElement::getTimestamp ))
 				.collect(Collectors.toList());
 
-		int numberOfRecipients = notification.getRecipients().size();
-		Instant createdAt =  notification.getSentAt();
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
-
-		Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
-				TimelineInfoDto.builder()
-						.elementId(elem.getElementId())
-						.category(elem.getCategory())
-						.timestamp(elem.getTimestamp())
-						.build()
-		).collect(Collectors.toSet());
 		
-		//TODO MODIFICARE
-		//List<NotificationStatusHistoryElement>  statusHistory = statusUtils
-		//		.getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
-
-		List<NotificationStatusHistoryElement>  statusHistory = null;
+		List<NotificationStatusHistoryElement>  statusHistory = timelineStatusHistoryDto.getStatusHistory();
 		
 		return notification
 				.toBuilder()

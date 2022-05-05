@@ -6,10 +6,9 @@ import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.api.dto.notification.timeline.*;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
-import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.util.StatusUtils;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -31,14 +30,12 @@ class StatusServiceTest {
 
     @Mock
     private NotificationMetadataEntityDao notificationMetadataEntityDao;
-
-    private StatusUtils statusUtils = new StatusUtils();
-
+    
     private StatusService statusService;
 
     @BeforeEach
     public void setup() {
-        statusService = new StatusService(notificationDao, statusUtils,notificationMetadataEntityDao);
+        statusService = new StatusService(notificationDao, notificationMetadataEntityDao);
     }
 
 
@@ -63,18 +60,6 @@ class StatusServiceTest {
                         .build()) )
                 .build());
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
-
-        TimelineInfoDto row1 = TimelineInfoDto.builder()
-                .category(TimelineElementCategory.REQUEST_ACCEPTED)
-                .timestamp(Instant.parse("2021-09-16T15:28:00.00Z"))
-                .build();
-        TimelineInfoDto row2 = TimelineInfoDto.builder()
-                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                .timestamp(Instant.parse("2021-09-16T16:28:00.00Z"))
-                .build();
-        Set<TimelineInfoDto> set = new HashSet<>();
-        set.add(row1);
-        set.add(row2);
         
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
@@ -82,5 +67,7 @@ class StatusServiceTest {
                 .build();
         
         assertDoesNotThrow(() -> statusService.updateStatus(dto));
+        
+        Mockito.verify(notificationMetadataEntityDao).put(Mockito.any(NotificationMetadataEntity.class));
     }
 }

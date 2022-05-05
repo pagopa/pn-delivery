@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -30,28 +31,19 @@ class StatusUtilsTest {
 
     @Test
     void getCurrentStatusTest() {
-        TimelineInfoDto timelineElement1 = TimelineInfoDto.builder()
-                .timestamp(Instant.parse("2021-09-16T15:24:00.00Z"))
-                .category(TimelineElementCategory.REQUEST_ACCEPTED)
+        List<NotificationStatusHistoryElement>  statusHistory = new ArrayList<>();
+        NotificationStatusHistoryElement statusHistoryDelivering = NotificationStatusHistoryElement.builder()
+                .activeFrom(Instant.now())
+                .status(NotificationStatus.DELIVERING)
                 .build();
-        TimelineInfoDto timelineElement2 = TimelineInfoDto.builder()
-                .timestamp(Instant.parse("2021-09-16T15:25:00.00Z"))
-                .category(TimelineElementCategory.NOTIFICATION_PATH_CHOOSE)
+        NotificationStatusHistoryElement statusHistoryAccepted = NotificationStatusHistoryElement.builder()
+                .activeFrom(Instant.now())
+                .status(NotificationStatus.ACCEPTED)
                 .build();
-        TimelineInfoDto timelineElement3 = TimelineInfoDto.builder()
-                .timestamp(Instant.parse("2021-09-16T15:26:00.00Z"))
-                .category(TimelineElementCategory.SEND_DIGITAL_DOMICILE)
-                .build();
-
-        Set<TimelineInfoDto> timelineElementList = Set.of(timelineElement1,
-                timelineElement2, timelineElement3);
+        statusHistory.add(statusHistoryDelivering);
+        statusHistory.add(statusHistoryAccepted);
         
-        //TODO Modificare
-        
-        //List<NotificationStatusHistoryElement> resHistoryElementList = statusUtils.getStatusHistory(
-        //        timelineElementList, 1, Instant.now());
-
-        //Assertions.assertEquals(NotificationStatus.DELIVERING, statusUtils.getCurrentStatus(resHistoryElementList));
+        Assertions.assertEquals(NotificationStatus.ACCEPTED, statusUtils.getCurrentStatus(statusHistory));
     }
 
 }

@@ -3,19 +3,13 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
-import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.util.StatusUtils;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
-import it.pagopa.pn.delivery.util.StatusUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.util.*;
@@ -25,14 +19,11 @@ import java.util.stream.Collectors;
 @Service
 public class StatusService {
     private final NotificationDao notificationDao;
-    private final StatusUtils statusUtils;
     private final NotificationMetadataEntityDao notificationMetadataEntityDao;
 
-
-    public StatusService(NotificationDao notificationDao, StatusUtils statusUtils,
+    public StatusService(NotificationDao notificationDao,
             NotificationMetadataEntityDao notificationMetadataEntityDao) {
         this.notificationDao = notificationDao;
-        this.statusUtils = statusUtils;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
     }
     
