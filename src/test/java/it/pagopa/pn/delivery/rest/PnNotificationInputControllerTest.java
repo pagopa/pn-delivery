@@ -7,6 +7,7 @@ import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
@@ -24,6 +25,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @WebFluxTest(PnNotificationInputController.class)
@@ -32,6 +34,7 @@ class PnNotificationInputControllerTest {
 	private static final String PA_ID = "paId";
 	private static final String IUN = "IUN";
 	private static final String PA_NOTIFICATION_ID = "paNotificationId";
+	private static final String SUBJECT = "subject";
 	public static final String DOCUMENT_KEY = "doc_1";
 	public static final Integer MAX_NUMBER_REQUESTS = 1;
 	private static final String SECRET = "secret";
@@ -54,14 +57,54 @@ class PnNotificationInputControllerTest {
 	void postSuccess() {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
-				.paProtocolNumber( PA_NOTIFICATION_ID )
+				.paProtocolNumber( "protocol_number" )
+				.recipients( Collections.singletonList( NotificationRecipient.builder()
+								.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+								.taxId( "recipient_tax_id" )
+								.denomination( "recipient_denomination" )
+								.digitalDomicile( NotificationDigitalAddress.builder()
+										.type( NotificationDigitalAddress.TypeEnum.PEC )
+										.address( "address" )
+										.build() )
+								.physicalAddress( NotificationPhysicalAddress.builder()
+										.zip( "zip" )
+										.municipality( "mnicipality" )
+										.address( "address" )
+										.build() )
+								.payment( NotificationPaymentInfo.builder()
+										.notificationFeePolicy( NotificationPaymentInfo.NotificationFeePolicyEnum.FLAT_RATE )
+										.creditorTaxId( "creditor_tax_id" )
+										.pagoPaForm( NotificationPaymentAttachment.builder()
+												.digests( NotificationAttachmentDigests.builder()
+														.sha256( "sha_256" )
+														.build() )
+												.contentType( "application/pdf" )
+												.ref( NotificationAttachmentBodyRef.builder()
+														.key( "key" )
+														.versionToken( "version_token" )
+														.build() )
+												.build() )
+										.build() )
+						.build() ) )
+				.documents( Collections.singletonList( NotificationDocument.builder()
+								.digests( NotificationAttachmentDigests.builder()
+										.sha256( "sha_256" )
+										.build() )
+								.contentType( "application/pdf" )
+								.ref( NotificationAttachmentBodyRef.builder()
+										.key( "key" )
+										.versionToken( "version_token" )
+										.build() )
+						.build() ) )
+				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				.subject( "subject" )
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 						.notificationRequestId( EncodingUtils.base64Encoding(IUN) ).build();
 				
 		// When
-		Mockito.when(deliveryService.receiveNotification( Mockito.any( Notification.class )))
+		Mockito.when(deliveryService.receiveNotification( Mockito.any( InternalNotification.class )))
 				.thenReturn( savedNotification );
 		
 		// Then
@@ -71,13 +114,13 @@ class PnNotificationInputControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(notificationRequest), NewNotificationRequest.class)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
-				.header(PnDeliveryRestConstants.UID_HEADER, "")
-				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, ""  )
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "" )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
                 .expectStatus().isOk();
 		
-		Mockito.verify( deliveryService ).receiveNotification( Mockito.any( NewNotificationRequest.class ) );
+		Mockito.verify( deliveryService ).receiveNotification( Mockito.any( InternalNotification.class ) );
 	}
 
 	@Test

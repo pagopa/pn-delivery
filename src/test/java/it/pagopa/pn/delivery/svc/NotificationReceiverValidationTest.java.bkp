@@ -37,7 +37,7 @@ class NotificationReceiverValidationTest {
             )
             .build();
 
-    		
+
     private NotificationReceiverValidator validator;
 
     @BeforeEach
@@ -68,7 +68,7 @@ class NotificationReceiverValidationTest {
 
     @Test
     void checkThrowMechanism() {
-    	
+
         // GIVEN
         NewNotificationRequest n = NewNotificationRequest.builder().build();
 
@@ -92,13 +92,13 @@ class NotificationReceiverValidationTest {
 
     @Test
     void invalidEmptyCollections() {
-    	
-        // GIVEN   	
-    	NewNotificationRequest n = notificationWithPhysicalCommunicationType()
+
+        // GIVEN
+        NewNotificationRequest n = notificationWithPhysicalCommunicationType()
                 .senderTaxId( "taxid" )
-    			.recipients( Collections.emptyList() )
-    			.documents( Collections.emptyList() );
-    			
+                .recipients( Collections.emptyList() )
+                .documents( Collections.emptyList() );
+
         // WHEN
         Set<ConstraintViolation<NewNotificationRequest>> errors;
         errors = validator.checkNewNotificationBeforeInsert( n );
@@ -113,9 +113,9 @@ class NotificationReceiverValidationTest {
     @Test
     void invalidNullValuesInCollections() {
 
-        // GIVEN        
+        // GIVEN
         NewNotificationRequest n = notificationWithPhysicalCommunicationType()
-    			.recipients( Collections.singletonList( null ) )
+                .recipients( Collections.singletonList( null ) )
                 .documents( Collections.singletonList( null ) );
 
         // WHEN
@@ -131,10 +131,10 @@ class NotificationReceiverValidationTest {
     @Test
     void invalidDocumentAndRecipientWithEmptyFields() {
 
-        // GIVEN    	
+        // GIVEN
         NewNotificationRequest n = notificationWithPhysicalCommunicationType()
-    			.recipients( Collections.singletonList(NotificationRecipient.builder()
-                      .build())
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .build())
                 )
                 .documents( Collections.singletonList(NotificationDocument.builder().build()  ) );
 
@@ -157,19 +157,19 @@ class NotificationReceiverValidationTest {
 
         // GIVEN
         NewNotificationRequest n = notificationWithPhysicalCommunicationType()
-    						.recipients( Collections.singletonList(NotificationRecipient.builder()
-    								.taxId("FiscalCode")
-    								.denomination("Nome Cognome / Ragione Sociale")
-                                            .digitalDomicile(  NotificationDigitalAddress.builder().build() )
-    								.build() )
-    						)
-    						.documents( Collections.singletonList(NotificationDocument.builder()
-    								//.body( BASE64_BODY )
-    								.contentType("Content/Type")
-    								.digests( NotificationAttachmentDigests.builder().build() )
-    								.build( ))
-    						);
-    	    	
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .taxId("FiscalCode")
+                        .denomination("Nome Cognome / Ragione Sociale")
+                        .digitalDomicile(  NotificationDigitalAddress.builder().build() )
+                        .build() )
+                )
+                .documents( Collections.singletonList(NotificationDocument.builder()
+                        //.body( BASE64_BODY )
+                        .contentType("Content/Type")
+                        .digests( NotificationAttachmentDigests.builder().build() )
+                        .build( ))
+                );
+
         // WHEN
         Set<ConstraintViolation<NewNotificationRequest>> errors;
         errors = validator.checkNewNotificationBeforeInsert( n );
@@ -187,7 +187,7 @@ class NotificationReceiverValidationTest {
         // GIVEN
         NewNotificationRequest n = newNotificationRequets();
         NewNotificationRequest n2 = n
-        					.documents( Collections.singletonList(NotificationDocument.builder().build() ));
+                .documents( Collections.singletonList(NotificationDocument.builder().build() ));
         // WHEN
         Set<ConstraintViolation<NewNotificationRequest>> errors;
         errors = validator.checkNewNotificationBeforeInsert( n2 );
@@ -196,12 +196,12 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "physicalCommunicationType" );
         Assertions.assertEquals( 1, errors.size() );
     }
-    
+
     @Test
     void validDocumentAndRecipientWithoutPayments() {
         // GIVEN
         NewNotificationRequest n = validDocumentWithoutPayments() ;
-                
+
         // WHEN
         Set<ConstraintViolation<NewNotificationRequest>> errors;
         errors = validator.checkNewNotificationBeforeInsert( n );
@@ -311,7 +311,7 @@ class NotificationReceiverValidationTest {
 
     private NewNotificationRequest newNotification() {
         return NewNotificationRequest.builder()
-        		.idempotenceToken("IUN_01")
+                .idempotenceToken("IUN_01")
                 .paProtocolNumber( "protocol1" )
                 .subject( "subject" )
                 .senderTaxId( "paId" )
@@ -342,15 +342,15 @@ class NotificationReceiverValidationTest {
                 .build();
 
     }
-    
+
     private NewNotificationRequest notificationWithPhysicalCommunicationType() {
-    	return newNotificationRequets()
-    			.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 );
+        return newNotificationRequets()
+                .physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 );
     }
-    
+
     private NewNotificationRequest validDocumentWithoutPayments() {
-    	return notificationWithPhysicalCommunicationType()
-    			.documents( Collections.singletonList(NotificationDocument.builder().build()));
+        return notificationWithPhysicalCommunicationType()
+                .documents( Collections.singletonList(NotificationDocument.builder().build()));
     }
 
     /*private NewNotificationRequest validDocumentWithPayments() {
@@ -364,5 +364,6 @@ class NotificationReceiverValidationTest {
     						.build() )
     			.build();
     }*/
-   
+
 }
+

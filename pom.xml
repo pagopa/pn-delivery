@@ -13,7 +13,7 @@
     <artifactId>pn-delivery</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>pn-delivery</name>
-    <description>Receive new notifications and show notification history</description>
+    <description>Receive new notifications and show internalNotification history</description>
 
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
@@ -69,9 +69,14 @@
             <artifactId>validation-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>9.0.48</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>3.0.0</version>
         </dependency>
     </dependencies>
     <build>

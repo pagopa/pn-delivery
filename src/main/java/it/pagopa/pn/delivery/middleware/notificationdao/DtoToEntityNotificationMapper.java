@@ -3,11 +3,10 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationAttachment;
+import it.pagopa.pn.delivery.models.InternalNotificationRecipient;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class DtoToEntityNotificationMapper {
     private final ObjectWriter recipientWriter;
 
     public DtoToEntityNotificationMapper(ObjectMapper objMapper) {
-        this.recipientWriter = objMapper.writerFor(NotificationRecipient.class);
+        this.recipientWriter = objMapper.writerFor(InternalNotificationRecipient.class);
     }
 
     // FIXME: MapStruct do not play well with lombok. We have to find a solution.
@@ -33,7 +32,7 @@ public class DtoToEntityNotificationMapper {
     //@Mapping( target = "cancelledIun", source = "cancelledIun")
     //@Mapping( target = "cancelledByIun", source = "cancelledByIun")
     //@Mapping( target = "senderPaId", source = "sender.paId")
-    public NotificationEntity dto2Entity(Notification dto) {
+    public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
                 .paNotificationId( dto.getPaNotificationId())
@@ -42,22 +41,22 @@ public class DtoToEntityNotificationMapper {
                 .cancelledIun( dto.getCancelledIun() )
                 .cancelledByIun( dto.getCancelledByIun() )
                 .senderPaId( dto.getSender().getPaId() )
-                .recipientsJson( recipientList2json( dto.getRecipients() ))
-                .recipientsOrder( dto.getRecipients().stream()
-                        .map( NotificationRecipient::getTaxId )
-                        .collect(Collectors.toList())
-                    )
-                .documentsKeys( listDocumentsKeys( dto.getDocuments() ))
-                .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
-                .documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
-                .documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
-                .documentsTitles( listDocumentsTitles( dto.getDocuments() ))
+                //.recipientsJson( recipientList2json( dto.getRecipients() ))
+                //.recipientsOrder( dto.getRecipients().stream()
+                        //.map( NotificationRecipient::getTaxId )
+                        //.collect(Collectors.toList())
+                    //)
+                //.documentsKeys( listDocumentsKeys( dto.getDocuments() ))
+                //.documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
+                //.documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
+                //.documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
+                //.documentsTitles( listDocumentsTitles( dto.getDocuments() ))
                 .physicalCommunicationType (dto.getPhysicalCommunicationType() )
                 .group( dto.getGroup() )
             ;
 
-        NotificationPaymentInfo paymentInfo = dto.getPayment();
-        fillBuilderWithPaymentInfo(builder, paymentInfo);
+        //NotificationPaymentInfo paymentInfo = dto.getPayment();
+        //fillBuilderWithPaymentInfo(builder, paymentInfo);
 
         return builder.build();
     }
@@ -92,7 +91,7 @@ public class DtoToEntityNotificationMapper {
                 .collect(Collectors.toList());
     }
 
-    private void fillBuilderWithPaymentInfo(NotificationEntity.NotificationEntityBuilder builder, NotificationPaymentInfo paymentInfo) {
+    /*private void fillBuilderWithPaymentInfo(NotificationEntity.NotificationEntityBuilder builder, NotificationPaymentInfo paymentInfo) {
         if( paymentInfo != null ) {
             builder
                 .iuv( paymentInfo.getIuv() )
@@ -125,9 +124,9 @@ public class DtoToEntityNotificationMapper {
                 }
             }
         }
-    }
+    } */
 
-    private Map<String, String> recipientList2json(List<NotificationRecipient> recipients) {
+    private Map<String, String> recipientList2json(List<InternalNotificationRecipient> recipients) {
         Map<String, String> result = new ConcurrentHashMap<>();
         recipients.forEach( recipient ->
             result.put( recipient.getTaxId(), recipient2JsonString( recipient ))
@@ -135,7 +134,7 @@ public class DtoToEntityNotificationMapper {
         return result;
     }
 
-    private String recipient2JsonString( NotificationRecipient recipient) {
+    private String recipient2JsonString( InternalNotificationRecipient recipient) {
         try {
             return recipientWriter.writeValueAsString( recipient );
         } catch (JsonProcessingException exc) {

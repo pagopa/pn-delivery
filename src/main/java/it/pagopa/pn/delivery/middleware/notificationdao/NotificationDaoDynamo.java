@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,19 +41,24 @@ public class NotificationDaoDynamo implements NotificationDao {
     }
 
     @Override
-    public void addNotification(Notification notification) throws IdConflictException {
+    public void addNotification(InternalNotification internalNotification) throws IdConflictException {
 
-        NotificationEntity entity = dto2entityMapper.dto2Entity( notification );
+        NotificationEntity entity = dto2entityMapper.dto2Entity(internalNotification);
         entityDao.putIfAbsent( entity );
     }
 
-    @Override
-    public Optional<Notification> getNotificationByIun(String iun) {
+    //@Override
+    /*public Optional<InternalNotification> getNotificationByIun(String iun) {
         Key keyToSearch = Key.builder()
                 .partitionValue(iun)
                 .build();
         return entityDao.get( keyToSearch )
                 .map( entity2DtoMapper::entity2Dto );
+    } */
+
+    @Override
+    public Optional<Notification> getNotificationByIun(String iun) {
+        return Optional.empty();
     }
 
     @Override

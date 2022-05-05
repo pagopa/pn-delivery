@@ -1,15 +1,17 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.events.PnExtChnPaperEventPayload;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,15 +35,17 @@ public class PnNotificationInputController implements NewNotificationApi {
 
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, NewNotificationRequest newNotificationRequest) {
-        NewNotificationResponse svcRes = svc.receiveNotification( this.convert(newNotificationRequest) );
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.createTypeMap( newNotificationRequest.getClass(), InternalNotification.class )
+                .addMapping(NewNotificationRequest::getPaProtocolNumber, InternalNotification::setPaNotificationId )
+                .addMapping(NewNotificationRequest::getSubject, InternalNotification::setSubject)
+                .addMapping(s -> s.getDocuments(), InternalNotification::setDocuments  );
+        InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
+        System.out.println( internalNotification );
+        NewNotificationResponse svcRes = svc.receiveNotification(internalNotification);
         return ResponseEntity.ok( svcRes );
     }
 
-    private Notification convert(NewNotificationRequest newNotificationRequest) {
-        Notification notification = Notification.builder()
-                .build();
-        return notification;
-    }
 
     @Override
     public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {

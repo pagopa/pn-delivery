@@ -1,9 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
@@ -19,15 +18,15 @@ public class NotificationReceiverValidator {
         this.validator = validator;
     }
 
-    public void checkNewNotificationBeforeInsertAndThrow(Notification notification) {
-        Set<ConstraintViolation<Notification>> errors = checkNewNotificationBeforeInsert( notification );
+    public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
+        Set<ConstraintViolation<InternalNotification>> errors = checkNewNotificationBeforeInsert(internalNotification);
         if( ! errors.isEmpty() ) {
-            throw new PnValidationException(notification.getPaNotificationId(), errors);
+            throw new PnValidationException(internalNotification.getPaNotificationId(), errors);
         }
     }
 
-    public Set<ConstraintViolation<Notification>> checkNewNotificationBeforeInsert(Notification notification) {
-        return validator.validate( notification, NotificationJsonViews.New.class );
+    public Set<ConstraintViolation<InternalNotification>> checkNewNotificationBeforeInsert(InternalNotification internalNotification) {
+        return validator.validate(internalNotification, NotificationJsonViews.New.class );
     }
 
     /*public void checkNewNotificationBeforeInsertAndThrow(NewNotificationRequest notification) {

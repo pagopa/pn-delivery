@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,8 +62,9 @@ class MultiPageSearchTest {
 
         private final Map<Key, NotificationMetadataEntity> storage = new ConcurrentHashMap<>();
 
+
         @Override
-        public void addNotification(Notification notification) throws IdConflictException {
+        public void addNotification(InternalNotification notification) throws IdConflictException {
 
         }
 

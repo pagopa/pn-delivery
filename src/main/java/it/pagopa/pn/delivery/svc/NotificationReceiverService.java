@@ -5,8 +5,6 @@ import java.time.Instant;
 import java.util.*;
 
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -14,6 +12,7 @@ import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -52,43 +51,43 @@ public class NotificationReceiverService {
 	/**
 	 * Store metadata and documents about a new notification request
 	 *
-	 * @param notification Public Administration notification request that PN have to forward to
+	 * @param internalNotification Public Administration notification request that PN have to forward to
 	 *                     one or more recipient
 	 * @return A model with the generated IUN and the paNotificationId sent by the
 	 *         Public Administration
 	 */
-	public NewNotificationResponse receiveNotification(Notification notification) {
+	public NewNotificationResponse receiveNotification(InternalNotification internalNotification) {
 		log.info("New notification storing START");
-		log.debug("New notification storing START for={}", notification );
-		validator.checkNewNotificationBeforeInsertAndThrow( notification );
-		log.debug("Validation OK for paNotificationId={}", notification.getPaNotificationId() );
+		log.debug("New notification storing START for={}", internalNotification);
+		validator.checkNewNotificationBeforeInsertAndThrow(internalNotification);
+		log.debug("Validation OK for paNotificationId={}", internalNotification.getPaNotificationId() );
 
-		String iun = doSaveWithRethrow( notification );
+		String iun = doSaveWithRethrow(internalNotification);
 
-		NewNotificationResponse response = generateResponse(notification, iun);
+		NewNotificationResponse response = generateResponse(internalNotification, iun);
 
 		log.info("New notification storing END {}", response);
 		return response;
 	}
 
-	private NewNotificationResponse generateResponse(Notification notification, String iun) {
+	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
 		String notificationId = EncodingUtils.base64Encoding(iun);
 		
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
-				.paProtocolNumber( notification.getPaNotificationId() )
+				.paProtocolNumber( internalNotification.getPaNotificationId() )
 				.build();
 	}
 
-	private String doSaveWithRethrow( Notification notification ) {
-		log.debug( "tryMultipleTimesToHandleIunCollision: start paNotificationId={}",
-				notification.getPaNotificationId() );
+	private String doSaveWithRethrow( InternalNotification internalNotification) {
+		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
+				internalNotification.getPaNotificationId() );
 
 		String iun = null;
 		try {
 			Instant createdAt = clock.instant();
 			iun = iunGenerator.generatePredictedIun( createdAt );
-			doSave(notification, createdAt, iun);
+			doSave(internalNotification, createdAt, iun);
 		}
 		catch ( IdConflictException exc ) {
 			log.error("Duplicated iun={}", iun );
@@ -99,35 +98,36 @@ public class NotificationReceiverService {
 	}
 	
 
-	private void doSave(Notification notification, Instant createdAt, String iun) throws IdConflictException {
-		String paId = notification.getSender().getPaId();
+	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws IdConflictException {
+		String paId = internalNotification.getSender().getPaId();
 
 		log.debug("Generate tokens for iun={}", iun);
 		// generazione token per ogni destinatario
-		List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
+		//List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
+		List<String> tokens = generateToken( internalNotification.getRecipients(), iun );
 
-		Notification notificationWithIun = notification.toBuilder()
+		InternalNotification internalNotificationWithIun = internalNotification.toBuilder()
 				.iun( iun )
 				.sentAt( createdAt )
 				.sender( NotificationSender.builder()
 						.paId( paId )
 						.build()
 				)
-				.recipients( recipientsWithToken )
+				.tokens( tokens )
 				.build();
 
 		log.info("Start Attachment save for iun={}", iun);
-		Notification notificationWithCompleteMetadata = attachmentSaver.saveAttachments( notificationWithIun );
+		InternalNotification internalNotificationWithCompleteMetadata = attachmentSaver.saveAttachments(internalNotificationWithIun);
 
 		// - Will be delayed from the receiver
 		log.debug("Send \"new notification\" event for iun={}", iun);
 		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
 
 		log.info("Store the notification metadata for iun={}", iun);
-		notificationDao.addNotification( notificationWithCompleteMetadata );
+		notificationDao.addNotification(internalNotificationWithCompleteMetadata);
 	}
 	
-	private List<NotificationRecipient> addDirectAccessTokenToRecipients(Notification notification, String iun) {
+	/*private List<NotificationRecipient> addDirectAccessTokenToRecipients(Notification notification, String iun) {
 		List<NotificationRecipient> recipients = notification.getRecipients();
 		List<NotificationRecipient> recipientsWithToken = new ArrayList<>(recipients.size());
 		for (NotificationRecipient recipient : recipients) {
@@ -135,6 +135,14 @@ public class NotificationReceiverService {
 			recipientsWithToken.add( recipient.toBuilder().token( token ).build() );
 		}
 		return recipientsWithToken;
+	}*/
+
+	private List<String> generateToken(List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient> recipientList,String iun) {
+		List<String> tokens = new ArrayList<>();
+		for (it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient recipient : recipientList) {
+			tokens.add(directAccessService.generateToken(iun, recipient.getTaxId()));
+		}
+		return tokens;
 	}
 
 
