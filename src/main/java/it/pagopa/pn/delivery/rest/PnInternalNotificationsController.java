@@ -1,11 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachment;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseUpdateStatusDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.SentNotification;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;

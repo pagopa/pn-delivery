@@ -29,9 +29,7 @@ paths:
         '200':
           description: OK
           content:
-            "*/*":
-              schema:
-                "$ref": "#/components/schemas/ResponseUpdateStatusDto"
+            application/json: { }
         '400':
           description: Bad request
           content:
@@ -84,21 +82,9 @@ components:
       properties:
         iun:
           $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/IUN'
-        currentTimeline:
-          type: array
-          items:
-            $ref: "remote-refs.yaml#/components/schemas/TimelineElement"
-        newTimelineElement:
-          $ref: "remote-refs.yaml#/components/schemas/TimelineElement"
-    
-    ResponseUpdateStatusDto:
-      type: object
-      properties:
-        currentStatus:
-          $ref: "remote-refs.yaml#/components/schemas/NotificationStatus"
         nextStatus:
           $ref: "remote-refs.yaml#/components/schemas/NotificationStatus"
-          
+                    
     
     Problem:
       $ref: "schemas-pn-errors-v1.yaml#/components/schemas/Problem"

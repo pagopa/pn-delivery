@@ -14,6 +14,10 @@ import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullReceivedNotification;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
@@ -27,12 +31,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.List;
 
 @RestController
-public class PnReceivedNotificationsController implements
-        PnDeliveryRestApi_methodGetReceivedNotification,
-        PnDeliveryRestApi_methodGetReceivedNotificationDocuments,
-        PnDeliveryRestApi_methodSearchReceivedNotification {
+public class PnReceivedNotificationsController implements RecipientReadApi {
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
     public static final String VALIDATION_ERROR_STATUS = "Validation error";
@@ -43,7 +45,7 @@ public class PnReceivedNotificationsController implements
         this.cfg = cfg;
     }
 
-    @Override
+
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
     public ResultPaginationDto<NotificationSearchRow,String> searchReceivedNotification(
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String currentRecipientId,
@@ -74,10 +76,10 @@ public class PnReceivedNotificationsController implements
         return retrieveSvc.searchNotification( searchDto );
     }
 
-    @Override
+
     @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_PATH)
     @JsonView(value = NotificationJsonViews.Sent.class)
-    public Notification getReceivedNotification(
+    public InternalNotification getReceivedNotification(
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String userId,
             @PathVariable(name = "iun") String iun
     ) {
@@ -85,6 +87,11 @@ public class PnReceivedNotificationsController implements
     }
 
     @Override
+    public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun) {
+        return RecipientReadApi.super.getReceivedNotification(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, xPagopaPnCxGroups, iun);
+    }
+
+
     @GetMapping( PnDeliveryRestConstants.NOTIFICATION_VIEWED_PATH )
     public ResponseEntity<Resource> getReceivedNotificationDocument(
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String userId,

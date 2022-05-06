@@ -5,7 +5,6 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.InternalNotificationSender;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
@@ -40,17 +39,10 @@ public class PnNotificationInputController implements NewNotificationApi {
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, NewNotificationRequest newNotificationRequest) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        modelMapper.createTypeMap( newNotificationRequest.getClass(), InternalNotification.class )
-                .addMapping(NewNotificationRequest::getPaProtocolNumber, InternalNotification::setPaNotificationId )
-                .addMapping(NewNotificationRequest::getSubject, InternalNotification::setSubject);
+        modelMapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 
         InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
 
-        internalNotification.setSender( InternalNotificationSender.builder()
-                        .paId( xPagopaPnCxId )
-                        .taxId( newNotificationRequest.getSenderTaxId() )
-                        .paDenomination( newNotificationRequest.getSenderDenomination() )
-                .build() );
         log.info( internalNotification.toString() );
 
         NewNotificationResponse svcRes = svc.receiveNotification(internalNotification);

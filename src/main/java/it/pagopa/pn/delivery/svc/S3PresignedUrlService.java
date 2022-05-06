@@ -8,10 +8,7 @@ import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachment;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentBodyRef;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.InvalidMediaTypeException;
@@ -117,7 +114,7 @@ public class S3PresignedUrlService {
                 .key( key );
     }
 
-    public PreloadResponse presignedDownload( String name, NotificationAttachment attachment ) {
+    public PreloadResponse presignedDownload( String name, NotificationDocument attachment ) {
         Duration urlDuration = cfgs.getDownloadUrlDuration();
         String secret = UUID.randomUUID().toString();
         log.debug( "Retrieve extension for attachment with name={}", name );
@@ -153,7 +150,7 @@ public class S3PresignedUrlService {
                 .build();
     }
 
-    private String getExtension(NotificationAttachment attachment) {
+    private String getExtension(NotificationDocument attachment) {
         String extension;
         try {
             MediaType contentType = MediaType.parseMediaType( attachment.getContentType() );

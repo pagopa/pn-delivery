@@ -21,7 +21,7 @@ public class NotificationReceiverValidator {
     public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
         Set<ConstraintViolation<InternalNotification>> errors = checkNewNotificationBeforeInsert(internalNotification);
         if( ! errors.isEmpty() ) {
-            throw new PnValidationException(internalNotification.getPaNotificationId(), errors);
+            throw new PnValidationException(internalNotification.getPaProtocolNumber(), errors);
         }
     }
 

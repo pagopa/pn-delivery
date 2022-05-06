@@ -100,4 +100,8 @@ public class InternalNotification extends FullSentNotification {
     @Schema( description = "Lista dei token generati per ogni destinatario")
     private Map<NotificationRecipient,String> tokens;
 
+    public String getToken( NotificationRecipient recipient ){
+        return tokens.get( recipient );
+    }
+
 }

@@ -13,7 +13,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipie
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.InternalNotificationSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -61,7 +60,7 @@ public class NotificationReceiverService {
 		log.info("New notification storing START");
 		log.debug("New notification storing START for={}", internalNotification);
 		validator.checkNewNotificationBeforeInsertAndThrow(internalNotification);
-		log.debug("Validation OK for paNotificationId={}", internalNotification.getPaNotificationId() );
+		log.debug("Validation OK for paProtocolNumber={}", internalNotification.getPaProtocolNumber() );
 
 		String iun = doSaveWithRethrow(internalNotification);
 
@@ -76,13 +75,13 @@ public class NotificationReceiverService {
 		
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
-				.paProtocolNumber( internalNotification.getPaNotificationId() )
+				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
 				.build();
 	}
 
 	private String doSaveWithRethrow( InternalNotification internalNotification) {
 		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
-				internalNotification.getPaNotificationId() );
+				internalNotification.getPaProtocolNumber() );
 
 		String iun = null;
 		try {
@@ -100,7 +99,7 @@ public class NotificationReceiverService {
 	
 
 	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws IdConflictException {
-		String paId = internalNotification.getSender().getPaId();
+		String paId = internalNotification.getSenderPaId();
 
 		log.debug("Generate tokens for iun={}", iun);
 		// generazione token per ogni destinatario
@@ -109,11 +108,8 @@ public class NotificationReceiverService {
 
 		InternalNotification internalNotificationWithIun = internalNotification.toBuilder()
 				.iun( iun )
-				.sentAt( createdAt )
-				.sender( InternalNotificationSender.builder()
-						.paId( paId )
-						.build()
-				)
+				.sentAt( Date.from(createdAt ))
+				.senderPaId( paId )
 				.tokens( tokens )
 				.build();
 

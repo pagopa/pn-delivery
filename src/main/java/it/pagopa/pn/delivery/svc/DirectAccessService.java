@@ -1,10 +1,11 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.directaccesstoken.DirectAccessToken;
 import it.pagopa.pn.commons.pnclients.recipientschallenge.RecipientsChallenge;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,7 @@ public class DirectAccessService {
 		if(iun != null){
 			log.debug( "Get direct access token is for iun {}",iun );
 
-			Optional<Notification> notificationOtp = notificationDao.getNotificationByIun(iun);
+			Optional<InternalNotification> notificationOtp = notificationDao.getNotificationByIun(iun);
 			if(notificationOtp.isPresent()){
 				log.debug( "Notification is present for iun {}",iun );
 				return getDirectAccessToken(token, iun, notificationOtp.get());
@@ -66,11 +67,11 @@ public class DirectAccessService {
 		return (token != null && token.contains("_")) ? token.substring(0, token.indexOf("_")) : null;
 	}
 
-	private Optional<DirectAccessToken> getDirectAccessToken(String token, String iun, Notification notification) {
+	private Optional<DirectAccessToken> getDirectAccessToken(String token, String iun, InternalNotification notification) {
 
 		Optional<String> taxIdOtp =
 				notification.getRecipients().stream()
-						.filter(recipient -> token.equals(recipient.getToken()))
+						.filter(recipient -> token.equals(notification.getToken(recipient)))
 						.map(NotificationRecipient::getTaxId).findFirst();
 
 		if (taxIdOtp.isPresent()){

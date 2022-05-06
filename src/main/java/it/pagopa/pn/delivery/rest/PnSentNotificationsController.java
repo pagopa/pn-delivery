@@ -13,6 +13,7 @@ import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodSearchSentNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadApi;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
@@ -28,10 +29,7 @@ import java.time.Instant;
 import java.util.Arrays;
 
 @RestController
-public class PnSentNotificationsController implements
-        PnDeliveryRestApi_methodGetSentNotification,
-        PnDeliveryRestApi_methodGetSentNotificationDocuments,
-        PnDeliveryRestApi_methodSearchSentNotification {
+public class PnSentNotificationsController implements SenderReadApi {
 
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
@@ -42,7 +40,7 @@ public class PnSentNotificationsController implements
         this.cfg = cfg;
     }
 
-    @Override
+
     @GetMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH)
     public ResultPaginationDto<NotificationSearchRow,String> searchSentNotification(
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String senderId,
@@ -74,8 +72,7 @@ public class PnSentNotificationsController implements
         return retrieveSvc.searchNotification( searchDto );
     }
 
-    @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH)
+    /*@GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH)
     @JsonView(value = NotificationJsonViews.Sent.class )
     public Notification getSentNotification(
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
@@ -83,9 +80,11 @@ public class PnSentNotificationsController implements
             @RequestParam( name = "with_timeline", defaultValue = "true", required = false ) boolean withTimeline
     ) {
             return retrieveSvc.getNotificationInformation( iun, withTimeline );
-    }
+    }*/
 
-    @Override
+
+
+
     @GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
     public ResponseEntity<Resource> getSentNotificationDocument(
             @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
