@@ -8,14 +8,12 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineStatusHistoryDto;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.util.StatusUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -53,7 +51,6 @@ public class NotificationRetrieverService {
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
 	private final PnDeliveryPushClient pnDeliveryPushClient;
-	private final StatusUtils statusUtils;
 	private final PnDeliveryConfigs cfg;
 	private final PnMandateClientImpl pnMandateClient;
 
@@ -65,7 +62,6 @@ public class NotificationRetrieverService {
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClient pnDeliveryPushClient,
-										StatusUtils statusUtils,
 										PnDeliveryConfigs cfg,
 										PnMandateClientImpl pnMandateClient) {
 		this.fileStorage = fileStorage;
@@ -74,7 +70,6 @@ public class NotificationRetrieverService {
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
-		this.statusUtils = statusUtils;
 		this.cfg = cfg;
 		this.pnMandateClient = pnMandateClient;
 	}
@@ -253,8 +248,8 @@ public class NotificationRetrieverService {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
 		Instant createdAt =  notification.getSentAt();
-		
-		TimelineStatusHistoryDto timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients,createdAt);
+
+		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients,createdAt);
 
 		Set<TimelineElement> rawTimeline =timelineStatusHistoryDto.getTimelineElements();
 		
@@ -271,7 +266,7 @@ public class NotificationRetrieverService {
 				.toBuilder()
 				.timeline( timeline )
 				.notificationStatusHistory( statusHistory )
-				.notificationStatus( statusUtils.getCurrentStatus( statusHistory ))
+				.notificationStatus( timelineStatusHistoryDto.getNotificationStatus() )
 				.build();
 	}
 

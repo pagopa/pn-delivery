@@ -7,13 +7,12 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationRecipientType;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineStatusHistoryDto;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.util.StatusUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -48,7 +47,6 @@ class NotificationRetrieverServiceTest {
     private NotificationViewedProducer notificationViewedProducer;
     private NotificationDao notificationDao;
     private PnDeliveryPushClient pnDeliveryPushClient;
-    private StatusUtils statusUtils;
     private PnMandateClientImpl pnMandateClient;
     private PnDeliveryConfigs cfg;
 
@@ -63,7 +61,6 @@ class NotificationRetrieverServiceTest {
         this.notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
         this.notificationDao = Mockito.mock(NotificationDao.class);
         this.pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClient.class);
-        this.statusUtils = Mockito.mock(StatusUtils.class);
         this.cfg = Mockito.mock(PnDeliveryConfigs.class);
         this.pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
         this.svc = new NotificationRetrieverService(clock,
@@ -72,7 +69,6 @@ class NotificationRetrieverServiceTest {
                 notificationViewedProducer,
                 notificationDao,
                 pnDeliveryPushClient,
-                statusUtils,
                 cfg,
                 pnMandateClient
         );
@@ -151,7 +147,7 @@ class NotificationRetrieverServiceTest {
                 .timestamp( Instant.now() )
                 .build());
 
-        TimelineStatusHistoryDto timelineStatusHistoryDto = TimelineStatusHistoryDto.builder()
+        NotificationHistoryResponse timelineStatusHistoryDto = NotificationHistoryResponse.builder()
                 .timelineElements(tle)
                 .build();
         //When
@@ -197,7 +193,7 @@ class NotificationRetrieverServiceTest {
                 .timestamp( Instant.now() )
                 .build());
 
-        TimelineStatusHistoryDto timelineStatusHistoryDto = TimelineStatusHistoryDto.builder()
+        NotificationHistoryResponse timelineStatusHistoryDto = NotificationHistoryResponse.builder()
                 .timelineElements(tle)
                 .build();
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class) ) ).thenReturn( timelineStatusHistoryDto );
@@ -230,7 +226,7 @@ class NotificationRetrieverServiceTest {
                 .timestamp( Instant.now() )
                 .build());
 
-        TimelineStatusHistoryDto timelineStatusHistoryDto = TimelineStatusHistoryDto.builder()
+        NotificationHistoryResponse timelineStatusHistoryDto = NotificationHistoryResponse.builder()
                 .timelineElements(tle)
                 .build();
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class) ) ).thenReturn( timelineStatusHistoryDto );
