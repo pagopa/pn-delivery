@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.svc.search;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -69,7 +68,7 @@ class MultiPageSearchTest {
         }
 
         @Override
-        public Optional<Notification> getNotificationByIun(String iun) {
+        public Optional<InternalNotification> getNotificationByIun(String iun) {
             return Optional.empty();
         }
 

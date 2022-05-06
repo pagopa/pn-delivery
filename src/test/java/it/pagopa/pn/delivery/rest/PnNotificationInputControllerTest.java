@@ -57,6 +57,9 @@ class PnNotificationInputControllerTest {
 	void postSuccess() {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
+				.group( "group" )
+				.senderDenomination( "sender_denomination" )
+				.senderTaxId( "sender_tax_id" )
 				.paProtocolNumber( "protocol_number" )
 				.recipients( Collections.singletonList( NotificationRecipient.builder()
 								.recipientType( NotificationRecipient.RecipientTypeEnum.PF )

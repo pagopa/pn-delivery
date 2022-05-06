@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -47,18 +46,13 @@ public class NotificationDaoDynamo implements NotificationDao {
         entityDao.putIfAbsent( entity );
     }
 
-    //@Override
-    /*public Optional<InternalNotification> getNotificationByIun(String iun) {
+    @Override
+    public Optional<InternalNotification> getNotificationByIun(String iun) {
         Key keyToSearch = Key.builder()
                 .partitionValue(iun)
                 .build();
         return entityDao.get( keyToSearch )
                 .map( entity2DtoMapper::entity2Dto );
-    } */
-
-    @Override
-    public Optional<Notification> getNotificationByIun(String iun) {
-        return Optional.empty();
     }
 
     @Override

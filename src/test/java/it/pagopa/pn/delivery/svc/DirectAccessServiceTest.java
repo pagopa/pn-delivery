@@ -1,20 +1,17 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
+
 import it.pagopa.pn.api.dto.notification.directaccesstoken.DirectAccessToken;
 import it.pagopa.pn.commons.pnclients.recipientschallenge.RecipientsChallenge;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -39,16 +36,14 @@ class DirectAccessServiceTest {
         String taxId = "TAX_ID";
         String TOKEN = "TOKEN";
 
-        Optional<Notification> notification = Optional.ofNullable(Notification.builder()
+        Optional<InternalNotification> notification = Optional.ofNullable(InternalNotification.builder()
                 .iun(iun)
-                .sentAt( Instant.parse("2021-09-16T15:00:00.00Z") )
+                .sentAt( Date.from(Instant.parse("2021-09-16T15:00:00.00Z") ))
                 .subject( "Subject" )
-                .sender(NotificationSender.builder()
-                        .paId( "PAID" )
-                        .build())
+                .senderPaId( "PAID" )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( taxId )
-                        .token(TOKEN)
+                        //.token(TOKEN)
                         .build()) )
                 .build());
 
@@ -75,20 +70,18 @@ class DirectAccessServiceTest {
         List<NotificationRecipient> recipients = new ArrayList<>();
         recipients.add(NotificationRecipient.builder()
                 .taxId( taxId )
-                .token(token)
+                //.token(token)
                 .build());
         recipients.add(NotificationRecipient.builder()
                 .taxId( taxId2 )
-                .token(token2)
+                //.token(token2)
                 .build());
 
-        Optional<Notification> notification = Optional.ofNullable(Notification.builder()
+        Optional<InternalNotification> notification = Optional.ofNullable(InternalNotification.builder()
                 .iun(iun)
-                .sentAt( Instant.parse("2021-09-16T15:00:00.00Z") )
+                .sentAt( Date.from(Instant.parse("2021-09-16T15:00:00.00Z") ))
                 .subject( "Subject" )
-                .sender(NotificationSender.builder()
-                        .paId( "PAID" )
-                        .build())
+                        .senderPaId( "PAID" )
                 .recipients( recipients )
                 .build());
         
@@ -114,16 +107,14 @@ class DirectAccessServiceTest {
         String taxId = "TAX_ID";
         String TOKEN = directAccessService.generateToken(iun, taxId);
 
-        Optional<Notification> notification = Optional.ofNullable(Notification.builder()
+        Optional<InternalNotification> notification = Optional.ofNullable(InternalNotification.builder()
                 .iun(iun)
-                .sentAt( Instant.parse("2021-09-16T15:00:00.00Z") )
+                .sentAt( Date.from(Instant.parse("2021-09-16T15:00:00.00Z") ))
                 .subject( "Subject" )
-                .sender(NotificationSender.builder()
-                        .paId( "PAID" )
-                        .build())
+                        .senderPaId( "PAID" )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( taxId )
-                        .token(TOKEN)
+                        //.token(TOKEN)
                         .build()) )
                 .build());
 

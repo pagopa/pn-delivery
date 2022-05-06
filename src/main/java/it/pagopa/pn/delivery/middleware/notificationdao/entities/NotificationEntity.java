@@ -3,6 +3,8 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.NotificationPaymentInfoFeePolicies;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -73,7 +75,7 @@ public class NotificationEntity {
     private String f24AnalogKey;
     private String f24AnalogDigestSha256;
     private String f24AnalogVersionId;
-    private ServiceLevelType physicalCommunicationType;
+    private FullSentNotification.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String group;
 
     @DynamoDbPartitionKey
@@ -303,11 +305,11 @@ public class NotificationEntity {
     }
 
     @DynamoDbAttribute(value = FIELD_PHYSICAL_COMMUNICATION_TYPE)
-    public ServiceLevelType getPhysicalCommunicationType() {
+    public FullSentNotification.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
         return physicalCommunicationType;
     }
 
-    public void setPhysicalCommunicationType(ServiceLevelType physicalCommunicationType) {
+    public void setPhysicalCommunicationType(FullSentNotification.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
     }
 

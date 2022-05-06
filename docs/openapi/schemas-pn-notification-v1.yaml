@@ -215,6 +215,8 @@ components:
          - _f24digital_: riferimento al PDF contenete l'F24 con spese di notifica digitale<br/>
          - _f24digitalWithRs_: riferimento al PDF contenete l'F24 con spese di notifica digitale 
            fallita a cui è seguita una raccomandata semplice<br/>
+         - _f24digitalWithRi_: riferimento al PDF contenete l'F24 con spese di notifica digitale
+           fallita a cui è seguita una raccomandata verso indirizzo estero<br/>
          - _f24analogRaccSingle_: riferimento al PDF contenete l'F24 con spese di notifica 
            analogica tramite __una__ Raccomandata A/R o Raccomandata a norma di legge 890/82<br/>
          - _f24analogRaccDouble_: riferimento al PDF contenete l'F24 con spese di notifica 
@@ -252,6 +254,8 @@ components:
         f24digital:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24digitalWithRs:
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
+        f24digitalWithRi:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24analogRaccSingle:
           $ref: "#/components/schemas/NotificationPaymentAttachment"

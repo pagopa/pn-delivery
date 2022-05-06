@@ -3,10 +3,10 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachment;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.NotificationAttachment;
-import it.pagopa.pn.delivery.models.InternalNotificationRecipient;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class DtoToEntityNotificationMapper {
     private final ObjectWriter recipientWriter;
 
     public DtoToEntityNotificationMapper(ObjectMapper objMapper) {
-        this.recipientWriter = objMapper.writerFor(InternalNotificationRecipient.class);
+        this.recipientWriter = objMapper.writerFor(NotificationRecipient.class);
     }
 
     // FIXME: MapStruct do not play well with lombok. We have to find a solution.
@@ -35,12 +35,12 @@ public class DtoToEntityNotificationMapper {
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
-                .paNotificationId( dto.getPaNotificationId())
+                .paNotificationId( dto.getPaProtocolNumber())
                 .subject( dto.getSubject() )
-                .sentAt( dto.getSentAt() )
+                .sentAt( dto.getSentAt().toInstant() )
                 .cancelledIun( dto.getCancelledIun() )
                 .cancelledByIun( dto.getCancelledByIun() )
-                .senderPaId( dto.getSender().getPaId() )
+                .senderPaId( dto.getSenderPaId() )
                 //.recipientsJson( recipientList2json( dto.getRecipients() ))
                 //.recipientsOrder( dto.getRecipients().stream()
                         //.map( NotificationRecipient::getTaxId )
@@ -51,7 +51,7 @@ public class DtoToEntityNotificationMapper {
                 //.documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
                 //.documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
                 //.documentsTitles( listDocumentsTitles( dto.getDocuments() ))
-                .physicalCommunicationType (dto.getPhysicalCommunicationType() )
+                //.physicalCommunicationType ( dto.getPhysicalCommunicationType() )
                 .group( dto.getGroup() )
             ;
 
@@ -85,11 +85,11 @@ public class DtoToEntityNotificationMapper {
                 .collect(Collectors.toList());
     }
 
-    private List<String> listDocumentsTitles(List<NotificationAttachment> documents) {
+    /*private List<String> listDocumentsTitles(List<NotificationAttachment> documents) {
         return documents.stream()
                 .map( attachment -> attachment.getTitle() )
                 .collect(Collectors.toList());
-    }
+    }*/
 
     /*private void fillBuilderWithPaymentInfo(NotificationEntity.NotificationEntityBuilder builder, NotificationPaymentInfo paymentInfo) {
         if( paymentInfo != null ) {
@@ -126,7 +126,7 @@ public class DtoToEntityNotificationMapper {
         }
     } */
 
-    private Map<String, String> recipientList2json(List<InternalNotificationRecipient> recipients) {
+    private Map<String, String> recipientList2json(List<NotificationRecipient> recipients) {
         Map<String, String> result = new ConcurrentHashMap<>();
         recipients.forEach( recipient ->
             result.put( recipient.getTaxId(), recipient2JsonString( recipient ))
@@ -134,7 +134,7 @@ public class DtoToEntityNotificationMapper {
         return result;
     }
 
-    private String recipient2JsonString( InternalNotificationRecipient recipient) {
+    private String recipient2JsonString( NotificationRecipient recipient) {
         try {
             return recipientWriter.writeValueAsString( recipient );
         } catch (JsonProcessingException exc) {

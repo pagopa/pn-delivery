@@ -1,21 +1,24 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.events.PnExtChnPaperEventPayload;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.InternalNotificationSender;
+import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -36,12 +39,20 @@ public class PnNotificationInputController implements NewNotificationApi {
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, NewNotificationRequest newNotificationRequest) {
         ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
         modelMapper.createTypeMap( newNotificationRequest.getClass(), InternalNotification.class )
                 .addMapping(NewNotificationRequest::getPaProtocolNumber, InternalNotification::setPaNotificationId )
-                .addMapping(NewNotificationRequest::getSubject, InternalNotification::setSubject)
-                .addMapping(s -> s.getDocuments(), InternalNotification::setDocuments  );
+                .addMapping(NewNotificationRequest::getSubject, InternalNotification::setSubject);
+
         InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
-        System.out.println( internalNotification );
+
+        internalNotification.setSender( InternalNotificationSender.builder()
+                        .paId( xPagopaPnCxId )
+                        .taxId( newNotificationRequest.getSenderTaxId() )
+                        .paDenomination( newNotificationRequest.getSenderDenomination() )
+                .build() );
+        log.info( internalNotification.toString() );
+
         NewNotificationResponse svcRes = svc.receiveNotification(internalNotification);
         return ResponseEntity.ok( svcRes );
     }
@@ -49,8 +60,18 @@ public class PnNotificationInputController implements NewNotificationApi {
 
     @Override
     public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
-        //presignSvc.presignedUpload( xPagopaPnCxId, preLoadRequest );
-        return null;
+        Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
+        if ( preLoadRequest.size() > numberOfPresignedRequest ) {
+            log.error( "Presigned upload request lenght={} is more than maximum allowed={}",
+                    preLoadRequest.size(), numberOfPresignedRequest );
+            throw new PnValidationException("request",
+                    Collections.singleton( new ConstraintViolationImpl<>(
+                            String.format( "request.length = %d is more than maximum allowed = %d",
+                                    preLoadRequest.size(),
+                                    numberOfPresignedRequest))));
+        }
+        List<PreLoadResponse> preLoadResponses = presignSvc.presignedUpload( xPagopaPnCxId, preLoadRequest );
+        return ResponseEntity.ok( preLoadResponses );
     }
 
     /*@Override

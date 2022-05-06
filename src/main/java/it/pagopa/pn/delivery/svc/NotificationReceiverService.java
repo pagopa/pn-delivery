@@ -5,14 +5,15 @@ import java.time.Instant;
 import java.util.*;
 
 
-import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.InternalNotificationSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -104,12 +105,12 @@ public class NotificationReceiverService {
 		log.debug("Generate tokens for iun={}", iun);
 		// generazione token per ogni destinatario
 		//List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
-		List<String> tokens = generateToken( internalNotification.getRecipients(), iun );
+		Map<NotificationRecipient,String> tokens = generateToken( internalNotification.getRecipients(), iun );
 
 		InternalNotification internalNotificationWithIun = internalNotification.toBuilder()
 				.iun( iun )
 				.sentAt( createdAt )
-				.sender( NotificationSender.builder()
+				.sender( InternalNotificationSender.builder()
 						.paId( paId )
 						.build()
 				)
@@ -137,10 +138,10 @@ public class NotificationReceiverService {
 		return recipientsWithToken;
 	}*/
 
-	private List<String> generateToken(List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient> recipientList,String iun) {
-		List<String> tokens = new ArrayList<>();
-		for (it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient recipient : recipientList) {
-			tokens.add(directAccessService.generateToken(iun, recipient.getTaxId()));
+	private Map<NotificationRecipient,String> generateToken(List<NotificationRecipient> recipientList, String iun) {
+		Map<NotificationRecipient,String> tokens = new HashMap<>();
+		for (NotificationRecipient recipient : recipientList) {
+			tokens.put(recipient, directAccessService.generateToken(iun, recipient.getTaxId()));
 		}
 		return tokens;
 	}

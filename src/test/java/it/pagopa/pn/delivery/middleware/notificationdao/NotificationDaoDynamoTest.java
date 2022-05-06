@@ -10,8 +10,10 @@ import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +50,7 @@ class NotificationDaoDynamoTest {
         Notification notification = newNotificationWithoutPayments( );
 
         // WHEN
-        //this.dao.addNotification( notification );
+        this.dao.addNotification( notification );
 
         // THEN
         Optional<Notification> saved = this.dao.getNotificationByIun( notification.getIun() );
@@ -282,19 +284,16 @@ class NotificationDaoDynamoTest {
         }
     }
 
-    private Notification newNotificationWithoutPayments() {
-        return Notification.builder()
+    private InternalNotification newNotificationWithoutPayments() {
+        return InternalNotification.builder()
                 .iun("IUN_01")
-                .paNotificationId("protocol_01")
+                .paProtocolNumber( "protocol_01" )
                 .subject("Subject 01")
-                .physicalCommunicationType( ServiceLevelType.SIMPLE_REGISTERED_LETTER )
+                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .group( "Group_1" )
-                .sender(NotificationSender.builder()
-                        .paId(" pa_02")
-                        .build()
-                )
+                .senderPaId( "pa_02" )
                 .recipients( Collections.singletonList(
                         NotificationRecipient.builder()
                                 .taxId("Codice Fiscale 01")

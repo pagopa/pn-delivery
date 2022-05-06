@@ -4,12 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.api.dto.InputSearchNotificationDto;
 import it.pagopa.pn.api.dto.NotificationSearchRow;
 import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineInfoDto;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -18,8 +13,13 @@ import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachment;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
@@ -36,10 +36,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -202,12 +199,12 @@ public class NotificationRetrieverService {
 	 * @return Notification DTO
 	 *
 	 */
-	public Notification getNotificationInformation(String iun, boolean withTimeline) {
+	public InternalNotification getNotificationInformation(String iun, boolean withTimeline) {
 		log.debug( "Retrieve notification by iun={} withTimeline={} START", iun, withTimeline );
-		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
-			Notification notification = optNotification.get();
+			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 			}
@@ -219,7 +216,7 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	public Notification getNotificationInformation(String iun) {
+	public InternalNotification getNotificationInformation(String iun) {
 		return getNotificationInformation( iun, true );
 	}
 
@@ -230,14 +227,14 @@ public class NotificationRetrieverService {
 	 * @param userId identifier of a user
 	 * @return Notification
 	 */
-	public Notification getNotificationAndNotifyViewedEvent(String iun, String userId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
-		Notification notification = getNotificationInformation(iun);
+		InternalNotification notification = getNotificationInformation(iun);
 		handleNotificationViewedEvent(iun, userId, notification);
 		return notification;
 	}
 
-	private void handleNotificationViewedEvent(String iun, String userId, Notification notification) {
+	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
 		if (StringUtils.isNotBlank(userId)) {
 			notifyNotificationViewedEvent(notification, userId);
 		} else {
@@ -246,7 +243,7 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private Notification enrichWithTimelineAndStatusHistory(String iun, Notification notification) {
+	private InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		Set<TimelineElement> rawTimeline = pnDeliveryPushClient.getTimelineElements(iun);
 		List<TimelineElement> timeline = rawTimeline
@@ -255,25 +252,25 @@ public class NotificationRetrieverService {
 				.collect(Collectors.toList());
 
 		int numberOfRecipients = notification.getRecipients().size();
-		Instant createdAt =  notification.getSentAt();
+		Instant createdAt =  notification.getSentAt().toInstant();
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
-		Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
+		/*Set<TimelineInfoDto> timelineInfoDto = rawTimeline.stream().map(elem ->
 				TimelineInfoDto.builder()
 						.elementId(elem.getElementId())
 						.category(elem.getCategory())
 						.timestamp(elem.getTimestamp())
 						.build()
-		).collect(Collectors.toSet());
+		).collect(Collectors.toSet());*/
 
-		List<NotificationStatusHistoryElement>  statusHistory = statusUtils
-				.getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );
+		/*List<NotificationStatusHistoryElement>  statusHistory = statusUtils
+				.getStatusHistory( timelineInfoDto, numberOfRecipients, createdAt );*/
 
 		return notification
 				.toBuilder()
 				.timeline( timeline )
-				.notificationStatusHistory( statusHistory )
-				.notificationStatus( statusUtils.getCurrentStatus( statusHistory ))
+				.notificationStatusHistory( Collections.emptyList() )
+				//.notificationStatus( )
 				.build();
 	}
 
@@ -281,14 +278,15 @@ public class NotificationRetrieverService {
 		ResponseEntity<Resource> response;
 
 		log.info("Retrieve notification with iun={} for direct download", iun);
-		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
-			Notification notification = optNotification.get();
+			InternalNotification notification = optNotification.get();
 			log.debug("Document download START for iun {} and documentIndex {} ", iun, documentIndex);
 
 			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
-			response = fileStorage.loadAttachment( doc.getRef() );
+			// TODO da modificare in pn-commons
+			// response = fileStorage.loadAttachment( doc.getRef() );
 		} else {
 			log.error("Notification not found for iun {}", iun);
 			throw new PnInternalException("Notification not found for iun " + iun);
@@ -301,13 +299,13 @@ public class NotificationRetrieverService {
 		PreloadResponse response;
 
 		log.info("Retrieve notification with iun={} ", iun);
-		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
-			Notification notification = optNotification.get();
+			InternalNotification notification = optNotification.get();
 			log.debug("Document download START for iun={} and documentIndex={} ", iun, documentIndex);
 
-			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
+			NotificationAttachment doc = notification.getDocuments().get( documentIndex );
 			String fileName = iun + "doc_" + documentIndex;
 			response = presignedUrlSvc.presignedDownload( fileName, doc );
 		} else {
@@ -318,7 +316,7 @@ public class NotificationRetrieverService {
 		return response.getUrl();
 	}
 
-	private void notifyNotificationViewedEvent(Notification notification, String userId) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
 		String iun = notification.getIun();
 
 		int recipientIndex = -1;

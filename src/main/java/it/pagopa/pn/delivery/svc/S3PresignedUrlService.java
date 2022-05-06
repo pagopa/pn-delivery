@@ -1,13 +1,15 @@
 package it.pagopa.pn.delivery.svc;
 
 
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+
 
 
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachment;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +125,7 @@ public class S3PresignedUrlService {
 
         String fullName = name + "." + extension;
 
-        NotificationAttachment.Ref attachmentRef = attachment.getRef();
+        NotificationAttachmentBodyRef attachmentRef = attachment.getRef();
         GetObjectRequest objectRequest = GetObjectRequest.builder()
                 .bucket(props.getBucketName() )
                 .key( attachmentRef.getKey() )

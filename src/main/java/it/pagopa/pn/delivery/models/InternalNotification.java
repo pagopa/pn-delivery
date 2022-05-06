@@ -1,37 +1,34 @@
 package it.pagopa.pn.delivery.models;
 
 
-import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.media.Schema;
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
-import it.pagopa.pn.api.dto.notification.*;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import lombok.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
 @Schema(
         description = "Le notifiche di Piattaforma Notifiche",
         externalDocs = @ExternalDocumentation( description = "MarkDown", url = "http://google.it/"))
-public class InternalNotification {
+public class InternalNotification extends FullSentNotification {
 
-    @Schema( description = "L'Identificativo Univoco Notifica assegnato da PN")
+    @Builder(toBuilder = true)
+    public InternalNotification(String idempotenceToken, String paProtocolNumber, String subject, String _abstract, @Valid List<NotificationRecipient> recipients, @Valid List<NotificationDocument> documents, String cancelledIun, PhysicalCommunicationTypeEnum physicalCommunicationType, String senderDenomination, String senderTaxId, String group, String senderPaId, String iun, Date sentAt, String cancelledByIun, Boolean documentsAvailable, NotificationStatus notificationStatus, @Valid List<NotificationStatusHistoryElement> notificationStatusHistory, @Valid List<TimelineElement> timeline, Map<NotificationRecipient, String> tokens) {
+        super(idempotenceToken, paProtocolNumber, subject, _abstract, recipients, documents, cancelledIun, physicalCommunicationType, senderDenomination, senderTaxId, group, senderPaId, iun, sentAt, cancelledByIun, documentsAvailable, notificationStatus, notificationStatusHistory, timeline);
+        this.tokens = tokens;
+    }
+
+    /*@Schema( description = "L'Identificativo Univoco Notifica assegnato da PN")
     @JsonView(value = { NotificationJsonViews.Sent.class, NotificationJsonViews.Received.class })
     private String iun;
 
@@ -61,18 +58,18 @@ public class InternalNotification {
     @JsonView(value = { NotificationJsonViews.Received.class })
     @NotNull(groups = { NotificationJsonViews.New.class })
     @Valid
-    private NotificationSender sender ;
+    private InternalNotificationSender sender ;
 
     @Schema( description = "Informazioni sui destinatari" )
     @JsonView(value = { NotificationJsonViews.New.class, NotificationJsonViews.Sent.class })
     @NotEmpty(groups = { NotificationJsonViews.New.class })
-    private List< it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient> recipients ;
+    private List<NotificationRecipient> recipients ;
 
     @Valid
     @Schema( description = "Documenti notificati e lettere di accompagnamento" )
     @JsonView(value = { NotificationJsonViews.New.class, NotificationJsonViews.Sent.class, NotificationJsonViews.Received.class })
     @NotEmpty(groups = { NotificationJsonViews.New.class })
-    private List< @NotNull(groups = { NotificationJsonViews.New.class }) @Valid NotificationDocument> documents ;
+    private List< @NotNull(groups = { NotificationJsonViews.New.class }) @Valid NotificationAttachment> documents ;
 
     @Schema( description = "Informazioni per effttuare il pagamento" )
     @JsonView(value = { NotificationJsonViews.New.class, NotificationJsonViews.Sent.class, NotificationJsonViews.Received.class })
@@ -98,9 +95,9 @@ public class InternalNotification {
 
     @Schema( description = "Gruppo di utenti che possono accedere alla notifica")
     @JsonView(value = { NotificationJsonViews.New.class, NotificationJsonViews.Sent.class })
-    private String group;
+    private String group;*/
 
     @Schema( description = "Lista dei token generati per ogni destinatario")
-    private List<String> tokens;
+    private Map<NotificationRecipient,String> tokens;
 
 }
