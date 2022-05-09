@@ -265,15 +265,15 @@ public class NotificationRetrieverService {
 		ModelMapper mapperStatus = new ModelMapper();
 		mapperStatus.createTypeMap(it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class);
 		
-		return notification
-				.toBuilder()
+		return new InternalNotification(FullSentNotification.builder()
 				.timeline( timeline )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
 						.collect(Collectors.toList())
 				)
 				.notificationStatus( mapperStatus.map(timelineStatusHistoryDto.getNotificationStatus(), NotificationStatus.class))
-				.build();
+				.build(), notification.getTokens()
+		);
 	}
 
 	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex) {
@@ -298,7 +298,7 @@ public class NotificationRetrieverService {
 	}
 
 	public String downloadDocumentWithRedirect(String iun, int documentIndex) {
-		PreloadResponse response;
+		PreLoadResponse response;
 
 		log.info("Retrieve notification with iun={} ", iun);
 		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);

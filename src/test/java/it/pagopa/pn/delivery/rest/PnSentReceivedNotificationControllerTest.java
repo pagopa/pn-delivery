@@ -1,17 +1,15 @@
 package it.pagopa.pn.delivery.rest;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
-
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
+import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -23,14 +21,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class PnSentReceivedNotificationControllerTest {
@@ -54,7 +47,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getSentNotificationSuccess() {
 		// Given		
-		Notification notification = newNotification();
+		InternalNotification notification = newNotification();
 		
 		// When
 		Mockito.when( svc.getNotificationInformation( Mockito.anyString() ) ).thenReturn( notification );
@@ -76,7 +69,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getReceivedNotificationSuccess() {
 		// Given
-		Notification notification = newNotification();
+		InternalNotification notification = newNotification();
 
 		// When
 		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString() ) )
@@ -226,52 +219,49 @@ class PnSentReceivedNotificationControllerTest {
 		return headers;
 	}
 
-	private Notification newNotification() {
-        return Notification.builder()
+	private InternalNotification newNotification() {
+        return new InternalNotification(FullSentNotification.builder()
                 .iun("IUN_01")
-                .paNotificationId("protocol_01")
+                .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
-                        .paId(" pa_02")
-                        .build()
-                )
+				.senderPaId( "pa_02" )
                 .recipients( Collections.singletonList(
                         NotificationRecipient.builder()
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
+                                .digitalDomicile(NotificationDigitalAddress.builder()
+										.type( NotificationDigitalAddress.TypeEnum.PEC )
                                         .address("account@dominio.it")
                                         .build())
                                 .build()
                 ))
                 .documents(Arrays.asList(
-                        NotificationAttachment.builder()
-                                .ref( NotificationAttachment.Ref.builder()
+                        NotificationDocument.builder()
+                                .ref( NotificationAttachmentBodyRef.builder()
 										.key("doc00")
 										.versionToken("v01_doc00")
 										.build()
 								)
-								.digests(NotificationAttachment.Digests.builder()
+								.digests(NotificationAttachmentDigests.builder()
                                         .sha256("sha256_doc00")
                                         .build()
                                 )
                                 .build(),
-                        NotificationAttachment.builder()
-								.ref( NotificationAttachment.Ref.builder()
+						NotificationDocument.builder()
+								.ref( NotificationAttachmentBodyRef.builder()
 										.key("doc01")
 										.versionToken("v01_doc01")
 										.build()
 								)
-                                .digests(NotificationAttachment.Digests.builder()
+                                .digests(NotificationAttachmentDigests.builder()
                                         .sha256("sha256_doc01")
                                         .build()
                                 )
                                 .build()
                 ))
-                .build();
+                .build(), Collections.EMPTY_MAP);
     }
 	
 }

@@ -285,7 +285,7 @@ class NotificationDaoDynamoTest {
     }
 
     private InternalNotification newNotificationWithoutPayments() {
-        return InternalNotification.builder()
+        return new InternalNotification(FullSentNotification.builder()
                 .iun("IUN_01")
                 .paProtocolNumber( "protocol_01" )
                 .subject("Subject 01")
@@ -330,7 +330,7 @@ class NotificationDaoDynamoTest {
                                 .contentType( "application/pdf" )
                                 .build()
                 ))*/
-                .build();
+                .build(), Collections.EMPTY_MAP);
     }
 
     /*private Notification newNotificationWithPaymentsDeliveryMode( boolean withIuv ) {

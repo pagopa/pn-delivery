@@ -114,7 +114,7 @@ public class S3PresignedUrlService {
                 .key( key );
     }
 
-    public PreloadResponse presignedDownload( String name, NotificationDocument attachment ) {
+    public PreLoadResponse presignedDownload( String name, NotificationDocument attachment ) {
         Duration urlDuration = cfgs.getDownloadUrlDuration();
         String secret = UUID.randomUUID().toString();
         log.debug( "Retrieve extension for attachment with name={}", name );
@@ -139,10 +139,10 @@ public class S3PresignedUrlService {
         PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
         log.debug( "GET presigned object END" );
 
-        String httpMethodForDownload = presignedRequest.httpRequest().method().toString();
+        PreLoadResponse.HttpMethodEnum httpMethodForDownload = PreLoadResponse.HttpMethodEnum.fromValue( presignedRequest.httpRequest().method().toString());
         String urlForDownload = presignedRequest.url().toString();
 
-        return PreloadResponse.builder()
+        return PreLoadResponse.builder()
                 .url( urlForDownload )
                 .httpMethod( httpMethodForDownload )
                 .secret( secret )

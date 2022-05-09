@@ -38,25 +38,25 @@ public class AttachmentService {
     public InternalNotification saveAttachments(InternalNotification internalNotification) {
         String iun = internalNotification.getIun();
 
-        InternalNotification.InternalNotificationBuilder builder = internalNotification.toBuilder();
+        //InternalNotification.InternalNotificationBuilder builder = internalNotification.toBuilder();
+        FullSentNotification.FullSentNotificationBuilder fullSentNotificationBuilder = FullSentNotification.builder();
 
         // - Save documents
         log.debug("Saving documents for iun={} START", iun);
-        saveDocuments(internalNotification, iun, builder);
+        saveDocuments(internalNotification, iun, fullSentNotificationBuilder);
         log.debug("Saving documents for iun={} END", iun);
 
         // - save F24
         log.debug("Saving F24 for iun={} START", iun);
         for ( NotificationRecipient recipient : internalNotification.getRecipients() ) {
-            saveF24( recipient, iun, builder);
+            saveF24( recipient, iun, fullSentNotificationBuilder);
         }
 
         log.debug("Saving F24 for iun={} END", iun);
-        //return builder.build();
-        return null;
+        return new InternalNotification( fullSentNotificationBuilder.build(), internalNotification.getTokens());
     }
 
-    private void saveDocuments(InternalNotification internalNotification, String iun, InternalNotification.InternalNotificationBuilder builder) {
+    private void saveDocuments(InternalNotification internalNotification, String iun, FullSentNotification.FullSentNotificationBuilder builder) {
         AtomicInteger index = new AtomicInteger( 0 );
         builder.documents( internalNotification.getDocuments().stream()
                 .map( toSave -> {
@@ -67,7 +67,7 @@ public class AttachmentService {
         );
     }
 
-    private void saveF24(NotificationRecipient recipient, String iun, InternalNotification.InternalNotificationBuilder builder) {
+    private void saveF24(NotificationRecipient recipient, String iun, FullSentNotification.FullSentNotificationBuilder builder) {
         NotificationPaymentInfo paymentsInfo = recipient.getPayment();
         if( paymentsInfo != null ) {
 

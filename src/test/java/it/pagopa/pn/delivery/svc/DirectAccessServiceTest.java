@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.notification.directaccesstoken.DirectAccessToken;
 import it.pagopa.pn.commons.pnclients.recipientschallenge.RecipientsChallenge;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -35,17 +36,20 @@ class DirectAccessServiceTest {
         String iun = "IUN";
         String taxId = "TAX_ID";
         String TOKEN = "TOKEN";
+        Map<NotificationRecipient,String> tokenMap = new HashMap<>();
+        tokenMap.put( NotificationRecipient.builder()
+                        .taxId( "TAX_ID" )
+                .build(),"TOKEN" );
 
-        Optional<InternalNotification> notification = Optional.ofNullable(InternalNotification.builder()
+        Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
                 .iun(iun)
                 .sentAt( Date.from(Instant.parse("2021-09-16T15:00:00.00Z") ))
                 .subject( "Subject" )
                 .senderPaId( "PAID" )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( taxId )
-                        //.token(TOKEN)
                         .build()) )
-                .build());
+                .build(), tokenMap ));
 
         Optional<DirectAccessToken> expectedDirectAccessToken = Optional.empty();
 
@@ -66,6 +70,13 @@ class DirectAccessServiceTest {
         String token = directAccessService.generateToken(iun, taxId);
         String taxId2 = "TAX_ID_2";
         String token2 = directAccessService.generateToken(iun, "TAX_ID_2");
+        Map<NotificationRecipient, String> tokenMap = new HashMap<>();
+        tokenMap.put( NotificationRecipient.builder()
+                        .taxId( taxId )
+                .build(), token);
+        tokenMap.put( NotificationRecipient.builder()
+                .taxId( taxId2 )
+                .build(), token2);
 
         List<NotificationRecipient> recipients = new ArrayList<>();
         recipients.add(NotificationRecipient.builder()
@@ -77,13 +88,13 @@ class DirectAccessServiceTest {
                 //.token(token2)
                 .build());
 
-        Optional<InternalNotification> notification = Optional.ofNullable(InternalNotification.builder()
+        Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
                 .iun(iun)
                 .sentAt( Date.from(Instant.parse("2021-09-16T15:00:00.00Z") ))
                 .subject( "Subject" )
                         .senderPaId( "PAID" )
                 .recipients( recipients )
-                .build());
+                .build(), tokenMap));
         
         Optional<DirectAccessToken> expectedDirectAccessToken = Optional.of( DirectAccessToken.builder()
                 .taxId( taxId )
@@ -106,17 +117,20 @@ class DirectAccessServiceTest {
         String iun = "IUN";
         String taxId = "TAX_ID";
         String TOKEN = directAccessService.generateToken(iun, taxId);
+        Map<NotificationRecipient,String> tokenMap = new HashMap<>();
+        tokenMap.put( NotificationRecipient.builder()
+                        .taxId( taxId )
+                .build(), TOKEN);
 
-        Optional<InternalNotification> notification = Optional.ofNullable(InternalNotification.builder()
+        Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
                 .iun(iun)
                 .sentAt( Date.from(Instant.parse("2021-09-16T15:00:00.00Z") ))
                 .subject( "Subject" )
                         .senderPaId( "PAID" )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( taxId )
-                        //.token(TOKEN)
                         .build()) )
-                .build());
+                .build(), tokenMap));
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( notification );

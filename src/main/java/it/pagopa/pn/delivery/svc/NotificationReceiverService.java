@@ -8,6 +8,7 @@ import java.util.*;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
@@ -106,12 +107,11 @@ public class NotificationReceiverService {
 		//List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
 		Map<NotificationRecipient,String> tokens = generateToken( internalNotification.getRecipients(), iun );
 
-		InternalNotification internalNotificationWithIun = internalNotification.toBuilder()
+		InternalNotification internalNotificationWithIun = new InternalNotification(FullSentNotification.builder()
 				.iun( iun )
 				.sentAt( Date.from(createdAt ))
 				.senderPaId( paId )
-				.tokens( tokens )
-				.build();
+				.build(), tokens);
 
 		log.info("Start Attachment save for iun={}", iun);
 		InternalNotification internalNotificationWithCompleteMetadata = attachmentSaver.saveAttachments(internalNotificationWithIun);

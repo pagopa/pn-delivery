@@ -30,7 +30,7 @@ public class EntityToDtoNotificationMapper {
             throw new PnInternalException(" Notification entity with iun " + entity.getIun() + " hash invalid physicalCommunicationType value");
         }
 
-        InternalNotification.InternalNotificationBuilder builder = InternalNotification.builder()
+        InternalNotification internalNotification = new InternalNotification(FullSentNotification.builder()
                 .iun( entity.getIun() )
                 .subject( entity.getSubject() )
                 .sentAt( Date.from(entity.getSentAt()) )
@@ -41,7 +41,9 @@ public class EntityToDtoNotificationMapper {
                 .group( entity.getGroup() )
                 .senderPaId( entity.getSenderPaId() )
                 .recipients( buildRecipientsList( entity ) )
-                .documents( buildDocumentsList( entity ) );
+                .documents( buildDocumentsList( entity ) )
+                .build()
+        , Collections.EMPTY_MAP);
 
         boolean anyPaymentFieldNotNull = Stream.of(
                     entity.getIuv(), entity.getNotificationFeePolicy(),
@@ -54,7 +56,7 @@ public class EntityToDtoNotificationMapper {
             //builder.payment( buildNotificationPaymentInfo( entity ) );
         }
 
-        return builder.build();
+        return internalNotification;
     }
 
     private NotificationPaymentInfo buildNotificationPaymentInfo(NotificationEntity entity) {

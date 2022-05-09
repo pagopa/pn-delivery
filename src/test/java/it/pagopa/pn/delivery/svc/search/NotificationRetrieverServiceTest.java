@@ -9,6 +9,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategory;
@@ -125,13 +126,13 @@ class NotificationRetrieverServiceTest {
     @Test
     void getNotificationWithTimelineInfoSuccess() {
         //Given
-        InternalNotification notification = InternalNotification.builder()
+        InternalNotification notification = new InternalNotification(FullSentNotification.builder()
                 .iun( IUN )
                 .sentAt(Date.from(Instant.now()))
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .build())
-                ).build();
+                ).build(), Collections.EMPTY_MAP);
 
         
         Set<it.pagopa.pn.api.dto.notification.timeline.TimelineElement> tle = Collections.singleton( it.pagopa.pn.api.dto.notification.timeline.TimelineElement.builder()

@@ -15,6 +15,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder(toBuilder = true, builderMethodName = "fullSentNotificationBuilder")
 @EqualsAndHashCode
 @ToString
 @Schema(
@@ -22,11 +23,17 @@ import java.util.Map;
         externalDocs = @ExternalDocumentation( description = "MarkDown", url = "http://google.it/"))
 public class InternalNotification extends FullSentNotification {
 
-    @Builder(toBuilder = true)
-    public InternalNotification(String idempotenceToken, String paProtocolNumber, String subject, String _abstract, @Valid List<NotificationRecipient> recipients, @Valid List<NotificationDocument> documents, String cancelledIun, PhysicalCommunicationTypeEnum physicalCommunicationType, String senderDenomination, String senderTaxId, String group, String senderPaId, String iun, Date sentAt, String cancelledByIun, Boolean documentsAvailable, NotificationStatus notificationStatus, @Valid List<NotificationStatusHistoryElement> notificationStatusHistory, @Valid List<TimelineElement> timeline, Map<NotificationRecipient, String> tokens) {
-        super(idempotenceToken, paProtocolNumber, subject, _abstract, recipients, documents, cancelledIun, physicalCommunicationType, senderDenomination, senderTaxId, group, senderPaId, iun, sentAt, cancelledByIun, documentsAvailable, notificationStatus, notificationStatusHistory, timeline);
+
+    public InternalNotification(FullSentNotification fsn, Map<NotificationRecipient, String> tokens) {
+        super(fsn.getIdempotenceToken(), fsn.getPaProtocolNumber(), fsn.getSubject(), fsn.getAbstract(), fsn.getRecipients(), fsn.getDocuments(), fsn.getCancelledIun(), fsn.getPhysicalCommunicationType(), fsn.getSenderDenomination(), fsn.getSenderTaxId(), fsn.getGroup(), fsn.getSenderPaId(), fsn.getIun(), fsn.getSentAt(), fsn.getCancelledByIun(), fsn.getDocumentsAvailable(), fsn.getNotificationStatus(), fsn.getNotificationStatusHistory(), fsn.getTimeline());
         this.tokens = tokens;
     }
+
+    /*public static class InternalNotificationBuilder extends FullSentNotificationBuilder{
+        InternalNotificationBuilder() {
+            super();
+        }
+    }*/
 
     /*@Schema( description = "L'Identificativo Univoco Notifica assegnato da PN")
     @JsonView(value = { NotificationJsonViews.Sent.class, NotificationJsonViews.Received.class })
