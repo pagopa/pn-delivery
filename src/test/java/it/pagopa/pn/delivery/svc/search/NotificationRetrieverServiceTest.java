@@ -7,12 +7,12 @@ import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
 import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationRecipientType;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
 import it.pagopa.pn.api.dto.notification.timeline.TimelineElementCategory;
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.utils.StatusUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -46,7 +46,6 @@ class NotificationRetrieverServiceTest {
     private NotificationViewedProducer notificationViewedProducer;
     private NotificationDao notificationDao;
     private PnDeliveryPushClient pnDeliveryPushClient;
-    private StatusUtils statusUtils;
     private PnMandateClientImpl pnMandateClient;
     private PnDeliveryConfigs cfg;
 
@@ -61,7 +60,6 @@ class NotificationRetrieverServiceTest {
         this.notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
         this.notificationDao = Mockito.mock(NotificationDao.class);
         this.pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClient.class);
-        this.statusUtils = Mockito.mock(StatusUtils.class);
         this.cfg = Mockito.mock(PnDeliveryConfigs.class);
         this.pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
         this.svc = new NotificationRetrieverService(clock,
@@ -70,7 +68,6 @@ class NotificationRetrieverServiceTest {
                 notificationViewedProducer,
                 notificationDao,
                 pnDeliveryPushClient,
-                statusUtils,
                 cfg,
                 pnMandateClient
         );
@@ -135,21 +132,26 @@ class NotificationRetrieverServiceTest {
         //Given
         Notification notification = Notification.builder()
                 .iun( IUN )
+                .sentAt(Instant.now())
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipientType.PF )
                         .build())
                 ).build();
 
+        
         Set<TimelineElement> tle = Collections.singleton( TimelineElement.builder()
                 .iun( IUN )
                 .elementId( "elementId" )
                 .category( TimelineElementCategory.REQUEST_ACCEPTED )
                 .timestamp( Instant.now() )
                 .build());
-        
+
+        NotificationHistoryResponse timelineStatusHistoryDto = NotificationHistoryResponse.builder()
+                .timelineElements(tle)
+                .build();
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineElements( Mockito.anyString() ) ).thenReturn( tle );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class) ) ).thenReturn( timelineStatusHistoryDto );
         Notification result = svc.getNotificationInformation( IUN );
         
         //Then
@@ -172,6 +174,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationAndViewEventSuccess() {
         //Given
         Notification notification = Notification.builder()
+                .sentAt(Instant.now())
                 .iun( IUN )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipientType.PF )
@@ -181,6 +184,19 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+
+        Set<TimelineElement> tle = Collections.singleton( TimelineElement.builder()
+                .iun( IUN )
+                .elementId( "elementId" )
+                .category( TimelineElementCategory.REQUEST_ACCEPTED )
+                .timestamp( Instant.now() )
+                .build());
+
+        NotificationHistoryResponse timelineStatusHistoryDto = NotificationHistoryResponse.builder()
+                .timelineElements(tle)
+                .build();
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class) ) ).thenReturn( timelineStatusHistoryDto );
+        
         svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID );
 
         //Then
@@ -191,6 +207,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationAndViewEventError() {
         //Given
         Notification notification = Notification.builder()
+                .sentAt(Instant.now())
                 .iun( IUN )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipientType.PF )
@@ -200,6 +217,19 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+
+        Set<TimelineElement> tle = Collections.singleton( TimelineElement.builder()
+                .iun( IUN )
+                .elementId( "elementId" )
+                .category( TimelineElementCategory.REQUEST_ACCEPTED )
+                .timestamp( Instant.now() )
+                .build());
+
+        NotificationHistoryResponse timelineStatusHistoryDto = NotificationHistoryResponse.builder()
+                .timelineElements(tle)
+                .build();
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(Instant.class) ) ).thenReturn( timelineStatusHistoryDto );
+
         Executable todo = () -> svc.getNotificationAndNotifyViewedEvent( IUN, "" );
 
         //Then

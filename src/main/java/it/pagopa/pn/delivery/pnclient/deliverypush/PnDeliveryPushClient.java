@@ -1,9 +1,8 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-
-import java.util.Set;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
+import java.time.Instant;
 
 public interface PnDeliveryPushClient {
-    Set<TimelineElement> getTimelineElements(String iun);
+    NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt);
 }
