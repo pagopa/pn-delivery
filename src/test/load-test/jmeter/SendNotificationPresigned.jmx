@@ -37,6 +37,26 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV Test Globals" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="requestIndex" elementType="Argument">
+            <stringProp name="Argument.name">requestIndex</stringProp>
+            <stringProp name="Argument.value">${__UUID()}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="configPath" elementType="Argument">
+            <stringProp name="Argument.name">configPath</stringProp>
+            <stringProp name="Argument.value">${__BeanShell(import org.apache.jmeter.services.FileServer; FileServer.getFileServer().getBaseDir();)}${__BeanShell(File.separator,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="timestamp" elementType="Argument">
+            <stringProp name="Argument.name">timestamp</stringProp>
+            <stringProp name="Argument.value">${__time(YMDHMS)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
       <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV Test Parameter" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="numUser" elementType="Argument">
@@ -64,29 +84,14 @@
             <stringProp name="Argument.value">30000</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-        </collectionProp>
-      </Arguments>
-      <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV Test Globals" enabled="true">
-        <collectionProp name="Arguments.arguments">
-          <elementProp name="requestIndex" elementType="Argument">
-            <stringProp name="Argument.name">requestIndex</stringProp>
-            <stringProp name="Argument.value">${__UUID()}</stringProp>
+          <elementProp name="doc_path" elementType="Argument">
+            <stringProp name="Argument.name">doc_path</stringProp>
+            <stringProp name="Argument.value">${configPath}../inputs/multa.pdf</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="configPath" elementType="Argument">
-            <stringProp name="Argument.name">configPath</stringProp>
-            <stringProp name="Argument.value">${__BeanShell(import org.apache.jmeter.services.FileServer; FileServer.getFileServer().getBaseDir();)}${__BeanShell(File.separator,)}</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="timestamp" elementType="Argument">
-            <stringProp name="Argument.name">timestamp</stringProp>
-            <stringProp name="Argument.value">${__time(YMDHMS)}</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="physicalCommunicationType" elementType="Argument">
-            <stringProp name="Argument.name">physicalCommunicationType</stringProp>
-            <stringProp name="Argument.value"></stringProp>
+          <elementProp name="doc_sha256" elementType="Argument">
+            <stringProp name="Argument.name">doc_sha256</stringProp>
+            <stringProp name="Argument.value">06e21dbe27ac8e41251a2cfa7003d697c04aea7591ca358c1218071c9ceb3875</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -133,7 +138,7 @@
           <stringProp name="HTTPSampler.response_timeout">${respTimeout}</stringProp>
         </ConfigTestElement>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request Post /delivery/attachments/preload" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Post /delivery/attachments/preload" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -207,11 +212,11 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
           </JSR223PostProcessor>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="UploadFile" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT UploadFile" enabled="true">
           <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
             <collectionProp name="HTTPFileArgs.files">
-              <elementProp name="/Users/matteo/ws/PN/pn-modules/pn-delivery/src/test/load-test/inputs/multa.pdf" elementType="HTTPFileArg">
-                <stringProp name="File.path">/Users/matteo/ws/PN/pn-modules/pn-delivery/src/test/load-test/inputs/multa.pdf</stringProp>
+              <elementProp name="${doc_path}" elementType="HTTPFileArg">
+                <stringProp name="File.path">${doc_path}</stringProp>
                 <stringProp name="File.paramname">body-file</stringProp>
                 <stringProp name="File.mimetype">application/pdf</stringProp>
               </elementProp>
@@ -272,7 +277,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
           </RegexExtractor>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request Post /delivery/notifications/sent" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Post /delivery/notifications/sent" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -312,7 +317,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             },&#xd;
             &quot;contentType&quot;: null,&#xd;
             &quot;digests&quot;: {&#xd;
-                &quot;sha256&quot;: &quot;06e21dbe27ac8e41251a2cfa7003d697c04aea7591ca358c1218071c9ceb3875&quot;&#xd;
+                &quot;sha256&quot;: &quot;${doc_sha256}&quot;&#xd;
             }&#xd;
        }&#xd;
    ]&#xd;
