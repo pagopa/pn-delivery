@@ -84,6 +84,11 @@
             <stringProp name="Argument.value">${__time(YMDHMS)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="physicalCommunicationType" elementType="Argument">
+            <stringProp name="Argument.name">physicalCommunicationType</stringProp>
+            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
@@ -101,16 +106,16 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_pa_protocol_input" enabled="false">
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_pa_protocol_input" enabled="true">
           <stringProp name="delimiter">,</stringProp>
           <stringProp name="fileEncoding"></stringProp>
-          <stringProp name="filename">${configPath}../resources/jmeter/pa_protocol_input.csv</stringProp>
+          <stringProp name="filename">${configPath}../inputs/new_notifications.csv</stringProp>
           <boolProp name="ignoreFirstLine">true</boolProp>
           <boolProp name="quotedData">false</boolProp>
           <boolProp name="recycle">true</boolProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
           <boolProp name="stopThread">false</boolProp>
-          <stringProp name="variableNames">pa,subject,physicalCommunicationType,cancelledIun,taxId,denomination,digitalDomicile,at,address,addressDetails,zip,municipality,province, state</stringProp>
+          <stringProp name="variableNames"></stringProp>
         </CSVDataSet>
         <hashTree/>
         <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
@@ -213,14 +218,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             </collectionProp>
           </elementProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value"></stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-                <boolProp name="HTTPArgument.use_equals">true</boolProp>
-              </elementProp>
-            </collectionProp>
+            <collectionProp name="Arguments.arguments"/>
           </elementProp>
           <stringProp name="HTTPSampler.domain"></stringProp>
           <stringProp name="HTTPSampler.port"></stringProp>
@@ -237,7 +235,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+          <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="Clean - HTTP Request Defaults" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
@@ -251,7 +249,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
           </ConfigTestElement>
           <hashTree/>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="S3- HTTP Header Manager" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="S3 - HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">x-amz-meta-secret</stringProp>
@@ -264,8 +262,17 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             </collectionProp>
           </HeaderManager>
           <hashTree/>
+          <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="version_id - Regular Expression Extractor" enabled="true">
+            <stringProp name="RegexExtractor.useHeaders">true</stringProp>
+            <stringProp name="RegexExtractor.refname">version_id</stringProp>
+            <stringProp name="RegexExtractor.regex">x-amz-version-id: (.*)</stringProp>
+            <stringProp name="RegexExtractor.template">$1$</stringProp>
+            <stringProp name="RegexExtractor.default">NA</stringProp>
+            <stringProp name="RegexExtractor.match_number">1</stringProp>
+          </RegexExtractor>
+          <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request Post /delivery/notifications/sent" enabled="false">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request Post /delivery/notifications/sent" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
@@ -276,27 +283,32 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
    &quot;subject&quot;:&quot;${subject}&quot;,&#xd;
    &quot;physicalCommunicationType&quot;:&quot;${physicalCommunicationType}&quot;,&#xd;
    &quot;cancelledIun&quot;:null,&#xd;
+   &quot;group&quot;:&quot;testGruppo&quot;,&#xd;
    &quot;recipients&quot;:[&#xd;
       {&#xd;
-         &quot;taxId&quot;:&quot;${taxId}&quot;,&#xd;
          &quot;denomination&quot;:&quot;${denomination}&quot;,&#xd;
-         &quot;digitalDomicile&quot;:null,&#xd;
+         &quot;digitalDomicile&quot;:{&#xd;
+            &quot;type&quot;:&quot;PEC&quot;,&#xd;
+            &quot;address&quot;:&quot;nome.cognome@works.demo.it&quot;&#xd;
+         },&#xd;
+         &quot;recipientType&quot;:&quot;PF&quot;,&#xd;
          &quot;physicalAddress&quot;:{&#xd;
-            &quot;at&quot;:&quot;${at}&quot;,&#xd;
             &quot;address&quot;:&quot;${address}&quot;,&#xd;
             &quot;addressDetails&quot;:&quot;${addressDetails}&quot;,&#xd;
-            &quot;zip&quot;:&quot;${zip}&quot;,&#xd;
+            &quot;at&quot;:&quot;${at}&quot;,&#xd;
             &quot;municipality&quot;:&quot;${municipality}&quot;,&#xd;
             &quot;province&quot;:&quot;${province}&quot;,&#xd;
-            &quot;state&quot;:&quot;${state}&quot;&#xd;
-         }&#xd;
+            &quot;state&quot;:&quot;${state}&quot;,&#xd;
+            &quot;zip&quot;:&quot;${zip}&quot;&#xd;
+         },&#xd;
+         &quot;taxId&quot;:&quot;${taxId}&quot;&#xd;
       }&#xd;
    ],&#xd;
    &quot;documents&quot;:[&#xd;
       {&#xd;
          	&quot;ref&quot;: {&#xd;
                 &quot;key&quot;: &quot;doc_1&quot;,&#xd;
-                &quot;versionToken&quot;: &quot;HXQzD8TDMjHRYUDLI5BXqjvCmm0NkgAM&quot;&#xd;
+                &quot;versionToken&quot;: &quot;${version_id}&quot;&#xd;
             },&#xd;
             &quot;contentType&quot;: null,&#xd;
             &quot;digests&quot;: {&#xd;
@@ -347,6 +359,11 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
           <boolProp name="displayJMeterVariables">true</boolProp>
           <boolProp name="displaySystemProperties">false</boolProp>
         </DebugSampler>
+        <hashTree/>
+        <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Gaussian Random Timer" enabled="true">
+          <stringProp name="ConstantTimer.delay">1500</stringProp>
+          <stringProp name="RandomTimer.range">100.0</stringProp>
+        </GaussianRandomTimer>
         <hashTree/>
       </hashTree>
       <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">
