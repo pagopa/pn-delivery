@@ -1,0 +1,90 @@
+openapi: 3.0.3
+info:
+  title: OpenAPI servizi ad uso solo interno
+  description: >- 
+    API accessibili solo da microservizi interni
+  version: v1.0
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+- url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080
+  description: Generated server url
+paths:
+  "/delivery-private/notifications/update-status":
+    post:
+      summary: servizio per l'aggiornamento dello stato di invio della notifica
+      tags:
+      - pn-status-controller
+      operationId: updateStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestUpdateStatusDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  
+  "/delivery-private/notifications/{iun}":
+    get:
+      summary: servizio per cercare una notifica dato <iun>
+      tags:
+      - pn-internal-notifications-controller
+      operationId: getSentNotification
+      parameters:
+      - name: iun
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                $ref: "schemas-pn-notification-v1.yaml#/components/schemas/SentNotification"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '501':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+components:
+  schemas:
+    
+    RequestUpdateStatusDto:
+      type: object
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/IUN'
+        nextStatus:
+          $ref: "remote-refs.yaml#/components/schemas/NotificationStatus"
+                    
+    
+    Problem:
+      $ref: "schemas-pn-errors-v1.yaml#/components/schemas/Problem"

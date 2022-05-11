@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
+import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Set;
+import java.time.Instant;
 
 @Slf4j
 @Component
@@ -19,25 +19,26 @@ public class PnDeliveryPushClientImpl implements PnDeliveryPushClient {
     private final RestTemplate restTemplate;
     private final PnDeliveryConfigs cfg;
 
-    private static final String TIMELINE_PATH ="timelines";
+    private static final String TIMELINE_AND_HISTORY_PATH ="timeline-and-history";
 
     public PnDeliveryPushClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
         this.restTemplate = restTemplate;
         this.cfg = cfg;
     }
-
-    public Set<TimelineElement> getTimelineElements(String iun) {
+    
+    @Override
+    public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
         log.debug("Start getTimelineElements for iun {}", iun);
 
-        String url = cfg.getDeliveryPushBaseUrl() + "/" +TIMELINE_PATH +"/" + iun;
+        String url = cfg.getDeliveryPushBaseUrl() + "/" + TIMELINE_AND_HISTORY_PATH +"/" + iun +"/" + numberOfRecipients +"/" + createdAt;
 
         log.info("url {}",url);
 
-        ResponseEntity<Set<TimelineElement>> response = restTemplate.exchange(url,
+        ResponseEntity<NotificationHistoryResponse> response = restTemplate.exchange(url,
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {});
-        
+
         if (response.getStatusCode().isError()) {
             log.error("Error calling url " + response + " status " + response.getStatusCodeValue());
             throw new PnInternalException("Error calling url " + response + " status " + response.getStatusCodeValue());

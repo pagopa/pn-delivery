@@ -31,8 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -243,10 +242,10 @@ class NotificationReceiverTest {
 				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 	}
 
-
 	private Notification newNotificationWithoutPayments( ) {
 		return Notification.builder()
 				.iun("IUN_01")
+				.sentAt( Instant.now() )
 				.paNotificationId("protocol_01")
 				.subject("Subject 01")
 				.physicalCommunicationType( ServiceLevelType.SIMPLE_REGISTERED_LETTER )

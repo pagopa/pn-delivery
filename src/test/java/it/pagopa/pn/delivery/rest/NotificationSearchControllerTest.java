@@ -29,6 +29,7 @@ class NotificationSearchControllerTest {
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String SUBJECT_REG_EXP = "asd";
     private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
+    private static final String DELEGATOR_ID = "DelegatorId";
 
 
     @Autowired
@@ -180,6 +181,7 @@ class NotificationSearchControllerTest {
                                 //.queryParam( "recipientId", RECIPIENT_ID)
                                 .queryParam("startDate", START_DATE)
                                 .queryParam("endDate", END_DATE)
+                                .queryParam("delegatorRecipient", DELEGATOR_ID)
                                 .queryParam("senderId", SENDER_ID)
                                 .queryParam("status", STATUS)
                                 .queryParam("subjectRegExp", SUBJECT_REG_EXP)
@@ -193,6 +195,7 @@ class NotificationSearchControllerTest {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
                 .senderReceiverId(RECIPIENT_ID)
+                .delegator(DELEGATOR_ID)
                 .startDate(START_DATE)
                 .endDate(END_DATE)
                 .filterId(SENDER_ID)

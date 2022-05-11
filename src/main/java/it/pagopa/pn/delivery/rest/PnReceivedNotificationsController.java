@@ -13,7 +13,9 @@ import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodSearchReceivedNotification;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.springframework.core.io.ByteArrayResource;
@@ -34,6 +36,7 @@ public class PnReceivedNotificationsController implements
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
     public static final String VALIDATION_ERROR_STATUS = "Validation error";
+    public static final String NOT_FOUND_ERROR_STATUS = "Not Found Error";
 
     public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg) {
         this.retrieveSvc = retrieveSvc;
@@ -43,9 +46,10 @@ public class PnReceivedNotificationsController implements
     @Override
     @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
     public ResultPaginationDto<NotificationSearchRow,String> searchReceivedNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String recipientId,
+            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String currentRecipientId,
             @RequestParam(name = "startDate") Instant startDate,
             @RequestParam(name = "endDate") Instant endDate,
+            @RequestParam(name = "delegatorRecipient", required = false) String delegatorRecipientId,
             @RequestParam(name = "senderId", required = false) String senderId,
             @RequestParam(name = "status", required = false) NotificationStatus status,
             @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
@@ -55,9 +59,10 @@ public class PnReceivedNotificationsController implements
     ) {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
-                .senderReceiverId(recipientId)
+                .senderReceiverId(currentRecipientId)
                 .startDate(startDate)
                 .endDate(endDate)
+                .delegator(delegatorRecipientId)
                 .filterId(senderId)
                 .status(status)
                 .subjectRegExp(subjectRegExp)
@@ -105,5 +110,10 @@ public class PnReceivedNotificationsController implements
     @ExceptionHandler({PnValidationException.class})
     public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
         return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
+    }
+
+    @ExceptionHandler({PnNotFoundException.class})
+    public ResponseEntity<ResErrorDto> handleNotFoundException(PnNotFoundException ex) {
+        return HandleNotFound.handleNotFoundException( ex, NOT_FOUND_ERROR_STATUS );
     }
 }
