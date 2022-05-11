@@ -40,7 +40,7 @@ scenarios:
         random-order: false
 
   SendNotificationPresigned:
-    think-time: 0.05
+    think-time: 2
     requests:
       - label: reserve_load
         url: ${BASE_URL}/delivery/attachments/preload
