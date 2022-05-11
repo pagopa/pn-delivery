@@ -5,22 +5,30 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class NotificationSearchControllerTest {
@@ -46,6 +54,9 @@ class NotificationSearchControllerTest {
     @MockBean
     private PnDeliveryConfigs cfg;
 
+    @MockBean
+    private ModelMapperFactory modelMapperFactory;
+
     @Test
     void getSenderSuccess() {
         //Given
@@ -70,6 +81,10 @@ class NotificationSearchControllerTest {
         //When
         Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
 
+        ModelMapper mapper = new ModelMapper();
+        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+
         //Then
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -81,8 +96,11 @@ class NotificationSearchControllerTest {
                                 .queryParam("status", STATUS)
                                 .queryParam("subjectRegExp", SUBJECT_REG_EXP)
                                 .build())
-                .accept(MediaType.ALL)
+                .accept(MediaType.APPLICATION_JSON)
                 .header( PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -126,6 +144,10 @@ class NotificationSearchControllerTest {
         //When
         Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
 
+        ModelMapper mapper = new ModelMapper();
+        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+
         webTestClient.get()
                 .uri(uriBuilder ->
                         uriBuilder
@@ -137,6 +159,9 @@ class NotificationSearchControllerTest {
                                 .build())
                 .accept(MediaType.ALL)
                 .header( PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -177,6 +202,10 @@ class NotificationSearchControllerTest {
         //When
         Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
 
+        ModelMapper mapper = new ModelMapper();
+        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+
         //Then
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -192,6 +221,9 @@ class NotificationSearchControllerTest {
                                 .build())
                 .accept(MediaType.ALL)
                 .header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
                 .expectStatus()
                 .isOk();

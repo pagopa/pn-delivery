@@ -264,16 +264,18 @@ public class NotificationRetrieverService {
 		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
 
 		ModelMapper mapperStatus = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class );
+
+		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 		
-		return new InternalNotification(FullSentNotification.builder()
+		FullSentNotification resultFullSent = notification
 				.timeline( timeline )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
 						.collect(Collectors.toList())
 				)
-				.notificationStatus( mapperStatus.map(timelineStatusHistoryDto.getNotificationStatus(), NotificationStatus.class))
-				.build(), notification.getTokens()
-		);
+				.notificationStatus( mapperStatus.map(timelineStatusHistoryDto.getNotificationStatus(), NotificationStatus.class));
+
+		return mapperNotification.map( resultFullSent, InternalNotification.class );
 	}
 
 	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex) {

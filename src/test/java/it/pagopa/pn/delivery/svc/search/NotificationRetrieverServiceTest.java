@@ -10,7 +10,10 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -147,6 +150,7 @@ class NotificationRetrieverServiceTest {
 
         NotificationHistoryResponse timelineStatusHistoryDto = NotificationHistoryResponse.builder()
                 .timelineElements(tle)
+                .notificationStatus( NotificationStatus.ACCEPTED )
                 .statusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
                                 .status(NotificationStatus.ACCEPTED)
                         .build() ) )
@@ -169,6 +173,11 @@ class NotificationRetrieverServiceTest {
         mapperStatus.createTypeMap( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus.class );
         Mockito.when( modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus.class ) )
                 .thenReturn( mapperStatus );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperStatus.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
 
         InternalNotification result = svc.getNotificationInformation( IUN );
         

@@ -48,6 +48,7 @@ class StatusServiceTest {
                 .subject( "Subject" )
                 .paProtocolNumber( "123" )
                 .senderPaId( "PAID" )
+                .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( "CodiceFiscale" )
                         .build()) )

@@ -34,7 +34,7 @@ paths:
         servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
         di ricerca specificati
       tags:
-        - SenderRead
+        - SenderReadWeb
       operationId: searchSentNotification
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'

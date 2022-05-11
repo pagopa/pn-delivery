@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ class PnNotificationViewedDeliveryControllerTest {
 
 	@MockBean
 	private PnDeliveryConfigs cfg;
+
+	@MockBean
+	private ModelMapperFactory modelMapperFactory;
 	
 	@Test
 	void getNotificationViewedSuccess() {

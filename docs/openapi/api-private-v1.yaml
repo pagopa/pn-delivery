@@ -48,7 +48,7 @@ paths:
       summary: servizio per cercare una notifica dato <iun>
       tags:
         - internal-only
-      operationId: getSentNotification
+      operationId: getSentNotificationPrivate
       parameters:
       - name: iun
         in: path
