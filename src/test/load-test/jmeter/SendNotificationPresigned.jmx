@@ -31,7 +31,7 @@
           </elementProp>
           <elementProp name="apikey" elementType="Argument">
             <stringProp name="Argument.name">apikey</stringProp>
-            <stringProp name="Argument.value">${__P(apikey,swx50h7VNg5r3h8Cd9OMB6YLafHsJKd35SUFblIg)}</stringProp>
+            <stringProp name="Argument.value">${__P(apikey,&apos;N/A&apos;)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -409,7 +409,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
         <objProp>
           <name>saveConfig</name>
           <value class="SampleSaveConfiguration">
@@ -442,7 +442,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename"></stringProp>
+        <stringProp name="filename">${configPath}./test-result/send_notifications_user-${numUser}_rampUp-${rampUp}_loop-${loop}_${timestamp}.error</stringProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>
