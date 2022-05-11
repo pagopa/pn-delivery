@@ -107,14 +107,13 @@ public class NotificationReceiverService {
 		//List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
 		Map<NotificationRecipient,String> tokens = generateToken( internalNotification.getRecipients(), iun );
 
-		InternalNotification internalNotificationWithIun = new InternalNotification(FullSentNotification.builder()
-				.iun( iun )
-				.sentAt( Date.from(createdAt ))
-				.senderPaId( paId )
-				.build(), tokens);
+		internalNotification.iun( iun );
+		internalNotification.sentAt( Date.from(createdAt) );
+		internalNotification.setTokens( tokens );
+
 
 		log.info("Start Attachment save for iun={}", iun);
-		InternalNotification internalNotificationWithCompleteMetadata = attachmentSaver.saveAttachments(internalNotificationWithIun);
+		InternalNotification internalNotificationWithCompleteMetadata = attachmentSaver.saveAttachments(internalNotification);
 
 		// - Will be delayed from the receiver
 		log.debug("Send \"new notification\" event for iun={}", iun);

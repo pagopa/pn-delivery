@@ -10,9 +10,9 @@ import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,19 +28,19 @@ public class PnNotificationInputController implements NewNotificationApi {
     private final PnDeliveryConfigs cfgs;
     private final NotificationReceiverService svc;
     private final S3PresignedUrlService presignSvc;
+    private final ModelMapperFactory modelMapperFactory;
 
-    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, S3PresignedUrlService presignSvc) {
+    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, S3PresignedUrlService presignSvc, ModelMapperFactory modelMapperFactory) {
         this.cfgs = cfgs;
         this.svc = svc;
         this.presignSvc = presignSvc;
+        this.modelMapperFactory = modelMapperFactory;
     }
 
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, NewNotificationRequest newNotificationRequest) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-        modelMapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 
+        ModelMapper modelMapper = modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class );
         InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
 
         log.info( internalNotification.toString() );
@@ -65,49 +65,6 @@ public class PnNotificationInputController implements NewNotificationApi {
         List<PreLoadResponse> preLoadResponses = presignSvc.presignedUpload( xPagopaPnCxId, preLoadRequest );
         return ResponseEntity.ok( preLoadResponses );
     }
-
-    /*@Override
-    @PostMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH )
-    public NewNotificationResponse receiveNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
-            @RequestBody @JsonView(value = NotificationJsonViews.New.class ) Notification notification
-    ) {
-        if( notification.getPhysicalCommunicationType() == null ) {
-            log.warn( "Add default physical communication type for paNotificationId={} from paId={}",
-                    notification.getPaNotificationId(), paId );
-            notification = notification.toBuilder()
-                    .physicalCommunicationType(ServiceLevelType.REGISTERED_LETTER_890)
-                    .build();
-        }
-
-        Notification withSender = notification.toBuilder()
-                .sender( NotificationSender.builder()
-                        .paId( paId )
-                        .build()
-                )
-                .build();
-
-        return svc.receiveNotification( withSender );
-    }
-
-    @Override
-    @PostMapping( PnDeliveryRestConstants.ATTACHMENT_PRELOAD_REQUEST)
-    public List<PreloadResponse> presignedUploadRequest(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
-            @RequestBody List<PreloadRequest> request
-    ) {
-        Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
-        if ( request.size() > numberOfPresignedRequest ) {
-            log.error( "Presigned upload request lenght={} is more than maximum allowed={}",
-                    request.size(), numberOfPresignedRequest );
-            throw new PnValidationException("request",
-                    Collections.singleton( new ConstraintViolationImpl<>(
-                            String.format( "request.length = %d is more than maximum allowed = %d",
-                                    request.size(),
-                                    numberOfPresignedRequest))));
-        }
-        return presignSvc.presignedUpload( paId, request );
-    }*/
 
     @ExceptionHandler({PnValidationException.class})
     public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){

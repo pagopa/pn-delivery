@@ -41,19 +41,18 @@ public class DtoToEntityNotificationMapper {
                 .cancelledIun( dto.getCancelledIun() )
                 .cancelledByIun( dto.getCancelledByIun() )
                 .senderPaId( dto.getSenderPaId() )
-                //.recipientsJson( recipientList2json( dto.getRecipients() ))
-                //.recipientsOrder( dto.getRecipients().stream()
-                        //.map( NotificationRecipient::getTaxId )
-                        //.collect(Collectors.toList())
-                    //)
+                .recipientsJson( recipientList2json( dto.getRecipients() ))
+                .recipientsOrder( dto.getRecipients().stream()
+                        .map( NotificationRecipient::getTaxId )
+                        .collect(Collectors.toList())
+                    )
                 //.documentsKeys( listDocumentsKeys( dto.getDocuments() ))
                 //.documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
                 //.documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
                 //.documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
                 //.documentsTitles( listDocumentsTitles( dto.getDocuments() ))
-                //.physicalCommunicationType ( dto.getPhysicalCommunicationType() )
-                .group( dto.getGroup() )
-            ;
+                .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
+                .group( dto.getGroup() );
 
         //NotificationPaymentInfo paymentInfo = dto.getPayment();
         //fillBuilderWithPaymentInfo(builder, paymentInfo);

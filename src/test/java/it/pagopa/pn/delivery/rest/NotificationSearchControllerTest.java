@@ -1,11 +1,14 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.InputSearchNotificationDto;
-import it.pagopa.pn.api.dto.NotificationSearchRow;
-import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+
+
+
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,6 +20,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class NotificationSearchControllerTest {
@@ -49,10 +53,10 @@ class NotificationSearchControllerTest {
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
-                .senderId(SENDER_ID)
-                .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
-                .recipientId(RECIPIENT_ID)
-                .paNotificationId("123")
+                .sender(SENDER_ID)
+                .sentAt(Date.from(Instant.parse("2021-09-17T13:45:28.00Z")))
+                .recipients( Collections.singletonList( RECIPIENT_ID ) )
+                .paProtocolNumber("123")
                 .subject("asdasd")
                 .build();
 
@@ -104,13 +108,12 @@ class NotificationSearchControllerTest {
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
-                .senderId(SENDER_ID)
-                .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
-                .recipientId(RECIPIENT_ID)
-                .paNotificationId("123")
+                .sender(SENDER_ID)
+                .sentAt(Date.from(Instant.parse("2021-09-17T13:45:28.00Z")))
+                .recipients(Collections.singletonList(RECIPIENT_ID))
+                .paProtocolNumber("123")
                 .subject("asdasd")
-                .group( "group" )
-                .paNotificationId( "paNotificationId" )
+                //.group( "group" )
                 .build();
 
         ResultPaginationDto<NotificationSearchRow,String> result =
@@ -158,10 +161,10 @@ class NotificationSearchControllerTest {
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
-                .senderId(SENDER_ID)
-                .sentAt(Instant.parse("2021-09-17T13:45:28.00Z"))
-                .recipientId(RECIPIENT_ID)
-                .paNotificationId("123")
+                .sender(SENDER_ID)
+                .sentAt(Date.from(Instant.parse("2021-09-17T13:45:28.00Z")))
+                .recipients(Collections.singletonList(RECIPIENT_ID))
+                .paProtocolNumber("123")
                 .subject("asdasd")
                 .build();
 

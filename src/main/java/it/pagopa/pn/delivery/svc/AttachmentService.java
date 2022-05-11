@@ -43,33 +43,51 @@ public class AttachmentService {
 
         // - Save documents
         log.debug("Saving documents for iun={} START", iun);
-        saveDocuments(internalNotification, iun, fullSentNotificationBuilder);
+        saveDocuments(internalNotification);
         log.debug("Saving documents for iun={} END", iun);
 
         // - save F24
         log.debug("Saving F24 for iun={} START", iun);
-        for ( NotificationRecipient recipient : internalNotification.getRecipients() ) {
-            saveF24( recipient, iun, fullSentNotificationBuilder);
-        }
+        //for ( NotificationRecipient recipient : internalNotification.getRecipients() ) {
+        saveF24( internalNotification );
+        //}
 
         log.debug("Saving F24 for iun={} END", iun);
-        return new InternalNotification( fullSentNotificationBuilder.build(), internalNotification.getTokens());
+        return internalNotification;
     }
 
-    private void saveDocuments(InternalNotification internalNotification, String iun, FullSentNotification.FullSentNotificationBuilder builder) {
+    private void saveDocuments(InternalNotification internalNotification) {
         AtomicInteger index = new AtomicInteger( 0 );
-        builder.documents( internalNotification.getDocuments().stream()
+        internalNotification.documents( internalNotification.getDocuments().stream()
                 .map( toSave -> {
-                    String key = String.format("%s/documents/%d", iun, index.getAndIncrement() );
-                    return saveAndUpdateAttachment(internalNotification, toSave, key );
+                    //String key = String.format("%s/documents/%d", iun, index.getAndIncrement() );
+                    return saveAndUpdateAttachment(internalNotification, toSave, null);
                 })
                 .collect(Collectors.toList())
         );
     }
 
-    private void saveF24(NotificationRecipient recipient, String iun, FullSentNotification.FullSentNotificationBuilder builder) {
-        NotificationPaymentInfo paymentsInfo = recipient.getPayment();
-        if( paymentsInfo != null ) {
+    private void saveF24(InternalNotification notification) {
+
+        for ( NotificationRecipient recipient : notification.getRecipients() ) {
+            NotificationPaymentInfo paymentsInfo = recipient.getPayment();
+
+            if( paymentsInfo != null ) {
+                NotificationPaymentAttachment f24FlateRate = paymentsInfo.getF24flatRate();
+                if (f24FlateRate != null ) {
+                    saveAndUpdatePaymentAttachment(f24FlateRate, notification.getSenderPaId());
+                }
+                NotificationPaymentAttachment f24White = paymentsInfo.getF24white();
+                if (f24White != null) {
+                    saveAndUpdatePaymentAttachment(f24White, notification.getSenderPaId());
+                }
+                NotificationPaymentAttachment pagoPaForm = paymentsInfo.getPagoPaForm();
+                if (pagoPaForm != null) {
+                    saveAndUpdatePaymentAttachment(pagoPaForm, notification.getSenderPaId());
+                }
+            }
+
+
 
             /*NotificationPaymentInfo.NotificationPaymentInfoBuilder paymentsBuilder;
             paymentsBuilder = recipient.getPayment().toBuilder();
@@ -103,16 +121,37 @@ public class AttachmentService {
         }
     }
 
+    private void saveAndUpdatePaymentAttachment(NotificationPaymentAttachment paymentAttachment, String paId) {
+        NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
+
+        //log.info( "Retrieve attachment by ref iun={} key={}", iun, attachmentRef.getKey() );
+        String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
+        String versionId = attachmentRef.getVersionToken();
+
+        FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
+        try {
+            fd.getContent().close();
+        } catch (IOException e) {
+            String msg = "Error closing attachment Ref with key=" + attachmentRef.getKey()  + " version=" + fd.getVersionId();
+            log.error( msg );
+            throw new PnInternalException( msg, e );
+        }
+
+        paymentAttachment.contentType( fd.getContentType() );
+        paymentAttachment.getRef().setVersionToken( versionId );
+        paymentAttachment.getRef().setKey( fullKey );
+    }
+
     private NotificationDocument saveAndUpdateAttachment(InternalNotification internalNotification, NotificationDocument notificationDocument, String key) {
         String iun = internalNotification.getIun();
         String paId = internalNotification.getSenderPaId();
-        log.info("Saving attachment: iun={} key={}", iun, key);
+        //log.info("Saving attachment: iun={} key={}", iun, key);
 
         NotificationAttachmentBodyRef attachmentRef = notificationDocument.getRef();
 
         NotificationDocument updatedAttachment;
 
-        log.info( "Retrieve attachment by ref iun={} key={}", iun, key );
+        log.info( "Retrieve attachment by ref iun={} key={}", iun, attachmentRef.getKey() );
         String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
         String versionId = attachmentRef.getVersionToken();
 

@@ -11,8 +11,11 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -43,6 +46,9 @@ class PnNotificationInputControllerTest {
 
 	@Autowired
     WebTestClient webTestClient;
+
+	@MockBean
+	ModelMapperFactory modelMapperFactory;
 	
 	@MockBean
 	private NotificationReceiverService deliveryService;
@@ -109,6 +115,11 @@ class PnNotificationInputControllerTest {
 		// When
 		Mockito.when(deliveryService.receiveNotification( Mockito.any( InternalNotification.class )))
 				.thenReturn( savedNotification );
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) )
+				.thenReturn( mapper );
 		
 		// Then
 		webTestClient.post()
@@ -152,8 +163,11 @@ class PnNotificationInputControllerTest {
 				.uri("/delivery/attachments/preload")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(requests), PreloadRequest.class)
+				.body(Mono.just(requests), PreLoadRequest.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
 				.exchange()
 				.expectStatus().isOk();
 
