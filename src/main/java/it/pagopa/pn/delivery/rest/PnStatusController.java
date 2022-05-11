@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
-import it.pagopa.pn.api.dto.status.ResponseUpdateStatusDto;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.svc.StatusService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +21,12 @@ public class PnStatusController {
     }
 
     @PostMapping(PnDeliveryRestConstants.NOTIFICATION_UPDATE_STATUS_PATH )
-    public ResponseEntity<ResponseUpdateStatusDto> updateStatus (
+    public ResponseEntity<Void> updateStatus (
             @RequestBody @Valid RequestUpdateStatusDto requestDto
     ){
         log.info("Starting Update status for iun {}", requestDto.getIun());
-        ResponseUpdateStatusDto responseDto = statusService.updateStatus(requestDto);
-        return ResponseEntity.ok().body(responseDto);
+        statusService.updateStatus(requestDto);
+        return ResponseEntity.ok().build();
     }
-
+    
 }

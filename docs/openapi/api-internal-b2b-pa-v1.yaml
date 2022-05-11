@@ -44,7 +44,8 @@ info:
       Vedi [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
 
     Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
-    successiva di richiesta creazione della notifica.
+    successiva di richiesta creazione della notifica. Questo garantisce che eventuali utilizzi multipli (anche malevoli) del 
+    presignedUrl non vadano a sovrascrivere il file generando disservizi. 
     
     #### 2. Richiesta di invio della notifica
     
