@@ -76,29 +76,6 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         return ResponseEntity.ok( result );
     }
 
-
-    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_VIEWED_PATH )
-    public ResponseEntity<Resource> getReceivedNotificationDocument(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String userId,
-            @PathVariable("iun") String iun,
-            @PathVariable("documentIndex") int documentIndex,
-            ServerHttpResponse response
-    ) {
-        if(cfg.isDownloadWithPresignedUrl()){
-            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
-            //response.setStatusCode(HttpStatus.OK);
-            //response.getHeaders().setLocation(URI.create( redirectUrl ));
-
-            response.getHeaders().setContentType( MediaType.APPLICATION_JSON );
-            String responseString  = "{ \"url\": \"" + redirectUrl + "\"}";
-            Resource resource = new ByteArrayResource( responseString.getBytes(StandardCharsets.UTF_8) );
-            return ResponseEntity.ok( resource );
-        }else {
-            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
-            return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
-        }
-    }
-
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal docIdx) {
         NotificationAttachmentDownloadMetadataResponse.NotificationAttachmentDownloadMetadataResponseBuilder responseBuilder = NotificationAttachmentDownloadMetadataResponse.builder();

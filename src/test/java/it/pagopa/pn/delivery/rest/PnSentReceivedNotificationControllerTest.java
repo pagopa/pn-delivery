@@ -209,7 +209,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange().expectStatus().is5xxServerError();
 	}*/
 
-	@Test
+	/*@Test
 	void getReceivedNotificationDocumentsSuccess() {
 		//Given
 		ResponseEntity<Resource> response = ResponseEntity.ok()
@@ -234,7 +234,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk();
 
 		Mockito.verify( svc ).downloadDocument( IUN, DOCUMENT_INDEX );
-	}
+	}*/
 
 	private HttpHeaders headers() {
 		HttpHeaders headers = new HttpHeaders();
