@@ -113,7 +113,7 @@ class PnNotificationInputControllerTest {
 						.notificationRequestId( EncodingUtils.base64Encoding(IUN) ).build();
 				
 		// When
-		Mockito.when(deliveryService.receiveNotification( Mockito.any( InternalNotification.class )))
+		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
 				.thenReturn( savedNotification );
 
 		ModelMapper mapper = new ModelMapper();
@@ -134,7 +134,7 @@ class PnNotificationInputControllerTest {
                 .exchange()
                 .expectStatus().isOk();
 		
-		Mockito.verify( deliveryService ).receiveNotification( Mockito.any( InternalNotification.class ) );
+		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
 
 	@Test

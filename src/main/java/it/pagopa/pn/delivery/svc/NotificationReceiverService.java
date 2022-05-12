@@ -8,13 +8,15 @@ import java.util.*;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class NotificationReceiverService {
 	private final NewNotificationProducer newNotificationEventProducer;
 	private final AttachmentService attachmentSaver;
 	private final NotificationReceiverValidator validator;
+	private final ModelMapperFactory modelMapperFactory;
 
 	private final IunGenerator iunGenerator = new IunGenerator();
 
@@ -39,29 +42,36 @@ public class NotificationReceiverService {
 			DirectAccessService directAccessService,
 			NewNotificationProducer newNotificationEventProducer,
 			AttachmentService attachmentSaver,
-			NotificationReceiverValidator validator
-	) {
+			NotificationReceiverValidator validator,
+			ModelMapperFactory modelMapperFactory) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.directAccessService = directAccessService;
 		this.newNotificationEventProducer = newNotificationEventProducer;
 		this.attachmentSaver = attachmentSaver;
 		this.validator = validator;
+		this.modelMapperFactory = modelMapperFactory;
 	}
 
 	/**
 	 * Store metadata and documents about a new notification request
 	 *
-	 * @param internalNotification Public Administration notification request that PN have to forward to
+	 * @param xPagopaPnCxId Public Administration id
+	 * @param newNotificationRequest Public Administration notification request that PN have to forward to
 	 *                     one or more recipient
 	 * @return A model with the generated IUN and the paNotificationId sent by the
 	 *         Public Administration
 	 */
-	public NewNotificationResponse receiveNotification(InternalNotification internalNotification) {
+	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest) {
 		log.info("New notification storing START");
-		log.debug("New notification storing START for={}", internalNotification);
-		validator.checkNewNotificationBeforeInsertAndThrow(internalNotification);
-		log.debug("Validation OK for paProtocolNumber={}", internalNotification.getPaProtocolNumber() );
+		log.debug("New notification storing START for={}", newNotificationRequest);
+		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
+		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
+
+		ModelMapper modelMapper = modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class );
+		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
+
+		internalNotification.setSenderPaId( xPagopaPnCxId );
 
 		String iun = doSaveWithRethrow(internalNotification);
 

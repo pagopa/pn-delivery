@@ -270,6 +270,32 @@
                             <apiPackage>${project.groupId}.pn-delivery.microservice.client.safestorage.v1.api</apiPackage>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>generate-client-pn-delivery-push</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/feature/PN-1345/docs/openapi/api-private-v1.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <library>resttemplate</library>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <configOptions>
+                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.api</apiPackage>
+                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model</modelPackage>
+                                <dateLibrary>java8</dateLibrary>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <useAbstractionForFiles>true</useAbstractionForFiles>
+                                <useBeanValidation>false</useBeanValidation>
+                            </configOptions>
+                            <modelPackage>${project.groupId}.pn-delivery.microservice.client.deliverypush.v1.dto</modelPackage>
+                            <apiPackage>${project.groupId}.pn-delivery.microservice.client.deliverypush.v1.api</apiPackage>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

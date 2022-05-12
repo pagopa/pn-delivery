@@ -4,15 +4,12 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,24 +25,16 @@ public class PnNotificationInputController implements NewNotificationApi {
     private final PnDeliveryConfigs cfgs;
     private final NotificationReceiverService svc;
     private final S3PresignedUrlService presignSvc;
-    private final ModelMapperFactory modelMapperFactory;
 
-    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, S3PresignedUrlService presignSvc, ModelMapperFactory modelMapperFactory) {
+    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, S3PresignedUrlService presignSvc) {
         this.cfgs = cfgs;
         this.svc = svc;
         this.presignSvc = presignSvc;
-        this.modelMapperFactory = modelMapperFactory;
     }
 
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, NewNotificationRequest newNotificationRequest) {
-
-        ModelMapper modelMapper = modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class );
-        InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
-
-        log.info( internalNotification.toString() );
-
-        NewNotificationResponse svcRes = svc.receiveNotification(internalNotification);
+        NewNotificationResponse svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
         return ResponseEntity.ok( svcRes );
     }
 
