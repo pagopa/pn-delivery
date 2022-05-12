@@ -92,7 +92,7 @@ class NotificationRetrieverServiceTest {
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
 
         ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
 
@@ -107,7 +107,7 @@ class NotificationRetrieverServiceTest {
                 .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
                 .senderReceiverId( "receiverId" )
-                .delegator( "delegatorId" )
+                .mandateId( "mandateId" )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
@@ -120,7 +120,7 @@ class NotificationRetrieverServiceTest {
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
 
         Executable todo = () -> svc.searchNotification( inputSearch );
 

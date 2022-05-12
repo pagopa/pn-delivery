@@ -81,9 +81,9 @@ public class NotificationRetrieverService {
 
 		if ( !searchDto.isBySender() ) {
 			String receiverId = searchDto.getSenderReceiverId();
-			String delegatorId = searchDto.getDelegator();
-			if (delegatorId != null && !delegatorId.equals(receiverId)) {
-				checkMandate(searchDto, delegatorId);
+			String mandateId = searchDto.getMandateId();
+			if (mandateId != null) {
+				checkMandate(searchDto, mandateId);
 			}
 		}
 
@@ -120,33 +120,31 @@ public class NotificationRetrieverService {
 	 * Check mandates for uid and cx-id
 	 *
 	 * @param searchDto search input data
-	 * @param delegator opaque login delegator id
+	 * @param mandateId mandate id
 	 * @throws PnNotFoundException if no valid mandate for delegator, receiver
 	 *
 	 *
 	 */
-	private void checkMandate(InputSearchNotificationDto searchDto, String delegator) {
+	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
-		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId);
+		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {
-				if (mandate.getDelegator() != null && mandate.getDatefrom() != null && mandate.getDelegator().equals(delegator)) {
-					Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
-					Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
-					adjustSearchDatesAndReceiver( searchDto, mandateStartDate, mandateEndDate );
+				if (mandate.getDelegator() != null && mandate.getDatefrom() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
+					adjustSearchDatesAndReceiver( searchDto, mandate );
 					validMandate = true;
-					log.info( "Valid mandate for delegator={}", delegator );
+					log.info( "Valid mandate for delegate={}", senderReceiverId );
 					break;
 				}
 			}
 			if (!validMandate){
-				String message = String.format("Unable to find valid mandate for delegator=%s and receiver=%s", delegator, senderReceiverId);
+				String message = String.format("Unable to find valid mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
 				log.error( message );
 				throw new PnNotFoundException( message );
 			}
 		} else {
-			String message = String.format("Unable to find any mandate for delegator=%s", delegator);
+			String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
 			log.error( message );
 			throw new PnNotFoundException( message );
 		}
@@ -156,23 +154,23 @@ public class NotificationRetrieverService {
 	 * Adjust search range date and receiver with mandate info
 	 *
 	 * @param searchDto search input data
-	 * @param mandateStartDate mandate start date
-	 * @param mandateEndDate mandate end date
+	 * @param mandate mandate object
 	 *
 	 *
 	 */
 	private void adjustSearchDatesAndReceiver(InputSearchNotificationDto searchDto,
-											  Instant mandateStartDate,
-											  Instant mandateEndDate) {
+											  InternalMandateDto mandate) {
 		Instant searchStartDate = searchDto.getStartDate();
 		Instant searchEndDate = searchDto.getEndDate();
+		Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
+		Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
 		searchDto.setStartDate( searchStartDate.isBefore(mandateStartDate)? mandateStartDate : searchStartDate );
 		if (mandateEndDate != null) {
 			searchDto.setEndDate( searchEndDate.isBefore(mandateEndDate) ? searchEndDate : mandateEndDate );
 		}
 		log.debug( "Adjust search date, startDate={} endDate={}", searchDto.getStartDate(), searchDto.getEndDate() );
 
-		String delegator = searchDto.getDelegator();
+		String delegator = mandate.getDelegator();
 		if (StringUtils.isNotBlank( delegator )) {
 			searchDto.setSenderReceiverId( delegator );
 		}
