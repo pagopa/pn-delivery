@@ -29,14 +29,4 @@ public class NotificationReceiverValidator {
         return validator.validate(internalNotification, NotificationJsonViews.New.class );
     }
 
-    /*public void checkNewNotificationBeforeInsertAndThrow(NewNotificationRequest notification) {
-        Set<ConstraintViolation<NewNotificationRequest>> errors = checkNewNotificationBeforeInsert( notification );
-        if( ! errors.isEmpty() ) {
-            throw new PnValidationException(notification.getIdempotenceToken(), errors);
-        }
-    }
-
-    public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationBeforeInsert(NewNotificationRequest notification) {
-        return validator.validate( notification, NewNotificationRequest.class );
-    }*/
 }

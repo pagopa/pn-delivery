@@ -6,9 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import lombok.*;
 
-import javax.validation.Valid;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 @NoArgsConstructor

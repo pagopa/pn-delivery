@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class IunGeneratorTest {
+class IunGeneratorTest {
 
     private IunGenerator iunGenerator;
 

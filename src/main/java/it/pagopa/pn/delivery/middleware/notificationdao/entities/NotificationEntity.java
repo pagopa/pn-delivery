@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfoFeePolicies;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import lombok.*;

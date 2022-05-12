@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AttachmentService {
 
-    private static final String SHA256_METADATA_NAME = "sha256";
-
     private final FileStorage fileStorage;
 
     public AttachmentService(FileStorage fileStorage) {
@@ -38,9 +36,6 @@ public class AttachmentService {
     public InternalNotification saveAttachments(InternalNotification internalNotification) {
         String iun = internalNotification.getIun();
 
-        //InternalNotification.InternalNotificationBuilder builder = internalNotification.toBuilder();
-        FullSentNotification.FullSentNotificationBuilder fullSentNotificationBuilder = FullSentNotification.builder();
-
         // - Save documents
         log.debug("Saving documents for iun={} START", iun);
         saveDocuments(internalNotification);
@@ -48,11 +43,9 @@ public class AttachmentService {
 
         // - save F24
         log.debug("Saving F24 for iun={} START", iun);
-        //for ( NotificationRecipient recipient : internalNotification.getRecipients() ) {
         saveF24( internalNotification );
-        //}
-
         log.debug("Saving F24 for iun={} END", iun);
+
         return internalNotification;
     }
 
@@ -86,45 +79,13 @@ public class AttachmentService {
                     saveAndUpdatePaymentAttachment(pagoPaForm, notification.getSenderPaId());
                 }
             }
-
-
-
-            /*NotificationPaymentInfo.NotificationPaymentInfoBuilder paymentsBuilder;
-            paymentsBuilder = recipient.getPayment().toBuilder();
-
-            //NotificationPaymentInfo f24 = paymentsInfo.f24analogRaccDouble();
-            if( f24 != null ) {
-
-                NotificationPaymentInfo.F24.F24Builder f24Builder = f24.toBuilder();
-
-                NotificationPaymentAttachment f24FlatRate = f24.getFlatRate();
-                if( f24FlatRate != null ) {
-                    String key = String.format( "%s/f24/flatRate", iun);
-                    f24Builder.flatRate( saveAndUpdateAttachment(notification, f24FlatRate, key ) );
-                }
-
-                NotificationPaymentAttachment f24Digital = f24.getDigital();
-                if( f24Digital != null ) {
-                    String key = String.format( "%s/f24/digital", iun);
-                    f24Builder.digital( saveAndUpdateAttachment(notification, f24Digital, key ) );
-                }
-
-                NotificationPaymentAttachment f24Analog = f24.getAnalog();
-                if( f24Analog != null ) {
-                    String key = String.format( "%s/f24/analog", iun);
-                    f24Builder.analog( saveAndUpdateAttachment(notification, f24Analog, key ) );
-                }
-
-                paymentsBuilder.f24( f24Builder.build() );
-            }
-            builder.payment( paymentsBuilder.build() );*/
         }
     }
 
     private void saveAndUpdatePaymentAttachment(NotificationPaymentAttachment paymentAttachment, String paId) {
         NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
 
-        //log.info( "Retrieve attachment by ref iun={} key={}", iun, attachmentRef.getKey() );
+        log.info( "Retrieve attachment by ref with key={}", attachmentRef.getKey() );
         String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
         String versionId = attachmentRef.getVersionToken();
 

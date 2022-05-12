@@ -31,6 +31,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -114,27 +115,32 @@ class NotificationReceiverTest {
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}*/
 
-	/*@Test
+	@Test
 	void successWritingNotificationWithPaymentsInformationWithFlatFee() throws IdConflictException {
 		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
 		// Given
-		Notification notification = newNotificationWithPaymentsFlat( );
+		InternalNotification notification = newNotificationWithPaymentsFlat( );
 
 		// When
-		//NewNotificationResponse addedNotification = deliveryService.receiveNotification( notification );
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( notification );
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
-		//assertEquals(EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
-		assertEquals( notification.getPaNotificationId(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
-		//assertEquals( notification.getPaNotificationId(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
+		assertEquals(EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
+		assertEquals( notification.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
+		assertEquals( notification.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
-		Mockito.verify( fileStorage, Mockito.times(3) )
-				.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
-	}*/
+	}
 
 	@Test
 	void successWritingNotificationWithoutPaymentsInformation() throws IdConflictException {
@@ -158,9 +164,6 @@ class NotificationReceiverTest {
 		assertEquals( EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
 		assertEquals( notification.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( notification.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
-
-		//Mockito.verify( fileStorage, Mockito.times(2) )
-		//		.putFileVersion( Mockito.anyString(), Mockito.any(InputStream.class), Mockito.anyLong(), Mockito.anyString(), Mockito.anyMap() );
 
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
@@ -299,19 +302,51 @@ class NotificationReceiverTest {
 				.build();
 	}*/
 
-	/*Notification newNotificationWithPaymentsFlat( ) {
-		return newNotificationWithoutPayments( ).toBuilder()
+	private InternalNotification newNotificationWithPaymentsFlat( ) {
+		NotificationRecipient recipient = NotificationRecipient.builder()
+				.taxId( "Codice Fiscale 02" )
+				.physicalAddress( NotificationPhysicalAddress.builder()
+						.municipality( "municipality" )
+						.zip( "zip_code" )
+						.address( "address" )
+						.build())
+				.denomination( "denomination" )
+				.digitalDomicile( NotificationDigitalAddress.builder()
+						.type( NotificationDigitalAddress.TypeEnum.PEC )
+						.address( "digitalAddressPec" )
+						.build() )
 				.payment( NotificationPaymentInfo.builder()
-						.iuv( "IUV_01" )
-						.notificationFeePolicy( NotificationPaymentInfoFeePolicies.FLAT_RATE )
-						.f24( NotificationPaymentInfo.F24.builder()
-								.flatRate(NOTIFICATION_INLINE_ATTACHMENT)
+						//.iuv( "IUV_01" )
+						.notificationFeePolicy( NotificationPaymentInfo.NotificationFeePolicyEnum.FLAT_RATE )
+						.f24flatRate( NotificationPaymentAttachment.builder()
+								.ref( NotificationAttachmentBodyRef.builder()
+										.key( KEY )
+										.versionToken( VERSION_TOKEN )
+										.build() )
+								.digests( NotificationAttachmentDigests.builder()
+										.sha256( SHA256_BODY )
+										.build() )
+								.contentType( "application/pdf" )
 								.build()
 						)
 						.build()
-				)
-				.build();
-	}*/
+				).build();
+		return new InternalNotification( FullSentNotification.builder()
+				.iun("IUN_01")
+				.sentAt( Date.from(Instant.now()))
+				.paProtocolNumber("protocol_01")
+				.subject("Subject 01")
+				.physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
+				.cancelledByIun("IUN_05")
+				.cancelledIun("IUN_00")
+				.senderPaId(" pa_02")
+				.recipients( Collections.singletonList( recipient ) )
+				.documents(List.of(
+						NOTIFICATION_REFERRED_ATTACHMENT
+				))
+				.group( "Group_1" )
+				.build(), Collections.EMPTY_MAP );
+	}
 
 }
 

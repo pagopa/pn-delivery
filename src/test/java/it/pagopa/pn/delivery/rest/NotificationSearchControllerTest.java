@@ -34,8 +34,8 @@ import java.util.List;
 class NotificationSearchControllerTest {
 
     private static final String SENDER_ID = "test";
-    private static final Instant START_DATE = Instant.parse("2021-09-17T00:00:00.000Z");
-    private static final Instant END_DATE = Instant.parse("2021-09-18T00:00:00.000Z");
+    private static final String START_DATE = "2021-09-17T00:00:00.000Z";
+    private static final String END_DATE = "2021-09-18T00:00:00.000Z";
     private static final Integer SIZE = 10;
     private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
@@ -108,8 +108,8 @@ class NotificationSearchControllerTest {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
                 .senderReceiverId(SENDER_ID)
-                .startDate(START_DATE)
-                .endDate(END_DATE)
+                .startDate(Instant.parse(START_DATE))
+                .endDate(Instant.parse(END_DATE))
                 .filterId(RECIPIENT_ID)
                 .status(STATUS)
                 .subjectRegExp(SUBJECT_REG_EXP)
@@ -170,8 +170,8 @@ class NotificationSearchControllerTest {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
                 .senderReceiverId(SENDER_ID)
-                .startDate(START_DATE)
-                .endDate(END_DATE)
+                .startDate(Instant.parse(START_DATE))
+                .endDate(Instant.parse(END_DATE))
                 .size( SIZE )
                 .nextPagesKey( NEXT_PAGES_KEY )
                 .build();
@@ -232,8 +232,8 @@ class NotificationSearchControllerTest {
                 .bySender(false)
                 .senderReceiverId(RECIPIENT_ID)
                 .mandateId( MANDATE_ID )
-                .startDate(START_DATE)
-                .endDate(END_DATE)
+                .startDate(Instant.parse(START_DATE))
+                .endDate(Instant.parse(END_DATE))
                 .filterId(SENDER_ID)
                 .status(STATUS)
                 .subjectRegExp(SUBJECT_REG_EXP)

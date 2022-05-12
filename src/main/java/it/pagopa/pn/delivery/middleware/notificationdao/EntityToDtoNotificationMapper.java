@@ -30,7 +30,7 @@ public class EntityToDtoNotificationMapper {
             throw new PnInternalException(" Notification entity with iun " + entity.getIun() + " hash invalid physicalCommunicationType value");
         }
 
-        InternalNotification internalNotification = new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotification.builder()
                 .iun( entity.getIun() )
                 .subject( entity.getSubject() )
                 .sentAt( Date.from(entity.getSentAt()) )
@@ -44,48 +44,6 @@ public class EntityToDtoNotificationMapper {
                 .documents( buildDocumentsList( entity ) )
                 .build()
         , Collections.EMPTY_MAP);
-
-        boolean anyPaymentFieldNotNull = Stream.of(
-                    entity.getIuv(), entity.getNotificationFeePolicy(),
-                    entity.getF24AnalogDigestSha256(), entity.getF24AnalogVersionId(),
-                    entity.getF24DigitalDigestSha256(), entity.getF24DigitalVersionId(),
-                    entity.getF24FlatRateDigestSha256(), entity.getF24FlatRateVersionId()
-                )
-                .anyMatch( Objects::nonNull );
-        if ( anyPaymentFieldNotNull ) {
-            //builder.payment( buildNotificationPaymentInfo( entity ) );
-        }
-
-        return internalNotification;
-    }
-
-    private NotificationPaymentInfo buildNotificationPaymentInfo(NotificationEntity entity) {
-
-        NotificationPaymentInfo.NotificationPaymentInfoBuilder builder =  NotificationPaymentInfo.builder()
-                //.iuv( entity.getIuv() )
-                //.notificationFeePolicy( entity.getNotificationFeePolicy() )
-                ;
-
-        NotificationAttachment f24Digital = buildAttachment( entity.getF24DigitalKey(),
-                             entity.getF24DigitalVersionId(), entity.getF24DigitalDigestSha256() );
-        NotificationAttachment f24Analog = buildAttachment( entity.getF24AnalogKey(),
-                             entity.getF24AnalogVersionId(), entity.getF24AnalogDigestSha256() );
-        NotificationAttachment f24FlatRate = buildAttachment( entity.getF24FlatRateKey(),
-                           entity.getF24FlatRateVersionId(), entity.getF24FlatRateDigestSha256() );
-
-        boolean anyF24moduleNotNull = Stream.of( f24Analog, f24Digital, f24FlatRate )
-                .anyMatch( Objects::nonNull );
-
-        //if( anyF24moduleNotNull ) {
-        //    builder.f24( NotificationPaymentInfo.F24.builder()
-        //            .analog( f24Analog )
-        //            .digital( f24Digital )
-        //            .flatRate( f24FlatRate )
-        //            .build()
-        //    );
-        //}
-
-        return builder.build();
     }
 
     private NotificationAttachment buildAttachment(String key, String version, String sha256 ) {

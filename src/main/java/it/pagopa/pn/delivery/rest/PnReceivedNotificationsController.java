@@ -1,11 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-
-import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
@@ -22,7 +17,6 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -74,7 +68,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     @Override
     public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun) {
-        InternalNotification internalNotification =  retrieveSvc.getNotificationAndNotifyViewedEvent( xPagopaPnCxId, iun );
+        InternalNotification internalNotification =  retrieveSvc.getNotificationAndNotifyViewedEvent( iun, xPagopaPnCxId );
 
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class );
 
@@ -110,8 +104,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         NotificationAttachmentDownloadMetadataResponse.NotificationAttachmentDownloadMetadataResponseBuilder responseBuilder = NotificationAttachmentDownloadMetadataResponse.builder();
 
         String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, docIdx.intValue());
-        //String responseString  = "{ \"url\": \"" + redirectUrl + "\"}";
-        //Resource resource = new ByteArrayResource( responseString.getBytes(StandardCharsets.UTF_8) );
+        // TODO info mancanti di NotificationAttachmentDonwnloadMetadataResponse quando get file da safe-storage
         NotificationAttachmentDownloadMetadataResponse response = responseBuilder.url(redirectUrl).build();
         return ResponseEntity.ok( response );
 

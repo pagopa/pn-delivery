@@ -104,7 +104,6 @@ public class NotificationReceiverService {
 
 		log.debug("Generate tokens for iun={}", iun);
 		// generazione token per ogni destinatario
-		//List<NotificationRecipient> recipientsWithToken = addDirectAccessTokenToRecipients(notification, iun);
 		Map<NotificationRecipient,String> tokens = generateToken( internalNotification.getRecipients(), iun );
 
 		internalNotification.iun( iun );
@@ -122,16 +121,7 @@ public class NotificationReceiverService {
 		log.info("Store the notification metadata for iun={}", iun);
 		notificationDao.addNotification(internalNotificationWithCompleteMetadata);
 	}
-	
-	/*private List<NotificationRecipient> addDirectAccessTokenToRecipients(Notification notification, String iun) {
-		List<NotificationRecipient> recipients = notification.getRecipients();
-		List<NotificationRecipient> recipientsWithToken = new ArrayList<>(recipients.size());
-		for (NotificationRecipient recipient : recipients) {
-			String token = directAccessService.generateToken(iun, recipient.getTaxId());
-			recipientsWithToken.add( recipient.toBuilder().token( token ).build() );
-		}
-		return recipientsWithToken;
-	}*/
+
 
 	private Map<NotificationRecipient,String> generateToken(List<NotificationRecipient> recipientList, String iun) {
 		Map<NotificationRecipient,String> tokens = new HashMap<>();

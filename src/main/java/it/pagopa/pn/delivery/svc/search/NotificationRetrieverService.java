@@ -78,7 +78,6 @@ public class NotificationRetrieverService {
 		validateInput(searchDto);
 
 		if ( !searchDto.isBySender() ) {
-			String receiverId = searchDto.getSenderReceiverId();
 			String mandateId = searchDto.getMandateId();
 			if (mandateId != null) {
 				checkMandate(searchDto, mandateId);
@@ -290,7 +289,7 @@ public class NotificationRetrieverService {
 
 			NotificationDocument doc = notification.getDocuments().get(documentIndex);
 			// TODO utilizzare il servizio di safe-storage
-			// response = fileStorage.loadAttachment( doc.getRef() );
+			//response = fileStorage.loadAttachment( doc.getRef() );
 		} else {
 			log.error("Notification not found for iun {}", iun);
 			throw new PnInternalException("Notification not found for iun " + iun);

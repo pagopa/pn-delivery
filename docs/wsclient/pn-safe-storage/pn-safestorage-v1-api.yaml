@@ -117,7 +117,7 @@ paths:
                 documentsTypes:
                   - name: PN_NOTIFICATION_ATTACHMENTS
                     informationClassification: 'HC'
-                    allowedInitialStatus: [ 'PRELOADED', 'ATTACHED' ]
+                    initialStatus: 'PRELOADED'
                     digitalSignature: false
                     timestamped: NONE
                     checksum: SHA256
@@ -131,7 +131,7 @@ paths:
                         allowedStatusTransitions: []
                   - name: PN_AAR
                     informationClassification: 'HC'
-                    allowedInitialStatus: [ 'SAVED' ]
+                    initialStatus: 'SAVED'
                     digitalSignature: false
                     timestamped: NONE
                     checksum: MD5
@@ -151,7 +151,7 @@ paths:
                         allowedStatusTransitions: []
                   - name: PN_EXTERNAL_LEGAL_FACTS
                     informationClassification: 'HC'
-                    allowedInitialStatus: [ 'SAVED' ]
+                    initialStatus: 'SAVED'
                     digitalSignature: false
                     timestamped: NONE
                     checksum: MD5
@@ -748,11 +748,9 @@ components:
                 type: array
                 items:
                   type: string
-        allowedInitialStatus:
-          description: Stati in cui può essere creato un documento.
-          type: array
-          items:
-            type: string
+        initialStatus:
+          description: Stato iniziale in cui viene creato un documento.
+          type: string
 
     ConfidentialityLevel:
       type: string

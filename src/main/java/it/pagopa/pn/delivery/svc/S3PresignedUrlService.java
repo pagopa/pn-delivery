@@ -109,7 +109,7 @@ public class S3PresignedUrlService {
 
         return new PreLoadResponse()
                 .url( urlForUpload )
-                //.httpMethod( httpMethodForUpload )
+                .httpMethod( PreLoadResponse.HttpMethodEnum.fromValue(httpMethodForUpload) )
                 .secret( secret )
                 .key( key );
     }
