@@ -8,6 +8,8 @@ public class IunGenerator {
     private static final char[] IUN_CHARS = new char[] {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
     private static final String SEPARATOR = "-";
 
+    private Random randomNumberGenerator = new Random();
+
     public String generatePredictedIun( Instant creationInstant) {
         String creationDate = creationInstant.toString();
         String[] creationDateSplit = creationDate.split( SEPARATOR );
@@ -32,14 +34,13 @@ public class IunGenerator {
     }
 
     private String generateRandomString(int segmentLength, int segmentQuantity, char separator) {
-        Random random = new Random();
         StringBuilder buffer = new StringBuilder((segmentLength + 1) * segmentQuantity);
         for (int s = 0 ; s < segmentQuantity; s++) {
             if (s > 0) {
                 buffer.append(separator);
             }
             for (int i = 0; i < segmentLength; i++) {
-                int randomLimitedInt = random.nextInt(IUN_CHARS.length);
+                int randomLimitedInt = randomNumberGenerator.nextInt(IUN_CHARS.length);
                 buffer.append(IUN_CHARS[randomLimitedInt]);
             }
         }
