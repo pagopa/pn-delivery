@@ -5,15 +5,15 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/569553cff2ce3a33e95da1470ed768929e37cea5/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/50bab19c2ee558c8e8851cc491e1e5a870694c7d/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
     cxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/569553cff2ce3a33e95da1470ed768929e37cea5/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/50bab19c2ee558c8e8851cc491e1e5a870694c7d/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
     cxGroupsAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/569553cff2ce3a33e95da1470ed768929e37cea5/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'      
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/50bab19c2ee558c8e8851cc491e1e5a870694c7d/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'
     uidAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/569553cff2ce3a33e95da1470ed768929e37cea5/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/50bab19c2ee558c8e8851cc491e1e5a870694c7d/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
     cxTaxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/ea5a5bbb0fcc17b67d9737f1c50b6c2c49b558d1/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTaxIdAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/50bab19c2ee558c8e8851cc491e1e5a870694c7d/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTaxIdAuthFleet'
 
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
