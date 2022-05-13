@@ -12,7 +12,7 @@
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV Target config" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV API Endpoint config" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="protocol" elementType="Argument">
             <stringProp name="Argument.name">protocol</stringProp>
@@ -37,7 +37,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV Test Globals" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV Test Constants" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="requestIndex" elementType="Argument">
             <stringProp name="Argument.name">requestIndex</stringProp>
@@ -57,21 +57,31 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV Test Parameter" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV General Test Parameter" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="numUser" elementType="Argument">
             <stringProp name="Argument.name">numUser</stringProp>
-            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.value">${__P(numUser,1)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="rampUp" elementType="Argument">
             <stringProp name="Argument.name">rampUp</stringProp>
-            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.value">${__P(rampUp,1)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="loop" elementType="Argument">
             <stringProp name="Argument.name">loop</stringProp>
-            <stringProp name="Argument.value">1</stringProp>
+            <stringProp name="Argument.value">${__P(loop,1)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="timer_delay_ms" elementType="Argument">
+            <stringProp name="Argument.name">timer_delay_ms</stringProp>
+            <stringProp name="Argument.value">1500</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="timer_offset_ms" elementType="Argument">
+            <stringProp name="Argument.name">timer_offset_ms</stringProp>
+            <stringProp name="Argument.value">500</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="connTimeout" elementType="Argument">
@@ -84,21 +94,21 @@
             <stringProp name="Argument.value">30000</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="doc_path" elementType="Argument">
-            <stringProp name="Argument.name">doc_path</stringProp>
-            <stringProp name="Argument.value">${configPath}../inputs/multa.pdf</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="doc_sha256" elementType="Argument">
-            <stringProp name="Argument.name">doc_sha256</stringProp>
-            <stringProp name="Argument.value">06e21dbe27ac8e41251a2cfa7003d697c04aea7591ca358c1218071c9ceb3875</stringProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="UDV Particular Test Parameter" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="attachment_path" elementType="Argument">
+            <stringProp name="Argument.name">attachment_path</stringProp>
+            <stringProp name="Argument.value">${configPath}../inputs</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group Invio notifiche" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <stringProp name="ThreadGroup.on_sample_error">startnextloop</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">${loop}</stringProp>
@@ -111,10 +121,27 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_pa_protocol_input" enabled="true">
+        <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Gaussian Random Timer" enabled="true">
+          <stringProp name="ConstantTimer.delay">${timer_delay_ms}</stringProp>
+          <stringProp name="RandomTimer.range">${timer_offset_ms}</stringProp>
+        </GaussianRandomTimer>
+        <hashTree/>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_attachment_files" enabled="true">
           <stringProp name="delimiter">,</stringProp>
           <stringProp name="fileEncoding"></stringProp>
-          <stringProp name="filename">${configPath}../inputs/new_notifications.csv</stringProp>
+          <stringProp name="filename">${configPath}../inputs/attachments.csv</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <boolProp name="quotedData">false</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="variableNames"></stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_notification_input" enabled="true">
+          <stringProp name="delimiter">,</stringProp>
+          <stringProp name="fileEncoding"></stringProp>
+          <stringProp name="filename">${configPath}../inputs/notifications_data.csv</stringProp>
           <boolProp name="ignoreFirstLine">true</boolProp>
           <boolProp name="quotedData">false</boolProp>
           <boolProp name="recycle">true</boolProp>
@@ -215,8 +242,8 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT UploadFile" enabled="true">
           <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
             <collectionProp name="HTTPFileArgs.files">
-              <elementProp name="${doc_path}" elementType="HTTPFileArg">
-                <stringProp name="File.path">${doc_path}</stringProp>
+              <elementProp name="${attachment_path}/${attachment_file}" elementType="HTTPFileArg">
+                <stringProp name="File.path">${attachment_path}/${attachment_file}</stringProp>
                 <stringProp name="File.paramname">body-file</stringProp>
                 <stringProp name="File.mimetype">application/pdf</stringProp>
               </elementProp>
@@ -249,6 +276,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
             <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="TestPlan.comments">this is used to clean </stringProp>
             <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -317,7 +345,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             },&#xd;
             &quot;contentType&quot;: null,&#xd;
             &quot;digests&quot;: {&#xd;
-                &quot;sha256&quot;: &quot;${doc_sha256}&quot;&#xd;
+                &quot;sha256&quot;: &quot;${attachment_sha256}&quot;&#xd;
             }&#xd;
        }&#xd;
    ]&#xd;
@@ -359,20 +387,15 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
+        <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="false">
           <boolProp name="displayJMeterProperties">false</boolProp>
           <boolProp name="displayJMeterVariables">true</boolProp>
           <boolProp name="displaySystemProperties">false</boolProp>
         </DebugSampler>
         <hashTree/>
-        <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Gaussian Random Timer" enabled="true">
-          <stringProp name="ConstantTimer.delay">1500</stringProp>
-          <stringProp name="RandomTimer.range">100.0</stringProp>
-        </GaussianRandomTimer>
-        <hashTree/>
       </hashTree>
       <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">
-        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
         <objProp>
           <name>saveConfig</name>
           <value class="SampleSaveConfiguration">
@@ -405,7 +428,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename">${configPath}test-result/send_notifications_user-${numUser}_rampUp-${rampUp}_loop-${loop}_${timestamp}.csv</stringProp>
+        <stringProp name="filename">${configPath}test-result/send_notifications_user-${numUser}_rampUp-${rampUp}_loop-${loop}_${timestamp}-aggr.jtl</stringProp>
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
@@ -442,7 +465,7 @@ vars.put(&apos;preload_query&apos;, url.getQuery())</stringProp>
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename">${configPath}./test-result/send_notifications_user-${numUser}_rampUp-${rampUp}_loop-${loop}_${timestamp}.error</stringProp>
+        <stringProp name="filename">${configPath}./test-result/send_notifications_user-${numUser}_rampUp-${rampUp}_loop-${loop}_${timestamp}_err.jtl</stringProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>
