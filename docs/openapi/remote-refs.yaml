@@ -12,6 +12,8 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/569553cff2ce3a33e95da1470ed768929e37cea5/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'      
     uidAuthFleet:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/569553cff2ce3a33e95da1470ed768929e37cea5/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+    cxTaxIdAuthFleet:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/ea5a5bbb0fcc17b67d9737f1c50b6c2c49b558d1/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTaxIdAuthFleet'
 
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
