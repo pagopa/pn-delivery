@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Slf4j
 @Component
@@ -23,7 +24,7 @@ public class PnDevliveryPushClientOpenApiImpl {
         this.timelineAndStatusApi = new TimelineAndStatusApi( newApiClient );
     }
 
-    public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
-        return timelineAndStatusApi.getNotificationHistory( iun, numberOfRecipients, createdAt.toString());
+    public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, OffsetDateTime createdAt) {
+        return timelineAndStatusApi.getNotificationHistory( iun, numberOfRecipients, createdAt);
     }
 }

@@ -99,12 +99,12 @@
                 <version>5.4.0</version>
                 <executions>
                     <execution>
-                        <id>pn-delivery-server-private</id>
+                        <id>pn-delivery-server-internal-b2b-pa</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-pa-v1.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix></modelNameSuffix>
@@ -129,12 +129,12 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>pn-delivery-server-internal-b2b-pa</id>
+                        <id>pn-delivery-server-private</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-pa-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix></modelNameSuffix>
