@@ -14,11 +14,11 @@ info:
     name: Licenza di PN
     url: 'https://da-definire/'
 servers:
-  - url: https://api.pn.pagopa.it
+  - url: https://api-io.pn.pagopa.it
     description: Ambiente di produzione
-  - url: https://api.uat.pn.pagopa.it
+  - url: https://api-io.uat.pn.pagopa.it
     description: Ambiente di test
-  - url: https://api.dev.pn.pagopa.it
+  - url: https://api-io.dev.pn.pagopa.it
     description: Ambiente di sviluppo
 tags:
   - name: AppIO-PN-Notification
