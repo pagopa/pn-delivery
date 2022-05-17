@@ -1,29 +1,22 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
-import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -35,7 +28,10 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String PA_ID = "PA_ID";
 	private static final int DOCUMENT_INDEX = 0;
 	private static final String REDIRECT_URL = "http://redirectUrl";
-	private static final long CONTENT_LENGTH = 100;
+	public static final String ATTACHMENT_BODY_STR = "Body";
+	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
+	private static final String FILENAME = "filename.pdf";
+
 
 	@Autowired
     WebTestClient webTestClient;
@@ -110,11 +106,17 @@ class PnSentReceivedNotificationControllerTest {
 
 	@Test
 	void getSentNotificationDocumentsWithPresignedSuccess() {
+		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( REDIRECT_URL )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.build();
 
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( svc.downloadDocumentWithRedirect( Mockito.anyString(), Mockito.anyInt() ))
-				.thenReturn( REDIRECT_URL );
+				.thenReturn( response );
 
 		// Then
 		webTestClient.get()
@@ -137,10 +139,17 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getReceivedNotificationDocumentsWithPresignedSuccess() {
 
+		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( REDIRECT_URL )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.build();
+
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( svc.downloadDocumentWithRedirect( Mockito.anyString(), Mockito.anyInt() ))
-				.thenReturn( REDIRECT_URL );
+				.thenReturn( response );
 
 		// Then
 		webTestClient.get()

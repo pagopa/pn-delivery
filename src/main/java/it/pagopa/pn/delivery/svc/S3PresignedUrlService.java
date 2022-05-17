@@ -114,13 +114,9 @@ public class S3PresignedUrlService {
                 .key( key );
     }
 
-    public PreLoadResponse presignedDownload( String name, NotificationDocument attachment ) {
+    public String presignedDownload( String name, NotificationDocument attachment ) {
         Duration urlDuration = cfgs.getDownloadUrlDuration();
-        String secret = UUID.randomUUID().toString();
         log.debug( "Retrieve extension for attachment with name={}", name );
-        String extension = getExtension( attachment );
-
-        String fullName = name + "." + extension;
 
         NotificationAttachmentBodyRef attachmentRef = attachment.getRef();
         GetObjectRequest objectRequest = GetObjectRequest.builder()
@@ -128,7 +124,7 @@ public class S3PresignedUrlService {
                 .key( attachmentRef.getKey() )
                 .versionId( attachmentRef.getVersionToken() )
                 .responseCacheControl("no-store, max-age=0")
-                .responseContentDisposition("attachment; filename=\"" + fullName + "\"")
+                .responseContentDisposition("attachment; filename=\"" + name + "\"")
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
@@ -139,28 +135,7 @@ public class S3PresignedUrlService {
         PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
         log.debug( "GET presigned object END" );
 
-        PreLoadResponse.HttpMethodEnum httpMethodForDownload = PreLoadResponse.HttpMethodEnum.fromValue( presignedRequest.httpRequest().method().toString());
-        String urlForDownload = presignedRequest.url().toString();
-
-        return PreLoadResponse.builder()
-                .url( urlForDownload )
-                .httpMethod( httpMethodForDownload )
-                .secret( secret )
-                .key( null )
-                .build();
-    }
-
-    private String getExtension(NotificationDocument attachment) {
-        String extension;
-        try {
-            MediaType contentType = MediaType.parseMediaType( attachment.getContentType() );
-            extension = contentType.getSubtype();
-        } catch (InvalidMediaTypeException e) {
-            log.error( "Error parsing media type for attachment=" + attachment.getRef().toString());
-            throw new PnInternalException( "Error parsing media type for attachment="
-                    + attachment.getRef().toString(), e);
-        }
-        return extension;
+        return  presignedRequest.url().toString();
     }
 
 }

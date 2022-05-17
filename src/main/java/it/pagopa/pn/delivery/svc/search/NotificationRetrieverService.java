@@ -298,8 +298,8 @@ public class NotificationRetrieverService {
 		return response;
 	}
 
-	public String downloadDocumentWithRedirect(String iun, int documentIndex) {
-		PreLoadResponse response;
+	public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(String iun, int documentIndex) {
+		NotificationAttachmentDownloadMetadataResponse response;
 
 		log.info("Retrieve notification with iun={} ", iun);
 		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
@@ -309,14 +309,20 @@ public class NotificationRetrieverService {
 			log.debug("Document download START for iun={} and documentIndex={} ", iun, documentIndex);
 
 			NotificationDocument doc = notification.getDocuments().get( documentIndex );
-			String fileName = iun + "doc_" + documentIndex;
-			response = presignedUrlSvc.presignedDownload( fileName, doc );
+			String unescapedFileName = iun + "__" + doc.getTitle();
+			String fileName = unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + ".pdf";
+			String redirectUrl = presignedUrlSvc.presignedDownload( fileName, doc );
+			response = NotificationAttachmentDownloadMetadataResponse.builder()
+					.filename( fileName )
+					.url( redirectUrl )
+					.contentType( doc.getContentType() )
+					.sha256( doc.getDigests().getSha256() )
+					.build();
 		} else {
 			log.error("Notification not found for iun={}", iun);
 			throw new PnInternalException("Notification not found for iun=" + iun);
 		}
-
-		return response.getUrl();
+		return response;
 	}
 
 	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
