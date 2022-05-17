@@ -133,32 +133,10 @@ class S3PresignedUrlServiceTest {
                                 .build() )
                         .signedHeaders( Map.of( "k1", Collections.singletonList("v1")) )
                         .build());
-        PreLoadResponse response = service.presignedDownload( FILE_NAME, NOTIFICATION_ATTACHMENT );
+        String response = service.presignedDownload( FILE_NAME, NOTIFICATION_ATTACHMENT );
         
         //Then
-        assertNotNull( response.getUrl() );
-        assertNotNull( response.getHttpMethod() );
-        assertNotNull( response.getSecret() );
+        assertNotNull( response );
     }
 
-    @Test
-    void presignedDownloadFailure() {
-        //When
-        Mockito.when( presigner.presignGetObject( Mockito.any(GetObjectPresignRequest.class)) )
-                .thenReturn(PresignedGetObjectRequest.builder()
-                        .expiration( Instant.MAX )
-                        .isBrowserExecutable( true )
-                        .httpRequest( SdkHttpRequest.builder()
-                                .protocol( "http" )
-                                .host( "host" )
-                                .method( SdkHttpMethod.POST )
-                                .build() )
-                        .signedHeaders( Map.of( "k1", Collections.singletonList("v1")) )
-                        .build());
-        Executable todo = () -> service.presignedDownload( FILE_NAME, NOTIFICATION_ATTACHMENT_FAIL_CONTENT );
-
-        //Then
-        assertThrows( PnInternalException.class, todo );
-
-    }
 }

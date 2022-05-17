@@ -78,13 +78,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal docIdx) {
-        NotificationAttachmentDownloadMetadataResponse.NotificationAttachmentDownloadMetadataResponseBuilder responseBuilder = NotificationAttachmentDownloadMetadataResponse.builder();
-
-        String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, docIdx.intValue());
-        // TODO info mancanti di NotificationAttachmentDonwnloadMetadataResponse quando get file da safe-storage
-        NotificationAttachmentDownloadMetadataResponse response = responseBuilder.url(redirectUrl).build();
+        NotificationAttachmentDownloadMetadataResponse response = retrieveSvc.downloadDocumentWithRedirect(iun, docIdx.intValue());
         return ResponseEntity.ok( response );
-
     }
 
     @ExceptionHandler({PnValidationException.class})

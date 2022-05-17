@@ -45,11 +45,11 @@ class IunGeneratorTest {
     void collisionsLessThanOneInOneYear() {
         List<Long> collisions = Collections.synchronizedList( new ArrayList<>() );
 
-        long numberOfTest = 200000L;
+        long notificationsByMonth = 1 * 1000l * 1000l;
 
-        int monthsInOneYear = 1 * 10;
-        IntStream.range(0, monthsInOneYear ).parallel().forEach( m -> {
-            collisions.add( generatePredictedIun( numberOfTest ) );
+        int months = 1 * 12;
+        IntStream.range(0, months ).parallel().forEach( m -> {
+            collisions.add( generatePredictedIun( notificationsByMonth ) );
         });
         System.out.println( collisions );
         Assertions.assertTrue( collisions.stream().reduce(0L,(a,b) -> a+b) < 1 );
