@@ -65,7 +65,7 @@ public class StatusService {
         int recipientIndex = recipientsIds.indexOf( recipientId );
 
         return NotificationMetadataEntity.builder()
-                .notificationStatus( lastStatus.toString() )
+                .notificationStatus( lastStatus != null ? lastStatus.toString() : null )
                 .senderId( notification.getSenderPaId() )
                 .recipientId( recipientId )
                 .sentAt( notification.getSentAt().toInstant() )
