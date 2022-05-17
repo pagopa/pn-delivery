@@ -27,7 +27,6 @@ public class NotificationReceiverService {
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;
-	private final DirectAccessService directAccessService;
 	private final NewNotificationProducer newNotificationEventProducer;
 	private final AttachmentService attachmentSaver;
 	private final NotificationReceiverValidator validator;
@@ -39,14 +38,12 @@ public class NotificationReceiverService {
 	public NotificationReceiverService(
 			Clock clock,
 			NotificationDao notificationDao,
-			DirectAccessService directAccessService,
 			NewNotificationProducer newNotificationEventProducer,
 			AttachmentService attachmentSaver,
 			NotificationReceiverValidator validator,
 			ModelMapperFactory modelMapperFactory) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
-		this.directAccessService = directAccessService;
 		this.newNotificationEventProducer = newNotificationEventProducer;
 		this.attachmentSaver = attachmentSaver;
 		this.validator = validator;
@@ -136,9 +133,13 @@ public class NotificationReceiverService {
 	private Map<NotificationRecipient,String> generateToken(List<NotificationRecipient> recipientList, String iun) {
 		Map<NotificationRecipient,String> tokens = new HashMap<>();
 		for (NotificationRecipient recipient : recipientList) {
-			tokens.put(recipient, directAccessService.generateToken(iun, recipient.getTaxId()));
+			tokens.put(recipient, generateToken(iun, recipient.getTaxId()));
 		}
 		return tokens;
+	}
+
+	public String generateToken(String iun, String taxId) {
+		return iun + "_" + taxId + "_" + UUID.randomUUID();
 	}
 
 
