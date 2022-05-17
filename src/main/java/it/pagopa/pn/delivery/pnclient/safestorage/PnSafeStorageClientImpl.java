@@ -24,7 +24,7 @@ public class PnSafeStorageClientImpl {
         newApiClient.setBasePath( cfg.getSafeStorageBaseUrl() );
 
         this.fileDownloadApi = new FileDownloadApi( newApiClient );
-        this.fileUploadApi =new FileUploadApi( newApiClient );
+        this.fileUploadApi = new FileUploadApi( newApiClient );
     }
 
     public FileDownloadResponse getFile(String fileKey, String xPagopaSafestorageCxId, Boolean metadataOnly) {

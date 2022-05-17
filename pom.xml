@@ -296,6 +296,32 @@
                             <apiPackage>${project.groupId}.pn-delivery.microservice.client.deliverypush.v1.api</apiPackage>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>generate-client-data-vault</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <inputSpec>${project.basedir}/docs/wsclient/pn-data-vault/pn-datavault-api-v1.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <library>resttemplate</library>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <configOptions>
+                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.datavault.api</apiPackage>
+                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.datavault.model</modelPackage>
+                                <dateLibrary>java8</dateLibrary>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <useAbstractionForFiles>true</useAbstractionForFiles>
+                                <useBeanValidation>false</useBeanValidation>
+                            </configOptions>
+                            <modelPackage>${project.groupId}.pn-delivery.microservice.client.datavault.v1.dto</modelPackage>
+                            <apiPackage>${project.groupId}.pn-delivery.microservice.client.datavault.v1.api</apiPackage>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
