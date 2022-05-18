@@ -4,6 +4,7 @@ import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -16,7 +17,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.Base64Utils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -31,6 +34,7 @@ class PnSentReceivedNotificationControllerTest {
 	public static final String ATTACHMENT_BODY_STR = "Body";
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
 	private static final String FILENAME = "filename.pdf";
+	private static final String REQUEST_ID = "requestId";
 
 
 	@Autowired
@@ -72,6 +76,35 @@ class PnSentReceivedNotificationControllerTest {
 			.expectBody(FullSentNotification.class);
 		
 		Mockito.verify( svc ).getNotificationInformation(IUN, true);
+	}
+
+	@Test
+	void getNotificationRequestStatusSuccess() {
+		// Given
+		InternalNotification notification = newNotification();
+
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean() ) ).thenReturn( notification );
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class ) ).thenReturn( mapper );
+
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/requests" )
+								.queryParam("requestId", REQUEST_ID)
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody( NewNotificationRequestStatusResponse.class );
+
+		Mockito.verify( svc ).getNotificationInformation( Base64Utils.encodeToString(REQUEST_ID.getBytes(StandardCharsets.UTF_8)), true );
 	}
 
 	@Test
@@ -261,6 +294,7 @@ class PnSentReceivedNotificationControllerTest {
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
 				.senderPaId( "pa_02" )
+				.notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(
                         NotificationRecipient.builder()
                                 .taxId("Codice Fiscale 01")

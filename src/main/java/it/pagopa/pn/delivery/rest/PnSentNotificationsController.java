@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
@@ -15,11 +16,14 @@ import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -71,29 +75,6 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return ResponseEntity.ok( response );
     }
 
-    /*@GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
-    public ResponseEntity<Resource> getSentNotificationDocument(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
-            @PathVariable("iun") String iun,
-            @PathVariable("documentIndex") int documentIndex,
-            ServerHttpResponse response
-    ) {
-        if(cfg.isDownloadWithPresignedUrl()) {
-            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
-            //response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-            //response.getHeaders().setLocation(URI.create( redirectUrl ));
-            //return null;
-            response.getHeaders().setContentType( MediaType.APPLICATION_JSON );
-            String responseString  = "{ \"url\": \"" + redirectUrl + "\"}";
-            Resource resource = new ByteArrayResource( responseString.getBytes(StandardCharsets.UTF_8) );
-            return ResponseEntity.ok( resource );
-        } else {
-            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
-            return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
-        }
-
-    }*/
-
     @ExceptionHandler({PnValidationException.class})
     public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
         return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
@@ -106,7 +87,20 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String requestId, String paProtocolNumber, String idempotenceToken) {
-        return SenderReadB2BApi.super.getNotificationRequestStatus(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, xPagopaPnCxGroups, requestId, paProtocolNumber, idempotenceToken);
+        String iun = Base64Utils.encodeToString(requestId.getBytes(StandardCharsets.UTF_8));
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
+        NewNotificationRequestStatusResponse response;
+        if ( internalNotification.getNotificationStatus().equals(NotificationStatus.REFUSED)  || internalNotification.getNotificationStatus().equals(NotificationStatus.IN_VALIDATION)) {
+            response = NewNotificationRequestStatusResponse.builder()
+                    .errors(Collections.singletonList( ProblemError.builder()
+                            .code( "Notification Refused or in Validation" )
+                            .build() ))
+                    .build();
+        } else {
+            ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class );
+            response = mapper.map( internalNotification, NewNotificationRequestStatusResponse.class );
+        }
+        return ResponseEntity.ok( response );
     }
 
     @Override
