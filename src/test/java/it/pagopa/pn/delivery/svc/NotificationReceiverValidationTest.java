@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.util.Base64Utils;
@@ -67,7 +68,8 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "paProtocolNumber" );
         assertConstraintViolationPresentByField( errors, "physicalCommunicationType" );
         assertConstraintViolationPresentByField( errors, "subject" );
-        Assertions.assertEquals( 10, errors.size() );
+        assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
+        Assertions.assertEquals( 11, errors.size() );
     }
 
     @Test
@@ -95,7 +97,8 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errorsCast, "paProtocolNumber" );
         assertConstraintViolationPresentByField( errorsCast, "physicalCommunicationType" );
         assertConstraintViolationPresentByField( errorsCast, "subject" );
-        Assertions.assertEquals( 10, errors.size() );
+        assertConstraintViolationPresentByField( errorsCast, "notificationFeePolicy" );
+        Assertions.assertEquals( 11, errors.size() );
     }
 
     @Test
@@ -114,11 +117,11 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "recipients[0].recipientType" );
         assertConstraintViolationPresentByField( errors, "recipients[0].taxId" );
         assertConstraintViolationPresentByField( errors, "recipients[0].denomination" );
-        Assertions.assertEquals( 3, errors.size() );
+        assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
+        Assertions.assertEquals( 4, errors.size() );
     }
 
-    // TODO controllare validazione
-    //@Test
+    @Test @Disabled
     void invalidNullValuesInCollections() {
 
         // GIVEN
@@ -145,6 +148,7 @@ class NotificationReceiverValidationTest {
                         .build())
                 )
                 .documents( Collections.singletonList(NotificationDocument.builder().build()  ) ), Collections.emptyMap());
+        n.notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE );
 
         // WHEN
         Set<ConstraintViolation<InternalNotification>> errors;
@@ -188,7 +192,8 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "recipients[0].recipientType" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.address" );
         assertConstraintViolationPresentByField( errors, "recipients[0].digitalDomicile.type" );
-        Assertions.assertEquals( 5, errors.size() );
+        assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
+        Assertions.assertEquals( 6, errors.size() );
     }
 
 
@@ -196,6 +201,7 @@ class NotificationReceiverValidationTest {
     void validDocumentAndRecipientWithoutPayments() {
         // GIVEN
         InternalNotification n = validDocumentWithoutPayments() ;
+        n.notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE );
 
         // WHEN
         Set<ConstraintViolation<InternalNotification>> errors;
@@ -224,6 +230,7 @@ class NotificationReceiverValidationTest {
 
         // GIVEN
         InternalNotification n = validDocumentWithoutPayments();
+        n.notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE );
         InternalNotification wrongEmail = new InternalNotification( n
                 .recipients( Collections.singletonList( n.getRecipients().get(0)
                         .digitalDomicile( n.getRecipients().get(0).getDigitalDomicile()
@@ -245,6 +252,7 @@ class NotificationReceiverValidationTest {
 
         InternalNotification notification = new InternalNotification( validDocumentWithoutPayments()
                 .documents( Collections.singletonList( NotificationDocument.builder().build() )), Collections.emptyMap());
+        notification.notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE );
 
         // WHEN
         Set<ConstraintViolation<InternalNotification>> errors;
@@ -353,6 +361,7 @@ class NotificationReceiverValidationTest {
 
     private InternalNotification validDocumentWithPayments() {
     	return new InternalNotification( newFullSentNotification()
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE )
                 .recipients(Collections.singletonList( NotificationRecipient.builder()
                         .taxId( "recipientTaxId" )
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
@@ -373,7 +382,6 @@ class NotificationReceiverValidationTest {
                                                         .build() )
                                                 .build() )
                                         .creditorTaxId( "creditorTaxId" )
-                                        .notificationFeePolicy( NotificationPaymentInfo.NotificationFeePolicyEnum.FLAT_RATE )
                                         .pagoPaForm( NotificationPaymentAttachment.builder()
                                                 .digests( NotificationAttachmentDigests.builder()
                                                         .sha256( SHA256_BODY )

@@ -372,7 +372,6 @@ class NotificationDaoDynamoTest {
                         .build() )
                 .payment( NotificationPaymentInfo.builder()
                         //.iuv( "IUV_01" )
-                        .notificationFeePolicy( NotificationPaymentInfo.NotificationFeePolicyEnum.FLAT_RATE )
                         .f24flatRate( NotificationPaymentAttachment.builder()
                                 .ref( NotificationAttachmentBodyRef.builder()
                                         .key( KEY )
@@ -399,6 +398,7 @@ class NotificationDaoDynamoTest {
                 .documents(List.of(
                         NOTIFICATION_REFERRED_ATTACHMENT
                 ))
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
                 .group( "Group_1" )
                 .build(), Collections.EMPTY_MAP );
     }

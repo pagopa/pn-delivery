@@ -22,6 +22,7 @@ components:
         - recipients
         - documents
         - physicalCommunicationType
+        - notificationFeePolicy
       properties:
         idempotenceToken:
           description: >-
@@ -50,7 +51,16 @@ components:
           type: array
           description: Documenti notificati
           items:
-            $ref: "#/components/schemas/NotificationDocument"      
+            $ref: "#/components/schemas/NotificationDocument"
+        notificationFeePolicy:
+          type: string
+          description: >-
+            Politica di addebitamento dei costi di notifica. <br/>
+            - _FLAT_RATE_: costo forfettario fisso. <br/>
+            - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
+          enum:
+          - FLAT_RATE
+          - DELIVERY_MODE
         cancelledIun:
           type: string
           description: IUN della notifica annullata da questa notifica
@@ -207,40 +217,18 @@ components:
        destinatario perché le spese di notifica possono differire a seconda del canale di 
        notifica utilizzato. <br/>
          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o 
-           calcolato puntualmente. <br/>
+            calcolato puntualmente. <br/>
          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
-         - _f24digital_: riferimento al PDF contenete l'F24 con spese di notifica digitale<br/>
-         - _f24digitalWithRs_: riferimento al PDF contenete l'F24 con spese di notifica digitale 
-           fallita a cui è seguita una raccomandata semplice<br/>
-         - _f24digitalWithRi_: riferimento al PDF contenete l'F24 con spese di notifica digitale
-           fallita a cui è seguita una raccomandata verso indirizzo estero<br/>
-         - _f24analogRaccSingle_: riferimento al PDF contenete l'F24 con spese di notifica 
-           analogica tramite __una__ Raccomandata A/R o Raccomandata a norma di legge 890/82<br/>
-         - _f24analogRaccDouble_: riferimento al PDF contenete l'F24 con spese di notifica 
-           analogica tramite __due__ Raccomandate A/R o Raccomandate a norma di legge 890/82 <br/>
-         - _f24analogRiSingle_: riferimento al PDF contenete l'F24 con spese di notifica 
-           analogica tramite __una__ Raccomandata Internazionale<br/>
-         - _f24analogRiDouble_: riferimento al PDF contenete l'F24 con spese di notifica 
-           analogica tramite __due__ Raccomandata Internazionali <br/>
+         - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
       type: object
       required:
-        - notificationFeePolicy
         - noticeNumber
         - creditorTaxId
         - pagoPaForm
       properties:
-        notificationFeePolicy:
-          type: string
-          description: >-
-            Politica di addebitamento dei costi di notifica. <br/>
-            - _FLAT_RATE_: costo forfettario fisso. <br/>
-            - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
-          enum:
-          - FLAT_RATE
-          - DELIVERY_MODE
         noticeCode:
           type: string
           description: Numero Avviso di pagamento del sistema pagoPA, usato per pagamento online
@@ -251,7 +239,7 @@ components:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24flatRate:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
-        f24white:
+        f24standard:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
         #f24digital:
         #  $ref: "#/components/schemas/NotificationPaymentAttachment"

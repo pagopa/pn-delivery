@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
@@ -63,7 +64,7 @@ public class NotificationEntity {
     private List<String> documentsContentTypes;
     private List<String> documentsTitles;
     private String iuv;
-    private NotificationPaymentInfo.NotificationFeePolicyEnum notificationFeePolicy;
+    private NewNotificationRequest.NotificationFeePolicyEnum notificationFeePolicy;
     private String f24FlatRateKey;
     private String f24FlatRateDigestSha256;
     private String f24FlatRateVersionId;
@@ -213,11 +214,11 @@ public class NotificationEntity {
     }
 
     @DynamoDbAttribute(value = FIELD_NOTIFICATION_FEE_POLICY)
-    public NotificationPaymentInfo.NotificationFeePolicyEnum getNotificationFeePolicy() {
+    public NewNotificationRequest.NotificationFeePolicyEnum getNotificationFeePolicy() {
         return notificationFeePolicy;
     }
 
-    public void setNotificationFeePolicy(NotificationPaymentInfo.NotificationFeePolicyEnum notificationFeePolicy) {
+    public void setNotificationFeePolicy(NewNotificationRequest.NotificationFeePolicyEnum notificationFeePolicy) {
         this.notificationFeePolicy = notificationFeePolicy;
     }
 
