@@ -124,7 +124,7 @@ paths:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         
-  "/delivery/notifications/received/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
+  "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:
       summary: Download allegato per pagamento
       tags:
@@ -136,7 +136,6 @@ paths:
         - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
       responses:
         '200':
@@ -174,12 +173,6 @@ components:
     ############################################################################################
     pathDocumentIdx:
       name: docIdx
-      in: path
-      required: true
-      schema:
-        type: number
-    pathRecipientIdx:
-      name: recipientIdx
       in: path
       required: true
       schema:
