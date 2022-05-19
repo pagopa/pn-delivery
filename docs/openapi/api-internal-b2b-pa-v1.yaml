@@ -355,7 +355,7 @@ components:
     notificationRequestId:
       in: query
       required: false
-      name: requestId
+      name: notificationRequestId
       description: identificativo della richiesta di notifica
       schema:
         type: string
