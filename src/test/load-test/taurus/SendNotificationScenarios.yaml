@@ -52,8 +52,10 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${PA}
-          x-api-key: ${API_KEY}
+          x-pagopa-pn-cx-id: ${PA}
+          x-pagopa-pn-uid: "uid"
+          x-pagopa-pn-cx-type: "PA"
+          #x-api-key: ${API_KEY}
         extract-jsonpath:
           preload_secret: $[0].secret
           preload_url: $[0].url
@@ -71,27 +73,64 @@ scenarios:
             template: 1
             subject: headers
       - label: send_notification_presigned
-        url: ${BASE_URL}/delivery/notifications/sent
+        url: ${BASE_URL}/delivery/requests
         method: POST
         body:
-          paNotificationId: ${__UUID()}
+          paProtocolNumber: ${__UUID()}
           subject: ${subject}
           physicalCommunicationType: ${physicalCommunicationType}
+          idempotenceToken: null
+          abstract: null
+          senderDenomination: ${senderDenomination}
+          senderTaxId: ${senderTaxId}
+          group: ${group}
           cancelledIun: null
+          notificationFeePolicy: "FLAT_RATE"
           recipients:
           - denomination: ${denomination}
-            digitalDomicile: null
+            recipientType: "PF"
+            digitalDomicile:
+              address: ${digitalAddress}
+              type: "PEC"
             physicalAddress:
               address: ${address}
               addressDetails: ${addressDetails}
               at: ${at}
               municipality: ${municipality}
               province: ${province}
-              state: ${state}
+              foreignState: ${state}
               zip: ${zip}
             taxId: ${taxId}
+          payment:
+            creditorTaxId: "creditorTaxId"
+            noticeCode: "noticeCode"
+            pagoPaForm:
+              digests:
+                sha256: ${documentSha}
+              contentType: application/pdf
+              ref:
+                key: "doc_1"
+                versionToken: ${version_id}
+            f24flatRate:
+              digests:
+                sha256: ${documentSha}
+              contentType: application/pdf
+              ref:
+                key: "doc_1"
+                versionToken: ${version_id}
+            f24white:
+              digests:
+                sha256: ${documentSha}
+              contentType: application/pdf
+              ref:
+                key: "doc_1"
+                versionToken: ${version_id}
           documents:
-            - ref:
+            - title: "doc_1"
+              requiresAck: false
+              sendByMail: false
+              contentType: application/pdf
+              ref:
                 key: "doc_1"
                 versionToken: ${version_id}
               digests:
@@ -99,8 +138,11 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${PA}
-          x-api-key: ${API_KEY}
+          x-pagopa-pn-cx-id: ${PA}
+          x-pagopa-pn-cx-type: "PA"
+          x-pagopa-pn-uid: "uid"
+          x-pagopa-pn-cx-groups: "group_1"
+          #x-api-key: ${API_KEY}
     data-sources:
       - path: ${INPUT_FILE}
         delimiter: ','

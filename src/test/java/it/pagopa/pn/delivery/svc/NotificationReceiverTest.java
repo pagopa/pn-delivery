@@ -301,10 +301,10 @@ class NotificationReceiverTest {
 								.key( KEY )
 								.build() )
 						.build() ) )
+				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
 				.paProtocolNumber( "paProtocolNumber" )
 				.recipients( Collections.singletonList( NotificationRecipient.builder()
 						.payment( NotificationPaymentInfo.builder()
-								.notificationFeePolicy( NotificationPaymentInfo.NotificationFeePolicyEnum.FLAT_RATE )
 								.creditorTaxId( "creditorTaxId" )
 								.f24flatRate( NotificationPaymentAttachment.builder()
 										.digests( NotificationAttachmentDigests.builder()
@@ -365,12 +365,13 @@ class NotificationReceiverTest {
 
 	private NewNotificationRequest newNotificationWithPaymentsDeliveryMode( ) {
 		NewNotificationRequest notification = newNotificationWithoutPayments( );
+		notification.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.DELIVERY_MODE );
+
 		for( NotificationRecipient recipient : notification.getRecipients()) {
 			recipient.payment( NotificationPaymentInfo.builder()
 					.noticeCode( "IUV_01" )
-					.notificationFeePolicy( NotificationPaymentInfo.NotificationFeePolicyEnum.DELIVERY_MODE )
 					.f24flatRate( buildPaymentAttachment() )
-					.f24white( buildPaymentAttachment() )
+					.f24standard( buildPaymentAttachment() )
 					.pagoPaForm( buildPaymentAttachment()  )
 					.creditorTaxId( "creditorTaxId" )
 					.build()
@@ -395,7 +396,6 @@ class NotificationReceiverTest {
 						.build() )
 				.payment( NotificationPaymentInfo.builder()
 						.creditorTaxId( "creditorTaxId" )
-						.notificationFeePolicy( NotificationPaymentInfo.NotificationFeePolicyEnum.FLAT_RATE )
 						.f24flatRate( NotificationPaymentAttachment.builder()
 								.ref( NotificationAttachmentBodyRef.builder()
 										.key( KEY )

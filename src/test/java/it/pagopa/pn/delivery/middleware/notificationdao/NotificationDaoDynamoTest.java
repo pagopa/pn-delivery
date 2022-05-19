@@ -296,6 +296,7 @@ class NotificationDaoDynamoTest {
                 .group( "Group_1" )
                 .senderPaId( "pa_02" )
                 .sentAt( Date.from( Instant.now() ) )
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
@@ -394,7 +395,6 @@ class NotificationDaoDynamoTest {
         InternalNotification notification =  newNotificationWithoutPayments();
         for (NotificationRecipient recipient : notification.getRecipients() ) {
             recipient.payment( NotificationPaymentInfo.builder()
-                    .notificationFeePolicy( NotificationPaymentInfo.NotificationFeePolicyEnum.FLAT_RATE )
                     .f24flatRate( NotificationPaymentAttachment.builder()
                             .ref( NotificationAttachmentBodyRef.builder()
                                     .key( KEY )

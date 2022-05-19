@@ -70,7 +70,7 @@ public class AttachmentService {
                 if (f24FlateRate != null ) {
                     saveAndUpdatePaymentAttachment(f24FlateRate, notification.getSenderPaId());
                 }
-                NotificationPaymentAttachment f24White = paymentsInfo.getF24white();
+                NotificationPaymentAttachment f24White = paymentsInfo.getF24standard();
                 if (f24White != null) {
                     saveAndUpdatePaymentAttachment(f24White, notification.getSenderPaId());
                 }

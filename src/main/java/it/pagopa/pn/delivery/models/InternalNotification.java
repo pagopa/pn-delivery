@@ -21,7 +21,28 @@ public class InternalNotification extends FullSentNotification {
 
 
     public InternalNotification(FullSentNotification fsn, Map<NotificationRecipient, String> tokens) {
-        super(fsn.getIdempotenceToken(), fsn.getPaProtocolNumber(), fsn.getSubject(), fsn.getAbstract(), fsn.getRecipients(), fsn.getDocuments(), fsn.getCancelledIun(), fsn.getPhysicalCommunicationType(), fsn.getSenderDenomination(), fsn.getSenderTaxId(), fsn.getGroup(), fsn.getSenderPaId(), fsn.getIun(), fsn.getSentAt(), fsn.getCancelledByIun(), fsn.getDocumentsAvailable(), fsn.getNotificationStatus(), fsn.getNotificationStatusHistory(), fsn.getTimeline());
+        super(
+                fsn.getIdempotenceToken(),
+                fsn.getPaProtocolNumber(),
+                fsn.getSubject(),
+                fsn.getAbstract(),
+                fsn.getRecipients(),
+                fsn.getDocuments(),
+                fsn.getNotificationFeePolicy(),
+                fsn.getCancelledIun(),
+                fsn.getPhysicalCommunicationType(),
+                fsn.getSenderDenomination(),
+                fsn.getSenderTaxId(),
+                fsn.getGroup(),
+                fsn.getSenderPaId(),
+                fsn.getIun(),
+                fsn.getSentAt(),
+                fsn.getCancelledByIun(),
+                fsn.getDocumentsAvailable(),
+                fsn.getNotificationStatus(),
+                fsn.getNotificationStatusHistory(),
+                fsn.getTimeline()
+            );
         this.tokens = tokens;
     }
 
