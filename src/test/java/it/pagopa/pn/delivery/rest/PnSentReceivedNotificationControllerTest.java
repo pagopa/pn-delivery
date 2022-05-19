@@ -104,7 +104,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformation( Base64Utils.encodeToString(REQUEST_ID.getBytes(StandardCharsets.UTF_8)), true );
+		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true );
 	}
 
 	@Test
@@ -330,6 +330,9 @@ class PnSentReceivedNotificationControllerTest {
                                 .build()
                 ))
 				.timeline( Collections.singletonList(TimelineElement.builder().build()))
+				.notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
+								.status( NotificationStatus.ACCEPTED )
+						.build() ) )
                 .build(), Collections.EMPTY_MAP);
     }
 	
