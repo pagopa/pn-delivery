@@ -368,7 +368,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     private NotificationMetadataEntity newNotificationMetadata() {
         Map<String,String> tableRowMap = new HashMap<>();
         tableRowMap.put( "iun", "IUN" );
-        tableRowMap.put( "recipientsIds", "[PF003]" );
+        tableRowMap.put( "recipientsIds", "[recipientId]" );
         tableRowMap.put( "subject", "Notifica IUN" );
         return NotificationMetadataEntity.builder()
                 .iun_recipientId( "IUN##RecipientId" )
