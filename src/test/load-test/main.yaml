@@ -3,7 +3,7 @@ settings:
     CONCURRENCY: 1
     TEST_TIME: 1m
     RAMP_UP: 0m
-    SCENARIO: SendNotification
+    SCENARIO: SendNotificationPresigned
     INPUT_FILE: inputs/new_notifications.csv
     API_KEY: fakeapikey
     PA: LoadTestPa
