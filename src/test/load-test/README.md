@@ -4,9 +4,10 @@ docker build -t pn-load-test .
 ```
 Comando per il lancio dell'immagine:
 ```
-docker run --name load-test --rm pn-load-test \
+docker run --name load-test --rm \ 
         -v $(pwd)/outputs:/tmp/artifacts \
         -v $(pwd)/outputs:/minimal_outputs \
+        pn-load-test \
         -o settings.env.BASE_URL=https://dominio/stage/  \
         -o settings.env.API_KEY=<api-key> \
         -o settings.env.TEST_TIME=10s \

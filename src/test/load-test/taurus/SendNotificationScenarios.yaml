@@ -30,7 +30,6 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          X-PagoPA-PN-PA: ${PA}
           x-api-key: ${API_KEY}
     data-sources:
       - path: ${INPUT_FILE}
@@ -41,6 +40,77 @@ scenarios:
         random-order: false
 
   SendNotificationPresigned:
+    think-time: 2
+    requests:
+      - label: reserve_load
+        url: ${BASE_URL}/delivery/attachments/preload
+        method: POST
+        body:
+          - key: "doc_1"
+          - contentType: "application/pdf"
+        headers:
+          Content-Type: application/json
+          accept: application/json
+          x-api-key: ${API_KEY}
+        extract-jsonpath:
+          preload_secret: $[0].secret
+          preload_url: $[0].url
+      - label: preload
+        url: ${preload_url}
+        method: PUT
+        body-file: ${documentFile}
+        headers:
+          Content-Type: application/pdf
+          x-amz-meta-secret: ${preload_secret}
+        extract-regexp:
+          version_id:
+            regexp: "x-amz-version-id: (.*)"
+            match-no: 1
+            template: 1
+            subject: headers
+      - label: send_notification_presigned
+        url: ${BASE_URL}/delivery/notifications/sent
+        method: POST
+        body:
+          paNotificationId: ${__UUID()}
+          subject: ${subject}
+          physicalCommunicationType: ${physicalCommunicationType}
+          cancelledIun: null
+          group: "testGruppo"
+          recipients:
+          - denomination: ${denomination}
+            digitalDomicile:
+              type: "PEC"
+              address: "nome.cognome@works.demo.it"
+            recipientType: "PF"
+            physicalAddress:
+              address: ${address}
+              addressDetails: ${addressDetails}
+              at: ${at}
+              municipality: ${municipality}
+              province: ${province}
+              state: ${state}
+              zip: ${zip}
+            taxId: ${taxId}
+          documents:
+            - ref:
+                key: "doc_1"
+                versionToken: ${version_id}
+              digests:
+                sha256: ${documentSha}
+        headers:
+          Content-Type: application/json
+          accept: application/json
+          x-api-key: ${API_KEY}
+    data-sources:
+      - path: ${INPUT_FILE}
+        delimiter: ','
+        quoted: false
+        encoding: "utf-8"
+        loop: true
+        random-order: false
+
+  SendNotificationDigitalDomicile:
     think-time: 0.05
     requests:
       - label: reserve_load
@@ -52,13 +122,69 @@ scenarios:
         headers:
           Content-Type: application/json
           accept: application/json
-          x-pagopa-pn-cx-id: ${PA}
-          x-pagopa-pn-uid: "uid"
-          x-pagopa-pn-cx-type: "PA"
-          #x-api-key: ${API_KEY}
+          x-api-key: ${API_KEY}
         extract-jsonpath:
           preload_secret: $[0].secret
           preload_url: $[0].url
+      - label: preload
+        url: ${preload_url}
+        method: PUT
+        body-file: ${documentFile}
+        headers:
+          Content-Type: application/pdf
+          x-amz-meta-secret: ${preload_secret}
+        extract-regexp:
+          version_id:
+            regexp: "x-amz-version-id: (.*)"
+            match-no: 1
+            template: 1
+            subject: headers
+      - label: send_notification_dd_special
+        url: ${BASE_URL}/delivery/notifications/sent
+        method: POST
+        body:
+          paNotificationId: ${__UUID()}
+          subject: ${subject}
+          physicalCommunicationType: ${physicalCommunicationType}
+          cancelledIun: null
+          group: "testGruppo"
+          recipients:
+          - denomination: ${denomination}
+            digitalDomicile:
+              type: "PEC"
+              address: "successo.alsecondo@fail-first.domicilio-digitale.it"
+            recipientType: "PF"
+            physicalAddress:
+              address: ${address}
+              addressDetails: ${addressDetails}
+              at: ${at}
+              municipality: ${municipality}
+              province: ${province}
+              state: ${state}
+              zip: ${zip}
+            taxId: ${taxId}
+          documents:
+            - ref:
+                key: "doc_1"
+                versionToken: ${version_id}
+              digests:
+                sha256: ${documentSha}    
+        extract-jsonpath:
+          notificationId: $[0].notificationId
+        headers:
+          Content-Type: application/json
+          accept: application/json
+          x-api-key: ${API_KEY} 
+      - action: pause
+        target: current-thread
+        pause-duration: 90s  
+      - label: search_notification_dd_special
+        url: ${BASE_URL}/delivery/notifications/sent/${notificationId}
+        method: GET
+        headers:
+          Content-Type: application/json
+          accept: application/json
+          x-api-key: ${API_KEY}
     data-sources:
       - path: ${INPUT_FILE}
         delimiter: ','
