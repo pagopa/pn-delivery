@@ -34,7 +34,7 @@ class PnSentReceivedNotificationControllerTest {
 	public static final String ATTACHMENT_BODY_STR = "Body";
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
 	private static final String FILENAME = "filename.pdf";
-	private static final String REQUEST_ID = "requestId";
+	private static final String REQUEST_ID = "VkdLVi1VS0hOLVZJQ0otMjAyMjA1LVAtMQ==";
 
 
 	@Autowired
@@ -93,7 +93,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri(uriBuilder ->
 						uriBuilder
 								.path( "/delivery/requests" )
-								.queryParam("requestId", REQUEST_ID)
+								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
