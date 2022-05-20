@@ -266,6 +266,7 @@ class NotificationDaoDynamoTest {
         return new InternalNotification(FullSentNotification.builder()
                 .iun("IUN_01")
                 .paProtocolNumber( "protocol_01" )
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
                 .subject("Subject 01")
                 .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
                 .cancelledByIun("IUN_05")

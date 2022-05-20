@@ -23,7 +23,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -90,17 +89,18 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
-        NewNotificationRequestStatusResponse response;
         NotificationStatus lastStatus = internalNotification.getNotificationStatusHistory().get( internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
-        if ( lastStatus.equals(NotificationStatus.REFUSED)  || lastStatus.equals(NotificationStatus.IN_VALIDATION)) {
-            response = NewNotificationRequestStatusResponse.builder()
-                    .errors(Collections.singletonList( ProblemError.builder()
-                            .code( "Notification Refused or in Validation" )
-                            .build() ))
-                    .build();
-        } else {
-            ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class );
-            response = mapper.map( internalNotification, NewNotificationRequestStatusResponse.class );
+        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class );
+        NewNotificationRequestStatusResponse response = mapper.map( internalNotification, NewNotificationRequestStatusResponse.class );
+        response.setNotificationRequestId( notificationRequestId );
+        switch ( lastStatus ) {
+            case IN_VALIDATION: {
+                response.setNotificationRequestStatus( "WAITING" );
+                response.retryAfter( BigDecimal.valueOf(10L) );
+                break;
+            }
+            case REFUSED: response.setNotificationRequestStatus( "REFUSED" ); break;
+            default: response.setNotificationRequestStatus( "ACCEPTED" );
         }
         return ResponseEntity.ok( response );
     }

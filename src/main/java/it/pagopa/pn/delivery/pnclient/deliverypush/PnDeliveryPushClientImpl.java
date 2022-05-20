@@ -1,51 +1,29 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
-import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.ApiClient;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.api.TimelineAndStatusApi;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 @Slf4j
 @Component
-public class PnDeliveryPushClientImpl implements PnDeliveryPushClient {
-    private final RestTemplate restTemplate;
-    private final PnDeliveryConfigs cfg;
+public class PnDeliveryPushClientImpl {
 
-    private static final String TIMELINE_AND_HISTORY_PATH ="timeline-and-history";
+    private final TimelineAndStatusApi timelineAndStatusApi;
 
-    public PnDeliveryPushClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
-        this.restTemplate = restTemplate;
-        this.cfg = cfg;
+    public PnDeliveryPushClientImpl(@Qualifier("withTracing")RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+        ApiClient newApiClient = new ApiClient( restTemplate );
+        newApiClient.setBasePath(cfg.getDeliveryPushBaseUrl());
+        this.timelineAndStatusApi = new TimelineAndStatusApi( newApiClient );
     }
-    
-    @Override
-    public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, Instant createdAt) {
-        log.debug("Start getTimelineElements for iun {}", iun);
 
-        String url = cfg.getDeliveryPushBaseUrl() + "/" + TIMELINE_AND_HISTORY_PATH +"/" + iun +"/" + numberOfRecipients +"/" + createdAt;
-
-        log.info("url {}",url);
-
-        ResponseEntity<NotificationHistoryResponse> response = restTemplate.exchange(url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {});
-
-        if (response.getStatusCode().isError()) {
-            log.error("Error calling url " + response + " status " + response.getStatusCodeValue());
-            throw new PnInternalException("Error calling url " + response + " status " + response.getStatusCodeValue());
-        }
-
-        log.debug("getTimelineElements complete for iun {}", iun);
-
-        return response.getBody();
+    public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, OffsetDateTime createdAt) {
+        return timelineAndStatusApi.getNotificationHistory( iun, numberOfRecipients, createdAt);
     }
 }

@@ -35,6 +35,8 @@ public class DtoToEntityNotificationMapper {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
                 .paNotificationId( dto.getPaProtocolNumber())
+                .senderDenomination( dto.getSenderDenomination() )
+                .senderTaxId( dto.getSenderTaxId() )
                 .subject( dto.getSubject() )
                 .sentAt( dto.getSentAt().toInstant() )
                 .cancelledIun( dto.getCancelledIun() )
@@ -51,6 +53,7 @@ public class DtoToEntityNotificationMapper {
                 .documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
                 .documentsTitles( listDocumentsTitles( dto.getDocuments() ))
                 .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
+                .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
                 .group( dto.getGroup() );
 
 
