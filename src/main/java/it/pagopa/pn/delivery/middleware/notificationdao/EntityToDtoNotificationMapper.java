@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 //@Mapper( componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 @Component
@@ -31,6 +30,9 @@ public class EntityToDtoNotificationMapper {
         }
 
         return new InternalNotification(FullSentNotification.builder()
+                .senderDenomination( entity.getSenderDenomination() )
+                .senderTaxId( entity.getSenderTaxId() )
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.fromValue( entity.getNotificationFeePolicy().getValue() ))
                 .iun( entity.getIun() )
                 .subject( entity.getSubject() )
                 .sentAt( Date.from(entity.getSentAt()) )
@@ -43,7 +45,7 @@ public class EntityToDtoNotificationMapper {
                 .recipients( buildRecipientsList( entity ) )
                 .documents( buildDocumentsList( entity ) )
                 .build()
-        , Collections.EMPTY_MAP);
+        , Collections.emptyMap());
     }
 
     private NotificationAttachment buildAttachment(String key, String version, String sha256 ) {

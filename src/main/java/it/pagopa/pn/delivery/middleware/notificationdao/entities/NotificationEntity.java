@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -48,6 +47,8 @@ public class NotificationEntity {
     public static final String FIELD_F24_ANALOG_VERSION_ID = "f24AnalogVersionId";
     public static final String FIELD_PHYSICAL_COMMUNICATION_TYPE = "physicalCommunicationType";
     public static final String FIELD_GROUP = "group";
+    public static final String FIELD_SENDER_DENOMINATION = "senderDenomination";
+    public static final String FIELD_SENDER_TAX_ID = "senderTaxId";
 
     private String iun;
     private String paNotificationId;
@@ -76,6 +77,8 @@ public class NotificationEntity {
     private String f24AnalogVersionId;
     private FullSentNotification.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String group;
+    private String senderDenomination;
+    private String senderTaxId;
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN)
@@ -94,6 +97,24 @@ public class NotificationEntity {
 
     public void setPaNotificationId(String paNotificationId) {
         this.paNotificationId = paNotificationId;
+    }
+
+    @DynamoDbAttribute(value = FIELD_SENDER_DENOMINATION)
+    public String getSenderDenomination() {
+        return senderDenomination;
+    }
+
+    public void setSenderDenomination(String senderDenomination) {
+        this.senderDenomination = senderDenomination;
+    }
+
+    @DynamoDbAttribute(value = FIELD_SENDER_TAX_ID)
+    public String getSenderTaxId() {
+        return senderTaxId;
+    }
+
+    public void setSenderTaxId(String senderTaxId) {
+        this.senderTaxId = senderTaxId;
     }
 
     @DynamoDbAttribute(value = FIELD_SUBJECT)
