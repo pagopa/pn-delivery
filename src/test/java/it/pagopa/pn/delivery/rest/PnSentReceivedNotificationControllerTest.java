@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -42,6 +43,9 @@ class PnSentReceivedNotificationControllerTest {
 	
 	@MockBean
 	private NotificationRetrieverService svc;
+
+	@MockBean
+	private NotificationAttachmentService attachmentService;
 
 	@MockBean
 	private PnDeliveryConfigs cfg;
@@ -148,7 +152,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
-		Mockito.when( svc.downloadDocumentWithRedirect( Mockito.anyString(), Mockito.anyInt() ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirectByIunAndDocIndex( Mockito.anyString(), Mockito.anyInt() ))
 				.thenReturn( response );
 
 		// Then
@@ -166,7 +170,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( svc ).downloadDocumentWithRedirect( IUN, DOCUMENT_INDEX );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirectByIunAndDocIndex( IUN, DOCUMENT_INDEX );
 	}
 
 	@Test
@@ -181,7 +185,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
-		Mockito.when( svc.downloadDocumentWithRedirect( Mockito.anyString(), Mockito.anyInt() ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirectByIunAndDocIndex( Mockito.anyString(), Mockito.anyInt() ))
 				.thenReturn( response );
 
 		// Then
@@ -199,7 +203,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( svc ).downloadDocumentWithRedirect( IUN, DOCUMENT_INDEX );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirectByIunAndDocIndex( IUN, DOCUMENT_INDEX );
 	}
 
 	/*@Test

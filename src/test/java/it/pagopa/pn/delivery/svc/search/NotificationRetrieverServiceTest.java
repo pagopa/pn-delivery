@@ -41,7 +41,6 @@ class NotificationRetrieverServiceTest {
 
     private Clock clock;
     private FileStorage fileStorage;
-    private S3PresignedUrlService presignedUrlService;
     private NotificationViewedProducer notificationViewedProducer;
     private NotificationDao notificationDao;
     private PnDeliveryPushClient pnDeliveryPushClient;
@@ -55,8 +54,6 @@ class NotificationRetrieverServiceTest {
     @BeforeEach
     void setup() {
         this.clock = Mockito.mock(Clock.class);
-        this.fileStorage = Mockito.mock(FileStorage.class);
-        this.presignedUrlService = Mockito.mock(S3PresignedUrlService.class);
         this.notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
         this.notificationDao = Mockito.mock(NotificationDao.class);
         this.pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClient.class);
@@ -64,8 +61,6 @@ class NotificationRetrieverServiceTest {
         this.pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
         this.modelMapperFactory = Mockito.mock(ModelMapperFactory.class);
         this.svc = new NotificationRetrieverService(clock,
-                fileStorage,
-                presignedUrlService,
                 notificationViewedProducer,
                 notificationDao,
                 pnDeliveryPushClient,
@@ -320,7 +315,7 @@ class NotificationRetrieverServiceTest {
         Mockito.verify( presignedUrlService ).presignedDownload( IUN + "doc_0", NotificationAttachment.builder()
                 .ref( NotificationAttachment.Ref.builder().build() )
                 .build() );
-    }*/
+    }
 
     @Test
     void downloadDocumentWithRedirectError() {
@@ -331,4 +326,6 @@ class NotificationRetrieverServiceTest {
         //Then
         Assertions.assertThrows(PnInternalException.class, todo);
     }
+    */
+
 }

@@ -145,6 +145,7 @@ public class NotificationAttachmentService {
                     .url( r.getDownload().getUrl() )
                     .contentType( r.getContentType() )
                     .sha256( r.getChecksum() )
+                    .retryAfter(r.getDownload().getRetryAfter())
                     .build();
         } else {
             log.error("Notification not found for iun={}", iun);
