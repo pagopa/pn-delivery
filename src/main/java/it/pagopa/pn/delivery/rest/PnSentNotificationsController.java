@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.rest;
 
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
@@ -86,11 +86,13 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String requestId, String paProtocolNumber, String idempotenceToken) {
-        String iun = Base64Utils.encodeToString(requestId.getBytes(StandardCharsets.UTF_8));
+    @ExceptionHandler({PnInternalException.class})
+    public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+        String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
         NewNotificationRequestStatusResponse response;
-        if ( internalNotification.getNotificationStatus().equals(NotificationStatus.REFUSED)  || internalNotification.getNotificationStatus().equals(NotificationStatus.IN_VALIDATION)) {
+        NotificationStatus lastStatus = internalNotification.getNotificationStatusHistory().get( internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
+        if ( lastStatus.equals(NotificationStatus.REFUSED)  || lastStatus.equals(NotificationStatus.IN_VALIDATION)) {
             response = NewNotificationRequestStatusResponse.builder()
                     .errors(Collections.singletonList( ProblemError.builder()
                             .code( "Notification Refused or in Validation" )

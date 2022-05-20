@@ -34,7 +34,7 @@ class PnSentReceivedNotificationControllerTest {
 	public static final String ATTACHMENT_BODY_STR = "Body";
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
 	private static final String FILENAME = "filename.pdf";
-	private static final String REQUEST_ID = "requestId";
+	private static final String REQUEST_ID = "VkdLVi1VS0hOLVZJQ0otMjAyMjA1LVAtMQ==";
 
 
 	@Autowired
@@ -93,7 +93,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri(uriBuilder ->
 						uriBuilder
 								.path( "/delivery/requests" )
-								.queryParam("requestId", REQUEST_ID)
+								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
@@ -104,7 +104,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformation( Base64Utils.encodeToString(REQUEST_ID.getBytes(StandardCharsets.UTF_8)), true );
+		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true );
 	}
 
 	@Test
@@ -330,6 +330,9 @@ class PnSentReceivedNotificationControllerTest {
                                 .build()
                 ))
 				.timeline( Collections.singletonList(TimelineElement.builder().build()))
+				.notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
+								.status( NotificationStatus.ACCEPTED )
+						.build() ) )
                 .build(), Collections.EMPTY_MAP);
     }
 	
