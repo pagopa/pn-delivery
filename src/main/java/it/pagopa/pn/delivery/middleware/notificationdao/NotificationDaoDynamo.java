@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-@ConditionalOnProperty(name = NotificationDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
 @Slf4j
 public class NotificationDaoDynamo implements NotificationDao {
 
