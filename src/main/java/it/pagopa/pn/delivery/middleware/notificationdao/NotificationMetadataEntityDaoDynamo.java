@@ -1,8 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
-
-
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -14,7 +12,6 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.Converters;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
@@ -27,7 +24,6 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 @Slf4j
@@ -192,10 +188,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     private List<NotificationSearchRow> fromNotificationMetadataToNotificationSearchRow(List<NotificationMetadataEntity> metadataEntityList) {
-        /*metadataEntityList.forEach( entity ->
-                entity.setRecipientIds( dataVaultClient.getRecipientDenominationByInternalId( entity.getRecipientIds() ).stream()
-                        .map(BaseRecipientDto::getTaxId)
-                        .collect(Collectors.toList()) )); */
 
         List<String> opaqueTaxIds = metadataEntityList.stream().map(NotificationMetadataEntity::getRecipientIds).flatMap( Collection::stream ).collect(Collectors.toList());
 
@@ -203,9 +195,13 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         for (NotificationMetadataEntity entity : metadataEntityList) {
             Optional<BaseRecipientDto> match = dataVaultResults.stream().filter( r -> r.getInternalId().equals( entity.getRecipientId() ) ).findFirst();
-            if (match.isPresent()) {
-
+            match.ifPresent(baseRecipientDto -> entity.setRecipientId(baseRecipientDto.getTaxId()));
+            List<String> recipientTaxIds = new ArrayList<>();
+            for (String recTaxId : entity.getRecipientIds() ) {
+              Optional<BaseRecipientDto> internalMatch = dataVaultResults.stream().filter( r -> r.getInternalId().equals(  recTaxId  ) ).findFirst();
+              internalMatch.ifPresent(baseRecipientDto -> recipientTaxIds.add(baseRecipientDto.getTaxId()));
             }
+            entity.setRecipientIds( recipientTaxIds );
         }
 
         List<NotificationSearchRow> result = new ArrayList<>();
