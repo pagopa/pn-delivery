@@ -399,10 +399,15 @@ components:
       required: true
       schema:
         type: string
-        enum:
-          - PAGOPA
-          - F24_FLAT
-          - F24_STANDARD
+        pattern: "PAGOPA|F24_FLAT|F24_STANDARD"
+        #quella sottostante è quella corretta. Riscritta per problemi con tool usato
+        #oneOf:
+        #  - type: number
+        #  - type: string
+        #    enum:
+        #      - PAGOPA
+        #      - F24_FLAT
+        #      - F24_STANDARD
     
     
     ############################################################################################

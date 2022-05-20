@@ -21,7 +21,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
-import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,8 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -12,32 +10,29 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
 @RestController
 public class PnReceivedNotificationsController implements RecipientReadApi {
     private final NotificationRetrieverService retrieveSvc;
-    private final PnDeliveryConfigs cfg;
+    private final NotificationAttachmentService notificationAttachmentService;
+
     private final ModelMapperFactory modelMapperFactory;
     public static final String VALIDATION_ERROR_STATUS = "Validation error";
     public static final String NOT_FOUND_ERROR_STATUS = "Not Found Error";
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg, ModelMapperFactory modelMapperFactory) {
+    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
-        this.cfg = cfg;
+        this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapperFactory = modelMapperFactory;
     }
 
@@ -78,7 +73,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal docIdx) {
-        NotificationAttachmentDownloadMetadataResponse response = retrieveSvc.downloadDocumentWithRedirect(iun, docIdx.intValue());
+        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+        return ResponseEntity.ok( response );
+    }
+
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, String attachmentName, String mandateId) {
+        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
         return ResponseEntity.ok( response );
     }
 

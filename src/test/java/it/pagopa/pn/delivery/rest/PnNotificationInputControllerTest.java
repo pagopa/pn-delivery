@@ -1,8 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
-import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -10,9 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
-import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -22,11 +18,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
