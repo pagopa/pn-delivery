@@ -13,7 +13,6 @@ import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 @Component
-@ConditionalOnProperty( name = NotificationViewedProducer.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.SQS )
 public class SqsNotificationViewedProducer extends AbstractSqsMomProducer<PnDeliveryNotificationViewedEvent> implements NotificationViewedProducer {
 
     public SqsNotificationViewedProducer(SqsClient sqsClient, ObjectMapper objectMapper, PnDeliveryConfigs cfg ) {

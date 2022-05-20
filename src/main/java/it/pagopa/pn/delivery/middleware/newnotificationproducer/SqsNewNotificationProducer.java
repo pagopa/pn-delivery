@@ -12,7 +12,6 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 
 
 @Component
-@ConditionalOnProperty( name = NewNotificationProducer.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.SQS )
 public class SqsNewNotificationProducer extends AbstractSqsMomProducer<PnDeliveryNewNotificationEvent> implements NewNotificationProducer {
 
     public SqsNewNotificationProducer(SqsClient sqsClient, ObjectMapper objectMapper, PnDeliveryConfigs cfg ) {
