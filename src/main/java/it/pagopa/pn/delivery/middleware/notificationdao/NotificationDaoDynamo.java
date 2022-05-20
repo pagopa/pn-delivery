@@ -22,7 +22,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 @Component
-@ConditionalOnProperty(name = NotificationDao.IMPLEMENTATION_TYPE_PROPERTY_NAME, havingValue = MiddlewareTypes.DYNAMO)
 @Slf4j
 public class NotificationDaoDynamo implements NotificationDao {
 
