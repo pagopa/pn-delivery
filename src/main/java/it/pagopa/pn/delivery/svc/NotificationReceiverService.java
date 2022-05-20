@@ -28,7 +28,6 @@ public class NotificationReceiverService {
 	private final Clock clock;
 	private final NotificationDao notificationDao;
 	private final NewNotificationProducer newNotificationEventProducer;
-	private final AttachmentService attachmentSaver;
 	private final NotificationReceiverValidator validator;
 	private final ModelMapperFactory modelMapperFactory;
 
@@ -39,13 +38,11 @@ public class NotificationReceiverService {
 			Clock clock,
 			NotificationDao notificationDao,
 			NewNotificationProducer newNotificationEventProducer,
-			AttachmentService attachmentSaver,
 			NotificationReceiverValidator validator,
 			ModelMapperFactory modelMapperFactory) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.newNotificationEventProducer = newNotificationEventProducer;
-		this.attachmentSaver = attachmentSaver;
 		this.validator = validator;
 		this.modelMapperFactory = modelMapperFactory;
 	}
@@ -119,14 +116,15 @@ public class NotificationReceiverService {
 
 
 		log.info("Start Attachment save for iun={}", iun);
-		InternalNotification internalNotificationWithCompleteMetadata = attachmentSaver.saveAttachments(internalNotification);
+		//FIXME check se è ok
+		//InternalNotification internalNotificationWithCompleteMetadata = safeStorageService.saveAttachments(internalNotification);
 
 		// - Will be delayed from the receiver
 		log.debug("Send \"new notification\" event for iun={}", iun);
 		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
 
 		log.info("Store the notification metadata for iun={}", iun);
-		notificationDao.addNotification(internalNotificationWithCompleteMetadata);
+		notificationDao.addNotification(internalNotification);
 	}
 
 

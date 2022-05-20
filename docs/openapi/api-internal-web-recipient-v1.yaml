@@ -184,9 +184,14 @@ components:
       required: true
       schema:
         type: string
-        enum:
-          - PAGOPA
-          - F24
+        pattern: "PAGOPA|F24"
+        # quella sottostante è quella corretta. Riscritta per problemi con tool usato
+        #    oneOf:
+        #      - type: number
+        #      - type: string
+        #        enum:
+        #          - PAGOPA
+        #          - F24
     queryMandateId:
       name: mandateId
       in: query

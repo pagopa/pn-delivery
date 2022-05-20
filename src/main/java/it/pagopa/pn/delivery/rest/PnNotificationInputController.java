@@ -8,7 +8,7 @@ import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
-import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -24,12 +25,12 @@ public class PnNotificationInputController implements NewNotificationApi {
     public static final String NOTIFICATION_VALIDATION_ERROR_STATUS = "Notification validation error";
     private final PnDeliveryConfigs cfgs;
     private final NotificationReceiverService svc;
-    private final S3PresignedUrlService presignSvc;
+    private final NotificationAttachmentService notificationAttachmentService;
 
-    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, S3PresignedUrlService presignSvc) {
+    public PnNotificationInputController(PnDeliveryConfigs cfgs, NotificationReceiverService svc, NotificationAttachmentService notificationAttachmentService) {
         this.cfgs = cfgs;
         this.svc = svc;
-        this.presignSvc = presignSvc;
+        this.notificationAttachmentService = notificationAttachmentService;
     }
 
     @Override
@@ -51,8 +52,8 @@ public class PnNotificationInputController implements NewNotificationApi {
                                     preLoadRequest.size(),
                                     numberOfPresignedRequest))));
         }
-        List<PreLoadResponse> preLoadResponses = presignSvc.presignedUpload( xPagopaPnCxId, preLoadRequest );
-        return ResponseEntity.ok( preLoadResponses );
+
+        return ResponseEntity.ok( this.notificationAttachmentService.putFiles(preLoadRequest));
     }
 
     @ExceptionHandler({PnValidationException.class})
