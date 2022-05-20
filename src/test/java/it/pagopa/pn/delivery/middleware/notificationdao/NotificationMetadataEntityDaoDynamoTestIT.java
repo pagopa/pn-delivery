@@ -134,13 +134,13 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .bySender( false )
                 .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "ed84b8c9-444e-410d-80d7-cfad6aa12070" )
+                .senderReceiverId( "RecipientId" )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
 
         String indexName = "recipientId";
-        String partitionValue = "ed84b8c9-444e-410d-80d7-cfad6aa12070##202204";
+        String partitionValue = "RecipientId##202203";
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
@@ -367,20 +367,20 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
     private NotificationMetadataEntity newNotificationMetadata() {
         Map<String,String> tableRowMap = new HashMap<>();
-        tableRowMap.put( "iun", "IUN" );
-        tableRowMap.put( "recipientsIds", "[recipientId]" );
-        tableRowMap.put( "subject", "Notifica IUN" );
+        tableRowMap.put( "iun", "KSAU-CKOB-OFKR-202205-O-1" );
+        tableRowMap.put( "recipientsIds", "[LVLDAA85T50G702B,CLMCST42R12D969Z]" );
+        tableRowMap.put( "subject", "multa" );
         return NotificationMetadataEntity.builder()
-                .iun_recipientId( "IUN##RecipientId" )
+                .iun_recipientId( "KSAU-CKOB-OFKR-202205-O-1##LVLDAA85T50G702B" )
                 .notificationGroup( "NotificationGroup1" )
                 .notificationStatus( NotificationStatus.ACCEPTED.toString() )
-                .recipientIds( Collections.singletonList("RecipientId") )
-                .recipientOne( true )
-                .senderId( "SenderId" )
-                .recipientId_creationMonth( "RecipientId##202203" )
-                .senderId_creationMonth("SenderId##202203")
-                .senderId_recipientId( "SenderId##RecipientId" )
-                .sentAt( Instant.parse( "2022-03-17T17:51:00.00Z" ) )
+                .recipientIds( List.of( "LVLDAA85T50G702B", "CLMCST42R12D969Z" ) )
+                .recipientOne( false )
+                .senderId( "c_h501" )
+                .recipientId_creationMonth( "LVLDAA85T50G702B##202205" )
+                .senderId_creationMonth("c_h501##202205")
+                .senderId_recipientId( "c_h501##LVLDAA85T50G702B" )
+                .sentAt( Instant.parse( "2022-05-20T09:51:00.00Z" ) )
                 .tableRow( tableRowMap )
                 .build();
     }
