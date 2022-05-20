@@ -6,6 +6,7 @@ import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -47,7 +48,7 @@ class PnNotificationInputControllerTest {
 	private NotificationReceiverService deliveryService;
 
 	@MockBean
-	private S3PresignedUrlService presignService;
+	private NotificationAttachmentService attachmentService;
 
 	@MockBean
 	private PnDeliveryConfigs cfg;
@@ -148,7 +149,7 @@ class PnNotificationInputControllerTest {
 
 		// When
 		Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn( MAX_NUMBER_REQUESTS );
-		Mockito.when(presignService.presignedUpload( Mockito.anyString() , Mockito.anyList() ))
+		Mockito.when(attachmentService.putFiles( Mockito.anyList() ))
 				.thenReturn( responses );
 
 		// Then
@@ -164,7 +165,7 @@ class PnNotificationInputControllerTest {
 				.exchange()
 				.expectStatus().isOk();
 
-		Mockito.verify( presignService ).presignedUpload( PA_ID , requests );
+		Mockito.verify( attachmentService ).putFiles( requests );
 	}
 
 	@Test

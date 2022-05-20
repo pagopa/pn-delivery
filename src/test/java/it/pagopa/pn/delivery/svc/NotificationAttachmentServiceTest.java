@@ -3,94 +3,144 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.events.ServiceLevelType;
 import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
 import it.pagopa.pn.api.dto.notification.NotificationSender;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddress;
 import it.pagopa.pn.api.dto.notification.address.DigitalAddressType;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
+import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.Base64Utils;
+import reactor.core.publisher.Flux;
 
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
 class NotificationAttachmentServiceTest {
-    public static final String ATTACHMENT_BODY_STR = "Body";
-    public static final String KEY = "KEY";
-    public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
-    public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
-    public static final String VERSION_TOKEN = "VERSION_TOKEN";
-    public static final NotificationAttachment NOTIFICATION_INLINE_ATTACHMENT = NotificationAttachment.builder()
-            .body(BASE64_BODY)
-            .contentType("Content/Type")
-            .digests(NotificationAttachment.Digests.builder()
-                    .sha256(SHA256_BODY)
-                    .build()
-            )
-            .ref( NotificationAttachment.Ref.builder()
-                    .key( KEY )
-                    .versionToken( VERSION_TOKEN )
-                    .build() )
-            .build();
 
-    private AttachmentService attachmentService;
-    private FileStorage fileStorage;
-    private NotificationReceiverValidator validator;
-    private PnDeliveryConfigs cfg;
+    private NotificationAttachmentService attachmentService;
+    private NotificationDao notificationDao;
+    private PnSafeStorageClientImpl pnSafeStorageClient;
+    private PnMandateClientImpl pnMandateClient;
 
     @BeforeEach
     public void setup() {
-        fileStorage = Mockito.mock( FileStorage.class );
-        validator = Mockito.mock( NotificationReceiverValidator.class );
+        Clock clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
 
-        attachmentService = new AttachmentService( fileStorage );
+        notificationDao = Mockito.mock(NotificationDao.class);
+        pnSafeStorageClient = Mockito.mock(PnSafeStorageClientImpl.class);
+        pnMandateClient = Mockito.mock( PnMandateClientImpl.class );
+
+        attachmentService = new NotificationAttachmentService(
+                 pnSafeStorageClient, notificationDao, pnMandateClient);
     }
 
     @Test
-    void buildPreloadFullKeySuccess() {
+    void putFiles() {
         //Given
-        String paId = "PA_ID";
-        String key = "KEY";
+        List<PreLoadRequest> list = new ArrayList<>();
+        PreLoadRequest request = new PreLoadRequest();
+        request.setContentType("application/pdf");
+        request.setPreloadIdx("1");
+        list.add(request);
+
+        FileCreationResponse response =new FileCreationResponse();
+        response.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
+        response.setSecret("secret");
+        response.setKey("filekey");
+        response.setUploadUrl("https://url123");
+
+        when(pnSafeStorageClient.createFile(Mockito.any())).thenReturn(response);
+
         //When
-        String result = attachmentService.buildPreloadFullKey( paId, key );
+        List<PreLoadResponse> result = attachmentService.putFiles(list);
 
         //Then
-        assertEquals( "preload/" + paId + "/" + key, result );
+        assertNotNull(result);
+        assertEquals(1, result.size());
     }
 
-    private Notification newNotificationWithoutPayments( ) {
-        return Notification.builder()
-                .iun("IUN_01")
-                .paNotificationId("protocol_01")
-                .subject("Subject 01")
-                .physicalCommunicationType( ServiceLevelType.SIMPLE_REGISTERED_LETTER )
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .sender(NotificationSender.builder()
-                        .paId(" pa_02")
-                        .build()
-                )
-                .recipients( Collections.singletonList(
-                        NotificationRecipient.builder()
-                                .taxId("Codice Fiscale 01")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(DigitalAddress.builder()
-                                        .type(DigitalAddressType.PEC)
-                                        .address("account@dominio.it")
-                                        .build())
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NOTIFICATION_INLINE_ATTACHMENT,
-                        NOTIFICATION_INLINE_ATTACHMENT
-                ))
-                .build();
+    @Test
+    void downloadDocumentWithRedirectByIunAndRecIdxAttachName() {
+        //Given
+        String iun = "iun";
+        int recipientidx = 0;
+        String attachmentName = "PAGOPA";
+
+        Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun));
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setChecksum("checksum");
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
+        fileDownloadResponse.setDocumentStatus("PRELOAD");
+        fileDownloadResponse.setKey("filekey");
+        fileDownloadResponse.setVersionId("v1");
+        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
+        fileDownloadInfo.setUrl("https://url123");
+        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
+        fileDownloadResponse.setDownload(fileDownloadInfo);
+
+        when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+
+        //When
+        NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientidx, attachmentName);
+
+        //Then
+        assertNotNull(result);
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
+        assertNotNull(result.getUrl());
+    }
+
+    @Test
+    void downloadDocumentWithRedirectByIunAndDocIndex() {
+    }
+
+    @Test
+    void downloadDocumentWithRedirectByIunRecUidAttachNameMandateId() {
+    }
+
+    private InternalNotification buildNotification(String iun){
+
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        NotificationRecipient notificationRecipient = new NotificationRecipient();
+        notificationRecipient.setTaxId("taxid");
+        NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
+        NotificationPaymentAttachment notificationPaymentAttachment = new NotificationPaymentAttachment();
+        NotificationAttachmentBodyRef notificationAttachmentBodyRef = new NotificationAttachmentBodyRef();
+        notificationAttachmentBodyRef.setKey("filekey");
+        notificationPaymentAttachment.setRef(notificationAttachmentBodyRef);
+        notificationPaymentInfo.setPagoPaForm(notificationPaymentAttachment);
+        notificationRecipient.setPayment(notificationPaymentInfo);
+        notification.addRecipientsItem(notificationRecipient);
+        return notification;
     }
 }

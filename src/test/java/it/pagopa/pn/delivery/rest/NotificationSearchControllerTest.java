@@ -9,6 +9,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,10 @@ class NotificationSearchControllerTest {
 
     @MockBean
     private NotificationRetrieverService svc;
+
+    @MockBean
+    private NotificationAttachmentService attachmentService;
+
 
     @MockBean
     private PnDeliveryConfigs cfg;
