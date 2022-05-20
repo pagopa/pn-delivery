@@ -3,11 +3,9 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,15 +31,17 @@ public class DtoToEntityNotificationMapper {
     //@Mapping( target = "cancelledIun", source = "cancelledIun")
     //@Mapping( target = "cancelledByIun", source = "cancelledByIun")
     //@Mapping( target = "senderPaId", source = "sender.paId")
-    public NotificationEntity dto2Entity(Notification dto) {
+    public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
-                .paNotificationId( dto.getPaNotificationId())
+                .paNotificationId( dto.getPaProtocolNumber())
+                .senderDenomination( dto.getSenderDenomination() )
+                .senderTaxId( dto.getSenderTaxId() )
                 .subject( dto.getSubject() )
-                .sentAt( dto.getSentAt() )
+                .sentAt( dto.getSentAt().toInstant() )
                 .cancelledIun( dto.getCancelledIun() )
                 .cancelledByIun( dto.getCancelledByIun() )
-                .senderPaId( dto.getSender().getPaId() )
+                .senderPaId( dto.getSenderPaId() )
                 .recipientsJson( recipientList2json( dto.getRecipients() ))
                 .recipientsOrder( dto.getRecipients().stream()
                         .map( NotificationRecipient::getTaxId )
@@ -52,79 +52,42 @@ public class DtoToEntityNotificationMapper {
                 .documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
                 .documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
                 .documentsTitles( listDocumentsTitles( dto.getDocuments() ))
-                .physicalCommunicationType (dto.getPhysicalCommunicationType() )
-                .group( dto.getGroup() )
-            ;
+                .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
+                .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
+                .group( dto.getGroup() );
 
-        NotificationPaymentInfo paymentInfo = dto.getPayment();
-        fillBuilderWithPaymentInfo(builder, paymentInfo);
 
         return builder.build();
     }
 
-    private List<String> listDocumentsContentTypes(List<NotificationAttachment> documents) {
+    private List<String> listDocumentsContentTypes(List<NotificationDocument> documents) {
         return documents.stream()
-                .map(NotificationAttachment::getContentType)
+                .map(NotificationDocument::getContentType)
                 .collect( Collectors.toList() );
     }
 
-    private List<String> listDocumentsKeys(List<NotificationAttachment> documents) {
+    private List<String> listDocumentsKeys(List<NotificationDocument> documents) {
         return documents.stream()
                 .map( doc -> doc.getRef().getKey() )
                 .collect(Collectors.toList());
     }
 
-    private List<String> listDocumentsSha256(List<NotificationAttachment> documents) {
+    private List<String> listDocumentsSha256(List<NotificationDocument> documents) {
         return documents.stream()
                 .map( doc -> doc.getDigests().getSha256() )
                 .collect(Collectors.toList());
     }
 
-    private List<String> listDocumentsVersionIds(List<NotificationAttachment> documents) {
+    private List<String> listDocumentsVersionIds(List<NotificationDocument> documents) {
         return documents.stream()
                 .map( attachment -> attachment.getRef().getVersionToken() )
                 .collect(Collectors.toList());
     }
 
-    private List<String> listDocumentsTitles(List<NotificationAttachment> documents) {
+    private List<String> listDocumentsTitles(List<NotificationDocument> documents) {
         return documents.stream()
-                .map( attachment -> attachment.getTitle() )
+                .map(NotificationDocument::getTitle)
                 .collect(Collectors.toList());
-    }
-
-    private void fillBuilderWithPaymentInfo(NotificationEntity.NotificationEntityBuilder builder, NotificationPaymentInfo paymentInfo) {
-        if( paymentInfo != null ) {
-            builder
-                .iuv( paymentInfo.getIuv() )
-                .notificationFeePolicy( paymentInfo.getNotificationFeePolicy() );
-
-            if( paymentInfo.getF24() != null ) {
-
-                NotificationAttachment flatRateF24 = paymentInfo.getF24().getFlatRate();
-                if( flatRateF24 != null ) {
-                    builder
-                            .f24FlatRateDigestSha256( flatRateF24.getDigests().getSha256() )
-                            .f24FlatRateKey( flatRateF24.getRef().getKey() )
-                            .f24FlatRateVersionId( flatRateF24.getRef().getVersionToken() );
-                }
-
-                NotificationAttachment digitalF24 = paymentInfo.getF24().getDigital();
-                if( digitalF24 != null ) {
-                    builder
-                            .f24DigitalDigestSha256( digitalF24.getDigests().getSha256() )
-                            .f24DigitalKey( digitalF24.getRef().getKey() )
-                            .f24DigitalVersionId( digitalF24.getRef().getVersionToken() );
-                }
-
-                NotificationAttachment analogF24 = paymentInfo.getF24().getAnalog();
-                if( analogF24 != null ) {
-                    builder
-                            .f24AnalogDigestSha256( analogF24.getDigests().getSha256() )
-                            .f24AnalogKey( analogF24.getRef().getKey() )
-                            .f24AnalogVersionId( analogF24.getRef().getVersionToken() );
-                }
-            }
-        }
     }
 
     private Map<String, String> recipientList2json(List<NotificationRecipient> recipients) {

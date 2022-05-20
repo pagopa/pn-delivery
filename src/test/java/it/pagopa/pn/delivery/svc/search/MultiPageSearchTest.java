@@ -1,15 +1,18 @@
 package it.pagopa.pn.delivery.svc.search;
 
-import it.pagopa.pn.api.dto.InputSearchNotificationDto;
-import it.pagopa.pn.api.dto.NotificationSearchRow;
-import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+
+
+
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,13 +64,14 @@ class MultiPageSearchTest {
 
         private final Map<Key, NotificationMetadataEntity> storage = new ConcurrentHashMap<>();
 
+
         @Override
-        public void addNotification(Notification notification) throws IdConflictException {
+        public void addNotification(InternalNotification notification) throws IdConflictException {
 
         }
 
         @Override
-        public Optional<Notification> getNotificationByIun(String iun) {
+        public Optional<InternalNotification> getNotificationByIun(String iun) {
             return Optional.empty();
         }
 
@@ -77,10 +81,10 @@ class MultiPageSearchTest {
             return ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
                     .result(Collections.singletonList( NotificationSearchRow.builder()
                             .iun( "IUN" )
-                            .group( "GRP" )
-                            .paNotificationId( "PaNotificationId" )
+                            //.group( "GRP" )
+                            .paProtocolNumber( "paProtocolNumber" )
                             .notificationStatus( NotificationStatus.VIEWED )
-                            .senderId( "SenderId" )
+                            .sender( "SenderId" )
                             .subject( "Subject" )
                             .build() ))
                     .moreResult( false )

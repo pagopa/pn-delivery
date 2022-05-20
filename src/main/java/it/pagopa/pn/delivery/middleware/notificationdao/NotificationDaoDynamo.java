@@ -1,13 +1,15 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.api.dto.InputSearchNotificationDto;
-import it.pagopa.pn.api.dto.NotificationSearchRow;
-import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.Notification;
+
+
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,14 +42,14 @@ public class NotificationDaoDynamo implements NotificationDao {
     }
 
     @Override
-    public void addNotification(Notification notification) throws IdConflictException {
+    public void addNotification(InternalNotification internalNotification) throws IdConflictException {
 
-        NotificationEntity entity = dto2entityMapper.dto2Entity( notification );
+        NotificationEntity entity = dto2entityMapper.dto2Entity(internalNotification);
         entityDao.putIfAbsent( entity );
     }
 
     @Override
-    public Optional<Notification> getNotificationByIun(String iun) {
+    public Optional<InternalNotification> getNotificationByIun(String iun) {
         Key keyToSearch = Key.builder()
                 .partitionValue(iun)
                 .build();

@@ -1,11 +1,12 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationPaymentInfo;
+
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InternalNotification;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -20,8 +22,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class AttachmentService {
-
-    private static final String SHA256_METADATA_NAME = "sha256";
 
     private final FileStorage fileStorage;
 
@@ -33,112 +33,110 @@ public class AttachmentService {
         return "preload/" + paId + "/" + key;
     }
 
-    public Notification saveAttachments(Notification notification ) {
-        String iun = notification.getIun();
-
-        Notification.NotificationBuilder builder = notification.toBuilder();
+    public InternalNotification saveAttachments(InternalNotification internalNotification) {
+        String iun = internalNotification.getIun();
 
         // - Save documents
         log.debug("Saving documents for iun={} START", iun);
-        saveDocuments( notification, iun, builder );
+        saveDocuments(internalNotification);
         log.debug("Saving documents for iun={} END", iun);
 
         // - save F24
         log.debug("Saving F24 for iun={} START", iun);
-        saveF24( notification, iun, builder);
+        saveF24( internalNotification );
         log.debug("Saving F24 for iun={} END", iun);
-        return builder.build();
+
+        return internalNotification;
     }
 
-    private void saveDocuments(Notification notification, String iun, Notification.NotificationBuilder builder) {
+    private void saveDocuments(InternalNotification internalNotification) {
         AtomicInteger index = new AtomicInteger( 0 );
-        builder.documents( notification.getDocuments().stream()
+        internalNotification.documents( internalNotification.getDocuments().stream()
                 .map( toSave -> {
-                    String key = String.format("%s/documents/%d", iun, index.getAndIncrement() );
-                    return saveAndUpdateAttachment( notification, toSave, key );
+                    //String key = String.format("%s/documents/%d", iun, index.getAndIncrement() );
+                    return saveAndUpdateAttachment(internalNotification, toSave, null);
                 })
                 .collect(Collectors.toList())
         );
     }
 
-    private void saveF24(Notification notification, String iun, Notification.NotificationBuilder builder) {
-        NotificationPaymentInfo paymentsInfo = notification.getPayment();
-        if( paymentsInfo != null ) {
+    private void saveF24(InternalNotification notification) {
 
-            NotificationPaymentInfo.NotificationPaymentInfoBuilder paymentsBuilder;
-            paymentsBuilder = notification.getPayment().toBuilder();
+        for ( NotificationRecipient recipient : notification.getRecipients() ) {
+            NotificationPaymentInfo paymentsInfo = recipient.getPayment();
 
-            NotificationPaymentInfo.F24 f24 = paymentsInfo.getF24();
-            if( f24 != null ) {
-
-                NotificationPaymentInfo.F24.F24Builder f24Builder = f24.toBuilder();
-
-                NotificationAttachment f24FlatRate = f24.getFlatRate();
-                if( f24FlatRate != null ) {
-                    String key = String.format( "%s/f24/flatRate", iun);
-                    f24Builder.flatRate( saveAndUpdateAttachment(notification, f24FlatRate, key ) );
+            if( paymentsInfo != null ) {
+                NotificationPaymentAttachment f24FlateRate = paymentsInfo.getF24flatRate();
+                if (f24FlateRate != null ) {
+                    saveAndUpdatePaymentAttachment(f24FlateRate, notification.getSenderPaId());
                 }
-
-                NotificationAttachment f24Digital = f24.getDigital();
-                if( f24Digital != null ) {
-                    String key = String.format( "%s/f24/digital", iun);
-                    f24Builder.digital( saveAndUpdateAttachment(notification, f24Digital, key ) );
+                NotificationPaymentAttachment f24White = paymentsInfo.getF24standard();
+                if (f24White != null) {
+                    saveAndUpdatePaymentAttachment(f24White, notification.getSenderPaId());
                 }
-
-                NotificationAttachment f24Analog = f24.getAnalog();
-                if( f24Analog != null ) {
-                    String key = String.format( "%s/f24/analog", iun);
-                    f24Builder.analog( saveAndUpdateAttachment(notification, f24Analog, key ) );
+                NotificationPaymentAttachment pagoPaForm = paymentsInfo.getPagoPaForm();
+                if (pagoPaForm != null) {
+                    saveAndUpdatePaymentAttachment(pagoPaForm, notification.getSenderPaId());
                 }
-
-                paymentsBuilder.f24( f24Builder.build() );
             }
-            builder.payment( paymentsBuilder.build() );
         }
     }
-    
-    private NotificationAttachment saveAndUpdateAttachment(Notification notification, NotificationAttachment attachment, String key) {
-        String iun = notification.getIun();
-        String paId = notification.getSender().getPaId();
-        log.info("Saving attachment: iun={} key={}", iun, key);
 
-        NotificationAttachment.Ref attachmentRef = attachment.getRef();
+    private void saveAndUpdatePaymentAttachment(NotificationPaymentAttachment paymentAttachment, String paId) {
+        NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
 
-        NotificationAttachment updatedAttachment;
-        if( attachmentRef == null ) {
-            log.info("Direct load for attachment iun={} key={}", iun, key);
-            String contentType = attachment.getContentType();
-            String versionId = saveOneAttachmentToFileStorage( key, attachment );
-            log.info("SAVED attachment iun={} key={} versionId={} contentType={}", iun, key, versionId, contentType);
-            updatedAttachment = updateAttachmentMetadata( attachment, versionId, key, contentType );
+        log.info( "Retrieve attachment by ref with key={}", attachmentRef.getKey() );
+        String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
+        String versionId = attachmentRef.getVersionToken();
+
+        FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
+        try {
+            fd.getContent().close();
+        } catch (IOException e) {
+            String msg = "Error closing attachment Ref with key=" + attachmentRef.getKey()  + " version=" + fd.getVersionId();
+            log.error( msg );
+            throw new PnInternalException( msg, e );
         }
-        else {
-            log.info( "Retrieve attachment by ref iun={} key={}", iun, key );
-            String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
-            String versionId = attachmentRef.getVersionToken();
 
-            FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
-            try {
-                fd.getContent().close();
-            } catch (IOException e) {
-                String msg = "Error closing attachment Ref with key=" + attachmentRef.getKey()  + " version=" + fd.getVersionId();
-                log.error( msg );
-                throw new PnInternalException( msg, e );
-            }
+        paymentAttachment.contentType( fd.getContentType() );
+        paymentAttachment.getRef().setVersionToken( versionId );
+        paymentAttachment.getRef().setKey( fullKey );
+    }
 
-            updatedAttachment = updateAttachmentMetadata( attachment, versionId, fullKey, fd.getContentType() );
+    private NotificationDocument saveAndUpdateAttachment(InternalNotification internalNotification, NotificationDocument notificationDocument, String key) {
+        String iun = internalNotification.getIun();
+        String paId = internalNotification.getSenderPaId();
+        //log.info("Saving attachment: iun={} key={}", iun, key);
 
+        NotificationAttachmentBodyRef attachmentRef = notificationDocument.getRef();
+
+        NotificationDocument updatedAttachment;
+
+        log.info( "Retrieve attachment by ref iun={} key={}", iun, attachmentRef.getKey() );
+        String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
+        String versionId = attachmentRef.getVersionToken();
+
+        FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
+        try {
+            fd.getContent().close();
+        } catch (IOException e) {
+            String msg = "Error closing attachment Ref with key=" + attachmentRef.getKey()  + " version=" + fd.getVersionId();
+            log.error( msg );
+            throw new PnInternalException( msg, e );
         }
+
+        updatedAttachment = updateAttachmentMetadata( notificationDocument, versionId, fullKey, fd.getContentType() );
+
         return updatedAttachment;
     }
 
     /**
      *
-     * @param key the path where to save the <code>attachment</code>
+     * @param attachment the path where to save the <code>attachment</code>
      * @param attachment the file to save
      * @return the versionId of the saved file
      */
-    private String saveOneAttachmentToFileStorage( String key, NotificationAttachment attachment ) {
+    /*private String saveOneAttachmentToFileStorage( String key, NotificationAttachment attachment ) {
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put(SHA256_METADATA_NAME, attachment.getDigests().getSha256() );
@@ -146,17 +144,16 @@ public class AttachmentService {
         byte[] body = Base64.getDecoder().decode( attachment.getBody() );
 
         return fileStorage.putFileVersion( key, new ByteArrayInputStream( body ), body.length, attachment.getContentType(), metadata );
-    }
+    }*/
 
-    private NotificationAttachment updateAttachmentMetadata(NotificationAttachment attachment,
+    private NotificationDocument updateAttachmentMetadata(NotificationDocument attachment,
                                                             String versionId, String fullKey, String contentType ) {
-        return attachment.toBuilder()
-                .ref( NotificationAttachment.Ref.builder()
+        return attachment
+                .ref( NotificationAttachmentBodyRef.builder()
                         .key( fullKey )
                         .versionToken( versionId )
                         .build()
                 )
-                .contentType( contentType )
-                .build();
+                .contentType( contentType );
     }
 }

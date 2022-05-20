@@ -1,112 +1,77 @@
 package it.pagopa.pn.delivery.rest;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import it.pagopa.pn.api.dto.InputSearchNotificationDto;
-import it.pagopa.pn.api.dto.NotificationSearchRow;
-import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodGetSentNotification;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodGetSentNotificationDocuments;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodSearchSentNotification;
-import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.util.Base64Utils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
-public class PnSentNotificationsController implements
-        PnDeliveryRestApi_methodGetSentNotification,
-        PnDeliveryRestApi_methodGetSentNotificationDocuments,
-        PnDeliveryRestApi_methodSearchSentNotification {
+public class PnSentNotificationsController implements SenderReadB2BApi,SenderReadWebApi {
 
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
+    private final ModelMapperFactory modelMapperFactory;
     public static final String VALIDATION_ERROR_STATUS = "Validation error";
 
-    public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg) {
+    public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.cfg = cfg;
+        this.modelMapperFactory = modelMapperFactory;
     }
 
     @Override
-    @GetMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH)
-    public ResultPaginationDto<NotificationSearchRow,String> searchSentNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String senderId,
-            @RequestParam(name = "startDate") Instant startDate,
-            @RequestParam(name = "endDate") Instant endDate,
-            @RequestParam(name = "recipientId", required = false) String recipientId,
-            @RequestParam(name = "status", required = false) NotificationStatus status,
-            @RequestParam(name = "groups", required = false) String[] groups,
-            @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
-            @RequestParam(name = "iunMatch", required = false) String iunMatch,
-            @RequestParam(name = "size", required = false) Integer size,
-            @RequestParam(name = "nextPagesKey", required = false) String nextPagesKey
-    ) {
+    public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun) {
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
+        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
+        FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
+        return ResponseEntity.ok( result );
+    }
 
+
+
+    @Override
+    public ResponseEntity<NotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, Date startDate, Date endDate, String recipientId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
-                .senderReceiverId(senderId)
-                .startDate(startDate)
-                .endDate(endDate)
+                .senderReceiverId(xPagopaPnCxId)
+                .startDate(startDate.toInstant())
+                .endDate(endDate.toInstant())
                 .filterId(recipientId)
                 .status(status)
-                .groups( groups != null ? Arrays.asList( groups ) : null )
+                //.groups( groups != null ? Arrays.asList( groups ) : null )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
-        
-        return retrieveSvc.searchNotification( searchDto );
-    }
 
-    @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_SENT_PATH)
-    @JsonView(value = NotificationJsonViews.Sent.class )
-    public Notification getSentNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
-            @PathVariable( name = "iun") String iun,
-            @RequestParam( name = "with_timeline", defaultValue = "true", required = false ) boolean withTimeline
-    ) {
-            return retrieveSvc.getNotificationInformation( iun, withTimeline );
-    }
+        ResultPaginationDto<NotificationSearchRow,String> serviceResult =  retrieveSvc.searchNotification( searchDto );
 
-    @Override
-    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_SENT_DOCUMENTS_PATH)
-    public ResponseEntity<Resource> getSentNotificationDocument(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
-            @PathVariable("iun") String iun,
-            @PathVariable("documentIndex") int documentIndex,
-            ServerHttpResponse response
-    ) {
-        if(cfg.isDownloadWithPresignedUrl()) {
-            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
-            //response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-            //response.getHeaders().setLocation(URI.create( redirectUrl ));
-            //return null;
-            response.getHeaders().setContentType( MediaType.APPLICATION_JSON );
-            String responseString  = "{ \"url\": \"" + redirectUrl + "\"}";
-            Resource resource = new ByteArrayResource( responseString.getBytes(StandardCharsets.UTF_8) );
-            return ResponseEntity.ok( resource );
-        } else {
-            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
-            return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
-        }
-
+        ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
+        NotificationSearchResponse response = mapper.map( serviceResult, NotificationSearchResponse.class );
+        return ResponseEntity.ok( response );
     }
 
     @ExceptionHandler({PnValidationException.class})
@@ -114,4 +79,40 @@ public class PnSentNotificationsController implements
         return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
     }
 
+    @Override
+    public Optional<NativeWebRequest> getRequest() {
+        return SenderReadB2BApi.super.getRequest();
+    }
+
+    @Override
+    @ExceptionHandler({PnInternalException.class})
+    public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+        String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
+        NotificationStatus lastStatus = internalNotification.getNotificationStatusHistory().get( internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
+        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class );
+        NewNotificationRequestStatusResponse response = mapper.map( internalNotification, NewNotificationRequestStatusResponse.class );
+        response.setNotificationRequestId( notificationRequestId );
+        switch ( lastStatus ) {
+            case IN_VALIDATION: {
+                response.setNotificationRequestStatus( "WAITING" );
+                response.retryAfter( BigDecimal.valueOf(10L) );
+                break;
+            }
+            case REFUSED: response.setNotificationRequestStatus( "REFUSED" ); break;
+            default: response.setNotificationRequestStatus( "ACCEPTED" );
+        }
+        return ResponseEntity.ok( response );
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal recipientIdx, String attachmentName) {
+        return SenderReadB2BApi.super.getSentNotificationAttachment(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, xPagopaPnCxGroups, iun, recipientIdx, attachmentName);
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal docIdx) {
+        NotificationAttachmentDownloadMetadataResponse response = retrieveSvc.downloadDocumentWithRedirect(iun, docIdx.intValue());
+        return ResponseEntity.ok( response );
+    }
 }
