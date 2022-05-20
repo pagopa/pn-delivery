@@ -365,7 +365,7 @@ components:
           type: string
           description: Oggetto della notifica
         notificationStatus:
-          $ref: '#/components/schemas/NotificationStatus'
+          $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
         recipients:
           description: >-
             Elenco delle denominazioni dei destinatari della notifica. <br/>
@@ -374,8 +374,9 @@ components:
           items:
             type: string
     
-    NotificationStatus:
-      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+    #NotificationStatus:
+      #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+      #type: string
 
 
     ############################################################################################
