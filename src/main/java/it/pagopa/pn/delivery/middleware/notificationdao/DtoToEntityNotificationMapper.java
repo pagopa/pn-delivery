@@ -1,16 +1,18 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 // FIXME: MapStruct do not play well with lombok. We have to find a solution.
@@ -19,9 +21,11 @@ import java.util.stream.Collectors;
 public class DtoToEntityNotificationMapper {
 
     private final ObjectWriter recipientWriter;
+    private ModelMapperFactory modelMapperFactory;
 
-    public DtoToEntityNotificationMapper(ObjectMapper objMapper) {
+    public DtoToEntityNotificationMapper(ObjectMapper objMapper, ModelMapperFactory modelMapperFactory) {
         this.recipientWriter = objMapper.writerFor(NotificationRecipient.class);
+        this.modelMapperFactory = modelMapperFactory;
     }
 
     // FIXME: MapStruct do not play well with lombok. We have to find a solution.
@@ -42,22 +46,28 @@ public class DtoToEntityNotificationMapper {
                 .cancelledIun( dto.getCancelledIun() )
                 .cancelledByIun( dto.getCancelledByIun() )
                 .senderPaId( dto.getSenderPaId() )
-                .recipientsJson( recipientList2json( dto.getRecipients() ))
-                .recipientsOrder( dto.getRecipients().stream()
-                        .map( NotificationRecipient::getTaxId )
-                        .collect(Collectors.toList())
-                    )
-                .documentsKeys( listDocumentsKeys( dto.getDocuments() ))
-                .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
-                .documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
-                .documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
-                .documentsTitles( listDocumentsTitles( dto.getDocuments() ))
+                .recipients( dto2RecipientsEntity( dto.getRecipients() ) )
+                //.recipientsJson( recipientList2json( dto.getRecipients() ))
+                //.recipientsOrder( dto.getRecipients().stream()
+                //        .map( NotificationRecipient::getTaxId )
+                //        .collect(Collectors.toList())
+                //    )
+                //.documentsKeys( listDocumentsKeys( dto.getDocuments() ))
+                //.documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
+                //.documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
+                //.documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
+                //.documentsTitles( listDocumentsTitles( dto.getDocuments() ))
                 .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
                 .group( dto.getGroup() );
 
 
         return builder.build();
+    }
+
+    private List<NotificationRecipientEntity> dto2RecipientsEntity(List<NotificationRecipient> recipients) {
+       ModelMapper mapper = modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class );
+       return recipients.stream().map( r ->  mapper.map( r, NotificationRecipientEntity.class )).collect(Collectors.toList());
     }
 
     private List<String> listDocumentsContentTypes(List<NotificationDocument> documents) {
@@ -88,22 +98,6 @@ public class DtoToEntityNotificationMapper {
         return documents.stream()
                 .map(NotificationDocument::getTitle)
                 .collect(Collectors.toList());
-    }
-
-    private Map<String, String> recipientList2json(List<NotificationRecipient> recipients) {
-        Map<String, String> result = new ConcurrentHashMap<>();
-        recipients.forEach( recipient ->
-            result.put( recipient.getTaxId(), recipient2JsonString( recipient ))
-        );
-        return result;
-    }
-
-    private String recipient2JsonString( NotificationRecipient recipient) {
-        try {
-            return recipientWriter.writeValueAsString( recipient );
-        } catch (JsonProcessingException exc) {
-            throw new IllegalStateException( exc );
-        }
     }
 
 }

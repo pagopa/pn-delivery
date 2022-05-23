@@ -7,8 +7,11 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -19,9 +22,11 @@ import java.util.stream.Collectors;
 public class EntityToDtoNotificationMapper {
 
     private final ObjectReader recipientReader;
+    private ModelMapperFactory modelMapperFactory;
 
-    public EntityToDtoNotificationMapper(ObjectMapper objMapper) {
+    public EntityToDtoNotificationMapper(ObjectMapper objMapper, ModelMapperFactory modelMapperFactory) {
         this.recipientReader = objMapper.readerFor( NotificationRecipient.class );
+        this.modelMapperFactory = modelMapperFactory;
     }
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
@@ -42,10 +47,16 @@ public class EntityToDtoNotificationMapper {
                 .physicalCommunicationType( entity.getPhysicalCommunicationType() )
                 .group( entity.getGroup() )
                 .senderPaId( entity.getSenderPaId() )
-                .recipients( buildRecipientsList( entity ) )
-                .documents( buildDocumentsList( entity ) )
+                .recipients( entity2RecipientDto( entity.getRecipients() )  )
+                //.documentsAvailable(  )
+                //.documents( buildDocumentsList( entity ) )
                 .build()
         , Collections.emptyMap());
+    }
+
+    private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
+        ModelMapper mapper = modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class );
+        return recipients.stream().map( r ->  mapper.map( r, NotificationRecipient.class ) ).collect(Collectors.toList());
     }
 
     private NotificationAttachment buildAttachment(String key, String version, String sha256 ) {
@@ -132,11 +143,12 @@ public class EntityToDtoNotificationMapper {
     }
 
     private List<NotificationRecipient> buildRecipientsList( NotificationEntity entity ) {
-        Map<String, String> recipientsMetadata = entity.getRecipientsJson();
+        //Map<String, String> recipientsMetadata = entity.getRecipientsJson();
 
-        return entity.getRecipientsOrder().stream()
-                .map( recipientId -> parseRecipientJson( recipientsMetadata.get( recipientId)) )
-                .collect(Collectors.toList());
+        //return entity.getRecipientsOrder().stream()
+        //        .map( recipientId -> parseRecipientJson( recipientsMetadata.get( recipientId)) )
+        //        .collect(Collectors.toList());
+        return Collections.emptyList();
 
     }
 
