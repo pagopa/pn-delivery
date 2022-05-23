@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -81,7 +81,29 @@ class NotificationEntityDaoDynamoTestIT {
                 .cancelledIun("IUN_00")
                 .senderPaId( "pa_02" )
                 .group( "Group_1" )
-                .recipients( Collections.emptyList() )
+                .recipients( Collections.singletonList(NotificationRecipientEntity.builder()
+                                .recipientType( RecipientTypeEntity.PF )
+                                .taxId( "recipientTaxId" )
+                                .digitalDomicile(NotificationDigitalAddressEntity.builder()
+                                        .address( "address@pec.it" )
+                                        .type( DigitalAddressTypeEntity.PEC )
+                                        .build() )
+                                .denomination( "recipientDenomination" )
+                                .payment( NotificationPaymentInfoEntity.builder()
+                                        .creditorTaxId( "creditorTaxId" )
+                                        .noticeCode( "noticeCode" )
+                                        .pagoPaForm( PaymentAttachmentEntity.builder()
+                                                .contentType( "application/pdf" )
+                                                .digests( AttachmentDigestsEntity.builder()
+                                                        .sha256( "sha256" )
+                                                        .build() )
+                                                .ref( AttachmentRefEntity.builder()
+                                                        .key( "key" )
+                                                        .versionToken( "versionToken" )
+                                                        .build() )
+                                                .build() )
+                                        .build() )
+                        .build()) )
                 //.recipientsJson(Collections.emptyMap())
                 .build();
     }
