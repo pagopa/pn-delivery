@@ -42,6 +42,11 @@ public class DtoToEntityNotificationMapper {
                         .map( NotificationRecipient::getTaxId )
                         .collect(Collectors.toList())
                 )
+                .documentsKeys( listDocumentsKeys( dto.getDocuments() ))
+                .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
+                .documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
+                .documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
+                .documentsTitles( listDocumentsTitles( dto.getDocuments() ))
                 .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
                 .group( dto.getGroup() );
@@ -52,6 +57,36 @@ public class DtoToEntityNotificationMapper {
     private List<NotificationRecipientEntity> dto2RecipientsEntity(List<NotificationRecipient> recipients) {
        ModelMapper mapper = modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class );
        return recipients.stream().map( r ->  mapper.map( r, NotificationRecipientEntity.class )).collect(Collectors.toList());
+    }
+
+    private List<String> listDocumentsContentTypes(List<NotificationDocument> documents) {
+        return documents.stream()
+                .map(NotificationDocument::getContentType)
+                .collect( Collectors.toList() );
+    }
+
+    private List<String> listDocumentsKeys(List<NotificationDocument> documents) {
+        return documents.stream()
+                .map( doc -> doc.getRef().getKey() )
+                .collect(Collectors.toList());
+    }
+
+    private List<String> listDocumentsSha256(List<NotificationDocument> documents) {
+        return documents.stream()
+                .map( doc -> doc.getDigests().getSha256() )
+                .collect(Collectors.toList());
+    }
+
+    private List<String> listDocumentsVersionIds(List<NotificationDocument> documents) {
+        return documents.stream()
+                .map( attachment -> attachment.getRef().getVersionToken() )
+                .collect(Collectors.toList());
+    }
+
+    private List<String> listDocumentsTitles(List<NotificationDocument> documents) {
+        return documents.stream()
+                .map(NotificationDocument::getTitle)
+                .collect(Collectors.toList());
     }
 
 }
