@@ -50,19 +50,19 @@ public class AttachmentService {
     }
 
     private void saveDocuments(InternalNotification internalNotification) {
-        AtomicInteger index = new AtomicInteger( 0 );
+        /*AtomicInteger index = new AtomicInteger( 0 );
         internalNotification.documents( internalNotification.getDocuments().stream()
                 .map( toSave -> {
                     //String key = String.format("%s/documents/%d", iun, index.getAndIncrement() );
                     return saveAndUpdateAttachment(internalNotification, toSave, null);
                 })
                 .collect(Collectors.toList())
-        );
+        );*/
     }
 
     private void saveF24(InternalNotification notification) {
 
-        for ( NotificationRecipient recipient : notification.getRecipients() ) {
+        /*for ( NotificationRecipient recipient : notification.getRecipients() ) {
             NotificationPaymentInfo paymentsInfo = recipient.getPayment();
 
             if( paymentsInfo != null ) {
@@ -79,11 +79,11 @@ public class AttachmentService {
                     saveAndUpdatePaymentAttachment(pagoPaForm, notification.getSenderPaId());
                 }
             }
-        }
+        }*/
     }
 
     private void saveAndUpdatePaymentAttachment(NotificationPaymentAttachment paymentAttachment, String paId) {
-        NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
+        /*NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
 
         log.info( "Retrieve attachment by ref with key={}", attachmentRef.getKey() );
         String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
@@ -100,7 +100,7 @@ public class AttachmentService {
 
         paymentAttachment.contentType( fd.getContentType() );
         paymentAttachment.getRef().setVersionToken( versionId );
-        paymentAttachment.getRef().setKey( fullKey );
+        paymentAttachment.getRef().setKey( fullKey );*/
     }
 
     private NotificationDocument saveAndUpdateAttachment(InternalNotification internalNotification, NotificationDocument notificationDocument, String key) {
