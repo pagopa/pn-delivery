@@ -103,7 +103,7 @@ public class NotificationAttachmentService {
                 Optional<NotificationRecipient> doc;
                 if (recipientIdx != null)
                 {
-                    doc = Optional.ofNullable(notification.getRecipients().get(recipientIdx));
+                    doc = Optional.ofNullable(recipientIdx<notification.getRecipients().size()?notification.getRecipients().get(recipientIdx):null);
                 }
                 else
                 {
