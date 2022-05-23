@@ -333,7 +333,7 @@ class PnSentReceivedNotificationControllerTest {
 				.notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 								.status( NotificationStatus.ACCEPTED )
 						.build() ) )
-                .build(), Collections.EMPTY_MAP);
+                .build(), Collections.emptyMap(), Collections.emptyList());
     }
 	
 }

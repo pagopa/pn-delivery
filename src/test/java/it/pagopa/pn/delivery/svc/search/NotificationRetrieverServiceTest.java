@@ -135,7 +135,7 @@ class NotificationRetrieverServiceTest {
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .build())
-                ).build(), Collections.EMPTY_MAP);
+                ).build(), Collections.emptyMap(), Collections.emptyList());
 
         
         List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
