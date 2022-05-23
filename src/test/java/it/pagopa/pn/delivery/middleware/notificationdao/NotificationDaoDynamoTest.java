@@ -18,10 +18,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
@@ -153,7 +151,6 @@ class NotificationDaoDynamoTest {
         NotificationEntity entity = NotificationEntity.builder()
                 .documentsVersionIds(Arrays.asList("v1", "v2"))
                 .documentsDigestsSha256(Collections.singletonList("doc1"))
-                //.recipientsJson(Collections.emptyMap())
                 //.recipientsOrder(Collections.emptyList())
                 .build();
 
