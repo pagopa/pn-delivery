@@ -327,7 +327,7 @@ class NotificationDaoDynamoTest {
                                 .contentType( "application/pdf" )
                                 .build()
                 ))
-                .build(), Collections.EMPTY_MAP);
+                .build(), Collections.emptyMap(), Collections.emptyList());
     }
 
     /*private Notification newNotificationWithPaymentsDeliveryMode( boolean withIuv ) {

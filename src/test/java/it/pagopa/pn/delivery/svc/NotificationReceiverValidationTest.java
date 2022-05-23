@@ -50,7 +50,7 @@ class NotificationReceiverValidationTest {
     void invalidEmptyNotification() {
 
         // GIVEN
-        InternalNotification n = new InternalNotification(FullSentNotification.builder().build(), Collections.emptyMap());
+        InternalNotification n = new InternalNotification(FullSentNotification.builder().build(), Collections.emptyMap(), Collections.emptyList());
 
         // WHEN
         Set<ConstraintViolation<InternalNotification>> errors;
@@ -76,7 +76,7 @@ class NotificationReceiverValidationTest {
     void checkThrowMechanism() {
 
         // GIVEN
-        InternalNotification n = new InternalNotification(FullSentNotification.builder().build(), Collections.emptyMap());
+        InternalNotification n = new InternalNotification(FullSentNotification.builder().build(), Collections.emptyMap(), Collections.emptyList());
 
         // WHEN
         Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(n);
@@ -107,7 +107,7 @@ class NotificationReceiverValidationTest {
         // GIVEN
         InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
                 .senderTaxId( "taxid" )
-                .recipients( Collections.singletonList( NotificationRecipient.builder().build() ) ), Collections.emptyMap() );
+                .recipients( Collections.singletonList( NotificationRecipient.builder().build() ) ), Collections.emptyMap(), Collections.emptyList() );
 
         // WHEN
         Set<ConstraintViolation<InternalNotification>> errors;
@@ -127,7 +127,7 @@ class NotificationReceiverValidationTest {
         // GIVEN
         InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
                 .recipients( Collections.singletonList( null ) )
-                .documents( Collections.singletonList( null ) ), Collections.emptyMap());
+                .documents( Collections.singletonList( null ) ), Collections.emptyMap(), Collections.emptyList());
 
         // WHEN
         Set<ConstraintViolation<InternalNotification>> errors;
@@ -147,7 +147,7 @@ class NotificationReceiverValidationTest {
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .build())
                 )
-                .documents( Collections.singletonList(NotificationDocument.builder().build()  ) ), Collections.emptyMap());
+                .documents( Collections.singletonList(NotificationDocument.builder().build()  ) ), Collections.emptyMap(), Collections.emptyList());
         n.notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE );
 
         // WHEN
@@ -180,7 +180,7 @@ class NotificationReceiverValidationTest {
                         .contentType("Content/Type")
                         .digests( NotificationAttachmentDigests.builder().build() )
                         .build( ))
-                ), Collections.emptyMap());
+                ), Collections.emptyMap(), Collections.emptyList());
 
         // WHEN
         Set<ConstraintViolation<InternalNotification>> errors;
@@ -235,7 +235,7 @@ class NotificationReceiverValidationTest {
                 .recipients( Collections.singletonList( n.getRecipients().get(0)
                         .digitalDomicile( n.getRecipients().get(0).getDigitalDomicile()
                                 .address( null )
-                        ))), Collections.emptyMap());
+                        ))), Collections.emptyMap(), Collections.emptyList());
 
         // WHEN
         Set<ConstraintViolation<InternalNotification>> errors;
@@ -251,7 +251,7 @@ class NotificationReceiverValidationTest {
     void testCheckNotificationDocumentFail() {
 
         InternalNotification notification = new InternalNotification( validDocumentWithoutPayments()
-                .documents( Collections.singletonList( NotificationDocument.builder().build() )), Collections.emptyMap());
+                .documents( Collections.singletonList( NotificationDocument.builder().build() )), Collections.emptyMap(), Collections.emptyList());
         notification.notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE );
 
         // WHEN
@@ -337,12 +337,12 @@ class NotificationReceiverValidationTest {
     }
 
     private InternalNotification newNotificationRequets() {
-        return new InternalNotification( newFullSentNotification(), Collections.emptyMap() );
+        return new InternalNotification( newFullSentNotification(), Collections.emptyMap(), Collections.emptyList() );
     }
 
     private InternalNotification notificationWithPhysicalCommunicationType() {
         return new InternalNotification( newFullSentNotification()
-                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 ), Collections.EMPTY_MAP);
+                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 ), Collections.emptyMap(), Collections.emptyList());
     }
 
     private InternalNotification validDocumentWithoutPayments() {
@@ -356,7 +356,7 @@ class NotificationReceiverValidationTest {
                         .digests( NotificationAttachmentDigests.builder()
                                 .sha256( SHA256_BODY )
                                 .build() )
-                        .build() ) ), Collections.emptyMap());
+                        .build() ) ), Collections.emptyMap(), Collections.emptyList());
     }
 
     private InternalNotification validDocumentWithPayments() {
@@ -393,7 +393,7 @@ class NotificationReceiverValidationTest {
                                                         .versionToken( VERSION_TOKEN )
                                                         .build() ))
                                         .build() )
-                        .build() )), Collections.emptyMap());
+                        .build() )), Collections.emptyMap(), Collections.emptyList());
     }
 
 }

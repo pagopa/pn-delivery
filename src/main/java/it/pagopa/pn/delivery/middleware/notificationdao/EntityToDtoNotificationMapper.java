@@ -50,7 +50,7 @@ public class EntityToDtoNotificationMapper {
                 .documents( buildDocumentsList( entity ) )
                 //.documentsAvailable(  )
                 .build()
-        , Collections.emptyMap());
+        , Collections.emptyMap(), entity.getRecipientsOrder());
     }
 
     private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
