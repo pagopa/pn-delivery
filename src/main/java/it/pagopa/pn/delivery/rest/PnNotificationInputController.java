@@ -1,33 +1,25 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.NewNotificationResponse;
-import it.pagopa.pn.api.dto.events.ServiceLevelType;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.preload.PreloadRequest;
-import it.pagopa.pn.api.dto.preload.PreloadResponse;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodReceiveNotification;
-import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
+import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import it.pagopa.pn.delivery.svc.NotificationReceiverService;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @RestController
-public class PnNotificationInputController implements PnDeliveryRestApi_methodReceiveNotification {
+public class PnNotificationInputController implements NewNotificationApi {
 
     public static final String NOTIFICATION_VALIDATION_ERROR_STATUS = "Notification validation error";
     private final PnDeliveryConfigs cfgs;
@@ -41,46 +33,26 @@ public class PnNotificationInputController implements PnDeliveryRestApi_methodRe
     }
 
     @Override
-    @PostMapping(PnDeliveryRestConstants.SEND_NOTIFICATIONS_PATH )
-    public NewNotificationResponse receiveNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
-            @RequestBody @JsonView(value = NotificationJsonViews.New.class ) Notification notification
-    ) {
-        if( notification.getPhysicalCommunicationType() == null ) {
-            log.warn( "Add default physical communication type for paNotificationId={} from paId={}",
-                    notification.getPaNotificationId(), paId );
-            notification = notification.toBuilder()
-                    .physicalCommunicationType(ServiceLevelType.REGISTERED_LETTER_890)
-                    .build();
-        }
-
-        Notification withSender = notification.toBuilder()
-                .sender( NotificationSender.builder()
-                        .paId( paId )
-                        .build()
-                )
-                .build();
-
-        return svc.receiveNotification( withSender );
+    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, NewNotificationRequest newNotificationRequest) {
+        NewNotificationResponse svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
+        return ResponseEntity.ok( svcRes );
     }
 
+
     @Override
-    @PostMapping( PnDeliveryRestConstants.ATTACHMENT_PRELOAD_REQUEST)
-    public List<PreloadResponse> presignedUploadRequest(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER ) String paId,
-            @RequestBody List<PreloadRequest> request
-    ) {
+    public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
         Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
-        if ( request.size() > numberOfPresignedRequest ) {
+        if ( preLoadRequest.size() > numberOfPresignedRequest ) {
             log.error( "Presigned upload request lenght={} is more than maximum allowed={}",
-                    request.size(), numberOfPresignedRequest );
+                    preLoadRequest.size(), numberOfPresignedRequest );
             throw new PnValidationException("request",
                     Collections.singleton( new ConstraintViolationImpl<>(
                             String.format( "request.length = %d is more than maximum allowed = %d",
-                                    request.size(),
+                                    preLoadRequest.size(),
                                     numberOfPresignedRequest))));
         }
-        return presignSvc.presignedUpload( paId, request );
+        List<PreLoadResponse> preLoadResponses = presignSvc.presignedUpload( xPagopaPnCxId, preLoadRequest );
+        return ResponseEntity.ok( preLoadResponses );
     }
 
     @ExceptionHandler({PnValidationException.class})

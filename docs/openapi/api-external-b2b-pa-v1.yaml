@@ -44,7 +44,8 @@ info:
       Vedi [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
 
     Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
-    successiva di richiesta creazione della notifica.
+    successiva di richiesta creazione della notifica. Questo garantisce che eventuali utilizzi multipli (anche malevoli) del 
+    presignedUrl non vadano a sovrascrivere il file generando disservizi. 
     
     #### 2. Richiesta di invio della notifica
     
@@ -89,7 +90,7 @@ tags:
   - name: NewNotification
     description: >-
       Invocazioni per precaricare allegati e inviare notifiche
-  - name: SenderRead
+  - name: SenderReadB2B
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
       di notifica inviate e delle notifiche accettate.
@@ -175,7 +176,7 @@ paths:
     get:
       operationId: getNotificationRequestStatus
       tags:
-        - SenderRead
+        - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
       description: >-
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
@@ -211,7 +212,7 @@ paths:
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
       tags:
-        - SenderRead
+        - SenderReadB2B
       operationId: getSentNotification
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
@@ -237,7 +238,7 @@ paths:
     get:
       summary: Download documento notificato
       tags:
-        - SenderRead
+        - SenderReadB2B
       operationId: getSentNotificationDocument
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
@@ -260,7 +261,7 @@ paths:
     get:
       summary: Download allegato per pagamento
       tags:
-        - SenderRead
+        - SenderReadB2B
       operationId: getSentNotificationAttachment
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
@@ -329,7 +330,7 @@ components:
     notificationRequestId:
       in: query
       required: false
-      name: requestId
+      name: notificationRequestId
       description: identificativo della richiesta di notifica
       schema:
         type: string
@@ -372,18 +373,21 @@ components:
       in: path
       required: true
       schema:
-        oneOf:
-          - type: number
-          - type: string
-            enum:
-              - PAGOPA
-              - F24_FLAT
-              - F24_DIGITAL
-              - F24_DIGITAL_WITH_RS
-              - F24_ANALOG_NATIONAL_1
-              - F24_ANALOG_NATIONAL_2
-              - F24_ANALOG_INTERNATIONAL_1
-              - F24_ANALOG_INTERNATIONAL_2
+        type: string
+        pattern: "[0-9]+|PAGOPA|F24_FLAT|F24_DIGITAL|F24_DIGITAL_WITH_RS|F24_ANALOG_NATIONAL_1|F24_ANALOG_NATIONAL_2|F24_ANALOG_INTERNATIONAL_1|F24_ANALOG_INTERNATIONAL_2"
+        #quella sottostante è quella corretta. Riscritta per problemi con tool usato
+        #oneOf:
+        #  - type: number
+        #  - type: string
+        #    enum:
+        #      - PAGOPA
+        #      - F24_FLAT
+        #      - F24_DIGITAL
+        #      - F24_DIGITAL_WITH_RS
+        #      - F24_ANALOG_NATIONAL_1
+        #      - F24_ANALOG_NATIONAL_2
+        #      - F24_ANALOG_INTERNATIONAL_1
+        #      - F24_ANALOG_INTERNATIONAL_2
     
     
     ############################################################################################

@@ -21,7 +21,7 @@ components:
       name: startDate
       in: query
       required: true
-      description: data/ora di inizio dell'intervallo entro cui eseguire la ricercva
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
       schema:
         type: string
         format: date-time
@@ -29,10 +29,17 @@ components:
       name: endDate
       in: query
       required: true
-      description: data/ora di fine dell'intervallo entro cui eseguire la ricercva
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
       schema:
         type: string
         format: date-time
+    notificationSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
     notificationSearchRecipientId:
       name: recipientId
       in: query

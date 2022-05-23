@@ -1,110 +1,80 @@
 package it.pagopa.pn.delivery.rest;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import it.pagopa.pn.api.dto.InputSearchNotificationDto;
-import it.pagopa.pn.api.dto.NotificationSearchRow;
-import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationJsonViews;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodGetReceivedNotification;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodGetReceivedNotificationDocuments;
-import it.pagopa.pn.api.rest.PnDeliveryRestApi_methodSearchReceivedNotification;
-import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 @RestController
-public class PnReceivedNotificationsController implements
-        PnDeliveryRestApi_methodGetReceivedNotification,
-        PnDeliveryRestApi_methodGetReceivedNotificationDocuments,
-        PnDeliveryRestApi_methodSearchReceivedNotification {
+public class PnReceivedNotificationsController implements RecipientReadApi {
     private final NotificationRetrieverService retrieveSvc;
     private final PnDeliveryConfigs cfg;
+    private final ModelMapperFactory modelMapperFactory;
     public static final String VALIDATION_ERROR_STATUS = "Validation error";
     public static final String NOT_FOUND_ERROR_STATUS = "Not Found Error";
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg) {
+    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.cfg = cfg;
+        this.modelMapperFactory = modelMapperFactory;
     }
 
+
     @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATIONS_RECEIVED_PATH)
-    public ResultPaginationDto<NotificationSearchRow,String> searchReceivedNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String currentRecipientId,
-            @RequestParam(name = "startDate") Instant startDate,
-            @RequestParam(name = "endDate") Instant endDate,
-            @RequestParam(name = "mandateId", required = false) String mandateId,
-            @RequestParam(name = "senderId", required = false) String senderId,
-            @RequestParam(name = "status", required = false) NotificationStatus status,
-            @RequestParam(name = "subjectRegExp", required = false) String subjectRegExp,
-            @RequestParam(name = "iunMatch", required = false) String iunMatch,
-            @RequestParam(name = "size", required = false) Integer size,
-            @RequestParam(name = "nextPagesKey", required = false) String nextPagesKey
-    ) {
+    public ResponseEntity<NotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, Date startDate, Date endDate, String mandateId, String senderId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
-                .senderReceiverId(currentRecipientId)
-                .startDate(startDate)
-                .endDate(endDate)
+                .senderReceiverId(xPagopaPnCxId)
+                .startDate(startDate.toInstant())
+                .endDate(endDate.toInstant())
                 .mandateId(mandateId)
                 .filterId(senderId)
                 .status(status)
+                //.groups( groups != null ? Arrays.asList( groups ) : null )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
 
-        return retrieveSvc.searchNotification( searchDto );
+        ResultPaginationDto<NotificationSearchRow,String> serviceResult =  retrieveSvc.searchNotification( searchDto );
+
+        ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
+        NotificationSearchResponse response = mapper.map( serviceResult, NotificationSearchResponse.class );
+        return ResponseEntity.ok( response );
     }
 
     @Override
-    @GetMapping(PnDeliveryRestConstants.NOTIFICATION_RECEIVED_PATH)
-    @JsonView(value = NotificationJsonViews.Sent.class)
-    public Notification getReceivedNotification(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String userId,
-            @PathVariable(name = "iun") String iun
-    ) {
-        return retrieveSvc.getNotificationAndNotifyViewedEvent(iun, userId);
+    public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun) {
+        InternalNotification internalNotification =  retrieveSvc.getNotificationAndNotifyViewedEvent( iun, xPagopaPnCxId );
+
+        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class );
+
+        FullReceivedNotification result = mapper.map( internalNotification, FullReceivedNotification.class );
+        return ResponseEntity.ok( result );
     }
 
     @Override
-    @GetMapping( PnDeliveryRestConstants.NOTIFICATION_VIEWED_PATH )
-    public ResponseEntity<Resource> getReceivedNotificationDocument(
-            @RequestHeader(name = PnDeliveryRestConstants.CX_ID_HEADER) String userId,
-            @PathVariable("iun") String iun,
-            @PathVariable("documentIndex") int documentIndex,
-            ServerHttpResponse response
-    ) {
-        if(cfg.isDownloadWithPresignedUrl()){
-            String redirectUrl = retrieveSvc.downloadDocumentWithRedirect(iun, documentIndex);
-            //response.setStatusCode(HttpStatus.OK);
-            //response.getHeaders().setLocation(URI.create( redirectUrl ));
-
-            response.getHeaders().setContentType( MediaType.APPLICATION_JSON );
-            String responseString  = "{ \"url\": \"" + redirectUrl + "\"}";
-            Resource resource = new ByteArrayResource( responseString.getBytes(StandardCharsets.UTF_8) );
-            return ResponseEntity.ok( resource );
-        }else {
-            ResponseEntity<Resource> resource = retrieveSvc.downloadDocument(iun, documentIndex);
-            return AttachmentRestUtils.prepareAttachment( resource, iun, "doc" + documentIndex );
-        }
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal docIdx) {
+        NotificationAttachmentDownloadMetadataResponse response = retrieveSvc.downloadDocumentWithRedirect(iun, docIdx.intValue());
+        return ResponseEntity.ok( response );
     }
 
     @ExceptionHandler({PnValidationException.class})

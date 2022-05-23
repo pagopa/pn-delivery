@@ -1,29 +1,28 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.pagopa.pn.api.dto.InputSearchNotificationDto;
-import it.pagopa.pn.api.dto.NotificationSearchRow;
-import it.pagopa.pn.api.dto.ResultPaginationDto;
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
-import it.pagopa.pn.api.dto.notification.timeline.TimelineElement;
-import it.pagopa.pn.api.dto.preload.PreloadResponse;
+
+
 import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
-import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -35,10 +34,9 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,9 +48,10 @@ public class NotificationRetrieverService {
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
-	private final PnDeliveryPushClient pnDeliveryPushClient;
+	private final PnDeliveryPushClientImpl pnDeliveryPushClient;
 	private final PnDeliveryConfigs cfg;
 	private final PnMandateClientImpl pnMandateClient;
+	private final ModelMapperFactory modelMapperFactory;
 
 
 	@Autowired
@@ -61,9 +60,9 @@ public class NotificationRetrieverService {
 										S3PresignedUrlService presignedUrlSvc,
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
-										PnDeliveryPushClient pnDeliveryPushClient,
+										PnDeliveryPushClientImpl pnDeliveryPushClient,
 										PnDeliveryConfigs cfg,
-										PnMandateClientImpl pnMandateClient) {
+										PnMandateClientImpl pnMandateClient, ModelMapperFactory modelMapperFactory) {
 		this.fileStorage = fileStorage;
 		this.clock = clock;
 		this.presignedUrlSvc = presignedUrlSvc;
@@ -72,15 +71,15 @@ public class NotificationRetrieverService {
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.cfg = cfg;
 		this.pnMandateClient = pnMandateClient;
+		this.modelMapperFactory = modelMapperFactory;
 	}
 
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification( InputSearchNotificationDto searchDto ) {
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
 		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
 
 		validateInput(searchDto);
 
 		if ( !searchDto.isBySender() ) {
-			String receiverId = searchDto.getSenderReceiverId();
 			String mandateId = searchDto.getMandateId();
 			if (mandateId != null) {
 				checkMandate(searchDto, mandateId);
@@ -198,12 +197,12 @@ public class NotificationRetrieverService {
 	 * @return Notification DTO
 	 *
 	 */
-	public Notification getNotificationInformation(String iun, boolean withTimeline) {
+	public InternalNotification getNotificationInformation(String iun, boolean withTimeline) {
 		log.debug( "Retrieve notification by iun={} withTimeline={} START", iun, withTimeline );
-		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
-			Notification notification = optNotification.get();
+			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 			}
@@ -215,7 +214,7 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	public Notification getNotificationInformation(String iun) {
+	public InternalNotification getNotificationInformation(String iun) {
 		return getNotificationInformation( iun, true );
 	}
 
@@ -226,14 +225,14 @@ public class NotificationRetrieverService {
 	 * @param userId identifier of a user
 	 * @return Notification
 	 */
-	public Notification getNotificationAndNotifyViewedEvent(String iun, String userId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
-		Notification notification = getNotificationInformation(iun);
+		InternalNotification notification = getNotificationInformation(iun);
 		handleNotificationViewedEvent(iun, userId, notification);
 		return notification;
 	}
 
-	private void handleNotificationViewedEvent(String iun, String userId, Notification notification) {
+	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
 		if (StringUtils.isNotBlank(userId)) {
 			notifyNotificationViewedEvent(notification, userId);
 		} else {
@@ -242,44 +241,61 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private Notification enrichWithTimelineAndStatusHistory(String iun, Notification notification) {
+	private InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
-		Instant createdAt =  notification.getSentAt();
+		Date createdAt =  notification.getSentAt();
+		OffsetDateTime offsetDateTime = createdAt.toInstant()
+				.atOffset(ZoneOffset.UTC);
 
-		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients,createdAt);
+		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
 
-		Set<TimelineElement> rawTimeline =timelineStatusHistoryDto.getTimelineElements();
+		//ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.timeline.TimelineElement.class, TimelineElement.class );
+		//Set<TimelineElement> rawTimeline = timelineStatusHistoryDto.getTimeline().stream()
+		//		.map( el -> mapperTimeline.map( el, TimelineElement.class ))
+		//		.collect(Collectors.toSet());
 		
-		List<TimelineElement> timeline = rawTimeline
+		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()
-				.sorted( Comparator.comparing( TimelineElement::getTimestamp ))
+				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp))
 				.collect(Collectors.toList());
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 		
-		List<NotificationStatusHistoryElement>  statusHistory = timelineStatusHistoryDto.getStatusHistory();
+		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
+
+		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
+
+		//ModelMapper mapperStatus = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class );
+
+		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
+
+		ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class );
 		
-		return notification
-				.toBuilder()
-				.timeline( timeline )
-				.notificationStatusHistory( statusHistory )
-				.notificationStatus( timelineStatusHistoryDto.getNotificationStatus() )
-				.build();
+		FullSentNotification resultFullSent = notification
+				.timeline( timelineList.stream().map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) ).collect(Collectors.toList())  )
+				.notificationStatusHistory( statusHistory.stream()
+						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
+						.collect(Collectors.toList())
+				)
+				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
+
+		return mapperNotification.map( resultFullSent, InternalNotification.class );
 	}
 
 	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex) {
-		ResponseEntity<Resource> response;
+		ResponseEntity<Resource> response = null;
 
 		log.info("Retrieve notification with iun={} for direct download", iun);
-		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
-			Notification notification = optNotification.get();
+			InternalNotification notification = optNotification.get();
 			log.debug("Document download START for iun {} and documentIndex {} ", iun, documentIndex);
 
-			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
-			response = fileStorage.loadAttachment( doc.getRef() );
+			NotificationDocument doc = notification.getDocuments().get(documentIndex);
+			// TODO utilizzare il servizio di safe-storage
+			//response = fileStorage.loadAttachment( doc.getRef() );
 		} else {
 			log.error("Notification not found for iun {}", iun);
 			throw new PnInternalException("Notification not found for iun " + iun);
@@ -288,28 +304,34 @@ public class NotificationRetrieverService {
 		return response;
 	}
 
-	public String downloadDocumentWithRedirect(String iun, int documentIndex) {
-		PreloadResponse response;
+	public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(String iun, int documentIndex) {
+		NotificationAttachmentDownloadMetadataResponse response;
 
 		log.info("Retrieve notification with iun={} ", iun);
-		Optional<Notification> optNotification = notificationDao.getNotificationByIun(iun);
+		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
-			Notification notification = optNotification.get();
+			InternalNotification notification = optNotification.get();
 			log.debug("Document download START for iun={} and documentIndex={} ", iun, documentIndex);
 
-			NotificationAttachment doc = notification.getDocuments().get(documentIndex);
-			String fileName = iun + "doc_" + documentIndex;
-			response = presignedUrlSvc.presignedDownload( fileName, doc );
+			NotificationDocument doc = notification.getDocuments().get( documentIndex );
+			String unescapedFileName = iun + "__" + doc.getTitle();
+			String fileName = unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + ".pdf";
+			String redirectUrl = presignedUrlSvc.presignedDownload( fileName, doc );
+			response = NotificationAttachmentDownloadMetadataResponse.builder()
+					.filename( fileName )
+					.url( redirectUrl )
+					.contentType( doc.getContentType() )
+					.sha256( doc.getDigests().getSha256() )
+					.build();
 		} else {
 			log.error("Notification not found for iun={}", iun);
 			throw new PnInternalException("Notification not found for iun=" + iun);
 		}
-
-		return response.getUrl();
+		return response;
 	}
 
-	private void notifyNotificationViewedEvent(Notification notification, String userId) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
 		String iun = notification.getIun();
 
 		int recipientIndex = -1;

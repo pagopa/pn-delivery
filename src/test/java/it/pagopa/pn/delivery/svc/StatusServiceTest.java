@@ -1,13 +1,13 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.api.dto.notification.NotificationRecipient;
-import it.pagopa.pn.api.dto.notification.NotificationSender;
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,24 +42,22 @@ class StatusServiceTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         // WHEN
-        Optional<Notification> notification = Optional.ofNullable(Notification.builder()
+        Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
                 .iun(iun)
-                .sentAt( Instant.parse("2021-09-16T15:00:00.00Z") )
+                .sentAt( Date.from(Instant.parse("2021-09-16T15:00:00.00Z") ))
                 .subject( "Subject" )
-                .paNotificationId("123")
-                .sender(NotificationSender.builder()
-                        .paId( "PAID" )
-                        .build())
-                .paNotificationId("PAID")
+                .paProtocolNumber( "123" )
+                .senderPaId( "PAID" )
+                .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( "CodiceFiscale" )
                         .build()) )
-                .build());
+                .build(), Collections.emptyMap()));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
-                .nextState(NotificationStatus.DELIVERED)
+                .nextStatus(NotificationStatus.DELIVERED)
                 .build();
         
         assertDoesNotThrow(() -> statusService.updateStatus(dto));

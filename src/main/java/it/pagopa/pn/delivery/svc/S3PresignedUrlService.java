@@ -1,12 +1,14 @@
 package it.pagopa.pn.delivery.svc;
 
 
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
-import it.pagopa.pn.api.dto.preload.PreloadRequest;
+
+
+
 import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.InvalidMediaTypeException;
@@ -70,11 +72,11 @@ public class S3PresignedUrlService {
         return builder.build();
     }
 
-    public List<PreloadResponse> presignedUpload(String paId, List<PreloadRequest> requestList ) {
-        List<PreloadResponse> preloadResponseList = new ArrayList<>( requestList.size() );
+    public List<PreLoadResponse> presignedUpload(String paId, List<PreLoadRequest> requestList ) {
+        List<PreLoadResponse> preloadResponseList = new ArrayList<>( requestList.size() );
 
-        for ( PreloadRequest request : requestList ) {
-            String key = request.getKey();
+        for ( PreLoadRequest request : requestList ) {
+            String key = request.getPreloadIdx();
             String contentType = request.getContentType();
             preloadResponseList.add( presignedUpload(paId, key, contentType) );
         }
@@ -82,7 +84,7 @@ public class S3PresignedUrlService {
     }
 
 
-    public PreloadResponse presignedUpload(String paId, String key, String contentType ) {
+    public PreLoadResponse presignedUpload(String paId, String key, String contentType ) {
         log.debug( "Presigned upload file for paId={} key={} contentType={}", paId, key, contentType );
         Duration urlDuration = cfgs.getPreloadUrlDuration();
         String fullKey = attachmentService.buildPreloadFullKey( paId, key );
@@ -105,29 +107,24 @@ public class S3PresignedUrlService {
         String httpMethodForUpload = presignedRequest.httpRequest().method().toString();
         String urlForUpload = presignedRequest.url().toString();
 
-        return PreloadResponse.builder()
+        return new PreLoadResponse()
                 .url( urlForUpload )
-                .httpMethod( httpMethodForUpload )
+                .httpMethod( PreLoadResponse.HttpMethodEnum.fromValue(httpMethodForUpload) )
                 .secret( secret )
-                .key( key )
-                .build();
+                .key( key );
     }
 
-    public PreloadResponse presignedDownload( String name, NotificationAttachment attachment ) {
+    public String presignedDownload( String name, NotificationDocument attachment ) {
         Duration urlDuration = cfgs.getDownloadUrlDuration();
-        String secret = UUID.randomUUID().toString();
         log.debug( "Retrieve extension for attachment with name={}", name );
-        String extension = getExtension( attachment );
 
-        String fullName = name + "." + extension;
-
-        NotificationAttachment.Ref attachmentRef = attachment.getRef();
+        NotificationAttachmentBodyRef attachmentRef = attachment.getRef();
         GetObjectRequest objectRequest = GetObjectRequest.builder()
                 .bucket(props.getBucketName() )
                 .key( attachmentRef.getKey() )
                 .versionId( attachmentRef.getVersionToken() )
                 .responseCacheControl("no-store, max-age=0")
-                .responseContentDisposition("attachment; filename=\"" + fullName + "\"")
+                .responseContentDisposition("attachment; filename=\"" + name + "\"")
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
@@ -138,28 +135,7 @@ public class S3PresignedUrlService {
         PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
         log.debug( "GET presigned object END" );
 
-        String httpMethodForDownload = presignedRequest.httpRequest().method().toString();
-        String urlForDownload = presignedRequest.url().toString();
-
-        return PreloadResponse.builder()
-                .url( urlForDownload )
-                .httpMethod( httpMethodForDownload )
-                .secret( secret )
-                .key( null )
-                .build();
-    }
-
-    private String getExtension(NotificationAttachment attachment) {
-        String extension;
-        try {
-            MediaType contentType = MediaType.parseMediaType( attachment.getContentType() );
-            extension = contentType.getSubtype();
-        } catch (InvalidMediaTypeException e) {
-            log.error( "Error parsing media type for attachment=" + attachment.getRef().toString());
-            throw new PnInternalException( "Error parsing media type for attachment="
-                    + attachment.getRef().toString(), e);
-        }
-        return extension;
+        return  presignedRequest.url().toString();
     }
 
 }
