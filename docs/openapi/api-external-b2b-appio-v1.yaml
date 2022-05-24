@@ -39,7 +39,7 @@ paths:
       operationId: getReceivedNotification
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/ioUidAuthFleet'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
       responses:
         '200':
@@ -64,7 +64,7 @@ paths:
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: './api-external-b2b-pa-v1.yaml#/components/parameters/pathDocumentIdx'
-        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/ioUidAuthFleet'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
       responses:
         '200':
@@ -94,7 +94,7 @@ paths:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/ioUidAuthFleet'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
       responses:
         '200':
@@ -118,8 +118,8 @@ components:
       $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
     cxIdAuthFleet:
       $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'
-    uidAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'
+    ioUidAuthFleet:
+      $ref: './remote-refs.yaml#/components/parameters/ioUidAuthFleet'
     cxTaxIdAuthFleet:
       $ref: './remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
     pathLegalFactType:
