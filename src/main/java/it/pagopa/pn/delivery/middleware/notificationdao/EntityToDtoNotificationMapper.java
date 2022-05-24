@@ -45,7 +45,7 @@ public class EntityToDtoNotificationMapper {
                 .recipients( buildRecipientsList( entity ) )
                 .documents( buildDocumentsList( entity ) )
                 .build()
-        , Collections.emptyMap());
+        , Collections.emptyMap(), entity.getRecipientsOrder());
     }
 
     private NotificationAttachment buildAttachment(String key, String version, String sha256 ) {

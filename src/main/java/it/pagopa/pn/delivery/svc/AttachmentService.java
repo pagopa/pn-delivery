@@ -83,24 +83,24 @@ public class AttachmentService {
     }
 
     private void saveAndUpdatePaymentAttachment(NotificationPaymentAttachment paymentAttachment, String paId) {
-        /*NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
+        NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
 
         log.info( "Retrieve attachment by ref with key={}", attachmentRef.getKey() );
         String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
         String versionId = attachmentRef.getVersionToken();
 
-        FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
+        /*FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
         try {
             fd.getContent().close();
         } catch (IOException e) {
             String msg = "Error closing attachment Ref with key=" + attachmentRef.getKey()  + " version=" + fd.getVersionId();
             log.error( msg );
             throw new PnInternalException( msg, e );
-        }
+        }*/
 
-        paymentAttachment.contentType( fd.getContentType() );
+        //paymentAttachment.contentType( fd.getContentType() );
         paymentAttachment.getRef().setVersionToken( versionId );
-        paymentAttachment.getRef().setKey( fullKey );*/
+        paymentAttachment.getRef().setKey( fullKey );
     }
 
     private NotificationDocument saveAndUpdateAttachment(InternalNotification internalNotification, NotificationDocument notificationDocument, String key) {
@@ -116,16 +116,16 @@ public class AttachmentService {
         String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
         String versionId = attachmentRef.getVersionToken();
 
-        FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
+        /*FileData fd = fileStorage.getFileVersion( fullKey, attachmentRef.getVersionToken() );
         try {
             fd.getContent().close();
         } catch (IOException e) {
             String msg = "Error closing attachment Ref with key=" + attachmentRef.getKey()  + " version=" + fd.getVersionId();
             log.error( msg );
             throw new PnInternalException( msg, e );
-        }
+        }*/
 
-        updatedAttachment = updateAttachmentMetadata( notificationDocument, versionId, fullKey, fd.getContentType() );
+        updatedAttachment = updateAttachmentMetadata( notificationDocument, versionId, fullKey, "application/pdf" );
 
         return updatedAttachment;
     }
