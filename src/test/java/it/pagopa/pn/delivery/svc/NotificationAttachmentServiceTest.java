@@ -371,6 +371,7 @@ class NotificationAttachmentServiceTest {
         documentItem.setRef(notificationAttachmentBodyRef1);
         documentItem.setTitle("titolo");
         notification.addDocumentsItem(documentItem);
+        notification.setRecipientIds(List.of(taxid));
 
 
         return notification;
