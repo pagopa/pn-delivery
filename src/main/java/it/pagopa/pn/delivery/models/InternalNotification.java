@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Map;
 
 @NoArgsConstructor
@@ -20,7 +21,7 @@ import java.util.Map;
 public class InternalNotification extends FullSentNotification {
 
 
-    public InternalNotification(FullSentNotification fsn, Map<NotificationRecipient, String> tokens) {
+    public InternalNotification(FullSentNotification fsn, Map<NotificationRecipient, String> tokens, List<String> recipientIds) {
         super(
                 fsn.getIdempotenceToken(),
                 fsn.getPaProtocolNumber(),
@@ -44,6 +45,7 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getTimeline()
             );
         this.tokens = tokens;
+        this.recipientIds = recipientIds;
     }
 
     @Schema( description = "Lista dei token generati per ogni destinatario")
@@ -52,5 +54,12 @@ public class InternalNotification extends FullSentNotification {
     public String getToken( NotificationRecipient recipient ){
         return tokens.get( recipient );
     }
+
+    @Schema( description = "Lista degli id dei destinatari")
+    private List<String> recipientIds;
+
+    public List<String> getRecipientIds() { return this.recipientIds; }
+
+    public void setRecipientIds( List<String> recipientIds ) { this.recipientIds = recipientIds; }
 
 }

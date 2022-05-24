@@ -5,17 +5,23 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.w3c.dom.Attr;
@@ -37,22 +43,39 @@ import java.util.*;
 @SpringBootTest
 class NotificationMetadataEntityDaoDynamoTestIT {
 
+    private static final String IUN = "KSAU-CKOB-OFKR-202205-O-1";
+    private static final String OPAQUE_TAX_ID_R1 = "TFZMREFBODVUNTBHNzAyQg==";
+    private static final String TAX_ID_R1 = "LVLDAA85T50G702B";
+    private static final String DENOMINATION_R1 = "Ada Lovelace";
+    private static final String OPAQUE_TAX_ID_R2 = "Q0xNQ1NUNDJSMTJEOTY5Wg==";
+    private static final String TAX_ID_R2 = "CLMCST42R12D969Z";
+    private static final String DENOMINATION_R2 = "Cristoforo Colombo";
+
     @Autowired
     private NotificationMetadataEntityDao notificationMetadataEntityDao;
+
+    @MockBean
+    private PnDataVaultClientImpl dataVaultClient;
+
+
 
     @Test
     void searchNotificationMetadataBySender() {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "c_b429" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "c_h501" )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
         String indexName = "senderId";
-        String partitionValue = "c_b429##202204";
+        String partitionValue = "c_h501##202205";
+
+        List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
@@ -86,20 +109,36 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         pnLastEvaluatedKey.setInternalLastEvaluatedKey( internalLastEvaluatedKey );*/
     }
 
+    @NotNull
+    private List<BaseRecipientDto> getDataVaultResults() {
+        List<BaseRecipientDto> dataVaultResults = List.of( new BaseRecipientDto()
+                .internalId( OPAQUE_TAX_ID_R1 )
+                .taxId( TAX_ID_R1 )
+                .denomination( DENOMINATION_R1 )
+                .recipientType( RecipientType.PF ),
+                new BaseRecipientDto()
+                        .internalId( OPAQUE_TAX_ID_R2 )
+                        .taxId( TAX_ID_R2 )
+                        .denomination( DENOMINATION_R2 )
+                        .recipientType( RecipientType.PF )
+                );
+        return dataVaultResults;
+    }
+
     @Test
     void searchNotificationMetadataNextPageBySender() {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "c_b429" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "c_h501" )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImNfYjQyOSMjMjAyMjA0IiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA0MTYwNCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNFQxNDowNDowNy41MjA1NThaIiwic2VuZGVySWRfY3JlYXRpb25Nb250aCI6ImNfYjQyOSMjMjAyMjA0In19" )
                 .build();
 
         String indexName = "senderId";
-        String partitionValue = "c_b429##202204";
+        String partitionValue = "c_h501##202205";
 
         PnLastEvaluatedKey lek = new PnLastEvaluatedKey();
         lek.setExternalLastEvaluatedKey( "c_b429##202204" );
@@ -113,6 +152,10 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                                 .build() )
                         )
         );
+
+        List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         //When
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
@@ -132,15 +175,19 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( false )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "ed84b8c9-444e-410d-80d7-cfad6aa12070" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( TAX_ID_R1 )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
 
         String indexName = "recipientId";
-        String partitionValue = "ed84b8c9-444e-410d-80d7-cfad6aa12070##202204";
+        String partitionValue = OPAQUE_TAX_ID_R1+"##202205";
+
+        List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
@@ -158,15 +205,15 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( false )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "ed84b8c9-444e-410d-80d7-cfad6aa12070" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( OPAQUE_TAX_ID_R1 )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImVkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCMjMjAyMjA0IiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA0MTYwNCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwicmVjaXBpZW50SWRfY3JlYXRpb25Nb250aCI6ImVkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCMjMjAyMjA0Iiwic2VudEF0IjoiMjAyMi0wNC0wNFQxNDowNDowNy41MjA1NThaIn19" )
                 .build();
 
         String indexName = "recipientId";
-        String partitionValue = "ed84b8c9-444e-410d-80d7-cfad6aa12070##202204";
+        String partitionValue = OPAQUE_TAX_ID_R1+"##202205";
 
         PnLastEvaluatedKey lek = new PnLastEvaluatedKey();
         lek.setExternalLastEvaluatedKey( "ed84b8c9-444e-410d-80d7-cfad6aa12070##202204" );
@@ -180,6 +227,10 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                                 .build() )
                 )
         );
+
+        List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         //When
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
@@ -200,15 +251,19 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "c_b429" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "c_h501" )
                 .size( 10 )
-                .filterId( "ed84b8c9-444e-410d-80d7-cfad6aa12070" )
+                .filterId( OPAQUE_TAX_ID_R1 )
                 .build();
 
         String indexName = "senderId_recipientId";
-        String partitionValue = "c_b429##ed84b8c9-444e-410d-80d7-cfad6aa12070";
+        String partitionValue = "c_h501##"+OPAQUE_TAX_ID_R1;
+
+        List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         //When
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
@@ -228,16 +283,16 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "c_b429" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "c_h501" )
                 .size( 10 )
                 .nextPagesKey( "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==" )
-                .filterId( "ed84b8c9-444e-410d-80d7-cfad6aa12070" )
+                .filterId( OPAQUE_TAX_ID_R1 )
                 .build();
 
         String indexName = "senderId_recipientId";
-        String partitionValue = "c_b429##ed84b8c9-444e-410d-80d7-cfad6aa12070";
+        String partitionValue = "c_h501##"+OPAQUE_TAX_ID_R1;
 
         PnLastEvaluatedKey lek = new PnLastEvaluatedKey();
         lek.setExternalLastEvaluatedKey( "ed84b8c9-444e-410d-80d7-cfad6aa12070##202204" );
@@ -251,6 +306,10 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                                 .build() )
                 )
         );
+
+        List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
@@ -268,15 +327,19 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "c_b492" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "c_h501" )
                 .size( 10 )
-                .status( NotificationStatus.VIEWED )
+                .status( NotificationStatus.ACCEPTED )
                 .build();
 
         String indexName = "senderId";
-        String partitionValue = "c_b492##202204";
+        String partitionValue = "c_h501##202205";
+
+        List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
@@ -295,15 +358,19 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "c_b492" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "c_h501" )
                 .size( 10 )
-                .iunMatch( "c_b429-202204041543" )
+                .iunMatch( IUN )
                 .build();
 
         String indexName = "senderId";
-        String partitionValue = "c_b492##202204";
+        String partitionValue = "c_h501##202205";
+
+        List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
+
+        Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
@@ -324,15 +391,15 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "c_b492" )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "c_h501" )
                 .size( 10 )
                 .groups( Arrays.asList( groups )  )
                 .build();
 
         String indexName = "senderId";
-        String partitionValue = "c_b429##202204";
+        String partitionValue = "c_h501##202205";
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
@@ -367,20 +434,20 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
     private NotificationMetadataEntity newNotificationMetadata() {
         Map<String,String> tableRowMap = new HashMap<>();
-        tableRowMap.put( "iun", "IUN" );
-        tableRowMap.put( "recipientsIds", "[PF003]" );
-        tableRowMap.put( "subject", "Notifica IUN" );
+        tableRowMap.put( "iun", IUN );
+        tableRowMap.put( "recipientsIds", "["+OPAQUE_TAX_ID_R1+","+ OPAQUE_TAX_ID_R2+"]" );
+        tableRowMap.put( "subject", "multa" );
         return NotificationMetadataEntity.builder()
-                .iun_recipientId( "IUN##RecipientId" )
+                .iun_recipientId( "KSAU-CKOB-OFKR-202205-O-1##"+OPAQUE_TAX_ID_R1 )
                 .notificationGroup( "NotificationGroup1" )
                 .notificationStatus( NotificationStatus.ACCEPTED.toString() )
-                .recipientIds( Collections.singletonList("RecipientId") )
-                .recipientOne( true )
-                .senderId( "SenderId" )
-                .recipientId_creationMonth( "RecipientId##202203" )
-                .senderId_creationMonth("SenderId##202203")
-                .senderId_recipientId( "SenderId##RecipientId" )
-                .sentAt( Instant.parse( "2022-03-17T17:51:00.00Z" ) )
+                .recipientIds( List.of( OPAQUE_TAX_ID_R1, OPAQUE_TAX_ID_R2 ) )
+                .recipientOne( false )
+                .senderId( "c_h501" )
+                .recipientId_creationMonth( OPAQUE_TAX_ID_R1+"##202205" )
+                .senderId_creationMonth("c_h501##202205")
+                .senderId_recipientId( "c_h501##"+OPAQUE_TAX_ID_R1 )
+                .sentAt( Instant.parse( "2022-05-20T09:51:00.00Z" ) )
                 .tableRow( tableRowMap )
                 .build();
     }

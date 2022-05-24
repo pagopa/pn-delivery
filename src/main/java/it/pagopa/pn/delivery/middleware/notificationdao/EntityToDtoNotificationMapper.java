@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.DocumentAttachmentEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -20,11 +21,9 @@ import java.util.stream.Collectors;
 @Component
 public class EntityToDtoNotificationMapper {
 
-    private final ObjectReader recipientReader;
     private ModelMapperFactory modelMapperFactory;
 
-    public EntityToDtoNotificationMapper(ObjectMapper objMapper, ModelMapperFactory modelMapperFactory) {
-        this.recipientReader = objMapper.readerFor( NotificationRecipient.class );
+    public EntityToDtoNotificationMapper(ModelMapperFactory modelMapperFactory) {
         this.modelMapperFactory = modelMapperFactory;
     }
 
@@ -32,6 +31,9 @@ public class EntityToDtoNotificationMapper {
     	if ( entity.getPhysicalCommunicationType() == null ) {
             throw new PnInternalException(" Notification entity with iun " + entity.getIun() + " hash invalid physicalCommunicationType value");
         }
+
+    	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
+                .collect(Collectors.toList());
 
         return new InternalNotification(FullSentNotification.builder()
                 .senderDenomination( entity.getSenderDenomination() )
@@ -50,12 +52,16 @@ public class EntityToDtoNotificationMapper {
                 .documents( buildDocumentsList( entity ) )
                 //.documentsAvailable(  )
                 .build()
-        , Collections.emptyMap());
+        , Collections.emptyMap(), recipientIds );
     }
 
     private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
-        ModelMapper mapper = modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class );
-        return recipients.stream().map( r ->  mapper.map( r, NotificationRecipient.class ) ).collect(Collectors.toList());
+        ModelMapper mapper = modelMapperFactory
+                .createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class );
+
+        return recipients.stream()
+                .map( r ->  mapper.map( r, NotificationRecipient.class ) )
+                .collect(Collectors.toList());
     }
 
     private NotificationDocument buildDocument(String key, String version, String sha256, String contentType, String title ) {
@@ -72,47 +78,32 @@ public class EntityToDtoNotificationMapper {
                 .build();
     }
 
-    private boolean areAllEquals(int lengthShas, int lengthKeys, int lengthVersionIds, int lengthContentTypes, int lengthTitles) {
-        return lengthShas != lengthKeys
-                || lengthKeys != lengthVersionIds
-                || lengthVersionIds != lengthContentTypes
-                || lengthTitles != lengthContentTypes;
-    }
-
-    private int nullSafeGetLength(List<String> documentsDigestsSha256) {
-        return documentsDigestsSha256 == null ? 0 : documentsDigestsSha256.size();
-    }
 
     private List<NotificationDocument> buildDocumentsList(NotificationEntity entity ) {
-        List<String> documentsDigestsSha256 = entity.getDocumentsDigestsSha256();
-        List<String> documentsKeys = entity.getDocumentsKeys();
-        List<String> documentsVersionIds = entity.getDocumentsVersionIds();
-        List<String> documentsContentTypes = entity.getDocumentsContentTypes();
-        List<String> documentsTitles = entity.getDocumentsTitles();
-
-        int lengthShas = nullSafeGetLength(documentsDigestsSha256);
-        int lengthKeys = nullSafeGetLength(documentsKeys);
-        int lengthVersionIds = nullSafeGetLength(documentsVersionIds);
-        int lengthContentTypes = nullSafeGetLength(documentsContentTypes);
-        int lengthTitles = nullSafeGetLength(documentsTitles);
-        if (areAllEquals(lengthShas, lengthKeys, lengthVersionIds, lengthContentTypes, lengthTitles)) {
-            throw new PnInternalException(" Notification entity with iun " + entity.getIun() +
-                    " hash different quantity of document versions, sha256s, keys, content types and titles");
-        }
-        // - Three different list with one information each instead of a list of object:
-        //   AWS keyspace do not support UDT
         List<NotificationDocument> result = new ArrayList<>();
-        for( int d = 0; d < lengthShas; d += 1 ) {
-            NotificationDocument document = buildDocument(
-                    documentsKeys.get( d ),
-                    documentsVersionIds.get( d ),
-                    documentsDigestsSha256.get( d ),
-                    documentsContentTypes.get( d ),
-                    documentsTitles.get( d )
-            );
-            result.add( document );
+
+        if( entity != null && entity.getDocuments() != null) {
+            result = entity.getDocuments().stream()
+                    .map( this::mapOneDocument )
+                    .collect(Collectors.toList());
         }
 
         return result;
+    }
+
+    private NotificationDocument mapOneDocument(DocumentAttachmentEntity entity ) {
+        return entity == null ? null : NotificationDocument.builder()
+                .requiresAck( entity.getRequiresAck() )
+                .sendByMail( entity.getSendByMail() )
+                .title( entity.getTitle() )
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .versionToken( entity.getRef().getVersionToken() )
+                        .key( entity.getRef().getKey() )
+                        .build())
+                .digests( NotificationAttachmentDigests.builder()
+                        .sha256( entity.getDigests().getSha256() )
+                        .build() )
+                .contentType( entity.getContentType() )
+                .build();
     }
 }

@@ -83,7 +83,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .group( "Group_1" )
                 .recipients( Collections.singletonList(NotificationRecipientEntity.builder()
                                 .recipientType( RecipientTypeEntity.PF )
-                                .taxId( "recipientTaxId" )
+                                .recipientId( "recipientTaxId" )
                                 .digitalDomicile(NotificationDigitalAddressEntity.builder()
                                         .address( "address@pec.it" )
                                         .type( DigitalAddressTypeEntity.PEC )
