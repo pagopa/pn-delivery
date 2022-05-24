@@ -4,6 +4,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
@@ -82,7 +83,7 @@ public class NotificationDaoDynamo implements NotificationDao {
     }
 
     private AnalogDomicile createAnalogDomicile(NotificationPhysicalAddress notificationPhysicalAddress ) {
-        return new AnalogDomicile()
+        return notificationPhysicalAddress == null ? null : new AnalogDomicile()
                 .address( notificationPhysicalAddress.getAddress() )
                 .addressDetails( notificationPhysicalAddress.getAddressDetails() )
                 .at( notificationPhysicalAddress.getAt() )
@@ -93,7 +94,7 @@ public class NotificationDaoDynamo implements NotificationDao {
     }
 
     private AddressDto createDigitalDomicile(NotificationDigitalAddress digitalAddress) {
-        return new AddressDto()
+        return digitalAddress == null ? null : new AddressDto()
                 .value( digitalAddress.getAddress() );
     }
 
@@ -114,21 +115,20 @@ public class NotificationDaoDynamo implements NotificationDao {
 
             List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.get().getIun() );
 
+            int recipientIndex = 0;
             for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
                 String opaqueTaxId = recipient.getTaxId();
-                Optional<BaseRecipientDto> optionalMatchinBaseRec =  baseRecipientDtoList.stream()
-                        .filter( baseRec ->
-                                opaqueTaxId.equals(baseRec.getInternalId()) ).findFirst();
-                if (optionalMatchinBaseRec.isPresent()) {
-                    recipient.setTaxId( optionalMatchinBaseRec.get().getTaxId() );
-                    recipient.setDenomination( optionalMatchinBaseRec.get().getDenomination() );
 
-                    Optional<NotificationRecipientAddressesDto> optionalMatchingRecipientAddress = notificationRecipientAddressesDtoList.stream()
-                            .filter( recipientAddress ->
-                                    recipient.getDenomination().equals( recipientAddress.getDenomination() ) ).findFirst();
-                    if (optionalMatchingRecipientAddress.isPresent()) {
-                        recipient.setDigitalDomicile( setNotificationDigitalAddress( optionalMatchingRecipientAddress.get().getDigitalAddress() ));
-                        recipient.setPhysicalAddress( setNotificationPhysicalAddress( optionalMatchingRecipientAddress.get().getPhysicalAddress() ) );
+                BaseRecipientDto baseRec = baseRecipientDtoList.get( recipientIndex );
+                NotificationRecipientAddressesDto clearDataAddresses = notificationRecipientAddressesDtoList.get( recipientIndex );
+
+                if ( baseRec != null) {
+                    recipient.setTaxId( baseRec.getTaxId() );
+                    recipient.setDenomination( baseRec.getDenomination() );
+
+                    if ( clearDataAddresses != null ) {
+                        recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
+                        recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
                     } else {
                         log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
                     }
@@ -136,20 +136,22 @@ public class NotificationDaoDynamo implements NotificationDao {
                 } else {
                     log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
                 }
+
+                recipientIndex += 1;
             }
         }
         return daoResult;
     }
 
     private NotificationDigitalAddress setNotificationDigitalAddress( AddressDto addressDto ) {
-        return NotificationDigitalAddress.builder()
+        return addressDto == null ? null : NotificationDigitalAddress.builder()
                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                 .address( addressDto.getValue() )
                 .build();
     }
 
     private NotificationPhysicalAddress setNotificationPhysicalAddress( AnalogDomicile analogDomicile ) {
-        return NotificationPhysicalAddress.builder()
+        return analogDomicile == null ? null : NotificationPhysicalAddress.builder()
                 .foreignState( analogDomicile.getState() )
                 .address( analogDomicile.getAddress() )
                 .addressDetails( analogDomicile.getAddressDetails() )
