@@ -86,7 +86,7 @@ public class NotificationAttachmentService {
     }
 
     private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(String iun, Integer documentIndex, Integer recipientIdx, String xPagopaPnCxId, String attachmentName, String mandateId ) {
-        log.info("Retrieve notification with iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={}", iun, documentIndex, recipientIdx, xPagopaPnCxId, attachmentName, mandateId );
+        log.info("downloadDocumentWithRedirect for iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={}", iun, documentIndex, recipientIdx, xPagopaPnCxId, attachmentName, mandateId );
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 
@@ -102,10 +102,10 @@ public class NotificationAttachmentService {
             }
             else
             {
-                Optional<NotificationRecipient> doc;
+                NotificationRecipient doc;
                 if (recipientIdx != null)
                 {
-                    doc = Optional.ofNullable(recipientIdx<notification.getRecipients().size()?notification.getRecipients().get(recipientIdx):null);
+                    doc = recipientIdx<notification.getRecipients().size()?notification.getRecipients().get(recipientIdx):null;
                 }
                 else
                 {
@@ -124,33 +124,33 @@ public class NotificationAttachmentService {
                         }
                     }
 
-                    String finalRecipientId = recipientId;
-                    doc = notification.getRecipients().stream().filter(x -> x.getTaxId().equals(finalRecipientId)).findFirst();
-
+                    int idx = notification.getRecipientIds().indexOf(recipientId);
+                    doc = idx>=0?notification.getRecipients().get(idx):null;
                 }
 
-                if (doc.isEmpty())
+                if (doc == null)
                 {
-                    log.error("NotificationRecipient not found for iun={}", iun);
+                    log.error("downloadDocumentWithRedirect NotificationRecipient not found for iun={}", iun);
                     throw new PnInternalException("NotificationRecipient not found for iun=" + iun);
                 }
 
 
-                fileKey = getFileKeyOfAttachment(iun, doc.get(), attachmentName, optNotification.get().getNotificationFeePolicy());
+                fileKey = getFileKeyOfAttachment(iun, doc, attachmentName, optNotification.get().getNotificationFeePolicy());
                 fileName = buildFilename(iun, attachmentName);
             }
 
-            log.info("Retrieve notification doc with fileKey={} filename:{} ", fileKey, fileName);
+            log.info("downloadDocumentWithRedirect with fileKey={} filename:{} ", fileKey, fileName);
             FileDownloadResponse r = this.getFile(fileKey);
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileName)
                     .url( r.getDownload().getUrl() )
+                    .contentLength(r.getContentLength())
                     .contentType( r.getContentType() )
                     .sha256( r.getChecksum() )
                     .retryAfter(r.getDownload().getRetryAfter())
                     .build();
         } else {
-            log.error("Notification not found for iun={}", iun);
+            log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
             throw new PnInternalException("Notification not found for iun=" + iun);
         }
     }

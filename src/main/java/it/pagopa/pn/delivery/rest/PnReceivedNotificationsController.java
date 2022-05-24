@@ -71,14 +71,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal docIdx) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
         NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
         return ResponseEntity.ok( response );
     }
 
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, String attachmentName, String mandateId) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
         NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
         return ResponseEntity.ok( response );
     }

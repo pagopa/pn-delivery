@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -107,13 +106,13 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal recipientIdx, String attachmentName) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
         NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientIdx.intValue(), attachmentName);
         return ResponseEntity.ok( response );
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun, BigDecimal docIdx) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
         NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
         return ResponseEntity.ok( response );
     }
