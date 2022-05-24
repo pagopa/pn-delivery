@@ -37,7 +37,7 @@ public class DtoToEntityNotificationMapper {
                 .cancelledIun( dto.getCancelledIun() )
                 .cancelledByIun( dto.getCancelledByIun() )
                 .senderPaId( dto.getSenderPaId() )
-                .recipients( dto2RecipientsEntity( dto.getRecipients(), dto.getRecipientIds() ) )
+                .recipients( dto2RecipientsEntity( dto.getRecipients() ) )
                 .documents( convertDocuments( dto.getDocuments() ))
                 .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
@@ -47,15 +47,14 @@ public class DtoToEntityNotificationMapper {
     }
 
     private List<NotificationRecipientEntity> dto2RecipientsEntity(
-            List<NotificationRecipient> recipients,
-            List<String> recipientIds
+            List<NotificationRecipient> recipients
     ) {
        ModelMapper mapper = modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class );
        AtomicInteger idx = new AtomicInteger( 0 );
        return recipients.stream()
                .map( r ->  {
                    NotificationRecipientEntity nre = mapper.map( r, NotificationRecipientEntity.class );
-                   nre.setRecipientId( recipientIds.get( idx.getAndIncrement() ));
+                   nre.setRecipientId( r.getTaxId() );
                    return nre;
                })
                .collect(Collectors.toList());

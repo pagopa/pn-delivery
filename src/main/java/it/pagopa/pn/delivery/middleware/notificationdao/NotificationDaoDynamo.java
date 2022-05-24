@@ -108,16 +108,23 @@ public class NotificationDaoDynamo implements NotificationDao {
 
         if(daoResult.isPresent()) {
             List<NotificationRecipient> daoNotificationRecipientList = daoResult.get().getRecipients();
-            List<BaseRecipientDto> baseRecipientDtoList = pnDataVaultClient.getRecipientDenominationByInternalId( daoNotificationRecipientList.stream()
+
+            List<String> opaqueIds = daoNotificationRecipientList.stream()
                     .map(NotificationRecipient::getTaxId)
-                    .collect(Collectors.toList())
-            );
+                    .collect(Collectors.toList());
+
+            List<BaseRecipientDto> baseRecipientDtoList =
+                    pnDataVaultClient.getRecipientDenominationByInternalId(
+                            opaqueIds
+                    );
 
             List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.get().getIun() );
+            List<String> opaqueRecipientsIds = new ArrayList<>();
 
             int recipientIndex = 0;
             for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
                 String opaqueTaxId = recipient.getTaxId();
+                opaqueRecipientsIds.add( opaqueTaxId );
 
                 BaseRecipientDto baseRec =
                         recipientIndex < baseRecipientDtoList.size()
@@ -127,22 +134,23 @@ public class NotificationDaoDynamo implements NotificationDao {
                                 ? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
 
                 if ( baseRec != null) {
-                    recipient.setTaxId( baseRec.getTaxId() );
-                    recipient.setDenomination( baseRec.getDenomination() );
-
-                    if ( clearDataAddresses != null ) {
-                        recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
-                        recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
-                    } else {
-                        log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
-                    }
-
-                } else {
+                    recipient.setTaxId(baseRec.getTaxId());
+                    recipient.setDenomination(baseRec.getDenomination());
+                }
+                else {
                     log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
+                }
+
+                if ( clearDataAddresses != null ) {
+                    recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
+                    recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
+                } else {
+                    log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
                 }
 
                 recipientIndex += 1;
             }
+            daoResult.get().setRecipientIds( opaqueRecipientsIds );
         }
         return daoResult;
     }

@@ -60,7 +60,11 @@ public class EntityToDtoNotificationMapper {
                 .createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class );
 
         return recipients.stream()
-                .map( r ->  mapper.map( r, NotificationRecipient.class ) )
+                .map( r -> {
+                    NotificationRecipient nr = mapper.map(r, NotificationRecipient.class);
+                    nr.setTaxId( r.getRecipientId());
+                    return nr;
+                })
                 .collect(Collectors.toList());
     }
 
