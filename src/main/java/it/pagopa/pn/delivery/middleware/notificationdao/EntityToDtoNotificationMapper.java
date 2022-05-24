@@ -1,33 +1,39 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.DocumentAttachmentEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import org.apache.commons.lang3.StringUtils;
+import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
-//@Mapper( componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 @Component
 public class EntityToDtoNotificationMapper {
 
-    private final ObjectReader recipientReader;
+    private ModelMapperFactory modelMapperFactory;
 
-    public EntityToDtoNotificationMapper(ObjectMapper objMapper) {
-        this.recipientReader = objMapper.readerFor( NotificationRecipient.class );
+    public EntityToDtoNotificationMapper(ModelMapperFactory modelMapperFactory) {
+        this.modelMapperFactory = modelMapperFactory;
     }
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
     	if ( entity.getPhysicalCommunicationType() == null ) {
             throw new PnInternalException(" Notification entity with iun " + entity.getIun() + " hash invalid physicalCommunicationType value");
         }
+
+    	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
+                .collect(Collectors.toList());
 
         return new InternalNotification(FullSentNotification.builder()
                 .senderDenomination( entity.getSenderDenomination() )
@@ -42,34 +48,24 @@ public class EntityToDtoNotificationMapper {
                 .physicalCommunicationType( entity.getPhysicalCommunicationType() )
                 .group( entity.getGroup() )
                 .senderPaId( entity.getSenderPaId() )
-                .recipients( buildRecipientsList( entity ) )
+                .recipients( entity2RecipientDto( entity.getRecipients() ) )
                 .documents( buildDocumentsList( entity ) )
+                //.documentsAvailable(  )
                 .build()
-        , Collections.emptyMap(), entity.getRecipientsOrder());
+        , Collections.emptyMap(), recipientIds );
     }
 
-    private NotificationAttachment buildAttachment(String key, String version, String sha256 ) {
-        NotificationAttachment result;
-        if ( StringUtils.isAllBlank( key, version, sha256 ) ) {
-            result = null;
-        }
-        else if ( version != null && StringUtils.isNotBlank( sha256 ) && StringUtils.isNotBlank( key ) ) {
-            result = NotificationAttachment.builder()
-                    .ref( NotificationAttachmentBodyRef.builder()
-                            .key( key )
-                            .versionToken( version )
-                            .build()
-                    )
-                    .digests( NotificationAttachmentDigests.builder()
-                            .sha256( sha256 )
-                            .build()
-                    )
-                    .build();
-        }
-        else {
-            throw new PnInternalException( "Error key (" + key + ") version (" + version + ") and sha256 (" + sha256 + ") are both required or both blank" );
-        }
-        return result;
+    private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
+        ModelMapper mapper = modelMapperFactory
+                .createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class );
+
+        return recipients.stream()
+                .map( r -> {
+                    NotificationRecipient nr = mapper.map(r, NotificationRecipient.class);
+                    nr.setTaxId( r.getRecipientId());
+                    return nr;
+                })
+                .collect(Collectors.toList());
     }
 
     private NotificationDocument buildDocument(String key, String version, String sha256, String contentType, String title ) {
@@ -86,65 +82,32 @@ public class EntityToDtoNotificationMapper {
                 .build();
     }
 
+
     private List<NotificationDocument> buildDocumentsList(NotificationEntity entity ) {
-        List<String> documentsDigestsSha256 = entity.getDocumentsDigestsSha256();
-        List<String> documentsKeys = entity.getDocumentsKeys();
-        List<String> documentsVersionIds = entity.getDocumentsVersionIds();
-        List<String> documentsContentTypes = entity.getDocumentsContentTypes();
-        List<String> documentsTitles = entity.getDocumentsTitles();
-
-        int lengthShas = nullSafeGetLength(documentsDigestsSha256);
-        int lengthKeys = nullSafeGetLength(documentsKeys);
-        int lengthVersionIds = nullSafeGetLength(documentsVersionIds);
-        int lengthContentTypes = nullSafeGetLength(documentsContentTypes);
-        int lengthTitles = nullSafeGetLength(documentsTitles);
-        if (areAllEquals(lengthShas, lengthKeys, lengthVersionIds, lengthContentTypes, lengthTitles)) {
-            throw new PnInternalException(" Notification entity with iun " + entity.getIun() +
-                    " hash different quantity of document versions, sha256s, keys, content types and titles");
-        }
-
-        // - Three different list with one information each instead of a list of object:
-        //   AWS keyspace do not support UDT
         List<NotificationDocument> result = new ArrayList<>();
-        for( int d = 0; d < lengthShas; d += 1 ) {
-            NotificationDocument document = buildDocument(
-                    documentsKeys.get( d ),
-                    documentsVersionIds.get( d ),
-                    documentsDigestsSha256.get( d ),
-                    documentsContentTypes.get( d ),
-                    documentsTitles.get( d )
-                );
-            result.add( document );
+
+        if( entity != null && entity.getDocuments() != null) {
+            result = entity.getDocuments().stream()
+                    .map( this::mapOneDocument )
+                    .collect(Collectors.toList());
         }
 
         return result;
     }
 
-    private boolean areAllEquals(int lengthShas, int lengthKeys, int lengthVersionIds, int lengthContentTypes, int lengthTitles) {
-        return lengthShas != lengthKeys
-                || lengthKeys != lengthVersionIds
-                || lengthVersionIds != lengthContentTypes
-                || lengthTitles != lengthContentTypes;
-    }
-
-    private int nullSafeGetLength(List<String> documentsDigestsSha256) {
-        return documentsDigestsSha256 == null ? 0 : documentsDigestsSha256.size();
-    }
-
-    private List<NotificationRecipient> buildRecipientsList( NotificationEntity entity ) {
-        Map<String, String> recipientsMetadata = entity.getRecipientsJson();
-
-        return entity.getRecipientsOrder().stream()
-                .map( recipientId -> parseRecipientJson( recipientsMetadata.get( recipientId)) )
-                .collect(Collectors.toList());
-
-    }
-
-    private NotificationRecipient parseRecipientJson( String jsonString ) {
-        try {
-            return this.recipientReader.readValue( jsonString );
-        } catch (JsonProcessingException exc) {
-            throw new PnInternalException( "Parsing cassandra stored json", exc );
-        }
+    private NotificationDocument mapOneDocument(DocumentAttachmentEntity entity ) {
+        return entity == null ? null : NotificationDocument.builder()
+                .requiresAck( entity.getRequiresAck() )
+                .sendByMail( entity.getSendByMail() )
+                .title( entity.getTitle() )
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .versionToken( entity.getRef().getVersionToken() )
+                        .key( entity.getRef().getKey() )
+                        .build())
+                .digests( NotificationAttachmentDigests.builder()
+                        .sha256( entity.getDigests().getSha256() )
+                        .build() )
+                .contentType( entity.getContentType() )
+                .build();
     }
 }
