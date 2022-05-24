@@ -188,9 +188,9 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     private List<NotificationSearchRow> fromNotificationMetadataToNotificationSearchRow(List<NotificationMetadataEntity> metadataEntityList) {
-        log.debug( "page result={}", metadataEntityList );
         List<String> opaqueTaxIds = metadataEntityList.stream().map(NotificationMetadataEntity::getRecipientIds).flatMap( Collection::stream ).collect(Collectors.toList());
         if (!opaqueTaxIds.isEmpty()) {
+            log.debug( "Opaque tax ids={}", opaqueTaxIds );
             List<BaseRecipientDto> dataVaultResults = dataVaultClient.getRecipientDenominationByInternalId( opaqueTaxIds );
             for (NotificationMetadataEntity entity : metadataEntityList) {
                 Optional<BaseRecipientDto> match = dataVaultResults.stream().filter( r -> r.getInternalId().equals( entity.getRecipientId() ) ).findFirst();
@@ -202,6 +202,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 }
                 entity.setRecipientIds( recipientTaxIds );
             }
+        } else {
+            log.info( "Empty list of opaque tax ids" );
         }
         List<NotificationSearchRow> result = new ArrayList<>();
         metadataEntityList.forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
