@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +37,7 @@ class PnSentReceivedNotificationControllerTest {
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
 	private static final String FILENAME = "filename.pdf";
 	private static final String REQUEST_ID = "VkdLVi1VS0hOLVZJQ0otMjAyMjA1LVAtMQ==";
+
 
 
 	@Autowired
@@ -206,32 +208,40 @@ class PnSentReceivedNotificationControllerTest {
 		Mockito.verify( attachmentService ).downloadDocumentWithRedirectByIunAndDocIndex( IUN, DOCUMENT_INDEX );
 	}
 
-	/*@Test
+	@Test
 	void getSentNotificationDocumentsSuccess() {
 		//Given
-		ResponseEntity<Resource> response = ResponseEntity.ok()
-				.headers( headers() )
-				.contentLength( CONTENT_LENGTH )
-				.contentType( MediaType.APPLICATION_PDF )
-				.body( new InputStreamResource( InputStream.nullInputStream() ));
+		String pagopa = "PAGOPA";
+		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( REDIRECT_URL )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.build();
 
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-		Mockito.when( svc.downloadDocument( Mockito.anyString(), Mockito.anyInt() ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName( Mockito.anyString(), Mockito.anyInt(), Mockito.anyString() ))
 				.thenReturn( response );
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/notifications/sent/" + IUN + "/documents/" + DOCUMENT_INDEX)
+				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",pagopa))
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
 				.exchange()
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( svc ).downloadDocument( IUN, DOCUMENT_INDEX );
-	}*/
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirectByIunAndRecIdxAttachName( IUN, 0, pagopa);
+	}
+
+	/*@Test
+	*/
 
 	/*@Test
 	void getSentNotificationDocumentsFailure() {
