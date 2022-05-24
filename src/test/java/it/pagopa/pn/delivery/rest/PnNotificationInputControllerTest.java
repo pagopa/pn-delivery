@@ -149,7 +149,7 @@ class PnNotificationInputControllerTest {
 
 		// When
 		Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn( MAX_NUMBER_REQUESTS );
-		Mockito.when(attachmentService.putFiles( Mockito.anyList() ))
+		Mockito.when(attachmentService.preloadDocuments( Mockito.anyList() ))
 				.thenReturn( responses );
 
 		// Then
@@ -165,7 +165,7 @@ class PnNotificationInputControllerTest {
 				.exchange()
 				.expectStatus().isOk();
 
-		Mockito.verify( attachmentService ).putFiles( requests );
+		Mockito.verify( attachmentService ).preloadDocuments( requests );
 	}
 
 	@Test

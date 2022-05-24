@@ -53,7 +53,7 @@ public class PnNotificationInputController implements NewNotificationApi {
                                     numberOfPresignedRequest))));
         }
 
-        return ResponseEntity.ok( this.notificationAttachmentService.putFiles(preLoadRequest));
+        return ResponseEntity.ok( this.notificationAttachmentService.preloadDocuments(preLoadRequest));
     }
 
     @ExceptionHandler({PnValidationException.class})

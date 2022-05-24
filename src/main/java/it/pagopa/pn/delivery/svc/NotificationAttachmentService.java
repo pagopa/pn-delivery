@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,9 +52,9 @@ public class NotificationAttachmentService {
         return this.safeStorageClient.getFile(fileKey, false);
     }
 
-    public List<PreLoadResponse> putFiles(List<PreLoadRequest> preLoadRequests){
+    public List<PreLoadResponse> preloadDocuments(List<PreLoadRequest> preLoadRequests){
         return preLoadRequests.stream().map(req -> {
-            log.info("putFile contentType:{} preloadIdx:{}", req.getContentType(), req.getPreloadIdx());
+            log.info("preloadDocuments contentType:{} preloadIdx:{}", req.getContentType(), req.getPreloadIdx());
             FileCreationRequest fileCreationRequest = new FileCreationRequest();
             fileCreationRequest.setContentType(req.getContentType());
             fileCreationRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENTS);
@@ -87,6 +88,7 @@ public class NotificationAttachmentService {
     private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(String iun, Integer documentIndex, Integer recipientIdx, String xPagopaPnCxId, String attachmentName, String mandateId ) {
         log.info("Retrieve notification with iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={}", iun, documentIndex, recipientIdx, xPagopaPnCxId, attachmentName, mandateId );
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
+
 
         if (optNotification.isPresent()) {
             InternalNotification notification = optNotification.get();
@@ -134,7 +136,7 @@ public class NotificationAttachmentService {
                 }
 
 
-                fileKey = getFileKeyOfAttachment(iun, doc.get(), attachmentName);
+                fileKey = getFileKeyOfAttachment(iun, doc.get(), attachmentName, optNotification.get().getNotificationFeePolicy());
                 fileName = buildFilename(iun, attachmentName);
             }
 
@@ -153,14 +155,13 @@ public class NotificationAttachmentService {
         }
     }
 
-    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName){
+    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy){
         switch (ATTACHMENT_TYPE.valueOf(attachmentName))
         {
             case PAGOPA:
                 return doc.getPayment().getPagoPaForm().getRef().getKey();
             case F24:
-                // TODO: è questo il senso di avere solo F24 come valore nel path, tornare uno dei 2?!
-                if (doc.getPayment().getF24flatRate() != null)
+                if (notificationFeePolicy== FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE)
                     return doc.getPayment().getF24flatRate().getRef().getKey();
                 else
                     return doc.getPayment().getF24standard().getRef().getKey();

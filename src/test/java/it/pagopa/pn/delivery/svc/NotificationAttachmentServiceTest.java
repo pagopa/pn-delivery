@@ -71,7 +71,7 @@ class NotificationAttachmentServiceTest {
     }
 
     @Test
-    void putFiles() {
+    void preloadDocuments() {
         //Given
         List<PreLoadRequest> list = new ArrayList<>();
         PreLoadRequest request = new PreLoadRequest();
@@ -88,7 +88,7 @@ class NotificationAttachmentServiceTest {
         when(pnSafeStorageClient.createFile(Mockito.any())).thenReturn(response);
 
         //When
-        List<PreLoadResponse> result = attachmentService.putFiles(list);
+        List<PreLoadResponse> result = attachmentService.preloadDocuments(list);
 
         //Then
         assertNotNull(result);
@@ -103,20 +103,10 @@ class NotificationAttachmentServiceTest {
         String attachmentName = PAGOPA;
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, X_PAGOPA_PN_CX_ID));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
+
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientidx, attachmentName);
@@ -135,20 +125,10 @@ class NotificationAttachmentServiceTest {
         String attachmentName = F_24;
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, X_PAGOPA_PN_CX_ID, attachmentName));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
+
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientidx, attachmentName);
@@ -167,20 +147,10 @@ class NotificationAttachmentServiceTest {
         String attachmentName = F_24_FLAT;
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, X_PAGOPA_PN_CX_ID, attachmentName));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
+
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientidx, attachmentName);
@@ -199,20 +169,10 @@ class NotificationAttachmentServiceTest {
         String attachmentName = F_24_STANDARD;
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, X_PAGOPA_PN_CX_ID, attachmentName));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
+
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientidx, attachmentName);
@@ -231,20 +191,10 @@ class NotificationAttachmentServiceTest {
         String attachmentName = F_24;
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, X_PAGOPA_PN_CX_ID + "-bad", attachmentName));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
+
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
 
         //When
         assertThrows(PnInternalException.class, () -> attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientidx, attachmentName));
@@ -261,20 +211,9 @@ class NotificationAttachmentServiceTest {
         String xPagopaPnCxId = X_PAGOPA_PN_CX_ID;
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(null);
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
 
         //When
         assertThrows(PnInternalException.class, () -> attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientidx, F_24));
@@ -293,20 +232,10 @@ class NotificationAttachmentServiceTest {
 
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, X_PAGOPA_PN_CX_ID));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
+
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docidx);
@@ -327,20 +256,10 @@ class NotificationAttachmentServiceTest {
         String attachmentName = PAGOPA;
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, xPagopaPnCxId));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
+
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
@@ -361,17 +280,7 @@ class NotificationAttachmentServiceTest {
         String attachmentName = PAGOPA;
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, internalIdDelegator));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
+
 
         InternalMandateDto internalMandateDto = new InternalMandateDto();
         internalMandateDto.setMandateId(mandateId);
@@ -379,7 +288,7 @@ class NotificationAttachmentServiceTest {
         internalMandateDto.setDelegator(internalIdDelegator);
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
         when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(internalMandateDto));
 
 
@@ -401,21 +310,10 @@ class NotificationAttachmentServiceTest {
         String mandateId = "123-abcd-123456";
 
         Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, internalIdDelegator));
-        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
-        fileDownloadResponse.setChecksum("checksum");
-        fileDownloadResponse.setContentType("application/pdf");
-        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
-        fileDownloadResponse.setDocumentStatus("PRELOAD");
-        fileDownloadResponse.setKey("filekey");
-        fileDownloadResponse.setVersionId("v1");
-        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        fileDownloadInfo.setUrl("https://url123");
-        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
-        fileDownloadResponse.setDownload(fileDownloadInfo);
 
 
         when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(fileDownloadResponse);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
         when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of());
 
 
@@ -429,6 +327,21 @@ class NotificationAttachmentServiceTest {
 
     private InternalNotification buildNotification(String iun, String taxid) {
         return buildNotification(iun, taxid, PAGOPA);
+    }
+
+    private FileDownloadResponse buildFileDownloadResponse(){
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        fileDownloadResponse.setChecksum("checksum");
+        fileDownloadResponse.setContentType("application/pdf");
+        fileDownloadResponse.setDocumentType("PN_NOTIFICATION_ATTACHMENTS");
+        fileDownloadResponse.setDocumentStatus("PRELOAD");
+        fileDownloadResponse.setKey("filekey");
+        fileDownloadResponse.setVersionId("v1");
+        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
+        fileDownloadInfo.setUrl("https://url123");
+        fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
+        fileDownloadResponse.setDownload(fileDownloadInfo);
+        return fileDownloadResponse;
     }
 
     private InternalNotification buildNotification(String iun, String taxid, String channel){
