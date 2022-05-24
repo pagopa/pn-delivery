@@ -1,0 +1,633 @@
+openapi: 3.0.3
+info:
+  title: Anonimizzazione dati in Piattaforma Notifiche
+  version: v1
+  description: |
+    # Elenco entità logiche che contengono informazioni confidenziali
+      - Identificativi dei destinatari; possono essere persone fisiche o persone giuridiche
+      - Domicili e recapiti inseriti dai destinatari
+      - Informazioni di contatto inserite nelle deleghe
+      - Informazioni di contatto inserite nelle notifiche
+
+  license:
+    name: PagoPA PN license
+    url: http://pippo.pappo.it
+servers:
+  - url: https://servizio-anonimizzazione
+    description: finto
+tags:
+  - name: Recipients
+    description: Gestione destinatari
+  - name: AddressBook
+    description: Gestione Domicili & Recapiti
+  - name: Mandates
+    description: Gestione deleghe
+  - name: Notifications
+    description: Gestione Notifiche
+paths:
+
+  ###############################################################################################
+  ###                             REGISTRAZIONE NUOVI DESTINATARI                             ###
+  ###############################################################################################
+
+  '/datavault-private/v1/recipients/external/{recipientType}/{taxId}':
+    get:
+      operationId: ensureRecipientByExternalId
+      summary: Genera un id opaco
+      description: >-
+        Se _recipientType_ vale _PF_ richiede l'id opaco al _Personal Data Vault_ connesso allo
+        _SpidHub_ del portale dedicato ai cittadini. <br/>
+        Se _recipientType_ vale _PG_ richiede l'id opaco a un istanza di _Personal Data Vault_
+        dedicata alle persone giuridiche.
+      tags:
+        - Recipients
+      parameters:
+        - name: recipientType
+          description: tipo di destinatario
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/RecipientType'
+        - name: taxId
+          description: Codice Fiscale del destinatario
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/TaxId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalId'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+
+  ###############################################################################################
+  ###                                 LETTURA DATI DESTINATARI                                ###
+  ###############################################################################################
+
+  '/datavault-private/v1/recipients/internal':
+    get:
+      operationId: getRecipientDenominationByInternalId
+      summary: Deanonimizzazione destinatari
+      description: >-
+        Servizio che dato un elenco di id anonimizzati permette di ottenere la denominazione
+        (nome e cognome o ragione sociale) e il tipo (PF o PG) del dei destinatari a i quali
+        si riferiscono tali id anonimi.
+      tags:
+        - Recipients
+      parameters:
+        - name: internalId
+          description: Elenco identificativi da deanonimizzare
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/InternalId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BaseRecipientDto'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+
+
+  ###############################################################################################
+  ###                         GESTIONE DATI CONFIDENZIALI ADDRESS BOOK                        ###
+  ###############################################################################################
+
+  '/datavault-private/v1/recipients/internal/{internalId}/addresses':
+    parameters:
+      - name: internalId
+        description: Identificativo destinatario
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/InternalId'
+    get:
+      operationId: getRecipientAddressesByInternalId
+      summary: Elenca domicili e recapiti del destinatario
+      description: >-
+        Questa invocazione restituisce una mappa contenente tutti i domicili e i recapiti
+        del destinatario
+      tags:
+        - AddressBook
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipientAddressesDto'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+  '/datavault-private/v1/recipients/internal/{internalId}/addresses/{addressId}':
+    parameters:
+      - name: internalId
+        description: Identificativo destinatario
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/InternalId'
+      - name: addressId
+        description: Identificativo domicilio o recapito
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/AddressId'
+    put:
+      operationId: updateRecipientAddressByInternalId
+      summary: Inserisce o modifica un domicilio o recapito
+      tags:
+        - AddressBook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressDto'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+    delete:
+      operationId: deleteRecipientAddressByInternalId
+      summary: Cancella un domicilio o recapito
+      tags:
+        - AddressBook
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+
+  ###############################################################################################
+  ###                           GESTIONE DATI CONFIDENZIALI DELEGHE                           ###
+  ###############################################################################################
+
+  '/datavault-private/v1/mandates':
+    get:
+      operationId: getMandatesByIds
+      summary: Leggi Deleghe
+      description: >-
+        Permette di leggere i dati di contatto inseriti in un elenco di deleghe. Tale elenco è
+        definito dal parametro _mandateId_
+      tags:
+        - Mandates
+      parameters:
+        - name: mandateId
+          description: elenco degli identificativi delle deleghe
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/MandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MandateDto'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+
+  '/datavault-private/v1/mandates/{mandateId}':
+    parameters:
+      - name: mandateId
+        description: identificativo di una delega
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/MandateId'
+    put:
+      operationId: updateMandateById
+      summary: Inserisci o modifica il recapito di una delega
+      tags:
+        - Mandates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DenominationDto'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+    delete:
+      operationId: deleteMandateById
+      summary: Elimina il recapito di una delega
+      tags:
+        - Mandates
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+
+
+
+  ###############################################################################################
+  ###                          GESTIONE DATI CONFIDENZIALI NOTIFICHE                          ###
+  ###############################################################################################
+
+  '/datavault-private/v1/notifications/{iun}':
+    parameters:
+      - name: iun
+        description: Identificativo Unico Notifica
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Iun'
+    delete:
+      operationId: deleteNotificationByIun
+      summary: Elimina informazioni confidenziali relative a una notifica.
+      tags:
+        - Notifications
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+  '/datavault-private/v1/notifications/{iun}/addresses':
+    parameters:
+      - name: iun
+        description: Identificativo Unico Notifica
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Iun'
+    get:
+      operationId: getNotificationAddressesByIun
+      summary: leggi domicili destinatari
+      description: >-
+        Leggi i domicili digitali o fisici che la pubblica amministrazione ha indicato in fase
+        di invio della notifica. <br/>
+        La risposta è costituita da un array: un elemento per ogni destinatario della notifica.
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationAddressesDto'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+    put:
+      operationId: updateNotificationAddressesByIun
+      summary: Inserisci o aggiorna elenco domicili specificati in fase di invio di una notifica.
+      tags:
+        - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationAddressesDto'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+  '/datavault-private/v1/notifications/{iun}/timeline':
+    parameters:
+      - name: iun
+        description: Identificativo Unico Notifica
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Iun'
+    get:
+      operationId: getNotificationTimelineByIun
+      summary: leggi intera timeline di una notifica
+      description: >-
+        Leggi le informazioni confidenziali relative all'intera timeline di una notifica
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfidentialTimelineElementDto'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+  '/datavault-private/v1/notifications/{iun}/timeline/{timelineElementId}':
+    parameters:
+      - name: iun
+        description: Identificativo Unico Notifica
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Iun'
+      - name: timelineElementId
+        description: Identificativo dell'elemento di timeline
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getNotificationTimelineByIunAndTimelineElementId
+      summary: leggi un elemento di timeline
+      description: >-
+        Leggi informazioni confidenziali relative a un elemento di timeline
+      tags:
+        - Notifications
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfidentialTimelineElementDto'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+    put:
+      operationId: updateNotificationTimelineByIunAndTimelineElementId
+      summary: Inserisci o aggiorna elenco domicili specificati in fase di invio di una notifica.
+      tags:
+        - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfidentialTimelineElementDto'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+
+components:
+  schemas:
+
+    ###############################################################################################
+    ###                                     DTO DESTINATARI                                     ###
+    ###############################################################################################
+    RecipientType:
+      title: 'Tipo del destinatario: PF / PG'
+      description: >-
+        ### Tipo del destinatario
+          - PF: Persona Fisica
+          - PG: Persomna Giuridica
+      type: string
+      enum:
+        - PF
+        - PG
+
+    TaxId:
+      title: Codice Fiscale
+      description: Codice Fiscale del destinatario, del delagao o dlegante
+      type: string
+      example: CGNNMO01T10A944Q
+
+    InternalId:
+      title: Identificativo anonimizzato
+      description: Identificativo Opaco di una persona Fisica o Giuridica
+      type: string
+      format: '[A-Za-z0-9~-_]*'
+      minLength: 1
+      maxLength: 100
+      example: 123e4567-e89b-12d3-a456-426655440000
+
+    BaseRecipientDto:
+      title: Decodicfica Identificativo Anonimo
+      description: >-
+        contiene i dati deanonimizzati riferiti a un InternalId
+      type: object
+      properties:
+        internalId:
+          $ref: '#/components/schemas/InternalId'
+        taxId:
+          $ref: '#/components/schemas/TaxId'
+        recipientType:
+          $ref: '#/components/schemas/RecipientType'
+        denomination:
+          description: Nome + cognome __oppure__ ragione sociale
+          type: string
+          example: PagoP.A. S.p.A.
+
+
+    ###############################################################################################
+    ###                                      DTO INDIRIZZI                                      ###
+    ###############################################################################################
+
+    AddressId:
+      title: Identificativo del recapito o domicilio digitale
+      type: string
+      pattern: '[A-Za-z0-9-_:]*'
+      example: DD_c_f205_1
+
+    RecipientAddressesDto:
+      title: Request for new object creation
+      type: object
+      required:
+        - addresses
+      properties:
+        addresses:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AddressDto'
+      example:
+        DD_c_f205_1:
+          kind: sms
+          value: '+39340123456'
+        RD_c_f205_2:
+          kind: email
+          value: 'io@unemail.it'
+
+    AddressDto:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+
+
+    ###############################################################################################
+    ###                                       DTO DELEGHE                                       ###
+    ###############################################################################################
+
+    MandateId:
+      title: Identificativo della delega
+      type: string
+      pattern: '[A-Za-z0-9-_:]*'
+      example: 423e4567-e89b-12d3-a456-426655449632
+
+    MandateDto:
+      type: object
+      required:
+        - mandateId
+        - mandateAddresses
+      properties:
+        mandateId:
+          $ref: '#/components/schemas/MandateId'
+        info:
+          $ref: '#/components/schemas/DenominationDto'
+
+    DenominationDto:
+      type: object
+      properties:
+        destName:
+          type: string
+          example: Nome
+        destSurname:
+          type: string
+          example: Cognome
+        destBusinessName:
+          type: string
+          example: Ragione sociale
+      example:
+        destName: Nome
+        destSurname: Cognome
+        destBusinessName: Ragione sociale
+
+
+
+
+    ###############################################################################################
+    ###                                      DTO NOTIFICHE                                      ###
+    ###############################################################################################
+
+    Iun:
+      type: string
+      pattern: '[A-Z0-9-]*'
+      example: 'ABCD-XYWK-ASDF-LKJH-202209-1-X'
+
+    NotificationAddressesDto:
+      type: array
+      items:
+        $ref: '#/components/schemas/NotificationRecipientAddressesDto'
+
+    NotificationRecipientAddressesDto:
+      type: object
+      required:
+        - denomination
+      properties:
+        denomination:
+          type: string
+          example: Nome Dott. Cognome
+        digitalAddress:
+          $ref: '#/components/schemas/AddressDto'
+        physicalAddress:
+          $ref: '#/components/schemas/AnalogDomicile'
+
+    AnalogDomicile:
+      title: dettagli di un domicilio analogico; ovvero un indirizzo fisico
+      type: object
+      properties:
+        at:
+          type: string
+          example: 'presso famiglia Rossi'
+        address:
+          type: string
+          example: 'Via senza Nome 15'
+        addressDetails:
+          type: string
+          example: 'scala A'
+        cap:
+          type: string
+          example: '40129'
+        municipality:
+          type: string
+          example: 'Bologna'
+        province:
+          type: string
+          example: 'BO'
+        state:
+          type: string
+          example: 'it'
+
+
+
+    ConfidentialTimelineElementDto:
+      type: object
+      properties:
+        timelineElementId:
+          type: string
+        digitalAddress:
+          $ref: '#/components/schemas/AddressDto'
+        physicalAddress:
+          $ref: '#/components/schemas/AnalogDomicile'

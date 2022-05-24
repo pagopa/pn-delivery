@@ -1,7 +1,9 @@
 package it.pagopa.pn.delivery.rest;
 
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -22,7 +24,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String iun) {
+    public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
         FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
@@ -52,7 +53,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
 
     @Override
-    public ResponseEntity<NotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, Date startDate, Date endDate, String recipientId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
+    public ResponseEntity<NotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Date startDate, Date endDate, List<String> xPagopaPnCxGroups, String recipientId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
                 .senderReceiverId(xPagopaPnCxId)
@@ -85,19 +86,22 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String requestId, String paProtocolNumber, String idempotenceToken) {
-        String iun = Base64Utils.encodeToString(requestId.getBytes(StandardCharsets.UTF_8));
+    @ExceptionHandler({PnInternalException.class})
+    public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+        String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
-        NewNotificationRequestStatusResponse response;
-        if ( internalNotification.getNotificationStatus().equals(NotificationStatus.REFUSED)  || internalNotification.getNotificationStatus().equals(NotificationStatus.IN_VALIDATION)) {
-            response = NewNotificationRequestStatusResponse.builder()
-                    .errors(Collections.singletonList( ProblemError.builder()
-                            .code( "Notification Refused or in Validation" )
-                            .build() ))
-                    .build();
-        } else {
-            ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class );
-            response = mapper.map( internalNotification, NewNotificationRequestStatusResponse.class );
+        NotificationStatus lastStatus = internalNotification.getNotificationStatusHistory().get( internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
+        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class );
+        NewNotificationRequestStatusResponse response = mapper.map( internalNotification, NewNotificationRequestStatusResponse.class );
+        response.setNotificationRequestId( notificationRequestId );
+        switch ( lastStatus ) {
+            case IN_VALIDATION: {
+                response.setNotificationRequestStatus( "WAITING" );
+                response.retryAfter( BigDecimal.valueOf(10L) );
+                break;
+            }
+            case REFUSED: response.setNotificationRequestStatus( "REFUSED" ); break;
+            default: response.setNotificationRequestStatus( "ACCEPTED" );
         }
         return ResponseEntity.ok( response );
     }

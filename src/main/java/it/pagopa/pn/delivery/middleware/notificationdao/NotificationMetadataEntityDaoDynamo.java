@@ -1,15 +1,15 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
-
-
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,21 +22,21 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueStore<NotificationMetadataEntity> implements NotificationMetadataEntityDao {
     private DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private EntityToDtoNotificationMetadataMapper entityToDto;
+    private PnDataVaultClientImpl dataVaultClient;
 
-    protected NotificationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, EntityToDtoNotificationMetadataMapper entityToDto, PnDeliveryConfigs cfg) {
+    protected NotificationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, EntityToDtoNotificationMetadataMapper entityToDto, PnDeliveryConfigs cfg, PnDataVaultClientImpl dataVaultClient) {
         super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationMetadataEntity.class)));
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.entityToDto = entityToDto;
+        this.dataVaultClient = dataVaultClient;
     }
 
     private static String tableName( PnDeliveryConfigs cfg ) {
@@ -188,6 +188,22 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     private List<NotificationSearchRow> fromNotificationMetadataToNotificationSearchRow(List<NotificationMetadataEntity> metadataEntityList) {
+
+        List<String> opaqueTaxIds = metadataEntityList.stream().map(NotificationMetadataEntity::getRecipientIds).flatMap( Collection::stream ).collect(Collectors.toList());
+
+        List<BaseRecipientDto> dataVaultResults = dataVaultClient.getRecipientDenominationByInternalId( opaqueTaxIds );
+
+        for (NotificationMetadataEntity entity : metadataEntityList) {
+            Optional<BaseRecipientDto> match = dataVaultResults.stream().filter( r -> r.getInternalId().equals( entity.getRecipientId() ) ).findFirst();
+            match.ifPresent(baseRecipientDto -> entity.setRecipientId(baseRecipientDto.getTaxId()));
+            List<String> recipientTaxIds = new ArrayList<>();
+            for (String recTaxId : entity.getRecipientIds() ) {
+              Optional<BaseRecipientDto> internalMatch = dataVaultResults.stream().filter( r -> r.getInternalId().equals(  recTaxId  ) ).findFirst();
+              internalMatch.ifPresent(baseRecipientDto -> recipientTaxIds.add(baseRecipientDto.getTaxId()));
+            }
+            entity.setRecipientIds( recipientTaxIds );
+        }
+
         List<NotificationSearchRow> result = new ArrayList<>();
         metadataEntityList.forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
         return result;

@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMet
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,12 +27,15 @@ class StatusServiceTest {
 
     @Mock
     private NotificationMetadataEntityDao notificationMetadataEntityDao;
+
+    @Mock
+    private PnDataVaultClientImpl dataVaultClient;
     
     private StatusService statusService;
 
     @BeforeEach
     public void setup() {
-        statusService = new StatusService(notificationDao, notificationMetadataEntityDao);
+        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, dataVaultClient);
     }
 
 
@@ -51,8 +55,9 @@ class StatusServiceTest {
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( "CodiceFiscale" )
+                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .build()) )
-                .build(), Collections.emptyMap()));
+                .build(), Collections.emptyMap(), Collections.emptyList()));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()

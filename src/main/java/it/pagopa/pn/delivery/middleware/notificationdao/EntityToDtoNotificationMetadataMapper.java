@@ -17,7 +17,7 @@ public class EntityToDtoNotificationMetadataMapper {
         return NotificationSearchRow.builder()
                 .iun( entity.getIun_recipientId().substring(0 ,entity.getIun_recipientId().indexOf("##")) )
                 .sender( entity.getSenderId() )
-                .recipients( Collections.singletonList( entity.getRecipientId() ) )
+                .recipients( entity.getRecipientIds() )
                 .sentAt( Date.from(entity.getSentAt() ))
                 .subject( entity.getTableRow().get( "subject" ) )
                 .paProtocolNumber( entity.getTableRow().get("paNotificationId") )

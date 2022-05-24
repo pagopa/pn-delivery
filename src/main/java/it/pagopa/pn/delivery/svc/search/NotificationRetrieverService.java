@@ -1,11 +1,14 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
+
+
+import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -13,13 +16,15 @@ import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolation;
@@ -28,10 +33,9 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +45,7 @@ public class NotificationRetrieverService {
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
-	private final PnDeliveryPushClient pnDeliveryPushClient;
+	private final PnDeliveryPushClientImpl pnDeliveryPushClient;
 	private final PnDeliveryConfigs cfg;
 	private final PnMandateClientImpl pnMandateClient;
 	private final ModelMapperFactory modelMapperFactory;
@@ -51,7 +55,7 @@ public class NotificationRetrieverService {
 	public NotificationRetrieverService(Clock clock,
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
-										PnDeliveryPushClient pnDeliveryPushClient,
+										PnDeliveryPushClientImpl pnDeliveryPushClient,
 										PnDeliveryConfigs cfg,
 										PnMandateClientImpl pnMandateClient, ModelMapperFactory modelMapperFactory) {
 		this.clock = clock;
@@ -233,37 +237,41 @@ public class NotificationRetrieverService {
 	private InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
-		Instant createdAt =  notification.getSentAt().toInstant();
+		Date createdAt =  notification.getSentAt();
+		OffsetDateTime offsetDateTime = createdAt.toInstant()
+				.atOffset(ZoneOffset.UTC);
 
-		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients,createdAt);
+		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
 
-		ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.timeline.TimelineElement.class, TimelineElement.class );
-		Set<TimelineElement> rawTimeline = timelineStatusHistoryDto.getTimelineElements().stream()
-				.map( el -> mapperTimeline.map( el, TimelineElement.class ))
-				.collect(Collectors.toSet());
+		//ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.timeline.TimelineElement.class, TimelineElement.class );
+		//Set<TimelineElement> rawTimeline = timelineStatusHistoryDto.getTimeline().stream()
+		//		.map( el -> mapperTimeline.map( el, TimelineElement.class ))
+		//		.collect(Collectors.toSet());
 		
-		List<TimelineElement> timeline = rawTimeline
+		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()
-				.sorted( Comparator.comparing( TimelineElement::getTimestamp ))
+				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp))
 				.collect(Collectors.toList());
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 		
-		List<it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getStatusHistory();
+		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
+		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
 
-		ModelMapper mapperStatus = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class );
+		//ModelMapper mapperStatus = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class );
 
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
-		
+
+		ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class );
+
 		FullSentNotification resultFullSent = notification
-				.timeline( timeline )
+				.timeline( timelineList.stream().map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) ).collect(Collectors.toList())  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
 						.collect(Collectors.toList())
 				)
-				.notificationStatus( mapperStatus.map(timelineStatusHistoryDto.getNotificationStatus(), NotificationStatus.class));
+				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 
 		return mapperNotification.map( resultFullSent, InternalNotification.class );
 	}
