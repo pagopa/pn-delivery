@@ -33,7 +33,7 @@ public class PnNotificationInputController implements NewNotificationApi {
     }
 
     @Override
-    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, NewNotificationRequest newNotificationRequest) {
+    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
         NewNotificationResponse svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
         return ResponseEntity.ok( svcRes );
     }
