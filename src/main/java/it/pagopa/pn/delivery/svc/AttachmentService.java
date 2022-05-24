@@ -83,7 +83,7 @@ public class AttachmentService {
     }
 
     private void saveAndUpdatePaymentAttachment(NotificationPaymentAttachment paymentAttachment, String paId) {
-        /*NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
+        NotificationAttachmentBodyRef attachmentRef = paymentAttachment.getRef();
 
         log.info( "Retrieve attachment by ref with key={}", attachmentRef.getKey() );
         String fullKey = buildPreloadFullKey( paId, attachmentRef.getKey());
@@ -100,7 +100,7 @@ public class AttachmentService {
 
         //paymentAttachment.contentType( fd.getContentType() );
         paymentAttachment.getRef().setVersionToken( versionId );
-        paymentAttachment.getRef().setKey( fullKey );*/
+        paymentAttachment.getRef().setKey( fullKey );
     }
 
     private NotificationDocument saveAndUpdateAttachment(InternalNotification internalNotification, NotificationDocument notificationDocument, String key) {
