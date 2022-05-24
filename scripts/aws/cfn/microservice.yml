@@ -14,7 +14,11 @@ Parameters:
   WebApiDnsName:
     Type: String
     Description: 'The DNS name used for WEB rest API.'
-  
+
+  IoApiDnsName:
+    Type: String
+    Description: 'The DNS name used for IO rest API.'
+
   CorsAllowedDomains:
     Type: String
     Description: 'Comma separated list of domains allowed to make cross origin request'
@@ -211,6 +215,20 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         IntendedUsage: WEB
         DnsName: !Ref WebApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+
+  # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
+  DeliveryMicroservicePublicIoAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
+        IntendedUsage: IO
+        DnsName: !Ref IoApiDnsName
         ProjectName: !Ref ProjectName
         ServiceApiPath: 'delivery'
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
