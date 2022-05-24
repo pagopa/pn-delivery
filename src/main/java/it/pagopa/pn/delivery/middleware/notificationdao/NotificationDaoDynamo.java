@@ -119,8 +119,12 @@ public class NotificationDaoDynamo implements NotificationDao {
             for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
                 String opaqueTaxId = recipient.getTaxId();
 
-                BaseRecipientDto baseRec = baseRecipientDtoList.get( recipientIndex );
-                NotificationRecipientAddressesDto clearDataAddresses = notificationRecipientAddressesDtoList.get( recipientIndex );
+                BaseRecipientDto baseRec =
+                        recipientIndex < baseRecipientDtoList.size()
+                                ? baseRecipientDtoList.get( recipientIndex ) : null;
+                NotificationRecipientAddressesDto clearDataAddresses =
+                        recipientIndex < notificationRecipientAddressesDtoList.size()
+                                ? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
 
                 if ( baseRec != null) {
                     recipient.setTaxId( baseRec.getTaxId() );
