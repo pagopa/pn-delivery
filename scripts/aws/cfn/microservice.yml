@@ -39,9 +39,12 @@ Parameters:
     Type: String
     Description: 'Queue to pull for inputs event'
 
-  KeyspaceName:
-    Type: String
-    Description: 'Where to write database data'
+  #KeyspaceName:
+  #  Type: String
+  #  Description: 'Where to write database data'
+  SandboxSafeStorageBaseUrl:
+     Type: String
+     Description: 'Url to the SafeStorage microservice'
 
   NotificationsDynamoTableName:
     Type: String
@@ -108,16 +111,17 @@ Resources:
         ContainerEnvEntry2: !Sub 'PN_DELIVERY_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
         ContainerEnvEntry3: !Sub 'AWS_BUCKETNAME=${AttachmentsBucketName}'
         ContainerEnvEntry4: 'PN_DELIVERY_IUNRETRY=3'
-        ContainerEnvEntry5: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
-        ContainerEnvEntry6: 'SPRING_DATA_CASSANDRA_SSL=true'
+        #ContainerEnvEntry5: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
+        #ContainerEnvEntry6: 'SPRING_DATA_CASSANDRA_SSL=true'
         ContainerEnvEntry7: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
         ContainerEnvEntry8: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry9: !Sub 'PN_DELIVERY_DELIVERYPUSHBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry10: !Sub 'PN_DELIVERY_NOTIFICATIONDAO_TABLENAME=${NotificationsDynamoTableName}'
         ContainerEnvEntry11: !Sub 'PN_DELIVERY_NOTIFICATIONMETADATADAO_TABLENAME=${NotificationsMetadataDynamoTableName}'
         ContainerEnvEntry12: !Sub 'PN_DELIVERY_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERY_SAFESTORAGEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERY_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
         ContainerEnvEntry14: !Sub 'PN_DELIVERY_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry15: 'PN_DELIVERY_SAFESTORAGECXID=pn-delivery'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
