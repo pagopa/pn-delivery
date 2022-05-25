@@ -115,10 +115,6 @@ public class NotificationReceiverService {
 		internalNotification.setTokens( tokens );
 
 
-		log.info("Start Attachment save for iun={}", iun);
-		//FIXME check se è ok
-		//InternalNotification internalNotificationWithCompleteMetadata = safeStorageService.saveAttachments(internalNotification);
-
 		// - Will be delayed from the receiver
 		log.debug("Send \"new notification\" event for iun={}", iun);
 		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
