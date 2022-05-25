@@ -399,7 +399,7 @@ components:
       required: true
       schema:
         type: string
-        pattern: "[0-9]+|PAGOPA|F24_FLAT|F24_DIGITAL|F24_DIGITAL_WITH_RS|F24_ANALOG_NATIONAL_1|F24_ANALOG_NATIONAL_2|F24_ANALOG_INTERNATIONAL_1|F24_ANALOG_INTERNATIONAL_2"
+        pattern: "PAGOPA|F24_FLAT|F24_STANDARD"
         #quella sottostante è quella corretta. Riscritta per problemi con tool usato
         #oneOf:
         #  - type: number
@@ -407,12 +407,7 @@ components:
         #    enum:
         #      - PAGOPA
         #      - F24_FLAT
-        #      - F24_DIGITAL
-        #      - F24_DIGITAL_WITH_RS
-        #      - F24_ANALOG_NATIONAL_1
-        #      - F24_ANALOG_NATIONAL_2
-        #      - F24_ANALOG_INTERNATIONAL_1
-        #      - F24_ANALOG_INTERNATIONAL_2
+        #      - F24_STANDARD
     
     
     ############################################################################################

@@ -18,20 +18,22 @@ public class PnSafeStorageClientImpl {
 
     private final FileDownloadApi fileDownloadApi;
     private final FileUploadApi fileUploadApi;
+    private final PnDeliveryConfigs cfg;
 
     public PnSafeStorageClientImpl(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
         ApiClient newApiClient = new ApiClient( restTemplate );
         newApiClient.setBasePath( cfg.getSafeStorageBaseUrl() );
 
         this.fileDownloadApi = new FileDownloadApi( newApiClient );
-        this.fileUploadApi = new FileUploadApi( newApiClient );
+        this.fileUploadApi =new FileUploadApi( newApiClient );
+        this.cfg = cfg;
     }
 
-    public FileDownloadResponse getFile(String fileKey, String xPagopaSafestorageCxId, Boolean metadataOnly) {
-        return fileDownloadApi.getFile( fileKey, xPagopaSafestorageCxId, metadataOnly );
+    public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
+        return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
     }
 
-    public FileCreationResponse createFile(String xPagopaSafestorageCxId, FileCreationRequest fileCreationRequest) {
-        return fileUploadApi.createFile( xPagopaSafestorageCxId, fileCreationRequest );
+    public FileCreationResponse createFile(FileCreationRequest fileCreationRequest) {
+        return fileUploadApi.createFile( this.cfg.getSafeStorageCxId(), fileCreationRequest );
     }
 }

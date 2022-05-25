@@ -74,13 +74,11 @@ class NotificationReceiverTest {
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
-		AttachmentService attachmentSaver = new AttachmentService( fileStorage );
 
 		deliveryService = new NotificationReceiverService(
 				clock,
 				notificationDao,
 				notificationEventProducer,
-				attachmentSaver,
 				validator,
 				modelMapperFactory);
 	}

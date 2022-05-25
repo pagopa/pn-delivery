@@ -16,7 +16,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
-import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +38,6 @@ class NotificationRetrieverServiceTest {
 
     private Clock clock;
     private FileStorage fileStorage;
-    private S3PresignedUrlService presignedUrlService;
     private NotificationViewedProducer notificationViewedProducer;
     private NotificationDao notificationDao;
     private PnDeliveryPushClientImpl pnDeliveryPushClient;
@@ -53,8 +51,6 @@ class NotificationRetrieverServiceTest {
     @BeforeEach
     void setup() {
         this.clock = Mockito.mock(Clock.class);
-        this.fileStorage = Mockito.mock(FileStorage.class);
-        this.presignedUrlService = Mockito.mock(S3PresignedUrlService.class);
         this.notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
         this.notificationDao = Mockito.mock(NotificationDao.class);
         this.pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClientImpl.class);
@@ -62,8 +58,6 @@ class NotificationRetrieverServiceTest {
         this.pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
         this.modelMapperFactory = Mockito.mock(ModelMapperFactory.class);
         this.svc = new NotificationRetrieverService(clock,
-                fileStorage,
-                presignedUrlService,
                 notificationViewedProducer,
                 notificationDao,
                 pnDeliveryPushClient,
@@ -316,7 +310,7 @@ class NotificationRetrieverServiceTest {
         Mockito.verify( presignedUrlService ).presignedDownload( IUN + "doc_0", NotificationAttachment.builder()
                 .ref( NotificationAttachment.Ref.builder().build() )
                 .build() );
-    }*/
+    }
 
     @Test
     void downloadDocumentWithRedirectError() {
@@ -327,4 +321,6 @@ class NotificationRetrieverServiceTest {
         //Then
         Assertions.assertThrows(PnInternalException.class, todo);
     }
+    */
+
 }

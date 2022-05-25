@@ -1,18 +1,15 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.notification.Notification;
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
-import it.pagopa.pn.api.dto.preload.PreloadResponse;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 
-import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -22,11 +19,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +48,7 @@ class PnNotificationInputControllerTest {
 	private NotificationReceiverService deliveryService;
 
 	@MockBean
-	private S3PresignedUrlService presignService;
+	private NotificationAttachmentService attachmentService;
 
 	@MockBean
 	private PnDeliveryConfigs cfg;
@@ -155,7 +149,7 @@ class PnNotificationInputControllerTest {
 
 		// When
 		Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn( MAX_NUMBER_REQUESTS );
-		Mockito.when(presignService.presignedUpload( Mockito.anyString() , Mockito.anyList() ))
+		Mockito.when(attachmentService.preloadDocuments( Mockito.anyList() ))
 				.thenReturn( responses );
 
 		// Then
@@ -171,7 +165,7 @@ class PnNotificationInputControllerTest {
 				.exchange()
 				.expectStatus().isOk();
 
-		Mockito.verify( presignService ).presignedUpload( PA_ID , requests );
+		Mockito.verify( attachmentService ).preloadDocuments( requests );
 	}
 
 	@Test

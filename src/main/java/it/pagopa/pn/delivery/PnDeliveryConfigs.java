@@ -17,9 +17,11 @@ public class PnDeliveryConfigs {
 
     private String mandateBaseUrl;
 
+    private String dataVaultBaseUrl;
+
     private String safeStorageBaseUrl;
 
-    private String dataVaultBaseUrl;
+    private String safeStorageCxId;
 
     private Topics topics;
 

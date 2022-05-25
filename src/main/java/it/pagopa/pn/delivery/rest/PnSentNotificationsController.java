@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -12,6 +11,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
@@ -31,13 +31,13 @@ import java.util.Optional;
 public class PnSentNotificationsController implements SenderReadB2BApi,SenderReadWebApi {
 
     private final NotificationRetrieverService retrieveSvc;
-    private final PnDeliveryConfigs cfg;
+    private final NotificationAttachmentService notificationAttachmentService;
     private final ModelMapperFactory modelMapperFactory;
     public static final String VALIDATION_ERROR_STATUS = "Validation error";
 
-    public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg, ModelMapperFactory modelMapperFactory) {
+    public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
-        this.cfg = cfg;
+        this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapperFactory = modelMapperFactory;
     }
 
@@ -107,12 +107,13 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
-        return SenderReadB2BApi.super.getSentNotificationAttachment(xPagopaPnUid, xPagopaPnCxType, xPagopaPnCxId, iun, recipientIdx, attachmentName, xPagopaPnCxGroups);
+        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientIdx.intValue(), attachmentName);
+        return ResponseEntity.ok( response );
     }
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentDownloadMetadataResponse response = retrieveSvc.downloadDocumentWithRedirect(iun, docIdx.intValue());
+        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
         return ResponseEntity.ok( response );
     }
 }

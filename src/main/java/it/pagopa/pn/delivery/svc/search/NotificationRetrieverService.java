@@ -18,7 +18,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
-import it.pagopa.pn.delivery.svc.S3PresignedUrlService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -43,8 +42,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NotificationRetrieverService {
 
-	private final FileStorage fileStorage;
-	private final S3PresignedUrlService presignedUrlSvc;
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
@@ -56,16 +53,12 @@ public class NotificationRetrieverService {
 
 	@Autowired
 	public NotificationRetrieverService(Clock clock,
-										FileStorage fileStorage,
-										S3PresignedUrlService presignedUrlSvc,
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClientImpl pnDeliveryPushClient,
 										PnDeliveryConfigs cfg,
 										PnMandateClientImpl pnMandateClient, ModelMapperFactory modelMapperFactory) {
-		this.fileStorage = fileStorage;
 		this.clock = clock;
-		this.presignedUrlSvc = presignedUrlSvc;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
@@ -271,7 +264,7 @@ public class NotificationRetrieverService {
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
 		ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class );
-		
+
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream().map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) ).collect(Collectors.toList())  )
 				.notificationStatusHistory( statusHistory.stream()
@@ -283,53 +276,6 @@ public class NotificationRetrieverService {
 		return mapperNotification.map( resultFullSent, InternalNotification.class );
 	}
 
-	public ResponseEntity<Resource> downloadDocument(String iun, int documentIndex) {
-		ResponseEntity<Resource> response = null;
-
-		log.info("Retrieve notification with iun={} for direct download", iun);
-		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
-
-		if (optNotification.isPresent()) {
-			InternalNotification notification = optNotification.get();
-			log.debug("Document download START for iun {} and documentIndex {} ", iun, documentIndex);
-
-			NotificationDocument doc = notification.getDocuments().get(documentIndex);
-			// TODO utilizzare il servizio di safe-storage
-			//response = fileStorage.loadAttachment( doc.getRef() );
-		} else {
-			log.error("Notification not found for iun {}", iun);
-			throw new PnInternalException("Notification not found for iun " + iun);
-		}
-
-		return response;
-	}
-
-	public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(String iun, int documentIndex) {
-		NotificationAttachmentDownloadMetadataResponse response;
-
-		log.info("Retrieve notification with iun={} ", iun);
-		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
-
-		if (optNotification.isPresent()) {
-			InternalNotification notification = optNotification.get();
-			log.debug("Document download START for iun={} and documentIndex={} ", iun, documentIndex);
-
-			NotificationDocument doc = notification.getDocuments().get( documentIndex );
-			String unescapedFileName = iun + "__" + doc.getTitle();
-			String fileName = unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + ".pdf";
-			String redirectUrl = presignedUrlSvc.presignedDownload( fileName, doc );
-			response = NotificationAttachmentDownloadMetadataResponse.builder()
-					.filename( fileName )
-					.url( redirectUrl )
-					.contentType( doc.getContentType() )
-					.sha256( doc.getDigests().getSha256() )
-					.build();
-		} else {
-			log.error("Notification not found for iun={}", iun);
-			throw new PnInternalException("Notification not found for iun=" + iun);
-		}
-		return response;
-	}
 
 	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
 		String iun = notification.getIun();

@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,11 +39,15 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String REQUEST_ID = "VkdLVi1VS0hOLVZJQ0otMjAyMjA1LVAtMQ==";
 
 
+
 	@Autowired
     WebTestClient webTestClient;
 	
 	@MockBean
 	private NotificationRetrieverService svc;
+
+	@MockBean
+	private NotificationAttachmentService attachmentService;
 
 	@MockBean
 	private PnDeliveryConfigs cfg;
@@ -148,7 +154,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
-		Mockito.when( svc.downloadDocumentWithRedirect( Mockito.anyString(), Mockito.anyInt() ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirectByIunAndDocIndex( Mockito.anyString(), Mockito.anyInt() ))
 				.thenReturn( response );
 
 		// Then
@@ -166,7 +172,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( svc ).downloadDocumentWithRedirect( IUN, DOCUMENT_INDEX );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirectByIunAndDocIndex( IUN, DOCUMENT_INDEX );
 	}
 
 	@Test
@@ -181,7 +187,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
-		Mockito.when( svc.downloadDocumentWithRedirect( Mockito.anyString(), Mockito.anyInt() ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirectByIunAndDocIndex( Mockito.anyString(), Mockito.anyInt() ))
 				.thenReturn( response );
 
 		// Then
@@ -199,35 +205,72 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( svc ).downloadDocumentWithRedirect( IUN, DOCUMENT_INDEX );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirectByIunAndDocIndex( IUN, DOCUMENT_INDEX );
 	}
 
-	/*@Test
+	@Test
 	void getSentNotificationDocumentsSuccess() {
 		//Given
-		ResponseEntity<Resource> response = ResponseEntity.ok()
-				.headers( headers() )
-				.contentLength( CONTENT_LENGTH )
-				.contentType( MediaType.APPLICATION_PDF )
-				.body( new InputStreamResource( InputStream.nullInputStream() ));
+		String pagopa = "PAGOPA";
+		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( REDIRECT_URL )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.build();
 
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-		Mockito.when( svc.downloadDocument( Mockito.anyString(), Mockito.anyInt() ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName( Mockito.anyString(), Mockito.anyInt(), Mockito.anyString() ))
 				.thenReturn( response );
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/notifications/sent/" + IUN + "/documents/" + DOCUMENT_INDEX)
+				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",pagopa))
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
 				.exchange()
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( svc ).downloadDocument( IUN, DOCUMENT_INDEX );
-	}*/
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirectByIunAndRecIdxAttachName( IUN, 0, pagopa);
+	}
+
+	@Test
+	void getReceivedNotificationDocumentsSuccess() {
+		//Given
+		String pagopa = "PAGOPA";
+		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( REDIRECT_URL )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.build();
+
+		// When
+		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+		Mockito.when( attachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ))
+				.thenReturn( response );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",pagopa))
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isOk();
+
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirectByIunRecUidAttachNameMandateId( IUN, USER_ID, pagopa, null);
+	}
 
 	/*@Test
 	void getSentNotificationDocumentsFailure() {
