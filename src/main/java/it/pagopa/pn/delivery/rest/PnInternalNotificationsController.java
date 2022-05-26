@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.SentNotification;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -34,6 +35,13 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         InternalNotification notification = retrieveSvc.getNotificationInformation( iun, false );
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, SentNotification.class );
         SentNotification sentNotification = mapper.map(notification, SentNotification.class);
+
+        int recIdx = 0;
+        for(NotificationRecipient rec: sentNotification.getRecipients()) {
+            rec.setTaxId( notification.getRecipientIds().get( recIdx ));
+            recIdx += 1;
+        }
+
         return ResponseEntity.ok( sentNotification );
     }
 
