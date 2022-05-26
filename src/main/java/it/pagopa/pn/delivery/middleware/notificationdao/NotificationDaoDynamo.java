@@ -2,11 +2,24 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.AddressDto;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.AnalogDomicile;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
@@ -18,17 +31,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -107,54 +110,70 @@ public class NotificationDaoDynamo implements NotificationDao {
                 .map( entity2DtoMapper::entity2Dto );
 
         if(daoResult.isPresent()) {
-            List<NotificationRecipient> daoNotificationRecipientList = daoResult.get().getRecipients();
-
-            List<String> opaqueIds = daoNotificationRecipientList.stream()
-                    .map(NotificationRecipient::getTaxId)
-                    .collect(Collectors.toList());
-
-            List<BaseRecipientDto> baseRecipientDtoList =
-                    pnDataVaultClient.getRecipientDenominationByInternalId(
-                            opaqueIds
-                    );
-
-            List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.get().getIun() );
-            List<String> opaqueRecipientsIds = new ArrayList<>();
-
-            int recipientIndex = 0;
-            for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
-                String opaqueTaxId = recipient.getTaxId();
-                opaqueRecipientsIds.add( opaqueTaxId );
-
-                BaseRecipientDto baseRec =
-                        recipientIndex < baseRecipientDtoList.size()
-                                ? baseRecipientDtoList.get( recipientIndex ) : null;
-                NotificationRecipientAddressesDto clearDataAddresses =
-                        recipientIndex < notificationRecipientAddressesDtoList.size()
-                                ? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
-
-                if ( baseRec != null) {
-                    recipient.setTaxId(baseRec.getTaxId());
-                    recipient.setDenomination(baseRec.getDenomination());
-                }
-                else {
-                    log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
-                }
-
-                if ( clearDataAddresses != null ) {
-                    recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
-                    recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
-                } else {
-                    log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
-                }
-
-                recipientIndex += 1;
-            }
-            daoResult.get().setRecipientIds( opaqueRecipientsIds );
+            handleRecipients(daoResult);
+            
+            handleDocuments(daoResult);
         }
         return daoResult;
     }
 
+	private void handleRecipients(Optional<InternalNotification> daoResult) {
+		List<NotificationRecipient> daoNotificationRecipientList = daoResult.get().getRecipients();
+
+		List<String> opaqueIds = daoNotificationRecipientList.stream()
+		        .map(NotificationRecipient::getTaxId)
+		        .collect(Collectors.toList());
+
+		List<BaseRecipientDto> baseRecipientDtoList =
+		        pnDataVaultClient.getRecipientDenominationByInternalId(
+		                opaqueIds
+		        );
+
+		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.get().getIun() );
+		List<String> opaqueRecipientsIds = new ArrayList<>();
+
+		int recipientIndex = 0;
+		for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
+		    String opaqueTaxId = recipient.getTaxId();
+		    opaqueRecipientsIds.add( opaqueTaxId );
+
+		    BaseRecipientDto baseRec =
+		            recipientIndex < baseRecipientDtoList.size()
+		                    ? baseRecipientDtoList.get( recipientIndex ) : null;
+		    NotificationRecipientAddressesDto clearDataAddresses =
+		            recipientIndex < notificationRecipientAddressesDtoList.size()
+		                    ? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
+
+		    if ( baseRec != null) {
+		        recipient.setTaxId(baseRec.getTaxId());
+		        recipient.setDenomination(baseRec.getDenomination());
+		    }
+		    else {
+		        log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
+		    }
+
+		    if ( clearDataAddresses != null ) {
+		        recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
+		        recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
+		    } else {
+		        log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
+		    }
+
+		    recipientIndex += 1;
+		}
+		daoResult.get().setRecipientIds( opaqueRecipientsIds );
+	}
+
+	private void handleDocuments(Optional<InternalNotification> daoResult) {
+		Integer docIdx = 0; 
+		for (NotificationDocument doc : daoResult.get().getDocuments()) {
+			doc.setDocIdx(docIdx.toString());
+			docIdx++;
+		}
+		
+	}
+
+	
     private NotificationDigitalAddress setNotificationDigitalAddress( AddressDto addressDto ) {
         return addressDto == null ? null : NotificationDigitalAddress.builder()
                 .type( NotificationDigitalAddress.TypeEnum.PEC )
