@@ -33,7 +33,11 @@ public class PnSafeStorageClientImpl {
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
     }
 
-    public FileCreationResponse createFile(FileCreationRequest fileCreationRequest) {
-        return fileUploadApi.createFile( this.cfg.getSafeStorageCxId(), fileCreationRequest );
+    public FileCreationResponse createFile(FileCreationRequest fileCreationRequest, String sha256) {
+        return fileUploadApi.createFile(
+                this.cfg.getSafeStorageCxId(),
+                "SHA-256",
+                sha256 ,
+                fileCreationRequest);
     }
 }
