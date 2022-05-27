@@ -77,6 +77,7 @@ class NotificationAttachmentServiceTest {
         PreLoadRequest request = new PreLoadRequest();
         request.setContentType("application/pdf");
         request.setPreloadIdx("1");
+        request.setSha256("the_sha256_base64_encoded");
         list.add(request);
 
         FileCreationResponse response =new FileCreationResponse();
@@ -85,7 +86,7 @@ class NotificationAttachmentServiceTest {
         response.setKey("filekey");
         response.setUploadUrl("https://url123");
 
-        when(pnSafeStorageClient.createFile(Mockito.any())).thenReturn(response);
+        when(pnSafeStorageClient.createFile(Mockito.any(), Mockito.anyString())).thenReturn(response);
 
         //When
         List<PreLoadResponse> result = attachmentService.preloadDocuments(list);

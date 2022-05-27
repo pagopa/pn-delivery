@@ -244,6 +244,14 @@ paths:
         contenuto del file. Il tempo massimo che può intercorrere tra le due invocazioni è ```pst```.
       parameters:
         - $ref: '#/components/parameters/clientIdHeader'
+        - name: x-checksum
+          in: header
+          schema:
+            type: string
+        - name: x-checksum-value
+          in: header
+          schema:
+            type: string
       requestBody:
         content:
           application/json:

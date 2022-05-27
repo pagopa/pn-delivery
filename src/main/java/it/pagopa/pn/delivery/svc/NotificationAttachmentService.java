@@ -60,7 +60,7 @@ public class NotificationAttachmentService {
             fileCreationRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENTS);
             fileCreationRequest.setStatus(PRELOADED);
 
-            var resp = this.safeStorageClient.createFile(fileCreationRequest);
+            var resp = this.safeStorageClient.createFile(fileCreationRequest, req.getSha256());
             return  PreLoadResponse.builder()
                     .url(resp.getUploadUrl())
                     .key(resp.getKey())
