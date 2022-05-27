@@ -87,7 +87,7 @@ class PnSafeStorageClientImplTest {
         //When
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn( response );
-        FileCreationResponse result = safeStorageClient.createFile ( fileCreationRequest);
+        FileCreationResponse result = safeStorageClient.createFile ( fileCreationRequest, "base64Sha256");
 
         //Then
         Assertions.assertNotNull( result );
