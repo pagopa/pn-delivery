@@ -39,12 +39,12 @@ public class StatusService {
         
         if (notificationOptional.isPresent()) {
             InternalNotification notification = notificationOptional.get();
-            log.debug("Notification is present {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
+            log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
 
-            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(notification.getNotificationStatus(), notification);
+            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto.getNextStatus(), notification);
             nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
         } else {
-            throw new PnInternalException("Try to update status for non existing iun " + dto.getIun());
+            throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun());
         }
     }
 
@@ -71,7 +71,7 @@ public class StatusService {
         int recipientIndex = recipientsIds.indexOf( recipientId );
 
         return NotificationMetadataEntity.builder()
-                .notificationStatus( lastStatus != null ? lastStatus.toString() : null )
+                .notificationStatus( lastStatus.toString() )
                 .senderId( notification.getSenderPaId() )
                 .recipientId( recipientId )
                 .sentAt( notification.getSentAt().toInstant() )

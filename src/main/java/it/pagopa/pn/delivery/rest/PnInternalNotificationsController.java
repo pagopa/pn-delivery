@@ -47,7 +47,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
-        log.info("Starting Update status for iun {}", requestUpdateStatusDto.getIun());
+        log.info("Starting Update status for iun={} nextStatus={}", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus());
         statusService.updateStatus(requestUpdateStatusDto);
         return ResponseEntity.ok().build();
     }
