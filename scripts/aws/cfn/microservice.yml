@@ -224,16 +224,16 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
 
-  # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
-#  DeliveryMicroservicePublicIoAPI:
-#    Type: AWS::CloudFormation::Stack
-#    Properties:
-#      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
-#      Parameters:
-#        MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
-#        IntendedUsage: IO
-#        DnsName: !Ref IoApiDnsName
-#        ProjectName: !Ref ProjectName
-#        ServiceApiPath: 'delivery'
-#        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-#        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+# Expose PN-Delivery microservice public API with API-GW for IO Backend usage
+  DeliveryMicroservicePublicIoAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
+        IntendedUsage: IO
+        DnsName: !Ref IoApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
