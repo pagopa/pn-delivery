@@ -37,176 +37,177 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 @Slf4j
 public class NotificationDaoDynamo implements NotificationDao {
 
-    private final NotificationEntityDao entityDao;
-    private final NotificationMetadataEntityDao metadataEntityDao;
-    private final DtoToEntityNotificationMapper dto2entityMapper;
-    private final EntityToDtoNotificationMapper entity2DtoMapper;
-    private final PnDataVaultClientImpl pnDataVaultClient;
+	private final NotificationEntityDao entityDao;
+	private final NotificationMetadataEntityDao metadataEntityDao;
+	private final DtoToEntityNotificationMapper dto2entityMapper;
+	private final EntityToDtoNotificationMapper entity2DtoMapper;
+	private final PnDataVaultClientImpl pnDataVaultClient;
 
-    public NotificationDaoDynamo(
-            NotificationEntityDao entityDao,
-            NotificationMetadataEntityDao metadataEntityDao, DtoToEntityNotificationMapper dto2entityMapper,
-            EntityToDtoNotificationMapper entity2DtoMapper, PnDataVaultClientImpl pnDataVaultClient) {
-        this.entityDao = entityDao;
-        this.metadataEntityDao = metadataEntityDao;
-        this.dto2entityMapper = dto2entityMapper;
-        this.entity2DtoMapper = entity2DtoMapper;
-        this.pnDataVaultClient = pnDataVaultClient;
-    }
+	public NotificationDaoDynamo(
+			NotificationEntityDao entityDao,
+			NotificationMetadataEntityDao metadataEntityDao, DtoToEntityNotificationMapper dto2entityMapper,
+			EntityToDtoNotificationMapper entity2DtoMapper, PnDataVaultClientImpl pnDataVaultClient) {
+		this.entityDao = entityDao;
+		this.metadataEntityDao = metadataEntityDao;
+		this.dto2entityMapper = dto2entityMapper;
+		this.entity2DtoMapper = entity2DtoMapper;
+		this.pnDataVaultClient = pnDataVaultClient;
+	}
 
-    @Override
-    public void addNotification(InternalNotification internalNotification) throws IdConflictException {
+	@Override
+	public void addNotification(InternalNotification internalNotification) throws IdConflictException {
 
-        List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
-        List<NotificationRecipient> cleanedRecipientList = new ArrayList<>();
-        for ( NotificationRecipient recipient  : internalNotification.getRecipients()) {
-            String opaqueTaxId = pnDataVaultClient.ensureRecipientByExternalId( RecipientType.fromValue( recipient.getRecipientType().getValue() ), recipient.getTaxId() );
-            recipient.setTaxId( opaqueTaxId );
-            NotificationRecipientAddressesDto recipientAddressesDto = new NotificationRecipientAddressesDto()
-                    .denomination( recipient.getDenomination() )
-                    .digitalAddress( createDigitalDomicile( recipient.getDigitalDomicile() ) )
-                    .physicalAddress( createAnalogDomicile( recipient.getPhysicalAddress() ) );
-            recipientAddressesDtoList.add( recipientAddressesDto );
-            cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
-        }
+		List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
+		List<NotificationRecipient> cleanedRecipientList = new ArrayList<>();
+		for ( NotificationRecipient recipient  : internalNotification.getRecipients()) {
+			String opaqueTaxId = pnDataVaultClient.ensureRecipientByExternalId( RecipientType.fromValue( recipient.getRecipientType().getValue() ), recipient.getTaxId() );
+			recipient.setTaxId( opaqueTaxId );
+			NotificationRecipientAddressesDto recipientAddressesDto = new NotificationRecipientAddressesDto()
+					.denomination( recipient.getDenomination() )
+					.digitalAddress( createDigitalDomicile( recipient.getDigitalDomicile() ) )
+					.physicalAddress( createAnalogDomicile( recipient.getPhysicalAddress() ) );
+			recipientAddressesDtoList.add( recipientAddressesDto );
+			cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
+		}
 
-        pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
-        internalNotification.setRecipients( cleanedRecipientList );
+		pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
+		internalNotification.setRecipients( cleanedRecipientList );
 
-        NotificationEntity entity = dto2entityMapper.dto2Entity( internalNotification );
-        entityDao.putIfAbsent( entity );
-    }
+		NotificationEntity entity = dto2entityMapper.dto2Entity( internalNotification );
+		entityDao.putIfAbsent( entity );
+	}
 
-    private NotificationRecipient removeConfidantialInfo(NotificationRecipient recipient) {
-        return NotificationRecipient.builder()
-                .recipientType( recipient.getRecipientType() )
-                .taxId( recipient.getTaxId() )
-                .payment( recipient.getPayment() )
-                .build();
-    }
+	private NotificationRecipient removeConfidantialInfo(NotificationRecipient recipient) {
+		return NotificationRecipient.builder()
+				.recipientType( recipient.getRecipientType() )
+				.taxId( recipient.getTaxId() )
+				.payment( recipient.getPayment() )
+				.build();
+	}
 
-    private AnalogDomicile createAnalogDomicile(NotificationPhysicalAddress notificationPhysicalAddress ) {
-        return notificationPhysicalAddress == null ? null : new AnalogDomicile()
-                .address( notificationPhysicalAddress.getAddress() )
-                .addressDetails( notificationPhysicalAddress.getAddressDetails() )
-                .at( notificationPhysicalAddress.getAt() )
-                .cap( notificationPhysicalAddress.getZip() )
-                .municipality( notificationPhysicalAddress.getMunicipality() )
-                .province( notificationPhysicalAddress.getProvince() )
-                .state( notificationPhysicalAddress.getForeignState() );
-    }
+	private AnalogDomicile createAnalogDomicile(NotificationPhysicalAddress notificationPhysicalAddress ) {
+		return notificationPhysicalAddress == null ? null : new AnalogDomicile()
+				.address( notificationPhysicalAddress.getAddress() )
+				.addressDetails( notificationPhysicalAddress.getAddressDetails() )
+				.at( notificationPhysicalAddress.getAt() )
+				.cap( notificationPhysicalAddress.getZip() )
+				.municipality( notificationPhysicalAddress.getMunicipality() )
+				.province( notificationPhysicalAddress.getProvince() )
+				.state( notificationPhysicalAddress.getForeignState() );
+	}
 
-    private AddressDto createDigitalDomicile(NotificationDigitalAddress digitalAddress) {
-        return digitalAddress == null ? null : new AddressDto()
-                .value( digitalAddress.getAddress() );
-    }
+	private AddressDto createDigitalDomicile(NotificationDigitalAddress digitalAddress) {
+		return digitalAddress == null ? null : new AddressDto()
+				.value( digitalAddress.getAddress() );
+	}
 
-    @Override
-    public Optional<InternalNotification> getNotificationByIun(String iun) {
-        Key keyToSearch = Key.builder()
-                .partitionValue(iun)
-                .build();
-        Optional<InternalNotification> daoResult = entityDao.get( keyToSearch )
-                .map( entity2DtoMapper::entity2Dto );
+	@Override
+	public Optional<InternalNotification> getNotificationByIun(String iun) {
+		Key keyToSearch = Key.builder()
+				.partitionValue(iun)
+				.build();
+		Optional<InternalNotification> daoResult = entityDao.get( keyToSearch )
+				.map( entity2DtoMapper::entity2Dto );
 
-        if(daoResult.isPresent()) {
-            handleRecipients(daoResult);
-            
-            handleDocuments(daoResult);
-        }
-        return daoResult;
-    }
+		if(daoResult.isPresent()) {
+			handleRecipients(daoResult);
+
+			handleDocuments(daoResult);
+		}
+		return daoResult;
+	}
 
 	private void handleRecipients(Optional<InternalNotification> daoResult) {
 		List<NotificationRecipient> daoNotificationRecipientList = daoResult.get().getRecipients();
 
 		List<String> opaqueIds = daoNotificationRecipientList.stream()
-		        .map(NotificationRecipient::getTaxId)
-		        .collect(Collectors.toList());
+				.map(NotificationRecipient::getTaxId)
+				.collect(Collectors.toList());
 
 		List<BaseRecipientDto> baseRecipientDtoList =
-		        pnDataVaultClient.getRecipientDenominationByInternalId(
-		                opaqueIds
-		        );
+				pnDataVaultClient.getRecipientDenominationByInternalId(
+						opaqueIds
+						);
 
 		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.get().getIun() );
 		List<String> opaqueRecipientsIds = new ArrayList<>();
 
 		int recipientIndex = 0;
 		for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
-		    String opaqueTaxId = recipient.getTaxId();
-		    opaqueRecipientsIds.add( opaqueTaxId );
+			String opaqueTaxId = recipient.getTaxId();
+			opaqueRecipientsIds.add( opaqueTaxId );
 
-		    BaseRecipientDto baseRec =
-		            recipientIndex < baseRecipientDtoList.size()
-		                    ? baseRecipientDtoList.get( recipientIndex ) : null;
-		    NotificationRecipientAddressesDto clearDataAddresses =
-		            recipientIndex < notificationRecipientAddressesDtoList.size()
-		                    ? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
+			BaseRecipientDto baseRec =
+					recipientIndex < baseRecipientDtoList.size()
+					? baseRecipientDtoList.get( recipientIndex ) : null;
+			NotificationRecipientAddressesDto clearDataAddresses =
+					recipientIndex < notificationRecipientAddressesDtoList.size()
+					? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
 
-		    if ( baseRec != null) {
-		        recipient.setTaxId(baseRec.getTaxId());
-		        recipient.setDenomination(baseRec.getDenomination());
-		    }
-		    else {
-		        log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
-		    }
+			if ( baseRec != null) {
+				recipient.setTaxId(baseRec.getTaxId());
+				recipient.setDenomination(baseRec.getDenomination());
+			}
+			else {
+				log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
+			}
 
-		    if ( clearDataAddresses != null ) {
-		        recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
-		        recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
-		    } else {
-		        log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
-		    }
+			if ( clearDataAddresses != null ) {
+				recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
+				recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
+			} else {
+				log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
+			}
 
-		    recipientIndex += 1;
+			recipientIndex += 1;
 		}
 		daoResult.get().setRecipientIds( opaqueRecipientsIds );
 	}
 
 	private void handleDocuments(Optional<InternalNotification> daoResult) {
 		Integer docIdx = 0; 
-		for (NotificationDocument doc : daoResult.get().getDocuments()) {
-			doc.setDocIdx(docIdx.toString());
-			docIdx++;
-		}
-		
+		if(daoResult.get() != null && daoResult.get().getDocuments() != null ) {
+			for (NotificationDocument doc : daoResult.get().getDocuments()) {
+				doc.setDocIdx(docIdx.toString());
+				docIdx++;
+			}			
+		}		
 	}
 
-	
-    private NotificationDigitalAddress setNotificationDigitalAddress( AddressDto addressDto ) {
-        return addressDto == null ? null : NotificationDigitalAddress.builder()
-                .type( NotificationDigitalAddress.TypeEnum.PEC )
-                .address( addressDto.getValue() )
-                .build();
-    }
 
-    private NotificationPhysicalAddress setNotificationPhysicalAddress( AnalogDomicile analogDomicile ) {
-        return analogDomicile == null ? null : NotificationPhysicalAddress.builder()
-                .foreignState( analogDomicile.getState() )
-                .address( analogDomicile.getAddress() )
-                .addressDetails( analogDomicile.getAddressDetails() )
-                .at( analogDomicile.getAt() )
-                .zip( analogDomicile.getCap() )
-                .province( analogDomicile.getProvince() )
-                .municipality( analogDomicile.getMunicipality() )
-                .build();
-    }
+	private NotificationDigitalAddress setNotificationDigitalAddress( AddressDto addressDto ) {
+		return addressDto == null ? null : NotificationDigitalAddress.builder()
+				.type( NotificationDigitalAddress.TypeEnum.PEC )
+				.address( addressDto.getValue() )
+				.build();
+	}
 
-    @Override
-    public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
-        return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, partitionValue, size, lastEvaluatedKey );
-    }
+	private NotificationPhysicalAddress setNotificationPhysicalAddress( AnalogDomicile analogDomicile ) {
+		return analogDomicile == null ? null : NotificationPhysicalAddress.builder()
+				.foreignState( analogDomicile.getState() )
+				.address( analogDomicile.getAddress() )
+				.addressDetails( analogDomicile.getAddressDetails() )
+				.at( analogDomicile.getAt() )
+				.zip( analogDomicile.getCap() )
+				.province( analogDomicile.getProvince() )
+				.municipality( analogDomicile.getMunicipality() )
+				.build();
+	}
+
+	@Override
+	public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+		return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, partitionValue, size, lastEvaluatedKey );
+	}
 
 
-    Predicate<String> buildRegexpPredicate(String subjectRegExp) {
-        Predicate<String> matchSubject;
-        if (subjectRegExp != null) {
-            matchSubject = Objects::nonNull;
-            matchSubject = matchSubject.and(Pattern.compile("^" + subjectRegExp + "$").asMatchPredicate());
-        } else {
-            matchSubject = x -> true;
-        }
-        return matchSubject;
-    }
+	Predicate<String> buildRegexpPredicate(String subjectRegExp) {
+		Predicate<String> matchSubject;
+		if (subjectRegExp != null) {
+			matchSubject = Objects::nonNull;
+			matchSubject = matchSubject.and(Pattern.compile("^" + subjectRegExp + "$").asMatchPredicate());
+		} else {
+			matchSubject = x -> true;
+		}
+		return matchSubject;
+	}
 }
