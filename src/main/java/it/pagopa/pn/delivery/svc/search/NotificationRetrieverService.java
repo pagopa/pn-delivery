@@ -99,7 +99,7 @@ public class NotificationRetrieverService {
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult( searchResult.getNextPagesKey() != null )
-				.result( searchResult.getResult() );
+				.resultsPage( searchResult.getResultsPage() );
 		if ( searchResult.getNextPagesKey() != null ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
