@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -60,8 +61,20 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
-        log.info("Starting Update status for iun {}", requestUpdateStatusDto.getIun());
-        statusService.updateStatus(requestUpdateStatusDto);
+        String logMessage = String.format("Update status for iun %s", requestUpdateStatusDto.getIun());
+        log.info(logMessage);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        Map<String, String> logDetailsMap = Map.of(
+                "iun", requestUpdateStatusDto.getIun()
+        );
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_STATUS, "sentNotification", logDetailsMap);
+        try {
+            statusService.updateStatus(requestUpdateStatusDto);
+            logEvent.generateSuccess(logMessage, logDetailsMap).log();
+        } catch (PnInternalException e) {
+            logEvent.generateFailure(logMessage, logDetailsMap).log();
+        }
+
         return ResponseEntity.ok().build();
     }
 }

@@ -103,6 +103,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 put("xPagopaPnCxType", xPagopaPnCxType.toString());
                 put("xPagopaPnCxId", xPagopaPnCxId);
                 put("iun", iun);
+                put("docIdx", docIdx.toString());
             }
         };
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
@@ -120,7 +121,20 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        Map<String, String> logDetailsMap = new HashMap<>() {
+            {
+                put("xPagoPaPnUid", xPagopaPnUid);
+                put("xPagopaPnCxType", xPagopaPnCxType.toString());
+                put("xPagopaPnCxId", xPagopaPnCxId);
+                put("iun", iun);
+                put("attachMentName", attachmentName);
+                put("mandateId", mandateId);
+            }
+        };
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_VIEW, "Notification view event", logDetailsMap);
         NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
+        logEvent.generateSuccess("Notification view event", logDetailsMap).log();
         return ResponseEntity.ok(response);
     }
 
