@@ -61,7 +61,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
-        String logMessage = String.format("Update status for iun %s", requestUpdateStatusDto.getIun());
+        String logMessage = String.format("Update status for iun %s netxStatus %s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus());
         log.info(logMessage);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         Map<String, String> logDetailsMap = Map.of(
@@ -73,8 +73,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             logEvent.generateSuccess(logMessage, logDetailsMap).log();
         } catch (PnInternalException e) {
             logEvent.generateFailure(logMessage, logDetailsMap).log();
+            throw new PnInternalException(e.getMessage());
         }
-
         return ResponseEntity.ok().build();
     }
 }

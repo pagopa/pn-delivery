@@ -1,9 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
@@ -39,27 +36,15 @@ public class StatusService {
 
     public void updateStatus(RequestUpdateStatusDto dto) {
         Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun());
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        String iun = dto.getIun();
+
         if (notificationOptional.isPresent()) {
             InternalNotification notification = notificationOptional.get();
-            String logMessage = String.format("Notification is present %s for iun %s", notification.getPaProtocolNumber(), dto.getIun());
-            Map<String, String> logDetailsMap = Map.of(
-                    "iun", iun,
-                    "paProtocolNumber", notification.getPaProtocolNumber()
-            );
-            PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_STATUS, logMessage, logDetailsMap);
-            logEvent.generateSuccess().log();
+            log.debug("Notification is present {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
+
             List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(notification.getNotificationStatus(), notification);
             nextMetadataEntry.forEach(notificationMetadataEntityDao::put);
         } else {
-            String logMessage = String.format("Try to update status for non existing iun %s", iun);
-            Map<String, String> logDetailsMap = Map.of(
-                    "iun", iun
-            );
-            PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_STATUS, logMessage, logDetailsMap);
-            logEvent.generateFailure(logMessage).log();
-            throw new PnInternalException(logMessage);
+            throw new PnInternalException("Try to update status for non existing iun " + dto.getIun());
         }
     }
 
