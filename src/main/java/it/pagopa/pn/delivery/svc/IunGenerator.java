@@ -45,7 +45,7 @@ public class IunGenerator {
             while (i < segmentLength) {
                 int randomLimitedInt = randomNumberGenerator.nextInt(IUN_CHARS.length);
                 char prevChar = 0;
-                if (i > 0) {
+                if (buffer.length() > 0) {
                     prevChar = buffer.charAt( buffer.length() - 1 );
                 }
                 char currentChar = IUN_CHARS[randomLimitedInt];
