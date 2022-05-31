@@ -184,6 +184,10 @@ components:
                 Se presente e valorizzato __true__ il documento verrà spedito 
                 nelle comunicazioni cartacee. In MVP questo flag sarà attivabile 
                 solo su un documento.
+            docIdx:
+              type: string
+              description: >- 
+                Indice del documento partendo da 0.
 
     NotificationAttachmentDigests:
       description: Codici per la verifica del corretto caricamento di un allegato
