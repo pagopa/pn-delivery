@@ -12,7 +12,7 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 public class ResultPaginationDto<R,K> {
-    private List<R> result;
+    private List<R> resultsPage;
     private boolean moreResult;
     private List<K> nextPagesKey;
 }

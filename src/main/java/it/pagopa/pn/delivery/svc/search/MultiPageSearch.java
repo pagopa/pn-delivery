@@ -82,18 +82,18 @@ public class MultiPageSearch {
 
             // inserisco i risultati della query ad una singola partizione nei risultati globali di ricerca
             if( numPages == 0 ) {
-                List<NotificationSearchRow> oldResult = globalResult.getResult();
+                List<NotificationSearchRow> oldResult = globalResult.getResultsPage();
                 if (oldResult != null ) {
-                    oldResult.addAll( oneQueryResult.getResult() );
+                    oldResult.addAll( oneQueryResult.getResultsPage() );
                 } else {
-                    globalResult.setResult( oneQueryResult.getResult() );
+                    globalResult.setResultsPage( oneQueryResult.getResultsPage() );
                 }
 
             }
 
             // aggiorno il numero di elementi ancora restituibili al FE in base ai risultati ottenuti
             // dalla singola query sulla partizione
-            int retrievedRowsNum = oneQueryResult.getResult().size();
+            int retrievedRowsNum = oneQueryResult.getResultsPage().size();
             missingLinesOnPage -= retrievedRowsNum;
 
             // se non posso restituire altri elementi al FE allora pagina dei risultati è completa,
