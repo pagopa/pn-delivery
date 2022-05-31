@@ -21,176 +21,175 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @WebFluxTest(PnNotificationInputController.class)
 class PnNotificationInputControllerTest {
 
-	private static final String PA_ID = "paId";
-	private static final String IUN = "IUN";
-	private static final String PA_NOTIFICATION_ID = "paNotificationId";
-	private static final String SUBJECT = "subject";
-	public static final String DOCUMENT_KEY = "doc_1";
-	public static final Integer MAX_NUMBER_REQUESTS = 1;
-	private static final String SECRET = "secret";
-	private static final String METHOD = "PUT";
-	private static final String URL = "url";
+    private static final String PA_ID = "paId";
+    private static final String IUN = "IUN";
+    private static final String PA_NOTIFICATION_ID = "paNotificationId";
+    private static final String SUBJECT = "subject";
+    public static final String DOCUMENT_KEY = "doc_1";
+    public static final Integer MAX_NUMBER_REQUESTS = 1;
+    private static final String SECRET = "secret";
+    private static final String METHOD = "PUT";
+    private static final String URL = "url";
 
-	@Autowired
+    @Autowired
     WebTestClient webTestClient;
 
-	@MockBean
-	ModelMapperFactory modelMapperFactory;
-	
-	@MockBean
-	private NotificationReceiverService deliveryService;
+    @MockBean
+    ModelMapperFactory modelMapperFactory;
 
-	@MockBean
-	private NotificationAttachmentService attachmentService;
+    @MockBean
+    private NotificationReceiverService deliveryService;
 
-	@MockBean
-	private PnDeliveryConfigs cfg;
+    @MockBean
+    private NotificationAttachmentService attachmentService;
 
-	@Test
-	void postSuccess() {
-		// Given
-		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
-				.group( "group" )
-				.senderDenomination( "sender_denomination" )
-				.senderTaxId( "sender_tax_id" )
-				.paProtocolNumber( "protocol_number" )
-				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
-				.recipients( Collections.singletonList( NotificationRecipient.builder()
-								.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-								.taxId( "recipient_tax_id" )
-								.denomination( "recipient_denomination" )
-								.digitalDomicile( NotificationDigitalAddress.builder()
-										.type( NotificationDigitalAddress.TypeEnum.PEC )
-										.address( "address" )
-										.build() )
-								.physicalAddress( NotificationPhysicalAddress.builder()
-										.zip( "zip" )
-										.municipality( "mnicipality" )
-										.address( "address" )
-										.build() )
-								.payment( NotificationPaymentInfo.builder()
-										.creditorTaxId( "creditor_tax_id" )
-										.pagoPaForm( NotificationPaymentAttachment.builder()
-												.digests( NotificationAttachmentDigests.builder()
-														.sha256( "sha_256" )
-														.build() )
-												.contentType( "application/pdf" )
-												.ref( NotificationAttachmentBodyRef.builder()
-														.key( "key" )
-														.versionToken( "version_token" )
-														.build() )
-												.build() )
-										.build() )
-						.build() ) )
-				.documents( Collections.singletonList( NotificationDocument.builder()
-								.digests( NotificationAttachmentDigests.builder()
-										.sha256( "sha_256" )
-										.build() )
-								.contentType( "application/pdf" )
-								.ref( NotificationAttachmentBodyRef.builder()
-										.key( "key" )
-										.versionToken( "version_token" )
-										.build() )
-						.build() ) )
-				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
-				.subject( "subject" )
-				.build();
+    @MockBean
+    private PnDeliveryConfigs cfg;
 
-		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-						.notificationRequestId( EncodingUtils.base64Encoding(IUN) ).build();
-				
-		// When
-		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
-				.thenReturn( savedNotification );
+    @Test
+    void postSuccess() {
+        // Given
+        NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
+                .group("group")
+                .senderDenomination("sender_denomination")
+                .senderTaxId("sender_tax_id")
+                .paProtocolNumber("protocol_number")
+                .notificationFeePolicy(NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE)
+                .recipients(Collections.singletonList(NotificationRecipient.builder()
+                        .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+                        .taxId("recipient_tax_id")
+                        .denomination("recipient_denomination")
+                        .digitalDomicile(NotificationDigitalAddress.builder()
+                                .type(NotificationDigitalAddress.TypeEnum.PEC)
+                                .address("address")
+                                .build())
+                        .physicalAddress(NotificationPhysicalAddress.builder()
+                                .zip("zip")
+                                .municipality("mnicipality")
+                                .address("address")
+                                .build())
+                        .payment(NotificationPaymentInfo.builder()
+                                .creditorTaxId("creditor_tax_id")
+                                .pagoPaForm(NotificationPaymentAttachment.builder()
+                                        .digests(NotificationAttachmentDigests.builder()
+                                                .sha256("sha_256")
+                                                .build())
+                                        .contentType("application/pdf")
+                                        .ref(NotificationAttachmentBodyRef.builder()
+                                                .key("key")
+                                                .versionToken("version_token")
+                                                .build())
+                                        .build())
+                                .build())
+                        .build()))
+                .documents(Collections.singletonList(NotificationDocument.builder()
+                        .digests(NotificationAttachmentDigests.builder()
+                                .sha256("sha_256")
+                                .build())
+                        .contentType("application/pdf")
+                        .ref(NotificationAttachmentBodyRef.builder()
+                                .key("key")
+                                .versionToken("version_token")
+                                .build())
+                        .build()))
+                .physicalCommunicationType(NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .subject("subject")
+                .build();
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) )
-				.thenReturn( mapper );
-		
-		// Then
-		webTestClient.post()
+        NewNotificationResponse savedNotification = NewNotificationResponse.builder()
+                .notificationRequestId(EncodingUtils.base64Encoding(IUN)).build();
+
+        // When
+        Map<String, String> logDetailsMap = new HashMap<>();
+        Mockito.when(deliveryService.receiveNotification(Mockito.anyString(), Mockito.any(NewNotificationRequest.class), logDetailsMap))
+                .thenReturn(savedNotification);
+
+        ModelMapper mapper = new ModelMapper();
+        mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
+        Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class))
+                .thenReturn(mapper);
+
+        // Then
+        webTestClient.post()
                 .uri("/delivery/requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(notificationRequest), NewNotificationRequest.class)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
-				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
-				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
                 .exchange()
                 .expectStatus().isOk();
-		
-		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
-	}
 
-	@Test
-	void postPresignedUploadSuccess() {
-		// Given
-		List<PreLoadRequest> requests = new ArrayList<>();
-		requests.add( PreLoadRequest.builder()
-				.preloadIdx( DOCUMENT_KEY )
-				.build());
-		List<PreLoadResponse> responses = new ArrayList<>();
-		responses.add( PreLoadResponse.builder()
-				.key( DOCUMENT_KEY )
-				.secret( SECRET )
-				.httpMethod( PreLoadResponse.HttpMethodEnum.PUT )
-				.url( URL )
-				.build());
+        Mockito.verify(deliveryService).receiveNotification(Mockito.anyString(), Mockito.any(NewNotificationRequest.class), logDetailsMap);
+    }
 
+    @Test
+    void postPresignedUploadSuccess() {
+        // Given
+        List<PreLoadRequest> requests = new ArrayList<>();
+        requests.add(PreLoadRequest.builder()
+                .preloadIdx(DOCUMENT_KEY)
+                .build());
+        List<PreLoadResponse> responses = new ArrayList<>();
+        responses.add(PreLoadResponse.builder()
+                .key(DOCUMENT_KEY)
+                .secret(SECRET)
+                .httpMethod(PreLoadResponse.HttpMethodEnum.PUT)
+                .url(URL)
+                .build());
+        Map<String, String> logDetailsMap = new HashMap<>();
 
-		// When
-		Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn( MAX_NUMBER_REQUESTS );
-		Mockito.when(attachmentService.preloadDocuments( Mockito.anyList() ))
-				.thenReturn( responses );
+        // When
+        Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn(MAX_NUMBER_REQUESTS);
+        Mockito.when(attachmentService.preloadDocuments(Mockito.anyList(), logDetailsMap))
+                .thenReturn(responses);
 
-		// Then
-		webTestClient.post()
-				.uri("/delivery/attachments/preload")
-				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(requests), PreLoadRequest.class)
-				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
-				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
-				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
-				.exchange()
-				.expectStatus().isOk();
+        // Then
+        webTestClient.post()
+                .uri("/delivery/attachments/preload")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(requests), PreLoadRequest.class)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+                .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd")
+                .exchange()
+                .expectStatus().isOk();
 
-		Mockito.verify( attachmentService ).preloadDocuments( requests );
-	}
+        Mockito.verify(attachmentService).preloadDocuments(requests, logDetailsMap);
+    }
 
-	@Test
-	void postPresignedUploadFailure() {
-		//GIven
-		List<PreloadRequest> requests = new ArrayList<>();
-		requests.add( PreloadRequest.builder()
-				.key( DOCUMENT_KEY )
-				.build());
-		requests.add( PreloadRequest.builder()
-				.key( DOCUMENT_KEY )
-				.build());
+    @Test
+    void postPresignedUploadFailure() {
+        //GIven
+        List<PreloadRequest> requests = new ArrayList<>();
+        requests.add(PreloadRequest.builder()
+                .key(DOCUMENT_KEY)
+                .build());
+        requests.add(PreloadRequest.builder()
+                .key(DOCUMENT_KEY)
+                .build());
 
-		Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn( MAX_NUMBER_REQUESTS );
+        Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn(MAX_NUMBER_REQUESTS);
 
-		// Then
-		webTestClient.post()
-				.uri("/delivery/attachments/preload")
-				.contentType(MediaType.APPLICATION_JSON)
-				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(requests), PreloadRequest.class)
-				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
-				.exchange()
-				.expectStatus().isBadRequest();
+        // Then
+        webTestClient.post()
+                .uri("/delivery/attachments/preload")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(requests), PreloadRequest.class)
+                .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+                .exchange()
+                .expectStatus().isBadRequest();
 
-	}
+    }
 
 }

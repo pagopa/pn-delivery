@@ -1,5 +1,8 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -13,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -32,17 +37,25 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<SentNotification> getSentNotificationPrivate(String iun) {
-        InternalNotification notification = retrieveSvc.getNotificationInformation( iun, false );
-        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, SentNotification.class );
+        InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false);
+        ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, SentNotification.class);
         SentNotification sentNotification = mapper.map(notification, SentNotification.class);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        Map<String, String> logDetailsMap = Map.of(
+                "iun", iun,
+                "senderDenomination", sentNotification.getSenderDenomination(),
+                "senderPaId", sentNotification.getSenderPaId(),
+                "senderTaxId", sentNotification.getSenderTaxId()
+        );
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sentNotification", logDetailsMap);
 
         int recIdx = 0;
-        for(NotificationRecipient rec: sentNotification.getRecipients()) {
-            rec.setTaxId( notification.getRecipientIds().get( recIdx ));
+        for (NotificationRecipient rec : sentNotification.getRecipients()) {
+            rec.setTaxId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }
-
-        return ResponseEntity.ok( sentNotification );
+        logEvent.generateSuccess("", logDetailsMap).log();
+        return ResponseEntity.ok(sentNotification);
     }
 
     @Override

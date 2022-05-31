@@ -7,6 +7,10 @@ import java.util.*;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
@@ -50,26 +54,35 @@ public class NotificationReceiverService {
 	/**
 	 * Store metadata and documents about a new notification request
 	 *
-	 * @param xPagopaPnCxId Public Administration id
+	 * @param xPagopaPnCxId          Public Administration id
 	 * @param newNotificationRequest Public Administration notification request that PN have to forward to
-	 *                     one or more recipient
+	 *                               one or more recipient
 	 * @return A model with the generated IUN and the paNotificationId sent by the
-	 *         Public Administration
+	 * Public Administration
 	 */
-	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest) {
+	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, Map<String, String> logDetailsMap) {
+		PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+		PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "New notification storing", logDetailsMap);
 		log.info("New notification storing START");
 		log.debug("New notification storing START for={}", newNotificationRequest);
-		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
-		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
+		NewNotificationResponse response = null;
+		try {
+			validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
+			log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber());
 
-		ModelMapper modelMapper = modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class );
-		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
+			ModelMapper modelMapper = modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class);
+			InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
+			internalNotification.setSenderPaId(xPagopaPnCxId);
 
-		internalNotification.setSenderPaId( xPagopaPnCxId );
+			String iun = doSaveWithRethrow(internalNotification);
 
-		String iun = doSaveWithRethrow(internalNotification);
+			response = generateResponse(internalNotification, iun);
 
-		NewNotificationResponse response = generateResponse(internalNotification, iun);
+			logDetailsMap.put("iun", iun);
+			logEvent.generateSuccess("Response generated", logDetailsMap).log();
+		} catch (PnValidationException | PnInternalException exc) {
+			logEvent.generateFailure(exc.getMessage(), logDetailsMap).log();
+		}
 
 		log.info("New notification storing END {}", response);
 		return response;
@@ -77,55 +90,54 @@ public class NotificationReceiverService {
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
 		String notificationId = EncodingUtils.base64Encoding(iun);
-		
+
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
-				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
+				.paProtocolNumber(internalNotification.getPaProtocolNumber())
 				.build();
 	}
 
-	private String doSaveWithRethrow( InternalNotification internalNotification) {
-		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
-				internalNotification.getPaProtocolNumber() );
+	private String doSaveWithRethrow(InternalNotification internalNotification) {
+		log.debug("tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
+				internalNotification.getPaProtocolNumber());
 
 		String iun = null;
 		try {
 			Instant createdAt = clock.instant();
-			iun = iunGenerator.generatePredictedIun( createdAt );
+			iun = iunGenerator.generatePredictedIun(createdAt);
 			doSave(internalNotification, createdAt, iun);
-		}
-		catch ( IdConflictException exc ) {
-			log.error("Duplicated iun={}", iun );
-			throw new PnInternalException( "Duplicated iun=" + iun, exc );
+		} catch (IdConflictException exc) {
+			log.error("Duplicated iun={}", iun);
+			throw new PnInternalException("Duplicated iun=" + iun, exc);
 		}
 
 		return iun;
 	}
-	
+
 
 	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws IdConflictException {
 		String paId = internalNotification.getSenderPaId();
 
 		log.debug("Generate tokens for iun={}", iun);
 		// generazione token per ogni destinatario
-		Map<NotificationRecipient,String> tokens = generateToken( internalNotification.getRecipients(), iun );
+		Map<NotificationRecipient, String> tokens = generateToken(internalNotification.getRecipients(), iun);
 
-		internalNotification.iun( iun );
-		internalNotification.sentAt( Date.from(createdAt) );
-		internalNotification.setTokens( tokens );
+		internalNotification.iun(iun);
+		internalNotification.sentAt(Date.from(createdAt));
+		internalNotification.setTokens(tokens);
 
 
 		// - Will be delayed from the receiver
 		log.debug("Send \"new notification\" event for iun={}", iun);
-		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
+		newNotificationEventProducer.sendNewNotificationEvent(paId, iun, createdAt);
 
 		log.info("Store the notification metadata for iun={}", iun);
 		notificationDao.addNotification(internalNotification);
 	}
 
 
-	private Map<NotificationRecipient,String> generateToken(List<NotificationRecipient> recipientList, String iun) {
-		Map<NotificationRecipient,String> tokens = new HashMap<>();
+	private Map<NotificationRecipient, String> generateToken(List<NotificationRecipient> recipientList, String iun) {
+		Map<NotificationRecipient, String> tokens = new HashMap<>();
 		for (NotificationRecipient recipient : recipientList) {
 			tokens.put(recipient, generateToken(iun, recipient.getTaxId()));
 		}
