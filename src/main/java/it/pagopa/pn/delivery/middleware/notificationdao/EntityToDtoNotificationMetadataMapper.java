@@ -6,7 +6,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.Date;
 
 
@@ -20,7 +19,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 .recipients( entity.getRecipientIds() )
                 .sentAt( Date.from(entity.getSentAt() ))
                 .subject( entity.getTableRow().get( "subject" ) )
-                .paProtocolNumber( entity.getTableRow().get("paNotificationId") )
+                .paProtocolNumber( entity.getTableRow().get("paProtocolNumber") )
                 //.group( entity.getNotificationGroup() )
                 .notificationStatus( NotificationStatus.valueOf( entity.getNotificationStatus() ))
                 .build();

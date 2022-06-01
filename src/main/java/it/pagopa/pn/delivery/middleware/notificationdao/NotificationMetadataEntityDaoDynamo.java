@@ -95,7 +95,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         // imposto i risultati della query mappandoli da NotificationMetadata a NotificationSearchRow
         ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,PnLastEvaluatedKey> resultPaginationDtoBuilder = ResultPaginationDto.builder();
-        resultPaginationDtoBuilder.result( fromNotificationMetadataToNotificationSearchRow( page.items() )).moreResult( false );
+        resultPaginationDtoBuilder.resultsPage( fromNotificationMetadataToNotificationSearchRow( page.items() )).moreResult( false );
 
         // imposto la LEK in base al risultato della query
         if ( page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty()) {
@@ -202,8 +202,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 }
                 entity.setRecipientIds( recipientTaxIds );
             }
-        } else {
-            log.info( "Empty list of opaque tax ids" );
         }
         List<NotificationSearchRow> result = new ArrayList<>();
         metadataEntityList.forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );

@@ -79,7 +79,7 @@ class MultiPageSearchTest {
         public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
 
             return ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
-                    .result(Collections.singletonList( NotificationSearchRow.builder()
+                    .resultsPage(Collections.singletonList( NotificationSearchRow.builder()
                             .iun( "IUN" )
                             //.group( "GRP" )
                             .paProtocolNumber( "paProtocolNumber" )

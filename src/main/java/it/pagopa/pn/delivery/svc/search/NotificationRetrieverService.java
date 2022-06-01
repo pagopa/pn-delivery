@@ -1,9 +1,6 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -23,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolation;
@@ -99,7 +94,7 @@ public class NotificationRetrieverService {
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult( searchResult.getNextPagesKey() != null )
-				.result( searchResult.getResult() );
+				.resultsPage( searchResult.getResultsPage() );
 		if ( searchResult.getNextPagesKey() != null ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
@@ -281,9 +276,9 @@ public class NotificationRetrieverService {
 		String iun = notification.getIun();
 
 		int recipientIndex = -1;
-		for( int idx = 0 ; idx < notification.getRecipients().size(); idx++) {
-			NotificationRecipient nr = notification.getRecipients().get( idx );
-			if( userId.equals( nr.getTaxId() ) ) {
+		for( int idx = 0 ; idx < notification.getRecipientIds().size(); idx++) {
+			String recipientId = notification.getRecipientIds().get( idx );
+			if( userId.equals( recipientId ) ) {
 				recipientIndex = idx;
 			}
 		}
