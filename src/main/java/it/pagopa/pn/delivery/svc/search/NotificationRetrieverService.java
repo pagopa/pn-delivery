@@ -256,19 +256,20 @@ public class NotificationRetrieverService {
 
 		//ModelMapper mapperStatus = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class );
 
-		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
+		//ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
 		ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class );
+		ModelMapper mapperTimelineDetail = modelMapperFactory.createModelMapper(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementDetails.class, TimelineElementDetails.class);
 
-		FullSentNotification resultFullSent = notification
-				.timeline( timelineList.stream().map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) ).collect(Collectors.toList())  )
-				.notificationStatusHistory( statusHistory.stream()
+		List<TimelineElement> timelineElements = timelineList.stream().map( timelineElement -> {mapperTimeline.map(timelineElement, TimelineElement.class ); mapperTimelineDetail.map( timelineElement.getDetails(), TimelineElementDetails.class ); return timelineElement;} ).collect(Collectors.toList());
+
+		notification.setTimeline( timelineElements );
+		notification.setNotificationStatusHistory( statusHistory.stream()
 						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
-						.collect(Collectors.toList())
-				)
-				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
+						.collect(Collectors.toList()) );
+				notification.setNotificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ) );
 
-		return mapperNotification.map( resultFullSent, InternalNotification.class );
+		return notification;
 	}
 
 
