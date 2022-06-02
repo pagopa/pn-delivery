@@ -18,7 +18,9 @@ import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -254,14 +256,20 @@ public class NotificationRetrieverService {
 
 		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
 
-		//ModelMapper mapperStatus = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class );
 
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
-		ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class );
+		ModelMapper mapperTimeline = new ModelMapper();
+		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
+				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
+		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		Converter<OffsetDateTime,Date> fromOffestToDate = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
+		mapperTimeline.addConverter( fromOffestToDate, OffsetDateTime.class, Date.class );
 
 		FullSentNotification resultFullSent = notification
-				.timeline( timelineList.stream().map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) ).collect(Collectors.toList())  )
+				.timeline( timelineList.stream()
+						.map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) )
+						.collect(Collectors.toList())  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
 						.collect(Collectors.toList())
@@ -269,6 +277,10 @@ public class NotificationRetrieverService {
 				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 
 		return mapperNotification.map( resultFullSent, InternalNotification.class );
+	}
+
+	private Date fromOffsetToDate(OffsetDateTime source) {
+		return Date.from( source.toInstant() );
 	}
 
 
