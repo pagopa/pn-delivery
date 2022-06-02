@@ -44,15 +44,22 @@ public class IunGenerator {
             int i = 0;
             while (i < segmentLength) {
                 int randomLimitedInt = randomNumberGenerator.nextInt(IUN_CHARS.length);
-                char prevChar = 0;
-                if (buffer.length() > 0) {
-                    prevChar = buffer.charAt( buffer.length() - 1 );
-                }
                 char currentChar = IUN_CHARS[randomLimitedInt];
-                if ( isValidPair(currentChar, prevChar) ) {
+
+                if (buffer.length() > 0) {
+                    char prevChar = buffer.charAt( buffer.length() - 1 );
+                    if ( isValidPair(currentChar, prevChar) ) {
+                        buffer.append( currentChar );
+                        i++;
+                    }
+                    // else ignore generated character
+                }
+                else {
                     buffer.append( currentChar );
                     i++;
                 }
+
+
             }
         }
         return buffer.toString();
