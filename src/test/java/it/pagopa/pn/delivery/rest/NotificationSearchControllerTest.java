@@ -78,7 +78,7 @@ class NotificationSearchControllerTest {
 
         ResultPaginationDto<NotificationSearchRow,String> result =
         ResultPaginationDto.<NotificationSearchRow,String>builder()
-                .result(Collections.singletonList(searchRow))
+                .resultsPage(Collections.singletonList(searchRow))
                 .moreResult(false)
                 .nextPagesKey(Collections.singletonList( null ))
                 .build();
@@ -141,7 +141,7 @@ class NotificationSearchControllerTest {
 
         ResultPaginationDto<NotificationSearchRow,String> result =
                 ResultPaginationDto.<NotificationSearchRow,String>builder()
-                        .result(Collections.singletonList(searchRow))
+                        .resultsPage(Collections.singletonList(searchRow))
                         .moreResult(false)
                         .nextPagesKey(Collections.singletonList( null ))
                         .build();
@@ -200,7 +200,7 @@ class NotificationSearchControllerTest {
 
         ResultPaginationDto<NotificationSearchRow,String> result =
                 ResultPaginationDto.<NotificationSearchRow,String>builder()
-                        .result(Collections.singletonList(searchRow))
+                        .resultsPage(Collections.singletonList(searchRow))
                         .moreResult(false)
                         .nextPagesKey(null).build();
         

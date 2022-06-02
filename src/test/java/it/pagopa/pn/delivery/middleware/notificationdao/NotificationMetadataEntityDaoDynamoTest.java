@@ -117,7 +117,7 @@ class NotificationMetadataEntityDaoDynamoTest {
 
             return ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
                     .moreResult( false )
-                    .result( Collections.singletonList( entityToDto.entity2Dto( getResult ) ) )
+                    .resultsPage( Collections.singletonList( entityToDto.entity2Dto( getResult ) ) )
                     .build();
         }
     }

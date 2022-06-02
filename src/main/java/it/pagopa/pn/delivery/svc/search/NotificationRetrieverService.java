@@ -1,9 +1,6 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -21,10 +18,10 @@ import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolation;
@@ -99,7 +96,7 @@ public class NotificationRetrieverService {
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult( searchResult.getNextPagesKey() != null )
-				.result( searchResult.getResult() );
+				.resultsPage( searchResult.getResultsPage() );
 		if ( searchResult.getNextPagesKey() != null ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
@@ -259,14 +256,20 @@ public class NotificationRetrieverService {
 
 		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
 
-		//ModelMapper mapperStatus = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class );
 
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
-		ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class );
+		ModelMapper mapperTimeline = new ModelMapper();
+		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
+				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
+		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		Converter<OffsetDateTime,Date> fromOffestToDate = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
+		mapperTimeline.addConverter( fromOffestToDate, OffsetDateTime.class, Date.class );
 
 		FullSentNotification resultFullSent = notification
-				.timeline( timelineList.stream().map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) ).collect(Collectors.toList())  )
+				.timeline( timelineList.stream()
+						.map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) )
+						.collect(Collectors.toList())  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
 						.collect(Collectors.toList())
@@ -276,14 +279,18 @@ public class NotificationRetrieverService {
 		return mapperNotification.map( resultFullSent, InternalNotification.class );
 	}
 
+	private Date fromOffsetToDate(OffsetDateTime source) {
+		return Date.from( source.toInstant() );
+	}
+
 
 	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
 		String iun = notification.getIun();
 
 		int recipientIndex = -1;
-		for( int idx = 0 ; idx < notification.getRecipients().size(); idx++) {
-			NotificationRecipient nr = notification.getRecipients().get( idx );
-			if( userId.equals( nr.getTaxId() ) ) {
+		for( int idx = 0 ; idx < notification.getRecipientIds().size(); idx++) {
+			String recipientId = notification.getRecipientIds().get( idx );
+			if( userId.equals( recipientId ) ) {
 				recipientIndex = idx;
 			}
 		}
