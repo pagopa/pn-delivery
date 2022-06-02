@@ -92,6 +92,7 @@ public class NotificationReceiverService {
 		try {
 			Instant createdAt = clock.instant();
 			iun = iunGenerator.generatePredictedIun( createdAt );
+			log.debug( "Generated iun={}", iun );
 			doSave(internalNotification, createdAt, iun);
 		}
 		catch ( IdConflictException exc ) {
