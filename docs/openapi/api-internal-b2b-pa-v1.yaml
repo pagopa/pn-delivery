@@ -337,7 +337,7 @@ paths:
             application/json:                                                       # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
-  '/delivery/{iun}/price/{paTaxId}/{noticeNumber}':                                 # ONLY EXTERNAL
+  '/delivery/price/{paTaxId}/{noticeNumber}':                                       # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: get                                                              # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
@@ -346,8 +346,7 @@ paths:
       tags:                                                                         # ONLY EXTERNAL
         - NotificationPrice                                                         # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
-        - name: paTaxId                                                             # ONLY EXTERNAL
+       - name: paTaxId                                                              # ONLY EXTERNAL
           description: Payment PA fiscal code                                       # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
