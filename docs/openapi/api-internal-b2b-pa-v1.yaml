@@ -339,14 +339,17 @@ paths:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeNumber}':                                       # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
-      operationId: get                                                              # ONLY EXTERNAL
+      operationId: getNotificationPrice                                              # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
         Used to retrieve the notification price charged and effective date          # ONLY EXTERNAL
+        from PagoPa identifiers paTaxId and noticeNumber.                           # ONLY EXTERNAL
+        Called from PA to turn notification cost to the receiver during the         # ONLY EXTERNAL
+        pagoPa payment verification phase.                                          # ONLY EXTERNAL
       tags:                                                                         # ONLY EXTERNAL
         - NotificationPrice                                                         # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
-       - name: paTaxId                                                              # ONLY EXTERNAL
+        - name: paTaxId                                                              # ONLY EXTERNAL
           description: Payment PA fiscal code                                       # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
