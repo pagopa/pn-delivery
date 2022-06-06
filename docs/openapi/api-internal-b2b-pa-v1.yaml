@@ -94,6 +94,9 @@ tags:
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
       di notifica inviate e delle notifiche accettate.
+  - name: NotificationCost
+    description: >-
+      Invocazioni per determinare il costo della notifica per il destinario.
 
 paths:
     ###########################################################################################
@@ -334,6 +337,53 @@ paths:
             application/json:                                                       # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
+  '/delivery/{iun}/cost/{paTaxId}/{noticeNumber}':                                  # ONLY EXTERNAL
+    get:                                                                            # ONLY EXTERNAL
+      operationId: get                                                              # ONLY EXTERNAL
+      summary: Retrieve notification cost and effective date                        # ONLY EXTERNAL
+      description:  Used to retrieve the notification cost charged and effective date           # ONLY EXTERNAL
+      tags:
+        - NotificationCost
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            type: string
+            maxLength: 11
+            minLength: 11
+            pattern: '^\d+$'
+        - name: noticeNumber
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            type: string
+            maxLength: 18
+            minLength: 18
+            pattern: '^\d+$'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationCostResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
 components:
   
   parameters:
@@ -480,7 +530,21 @@ components:
             di notifica.
           example: '8F7E/9A3B/1234/AB87'
           type: string
-    
+    NotificationCostResponse:
+      title: Notification Cost Response
+      description: >-
+        Notification cost and effective date
+      type: object
+      properties:
+        amount:
+          description: amount in euro cents
+          example: 1220
+          type: string
+        effectiveDate:
+          description: notification effective date
+          type: String
+          format: date-time
+          example: 2017-07-21T17:32:28Z
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
