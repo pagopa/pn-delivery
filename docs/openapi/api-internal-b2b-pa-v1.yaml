@@ -346,6 +346,7 @@ paths:
       tags:                                                                         # ONLY EXTERNAL
         - NotificationPrice                                                         # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - name: paTaxId                                                             # ONLY EXTERNAL
           description: Payment PA fiscal code                                       # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
@@ -378,13 +379,13 @@ paths:
           content:                                                                  # ONLY EXTERNAL
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
-                $ref: 'pn-errors.yaml#/components/schemas/Problem'                  # ONLY EXTERNAL
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       # ONLY EXTERNAL
         '500':                                                                      # ONLY EXTERNAL
           description: Internal Server Error                                        # ONLY EXTERNAL
           content:                                                                  # ONLY EXTERNAL
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
-                $ref: 'pn-errors.yaml#/components/schemas/Problem'                  # ONLY EXTERNAL
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'                  # ONLY EXTERNAL
 components:
   
   parameters:
@@ -532,9 +533,9 @@ components:
           example: '8F7E/9A3B/1234/AB87'
           type: string
     NotificationPriceResponse:
-      title: Notification Cost Response
+      title: Notification price Response
       description: >-
-        Notification cost and effective date
+        Notification price and effective date
       type: object
       properties:
         iun:
@@ -547,7 +548,7 @@ components:
           type: string
         effectiveDate:
           description: notification effective date
-          type: String
+          type: string
           format: date-time
           example: 2017-07-21T17:32:28Z
 
