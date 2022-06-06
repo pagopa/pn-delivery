@@ -101,7 +101,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="attachment_path" elementType="Argument">
             <stringProp name="Argument.name">attachment_path</stringProp>
-            <stringProp name="Argument.value">${configPath}../inputs</stringProp>
+            <stringProp name="Argument.value">${configPath}../inputs/attachments</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -167,19 +167,13 @@
             <stringProp name="RandomTimer.range">${timer_offset_ms}</stringProp>
           </GaussianRandomTimer>
           <hashTree/>
-          <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
-            <boolProp name="displayJMeterProperties">false</boolProp>
-            <boolProp name="displayJMeterVariables">true</boolProp>
-            <boolProp name="displaySystemProperties">false</boolProp>
-          </DebugSampler>
-          <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Post /delivery/attachments/preload" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">[{&quot;preloadIdx&quot;:&quot;doc_1&quot;,&quot;contentType&quot;:&quot;application/pdf&quot;}]</stringProp>
+                  <stringProp name="Argument.value">[{&quot;preloadIdx&quot;:&quot;doc_1&quot;,&quot;contentType&quot;:&quot;application/pdf&quot;,&quot;sha256&quot;: &quot;${attachment_sha256}&quot;}]</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -245,6 +239,14 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="httpMethod JSON Extractor" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">preload_httpMethod</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$[0].httpMethod</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+              <stringProp name="Scope.variable"></stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues">NA</stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
             <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="url JSON Extractor" enabled="true">
               <stringProp name="JSONPostProcessor.referenceNames">preload_url</stringProp>
               <stringProp name="JSONPostProcessor.jsonPathExprs">$[0].url</stringProp>
@@ -262,61 +264,74 @@
             </JSONPostProcessor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT UploadFile" enabled="true">
-            <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
-              <collectionProp name="HTTPFileArgs.files">
-                <elementProp name="${attachment_path}/${attachment_file}" elementType="HTTPFileArg">
-                  <stringProp name="File.path">${attachment_path}/${attachment_file}</stringProp>
-                  <stringProp name="File.paramname">body-file</stringProp>
-                  <stringProp name="File.mimetype">application/pdf</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
-            <stringProp name="HTTPSampler.port"></stringProp>
-            <stringProp name="HTTPSampler.protocol"></stringProp>
-            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">${preload_url}</stringProp>
-            <stringProp name="HTTPSampler.method">PUT</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
-            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-            <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          </HTTPSamplerProxy>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="UploadLoop" enabled="true">
+            <boolProp name="LoopController.continue_forever">true</boolProp>
+            <stringProp name="LoopController.loops">1</stringProp>
+          </LoopController>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="S3 - HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">x-amz-meta-secret</stringProp>
-                  <stringProp name="Header.value">${preload_secret}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Content-Type</stringProp>
-                  <stringProp name="Header.value">application/pdf</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
+            <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
+              <boolProp name="displayJMeterProperties">false</boolProp>
+              <boolProp name="displayJMeterVariables">true</boolProp>
+              <boolProp name="displaySystemProperties">false</boolProp>
+            </DebugSampler>
             <hashTree/>
-            <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="version_id - Regular Expression Extractor" enabled="true">
-              <stringProp name="RegexExtractor.useHeaders">true</stringProp>
-              <stringProp name="RegexExtractor.refname">version_id</stringProp>
-              <stringProp name="RegexExtractor.regex">x-amz-version-id: (.*)</stringProp>
-              <stringProp name="RegexExtractor.template">$1$</stringProp>
-              <stringProp name="RegexExtractor.default">NA</stringProp>
-              <stringProp name="RegexExtractor.match_number">1</stringProp>
-            </RegexExtractor>
-            <hashTree/>
-            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell PreProcessor" enabled="false">
-              <stringProp name="filename"></stringProp>
-              <stringProp name="parameters">${preload_secret}</stringProp>
-              <boolProp name="resetInterpreter">false</boolProp>
-              <stringProp name="script">import java.lang.*;
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="${preload_httpMethod} UploadFile ${__jm__UploadLoop__idx}" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${__FileToString(${__eval(${attachment_path}/${attachment_file})},,)}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">${preload_url}</stringProp>
+              <stringProp name="HTTPSampler.method">${preload_httpMethod}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="S3 - HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">x-amz-meta-secret</stringProp>
+                    <stringProp name="Header.value">${preload_secret}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/pdf</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">x-amz-checksum-sha256</stringProp>
+                    <stringProp name="Header.value">${attachment_sha256}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="version_id - Regular Expression Extractor" enabled="true">
+                <stringProp name="RegexExtractor.useHeaders">true</stringProp>
+                <stringProp name="RegexExtractor.refname">version_id-${__jm__UploadLoop__idx}</stringProp>
+                <stringProp name="RegexExtractor.regex">x-amz-version-id: (.*)</stringProp>
+                <stringProp name="RegexExtractor.template">$1$</stringProp>
+                <stringProp name="RegexExtractor.default">NA</stringProp>
+                <stringProp name="RegexExtractor.match_number">1</stringProp>
+              </RegexExtractor>
+              <hashTree/>
+              <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell PreProcessor" enabled="false">
+                <stringProp name="filename"></stringProp>
+                <stringProp name="parameters">${preload_secret}</stringProp>
+                <boolProp name="resetInterpreter">false</boolProp>
+                <stringProp name="script">import java.lang.*;
 import java.util.*;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.control.Header;
@@ -331,7 +346,23 @@ catch (Throwable ex) {
     log.error(&quot;Error in Beanshell&quot;, ex);
     throw ex;
 }</stringProp>
-            </BeanShellPreProcessor>
+              </BeanShellPreProcessor>
+              <hashTree/>
+            </hashTree>
+            <kg.apc.jmeter.samplers.HTTPRawSampler guiclass="kg.apc.jmeter.samplers.HTTPRawSamplerGui" testclass="kg.apc.jmeter.samplers.HTTPRawSampler" testname="jp@gc - HTTP Raw Request" enabled="false">
+              <stringProp name="hostname">localhost</stringProp>
+              <stringProp name="port">80</stringProp>
+              <boolProp name="keepalive">false</boolProp>
+              <stringProp name="timeout">0</stringProp>
+              <stringProp name="data">PUT / HTTP/1.0&#xd;
+Host: localhost&#xd;
+Connection: close&#xd;
+x-amz-meta-secret: ${preload_secret&#xd;
+Content-Type: Content-Type	application/pdf&#xd;
+x-amz-checksum-sha256: ${attachment_sha256}</stringProp>
+              <stringProp name="fileName"></stringProp>
+              <boolProp name="parse">true</boolProp>
+            </kg.apc.jmeter.samplers.HTTPRawSampler>
             <hashTree/>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Post /delivery/requests" enabled="true">
@@ -372,7 +403,7 @@ catch (Throwable ex) {
             },&#xd;
             &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
             &quot;digests&quot;: {&#xd;
-                &quot;sha256&quot;: &quot;${attachment_sha256}&quot;&#xd;
+                &quot;sha256&quot;: &quot;${filesha256}&quot;&#xd;
             }&#xd;
         },&#xd;
         &quot;noticeCode&quot;: &quot;${pagoPaNumAvv}&quot;,&#xd;
@@ -383,7 +414,7 @@ catch (Throwable ex) {
             },&#xd;
             &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
             &quot;digests&quot;: {&#xd;
-                &quot;sha256&quot;: &quot;${attachment_sha256}&quot;&#xd;
+                &quot;sha256&quot;: &quot;${filesha256}&quot;&#xd;
             }&#xd;
         },&#xd;
         &quot;f24white&quot;: {&#xd;
@@ -393,7 +424,7 @@ catch (Throwable ex) {
             },&#xd;
             &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
             &quot;digests&quot;: {&#xd;
-                &quot;sha256&quot;: &quot;${attachment_sha256}&quot;&#xd;
+                &quot;sha256&quot;: &quot;${filesha256}&quot;&#xd;
             }&#xd;
         }&#xd;
       }&#xd;
