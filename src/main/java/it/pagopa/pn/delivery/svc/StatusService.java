@@ -1,5 +1,14 @@
 package it.pagopa.pn.delivery.svc;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -11,14 +20,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMet
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,6 +36,7 @@ public class StatusService {
     }
     
     public void updateStatus(RequestUpdateStatusDto dto) {
+    	log.debug("Starting updateStatus with request={}", dto);
         Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun());
         
         if (notificationOptional.isPresent()) {
@@ -46,9 +48,12 @@ public class StatusService {
         } else {
             throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun());
         }
+        
+        log.debug("Ended updateStatus with request={}", dto);
     }
 
     private List<NotificationMetadataEntity> computeMetadataEntry(NotificationStatus lastStatus, InternalNotification notification) {
+    	log.debug("Starting computeMetadataEntry with lastStatus={} and notification={}", lastStatus, notification);
         String creationMonth = extractCreationMonth( notification.getSentAt().toInstant() );
 
         List<String> opaqueTaxIds = new ArrayList<>();
@@ -68,6 +73,7 @@ public class StatusService {
             List<String> recipientsIds,
             String creationMonth
     ) {
+    	log.debug("Running buildOneSearchMetadataEntry...");
         int recipientIndex = recipientsIds.indexOf( recipientId );
 
         return NotificationMetadataEntity.builder()
@@ -95,9 +101,12 @@ public class StatusService {
     }
 
     private String extractCreationMonth(Instant sentAt) {
+    	log.debug("Running extractCreationMonth...");
         String sentAtString = sentAt.toString();
         String[] splitSentAt = sentAtString.split( "-" );
-        return splitSentAt[0] + splitSentAt[1];
+        String result = splitSentAt[0] + splitSentAt[1];
+        log.debug("extractCreationMonth result={}", result);
+		return result;
     }
 
 }

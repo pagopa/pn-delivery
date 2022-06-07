@@ -14,6 +14,8 @@ import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
@@ -27,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 public class PnSentNotificationsController implements SenderReadB2BApi,SenderReadWebApi {
 
@@ -43,9 +46,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
+    	log.info("Starting getSentNotification with xPagopaPnUid={} and iun={}", xPagopaPnUid, iun);
+    	InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
         FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
+        log.info("Ending getSentNotification with xPagopaPnUid={} and iun={}", xPagopaPnUid, iun);
         return ResponseEntity.ok( result );
     }
 
@@ -53,7 +58,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Date startDate, Date endDate, List<String> xPagopaPnCxGroups, String recipientId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+    	log.info("Starting searchSentNotification with xPagopaPnUid={}, status={},  form startDate={} to endDate={} and iun or partialIun={}", xPagopaPnUid, status.name(), startDate, endDate, iunMatch);
+    	InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
                 .senderReceiverId(xPagopaPnCxId)
                 .startDate(startDate.toInstant())
@@ -71,6 +77,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
         ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
         NotificationSearchResponse response = mapper.map( serviceResult, NotificationSearchResponse.class );
+        log.info("Ending searchSentNotification with xPagopaPnUid={} and iunMatch={}", xPagopaPnUid, iunMatch);
         return ResponseEntity.ok( response );
     }
 
@@ -87,6 +94,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     @Override
     @ExceptionHandler({PnInternalException.class})
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+    	log.info("Starting getNotificationRequestStatus with xPagopaPnUid={}, notificationRequestId={}", xPagopaPnUid, notificationRequestId);
         String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
         NotificationStatus lastStatus = internalNotification.getNotificationStatusHistory().get( internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
@@ -102,18 +110,23 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             case REFUSED: response.setNotificationRequestStatus( "REFUSED" ); break;
             default: response.setNotificationRequestStatus( "ACCEPTED" );
         }
+        log.info("Ending getNotificationRequestStatus with xPagopaPnUid={}, notificationRequestId={}", xPagopaPnUid, notificationRequestId);
         return ResponseEntity.ok( response );
     }
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
+    	log.info("Starting getSentNotificationAttachment with xPagopaPnUid={}, recipientIdx={}", xPagopaPnUid, recipientIdx);
         NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientIdx.intValue(), attachmentName);
+        log.info("Ending getSentNotificationAttachment with xPagopaPnUid={}, recipientIdx={}", xPagopaPnUid, recipientIdx);
         return ResponseEntity.ok( response );
     }
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+    	log.info("Starting getSentNotificationDocument with xPagopaPnUid={}, iun={}", xPagopaPnUid, iun);
+    	NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+        log.info("Starting getSentNotificationDocument with xPagopaPnUid={}, iun={}", xPagopaPnUid, iun);
         return ResponseEntity.ok( response );
     }
 }

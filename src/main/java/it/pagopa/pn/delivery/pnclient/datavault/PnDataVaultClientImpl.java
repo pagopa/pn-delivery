@@ -30,18 +30,22 @@ public class PnDataVaultClientImpl {
     }
 
     public String ensureRecipientByExternalId(RecipientType recipientType, String taxId ){
+    	log.debug("Starting ensureRecipientByExternalId with recipientType={} and taxId={}", recipientType, taxId);
         return recipientsApi.ensureRecipientByExternalId( recipientType, taxId );
     }
 
     public void updateNotificationAddressesByIun(String iun, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDto) {
-        notificationsApi.updateNotificationAddressesByIun( iun, notificationRecipientAddressesDto );
+    	log.debug("Starting updateNotificationAddressesByIun with iun={} and notificationRecipientAddressesDto={}", iun, notificationRecipientAddressesDto);
+    	notificationsApi.updateNotificationAddressesByIun( iun, notificationRecipientAddressesDto );
     }
 
     public List<BaseRecipientDto> getRecipientDenominationByInternalId(List<String> internalId) {
+    	log.debug("Starting getRecipientDenominationByInternalId with internalIds={}", internalId);
         return recipientsApi.getRecipientDenominationByInternalId( internalId );
     }
 
     public List<NotificationRecipientAddressesDto> getNotificationAddressesByIun(String iun) {
+    	log.debug("Starting getNotificationAddressesByIun with iun={}", iun);
         return notificationsApi.getNotificationAddressesByIun( iun );
     }
 

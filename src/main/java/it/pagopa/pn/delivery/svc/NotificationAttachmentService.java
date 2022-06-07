@@ -91,29 +91,36 @@ public class NotificationAttachmentService {
 
 
         if (optNotification.isPresent()) {
+        	log.debug("optNotification isPresent");
             InternalNotification notification = optNotification.get();
             String fileKey;
             String fileName;
             if (documentIndex != null)
             {
+            	log.debug("documentIndex is not null");
                 NotificationDocument doc = notification.getDocuments().get( documentIndex );
                 fileName = buildFilename(iun, doc.getTitle());
                 fileKey = doc.getRef().getKey();
             }
             else
             {
+            	log.debug("documentIndex is null");
                 NotificationRecipient doc;
                 if (recipientIdx != null)
                 {
+                	log.debug("recipientIdx is not null");
                     doc = recipientIdx<notification.getRecipients().size()?notification.getRecipients().get(recipientIdx):null;
                 }
                 else
                 {
+                	log.debug("recipientIdx is null");
                     String recipientId = xPagopaPnCxId;
                     if (mandateId != null)
                     {
+                    	log.debug("mandateId is not null");
                         List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(xPagopaPnCxId, mandateId);
                         if(!mandates.isEmpty()) {
+                        	log.debug("mandateId is not empty");
                             recipientId = mandates.get(0).getDelegator();
                         }
                         else

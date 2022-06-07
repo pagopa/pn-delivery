@@ -1,22 +1,26 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
-import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
-import it.pagopa.pn.delivery.rest.utils.HandleValidation;
-import it.pagopa.pn.delivery.svc.NotificationReceiverService;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
+import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
+import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleValidation;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
+import it.pagopa.pn.delivery.svc.NotificationReceiverService;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -35,14 +39,17 @@ public class PnNotificationInputController implements NewNotificationApi {
 
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
-        NewNotificationResponse svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
+    	log.info("Starting sendNewNotification with xPagopaPnUid={}", xPagopaPnUid);
+    	NewNotificationResponse svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
+    	log.info("Ending sendNewNotification with xPagopaPnUid={}", xPagopaPnUid);
         return ResponseEntity.ok( svcRes );
     }
 
 
     @Override
     public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
-        Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
+    	log.info("Starting presignedUploadRequest with xPagopaPnUid={}", xPagopaPnUid);
+    	Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
         if ( preLoadRequest.size() > numberOfPresignedRequest ) {
             log.error( "Presigned upload request lenght={} is more than maximum allowed={}",
                     preLoadRequest.size(), numberOfPresignedRequest );
