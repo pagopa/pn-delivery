@@ -42,37 +42,35 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, SentNotification.class);
         SentNotification sentNotification = mapper.map(notification, SentNotification.class);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        Map<String, String> logDetailsMap = Map.of(
-                "iun", iun,
-                "senderDenomination", sentNotification.getSenderDenomination(),
-                "senderPaId", sentNotification.getSenderPaId(),
-                "senderTaxId", sentNotification.getSenderTaxId()
-        );
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sentNotification", logDetailsMap);
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "getSentNotificationPrivate")
+                .uid(iun)
+                .build();
 
         int recIdx = 0;
         for (NotificationRecipient rec : sentNotification.getRecipients()) {
             rec.setTaxId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }
-        logEvent.generateSuccess("", logDetailsMap).log();
+        logEvent.generateSuccess().log();
         return ResponseEntity.ok(sentNotification);
     }
 
     @Override
     public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
-        String logMessage = String.format("Update status for iun %s netxStatus %s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus());
+        String logMessage = String.format(
+                "Update status for iun %s netxStatus %s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
+        );
         log.info(logMessage);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        Map<String, String> logDetailsMap = Map.of(
-                "iun", requestUpdateStatusDto.getIun()
-        );
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_STATUS, "sentNotification", logDetailsMap);
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_STATUS, "updateStatus")
+                .iun(requestUpdateStatusDto.getIun())
+                .build();
         try {
             statusService.updateStatus(requestUpdateStatusDto);
-            logEvent.generateSuccess(logMessage, logDetailsMap).log();
+            logEvent.generateSuccess().log();
         } catch (PnInternalException e) {
-            logEvent.generateFailure(logMessage, logDetailsMap).log();
+            logEvent.generateFailure(logMessage).log();
             throw new PnInternalException(e.getMessage());
         }
         return ResponseEntity.ok().build();

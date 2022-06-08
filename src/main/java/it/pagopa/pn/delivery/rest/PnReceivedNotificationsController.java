@@ -44,6 +44,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     @Override
     public ResponseEntity<NotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Date startDate, Date endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_VIEW, "getReceivedNotification")
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .iun(iunMatch)
+                .uid(xPagopaPnUid)
+                .build();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
                 .senderReceiverId(xPagopaPnCxId)
@@ -63,22 +71,21 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
         ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
         NotificationSearchResponse response = mapper.map(serviceResult, NotificationSearchResponse.class);
+        logEvent.generateSuccess().log();
         return ResponseEntity.ok(response);
     }
 
     @Override
     public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        Map<String, String> logDetailsMap = new HashMap<>() {
-            {
-                put("xPagoPaPnUid", xPagopaPnUid);
-                put("xPagopaPnCxType", xPagopaPnCxType.toString());
-                put("xPagopaPnCxId", xPagopaPnCxId);
-                put("iun", iun);
-            }
-        };
         FullReceivedNotification result = null;
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_VIEW, "Notification view event", logDetailsMap);
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_VIEW, "getReceivedNotification")
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .iun(iun)
+                .uid(xPagopaPnUid)
+                .build();
         try {
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId);
 
@@ -86,10 +93,10 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
             result = mapper.map(internalNotification, FullReceivedNotification.class);
 
-            logEvent.generateSuccess("", logDetailsMap).log();
+            logEvent.generateSuccess().log();
             return ResponseEntity.ok(result);
         } catch (PnInternalException ext) {
-            logEvent.generateFailure(ext.getMessage(), logDetailsMap).log();
+            logEvent.generateFailure(ext.getMessage()).log();
         }
         return ResponseEntity.ok(result);
     }
@@ -97,22 +104,19 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        Map<String, String> logDetailsMap = new HashMap<>() {
-            {
-                put("xPagoPaPnUid", xPagopaPnUid);
-                put("xPagopaPnCxType", xPagopaPnCxType.toString());
-                put("xPagopaPnCxId", xPagopaPnCxId);
-                put("iun", iun);
-                put("docIdx", docIdx.toString());
-            }
-        };
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_VIEW, "Notification view event", logDetailsMap);
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_VIEW, "getReceivedNotificationDocument")
+                .uid(xPagopaPnUid)
+                .iun(iun)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .build();
         try {
             response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
-            logEvent.generateSuccess("", logDetailsMap).log();
+            logEvent.generateSuccess().log();
         } catch (PnInternalException e) {
-            logEvent.generateFailure(e.getMessage(), logDetailsMap).log();
+            logEvent.generateFailure(e.getMessage()).log();
         }
 
         return ResponseEntity.ok(response);
@@ -122,19 +126,19 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        Map<String, String> logDetailsMap = new HashMap<>() {
-            {
-                put("xPagoPaPnUid", xPagopaPnUid);
-                put("xPagopaPnCxType", xPagopaPnCxType.toString());
-                put("xPagopaPnCxId", xPagopaPnCxId);
-                put("iun", iun);
-                put("attachMentName", attachmentName);
-                put("mandateId", mandateId);
-            }
-        };
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_VIEW, "Notification view event", logDetailsMap);
-        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
-        logEvent.generateSuccess("Notification view event", logDetailsMap).log();
+        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_VIEW, "getReceivedNotificationAttachment")
+                .iun(iun)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .uid(xPagopaPnUid)
+                .build();
+        try {
+            response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
+            logEvent.generateSuccess().log();
+        } catch (PnInternalException e) {
+            logEvent.generateFailure(e.getMessage()).log();
+        }
         return ResponseEntity.ok(response);
     }
 

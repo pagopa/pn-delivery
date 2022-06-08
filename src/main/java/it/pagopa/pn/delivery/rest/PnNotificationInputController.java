@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -40,14 +41,19 @@ public class PnNotificationInputController implements NewNotificationApi {
 
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
-        Map<String, String> logDetailsMap = new HashMap<>() {
-            {
-                put("xPagoPaPnUid", xPagopaPnUid);
-                put("xPagopaPnCxType", xPagopaPnCxType.toString());
-                put("xPagopaPnCxId", xPagopaPnCxId);
-            }
-        };
-        NewNotificationResponse svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, logDetailsMap);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, "presignedUploadRequest")
+                .uid(xPagopaPnUid)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .build();
+        NewNotificationResponse svcRes = new NewNotificationResponse();
+        try {
+            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
+            logEvent.generateSuccess().log();
+        } catch (PnInternalException exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+        }
         return ResponseEntity.ok(svcRes);
     }
 
@@ -57,22 +63,20 @@ public class PnNotificationInputController implements NewNotificationApi {
             String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
         Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        Map<String, String> logDetailsMap = new HashMap<>() {
-            {
-                put("xPagoPaPnUid", xPagopaPnUid);
-                put("xPagopaPnCxType", xPagopaPnCxType.toString());
-                put("xPagopaPnCxId", xPagopaPnCxId);
-            }
-        };
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, "presignedUploadRequest")
+                .uid(xPagopaPnUid)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .build();
         if (preLoadRequest.size() > numberOfPresignedRequest) {
             String logMessage = String.format("Presigned upload request lenght=%s is more than maximum allowed=%s",
                     preLoadRequest.size(), numberOfPresignedRequest);
             log.error(logMessage);
-            PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, logMessage, logDetailsMap);
-            logEvent.generateFailure(logMessage, logDetailsMap).log();
+            logEvent.generateFailure(logMessage).log();
             throw new PnValidationException("request", Collections.singleton(new ConstraintViolationImpl<>(String.format(logMessage))));
         }
-        return ResponseEntity.ok(this.notificationAttachmentService.preloadDocuments(preLoadRequest, logDetailsMap));
+        logEvent.generateSuccess().log();
+        return ResponseEntity.ok(this.notificationAttachmentService.preloadDocuments(preLoadRequest));
     }
 
     @ExceptionHandler({PnValidationException.class})

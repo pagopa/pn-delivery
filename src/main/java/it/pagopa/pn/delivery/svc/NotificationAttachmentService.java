@@ -56,17 +56,12 @@ public class NotificationAttachmentService {
         return this.safeStorageClient.getFile(fileKey, false);
     }
 
-    public List<PreLoadResponse> preloadDocuments(List<PreLoadRequest> preLoadRequests, Map<String, String> logDetailsMap) {
+    public List<PreLoadResponse> preloadDocuments(List<PreLoadRequest> preLoadRequests) {
         return preLoadRequests.stream().map(req -> {
             String contentType = req.getContentType();
             String preloadIdx = req.getPreloadIdx();
             String logMessage = String.format("preloadDocuments contentType %s preloadIdx %s", contentType, preloadIdx);
-            PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
             log.info(logMessage);
-            logDetailsMap.put("contentType", contentType);
-            logDetailsMap.put("preloadIdx", preloadIdx);
-            PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, logMessage, logDetailsMap);
-            logEvent.generateSuccess(logMessage, logDetailsMap).log();
             FileCreationRequest fileCreationRequest = new FileCreationRequest();
             fileCreationRequest.setContentType(req.getContentType());
             fileCreationRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENTS);
