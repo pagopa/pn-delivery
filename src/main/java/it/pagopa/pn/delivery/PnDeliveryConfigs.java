@@ -39,6 +39,8 @@ public class PnDeliveryConfigs {
 
     private Integer maxPageSize;
 
+    private Costs costs;
+
     @Data
     public static class Topics {
         private String newNotifications;
@@ -52,5 +54,14 @@ public class PnDeliveryConfigs {
     @Data
     public static class NotificationMetadataDao {
         private String tableName;
+    }
+
+    @Data
+    public static class Costs {
+        private String notification;
+        private String raccomandataIta;
+        private String raccomandataEstZona1;
+        private String raccomandataEstZona2;
+        private String raccomandataEstZona3;
     }
 }

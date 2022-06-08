@@ -231,7 +231,7 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
+	public InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
 		Date createdAt =  notification.getSentAt();

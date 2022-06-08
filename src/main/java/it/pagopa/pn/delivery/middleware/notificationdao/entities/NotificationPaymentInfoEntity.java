@@ -1,9 +1,9 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentAttachment;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
 @Builder
 @NoArgsConstructor
@@ -12,11 +12,13 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @ToString
 @DynamoDbBean
 public class NotificationPaymentInfoEntity {
+    private static final String INDEX_CREDITOR_TAX_ID_NOTICE_CODE = "creditorTaxId_noticeCode";
     private String noticeCode;
     private String creditorTaxId;
     private PaymentAttachmentEntity pagoPaForm;
     private PaymentAttachmentEntity f24flatRate;
     private PaymentAttachmentEntity f24standard;
+    private String creditorTaxId_noticeCode;
 
     @DynamoDbAttribute(value = "noticeCode")
     public String getNoticeCode() {
@@ -61,5 +63,13 @@ public class NotificationPaymentInfoEntity {
 
     public void setF24standard(PaymentAttachmentEntity f24standard) {
         this.f24standard = f24standard;
+    }
+
+    @DynamoDbSecondaryPartitionKey(indexNames = {INDEX_CREDITOR_TAX_ID_NOTICE_CODE})
+    @DynamoDbAttribute(value = "creditorTaxId_noticeCode")
+    public String getCreditorTaxId_noticeCode() { return creditorTaxId_noticeCode; }
+
+    public void setCreditorTaxId_noticeCode(String creditorTaxId_noticeCode) {
+        this.creditorTaxId_noticeCode = creditorTaxId_noticeCode;
     }
 }

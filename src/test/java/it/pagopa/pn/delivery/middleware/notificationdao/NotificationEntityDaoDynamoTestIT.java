@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
@@ -63,6 +65,11 @@ class NotificationEntityDaoDynamoTestIT {
 
     }
 
+    @Test
+    void getNotificationByPayment() {
+        Optional<List<InternalNotification>> result = notificationEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode" );
+    }
+
     @NotNull
     private String getControlIun(NotificationEntity notificationToInsert) {
         return notificationToInsert.getSenderPaId()
@@ -92,6 +99,7 @@ class NotificationEntityDaoDynamoTestIT {
                                 .payment( NotificationPaymentInfoEntity.builder()
                                         .creditorTaxId( "creditorTaxId" )
                                         .noticeCode( "noticeCode" )
+                                        .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
                                         .pagoPaForm( PaymentAttachmentEntity.builder()
                                                 .contentType( "application/pdf" )
                                                 .digests( AttachmentDigestsEntity.builder()

@@ -110,15 +110,14 @@ public class NotificationDaoDynamo implements NotificationDao {
 				.map( entity2DtoMapper::entity2Dto );
 
 		if(daoResult.isPresent()) {
-			handleRecipients(daoResult);
-
-			handleDocuments(daoResult);
+			handleRecipients(daoResult.get());
+			handleDocuments(daoResult.get());
 		}
 		return daoResult;
 	}
 
-	private void handleRecipients(Optional<InternalNotification> daoResult) {
-		List<NotificationRecipient> daoNotificationRecipientList = daoResult.get().getRecipients();
+	private void handleRecipients(InternalNotification daoResult) {
+		List<NotificationRecipient> daoNotificationRecipientList = daoResult.getRecipients();
 
 		List<String> opaqueIds = daoNotificationRecipientList.stream()
 				.map(NotificationRecipient::getTaxId)
@@ -129,7 +128,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 						opaqueIds
 						);
 
-		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.get().getIun() );
+		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.getIun() );
 		List<String> opaqueRecipientsIds = new ArrayList<>();
 
 		int recipientIndex = 0;
@@ -161,17 +160,15 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 			recipientIndex += 1;
 		}
-		daoResult.get().setRecipientIds( opaqueRecipientsIds );
+		daoResult.setRecipientIds( opaqueRecipientsIds );
 	}
 
-	private void handleDocuments(Optional<InternalNotification> daoResult) {
-		Integer docIdx = 0; 
-		if(daoResult.get() != null && daoResult.get().getDocuments() != null ) {
-			for (NotificationDocument doc : daoResult.get().getDocuments()) {
-				doc.setDocIdx(docIdx.toString());
-				docIdx++;
-			}			
-		}		
+	private void handleDocuments(InternalNotification daoResult) {
+		int docIdx = 0;
+		for (NotificationDocument doc : daoResult.getDocuments()) {
+			doc.setDocIdx(Integer.toString(docIdx));
+			docIdx++;
+		}
 	}
 
 

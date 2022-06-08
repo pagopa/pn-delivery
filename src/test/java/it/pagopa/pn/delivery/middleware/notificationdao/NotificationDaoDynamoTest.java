@@ -222,6 +222,11 @@ class NotificationDaoDynamoTest {
         public void delete(Key key) {
             storage.remove( key );
         }
+
+        @Override
+        public Optional<List<InternalNotification>> getNotificationByPaymentInfo(String paTaxId, String noticeNumber) {
+            return Optional.empty();
+        }
     }
 
     private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao {
