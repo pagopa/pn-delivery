@@ -18,11 +18,6 @@ Parameters:
 
 Resources:
 
-  Keyspace:
-    Type: AWS::Cassandra::Keyspace
-    Properties:
-      KeyspaceName: !Sub '${ProjectName}_delivery'
-
   AttachmentsBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
@@ -127,10 +122,6 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
 
 Outputs:
-  KeyspaceName:
-    Description: Keyspace Name used by application to access the key-value store
-    Value: !Ref Keyspace
-
   AttachmentsBucketName:
     Description: name of bucket going to contains notification documents
     Value: !Ref AttachmentsBucket

@@ -105,6 +105,10 @@ Parameters:
   NetworkLoadBalancerLink:
     Type: String
     Description: 'network load balancer link for API-GW'
+  
+  AlarmSNSTopicArn:
+    Type: String
+    Description: ARN of alarm topic
 
 
 Resources:
@@ -118,6 +122,7 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         CpuValue: 1024
         MemoryAmount: 2GB
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PN_DELIVERY_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
