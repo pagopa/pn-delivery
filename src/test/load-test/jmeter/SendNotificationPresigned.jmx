@@ -101,7 +101,17 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="attachment_path" elementType="Argument">
             <stringProp name="Argument.name">attachment_path</stringProp>
-            <stringProp name="Argument.value">${configPath}../inputs/attachments</stringProp>
+            <stringProp name="Argument.value">${configPath}../inputs/attachments/docs</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="pagopa_path" elementType="Argument">
+            <stringProp name="Argument.name">pagopa_path</stringProp>
+            <stringProp name="Argument.value">${configPath}../inputs/attachments/pagopa</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="f24_path" elementType="Argument">
+            <stringProp name="Argument.name">f24_path</stringProp>
+            <stringProp name="Argument.value">${configPath}../inputs/attachments/f24</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -150,10 +160,34 @@
             <stringProp name="variableNames"></stringProp>
           </CSVDataSet>
           <hashTree/>
-          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_attachment_files" enabled="true">
+          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_documents_files" enabled="true">
             <stringProp name="delimiter">,</stringProp>
             <stringProp name="fileEncoding"></stringProp>
             <stringProp name="filename">${configPath}../inputs/attachments.csv</stringProp>
+            <boolProp name="ignoreFirstLine">true</boolProp>
+            <boolProp name="quotedData">false</boolProp>
+            <boolProp name="recycle">true</boolProp>
+            <stringProp name="shareMode">shareMode.all</stringProp>
+            <boolProp name="stopThread">false</boolProp>
+            <stringProp name="variableNames"></stringProp>
+          </CSVDataSet>
+          <hashTree/>
+          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_pagopa_files" enabled="false">
+            <stringProp name="delimiter">,</stringProp>
+            <stringProp name="fileEncoding"></stringProp>
+            <stringProp name="filename">${configPath}../inputs/pagopa.csv</stringProp>
+            <boolProp name="ignoreFirstLine">true</boolProp>
+            <boolProp name="quotedData">false</boolProp>
+            <boolProp name="recycle">true</boolProp>
+            <stringProp name="shareMode">shareMode.all</stringProp>
+            <boolProp name="stopThread">false</boolProp>
+            <stringProp name="variableNames"></stringProp>
+          </CSVDataSet>
+          <hashTree/>
+          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV_f24_files" enabled="false">
+            <stringProp name="delimiter">,</stringProp>
+            <stringProp name="fileEncoding"></stringProp>
+            <stringProp name="filename">${configPath}../inputs/f24.csv</stringProp>
             <boolProp name="ignoreFirstLine">true</boolProp>
             <boolProp name="quotedData">false</boolProp>
             <boolProp name="recycle">true</boolProp>
@@ -167,7 +201,7 @@
             <stringProp name="RandomTimer.range">${timer_offset_ms}</stringProp>
           </GaussianRandomTimer>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Post /delivery/attachments/preload-${attachment_file}" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Post /delivery/attachments/preload" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
@@ -263,6 +297,14 @@
               <stringProp name="JSONPostProcessor.defaultValues">NA</stringProp>
             </JSONPostProcessor>
             <hashTree/>
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="key JSON Extractor" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">doc_key</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$[0].key</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+              <stringProp name="Scope.variable"></stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues">NA</stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
             <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Protocol Regular Expression Extractor" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">false</stringProp>
               <stringProp name="RegexExtractor.refname">preload_url_match</stringProp>
@@ -275,101 +317,52 @@
               <boolProp name="RegexExtractor.default_empty_value">true</boolProp>
             </RegexExtractor>
             <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor" enabled="false">
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="parameters">2</stringProp>
+              <stringProp name="script">StringBuilder result = new StringBuilder();
+String newline = System.getProperty(&quot;line.separator&quot;);
+int max = Integer.parseInt(Parameters);
+result.append(&quot;[&quot;);
+for (int i = 0; i &lt;= max; i++) {
+    result.append(&quot;{\&quot;preloadIdx\&quot;:\&quot;doc_1\&quot;,\&quot;contentType\&quot;:\&quot;application/pdf\&quot;,\&quot;sha256\&quot;: \&quot;${attachment_sha256}\&quot;}&quot;);
+    if (i != max) {
+    	 result.append(&quot;,&quot;);
+    }
+    result.append(newline);
+}
+result.append(&quot;]&quot;);
+result.append(newline);
+result.append(&quot;]&quot;);
+
+vars.put(&quot;json&quot;, result.toString());</stringProp>
+              <stringProp name="scriptLanguage">javascript</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
           </hashTree>
-          <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="false">
-            <boolProp name="displayJMeterProperties">false</boolProp>
-            <boolProp name="displayJMeterVariables">true</boolProp>
-            <boolProp name="displaySystemProperties">false</boolProp>
-          </DebugSampler>
-          <hashTree/>
           <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="UploadLoop" enabled="true">
             <boolProp name="LoopController.continue_forever">true</boolProp>
             <stringProp name="LoopController.loops">1</stringProp>
           </LoopController>
           <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="${preload_httpMethod} UploadFile ${__jm__UploadLoop__idx}-${attachment_file}" enabled="false">
-              <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
-                <collectionProp name="HTTPFileArgs.files">
-                  <elementProp name="${attachment_path}/${attachment_file}" elementType="HTTPFileArg">
-                    <stringProp name="File.path">${attachment_path}/${attachment_file}</stringProp>
-                    <stringProp name="File.paramname">filename</stringProp>
-                    <stringProp name="File.mimetype">application/pdf</stringProp>
-                  </elementProp>
-                </collectionProp>
-              </elementProp>
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port"></stringProp>
-              <stringProp name="HTTPSampler.protocol"></stringProp>
-              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">${preload_url}</stringProp>
-              <stringProp name="HTTPSampler.method">${preload_httpMethod}</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
-              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-            </HTTPSamplerProxy>
-            <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="S3 - HTTP Header Manager" enabled="true">
-                <collectionProp name="HeaderManager.headers">
-                  <elementProp name="" elementType="Header">
-                    <stringProp name="Header.name">X-Amz-Meta-Secret</stringProp>
-                    <stringProp name="Header.value">${preload_secret}</stringProp>
-                  </elementProp>
-                  <elementProp name="" elementType="Header">
-                    <stringProp name="Header.name">Content-Type</stringProp>
-                    <stringProp name="Header.value">application/pdf</stringProp>
-                  </elementProp>
-                  <elementProp name="" elementType="Header">
-                    <stringProp name="Header.name">X-Amz-Checksum-Sha256</stringProp>
-                    <stringProp name="Header.value">${attachment_sha256}</stringProp>
-                  </elementProp>
-                </collectionProp>
-              </HeaderManager>
-              <hashTree/>
-              <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="version_id - Regular Expression Extractor" enabled="true">
-                <stringProp name="RegexExtractor.useHeaders">true</stringProp>
-                <stringProp name="RegexExtractor.refname">version_id-${__jm__UploadLoop__idx}</stringProp>
-                <stringProp name="RegexExtractor.regex">x-amz-version-id: (.*)</stringProp>
-                <stringProp name="RegexExtractor.template">$1$</stringProp>
-                <stringProp name="RegexExtractor.default">NA</stringProp>
-                <stringProp name="RegexExtractor.match_number">1</stringProp>
-              </RegexExtractor>
-              <hashTree/>
-              <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell PreProcessor" enabled="false">
-                <stringProp name="filename"></stringProp>
-                <stringProp name="parameters">${preload_secret}</stringProp>
-                <boolProp name="resetInterpreter">false</boolProp>
-                <stringProp name="script">import java.lang.*;
-import java.util.*;
-import org.apache.jmeter.protocol.http.control.HeaderManager;
-import org.apache.jmeter.protocol.http.control.Header;
-try {
-	HeaderManager headerManager = new HeaderManager();
-	headerManager.add(new Header(&quot;x-amz-meta-secret&quot;,bsh.args[0]));
-	headerManager.add(new Header(&quot;Content-Type&quot;,&quot;application/pdf&quot;));
-
-	sampler.setHeaderManager(headerManager);
-}
-catch (Throwable ex) {
-    log.error(&quot;Error in Beanshell&quot;, ex);
-    throw ex;
-}</stringProp>
-              </BeanShellPreProcessor>
-              <hashTree/>
-            </hashTree>
+            <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="attachment" elementType="Argument">
+                  <stringProp name="Argument.name">attachment</stringProp>
+                  <stringProp name="Argument.value">${__StringFromFile(${attachment_path}/${attachment_file})}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </Arguments>
+            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="${preload_httpMethod} UploadFile ${__jm__UploadLoop__idx}" enabled="false">
               <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">${__FileToString(inputs/attachments/sample.pdf,,)}</stringProp>
+                    <stringProp name="Argument.value">${__FileToString(${attachment_path}/${attachment_file},,)}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
@@ -385,6 +378,7 @@ catch (Throwable ex) {
               <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
               <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
               <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
               <stringProp name="HTTPSampler.connect_timeout"></stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
             </HTTPSamplerProxy>
@@ -437,25 +431,90 @@ catch (Throwable ex) {
               </BeanShellPreProcessor>
               <hashTree/>
             </hashTree>
-            <kg.apc.jmeter.samplers.HTTPRawSampler guiclass="kg.apc.jmeter.samplers.HTTPRawSamplerGui" testclass="kg.apc.jmeter.samplers.HTTPRawSampler" testname="jp@gc - HTTP Raw Request-${attachment_file}" enabled="true">
-              <stringProp name="hostname">${preload_url_match_g2}</stringProp>
-              <stringProp name="port">443</stringProp>
-              <boolProp name="keepalive">false</boolProp>
-              <stringProp name="timeout">30000</stringProp>
-              <stringProp name="data">PUT ${preload_url_match_g3} HTTP/1.0&#xd;
-Host: ${preload_url_match_g2}&#xd;
-Accept: */*&#xd;
-Content-Type: application/pdf&#xd;
-X-Amz-Checksum-Sha256: ${attachment_sha256}&#xd;
-X-Amz-Meta-Secret: ${preload_secret}&#xd;
-Content-Length: 3028&#xd;
-Connection: close&#xd;
-</stringProp>
-              <stringProp name="fileName">${attachment_path}/${attachment_file}</stringProp>
-              <boolProp name="parse">true</boolProp>
-            </kg.apc.jmeter.samplers.HTTPRawSampler>
-            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="${preload_httpMethod} UploadFile ${__jm__UploadLoop__idx}" enabled="true">
+              <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
+                <collectionProp name="HTTPFileArgs.files">
+                  <elementProp name="${attachment_path}/${attachment_file}" elementType="HTTPFileArg">
+                    <stringProp name="File.path">${attachment_path}/${attachment_file}</stringProp>
+                    <stringProp name="File.paramname"></stringProp>
+                    <stringProp name="File.mimetype"></stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${preload_url_match_g2}</stringProp>
+              <stringProp name="HTTPSampler.port">443</stringProp>
+              <stringProp name="HTTPSampler.protocol">https</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">${preload_url_match_g3}</stringProp>
+              <stringProp name="HTTPSampler.method">${preload_httpMethod}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="S3 - HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">x-amz-meta-secret</stringProp>
+                    <stringProp name="Header.value">${preload_secret}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/pdf</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">x-amz-checksum-sha256</stringProp>
+                    <stringProp name="Header.value">${attachment_sha256}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="version_id - Regular Expression Extractor" enabled="true">
+                <stringProp name="RegexExtractor.useHeaders">true</stringProp>
+                <stringProp name="RegexExtractor.refname">version_id-${__jm__UploadLoop__idx}</stringProp>
+                <stringProp name="RegexExtractor.regex">x-amz-version-id: (.*)</stringProp>
+                <stringProp name="RegexExtractor.template">$1$</stringProp>
+                <stringProp name="RegexExtractor.default">NA</stringProp>
+                <stringProp name="RegexExtractor.match_number">1</stringProp>
+              </RegexExtractor>
+              <hashTree/>
+              <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell PreProcessor" enabled="false">
+                <stringProp name="filename"></stringProp>
+                <stringProp name="parameters">${preload_secret}</stringProp>
+                <boolProp name="resetInterpreter">false</boolProp>
+                <stringProp name="script">import java.lang.*;
+import java.util.*;
+import org.apache.jmeter.protocol.http.control.HeaderManager;
+import org.apache.jmeter.protocol.http.control.Header;
+try {
+	HeaderManager headerManager = new HeaderManager();
+	headerManager.add(new Header(&quot;x-amz-meta-secret&quot;,bsh.args[0]));
+	headerManager.add(new Header(&quot;Content-Type&quot;,&quot;application/pdf&quot;));
+
+	sampler.setHeaderManager(headerManager);
+}
+catch (Throwable ex) {
+    log.error(&quot;Error in Beanshell&quot;, ex);
+    throw ex;
+}</stringProp>
+              </BeanShellPreProcessor>
+              <hashTree/>
+            </hashTree>
           </hashTree>
+          <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
+            <boolProp name="displayJMeterProperties">false</boolProp>
+            <boolProp name="displayJMeterVariables">true</boolProp>
+            <boolProp name="displaySystemProperties">false</boolProp>
+          </DebugSampler>
+          <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Post /delivery/requests" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
@@ -489,33 +548,33 @@ Connection: close&#xd;
         &quot;creditorTaxId&quot;: &quot;77777777777&quot;,&#xd;
         &quot;pagoPaForm&quot;: {&#xd;
             &quot;ref&quot;: {&#xd;
-                &quot;key&quot;: &quot;doc_1&quot;,&#xd;
-                &quot;versionToken&quot;: &quot;${version_id}&quot;&#xd;
+                &quot;key&quot;: &quot;${doc_key}&quot;,&#xd;
+                &quot;versionToken&quot;: &quot;${version_id-0}&quot;&#xd;
             },&#xd;
             &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
             &quot;digests&quot;: {&#xd;
-                &quot;sha256&quot;: &quot;${filesha256}&quot;&#xd;
+                &quot;sha256&quot;: &quot;${attachment_sha256}&quot;&#xd;
             }&#xd;
         },&#xd;
         &quot;noticeCode&quot;: &quot;${pagoPaNumAvv}&quot;,&#xd;
         &quot;f24flatRate&quot;: {&#xd;
             &quot;ref&quot;: {&#xd;
-                &quot;key&quot;: &quot;doc_1&quot;,&#xd;
-                &quot;versionToken&quot;: &quot;${version_id}&quot;&#xd;
+                &quot;key&quot;: &quot;${doc_key}&quot;,&#xd;
+                &quot;versionToken&quot;: &quot;${version_id-0}&quot;&#xd;
             },&#xd;
             &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
             &quot;digests&quot;: {&#xd;
-                &quot;sha256&quot;: &quot;${filesha256}&quot;&#xd;
+                &quot;sha256&quot;: &quot;${attachment_sha256}&quot;&#xd;
             }&#xd;
         },&#xd;
         &quot;f24white&quot;: {&#xd;
             &quot;ref&quot;: {&#xd;
-                &quot;key&quot;: &quot;doc_1&quot;,&#xd;
-                &quot;versionToken&quot;: &quot;${version_id}&quot;&#xd;
+                &quot;key&quot;: &quot;${doc_key}&quot;,&#xd;
+                &quot;versionToken&quot;: &quot;${version_id-0}&quot;&#xd;
             },&#xd;
             &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
             &quot;digests&quot;: {&#xd;
-                &quot;sha256&quot;: &quot;${filesha256}&quot;&#xd;
+                &quot;sha256&quot;: &quot;${attachment_sha256}&quot;&#xd;
             }&#xd;
         }&#xd;
       }&#xd;
@@ -524,8 +583,8 @@ Connection: close&#xd;
   &quot;documents&quot;: [&#xd;
     {&#xd;
         &quot;ref&quot;: {&#xd;
-            &quot;key&quot;: &quot;doc_1&quot;,&#xd;
-            &quot;versionToken&quot;: &quot;${version_id}&quot;&#xd;
+            &quot;key&quot;: &quot;${doc_key}&quot;,&#xd;
+            &quot;versionToken&quot;: &quot;${version_id-0}&quot;&#xd;
         },&#xd;
         &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
         &quot;digests&quot;: {&#xd;
