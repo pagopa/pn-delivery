@@ -1,5 +1,3 @@
 attachment_file,attachment_sha256
-sample.pdf,jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
-multa.pdf,BuIdviesjkElGiz6cAPWl8BK6nWRyjWMEhgHHJzrOHU=
-Avviso_PagoPA.pdf,5YJabkjC4EiCSSO1AZe64mJTLPeCKUZFyvVKvSyL6QM=
-${__FileToString(inputs/attachments/sample.pdf,,)}
+sample.pdf,jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=,Avviso_PagoPA.pdf
+multa.pdf,BuIdviesjkElGiz6cAPWl8BK6nWRyjWMEhgHHJzrOHU=,Avviso_PagoPA.pdf
