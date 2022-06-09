@@ -1,6 +1,9 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+
+import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;

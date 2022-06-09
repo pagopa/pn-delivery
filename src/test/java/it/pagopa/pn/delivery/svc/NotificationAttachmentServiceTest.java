@@ -60,14 +60,14 @@ class NotificationAttachmentServiceTest {
 
     @BeforeEach
     public void setup() {
-        Clock clock = Clock.fixed(Instant.EPOCH, ZoneId.of("UTC"));
+        Clock clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
 
         notificationDao = Mockito.mock(NotificationDao.class);
         pnSafeStorageClient = Mockito.mock(PnSafeStorageClientImpl.class);
-        pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
+        pnMandateClient = Mockito.mock( PnMandateClientImpl.class );
 
         attachmentService = new NotificationAttachmentService(
-                pnSafeStorageClient, notificationDao, pnMandateClient);
+                 pnSafeStorageClient, notificationDao, pnMandateClient);
     }
 
     @Test
@@ -80,13 +80,14 @@ class NotificationAttachmentServiceTest {
         request.setSha256("the_sha256_base64_encoded");
         list.add(request);
 
-        FileCreationResponse response = new FileCreationResponse();
+        FileCreationResponse response =new FileCreationResponse();
         response.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
         response.setSecret("secret");
         response.setKey("filekey");
         response.setUploadUrl("https://url123");
 
         when(pnSafeStorageClient.createFile(Mockito.any(), Mockito.anyString())).thenReturn(response);
+
         //When
         List<PreLoadResponse> result = attachmentService.preloadDocuments(list);
 
@@ -113,7 +114,7 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertNotNull(result);
-        assertEquals(iun + "__" + attachmentName + ".pdf", result.getFilename());
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
     }
 
@@ -135,7 +136,7 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertNotNull(result);
-        assertEquals(iun + "__" + attachmentName + ".pdf", result.getFilename());
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
     }
 
@@ -157,7 +158,7 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertNotNull(result);
-        assertEquals(iun + "__" + attachmentName + ".pdf", result.getFilename());
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
     }
 
@@ -179,7 +180,7 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertNotNull(result);
-        assertEquals(iun + "__" + attachmentName + ".pdf", result.getFilename());
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
     }
 
@@ -242,7 +243,7 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertNotNull(result);
-        assertEquals(iun + "__" + optNotification.get().getDocuments().get(0).getTitle() + ".pdf", result.getFilename());
+        assertEquals(iun + "__" + optNotification.get().getDocuments().get(0).getTitle() + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
     }
 
@@ -266,7 +267,7 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertNotNull(result);
-        assertEquals(iun + "__" + attachmentName + ".pdf", result.getFilename());
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
     }
 
@@ -297,7 +298,7 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertNotNull(result);
-        assertEquals(iun + "__" + attachmentName + ".pdf", result.getFilename());
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
     }
 
@@ -329,7 +330,7 @@ class NotificationAttachmentServiceTest {
         return buildNotification(iun, taxid, PAGOPA);
     }
 
-    private FileDownloadResponse buildFileDownloadResponse() {
+    private FileDownloadResponse buildFileDownloadResponse(){
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
         fileDownloadResponse.setChecksum("checksum");
         fileDownloadResponse.setContentType("application/pdf");
@@ -344,7 +345,7 @@ class NotificationAttachmentServiceTest {
         return fileDownloadResponse;
     }
 
-    private InternalNotification buildNotification(String iun, String taxid, String channel) {
+    private InternalNotification buildNotification(String iun, String taxid, String channel){
 
         InternalNotification notification = new InternalNotification();
         notification.setIun(iun);

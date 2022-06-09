@@ -35,405 +35,408 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NotificationReceiverTest {
 
-    public static final String ATTACHMENT_BODY_STR = "Body";
-    public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
-    public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
-    private static final String VERSION_TOKEN = "VERSION_TOKEN";
-    private static final String CONTENT_TYPE = "application/pdf";
-    private static final String KEY = "KEY";
-    private static final String PAID = "PAID";
+	public static final String ATTACHMENT_BODY_STR = "Body";
+	public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
+	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
+	private static final String VERSION_TOKEN = "VERSION_TOKEN";
+	private static final String CONTENT_TYPE = "application/pdf";
+	private static final String KEY = "KEY";
+	private static final String PAID = "PAID";
+	private static final NotificationDocument notificationReferredAttachment() {
+		return NotificationDocument.builder()
+				.ref( NotificationAttachmentBodyRef.builder()
+						.versionToken( VERSION_TOKEN )
+						.key( KEY )
+						.build() )
+				.digests( NotificationAttachmentDigests.builder()
+						.sha256(SHA256_BODY)
+						.build() )
+				.contentType( CONTENT_TYPE )
+				.build();
+	}
+	public static final String X_PAGOPA_PN_CX_ID = "paId";
 
-    private static final NotificationDocument notificationReferredAttachment() {
-        return NotificationDocument.builder()
-                .ref(NotificationAttachmentBodyRef.builder()
-                        .versionToken(VERSION_TOKEN)
-                        .key(KEY)
-                        .build())
-                .digests(NotificationAttachmentDigests.builder()
-                        .sha256(SHA256_BODY)
-                        .build())
-                .contentType(CONTENT_TYPE)
-                .build();
-    }
+	private NotificationDao notificationDao;
+	private NewNotificationProducer notificationEventProducer;
+	private NotificationReceiverService deliveryService;
+	private FileStorage fileStorage;
+	private ModelMapperFactory modelMapperFactory;
 
-    public static final String X_PAGOPA_PN_CX_ID = "paId";
+	@BeforeEach
+	public void setup() {
+		Clock clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
 
-    private NotificationDao notificationDao;
-    private NewNotificationProducer notificationEventProducer;
-    private NotificationReceiverService deliveryService;
-    private FileStorage fileStorage;
-    private ModelMapperFactory modelMapperFactory;
+		notificationDao = Mockito.mock(NotificationDao.class);
+		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
+		fileStorage = Mockito.mock( FileStorage.class );
+		modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
 
-    @BeforeEach
-    public void setup() {
-        Clock clock = Clock.fixed(Instant.EPOCH, ZoneId.of("UTC"));
+		// - Separate Tests
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator() );
 
-        notificationDao = Mockito.mock(NotificationDao.class);
-        notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
-        fileStorage = Mockito.mock(FileStorage.class);
-        modelMapperFactory = Mockito.mock(ModelMapperFactory.class);
+		deliveryService = new NotificationReceiverService(
+				clock,
+				notificationDao,
+				notificationEventProducer,
+				validator,
+				modelMapperFactory);
+	}
 
-        // - Separate Tests
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        NotificationReceiverValidator validator = new NotificationReceiverValidator(factory.getValidator());
+	@Test
+	void successWritingNotificationWithPaymentsInformationWithDeliveryModeFee() throws IdConflictException {
+		ArgumentCaptor<InternalNotification> savedNotificationCaptor = ArgumentCaptor.forClass(InternalNotification.class);
 
-        deliveryService = new NotificationReceiverService(
-                clock,
-                notificationDao,
-                notificationEventProducer,
-                validator,
-                modelMapperFactory);
-    }
+		// Given
+		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-    @Test
-    void successWritingNotificationWithPaymentsInformationWithDeliveryModeFee() throws IdConflictException {
-        ArgumentCaptor<InternalNotification> savedNotificationCaptor = ArgumentCaptor.forClass(InternalNotification.class);
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-        // Given
-        NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode();
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
 
-        // When
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
-        Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
 
-        FileData fileData = FileData.builder()
-                .content(new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)))
-                .build();
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification );
 
-        Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(fileData);
-        NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification);
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture() );
 
-        // Then
-        Mockito.verify(notificationDao).addNotification(savedNotificationCaptor.capture());
+		InternalNotification savedNotification = savedNotificationCaptor.getValue();
 
-        InternalNotification savedNotification = savedNotificationCaptor.getValue();
+		assertEquals( notification.getPaProtocolNumber(), savedNotification.getPaProtocolNumber(), "Wrong protocol number");
+		assertEquals( notification.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
-        assertEquals(notification.getPaProtocolNumber(), savedNotification.getPaProtocolNumber(), "Wrong protocol number");
-        assertEquals(notification.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
+		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
+	}
 
-        Mockito.verify(notificationEventProducer).sendNewNotificationEvent(Mockito.anyString(), Mockito.anyString(), Mockito.any(Instant.class));
-    }
+	@Test
+	void successWritingNotificationWithPaymentsInformationWithFlatFee() throws IdConflictException {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
-    @Test
-    void successWritingNotificationWithPaymentsInformationWithFlatFee() throws IdConflictException {
-        ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+		// Given
+		//InternalNotification notification = newNotificationWithPaymentsFlat( );
+		NewNotificationRequest notificationRequest = newNotificationRequest();
 
-        // Given
-        //InternalNotification notification = newNotificationWithPaymentsFlat( );
-        NewNotificationRequest notificationRequest = newNotificationRequest();
+		// When
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
 
-        // When
-        FileData fileData = FileData.builder()
-                .content(new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)))
-                .build();
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-        Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(fileData);
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
-        Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
-        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, notificationRequest);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest );
 
-        // Then
-        Mockito.verify(notificationDao).addNotification(savedNotification.capture());
-        Mockito.verify(notificationEventProducer).sendNewNotificationEvent(Mockito.anyString(), Mockito.anyString(), Mockito.any(Instant.class));
-    }
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
+		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
+	}
 
-    @Test
-    void successWritingNotificationWithoutPaymentsInformation() throws IdConflictException {
-        ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+	@Test
+	void successWritingNotificationWithoutPaymentsInformation() throws IdConflictException {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
-        // Given
-        //InternalNotification notification = newNotificationWithoutPayments( );
-        NewNotificationRequest notificationRequest = newNotificationRequest();
+		// Given
+		//InternalNotification notification = newNotificationWithoutPayments( );
+		NewNotificationRequest notificationRequest = newNotificationRequest();
 
-        FileData fileData = FileData.builder()
-                .content(new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)))
-                .build();
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
 
-        Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(fileData);
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
 
-        // When
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
-        Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, notificationRequest);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest );
 
-        // Then
-        Mockito.verify(notificationDao).addNotification(savedNotification.capture());
-        assertEquals(EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
-        assertEquals(notificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
-        assertEquals(notificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
+		assertEquals( EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
+		assertEquals( notificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
+		assertEquals( notificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
-        Mockito.verify(notificationEventProducer).sendNewNotificationEvent(Mockito.anyString(), Mockito.anyString(), Mockito.any(Instant.class));
-    }
+		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
+	}
 
-    @Test
-    void successWritingNotificationWithoutPaymentsAttachment() throws IdConflictException {
-        ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+	@Test
+	void successWritingNotificationWithoutPaymentsAttachment() throws IdConflictException {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
-        FileData fileData = FileData.builder()
-                .content(new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)))
-                .build();
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
 
-        // Given
-        Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(fileData);
-        //InternalNotification notification = newNotificationWithoutPayments();
-        NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 
-        // When
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
-        Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
-        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, newNotificationRequest);
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-        // Then
-        Mockito.verify(notificationDao).addNotification(savedNotification.capture());
-        assertEquals(EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
-        assertEquals(newNotificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
-        assertEquals(newNotificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest );
 
-        Mockito.verify(notificationEventProducer).sendNewNotificationEvent(Mockito.anyString(), Mockito.anyString(), Mockito.any(Instant.class));
-    }
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
+		assertEquals( EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
+		assertEquals( newNotificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
+		assertEquals( newNotificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
+
+		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
+	}
 
 
-    @Test
-    void throwsPnValidationExceptionForInvalidFormatNotification() {
+	@Test
+	void throwsPnValidationExceptionForInvalidFormatNotification() {
 
-        // Given
-        NewNotificationRequest notification = NewNotificationRequest.builder()
-                .recipients(Collections.singletonList(NotificationRecipient.builder().build()))
-                .documents(Collections.singletonList(NotificationDocument.builder().build()))
-                .build();
+		// Given
+		NewNotificationRequest notification = NewNotificationRequest.builder()
+				.recipients( Collections.singletonList( NotificationRecipient.builder().build() ) )
+				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
+				.build();
 
-        // When
-        Executable todo = () -> deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification);
+		// When
+		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification );
 
-        // Then
-        Assertions.assertThrows(PnValidationException.class, todo);
-    }
+		// Then
+		Assertions.assertThrows( PnValidationException.class, todo );
+	}
 
-    @Test
-    void throwsPnInternalExceptionInTheUncommonCaseOfDuplicatedIun() throws IdConflictException {
-        // Given
-        Mockito.doThrow(new IdConflictException("IUN"))
-                .when(notificationDao)
-                .addNotification(Mockito.any(InternalNotification.class));
+	@Test
+	void throwsPnInternalExceptionInTheUncommonCaseOfDuplicatedIun() throws IdConflictException {
+		// Given
+		Mockito.doThrow( new IdConflictException("IUN") )
+				.when( notificationDao )
+				.addNotification( Mockito.any( InternalNotification.class) );
 
-        NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode();
+		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-        // When
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
-        Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-        FileData fileData = FileData.builder()
-                .content(new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)))
-                .contentType(CONTENT_TYPE)
-                .build();
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.contentType( CONTENT_TYPE )
+				.build();
 
-        Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(fileData);
-        Executable todo = () -> deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification);
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
 
-        // Then
-        PnInternalException exc = Assertions.assertThrows(PnInternalException.class, todo);
-        Mockito.verify(notificationDao, Mockito.times(1))
-                .addNotification(Mockito.any(InternalNotification.class));
-    }
+		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification );
 
-    @Test
-    void successfullyInsertAfterPartialFailure() throws IdConflictException {
-        // Given
-        Mockito.doThrow(new PnInternalException("Simulated Error"))
-                .doNothing()
-                .when(notificationDao)
-                .addNotification(Mockito.any(InternalNotification.class));
+		// Then
+		PnInternalException exc = Assertions.assertThrows( PnInternalException.class, todo );
+		Mockito.verify( notificationDao, Mockito.times( 1 ) )
+				                              .addNotification( Mockito.any( InternalNotification.class ));
+	}
 
-        NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode();
+	@Test
+	void successfullyInsertAfterPartialFailure() throws IdConflictException {
+		// Given
+		Mockito.doThrow( new PnInternalException("Simulated Error") )
+				.doNothing()
+				.when( notificationDao )
+				.addNotification( Mockito.any( InternalNotification.class) );
 
-        // When
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
-        Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
+		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-        FileData fileData = FileData.builder()
-                .content(new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)))
-                .contentType(CONTENT_TYPE)
-                .build();
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-        Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(fileData);
-        Assertions.assertThrows(PnInternalException.class, () ->
-                deliveryService.receiveNotification("paId", notification)
-        );
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.contentType( CONTENT_TYPE )
+				.build();
 
-        deliveryService.receiveNotification("paId", notification);
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
 
-        // Then
-        Mockito.verify(notificationDao, Mockito.times(2))
-                .addNotification(Mockito.any(InternalNotification.class));
-    }
+		Assertions.assertThrows( PnInternalException.class, () ->
+				deliveryService.receiveNotification( "paId", notification )
+		);
 
-    private NewNotificationRequest newNotificationRequest() {
-        return NewNotificationRequest.builder()
-                .senderTaxId("senderTaxId")
-                .senderDenomination("senderDenomination")
-                .group("group1")
-                .subject("subject")
-                .documents(Collections.singletonList(NotificationDocument.builder()
-                        .contentType("application/pdf")
-                        .digests(NotificationAttachmentDigests.builder()
-                                .sha256(SHA256_BODY)
-                                .build())
-                        .ref(NotificationAttachmentBodyRef.builder()
-                                .versionToken(VERSION_TOKEN)
-                                .key(KEY)
-                                .build())
-                        .build()))
-                .notificationFeePolicy(NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE)
-                .paProtocolNumber("paProtocolNumber")
-                .recipients(Collections.singletonList(NotificationRecipient.builder()
-                        .payment(NotificationPaymentInfo.builder()
-                                .creditorTaxId("creditorTaxId")
-                                .f24flatRate(NotificationPaymentAttachment.builder()
-                                        .digests(NotificationAttachmentDigests.builder()
-                                                .sha256(SHA256_BODY)
-                                                .build())
-                                        .contentType("application/pdf")
-                                        .ref(NotificationAttachmentBodyRef.builder()
-                                                .key(KEY)
-                                                .versionToken(VERSION_TOKEN)
-                                                .build())
-                                        .build())
-                                .pagoPaForm(NotificationPaymentAttachment.builder()
-                                        .ref(NotificationAttachmentBodyRef.builder()
-                                                .key(KEY)
-                                                .versionToken(VERSION_TOKEN)
-                                                .build())
-                                        .contentType("application/pdf")
-                                        .digests(NotificationAttachmentDigests.builder()
-                                                .sha256(SHA256_BODY)
-                                                .build())
-                                        .build())
-                                .build())
-                        .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-                        .denomination("recipientDenomination")
-                        .taxId("recipientTaxId")
-                        .digitalDomicile(NotificationDigitalAddress.builder()
-                                .type(NotificationDigitalAddress.TypeEnum.PEC)
-                                .address("address@pec.it")
-                                .build())
-                        .build()))
-                .physicalCommunicationType(NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
-                .build();
-    }
+		deliveryService.receiveNotification( "paId", notification );
 
-    private NewNotificationRequest newNotificationWithoutPayments() {
-        return NewNotificationRequest.builder()
-                .paProtocolNumber("protocol_01")
-                .subject("Subject 01")
-                .physicalCommunicationType(NewNotificationRequest.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER)
-                .cancelledIun("IUN_00")
-                .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
-                                .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-                                .taxId("Codice Fiscale 01")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(NotificationDigitalAddress.builder()
-                                        .type(NotificationDigitalAddress.TypeEnum.PEC)
-                                        .address("account@dominio.it")
-                                        .build())
-                                .build()
-                ))
-                .documents(List.of(
-                        notificationReferredAttachment()
-                ))
-                .group("Group_1")
-                .build();
-    }
+		// Then
+		Mockito.verify( notificationDao, Mockito.times( 2 ) )
+				.addNotification( Mockito.any( InternalNotification.class ));
+	}
 
-    private NewNotificationRequest newNotificationWithPaymentsDeliveryMode() {
-        NewNotificationRequest notification = newNotificationWithoutPayments();
-        notification.notificationFeePolicy(NewNotificationRequest.NotificationFeePolicyEnum.DELIVERY_MODE);
+	private NewNotificationRequest newNotificationRequest() {
+		return NewNotificationRequest.builder()
+				.senderTaxId( "senderTaxId" )
+				.senderDenomination( "senderDenomination" )
+				.group( "group1" )
+				.subject( "subject" )
+				.documents( Collections.singletonList( NotificationDocument.builder()
+						.contentType( "application/pdf" )
+						.digests( NotificationAttachmentDigests.builder()
+								.sha256( SHA256_BODY )
+								.build() )
+						.ref( NotificationAttachmentBodyRef.builder()
+								.versionToken( VERSION_TOKEN )
+								.key( KEY )
+								.build() )
+						.build() ) )
+				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
+				.paProtocolNumber( "paProtocolNumber" )
+				.recipients( Collections.singletonList( NotificationRecipient.builder()
+						.payment( NotificationPaymentInfo.builder()
+								.creditorTaxId( "creditorTaxId" )
+								.f24flatRate( NotificationPaymentAttachment.builder()
+										.digests( NotificationAttachmentDigests.builder()
+												.sha256( SHA256_BODY )
+												.build() )
+										.contentType( "application/pdf" )
+										.ref( NotificationAttachmentBodyRef.builder()
+												.key( KEY )
+												.versionToken( VERSION_TOKEN )
+												.build() )
+										.build() )
+								.pagoPaForm( NotificationPaymentAttachment.builder()
+										.ref(NotificationAttachmentBodyRef.builder()
+												.key( KEY )
+												.versionToken( VERSION_TOKEN )
+												.build())
+										.contentType( "application/pdf" )
+										.digests( NotificationAttachmentDigests.builder()
+												.sha256( SHA256_BODY )
+												.build() )
+										.build() )
+								.build() )
+						.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+						.denomination( "recipientDenomination" )
+						.taxId( "recipientTaxId" )
+						.digitalDomicile( NotificationDigitalAddress.builder()
+								.type( NotificationDigitalAddress.TypeEnum.PEC )
+								.address( "address@pec.it" )
+								.build() )
+						.build() ) )
+				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				.build();
+	}
 
-        for (NotificationRecipient recipient : notification.getRecipients()) {
-            recipient.payment(NotificationPaymentInfo.builder()
-                    .noticeCode("IUV_01")
-                    .f24flatRate(buildPaymentAttachment())
-                    .f24standard(buildPaymentAttachment())
-                    .pagoPaForm(buildPaymentAttachment())
-                    .creditorTaxId("creditorTaxId")
-                    .build()
-            );
-        }
-        return notification;
-    }
+	private NewNotificationRequest newNotificationWithoutPayments( ) {
+		return NewNotificationRequest.builder()
+				.paProtocolNumber("protocol_01")
+				.subject("Subject 01")
+				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
+				.cancelledIun("IUN_00")
+				.recipients( Collections.singletonList(
+						NotificationRecipient.builder()
+								.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+								.taxId("Codice Fiscale 01")
+								.denomination("Nome Cognome/Ragione Sociale")
+								.digitalDomicile(NotificationDigitalAddress.builder()
+										.type(NotificationDigitalAddress.TypeEnum.PEC)
+										.address("account@dominio.it")
+										.build())
+								.build()
+				))
+				.documents(List.of(
+						notificationReferredAttachment()
+				))
+				.group( "Group_1" )
+				.build();
+	}
 
-    private NewNotificationRequest newNotificationWithPaymentsFlat() {
-        NotificationRecipient recipient = NotificationRecipient.builder()
-                .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-                .taxId("Codice Fiscale 02")
-                .physicalAddress(NotificationPhysicalAddress.builder()
-                        .municipality("municipality")
-                        .zip("zip_code")
-                        .address("address")
-                        .build())
-                .denomination("denomination")
-                .digitalDomicile(NotificationDigitalAddress.builder()
-                        .type(NotificationDigitalAddress.TypeEnum.PEC)
-                        .address("digitalAddressPec")
-                        .build())
-                .payment(NotificationPaymentInfo.builder()
-                        .creditorTaxId("creditorTaxId")
-                        .f24flatRate(NotificationPaymentAttachment.builder()
-                                .ref(NotificationAttachmentBodyRef.builder()
-                                        .key(KEY)
-                                        .versionToken(VERSION_TOKEN)
-                                        .build())
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256(SHA256_BODY)
-                                        .build())
-                                .contentType("application/pdf")
-                                .build()
-                        )
-                        .pagoPaForm(NotificationPaymentAttachment.builder()
-                                .ref(NotificationAttachmentBodyRef.builder()
-                                        .key(KEY)
-                                        .versionToken(VERSION_TOKEN)
-                                        .build())
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256(SHA256_BODY)
-                                        .build())
-                                .contentType("application/pdf")
-                                .build())
-                        .build()
-                ).build();
-        return NewNotificationRequest.builder()
-                .paProtocolNumber("protocol_01")
-                .subject("Subject 01")
-                .physicalCommunicationType(NewNotificationRequest.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER)
-                .cancelledIun("IUN_00")
-                .recipients(Collections.singletonList(recipient))
-                .documents(List.of(
-                        notificationReferredAttachment()
-                ))
-                .group("Group_1")
-                .build();
-    }
+	private NewNotificationRequest newNotificationWithPaymentsDeliveryMode( ) {
+		NewNotificationRequest notification = newNotificationWithoutPayments( );
+		notification.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.DELIVERY_MODE );
 
-    private NotificationPaymentAttachment buildPaymentAttachment() {
-        return NotificationPaymentAttachment.builder()
-                .ref(NotificationAttachmentBodyRef.builder().key("k1").versionToken("v1").build())
-                .contentType("application/pdf")
-                .digests(NotificationAttachmentDigests.builder().sha256("sha256").build())
-                .build();
-    }
+		for( NotificationRecipient recipient : notification.getRecipients()) {
+			recipient.payment( NotificationPaymentInfo.builder()
+					.noticeCode( "IUV_01" )
+					.f24flatRate( buildPaymentAttachment() )
+					.f24standard( buildPaymentAttachment() )
+					.pagoPaForm( buildPaymentAttachment()  )
+					.creditorTaxId( "creditorTaxId" )
+					.build()
+			);
+		}
+		return notification;
+	}
+
+	private NewNotificationRequest newNotificationWithPaymentsFlat( ) {
+		NotificationRecipient recipient = NotificationRecipient.builder()
+				.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+				.taxId( "Codice Fiscale 02" )
+				.physicalAddress( NotificationPhysicalAddress.builder()
+						.municipality( "municipality" )
+						.zip( "zip_code" )
+						.address( "address" )
+						.build())
+				.denomination( "denomination" )
+				.digitalDomicile( NotificationDigitalAddress.builder()
+						.type( NotificationDigitalAddress.TypeEnum.PEC )
+						.address( "digitalAddressPec" )
+						.build() )
+				.payment( NotificationPaymentInfo.builder()
+						.creditorTaxId( "creditorTaxId" )
+						.f24flatRate( NotificationPaymentAttachment.builder()
+								.ref( NotificationAttachmentBodyRef.builder()
+										.key( KEY )
+										.versionToken( VERSION_TOKEN )
+										.build() )
+								.digests( NotificationAttachmentDigests.builder()
+										.sha256( SHA256_BODY )
+										.build() )
+								.contentType( "application/pdf" )
+								.build()
+						)
+						.pagoPaForm( NotificationPaymentAttachment.builder()
+								.ref( NotificationAttachmentBodyRef.builder()
+										.key( KEY )
+										.versionToken( VERSION_TOKEN )
+										.build() )
+								.digests( NotificationAttachmentDigests.builder()
+										.sha256( SHA256_BODY )
+										.build() )
+								.contentType( "application/pdf" )
+								.build() )
+						.build()
+				).build();
+		return NewNotificationRequest.builder()
+				.paProtocolNumber("protocol_01")
+				.subject("Subject 01")
+				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
+				.cancelledIun("IUN_00")
+				.recipients( Collections.singletonList( recipient ) )
+				.documents(List.of(
+						notificationReferredAttachment()
+				))
+				.group( "Group_1" )
+				.build();
+	}
+
+	private NotificationPaymentAttachment buildPaymentAttachment() {
+		return NotificationPaymentAttachment.builder()
+				.ref( NotificationAttachmentBodyRef.builder().key("k1").versionToken("v1").build())
+				.contentType("application/pdf")
+				.digests( NotificationAttachmentDigests.builder().sha256("sha256").build())
+				.build();
+	}
 
 }
 
