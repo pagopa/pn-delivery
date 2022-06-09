@@ -69,7 +69,7 @@ public class PnNotificationInputController implements NewNotificationApi {
                 .cxType(xPagopaPnCxType.toString())
                 .build();
         if (preLoadRequest.size() > numberOfPresignedRequest) {
-            String logMessage = String.format("Presigned upload request lenght=%s is more than maximum allowed=%s",
+            String logMessage = String.format("Presigned upload request lenght=%d is more than maximum allowed=%d",
                     preLoadRequest.size(), numberOfPresignedRequest);
             log.error(logMessage);
             logEvent.generateFailure(logMessage).log();
