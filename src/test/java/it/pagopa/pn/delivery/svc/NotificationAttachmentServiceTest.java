@@ -87,10 +87,8 @@ class NotificationAttachmentServiceTest {
         response.setUploadUrl("https://url123");
 
         when(pnSafeStorageClient.createFile(Mockito.any(), Mockito.anyString())).thenReturn(response);
-
-        Map<String, String> logDetails = new HashMap<>();
         //When
-        List<PreLoadResponse> result = attachmentService.preloadDocuments(list, logDetails);
+        List<PreLoadResponse> result = attachmentService.preloadDocuments(list);
 
         //Then
         assertNotNull(result);

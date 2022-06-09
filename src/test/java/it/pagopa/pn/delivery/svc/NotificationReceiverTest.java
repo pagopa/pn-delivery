@@ -103,8 +103,7 @@ class NotificationReceiverTest {
 
         Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(fileData);
-        Map<String, String> logDetails = new HashMap<>();
-        NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification, logDetails);
+        NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification);
 
         // Then
         Mockito.verify(notificationDao).addNotification(savedNotificationCaptor.capture());
@@ -135,8 +134,7 @@ class NotificationReceiverTest {
         ModelMapper mapper = new ModelMapper();
         mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
         Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
-        Map<String, String> logDetails = new HashMap<>();
-        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, notificationRequest, logDetails);
+        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, notificationRequest);
 
         // Then
         Mockito.verify(notificationDao).addNotification(savedNotification.capture());
@@ -163,8 +161,7 @@ class NotificationReceiverTest {
         mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
         Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
 
-        Map<String, String> logDetails = new HashMap<>();
-        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, notificationRequest, logDetails);
+        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, notificationRequest);
 
         // Then
         Mockito.verify(notificationDao).addNotification(savedNotification.capture());
@@ -193,9 +190,7 @@ class NotificationReceiverTest {
         ModelMapper mapper = new ModelMapper();
         mapper.createTypeMap(NewNotificationRequest.class, InternalNotification.class);
         Mockito.when(modelMapperFactory.createModelMapper(NewNotificationRequest.class, InternalNotification.class)).thenReturn(mapper);
-
-        Map<String, String> logDetails = new HashMap<>();
-        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, newNotificationRequest, logDetails);
+        NewNotificationResponse addedNotification = deliveryService.receiveNotification(PAID, newNotificationRequest);
 
         // Then
         Mockito.verify(notificationDao).addNotification(savedNotification.capture());
@@ -217,8 +212,7 @@ class NotificationReceiverTest {
                 .build();
 
         // When
-        Map<String, String> logDetails = new HashMap<>();
-        Executable todo = () -> deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification, logDetails);
+        Executable todo = () -> deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification);
 
         // Then
         Assertions.assertThrows(PnValidationException.class, todo);
@@ -245,9 +239,7 @@ class NotificationReceiverTest {
 
         Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(fileData);
-
-        Map<String, String> logDetails = new HashMap<>();
-        Executable todo = () -> deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification, logDetails);
+        Executable todo = () -> deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification);
 
         // Then
         PnInternalException exc = Assertions.assertThrows(PnInternalException.class, todo);
@@ -277,12 +269,11 @@ class NotificationReceiverTest {
 
         Mockito.when(fileStorage.getFileVersion(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(fileData);
-        Map<String, String> logDetails = new HashMap<>();
         Assertions.assertThrows(PnInternalException.class, () ->
-                deliveryService.receiveNotification("paId", notification, logDetails)
+                deliveryService.receiveNotification("paId", notification)
         );
 
-        deliveryService.receiveNotification("paId", notification, logDetails);
+        deliveryService.receiveNotification("paId", notification);
 
         // Then
         Mockito.verify(notificationDao, Mockito.times(2))
