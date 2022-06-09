@@ -53,9 +53,6 @@ public class DtoToEntityNotificationMapper {
                .map( r ->  {
                    NotificationRecipientEntity nre = mapper.map( r, NotificationRecipientEntity.class );
                    nre.setRecipientId( r.getTaxId() );
-                   if (nre.getPayment() != null) {
-                       nre.getPayment().setCreditorTaxId_noticeCode( r.getPayment().getCreditorTaxId() + "##" + r.getPayment().getNoticeCode() );
-                   }
                    return nre;
                })
                .collect(Collectors.toList());

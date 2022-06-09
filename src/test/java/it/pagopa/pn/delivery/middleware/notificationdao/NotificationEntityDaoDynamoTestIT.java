@@ -3,8 +3,10 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationCost;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,7 @@ import java.util.Optional;
         "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
         "aws.endpoint-url=http://localhost:4566",
         "pn.delivery.notification-dao.table-name=Notifications",
+        "pn.delivery.notification-cost-dao.table-name=NotificationsCost",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata"
     })
 @SpringBootTest
@@ -33,6 +36,9 @@ class NotificationEntityDaoDynamoTestIT {
 
     @Autowired
     private NotificationEntityDao notificationEntityDao;
+
+    @Autowired
+    private NotificationCostEntityDao notificationCostEntityDao;
 
     @Test
     void putSuccess() throws IdConflictException {
@@ -47,9 +53,13 @@ class NotificationEntityDaoDynamoTestIT {
         Key controlKey = Key.builder()
                 .partitionValue( controlIun )
                 .build();
+        Key costKey = Key.builder()
+                .partitionValue( "creditorTaxId##noticeCode" )
+                .build();
 
         removeItemFromDb( key );
         removeItemFromDb( controlKey );
+        removeFromNotificationCostDb( costKey );
 
         //When
         notificationEntityDao.putIfAbsent( notificationToInsert );
@@ -67,7 +77,10 @@ class NotificationEntityDaoDynamoTestIT {
 
     @Test
     void getNotificationByPayment() {
-        Optional<List<InternalNotification>> result = notificationEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode" );
+        Optional<NotificationCost> result = notificationCostEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode" );
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals( "IUN_01" , result.get().getIun() );
     }
 
     @NotNull
@@ -99,7 +112,6 @@ class NotificationEntityDaoDynamoTestIT {
                                 .payment( NotificationPaymentInfoEntity.builder()
                                         .creditorTaxId( "creditorTaxId" )
                                         .noticeCode( "noticeCode" )
-                                        .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
                                         .pagoPaForm( PaymentAttachmentEntity.builder()
                                                 .contentType( "application/pdf" )
                                                 .digests( AttachmentDigestsEntity.builder()
@@ -118,5 +130,9 @@ class NotificationEntityDaoDynamoTestIT {
 
     private void removeItemFromDb(Key key) {
         notificationEntityDao.delete( key );
+    }
+
+    private void removeFromNotificationCostDb( Key key ){
+        notificationCostEntityDao.delete( key );
     }
 }

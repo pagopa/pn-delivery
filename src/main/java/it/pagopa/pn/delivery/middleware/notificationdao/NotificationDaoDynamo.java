@@ -165,9 +165,11 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 	private void handleDocuments(InternalNotification daoResult) {
 		int docIdx = 0;
-		for (NotificationDocument doc : daoResult.getDocuments()) {
-			doc.setDocIdx(Integer.toString(docIdx));
-			docIdx++;
+		if ( daoResult.getDocuments() != null ) {
+			for (NotificationDocument doc : daoResult.getDocuments()) {
+				doc.setDocIdx(Integer.toString(docIdx));
+				docIdx++;
+			}
 		}
 	}
 

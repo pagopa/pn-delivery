@@ -37,6 +37,8 @@ public class PnDeliveryConfigs {
 
     private NotificationMetadataDao notificationMetadataDao;
 
+    private NotificationCostDao notificationCostDao;
+
     private Integer maxPageSize;
 
     private Costs costs;
@@ -53,6 +55,11 @@ public class PnDeliveryConfigs {
 
     @Data
     public static class NotificationMetadataDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class NotificationCostDao {
         private String tableName;
     }
 

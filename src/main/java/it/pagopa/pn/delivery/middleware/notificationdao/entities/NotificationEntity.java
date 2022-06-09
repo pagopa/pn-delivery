@@ -18,7 +18,6 @@ import java.util.List;
 @ToString
 @DynamoDbBean
 public class NotificationEntity {
-
     public static final String FIELD_IUN = "iun";
     public static final String FIELD_PA_NOTIFICATION_ID = "paNotificationId";
     public static final String FIELD_SUBJECT = "subject";

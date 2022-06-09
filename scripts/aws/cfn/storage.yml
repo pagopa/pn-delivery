@@ -67,6 +67,18 @@ Resources:
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
 
+  NotificationsCostTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-NotificationsCost'
+      AttributeDefinitions:
+        - AttributeName: "creditorTaxId_noticeCode"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "creditorTaxId_noticeCode"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
   NotificationsMetadataTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -134,6 +146,13 @@ Outputs:
   NotificationsDynamoTableArn:
     Description: ARN of dynamodb table containing notifications
     Value: !Sub '${NotificationsTable.Arn}'
+
+  NotificationsCostDynamoTableName:
+    Description: Name of dynamodb table containing notifications cost
+    Value: !Ref NotificationsCostTable
+  NotificationsCostDynamoTableArn:
+    Description: ARN of dynamodb table containing notifications cost
+    Value: !Sub '${NotificationsCostTable.Arn}'
 
   NotificationsMetadataDynamoTableName:
     Description: Name of dynamodb table containing notifications metadata
