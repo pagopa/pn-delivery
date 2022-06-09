@@ -105,8 +105,7 @@ class PnNotificationInputControllerTest {
                 .notificationRequestId(EncodingUtils.base64Encoding(IUN)).build();
 
         // When
-        Map<String, String> logDetailsMap = new HashMap<>();
-        Mockito.when(deliveryService.receiveNotification(Mockito.anyString(), Mockito.any(NewNotificationRequest.class), logDetailsMap))
+        Mockito.when(deliveryService.receiveNotification(Mockito.anyString(), Mockito.any(NewNotificationRequest.class)))
                 .thenReturn(savedNotification);
 
         ModelMapper mapper = new ModelMapper();
@@ -127,7 +126,7 @@ class PnNotificationInputControllerTest {
                 .exchange()
                 .expectStatus().isOk();
 
-        Mockito.verify(deliveryService).receiveNotification(Mockito.anyString(), Mockito.any(NewNotificationRequest.class), logDetailsMap);
+        Mockito.verify(deliveryService).receiveNotification(Mockito.anyString(), Mockito.any(NewNotificationRequest.class));
     }
 
     @Test
@@ -144,11 +143,10 @@ class PnNotificationInputControllerTest {
                 .httpMethod(PreLoadResponse.HttpMethodEnum.PUT)
                 .url(URL)
                 .build());
-        Map<String, String> logDetailsMap = new HashMap<>();
 
         // When
         Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn(MAX_NUMBER_REQUESTS);
-        Mockito.when(attachmentService.preloadDocuments(Mockito.anyList(), logDetailsMap))
+        Mockito.when(attachmentService.preloadDocuments(Mockito.anyList()))
                 .thenReturn(responses);
 
         // Then
@@ -164,7 +162,7 @@ class PnNotificationInputControllerTest {
                 .exchange()
                 .expectStatus().isOk();
 
-        Mockito.verify(attachmentService).preloadDocuments(requests, logDetailsMap);
+        Mockito.verify(attachmentService).preloadDocuments(requests);
     }
 
     @Test
