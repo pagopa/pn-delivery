@@ -94,9 +94,9 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             result = mapper.map(internalNotification, FullReceivedNotification.class);
 
             logEvent.generateSuccess().log();
-            return ResponseEntity.ok(result);
-        } catch (PnInternalException ext) {
-            logEvent.generateFailure(ext.getMessage()).log();
+        } catch (PnInternalException exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw new RuntimeException("Exception on updateStatus:" + exc.getMessage(), exc);
         }
         return ResponseEntity.ok(result);
     }
@@ -115,8 +115,9 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         try {
             response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
             logEvent.generateSuccess().log();
-        } catch (PnInternalException e) {
-            logEvent.generateFailure(e.getMessage()).log();
+        } catch (PnInternalException exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw new RuntimeException("Exception on updateStatus:" + exc.getMessage(), exc);
         }
 
         return ResponseEntity.ok(response);
@@ -136,8 +137,9 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         try {
             response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
             logEvent.generateSuccess().log();
-        } catch (PnInternalException e) {
-            logEvent.generateFailure(e.getMessage()).log();
+        } catch (PnInternalException exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw new RuntimeException("Exception on updateStatus:" + exc.getMessage(), exc);
         }
         return ResponseEntity.ok(response);
     }
