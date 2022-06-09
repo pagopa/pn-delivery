@@ -32,6 +32,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<SentNotification> getSentNotificationPrivate(String iun) {
+    	log.info("Starting getSentNotificationPrivate for iun={}", iun);
         InternalNotification notification = retrieveSvc.getNotificationInformation( iun, false );
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, SentNotification.class );
         SentNotification sentNotification = mapper.map(notification, SentNotification.class);
@@ -42,6 +43,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             recIdx += 1;
         }
 
+        log.info("Ending getSentNotificationPrivate for iun={}", iun);
         return ResponseEntity.ok( sentNotification );
     }
 
@@ -49,6 +51,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
         log.info("Starting Update status for iun={} nextStatus={}", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus());
         statusService.updateStatus(requestUpdateStatusDto);
+        log.info("Ending Update status for iun={} nextStatus={}", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus());
         return ResponseEntity.ok().build();
     }
 }

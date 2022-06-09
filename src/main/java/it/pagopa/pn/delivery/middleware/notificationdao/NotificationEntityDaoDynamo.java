@@ -31,6 +31,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
     @Override
     public void putIfAbsent(NotificationEntity notificationEntity) throws IdConflictException {
+    	log.debug("Starting putIfAbsent with notificationEntity={}", notificationEntity);
         Expression conditionExpressionPut = Expression.builder()
                 .expression("attribute_not_exists(iun)")
                 .build();
@@ -55,6 +56,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                 .build();
 
         try {
+        	log.debug("Calling dynamoDbEnhancedClient.transactWriteItems with enhancedRequest={}", enhancedRequest);
             dynamoDbEnhancedClient.transactWriteItems( enhancedRequest );
         } catch (TransactionCanceledException ex) {
             log.error("Unable to insert notification={}", notificationEntity ,ex );

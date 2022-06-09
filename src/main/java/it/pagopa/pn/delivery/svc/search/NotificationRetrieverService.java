@@ -102,6 +102,8 @@ public class NotificationRetrieverService {
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
 					.collect(Collectors.toList()) );
 		}
+		
+		log.info("Ending search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
 		return builder.build();
 	}
 
@@ -115,6 +117,7 @@ public class NotificationRetrieverService {
 	 *
 	 */
 	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId) {
+		log.debug("Starting checkMandate with mandateId={}", mandateId);
 		String senderReceiverId = searchDto.getSenderReceiverId();
 		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId);
 		if(!mandates.isEmpty()) {
@@ -216,7 +219,7 @@ public class NotificationRetrieverService {
 	 * @return Notification
 	 */
 	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId) {
-		log.debug("Start getNotificationAndSetViewed for {}", iun);
+		log.debug("Start getNotificationAndSetViewed for iun={}", iun);
 		InternalNotification notification = getNotificationInformation(iun);
 		handleNotificationViewedEvent(iun, userId, notification);
 		return notification;
@@ -254,16 +257,20 @@ public class NotificationRetrieverService {
 		
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
+		log.debug("creating mapperStatusHistory");
 		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
 
-
+		log.debug("creating mapperNotification");
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
+		log.debug("creating mapperTimeline");
 		ModelMapper mapperTimeline = new ModelMapper();
 		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
 				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
+		log.debug("mapperTimeline.getConfiguration");
 		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		Converter<OffsetDateTime,Date> fromOffestToDate = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
+		log.debug("mapperTimeline.addConverter");
 		mapperTimeline.addConverter( fromOffestToDate, OffsetDateTime.class, Date.class );
 
 		FullSentNotification resultFullSent = notification
@@ -276,6 +283,7 @@ public class NotificationRetrieverService {
 				)
 				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 
+		log.debug( "Retrieve timeline for iun={} ended", iun );
 		return mapperNotification.map( resultFullSent, InternalNotification.class );
 	}
 

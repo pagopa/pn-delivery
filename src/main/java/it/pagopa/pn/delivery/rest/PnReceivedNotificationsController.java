@@ -13,6 +13,8 @@ import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @RestController
 public class PnReceivedNotificationsController implements RecipientReadApi {
     private final NotificationRetrieverService retrieveSvc;
@@ -38,7 +41,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     @Override
     public ResponseEntity<NotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Date startDate, Date endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+    	log.info("Starting searchReceivedNotification with xPagopaPnUid={}, status={},  form startDate={} to endDate={} and iun or partialIun={}", xPagopaPnUid, status.name(), startDate, endDate, iunMatch);
+    	InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
                 .senderReceiverId(xPagopaPnCxId)
                 .startDate(startDate.toInstant())
@@ -57,29 +61,36 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
         ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
         NotificationSearchResponse response = mapper.map( serviceResult, NotificationSearchResponse.class );
+        log.info("Ending searchReceivedNotification with xPagopaPnUid={} and iunMatch={}", xPagopaPnUid, iunMatch);
         return ResponseEntity.ok( response );
     }
 
     @Override
     public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        InternalNotification internalNotification =  retrieveSvc.getNotificationAndNotifyViewedEvent( iun, xPagopaPnCxId );
+    	log.info("Starting getReceivedNotification with xPagopaPnUid={} and iun={}", xPagopaPnUid, iun);
+    	InternalNotification internalNotification =  retrieveSvc.getNotificationAndNotifyViewedEvent( iun, xPagopaPnCxId );
 
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class );
 
         FullReceivedNotification result = mapper.map( internalNotification, FullReceivedNotification.class );
+        log.info("Ending getReceivedNotification with xPagopaPnUid={} and iun={}", xPagopaPnUid, iun);
         return ResponseEntity.ok( result );
     }
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+    	log.info("Starting getReceivedNotificationDocument with xPagopaPnUid={} and iun={}", xPagopaPnUid, iun);
+    	NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+    	log.info("Ending getReceivedNotificationDocument with xPagopaPnUid={} and iun={}", xPagopaPnUid, iun);
         return ResponseEntity.ok( response );
     }
 
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
-        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
+    	log.info("Starting getReceivedNotificationAttachment with xPagopaPnUid={} and iun={}", xPagopaPnUid, iun);
+    	NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
+    	log.info("Ending getReceivedNotificationAttachment with xPagopaPnUid={} and iun={}", xPagopaPnUid, iun);
         return ResponseEntity.ok( response );
     }
 

@@ -56,7 +56,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 	@Override
 	public void addNotification(InternalNotification internalNotification) throws IdConflictException {
-
+		log.debug("Starting addNotification for internalNotification={}", internalNotification);
 		List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
 		List<NotificationRecipient> cleanedRecipientList = new ArrayList<>();
 		for ( NotificationRecipient recipient  : internalNotification.getRecipients()) {
@@ -69,7 +69,8 @@ public class NotificationDaoDynamo implements NotificationDao {
 			recipientAddressesDtoList.add( recipientAddressesDto );
 			cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
 		}
-
+		
+		log.debug("calling pnDataVaultClient.updateNotificationAddressesByIun with internalNotification.getIun()={}", internalNotification.getIun());
 		pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
 		internalNotification.setRecipients( cleanedRecipientList );
 
@@ -103,6 +104,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 	@Override
 	public Optional<InternalNotification> getNotificationByIun(String iun) {
+		log.debug( "Starting getNotificationByIun with iun={}", iun );
 		Key keyToSearch = Key.builder()
 				.partitionValue(iun)
 				.build();
@@ -114,21 +116,25 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 			handleDocuments(daoResult);
 		}
+		log.debug( "getNotificationByIun with iun={}, ended", iun );
 		return daoResult;
 	}
 
 	private void handleRecipients(Optional<InternalNotification> daoResult) {
+		log.debug( "Starting handleRecipients with daoResult={}", daoResult );
 		List<NotificationRecipient> daoNotificationRecipientList = daoResult.get().getRecipients();
 
 		List<String> opaqueIds = daoNotificationRecipientList.stream()
 				.map(NotificationRecipient::getTaxId)
 				.collect(Collectors.toList());
 
+		log.debug("calling pnDataVaultClient.getRecipientDenominationByInternalId with opaqueIds={}", opaqueIds);	
 		List<BaseRecipientDto> baseRecipientDtoList =
 				pnDataVaultClient.getRecipientDenominationByInternalId(
 						opaqueIds
 						);
 
+		log.debug("calling pnDataVaultClient.getNotificationAddressesByIun for iu={}", daoResult.get().getIun());
 		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.get().getIun() );
 		List<String> opaqueRecipientsIds = new ArrayList<>();
 
@@ -162,6 +168,8 @@ public class NotificationDaoDynamo implements NotificationDao {
 			recipientIndex += 1;
 		}
 		daoResult.get().setRecipientIds( opaqueRecipientsIds );
+		
+		log.debug( "handleRecipients ended");
 	}
 
 	private void handleDocuments(Optional<InternalNotification> daoResult) {
@@ -196,6 +204,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 	@Override
 	public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+		log.debug("Starting searchForOneMonth with inputSearchNotificationDto={}, indexName={}, partitionValue={}, size={}", inputSearchNotificationDto, indexName, size);
 		return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, partitionValue, size, lastEvaluatedKey );
 	}
 

@@ -24,6 +24,7 @@ public class PnDeliveryPushClientImpl {
     }
 
     public NotificationHistoryResponse getTimelineAndStatusHistory(String iun, int numberOfRecipients, OffsetDateTime createdAt) {
-        return timelineAndStatusApi.getNotificationHistory( iun, numberOfRecipients, createdAt);
+    	log.debug("Starting getTimelineAndStatusHistory with iun={}, numberOfRecipients={} and createdAt={}", iun, numberOfRecipients, createdAt);
+    	return timelineAndStatusApi.getNotificationHistory( iun, numberOfRecipients, createdAt);
     }
 }

@@ -30,10 +30,12 @@ public class PnSafeStorageClientImpl {
     }
 
     public FileDownloadResponse getFile(String fileKey, Boolean metadataOnly) {
+    	log.debug("Starting getFile with fileKey={}, metadataOnly={}", fileKey, metadataOnly);
         return fileDownloadApi.getFile( fileKey, this.cfg.getSafeStorageCxId(), metadataOnly );
     }
 
     public FileCreationResponse createFile(FileCreationRequest fileCreationRequest, String sha256) {
+    	log.debug("Starting createFile with fileCreationRequest={}, sha256={}", fileCreationRequest, sha256);
         return fileUploadApi.createFile(
                 this.cfg.getSafeStorageCxId(),
                 "SHA-256",

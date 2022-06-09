@@ -51,6 +51,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             int size,
             PnLastEvaluatedKey lastEvaluatedKey
     ) {
+    	log.debug("Starting searchForOneMonth with inputSearchNotificationDto={}", inputSearchNotificationDto);
         Instant startDate = inputSearchNotificationDto.getStartDate();
         Instant endDate = inputSearchNotificationDto.getEndDate();
 
@@ -81,6 +82,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         // recupero nome dell'attributo in base all'indice di ricerca ed imposto
         // l'ultimo elemento valutato nella query precedente come exclusiveStartKey della query che segue
         if( lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty() ) {
+        	log.debug("retrieveAttributeName with indexName={}", indexName);
             String attributeName = retrieveAttributeName( indexName );
             if ( lastEvaluatedKey.getInternalLastEvaluatedKey().get( attributeName ).s().equals( partitionValue ) ) {
                 requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
@@ -210,6 +212,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
     @Override
     public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) {
+    	log.debug("Starting putIfAbsent with notificationMetadataEntity={}", notificationMetadataEntity);
         PutItemEnhancedRequest<NotificationMetadataEntity> request = PutItemEnhancedRequest.
                 builder(NotificationMetadataEntity.class)
                 .item( notificationMetadataEntity )
