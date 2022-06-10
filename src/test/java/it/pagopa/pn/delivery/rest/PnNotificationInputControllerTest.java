@@ -43,7 +43,7 @@ class PnNotificationInputControllerTest {
 
 	@MockBean
 	ModelMapperFactory modelMapperFactory;
-
+	
 	@MockBean
 	private NotificationReceiverService deliveryService;
 
@@ -105,7 +105,7 @@ class PnNotificationInputControllerTest {
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 						.notificationRequestId( EncodingUtils.base64Encoding(IUN) ).build();
-
+				
 		// When
 		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
 				.thenReturn( savedNotification );
@@ -114,7 +114,7 @@ class PnNotificationInputControllerTest {
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) )
 				.thenReturn( mapper );
-
+		
 		// Then
 		webTestClient.post()
                 .uri("/delivery/requests")
@@ -127,7 +127,7 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
                 .expectStatus().isOk();
-
+		
 		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
 

@@ -33,10 +33,10 @@ public class StatusService {
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
         this.dataVaultClient = dataVaultClient;
     }
-
+    
     public void updateStatus(RequestUpdateStatusDto dto) {
         Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun());
-
+        
         if (notificationOptional.isPresent()) {
             InternalNotification notification = notificationOptional.get();
             log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());

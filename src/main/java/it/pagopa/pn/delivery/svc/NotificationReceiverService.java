@@ -77,7 +77,7 @@ public class NotificationReceiverService {
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
 		String notificationId = EncodingUtils.base64Encoding(iun);
-
+		
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
 				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
@@ -102,7 +102,7 @@ public class NotificationReceiverService {
 
 		return iun;
 	}
-
+	
 
 	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws IdConflictException {
 		String paId = internalNotification.getSenderPaId();
