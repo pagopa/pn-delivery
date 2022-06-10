@@ -4,21 +4,24 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class MultiPageSearch {
 
     private final NotificationDao notificationDao;
@@ -26,15 +29,17 @@ public class MultiPageSearch {
     private final PnLastEvaluatedKey lastEvaluatedKey;
     private final InputSearchNotificationDto inputSearchNotificationDto;
     private final PnDeliveryConfigs cfg;
+    private final PnDataVaultClientImpl dataVaultClient;
 
     public MultiPageSearch(NotificationDao notificationDao,
                            InputSearchNotificationDto inputSearchNotificationDto,
                            PnLastEvaluatedKey lastEvaluatedKey,
-                           PnDeliveryConfigs cfg) {
+                           PnDeliveryConfigs cfg, PnDataVaultClientImpl dataVaultClient) {
         this.notificationDao = notificationDao;
         this.inputSearchNotificationDto = inputSearchNotificationDto;
         this.lastEvaluatedKey = lastEvaluatedKey;
         this.cfg = cfg;
+        this.dataVaultClient = dataVaultClient;
     }
 
     public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchNotificationMetadata() {
@@ -116,6 +121,26 @@ public class MultiPageSearch {
                     globalResult.setNextPagesKey( oneQueryResult.getNextPagesKey() );
                 }
                 numPages = globalResult.getNextPagesKey().size();
+            }
+        }
+        // faccio richiesta a data-vault per restituire i CF non opachi al FE
+        if ( globalResult.getResultsPage() != null && !globalResult.getResultsPage().isEmpty() ) {
+            Set<String> opaqueTaxIds = globalResult.getResultsPage().stream().map( NotificationSearchRow::getRecipients ).flatMap( Collection::stream ).collect(Collectors.toSet());
+            if (!opaqueTaxIds.isEmpty()) {
+                log.debug( "Opaque tax ids={}", opaqueTaxIds );
+                List<BaseRecipientDto> dataVaultResults = dataVaultClient.getRecipientDenominationByInternalId(new ArrayList<>(opaqueTaxIds));
+                if ( !dataVaultResults.isEmpty() ) {
+                    for (NotificationSearchRow searchRow : globalResult.getResultsPage()) {
+                        List<String> realTaxIds = new ArrayList<>();
+                        for (String internalId : searchRow.getRecipients() ) {
+                            Optional<BaseRecipientDto> match = dataVaultResults.stream().filter( r -> r.getInternalId().equals( internalId ) ).findFirst();
+                            match.ifPresent(baseRecipientDto -> realTaxIds.add(baseRecipientDto.getTaxId()));
+                        }
+                        searchRow.setRecipients( realTaxIds );
+                    }
+                } else {
+                    log.error( "No result from data-vault for internalIds={}", opaqueTaxIds );
+                }
             }
         }
         return globalResult;
