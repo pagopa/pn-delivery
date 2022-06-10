@@ -93,10 +93,10 @@ public class NotificationPriceService {
         long simpleRegisteredLetterCost;
         String foreignState = tle.getDetails().getPhysicalAddress().getForeignState();
         log.debug( "ForeignState={}", foreignState );
-        if (foreignState != null && foreignState.equals( "Italia" )) {
+        if (foreignState == null || foreignState.equals( "Italia" )) {
             simpleRegisteredLetterCost = Long.parseLong( cfg.getCosts().getRaccomandataIta() );
         } else {
-            // TODO recupero della zona in base al codice foreignState
+            // TODO nella PN-1567 recupero della zona in base al codice foreignState
             simpleRegisteredLetterCost = Long.parseLong( cfg.getCosts().getRaccomandataEstZona1() );
         }
         return simpleRegisteredLetterCost;

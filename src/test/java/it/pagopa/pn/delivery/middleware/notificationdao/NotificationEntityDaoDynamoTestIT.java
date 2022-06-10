@@ -53,13 +53,17 @@ class NotificationEntityDaoDynamoTestIT {
         Key controlKey = Key.builder()
                 .partitionValue( controlIun )
                 .build();
-        Key costKey = Key.builder()
+        Key costKey1 = Key.builder()
                 .partitionValue( "creditorTaxId##noticeCode" )
+                .build();
+        Key costKey2 = Key.builder()
+                .partitionValue( "77777777777##002720356512737953" )
                 .build();
 
         removeItemFromDb( key );
         removeItemFromDb( controlKey );
-        removeFromNotificationCostDb( costKey );
+        removeFromNotificationCostDb( costKey1 );
+        removeFromNotificationCostDb( costKey2 );
 
         //When
         notificationEntityDao.putIfAbsent( notificationToInsert );
@@ -101,7 +105,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .cancelledIun("IUN_00")
                 .senderPaId( "pa_02" )
                 .group( "Group_1" )
-                .recipients( Collections.singletonList(NotificationRecipientEntity.builder()
+                .recipients( List.of(NotificationRecipientEntity.builder()
                                 .recipientType( RecipientTypeEntity.PF )
                                 .recipientId( "recipientTaxId" )
                                 .digitalDomicile(NotificationDigitalAddressEntity.builder()
@@ -123,7 +127,16 @@ class NotificationEntityDaoDynamoTestIT {
                                                         .build() )
                                                 .build() )
                                         .build() )
-                        .build()) )
+                        .build(),
+                        NotificationRecipientEntity.builder()
+                                .payment( NotificationPaymentInfoEntity.builder()
+                                        .creditorTaxId( "77777777777" )
+                                        .noticeCode( "002720356512737953" )
+                                        .build() )
+                                .physicalAddress( NotificationPhysicalAddressEntity.builder()
+                                        .foreignState( "Svizzera" )
+                                        .build() )
+                                .build()) )
                 //.recipientsJson(Collections.emptyMap())
                 .build();
     }
