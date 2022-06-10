@@ -98,6 +98,10 @@ Parameters:
     Type: String
     Description: 'network load balancer link for API-GW'
 
+  AlarmSNSTopicArn:
+    Type: String
+    Description: ARN of alarm topic
+
 
 Resources:
 
@@ -110,6 +114,7 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         CpuValue: 1024
         MemoryAmount: 2GB
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PN_DELIVERY_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
@@ -224,16 +229,16 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
 
-  # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
-#  DeliveryMicroservicePublicIoAPI:
-#    Type: AWS::CloudFormation::Stack
-#    Properties:
-#      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
-#      Parameters:
-#        MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
-#        IntendedUsage: IO
-#        DnsName: !Ref IoApiDnsName
-#        ProjectName: !Ref ProjectName
-#        ServiceApiPath: 'delivery'
-#        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
-#        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
+# Expose PN-Delivery microservice public API with API-GW for IO Backend usage
+  DeliveryMicroservicePublicIoAPI:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      Parameters:
+        MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
+        IntendedUsage: IO
+        DnsName: !Ref IoApiDnsName
+        ProjectName: !Ref ProjectName
+        ServiceApiPath: 'delivery'
+        NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
+        ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain

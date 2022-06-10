@@ -1,6 +1,6 @@
 {
   "Parameters" : {
     "CorsAllowedDomains" : "http://localhost:8090,https://portale-pa-main.fe.dev.pn.pagopa.it/,https://portale-pf-main.fe.dev.pn.pagopa.it/,https://www.uat.pn.pagopa.it",
-    "SandboxSafeStorageBaseUrl": "https://non.anocra.disponibile"
+    "SandboxSafeStorageBaseUrl": "https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev"
   }
 }
