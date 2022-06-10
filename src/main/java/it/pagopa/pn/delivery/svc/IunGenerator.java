@@ -1,11 +1,13 @@
 package it.pagopa.pn.delivery.svc;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Random;
 
 public class IunGenerator {
 
-    private static final char[] IUN_CHARS = new char[] {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+    private static final char[] IUN_CHARS = new char[] {'A','D','E','G','H','J','K','L','M','N','P','Q','R','T','U','V','W','X','Y','Z'};
+    private static final List<String> INVALID_PAIRS = List.of("UV", "VU", "HN", "NH");
     private static final String SEPARATOR = "-";
 
     private Random randomNumberGenerator = new Random();
@@ -39,11 +41,40 @@ public class IunGenerator {
             if (s > 0) {
                 buffer.append(separator);
             }
-            for (int i = 0; i < segmentLength; i++) {
+            int i = 0;
+            while (i < segmentLength) {
                 int randomLimitedInt = randomNumberGenerator.nextInt(IUN_CHARS.length);
-                buffer.append(IUN_CHARS[randomLimitedInt]);
+                char currentChar = IUN_CHARS[randomLimitedInt];
+
+                if (buffer.length() > 0) {
+                    char prevChar = buffer.charAt( buffer.length() - 1 );
+                    if ( isValidPair(currentChar, prevChar) ) {
+                        buffer.append( currentChar );
+                        i++;
+                    }
+                    // else ignore generated character
+                }
+                else {
+                    buffer.append( currentChar );
+                    i++;
+                }
+
+
             }
         }
         return buffer.toString();
+    }
+
+    private boolean isValidPair(char currentChar, char prevChar) {
+        boolean valid = true;
+        if (currentChar != prevChar) {
+            String pair = prevChar + "" + currentChar;
+            if ( INVALID_PAIRS.contains( pair ) ) {
+                valid = false;
+            }
+        } else {
+            valid = false;
+        }
+        return valid;
     }
 }

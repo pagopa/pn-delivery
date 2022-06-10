@@ -39,26 +39,26 @@ public class StatusService {
 
         if (notificationOptional.isPresent()) {
             InternalNotification notification = notificationOptional.get();
-            log.debug("Notification is present {} for iun {}", notification.getPaProtocolNumber(), dto.getIun());
+            log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
 
-            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(notification.getNotificationStatus(), notification);
-            nextMetadataEntry.forEach(notificationMetadataEntityDao::put);
+            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto.getNextStatus(), notification);
+            nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
         } else {
-            throw new PnInternalException("Try to update status for non existing iun " + dto.getIun());
+            throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun());
         }
     }
 
     private List<NotificationMetadataEntity> computeMetadataEntry(NotificationStatus lastStatus, InternalNotification notification) {
-        String creationMonth = extractCreationMonth(notification.getSentAt().toInstant());
+        String creationMonth = extractCreationMonth( notification.getSentAt().toInstant() );
 
         List<String> opaqueTaxIds = new ArrayList<>();
         for (NotificationRecipient recipient : notification.getRecipients()) {
-            opaqueTaxIds.add(dataVaultClient.ensureRecipientByExternalId(RecipientType.fromValue(recipient.getRecipientType().getValue()), recipient.getTaxId()));
+            opaqueTaxIds.add( dataVaultClient.ensureRecipientByExternalId( RecipientType.fromValue(recipient.getRecipientType().getValue()), recipient.getTaxId() ));
         }
 
         return opaqueTaxIds.stream()
-                .map(recipientId -> this.buildOneSearchMetadataEntry(notification, lastStatus, recipientId, opaqueTaxIds, creationMonth))
-                .collect(Collectors.toList());
+                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth))
+                    .collect(Collectors.toList());
     }
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(
@@ -68,25 +68,25 @@ public class StatusService {
             List<String> recipientsIds,
             String creationMonth
     ) {
-        int recipientIndex = recipientsIds.indexOf(recipientId);
+        int recipientIndex = recipientsIds.indexOf( recipientId );
 
         return NotificationMetadataEntity.builder()
-                .notificationStatus(lastStatus != null ? lastStatus.toString() : null)
-                .senderId(notification.getSenderPaId())
-                .recipientId(recipientId)
-                .sentAt(notification.getSentAt().toInstant())
-                .notificationGroup(notification.getGroup())
-                .recipientIds(recipientsIds)
-                .tableRow(Map.ofEntries(
-                        Map.entry("iun", notification.getIun()),
-                        Map.entry("recipientsIds", recipientsIds.toString()),
-                        Map.entry("paProtocolNumber", notification.getPaProtocolNumber()),
-                        Map.entry("subject", notification.getSubject())))
-                .senderId_recipientId(createConcatenation(notification.getSenderPaId(), recipientId))
-                .senderId_creationMonth(createConcatenation(notification.getSenderPaId(), creationMonth))
-                .recipientId_creationMonth(createConcatenation(recipientId, creationMonth))
-                .iun_recipientId(createConcatenation(notification.getIun(), recipientId))
-                .recipientOne(recipientIndex <= 0)
+                .notificationStatus( lastStatus.toString() )
+                .senderId( notification.getSenderPaId() )
+                .recipientId( recipientId )
+                .sentAt( notification.getSentAt().toInstant() )
+                .notificationGroup( notification.getGroup() )
+                .recipientIds( recipientsIds )
+                .tableRow( Map.ofEntries(
+                        Map.entry( "iun", notification.getIun() ),
+                        Map.entry( "recipientsIds", recipientsIds.toString() ),
+                        Map.entry( "paProtocolNumber", notification.getPaProtocolNumber() ),
+                        Map.entry( "subject", notification.getSubject())  ) )
+                .senderId_recipientId( createConcatenation( notification.getSenderPaId(), recipientId  ) )
+                .senderId_creationMonth( createConcatenation( notification.getSenderPaId(), creationMonth ) )
+                .recipientId_creationMonth( createConcatenation( recipientId , creationMonth ) )
+                .iun_recipientId( createConcatenation( notification.getIun(), recipientId ) )
+                .recipientOne( recipientIndex <= 0 )
                 .build();
     }
 
@@ -96,7 +96,7 @@ public class StatusService {
 
     private String extractCreationMonth(Instant sentAt) {
         String sentAtString = sentAt.toString();
-        String[] splitSentAt = sentAtString.split("-");
+        String[] splitSentAt = sentAtString.split( "-" );
         return splitSentAt[0] + splitSentAt[1];
     }
 

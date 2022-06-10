@@ -1,9 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
@@ -18,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,24 +47,21 @@ public class NotificationAttachmentService {
         this.pnMandateClient = pnMandateClient;
     }
 
-    private FileDownloadResponse getFile(String fileKey) {
+    private FileDownloadResponse getFile(String fileKey){
         log.info("getFile with fileKey={} ", fileKey);
         return this.safeStorageClient.getFile(fileKey, false);
     }
 
-    public List<PreLoadResponse> preloadDocuments(List<PreLoadRequest> preLoadRequests) {
+    public List<PreLoadResponse> preloadDocuments(List<PreLoadRequest> preLoadRequests){
         return preLoadRequests.stream().map(req -> {
-            String contentType = req.getContentType();
-            String preloadIdx = req.getPreloadIdx();
-            String logMessage = String.format("preloadDocuments contentType %s preloadIdx %s", contentType, preloadIdx);
-            log.info(logMessage);
+            log.info("preloadDocuments contentType:{} preloadIdx:{}", req.getContentType(), req.getPreloadIdx());
             FileCreationRequest fileCreationRequest = new FileCreationRequest();
             fileCreationRequest.setContentType(req.getContentType());
             fileCreationRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENTS);
             fileCreationRequest.setStatus(PRELOADED);
 
             var resp = this.safeStorageClient.createFile(fileCreationRequest, req.getSha256());
-            return PreLoadResponse.builder()
+            return  PreLoadResponse.builder()
                     .url(resp.getUploadUrl())
                     .key(resp.getKey())
                     .httpMethod(PreLoadResponse.HttpMethodEnum.fromValue(resp.getUploadMethod().getValue()))
@@ -80,11 +73,11 @@ public class NotificationAttachmentService {
 
 
     public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirectByIunAndRecIdxAttachName(String iun, int recipientIdx, String attachmentName) {
-        return downloadDocumentWithRedirect(iun, null, recipientIdx, null, attachmentName, null);
+       return downloadDocumentWithRedirect(iun, null, recipientIdx, null, attachmentName, null);
     }
 
     public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirectByIunAndDocIndex(String iun, int documentIndex) {
-        return downloadDocumentWithRedirect(iun, documentIndex, null, null, null, null);
+        return downloadDocumentWithRedirect(iun, documentIndex, null, null,null,null);
     }
 
 
@@ -92,8 +85,8 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect(iun, null, null, xPagopaPnCxId, attachmentName, mandateId);
     }
 
-    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(String iun, Integer documentIndex, Integer recipientIdx, String xPagopaPnCxId, String attachmentName, String mandateId) {
-        log.info("downloadDocumentWithRedirect for iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={}", iun, documentIndex, recipientIdx, xPagopaPnCxId, attachmentName, mandateId);
+    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(String iun, Integer documentIndex, Integer recipientIdx, String xPagopaPnCxId, String attachmentName, String mandateId ) {
+        log.info("downloadDocumentWithRedirect for iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={}", iun, documentIndex, recipientIdx, xPagopaPnCxId, attachmentName, mandateId );
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 
@@ -101,32 +94,42 @@ public class NotificationAttachmentService {
             InternalNotification notification = optNotification.get();
             String fileKey;
             String fileName;
-            if (documentIndex != null) {
-                NotificationDocument doc = notification.getDocuments().get(documentIndex);
+            if (documentIndex != null)
+            {
+                NotificationDocument doc = notification.getDocuments().get( documentIndex );
                 fileName = buildFilename(iun, doc.getTitle());
                 fileKey = doc.getRef().getKey();
-            } else {
+            }
+            else
+            {
                 NotificationRecipient doc;
-                if (recipientIdx != null) {
-                    doc = recipientIdx < notification.getRecipients().size() ? notification.getRecipients().get(recipientIdx) : null;
-                } else {
+                if (recipientIdx != null)
+                {
+                    doc = recipientIdx<notification.getRecipients().size()?notification.getRecipients().get(recipientIdx):null;
+                }
+                else
+                {
                     String recipientId = xPagopaPnCxId;
-                    if (mandateId != null) {
+                    if (mandateId != null)
+                    {
                         List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(xPagopaPnCxId, mandateId);
-                        if (!mandates.isEmpty()) {
+                        if(!mandates.isEmpty()) {
                             recipientId = mandates.get(0).getDelegator();
-                        } else {
+                        }
+                        else
+                        {
                             String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", xPagopaPnCxId, mandateId);
-                            log.error(message);
-                            throw new PnNotFoundException(message);
+                            log.error( message );
+                            throw new PnNotFoundException( message );
                         }
                     }
 
                     int idx = notification.getRecipientIds().indexOf(recipientId);
-                    doc = idx >= 0 ? notification.getRecipients().get(idx) : null;
+                    doc = idx>=0?notification.getRecipients().get(idx):null;
                 }
 
-                if (doc == null) {
+                if (doc == null)
+                {
                     log.error("downloadDocumentWithRedirect NotificationRecipient not found for iun={}", iun);
                     throw new PnInternalException("NotificationRecipient not found for iun=" + iun);
                 }
@@ -139,11 +142,11 @@ public class NotificationAttachmentService {
             log.info("downloadDocumentWithRedirect with fileKey={} filename:{} ", fileKey, fileName);
             FileDownloadResponse r = this.getFile(fileKey);
             return NotificationAttachmentDownloadMetadataResponse.builder()
-                    .filename(fileName)
-                    .url(r.getDownload().getUrl())
+                    .filename( fileName)
+                    .url( r.getDownload().getUrl() )
                     .contentLength(r.getContentLength())
-                    .contentType(r.getContentType())
-                    .sha256(r.getChecksum())
+                    .contentType( r.getContentType() )
+                    .sha256( r.getChecksum() )
                     .retryAfter(r.getDownload().getRetryAfter())
                     .build();
         } else {
@@ -152,12 +155,13 @@ public class NotificationAttachmentService {
         }
     }
 
-    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy) {
-        switch (ATTACHMENT_TYPE.valueOf(attachmentName)) {
+    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy){
+        switch (ATTACHMENT_TYPE.valueOf(attachmentName))
+        {
             case PAGOPA:
                 return doc.getPayment().getPagoPaForm().getRef().getKey();
             case F24:
-                if (notificationFeePolicy == FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE)
+                if (notificationFeePolicy== FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE)
                     return doc.getPayment().getF24flatRate().getRef().getKey();
                 else
                     return doc.getPayment().getF24standard().getRef().getKey();
@@ -171,8 +175,8 @@ public class NotificationAttachmentService {
         throw new PnInternalException("NotificationRecipient invalid attachmentName for iun=" + iun);
     }
 
-    private String buildFilename(String iun, String name) {
+    private String buildFilename(String iun, String name){
         String unescapedFileName = iun + "__" + name;
-        return unescapedFileName.replaceAll("[^A-Za-z0-9-_]", "_") + ".pdf";
+        return unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + ".pdf";
     }
 }
