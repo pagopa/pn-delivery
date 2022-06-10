@@ -89,10 +89,26 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
-        NotificationStatus lastStatus = internalNotification.getNotificationStatusHistory().get( internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
-        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class );
-        NewNotificationRequestStatusResponse response = mapper.map( internalNotification, NewNotificationRequestStatusResponse.class );
+
+        ModelMapper mapper = modelMapperFactory.createModelMapper(
+                InternalNotification.class,
+                NewNotificationRequestStatusResponse.class
+        );
+        NewNotificationRequestStatusResponse response = mapper.map(
+                internalNotification,
+                NewNotificationRequestStatusResponse.class
+        );
         response.setNotificationRequestId( notificationRequestId );
+
+        NotificationStatus lastStatus;
+        int statusHistorySize = internalNotification.getNotificationStatusHistory().size();
+        if( statusHistorySize > 0 ) {
+            lastStatus = internalNotification.getNotificationStatusHistory().get( statusHistorySize - 1 ).getStatus();
+        }
+        else {
+            lastStatus = NotificationStatus.IN_VALIDATION;
+        }
+
         switch ( lastStatus ) {
             case IN_VALIDATION: {
                 response.setNotificationRequestStatus( "WAITING" );
