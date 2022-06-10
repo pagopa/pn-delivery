@@ -101,11 +101,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         response.setNotificationRequestId( notificationRequestId );
 
         NotificationStatus lastStatus;
-        int statusHistorySize = internalNotification.getNotificationStatusHistory().size();
-        if( statusHistorySize > 0 ) {
-            lastStatus = internalNotification.getNotificationStatusHistory().get( statusHistorySize - 1 ).getStatus();
-        }
-        else {
+        if ( internalNotification.getNotificationStatusHistory() != null
+                &&  !internalNotification.getNotificationStatusHistory().isEmpty()  ) {
+            lastStatus = internalNotification.getNotificationStatusHistory().get(
+                    internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
+        } else {
             lastStatus = NotificationStatus.IN_VALIDATION;
         }
 
