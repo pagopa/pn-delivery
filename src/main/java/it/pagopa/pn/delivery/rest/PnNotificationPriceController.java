@@ -1,5 +1,8 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NotificationPriceApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
@@ -24,7 +27,20 @@ public class PnNotificationPriceController implements NotificationPriceApi {
     @Override
     public ResponseEntity<NotificationPriceResponse> getNotificationPrice(String paTaxId, String noticeNumber) {
         log.info( "Get notification price paTaxId={} noticeNumber={}", paTaxId, noticeNumber );
-        NotificationPriceResponse response = service.getNotificationPrice( paTaxId, noticeNumber );
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_REQCOST, "getNotificationPrice")
+                .mdcEntry("paTaxId",paTaxId)
+                .mdcEntry("noticeNumber", noticeNumber)
+                .build();
+        NotificationPriceResponse response = new NotificationPriceResponse();
+        try {
+            response = service.getNotificationPrice( paTaxId, noticeNumber );
+            logEvent.generateSuccess().log();
+        } catch (PnNotFoundException exc) {
+            logEvent.generateFailure("Exception on get notification price: " + exc.getMessage()).log();
+            throw new RuntimeException("Exception on get notification price: " + exc.getMessage(), exc);
+        }
         return ResponseEntity.ok( response );
     }
 
