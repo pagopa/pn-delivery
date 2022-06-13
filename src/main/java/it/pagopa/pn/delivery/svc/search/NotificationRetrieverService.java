@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -45,6 +46,7 @@ public class NotificationRetrieverService {
 	private final PnDeliveryPushClientImpl pnDeliveryPushClient;
 	private final PnDeliveryConfigs cfg;
 	private final PnMandateClientImpl pnMandateClient;
+	private final PnDataVaultClientImpl dataVaultClient;
 	private final ModelMapperFactory modelMapperFactory;
 
 
@@ -54,13 +56,14 @@ public class NotificationRetrieverService {
 										NotificationDao notificationDao,
 										PnDeliveryPushClientImpl pnDeliveryPushClient,
 										PnDeliveryConfigs cfg,
-										PnMandateClientImpl pnMandateClient, ModelMapperFactory modelMapperFactory) {
+										PnMandateClientImpl pnMandateClient, PnDataVaultClientImpl dataVaultClient, ModelMapperFactory modelMapperFactory) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.cfg = cfg;
 		this.pnMandateClient = pnMandateClient;
+		this.dataVaultClient = dataVaultClient;
 		this.modelMapperFactory = modelMapperFactory;
 	}
 
@@ -89,8 +92,8 @@ public class NotificationRetrieverService {
 				notificationDao,
 				searchDto,
 				lastEvaluatedKey,
-				cfg
-		);
+				cfg,
+				dataVaultClient);
 
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
 
@@ -254,8 +257,12 @@ public class NotificationRetrieverService {
 		
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
-
+		ModelMapper mapperStatusHistory = new ModelMapper();
+		mapperStatusHistory.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class )
+				.addMapping( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
+		mapperStatusHistory.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
+		Converter<OffsetDateTime,Date> dateConverter = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
+		mapperStatusHistory.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
@@ -263,8 +270,7 @@ public class NotificationRetrieverService {
 		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
 				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
 		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-		Converter<OffsetDateTime,Date> fromOffestToDate = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
-		mapperTimeline.addConverter( fromOffestToDate, OffsetDateTime.class, Date.class );
+		mapperTimeline.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream()

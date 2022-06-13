@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@Slf4j
 public class PnSentNotificationsController implements SenderReadB2BApi,SenderReadWebApi {
 
     private final NotificationRetrieverService retrieveSvc;
@@ -101,11 +103,12 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         response.setNotificationRequestId( notificationRequestId );
 
         NotificationStatus lastStatus;
-        int statusHistorySize = internalNotification.getNotificationStatusHistory().size();
-        if( statusHistorySize > 0 ) {
-            lastStatus = internalNotification.getNotificationStatusHistory().get( statusHistorySize - 1 ).getStatus();
-        }
-        else {
+        if ( internalNotification.getNotificationStatusHistory() != null
+                &&  !internalNotification.getNotificationStatusHistory().isEmpty()  ) {
+            lastStatus = internalNotification.getNotificationStatusHistory().get(
+                    internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
+        } else {
+            log.error( "No status history for notificationRequestId={}", notificationRequestId );
             lastStatus = NotificationStatus.IN_VALIDATION;
         }
 

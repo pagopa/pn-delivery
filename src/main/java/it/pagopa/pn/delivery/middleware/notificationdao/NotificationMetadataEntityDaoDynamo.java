@@ -188,21 +188,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     private List<NotificationSearchRow> fromNotificationMetadataToNotificationSearchRow(List<NotificationMetadataEntity> metadataEntityList) {
-        List<String> opaqueTaxIds = metadataEntityList.stream().map(NotificationMetadataEntity::getRecipientIds).flatMap( Collection::stream ).collect(Collectors.toList());
-        if (!opaqueTaxIds.isEmpty()) {
-            log.debug( "Opaque tax ids={}", opaqueTaxIds );
-            List<BaseRecipientDto> dataVaultResults = dataVaultClient.getRecipientDenominationByInternalId( opaqueTaxIds );
-            for (NotificationMetadataEntity entity : metadataEntityList) {
-                Optional<BaseRecipientDto> match = dataVaultResults.stream().filter( r -> r.getInternalId().equals( entity.getRecipientId() ) ).findFirst();
-                match.ifPresent(baseRecipientDto -> entity.setRecipientId(baseRecipientDto.getTaxId()));
-                List<String> recipientTaxIds = new ArrayList<>();
-                for (String recTaxId : entity.getRecipientIds() ) {
-                    Optional<BaseRecipientDto> internalMatch = dataVaultResults.stream().filter( r -> r.getInternalId().equals(  recTaxId  ) ).findFirst();
-                    internalMatch.ifPresent(baseRecipientDto -> recipientTaxIds.add(baseRecipientDto.getTaxId()));
-                }
-                entity.setRecipientIds( recipientTaxIds );
-            }
-        }
         List<NotificationSearchRow> result = new ArrayList<>();
         metadataEntityList.forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
         return result;

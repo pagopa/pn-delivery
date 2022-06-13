@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -24,10 +25,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.*;
 
 class NotificationRetrieverServiceTest {
@@ -42,6 +40,7 @@ class NotificationRetrieverServiceTest {
     private NotificationDao notificationDao;
     private PnDeliveryPushClientImpl pnDeliveryPushClient;
     private PnMandateClientImpl pnMandateClient;
+    private PnDataVaultClientImpl dataVaultClient;
     private PnDeliveryConfigs cfg;
     private ModelMapperFactory modelMapperFactory;
 
@@ -56,6 +55,7 @@ class NotificationRetrieverServiceTest {
         this.pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClientImpl.class);
         this.cfg = Mockito.mock(PnDeliveryConfigs.class);
         this.pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
+        this.dataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
         this.modelMapperFactory = Mockito.mock(ModelMapperFactory.class);
         this.svc = new NotificationRetrieverService(clock,
                 notificationViewedProducer,
@@ -63,6 +63,7 @@ class NotificationRetrieverServiceTest {
                 pnDeliveryPushClient,
                 cfg,
                 pnMandateClient,
+                dataVaultClient,
                 modelMapperFactory);
     }
 
@@ -143,7 +144,8 @@ class NotificationRetrieverServiceTest {
                 .timeline( tle )
                 .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
                 .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
-                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)) );
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
