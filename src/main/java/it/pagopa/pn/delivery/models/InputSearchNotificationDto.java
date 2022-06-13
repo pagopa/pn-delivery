@@ -26,7 +26,7 @@ public class InputSearchNotificationDto {
 
     private String mandateId;
     
-    private final String filterId;
+    private String filterId;
     
     private NotificationStatus status;
 
@@ -73,6 +73,8 @@ public class InputSearchNotificationDto {
     }
 
     public void setEndDate(Instant endDate) { this.endDate = endDate; }
+
+    public void setFilterId(String filterId) { this.filterId = filterId; }
     
     public void setStatus(NotificationStatus status){
         this.status = status;

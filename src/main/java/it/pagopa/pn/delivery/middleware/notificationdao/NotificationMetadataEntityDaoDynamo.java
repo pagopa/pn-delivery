@@ -189,7 +189,11 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
     private List<NotificationSearchRow> fromNotificationMetadataToNotificationSearchRow(List<NotificationMetadataEntity> metadataEntityList) {
         List<NotificationSearchRow> result = new ArrayList<>();
-        metadataEntityList.forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
+        Map<String, NotificationMetadataEntity> metadataEntityMap = new HashMap<String,NotificationMetadataEntity>();
+        for ( NotificationMetadataEntity entity : metadataEntityList ) {
+            metadataEntityMap.putIfAbsent(entity.getTableRow().get("iun"), entity);
+        }
+        metadataEntityMap.values().forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
         return result;
     }
 
