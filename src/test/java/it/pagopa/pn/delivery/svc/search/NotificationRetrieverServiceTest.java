@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -42,6 +43,7 @@ class NotificationRetrieverServiceTest {
     private NotificationDao notificationDao;
     private PnDeliveryPushClientImpl pnDeliveryPushClient;
     private PnMandateClientImpl pnMandateClient;
+    private PnDataVaultClientImpl dataVaultClient;
     private PnDeliveryConfigs cfg;
     private ModelMapperFactory modelMapperFactory;
 
@@ -56,6 +58,7 @@ class NotificationRetrieverServiceTest {
         this.pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClientImpl.class);
         this.cfg = Mockito.mock(PnDeliveryConfigs.class);
         this.pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
+        this.dataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
         this.modelMapperFactory = Mockito.mock(ModelMapperFactory.class);
         this.svc = new NotificationRetrieverService(clock,
                 notificationViewedProducer,
@@ -63,6 +66,7 @@ class NotificationRetrieverServiceTest {
                 pnDeliveryPushClient,
                 cfg,
                 pnMandateClient,
+                dataVaultClient,
                 modelMapperFactory);
     }
 
