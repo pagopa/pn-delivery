@@ -96,7 +96,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             logEvent.generateSuccess().log();
         } catch (PnInternalException exc) {
             logEvent.generateFailure(exc.getMessage()).log();
-            throw new RuntimeException("Exception on updateStatus:" + exc.getMessage(), exc);
+            throw new PnInternalException("Exception on updateStatus:" + exc.getMessage(), exc);
         }
         return ResponseEntity.ok(result);
     }
@@ -117,7 +117,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             logEvent.generateSuccess().log();
         } catch (PnInternalException exc) {
             logEvent.generateFailure(exc.getMessage()).log();
-            throw new RuntimeException("Exception on updateStatus:" + exc.getMessage(), exc);
+            throw new PnInternalException("Exception on updateStatus:" + exc.getMessage(), exc);
         }
 
         return ResponseEntity.ok(response);
@@ -139,7 +139,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             logEvent.generateSuccess().log();
         } catch (PnInternalException exc) {
             logEvent.generateFailure(exc.getMessage()).log();
-            throw new RuntimeException("Exception on updateStatus:" + exc.getMessage(), exc);
+            throw new PnInternalException("Exception on updateStatus:" + exc.getMessage(), exc);
         }
         return ResponseEntity.ok(response);
     }

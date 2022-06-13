@@ -71,7 +71,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             logEvent.generateSuccess().log();
         } catch (PnInternalException exc) {
             logEvent.generateFailure(logMessage).log();
-            throw new RuntimeException("Exception on updateStatus:" + exc.getMessage(), exc);
+            throw new PnInternalException("Exception on updateStatus:" + exc.getMessage(), exc);
         }
         return ResponseEntity.ok().build();
     }
