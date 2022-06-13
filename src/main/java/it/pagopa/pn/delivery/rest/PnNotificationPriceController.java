@@ -39,7 +39,7 @@ public class PnNotificationPriceController implements NotificationPriceApi {
             logEvent.generateSuccess().log();
         } catch (PnNotFoundException exc) {
             logEvent.generateFailure("Exception on get notification price: " + exc.getMessage()).log();
-            throw new RuntimeException("Exception on get notification price: " + exc.getMessage(), exc);
+            throw new PnNotFoundException("Exception on get notification price: " + exc.getMessage(), exc);
         }
         return ResponseEntity.ok( response );
     }
