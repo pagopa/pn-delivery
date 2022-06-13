@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@Slf4j
 public class PnSentNotificationsController implements SenderReadB2BApi,SenderReadWebApi {
 
     private final NotificationRetrieverService retrieveSvc;
@@ -89,10 +91,27 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
-        NotificationStatus lastStatus = internalNotification.getNotificationStatusHistory().get( internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
-        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class );
-        NewNotificationRequestStatusResponse response = mapper.map( internalNotification, NewNotificationRequestStatusResponse.class );
+
+        ModelMapper mapper = modelMapperFactory.createModelMapper(
+                InternalNotification.class,
+                NewNotificationRequestStatusResponse.class
+        );
+        NewNotificationRequestStatusResponse response = mapper.map(
+                internalNotification,
+                NewNotificationRequestStatusResponse.class
+        );
         response.setNotificationRequestId( notificationRequestId );
+
+        NotificationStatus lastStatus;
+        if ( internalNotification.getNotificationStatusHistory() != null
+                &&  !internalNotification.getNotificationStatusHistory().isEmpty()  ) {
+            lastStatus = internalNotification.getNotificationStatusHistory().get(
+                    internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
+        } else {
+            log.error( "No status history for notificationRequestId={}", notificationRequestId );
+            lastStatus = NotificationStatus.IN_VALIDATION;
+        }
+
         switch ( lastStatus ) {
             case IN_VALIDATION: {
                 response.setNotificationRequestStatus( "WAITING" );
