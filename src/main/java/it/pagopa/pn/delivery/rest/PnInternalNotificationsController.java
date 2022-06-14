@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -69,9 +68,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         try {
             statusService.updateStatus(requestUpdateStatusDto);
             logEvent.generateSuccess().log();
-        } catch (PnInternalException exc) {
+        } catch (Exception exc) {
             logEvent.generateFailure(logMessage).log();
-            throw new PnInternalException("Exception on updateStatus:" + exc.getMessage(), exc);
+            throw exc;
         }
         return ResponseEntity.ok().build();
     }

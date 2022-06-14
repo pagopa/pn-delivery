@@ -51,9 +51,9 @@ public class PnNotificationInputController implements NewNotificationApi {
         try {
             svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
             logEvent.generateSuccess().log();
-        } catch (PnInternalException exc) {
+        } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
-            throw new PnInternalException("Exception on updateStatus:" + exc.getMessage(), exc);
+            throw exc;
         }
         return ResponseEntity.ok(svcRes);
     }
