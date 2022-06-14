@@ -1,7 +1,5 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.DocumentAttachmentEntity;

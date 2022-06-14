@@ -3,10 +3,8 @@ package it.pagopa.pn.delivery.middleware.newnotificationproducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.api.dto.events.PnDeliveryNewNotificationEvent;
 import it.pagopa.pn.commons.abstractions.impl.AbstractSqsMomProducer;
-import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sqs.SqsClient;
 

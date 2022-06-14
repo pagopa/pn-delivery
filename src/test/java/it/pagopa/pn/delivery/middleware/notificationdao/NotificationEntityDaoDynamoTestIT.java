@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
+import it.pagopa.pn.delivery.models.NotificationCost;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
@@ -26,6 +28,7 @@ import java.util.Optional;
         "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
         "aws.endpoint-url=http://localhost:4566",
         "pn.delivery.notification-dao.table-name=Notifications",
+        "pn.delivery.notification-cost-dao.table-name=NotificationsCost",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata"
     })
 @SpringBootTest
@@ -33,6 +36,9 @@ class NotificationEntityDaoDynamoTestIT {
 
     @Autowired
     private NotificationEntityDao notificationEntityDao;
+
+    @Autowired
+    private NotificationCostEntityDao notificationCostEntityDao;
 
     @Test
     void putSuccess() throws IdConflictException {
@@ -47,9 +53,17 @@ class NotificationEntityDaoDynamoTestIT {
         Key controlKey = Key.builder()
                 .partitionValue( controlIun )
                 .build();
+        Key costKey1 = Key.builder()
+                .partitionValue( "creditorTaxId##noticeCode" )
+                .build();
+        Key costKey2 = Key.builder()
+                .partitionValue( "77777777777##002720356512737953" )
+                .build();
 
         removeItemFromDb( key );
         removeItemFromDb( controlKey );
+        removeFromNotificationCostDb( costKey1 );
+        removeFromNotificationCostDb( costKey2 );
 
         //When
         notificationEntityDao.putIfAbsent( notificationToInsert );
@@ -63,6 +77,14 @@ class NotificationEntityDaoDynamoTestIT {
         Assertions.assertEquals( notificationToInsert, elementFromDb.get() );
         Assertions.assertEquals( controlIun, controlElementFromDb.get().getIun() );
 
+    }
+
+    @Test
+    void getNotificationByPayment() {
+        Optional<NotificationCost> result = notificationCostEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode" );
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals( "IUN_01" , result.get().getIun() );
     }
 
     @NotNull
@@ -85,7 +107,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .group( "Group_1" )
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
-                .recipients( Collections.singletonList(NotificationRecipientEntity.builder()
+                .recipients( List.of(NotificationRecipientEntity.builder()
                                 .recipientType( RecipientTypeEntity.PF )
                                 .recipientId( "recipientTaxId" )
                                 .digitalDomicile(NotificationDigitalAddressEntity.builder()
@@ -107,12 +129,25 @@ class NotificationEntityDaoDynamoTestIT {
                                                         .build() )
                                                 .build() )
                                         .build() )
-                        .build()) )
+                        .build(),
+                        NotificationRecipientEntity.builder()
+                                .payment( NotificationPaymentInfoEntity.builder()
+                                        .creditorTaxId( "77777777777" )
+                                        .noticeCode( "002720356512737953" )
+                                        .build() )
+                                .physicalAddress( NotificationPhysicalAddressEntity.builder()
+                                        .foreignState( "Svizzera" )
+                                        .build() )
+                                .build()) )
                 //.recipientsJson(Collections.emptyMap())
                 .build();
     }
 
     private void removeItemFromDb(Key key) {
         notificationEntityDao.delete( key );
+    }
+
+    private void removeFromNotificationCostDb( Key key ){
+        notificationCostEntityDao.delete( key );
     }
 }

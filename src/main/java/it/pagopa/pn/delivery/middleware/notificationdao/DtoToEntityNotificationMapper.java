@@ -12,7 +12,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Component
@@ -50,7 +49,6 @@ public class DtoToEntityNotificationMapper {
             List<NotificationRecipient> recipients
     ) {
        ModelMapper mapper = modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class );
-       AtomicInteger idx = new AtomicInteger( 0 );
        return recipients.stream()
                .map( r ->  {
                    NotificationRecipientEntity nre = mapper.map( r, NotificationRecipientEntity.class );
