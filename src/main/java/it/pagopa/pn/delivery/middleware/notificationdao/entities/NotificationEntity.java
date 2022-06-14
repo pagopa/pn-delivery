@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -18,6 +19,7 @@ import java.util.List;
 @ToString
 @DynamoDbBean
 public class NotificationEntity {
+
     public static final String FIELD_IUN = "iun";
     public static final String FIELD_PA_NOTIFICATION_ID = "paNotificationId";
     public static final String FIELD_SUBJECT = "subject";
@@ -27,12 +29,16 @@ public class NotificationEntity {
     public static final String FIELD_SENDER_PA_ID = "senderPaId";
     public static final String FIELD_RECIPIENTS = "recipients";
     public static final String FIELD_RECIPIENT_IDS = "recipientIds";
+    public static final String FIELD_DOCUMENTS_KEYS = "documentsKeys";
+    public static final String FIELD_DOCUMENTS_DIGESTS_SHA_256 = "documentsDigestsSha256";
+    public static final String FIELD_DOCUMENTS_VERSION_IDS = "documentsVersionIds";
+    public static final String FIELD_DOCUMENTS_CONTENT_TYPES = "documentsContentTypes";
+    public static final String FIELD_DOCUMENTS_TITLES = "documentsTitles";
     public static final String FIELD_NOTIFICATION_FEE_POLICY = "notificationFeePolicy";
     public static final String FIELD_PHYSICAL_COMMUNICATION_TYPE = "physicalCommunicationType";
     public static final String FIELD_GROUP = "group";
     public static final String FIELD_SENDER_DENOMINATION = "senderDenomination";
     public static final String FIELD_SENDER_TAX_ID = "senderTaxId";
-    public static final String FIELD_DOCUMENTS = "documents";
 
     private String iun;
     private String paNotificationId;
@@ -42,7 +48,12 @@ public class NotificationEntity {
     private String cancelledByIun;
     private String senderPaId;
     private List<NotificationRecipientEntity> recipients;
-    private List<DocumentAttachmentEntity> documents;
+    private List<String> recipientIds;
+    private List<String> documentsKeys;
+    private List<String> documentsDigestsSha256;
+    private List<String> documentsVersionIds;
+    private List<String> documentsContentTypes;
+    private List<String> documentsTitles;
     private NewNotificationRequest.NotificationFeePolicyEnum notificationFeePolicy;
     private FullSentNotification.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String group;
@@ -136,6 +147,56 @@ public class NotificationEntity {
 
     public void setRecipients(List<NotificationRecipientEntity> recipients) { this.recipients = recipients; }
 
+    @DynamoDbAttribute(value = FIELD_RECIPIENT_IDS)
+    public List<String> getRecipientIds() { return recipientIds; }
+
+    public void setRecipientIds(List<String> recipientIds) { this.recipientIds = recipientIds; }
+
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_KEYS)
+    public List<String> getDocumentsKeys() {
+        return documentsKeys;
+    }
+
+    public void setDocumentsKeys(List<String> documentsKeys) {
+        this.documentsKeys = documentsKeys;
+    }
+
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_DIGESTS_SHA_256)
+    public List<String> getDocumentsDigestsSha256() {
+        return documentsDigestsSha256;
+    }
+
+    public void setDocumentsDigestsSha256(List<String> documentsDigestsSha256) {
+        this.documentsDigestsSha256 = documentsDigestsSha256;
+    }
+
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_VERSION_IDS)
+    public List<String> getDocumentsVersionIds() {
+        return documentsVersionIds;
+    }
+
+    public void setDocumentsVersionIds(List<String> documentsVersionIds) {
+        this.documentsVersionIds = documentsVersionIds;
+    }
+
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_CONTENT_TYPES)
+    public List<String> getDocumentsContentTypes() {
+        return documentsContentTypes;
+    }
+
+    public void setDocumentsContentTypes(List<String> documentsContentTypes) {
+        this.documentsContentTypes = documentsContentTypes;
+    }
+
+    @DynamoDbAttribute(value = FIELD_DOCUMENTS_TITLES)
+    public List<String> getDocumentsTitles() {
+        return documentsTitles;
+    }
+
+    public void setDocumentsTitles(List<String> documentsTitles) {
+        this.documentsTitles = documentsTitles;
+    }
+
     @DynamoDbAttribute(value = FIELD_NOTIFICATION_FEE_POLICY)
     public NewNotificationRequest.NotificationFeePolicyEnum getNotificationFeePolicy() {
         return notificationFeePolicy;
@@ -161,15 +222,5 @@ public class NotificationEntity {
 
     public void setGroup(String group) {
         this.group = group;
-    }
-
-
-    @DynamoDbAttribute(value = FIELD_DOCUMENTS)
-    public List<DocumentAttachmentEntity> getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(List<DocumentAttachmentEntity> documents) {
-        this.documents = documents;
     }
 }

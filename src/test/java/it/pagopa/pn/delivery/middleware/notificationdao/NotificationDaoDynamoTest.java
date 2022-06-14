@@ -1,10 +1,8 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
@@ -12,9 +10,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRec
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.NotificationCost;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -36,7 +32,6 @@ class NotificationDaoDynamoTest {
     private NotificationDaoDynamo dao;
     private EntityToDtoNotificationMapper entity2dto;
     private ModelMapperFactory modelMapperFactory;
-    private PnDataVaultClientImpl pnDataVaultClient;
 
     public static final String ATTACHMENT_BODY_STR = "Body";
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
@@ -58,11 +53,10 @@ class NotificationDaoDynamoTest {
         ObjectMapper objMapper = new ObjectMapper();
         modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
         DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(objMapper, modelMapperFactory);
-        entity2dto = new EntityToDtoNotificationMapper( modelMapperFactory);
+        entity2dto = new EntityToDtoNotificationMapper(objMapper, modelMapperFactory);
         NotificationEntityDao entityDao = new EntityDaoMock();
         NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
-        pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
-        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
+        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto );
     }
 
     @Test
@@ -79,31 +73,10 @@ class NotificationDaoDynamoTest {
         ModelMapper getMapper = new ModelMapper();
         getMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class );
         Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class ) ).thenReturn( getMapper );
-        Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+
         this.dao.addNotification( notification );
 
         // THEN
-        BaseRecipientDto baseRecipientDto = new BaseRecipientDto();
-        baseRecipientDto.setRecipientType( RecipientType.PF );
-        baseRecipientDto.setDenomination( "recipientDenomination" );
-        baseRecipientDto.setInternalId( "opaqueTaxId" );
-        baseRecipientDto.setTaxId( "recipientTaxId" );
-
-        Mockito.when( pnDataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( Collections.singletonList( baseRecipientDto ) );
-
-        NotificationRecipientAddressesDto notificationRecipientAddressesDto = new NotificationRecipientAddressesDto();
-        notificationRecipientAddressesDto.setDenomination( "recipientDenomination" );
-        notificationRecipientAddressesDto.setDigitalAddress( new AddressDto().value( "digitalAddress" ) );
-        notificationRecipientAddressesDto.setPhysicalAddress( new AnalogDomicile()
-                .address( "physicalAddress" )
-                .addressDetails( "addressDetail" )
-                .at( "at" )
-                .municipality( "municipality" )
-                .province( "province" )
-                .cap( "cap" )
-                .state( "state" ));
-
-        Mockito.when( pnDataVaultClient.getNotificationAddressesByIun( Mockito.anyString() ) ).thenReturn( Collections.singletonList( notificationRecipientAddressesDto ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
         Assertions.assertTrue( saved.isPresent() );
         //Assertions.assertEquals( notification, saved.get() );
@@ -121,12 +94,12 @@ class NotificationDaoDynamoTest {
         ModelMapper addMapper = new ModelMapper();
         addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class );
         Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
-        Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+
         this.dao.addNotification( notification );
 
         // THEN
         Assertions.assertThrows( IdConflictException.class, () ->
-                this.dao.addNotification( newNotificationWithoutPayments() )
+                this.dao.addNotification( notification )
         );
     }
 
@@ -145,11 +118,10 @@ class NotificationDaoDynamoTest {
         ModelMapper getMapper = new ModelMapper();
         getMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class );
         Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class ) ).thenReturn( getMapper );
-        Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+
         this.dao.addNotification( notification );
 
         // THEN
-        // TODO da sistemare la getNotificationByIun
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
         Assertions.assertTrue( saved.isPresent() );
         //Assertions.assertEquals( notification, saved.get() );
@@ -164,6 +136,60 @@ class NotificationDaoDynamoTest {
                 .recipients( Collections.singletonList( NotificationRecipientEntity.builder()
                         .recipientType( RecipientTypeEntity.PF )
                         .build() ))
+                .build();
+
+        // WHEN
+        Executable todo = () -> entity2dto.entity2Dto(entity);
+
+        // THEN
+        Assertions.assertThrows(PnInternalException.class, todo);
+    }
+
+    @Test
+    void testWrongDocumentsLength() {
+        // GIVEN
+        NotificationEntity entity = NotificationEntity.builder()
+                .documentsVersionIds(Arrays.asList("v1", "v2"))
+                .documentsDigestsSha256(Collections.singletonList("doc1"))
+                //.recipientsOrder(Collections.emptyList())
+                .build();
+
+        // WHEN
+        Executable todo = () -> entity2dto.entity2Dto(entity);
+
+        // THEN
+        Assertions.assertThrows(PnInternalException.class, todo);
+    }
+
+    @Test
+    void testWrongF24Metadata1() {
+        // GIVEN
+        NotificationEntity entity = NotificationEntity.builder()
+                .documentsVersionIds(Collections.emptyList())
+                .documentsDigestsSha256(Collections.emptyList())
+                //.recipientsJson(Collections.emptyMap())
+                //.recipientsOrder(Collections.emptyList())
+                //.f24DigitalVersionId(null)
+                //.f24DigitalDigestSha256("sha256")
+                .build();
+
+        // WHEN
+        Executable todo = () -> entity2dto.entity2Dto(entity);
+
+        // THEN
+        Assertions.assertThrows(PnInternalException.class, todo);
+    }
+
+    @Test
+    void testWrongF24Metadata2() {
+        // GIVEN
+        NotificationEntity entity = NotificationEntity.builder()
+                .documentsVersionIds(Collections.emptyList())
+                .documentsDigestsSha256(Collections.emptyList())
+                //.recipientsJson(Collections.emptyMap())
+                //.recipientsOrder(Collections.emptyList())
+                //.f24DigitalVersionId("version")
+                //.f24DigitalDigestSha256(null)
                 .build();
 
         // WHEN
@@ -265,7 +291,6 @@ class NotificationDaoDynamoTest {
                 .group( "Group_1" )
                 .senderPaId( "pa_02" )
                 .sentAt( Date.from( Instant.now() ) )
-                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                                 .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                                 .taxId("Codice Fiscale 01")
@@ -274,16 +299,6 @@ class NotificationDaoDynamoTest {
                                         .type(NotificationDigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
-                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                                .physicalAddress( NotificationPhysicalAddress.builder()
-                                        .address( "address" )
-                                        .zip( "zip" )
-                                        .municipality( "municipality" )
-                                        .at( "at" )
-                                        .addressDetails( "addressDetails" )
-                                        .province( "province" )
-                                        .foreignState( "foreignState" )
-                                        .build() )
                                 .build()
                 ))
                 .documents(Arrays.asList(
@@ -312,7 +327,7 @@ class NotificationDaoDynamoTest {
                                 .contentType( "application/pdf" )
                                 .build()
                 ))
-                .build(), Collections.emptyMap(), Collections.singletonList("Codice Fiscale 01"));
+                .build(), Collections.emptyMap(), Collections.emptyList());
     }
 
     /*private Notification newNotificationWithPaymentsDeliveryMode( boolean withIuv ) {
@@ -362,23 +377,49 @@ class NotificationDaoDynamoTest {
     }*/
 
     private InternalNotification newNotificationWithPaymentsFlat( ) {
-        InternalNotification notification =  newNotificationWithoutPayments();
-        for (NotificationRecipient recipient : notification.getRecipients() ) {
-            recipient.payment( NotificationPaymentInfo.builder()
-                    .f24flatRate( NotificationPaymentAttachment.builder()
-                            .ref( NotificationAttachmentBodyRef.builder()
-                                    .key( KEY )
-                                    .versionToken( VERSION_TOKEN )
-                                    .build() )
-                            .digests( NotificationAttachmentDigests.builder()
-                                    .sha256( SHA256_BODY )
-                                    .build() )
-                            .contentType( "application/pdf" )
-                            .build()
-                    )
-                    .build() );
-        }
-        return notification;
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .taxId( "Codice Fiscale 02" )
+                .physicalAddress( NotificationPhysicalAddress.builder()
+                        .municipality( "municipality" )
+                        .zip( "zip_code" )
+                        .address( "address" )
+                        .build())
+                .denomination( "denomination" )
+                .digitalDomicile( NotificationDigitalAddress.builder()
+                        .type( NotificationDigitalAddress.TypeEnum.PEC )
+                        .address( "digitalAddressPec" )
+                        .build() )
+                .payment( NotificationPaymentInfo.builder()
+                        //.iuv( "IUV_01" )
+                        .f24flatRate( NotificationPaymentAttachment.builder()
+                                .ref( NotificationAttachmentBodyRef.builder()
+                                        .key( KEY )
+                                        .versionToken( VERSION_TOKEN )
+                                        .build() )
+                                .digests( NotificationAttachmentDigests.builder()
+                                        .sha256( SHA256_BODY )
+                                        .build() )
+                                .contentType( "application/pdf" )
+                                .build()
+                        )
+                        .build()
+                ).build();
+        return new InternalNotification( FullSentNotification.builder()
+                .iun("IUN_01")
+                .sentAt( Date.from(Instant.now()))
+                .paProtocolNumber("protocol_01")
+                .subject("Subject 01")
+                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
+                .cancelledByIun("IUN_05")
+                .cancelledIun("IUN_00")
+                .senderPaId(" pa_02")
+                .recipients( Collections.singletonList( recipient ) )
+                .documents(List.of(
+                        NOTIFICATION_REFERRED_ATTACHMENT
+                ))
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
+                .group( "Group_1" )
+                .build(), Collections.EMPTY_MAP );
     }
 
 }

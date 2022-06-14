@@ -1,10 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -19,9 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,47 +35,29 @@ public class PnNotificationInputController implements NewNotificationApi {
 
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, "presignedUploadRequest")
-                .uid(xPagopaPnUid)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
-                .build();
-        NewNotificationResponse svcRes = new NewNotificationResponse();
-        try {
-            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
-            logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
-            throw exc;
-        }
-        return ResponseEntity.ok(svcRes);
+        NewNotificationResponse svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
+        return ResponseEntity.ok( svcRes );
     }
 
 
     @Override
-    public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(
-            String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
+    public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
         Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, "presignedUploadRequest")
-                .uid(xPagopaPnUid)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
-                .build();
-        if (preLoadRequest.size() > numberOfPresignedRequest) {
-            String logMessage = String.format("Presigned upload request lenght=%d is more than maximum allowed=%d",
-                    preLoadRequest.size(), numberOfPresignedRequest);
-            log.error(logMessage);
-            logEvent.generateFailure(logMessage).log();
-            throw new PnValidationException("request", Collections.singleton(new ConstraintViolationImpl<>(String.format(logMessage))));
+        if ( preLoadRequest.size() > numberOfPresignedRequest ) {
+            log.error( "Presigned upload request lenght={} is more than maximum allowed={}",
+                    preLoadRequest.size(), numberOfPresignedRequest );
+            throw new PnValidationException("request",
+                    Collections.singleton( new ConstraintViolationImpl<>(
+                            String.format( "request.length = %d is more than maximum allowed = %d",
+                                    preLoadRequest.size(),
+                                    numberOfPresignedRequest))));
         }
-        logEvent.generateSuccess().log();
-        return ResponseEntity.ok(this.notificationAttachmentService.preloadDocuments(preLoadRequest));
+
+        return ResponseEntity.ok( this.notificationAttachmentService.preloadDocuments(preLoadRequest));
     }
 
     @ExceptionHandler({PnValidationException.class})
-    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex) {
-        return HandleValidation.handleValidationException(ex, NOTIFICATION_VALIDATION_ERROR_STATUS);
+    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
+        return HandleValidation.handleValidationException(ex,NOTIFICATION_VALIDATION_ERROR_STATUS );
     }
 }

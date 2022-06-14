@@ -1,10 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons.log.PnAuditLogBuilder;
-import it.pagopa.pn.commons.log.PnAuditLogEvent;
-import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -14,44 +11,33 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class PnReceivedNotificationsController implements RecipientReadApi {
     private final NotificationRetrieverService retrieveSvc;
-    private final NotificationAttachmentService notificationAttachmentService;
-
+    private final PnDeliveryConfigs cfg;
     private final ModelMapperFactory modelMapperFactory;
     public static final String VALIDATION_ERROR_STATUS = "Validation error";
     public static final String NOT_FOUND_ERROR_STATUS = "Not Found Error";
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
+    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, PnDeliveryConfigs cfg, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
-        this.notificationAttachmentService = notificationAttachmentService;
+        this.cfg = cfg;
         this.modelMapperFactory = modelMapperFactory;
     }
 
     @Override
     public ResponseEntity<NotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Date startDate, Date endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW, "getReceivedNotification")
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
-                .iun(iunMatch)
-                .uid(xPagopaPnUid)
-                .build();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
                 .senderReceiverId(xPagopaPnCxId)
@@ -67,90 +53,36 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .nextPagesKey(nextPagesKey)
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow, String> serviceResult = retrieveSvc.searchNotification(searchDto);
+        ResultPaginationDto<NotificationSearchRow,String> serviceResult =  retrieveSvc.searchNotification( searchDto );
 
-        ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
-        NotificationSearchResponse response = mapper.map(serviceResult, NotificationSearchResponse.class);
-        logEvent.generateSuccess().log();
-        return ResponseEntity.ok(response);
+        ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
+        NotificationSearchResponse response = mapper.map( serviceResult, NotificationSearchResponse.class );
+        return ResponseEntity.ok( response );
     }
 
     @Override
     public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        FullReceivedNotification result = null;
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW, "getReceivedNotification")
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
-                .iun(iun)
-                .uid(xPagopaPnUid)
-                .build();
-        try {
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId);
+        InternalNotification internalNotification =  retrieveSvc.getNotificationAndNotifyViewedEvent( iun, xPagopaPnCxId );
 
-            ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, FullReceivedNotification.class);
+        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class );
 
-            result = mapper.map(internalNotification, FullReceivedNotification.class);
-
-            logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
-            throw exc;
-        }
-        return ResponseEntity.ok(result);
+        FullReceivedNotification result = mapper.map( internalNotification, FullReceivedNotification.class );
+        return ResponseEntity.ok( result );
     }
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW, "getReceivedNotificationDocument")
-                .uid(xPagopaPnUid)
-                .iun(iun)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
-                .build();
-        try {
-            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
-            logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
-            throw exc;
-        }
-
-        return ResponseEntity.ok(response);
-    }
-
-
-    @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_VIEW, "getReceivedNotificationAttachment")
-                .iun(iun)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
-                .uid(xPagopaPnUid)
-                .build();
-        try {
-            response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
-            logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
-            throw exc;
-        }
-        return ResponseEntity.ok(response);
+        NotificationAttachmentDownloadMetadataResponse response = retrieveSvc.downloadDocumentWithRedirect(iun, docIdx.intValue());
+        return ResponseEntity.ok( response );
     }
 
     @ExceptionHandler({PnValidationException.class})
-    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex) {
+    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
         return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
     }
 
     @ExceptionHandler({PnNotFoundException.class})
     public ResponseEntity<ResErrorDto> handleNotFoundException(PnNotFoundException ex) {
-        return HandleNotFound.handleNotFoundException(ex, NOT_FOUND_ERROR_STATUS);
+        return HandleNotFound.handleNotFoundException( ex, NOT_FOUND_ERROR_STATUS );
     }
 }

@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentAttachment;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -11,7 +12,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @ToString
 @DynamoDbBean
 public class NotificationPaymentInfoEntity {
-
     private String noticeCode;
     private String creditorTaxId;
     private PaymentAttachmentEntity pagoPaForm;
@@ -62,5 +62,4 @@ public class NotificationPaymentInfoEntity {
     public void setF24standard(PaymentAttachmentEntity f24standard) {
         this.f24standard = f24standard;
     }
-
 }

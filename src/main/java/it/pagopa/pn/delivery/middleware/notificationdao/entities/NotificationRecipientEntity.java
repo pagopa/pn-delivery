@@ -12,7 +12,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @DynamoDbBean
 public class NotificationRecipientEntity {
     private RecipientTypeEntity recipientType;
-    private String recipientId;
+    private String taxId;
     private String denomination;
     private NotificationDigitalAddressEntity digitalDomicile;
     private NotificationPhysicalAddressEntity physicalAddress;
@@ -27,13 +27,13 @@ public class NotificationRecipientEntity {
         this.recipientType = recipientType;
     }
 
-    @DynamoDbAttribute(value = "recipientId")
-    public String getRecipientId() {
-        return recipientId;
+    @DynamoDbAttribute(value = "taxId")
+    public String getTaxId() {
+        return taxId;
     }
 
-    public void setRecipientId(String recipientId) {
-        this.recipientId = recipientId;
+    public void setTaxId(String taxId) {
+        this.taxId = taxId;
     }
 
     @DynamoDbAttribute(value = "denomination")
