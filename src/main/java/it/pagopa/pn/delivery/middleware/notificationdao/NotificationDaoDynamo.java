@@ -2,10 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -119,14 +116,12 @@ public class NotificationDaoDynamo implements NotificationDao {
 	private void handleRecipients(InternalNotification daoResult) {
 		List<NotificationRecipient> daoNotificationRecipientList = daoResult.getRecipients();
 
-		List<String> opaqueIds = daoNotificationRecipientList.stream()
+		Set<String> opaqueIds = daoNotificationRecipientList.stream()
 				.map(NotificationRecipient::getTaxId)
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
 
 		List<BaseRecipientDto> baseRecipientDtoList =
-				pnDataVaultClient.getRecipientDenominationByInternalId(
-						opaqueIds
-						);
+				pnDataVaultClient.getRecipientDenominationByInternalId( new ArrayList<>(opaqueIds) );
 
 		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.getIun() );
 		List<String> opaqueRecipientsIds = new ArrayList<>();

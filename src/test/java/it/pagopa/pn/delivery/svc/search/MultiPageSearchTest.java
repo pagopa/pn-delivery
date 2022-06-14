@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMet
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,11 +32,13 @@ class MultiPageSearchTest {
     private NotificationDao notificationDao;
     private InputSearchNotificationDto inputSearchNotificationDto;
     private PnDeliveryConfigs cfg;
+    private PnDataVaultClientImpl dataVaultClient;
 
     @BeforeEach
     void setup() {
         this.notificationDao = new NotificationDaoMock();
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
+        this.dataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
         this.inputSearchNotificationDto = new InputSearchNotificationDto.Builder()
                 .bySender( true )
                 .startDate( Instant.now() )
@@ -49,7 +53,7 @@ class MultiPageSearchTest {
                 notificationDao,
                 inputSearchNotificationDto,
                 null,
-                cfg);
+                cfg, dataVaultClient);
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
 
@@ -86,6 +90,7 @@ class MultiPageSearchTest {
                             .notificationStatus( NotificationStatus.VIEWED )
                             .sender( "SenderId" )
                             .subject( "Subject" )
+                            .recipients( List.of( "internalId1", "internalId2" ) )
                             .build() ))
                     .moreResult( false )
                     .build();
