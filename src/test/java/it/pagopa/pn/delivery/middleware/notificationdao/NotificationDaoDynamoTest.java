@@ -1,7 +1,5 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
@@ -12,7 +10,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRec
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.NotificationCost;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
@@ -55,9 +52,8 @@ class NotificationDaoDynamoTest {
 
     @BeforeEach
     void setup() {
-        ObjectMapper objMapper = new ObjectMapper();
         modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
-        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(objMapper, modelMapperFactory);
+        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(modelMapperFactory);
         entity2dto = new EntityToDtoNotificationMapper( modelMapperFactory);
         NotificationEntityDao entityDao = new EntityDaoMock();
         NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();

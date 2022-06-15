@@ -5,30 +5,16 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttri
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 @DynamoDbBean
 public class AttachmentRefEntity {
-    private String key;
-    private String versionToken;
+    public static final String FIELD_KEY = "key";
+    public static final String FIELD_VERSION_TOKEN = "versionToken";
 
-    @DynamoDbAttribute(value = "key")
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    @DynamoDbAttribute(value = "versionToken")
-    public String getVersionToken() {
-        return versionToken;
-    }
-
-    public void setVersionToken(String versionToken) {
-        this.versionToken = versionToken;
-    }
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_KEY)})) private String key;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION_TOKEN)})) private String versionToken;
 }
