@@ -49,7 +49,7 @@ class NotificationPriceServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void getNotificationPriceSuccess() {
+    void getNotificationPriceDeliveryModeSuccess() {
         //Given
         InternalNotification internalNotification = getNewInternalNotification();
 
@@ -82,6 +82,39 @@ class NotificationPriceServiceTest {
         Assertions.assertNotNull( response );
         Assertions.assertEquals("iun" , response.getIun() );
         Assertions.assertEquals( "740", response.getAmount() );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationPriceFlatRateSuccess() {
+        //Given
+        InternalNotification internalNotification = getNewInternalNotification();
+        internalNotification.setNotificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE );
+
+
+        NotificationCost notificationCost = NotificationCost.builder()
+                .recipientIdx( 0 )
+                .iun( "iun" )
+                .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
+                .build();
+
+        //When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
+                .thenReturn( Optional.of( notificationCost ) );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( Optional.of( internalNotification ) );
+
+        Mockito.when( retrieverService.enrichWithTimelineAndStatusHistory( Mockito.anyString(), Mockito.any( InternalNotification.class ) ) )
+                .thenReturn( internalNotification );
+
+
+        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+
+        //Then
+        Assertions.assertNotNull( response );
+        Assertions.assertEquals("iun" , response.getIun() );
+        Assertions.assertEquals( "0", response.getAmount() );
     }
 
 
@@ -152,6 +185,7 @@ class NotificationPriceServiceTest {
     @NotNull
     private InternalNotification getNewInternalNotification() {
         return new InternalNotification(FullSentNotification.builder()
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE )
                 .iun( "iun" )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )

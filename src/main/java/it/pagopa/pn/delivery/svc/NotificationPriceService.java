@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategory;
@@ -77,13 +78,24 @@ public class NotificationPriceService {
 
     private String computeAmount(int recipientIdx, InternalNotification notification) {
         log.info( "Compute notification cost amount for recipientIdx={} iun={}", recipientIdx, notification.getIun() );
-        PnDeliveryConfigs.Costs costs = cfg.getCosts();
-        // costo di notifica per destinatrio
-        long notificationCost = Long.parseLong( costs.getNotification() );
-        for ( TimelineElement tle : notification.getTimeline() ) {
-            if (tle.getCategory() == TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER && recipientIdx == tle.getDetails().getRecIndex()) {
-                notificationCost += computeSimpleRegisteredLetterCost(tle);
+        long notificationCost;
+        switch ( notification.getNotificationFeePolicy() ) {
+            case FLAT_RATE: {
+                log.info( "Notification cost amount for FLATE_RATE" );
+                notificationCost = 0L;
+            } break;
+            case DELIVERY_MODE: {
+                log.info( "Compute notification cost amount for DELIVERY_MODE" );
+                PnDeliveryConfigs.Costs costs = cfg.getCosts();
+                // costo di notifica per destinatrio
+                notificationCost = Long.parseLong( costs.getNotification() );
+                for ( TimelineElement tle : notification.getTimeline() ) {
+                    if (tle.getCategory() == TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER && recipientIdx == tle.getDetails().getRecIndex()) {
+                        notificationCost += computeSimpleRegisteredLetterCost(tle);
+                    }
+                } break;
             }
+            default: throw new UnsupportedOperationException();
         }
         return Long.toString(notificationCost);
     }
