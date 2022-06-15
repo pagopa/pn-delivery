@@ -35,12 +35,14 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.entity2DtoMapper = entity2DtoMapper;
         this.dynamoDbTable = dynamoDbEnhancedClient.table(tableName( cfg), TableSchema.fromClass(NotificationEntity.class));
-        this.dynamoDbCostTable = dynamoDbEnhancedClient.table( "NotificationsCost", TableSchema.fromClass(NotificationCostEntity.class));
-
+        this.dynamoDbCostTable = dynamoDbEnhancedClient.table( costTableName(cfg), TableSchema.fromClass(NotificationCostEntity.class));
     }
 
     private static String tableName( PnDeliveryConfigs cfg ) {
         return cfg.getNotificationDao().getTableName();
+    }
+    private static String costTableName(PnDeliveryConfigs cfg ) {
+        return cfg.getNotificationCostDao().getTableName();
     }
 
     @Override
