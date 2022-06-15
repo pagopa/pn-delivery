@@ -1,7 +1,5 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -12,17 +10,17 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class DtoToEntityNotificationMapper {
 
-    private final ObjectWriter recipientWriter;
-    private ModelMapperFactory modelMapperFactory;
 
-    public DtoToEntityNotificationMapper(ObjectMapper objMapper, ModelMapperFactory modelMapperFactory) {
-        this.recipientWriter = objMapper.writerFor(NotificationRecipient.class);
+    private final ModelMapperFactory modelMapperFactory;
+
+    public DtoToEntityNotificationMapper(ModelMapperFactory modelMapperFactory) {
         this.modelMapperFactory = modelMapperFactory;
     }
 
@@ -41,7 +39,9 @@ public class DtoToEntityNotificationMapper {
                 .documents( convertDocuments( dto.getDocuments() ))
                 .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
-                .group( dto.getGroup() );
+                .group( dto.getGroup() )
+                .amount(dto.getAmount())
+                .paymentExpirationDate( dto.getPaymentExpirationDate()==null?null:DateTimeFormatter.ISO_DATE.format(dto.getPaymentExpirationDate().toInstant()));
 
         return builder.build();
     }
