@@ -3,6 +3,9 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
