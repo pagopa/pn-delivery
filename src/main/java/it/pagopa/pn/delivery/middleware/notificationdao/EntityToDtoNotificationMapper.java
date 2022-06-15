@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRec
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -54,15 +55,13 @@ public class EntityToDtoNotificationMapper {
     }
 
     private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
-        ModelMapper mapper = modelMapperFactory
-                .createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class );
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        mapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
+                .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setTaxId );
 
         return recipients.stream()
-                .map( r -> {
-                    NotificationRecipient nr = mapper.map(r, NotificationRecipient.class);
-                    nr.setTaxId( r.getRecipientId());
-                    return nr;
-                })
+                .map( r -> mapper.map(r, NotificationRecipient.class))
                 .collect(Collectors.toList());
     }
 
