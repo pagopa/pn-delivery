@@ -207,8 +207,8 @@ Resources:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}/*"
-
-
+              - !Sub "${NotificationsCostDynamoTableArn}"
+              - !Sub "${NotificationsCostDynamoTableArn}/*"
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
