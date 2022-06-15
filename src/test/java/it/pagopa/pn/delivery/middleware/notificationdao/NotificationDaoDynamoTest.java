@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRec
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.NotificationCost;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
