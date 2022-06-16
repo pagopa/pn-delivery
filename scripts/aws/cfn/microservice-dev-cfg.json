@@ -1,6 +1,6 @@
 {
   "Parameters" : {
-    "CorsAllowedDomains" : "http://localhost:8090,https://portale-pa.svil.pn.pagopa.it/,https://portale.svil.pn.pagopa.it/",
+    "CorsAllowedDomains" : "http://localhost:8090,https://portale-pa.svil.pn.pagopa.it,https://portale.svil.pn.pagopa.it",
     "SandboxSafeStorageBaseUrl": "https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev"
   }
 }
