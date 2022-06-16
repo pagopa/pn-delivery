@@ -5,24 +5,16 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocumen
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class DtoToEntityNotificationMapper {
-
-
-    private final ModelMapperFactory modelMapperFactory;
-
-    public DtoToEntityNotificationMapper(ModelMapperFactory modelMapperFactory) {
-        this.modelMapperFactory = modelMapperFactory;
-    }
 
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
@@ -41,7 +33,7 @@ public class DtoToEntityNotificationMapper {
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
                 .group( dto.getGroup() )
                 .amount(dto.getAmount())
-                .paymentExpirationDate( dto.getPaymentExpirationDate()==null?null:DateTimeFormatter.ISO_DATE.format(dto.getPaymentExpirationDate().toInstant()));
+                .paymentExpirationDate(DateUtils.formatDateNoTimezone(dto.getPaymentExpirationDate()));
 
         return builder.build();
     }
