@@ -27,7 +27,7 @@ public class DateUtils {
             return null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE.withZone(italianZoneId);
-        return Date.from(Instant.from(formatter.parse(date)));
+        return Date.from(LocalDate.parse(date, formatter).atStartOfDay(italianZoneId).toInstant());
     }
 
     public static String formatDate(Instant instant)
