@@ -626,11 +626,11 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
    
-#  securitySchemes:        
-#    ApiKeyAuth:           
-#      type: apiKey        
-#      in: header          
-#      name: x-api-key     
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
 
 #security:                 
 #  - ApiKeyAuth: [] # use the same name as under securitySchemes    
