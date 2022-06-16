@@ -50,6 +50,8 @@ class ReceivedNotificationsDocumentTest {
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
 	private static final String FILENAME = "filename.pdf";
 	private static final String REQUEST_ID = "VkdLVi1VS0hOLVZJQ0otMjAyMjA1LVAtMQ==";
+	private static final Integer AMOUNT = 10000;
+	private static final String PAYMENT_EXPIRE_DATE = "2023-12-29";
 	
 	@MockBean
 	private NotificationRetrieverService svc;
@@ -151,7 +153,7 @@ class ReceivedNotificationsDocumentTest {
 	}
 
 	private Optional<NotificationEntity> createNotificationEntities() {
-		NotificationEntity ne = new NotificationEntity(IUN, REQUEST_ID, REDIRECT_URL, null, IUN, IUN, PA_ID, null, null, null, null, IUN, FILENAME, ATTACHMENT_BODY_STR);
+		NotificationEntity ne = new NotificationEntity(IUN, REQUEST_ID, REDIRECT_URL, null, IUN, IUN, PA_ID, null, null, null, null, IUN, FILENAME, ATTACHMENT_BODY_STR, AMOUNT, PAYMENT_EXPIRE_DATE);
 		Optional<NotificationEntity> result = Optional.ofNullable(ne);
 		return result;
 	}

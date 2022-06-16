@@ -79,7 +79,14 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-    
+        amount:
+          type: integer
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          pattern: "^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$"
+          description: Data di scadenza del pagamento nel formato YYYY-MM-DD riferito all'Italia
+          # gestito come stringa e pattern perchè con format: date open-api-generator non lo gestiva correttamente
     SentNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
