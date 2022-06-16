@@ -130,6 +130,9 @@ components:
         taxId:
           type: string
           description: Codice Fiscale del destinatario
+        internalId:
+          type: string
+          description: id interno anonimizzato
         denomination:
           type: string
           description: Nome e cognome / ragione sociale
