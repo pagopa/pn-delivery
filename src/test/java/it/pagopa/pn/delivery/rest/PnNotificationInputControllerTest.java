@@ -141,7 +141,7 @@ class PnNotificationInputControllerTest {
 				.senderTaxId( "sender_tax_id" )
 				.paProtocolNumber( "protocol_number" )
 				.amount(10000)
-				.paymentExpirationDate(new Date())
+				.paymentExpirationDate("2023-10-22")
 				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
 				.recipients( Collections.singletonList( NotificationRecipient.builder()
 						.recipientType( NotificationRecipient.RecipientTypeEnum.PF )

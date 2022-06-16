@@ -6,7 +6,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.DocumentAttachm
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.utils.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,7 @@ public class EntityToDtoNotificationMapper {
                 .recipients( entity2RecipientDto( entity.getRecipients() ) )
                 .documents( buildDocumentsList( entity ) )
                 .amount(entity.getAmount())
-                .paymentExpirationDate(DateUtils.parseDateNoTimezone(entity.getPaymentExpirationDate()))
+                .paymentExpirationDate(entity.getPaymentExpirationDate())
                 //.documentsAvailable(  )
                 .build()
         , Collections.emptyMap(), recipientIds );

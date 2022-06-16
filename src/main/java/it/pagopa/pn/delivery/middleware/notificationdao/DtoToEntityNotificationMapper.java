@@ -5,7 +5,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocumen
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.utils.DateUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
@@ -33,7 +32,7 @@ public class DtoToEntityNotificationMapper {
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
                 .group( dto.getGroup() )
                 .amount(dto.getAmount())
-                .paymentExpirationDate(DateUtils.formatDateNoTimezone(dto.getPaymentExpirationDate()));
+                .paymentExpirationDate(dto.getPaymentExpirationDate());
 
         return builder.build();
     }
