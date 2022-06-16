@@ -40,18 +40,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false);
         ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, SentNotification.class);
         SentNotification sentNotification = mapper.map(notification, SentNotification.class);
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "getSentNotificationPrivate")
-                .uid(iun)
-                .build();
 
         int recIdx = 0;
         for (NotificationRecipient rec : sentNotification.getRecipients()) {
             rec.setTaxId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }
-
-        logEvent.generateSuccess().log();
 
         return ResponseEntity.ok(sentNotification);
     }
