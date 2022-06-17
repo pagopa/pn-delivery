@@ -58,7 +58,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         log.info(logMessage);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_STATUS, "updateStatus")
+                .before(PnAuditLogEventType.AUD_NT_STATUS, logMessage)
                 .iun(requestUpdateStatusDto.getIun())
                 .build();
         try {
