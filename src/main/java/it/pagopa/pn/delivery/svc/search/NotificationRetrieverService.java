@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -86,6 +87,14 @@ public class NotificationRetrieverService {
 			} catch (JsonProcessingException e) {
 				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey", e );
 			}
+		}
+
+		//devo opacizzare i campi di ricerca
+		if (searchDto.getFilterId() != null && searchDto.isBySender() ) {
+			log.info( "[start] Send request to data-vault" );
+			String opaqueTaxId = dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDto.getFilterId() );
+			log.info( "[end] Ensured recipient for search" );
+			searchDto.setFilterId( opaqueTaxId );
 		}
 
 		MultiPageSearch multiPageSearch = new MultiPageSearch(
@@ -234,7 +243,7 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
+	public InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
 		Date createdAt =  notification.getSentAt();

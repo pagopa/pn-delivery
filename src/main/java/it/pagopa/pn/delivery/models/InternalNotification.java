@@ -35,6 +35,8 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getSenderDenomination(),
                 fsn.getSenderTaxId(),
                 fsn.getGroup(),
+                fsn.getAmount(),
+                fsn.getPaymentExpirationDate(),
                 fsn.getSenderPaId(),
                 fsn.getIun(),
                 fsn.getSentAt(),

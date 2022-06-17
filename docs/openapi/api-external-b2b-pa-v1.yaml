@@ -94,6 +94,9 @@ tags:
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
       di notifica inviate e delle notifiche accettate.
+  - name: NotificationPrice
+    description: >-
+      Invocazioni per determinare il costo della notifica per il destinario.
 
 paths:
     ###########################################################################################
@@ -285,30 +288,81 @@ paths:
     ###########################################################################################
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
     ###########################################################################################
-  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':                 # ONLY EXTERNAL
-    get:                                                                            # ONLY EXTERNAL
-      summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
-      description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
-      tags:                                                                         # ONLY EXTERNAL
-        - LegalFacts                                                                # ONLY EXTERNAL
-      operationId: getLegalFact                                                     # ONLY EXTERNAL
-      parameters:                                                                   # ONLY EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'                                   # ONLY EXTERNAL
-        - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
-        - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
-      responses:                                                                    # ONLY EXTERNAL
-        '200':                                                                      # ONLY EXTERNAL
-          description: OK                                                           # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      # ONLY EXTERNAL
-        '400':                                                                      # ONLY EXTERNAL
-          description: Bad request                                                  # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
+  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':                 
+    get:                                                                            
+      summary: Download atto opponibile a terzi                                     
+      description: Permette di scaricare un atto opponibile a terzi                 
+      tags:                                                                         
+        - LegalFacts                                                                
+      operationId: getLegalFact                                                     
+      parameters:                                                                   
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'                                   
+        - $ref: '#/components/parameters/pathLegalFactType'                         
+        - $ref: '#/components/parameters/pathLegalFactId'                           
+      responses:                                                                    
+        '200':                                                                      
+          description: OK                                                           
+          content:                                                                  
+            application/json:                                                       
+              schema:                                                               
+                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      
+        '400':                                                                      
+          description: Bad request                                                  
+          content:                                                                  
+            application/json:                                                       
+              schema:                                                               
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     
+  '/delivery/price/{paTaxId}/{noticeNumber}':                                       
+    get:                                                                            
+      operationId: getNotificationPrice                                              
+      summary: Retrieve notification price and effective date                       
+      description: >-                                                               
+        Used to retrieve the notification price charged and effective date          
+        from PagoPa identifiers paTaxId and noticeNumber.                           
+        Called from PA to turn notification cost to the receiver during the         
+        pagoPa payment verification phase.                                          
+      tags:                                                                         
+        - NotificationPrice                                                         
+      parameters:                                                                   
+        - name: paTaxId                                                              
+          description: Payment PA fiscal code                                       
+          in: path                                                                  
+          required: true                                                            
+          example: '77777777777'                                                    
+          schema:                                                                   
+            type: string                                                            
+            maxLength: 11                                                           
+            minLength: 11                                                           
+            pattern: '^\d+$'                                                        
+        - name: noticeNumber                                                        
+          description: Payment notice number  numero avviso                         
+          in: path                                                                  
+          required: true                                                            
+          example: '302000100000019421'                                             
+          schema:                                                                   
+            type: string                                                            
+            maxLength: 18                                                           
+            minLength: 18                                                           
+            pattern: '^\d+$'                                                        
+      responses:                                                                    
+        '200':                                                                      
+          description: OK                                                           
+          content:                                                                  
+            application/json:                                                       
+              schema:                                                               
+                $ref: '#/components/schemas/NotificationPriceResponse'              
+        '400':                                                                      
+          description: Invalid input                                                
+          content:                                                                  
+            application/problem+json:                                               
+              schema:                                                               
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       
+        '500':                                                                      
+          description: Internal Server Error                                        
+          content:                                                                  
+            application/problem+json:                                               
+              schema:                                                               
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'                  
 components:
   
   parameters:
@@ -455,7 +509,25 @@ components:
             di notifica.
           example: '8F7E/9A3B/1234/AB87'
           type: string
-    
+    NotificationPriceResponse:
+      title: Notification price Response
+      description: >-
+        Notification price and effective date
+      type: object
+      properties:
+        iun:
+          description: notification identifier
+          type: string
+          example: 'KXFY-CSZL-GUIE-202206-Y-1'
+        amount:
+          description: amount in euro cents
+          example: 1220
+          type: string
+        effectiveDate:
+          description: notification effective date
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
@@ -554,14 +626,14 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
    
-  securitySchemes:        # ONLY EXTERNAL
-    ApiKeyAuth:           # ONLY EXTERNAL
-      type: apiKey        # ONLY EXTERNAL
-      in: header          # ONLY EXTERNAL
-      name: x-api-key     # ONLY EXTERNAL
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
 
-security:                 # ONLY EXTERNAL
-  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+#security:                 
+#  - ApiKeyAuth: [] # use the same name as under securitySchemes    
               
 
 
