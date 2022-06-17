@@ -1,7 +1,5 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
@@ -23,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
@@ -54,10 +53,8 @@ class NotificationDaoDynamoTest {
 
     @BeforeEach
     void setup() {
-        ObjectMapper objMapper = new ObjectMapper();
-        modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
-        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(objMapper, modelMapperFactory);
-        entity2dto = new EntityToDtoNotificationMapper( modelMapperFactory);
+        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper();
+        entity2dto = new EntityToDtoNotificationMapper();
         NotificationEntityDao entityDao = new EntityDaoMock();
         NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
         pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
@@ -72,12 +69,14 @@ class NotificationDaoDynamoTest {
 
         // WHEN
         ModelMapper addMapper = new ModelMapper();
-        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class );
-        Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
+        addMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
+                .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
+        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
 
         ModelMapper getMapper = new ModelMapper();
         getMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class );
-        Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class ) ).thenReturn( getMapper );
+        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class ) ).thenReturn( getMapper );
         Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 
@@ -118,8 +117,12 @@ class NotificationDaoDynamoTest {
 
         // WHEN
         ModelMapper addMapper = new ModelMapper();
-        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class );
-        Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
+        addMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
+                        .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
+
+
+        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
         Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 
@@ -138,12 +141,15 @@ class NotificationDaoDynamoTest {
 
         // WHEN
         ModelMapper addMapper = new ModelMapper();
-        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class );
-        Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
+        addMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
+                .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
+
+        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
 
         ModelMapper getMapper = new ModelMapper();
         getMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class );
-        Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class ) ).thenReturn( getMapper );
+        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class ) ).thenReturn( getMapper );
         Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 

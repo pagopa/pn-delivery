@@ -1,15 +1,13 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.DocumentAttachmentEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -20,12 +18,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class EntityToDtoNotificationMapper {
-
-    private ModelMapperFactory modelMapperFactory;
-
-    public EntityToDtoNotificationMapper(ModelMapperFactory modelMapperFactory) {
-        this.modelMapperFactory = modelMapperFactory;
-    }
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
     	if ( entity.getPhysicalCommunicationType() == null ) {
@@ -50,21 +42,21 @@ public class EntityToDtoNotificationMapper {
                 .senderPaId( entity.getSenderPaId() )
                 .recipients( entity2RecipientDto( entity.getRecipients() ) )
                 .documents( buildDocumentsList( entity ) )
+                .amount(entity.getAmount())
+                .paymentExpirationDate(entity.getPaymentExpirationDate())
                 //.documentsAvailable(  )
                 .build()
         , Collections.emptyMap(), recipientIds );
     }
 
     private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
-        ModelMapper mapper = modelMapperFactory
-                .createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class );
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        mapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
+                .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setTaxId );
 
         return recipients.stream()
-                .map( r -> {
-                    NotificationRecipient nr = mapper.map(r, NotificationRecipient.class);
-                    nr.setTaxId( r.getRecipientId());
-                    return nr;
-                })
+                .map( r -> mapper.map(r, NotificationRecipient.class))
                 .collect(Collectors.toList());
     }
 

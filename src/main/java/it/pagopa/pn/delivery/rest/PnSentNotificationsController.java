@@ -132,7 +132,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getReceivedNotificationDocument")
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationAttachment={}", attachmentName)
                 .uid(xPagopaPnUid)
                 .iun(iun)
                 .cxId(xPagopaPnCxId)
@@ -154,7 +154,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getReceivedNotificationDocument")
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}", docIdx)
                 .uid(xPagopaPnUid)
                 .iun(iun)
                 .cxId(xPagopaPnCxId)
