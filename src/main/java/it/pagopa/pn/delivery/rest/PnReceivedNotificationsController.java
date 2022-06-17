@@ -19,11 +19,12 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @RestController
 public class PnReceivedNotificationsController implements RecipientReadApi {
     private final NotificationRetrieverService retrieveSvc;
@@ -55,7 +56,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
-
+        log.info("Search received notification for senderId={} iun={}", senderId, iunMatch);
         ResultPaginationDto<NotificationSearchRow, String> serviceResult = retrieveSvc.searchNotification(searchDto);
 
         ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
@@ -91,14 +92,44 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocument")
+                .uid(xPagopaPnUid)
+                .iun(iun)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .build();
+        try {
+            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
+
         return ResponseEntity.ok(response);
     }
 
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
-        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationAttachment")
+                .iun(iun)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .uid(xPagopaPnUid)
+                .build();
+        try {
+            response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
         return ResponseEntity.ok(response);
     }
 
