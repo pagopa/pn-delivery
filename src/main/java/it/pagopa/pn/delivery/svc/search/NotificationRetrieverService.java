@@ -35,13 +35,14 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class NotificationRetrieverService {
+
+	public static final long MAX_DOCUMENTS_AVAILABLE_DAYS = 120L;
 
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
@@ -248,7 +249,7 @@ public class NotificationRetrieverService {
 		if (optTimelineElement.isPresent()) {
 			Date refinementDate = optTimelineElement.get().getTimestamp();
 			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
-			if ( daysBetween > 120L ) {
+			if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
 				log.debug( "Documents not more available for iun={}", notification.getIun() );
 				notification.setDocumentsAvailable( false );
 			}
@@ -259,8 +260,8 @@ public class NotificationRetrieverService {
 		if (StringUtils.isNotBlank(userId)) {
 			notifyNotificationViewedEvent(notification, userId);
 		} else {
-			log.error("UserId is not present, can't update state {}", iun);
-			throw new PnInternalException("UserId is not present, can't update state " + iun);
+			log.error("UserId is not present, can't create notification view event for iun={}", iun);
+			throw new PnInternalException("UserId is not present, can't create notification view event for iun=" + iun);
 		}
 	}
 
