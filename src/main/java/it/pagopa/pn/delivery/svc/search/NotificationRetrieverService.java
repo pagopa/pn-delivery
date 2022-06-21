@@ -242,13 +242,9 @@ public class NotificationRetrieverService {
 		log.debug( "Documents available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
 		// cerco elemento timeline con category refinement
-		log.debug( "timeline retrieved={}", notification.getTimeline() );
 		Optional<TimelineElement> optTimelineElement = notification.getTimeline()
 				.stream()
-				.filter(tle ->  {
-					log.debug("timeline element category={} iun={}", tle.getCategory(), notification.getIun() );
-					return TimelineElementCategory.REFINEMENT.equals( tle.getCategory() );
-				})
+				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ))
 				.findFirst();
 		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
 		if (optTimelineElement.isPresent()) {
