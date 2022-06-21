@@ -34,12 +34,15 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class NotificationRetrieverService {
+
+	public static final long MAX_DOCUMENTS_AVAILABLE_DAYS = 120L;
 
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
@@ -230,16 +233,35 @@ public class NotificationRetrieverService {
 	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 		InternalNotification notification = getNotificationInformation(iun);
+		setIsDocumentsAvailable( notification );
 		handleNotificationViewedEvent(iun, userId, notification);
 		return notification;
+	}
+
+	private void setIsDocumentsAvailable(InternalNotification notification) {
+		log.debug( "Documents available for iun={}", notification.getIun() );
+		notification.setDocumentsAvailable( true );
+		// cerco elemento timeline con category refinement
+		Optional<TimelineElement> optTimelineElement = notification.getTimeline().stream().filter(
+				tle -> tle.getCategory().equals( TimelineElementCategory.REFINEMENT )
+		).findFirst();
+		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
+		if (optTimelineElement.isPresent()) {
+			Date refinementDate = optTimelineElement.get().getTimestamp();
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+			if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
+				log.debug( "Documents not more available for iun={}", notification.getIun() );
+				notification.setDocumentsAvailable( false );
+			}
+		}
 	}
 
 	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
 		if (StringUtils.isNotBlank(userId)) {
 			notifyNotificationViewedEvent(notification, userId);
 		} else {
-			log.error("UserId is not present, can't update state {}", iun);
-			throw new PnInternalException("UserId is not present, can't update state " + iun);
+			log.error("UserId is not present, can't create notification view event for iun={}", iun);
+			throw new PnInternalException("UserId is not present, can't create notification view event for iun=" + iun);
 		}
 	}
 

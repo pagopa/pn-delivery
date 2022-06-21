@@ -193,7 +193,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         for ( NotificationMetadataEntity entity : metadataEntityList ) {
             metadataEntityMap.putIfAbsent(entity.getTableRow().get("iun"), entity);
         }
-        metadataEntityMap.values().forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
+        metadataEntityMap.values().stream().sorted( Comparator.comparing( NotificationMetadataEntity::getSentAt ).reversed() )
+                .forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
         return result;
     }
 
