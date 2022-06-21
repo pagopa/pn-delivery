@@ -197,7 +197,6 @@ class NotificationRetrieverServiceTest {
         List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
                 .elementId( "elementId" )
                 .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
-                //.timestamp( OffsetDateTime.parse( "2022-01-01T00:00:00.00Z" ) ));
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 

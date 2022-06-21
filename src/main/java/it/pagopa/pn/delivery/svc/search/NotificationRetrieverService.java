@@ -241,21 +241,17 @@ public class NotificationRetrieverService {
 	private void setIsDocumentsAvailable(InternalNotification notification) {
 		log.debug( "Documents available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
-		// cerco elemento timeline con category refinement
-		log.debug( "timeline retrieved={}", notification.getTimeline() );
-		Optional<TimelineElement> optTimelineElement = notification.getTimeline()
+		// cerco elemento timeline con category refinement o notificationView
+		List<TimelineElement> timelineElementList = notification.getTimeline()
 				.stream()
-				.filter(tle ->  {
-					log.debug("timeline element category={} iun={}", tle.getCategory(), notification.getIun() );
-					return TimelineElementCategory.REFINEMENT.equals( tle.getCategory() );
-				})
-				.findFirst();
+				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.collect(Collectors.toList());
 		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
-		if (optTimelineElement.isPresent()) {
-			Date refinementDate = optTimelineElement.get().getTimestamp();
+		if (!timelineElementList.isEmpty()) {
+			Date refinementDate = timelineElementList.get( 0 ).getTimestamp();
 			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
 			if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
-				log.debug( "Documents not more available for iun={}", notification.getIun() );
+				log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
 				notification.setDocumentsAvailable( false );
 			}
 		}
