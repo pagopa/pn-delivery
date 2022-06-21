@@ -210,6 +210,7 @@ public class NotificationRetrieverService {
 			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
+				setIsDocumentsAvailable( notification );
 			}
 			return notification;
 		} else {
@@ -233,7 +234,6 @@ public class NotificationRetrieverService {
 	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 		InternalNotification notification = getNotificationInformation(iun);
-		setIsDocumentsAvailable( notification );
 		handleNotificationViewedEvent(iun, userId, notification);
 		return notification;
 	}
@@ -242,9 +242,12 @@ public class NotificationRetrieverService {
 		log.debug( "Documents available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
 		// cerco elemento timeline con category refinement
-		Optional<TimelineElement> optTimelineElement = notification.getTimeline().stream().filter(
-				tle -> tle.getCategory().equals( TimelineElementCategory.REFINEMENT )
-		).findFirst();
+		Optional<TimelineElement> optTimelineElement = notification.getTimeline()
+				.stream()
+				.filter(tle -> tle != null
+						&& tle.getCategory() != null
+						&& tle.getCategory().equals( TimelineElementCategory.REFINEMENT ))
+				.findFirst();
 		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
 		if (optTimelineElement.isPresent()) {
 			Date refinementDate = optTimelineElement.get().getTimestamp();
@@ -274,10 +277,6 @@ public class NotificationRetrieverService {
 
 		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
 
-		//ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.timeline.TimelineElement.class, TimelineElement.class );
-		//Set<TimelineElement> rawTimeline = timelineStatusHistoryDto.getTimeline().stream()
-		//		.map( el -> mapperTimeline.map( el, TimelineElement.class ))
-		//		.collect(Collectors.toSet());
 		
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()
