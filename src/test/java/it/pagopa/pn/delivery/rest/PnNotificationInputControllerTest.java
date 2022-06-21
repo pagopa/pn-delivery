@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -19,8 +18,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -105,7 +106,7 @@ class PnNotificationInputControllerTest {
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-						.notificationRequestId( EncodingUtils.base64Encoding(IUN) ).build();
+						.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) ).build();
 				
 		// When
 		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
@@ -185,7 +186,7 @@ class PnNotificationInputControllerTest {
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-				.notificationRequestId( EncodingUtils.base64Encoding(IUN) ).build();
+				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) ).build();
 
 		// When
 		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
