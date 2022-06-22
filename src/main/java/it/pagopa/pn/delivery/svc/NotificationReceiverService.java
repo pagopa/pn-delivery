@@ -20,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 
 @Service
 @Slf4j
@@ -76,7 +77,7 @@ public class NotificationReceiverService {
 	}
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
-		String notificationId = org.springframework.util.Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
+		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
 		
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
