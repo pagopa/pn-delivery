@@ -58,6 +58,14 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Date startDate, Date endDate, List<String> xPagopaPnCxGroups, String recipientId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_SEARCH_SND, "searchSentNotification")
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .iun(iunMatch)
+                .uid(xPagopaPnUid)
+                .build();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
                 .senderReceiverId(xPagopaPnCxId)
@@ -71,11 +79,17 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
-
-        ResultPaginationDto<NotificationSearchRow,String> serviceResult =  retrieveSvc.searchNotification( searchDto );
-
-        ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
-        NotificationSearchResponse response = mapper.map( serviceResult, NotificationSearchResponse.class );
+        ResultPaginationDto<NotificationSearchRow,String> serviceResult;
+        NotificationSearchResponse response = new NotificationSearchResponse();
+        try {
+            serviceResult =  retrieveSvc.searchNotification( searchDto );
+            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
+            response = mapper.map( serviceResult, NotificationSearchResponse.class );
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
         return ResponseEntity.ok( response );
     }
 
@@ -132,7 +146,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationAttachment={}", attachmentName)
+                .before(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment={}", attachmentName)
                 .uid(xPagopaPnUid)
                 .iun(iun)
                 .cxId(xPagopaPnCxId)
