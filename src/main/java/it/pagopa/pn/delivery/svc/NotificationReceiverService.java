@@ -8,6 +8,7 @@ import java.util.*;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -97,8 +98,8 @@ public class NotificationReceiverService {
 			doSave(internalNotification, createdAt, iun);
 		}
 		catch ( IdConflictException exc ) {
-			log.error("Duplicated iun={}", iun );
-			throw new PnInternalException( "Duplicated iun=" + iun, exc );
+			log.error("New notification insert throws conflict exception={}", exc.getMessage() );
+			throw new PnInternalException( "New notification insert throws conflict exception=" + exc.getMessage() );
 		}
 
 		return iun;

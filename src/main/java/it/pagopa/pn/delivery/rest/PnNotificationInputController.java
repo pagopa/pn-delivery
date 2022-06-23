@@ -6,10 +6,12 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
@@ -53,7 +55,7 @@ public class PnNotificationInputController implements NewNotificationApi {
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
-            throw exc;
+            throw new PnValidationException("Insert new notification", Collections.singleton(new ConstraintViolationImpl<>(String.format(exc.getMessage()))) ) ;
         }
         return ResponseEntity.ok(svcRes);
     }
