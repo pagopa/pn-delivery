@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
@@ -7,7 +8,6 @@ import java.util.*;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -20,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 
 @Service
 @Slf4j
@@ -76,7 +77,7 @@ public class NotificationReceiverService {
 	}
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
-		String notificationId = EncodingUtils.base64Encoding(iun);
+		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
 		
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
