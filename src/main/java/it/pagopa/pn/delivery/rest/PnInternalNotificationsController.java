@@ -53,7 +53,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     @Override
     public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
         String logMessage = String.format(
-                "Update status for iun %s netxStatus %s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
+                "Update status for iun=%s netxStatus=%s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
         );
         log.info(logMessage);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
