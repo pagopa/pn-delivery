@@ -113,7 +113,10 @@ Parameters:
   AlarmSNSTopicArn:
     Type: String
     Description: ARN of alarm topic
-
+  
+  Version:
+    Type: String
+    Description: 'keep track of used projects commitIds'
 
 Resources:
 
