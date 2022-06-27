@@ -1,7 +1,8 @@
 openapi: 3.0.3
 info:
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
-  version: v1.0
+  x-summary: 'Inviare richieste di notifica ai cittadini e gestire il loro stato'
+  version: 1.0.0
   description: >- 
     ## Abstract
       API utilizzate dalle pubbliche amministrazioni per __inviare richieste di notifiche__ e 
@@ -79,6 +80,7 @@ info:
   license:
     name: Licenza di PN
     url: 'https://da-definire/'
+  termsOfService: https://www.pagopa.it/it/prodotti-e-servizi/piattaforma-notifiche-digitali
 servers:
 - url: https://api.pn.pagopa.it
   description: Ambiente di produzione
@@ -99,6 +101,23 @@ tags:
       Invocazioni per determinare il costo della notifica per il destinario.
 
 paths:
+  "/status":
+    get:
+      description: Ritorna lo stato del servizio.
+      operationId: mostraStatus
+      responses:
+        "200":
+          description: OK
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        "default":  
+          description: Il servizio non sta funzionando correttamente.
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     ###########################################################################################
     ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
     ###########################################################################################
@@ -115,9 +134,17 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/PreLoadRequest"
+              type: object
+              description: |-
+                To be extensible, payloads must be objects
+              additionalProperties: false
+              properties:
+                files:
+                  maxItems: 1000
+                  minItems: 1
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PreLoadRequest"
         required: true
       responses:
         '200':
@@ -125,13 +152,21 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PreLoadResponse"
+                type: object
+                description: |-
+                  To be extensible, payloads must be objects
+                additionalProperties: false
+                properties:
+                  files:
+                    maxItems: 1000
+                    minItems: 1
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PreLoadResponse"
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -142,11 +177,12 @@ paths:
   "/delivery/requests":
     post:
       summary: Richiesta invio notifica
-      description: >-
+      description: |-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
 
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
-        valida, non che la richiesta sia stata validata ed accettata. <br/>
+        valida, non che la richiesta sia stata validata ed accettata.
+
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
         _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
       tags:
@@ -160,7 +196,10 @@ paths:
         required: true
       responses:
         '202':
-          description: Accepted
+          description: |-
+            a restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
+            valida, non che la richiesta sia stata validata ed accettata.
+
           content:
             application/json:
               schema:
@@ -168,7 +207,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -200,7 +239,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -229,7 +268,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -256,7 +295,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         
@@ -280,7 +319,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
   
@@ -309,7 +348,7 @@ paths:
         '400':                                                                      
           description: Bad request                                                  
           content:                                                                  
-            application/json:                                                       
+            application/problem+json:
               schema:                                                               
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     
   '/delivery/price/{paTaxId}/{noticeNumber}':                                       
@@ -527,7 +566,7 @@ components:
           description: notification effective date
           type: string
           format: date-time
-          example: 2017-07-21T17:32:28Z
+          example: "2017-07-21T17:32:28Z"
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
@@ -624,7 +663,8 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
-
+    Problem:
+      $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
    
   securitySchemes:
     ApiKeyAuth:
