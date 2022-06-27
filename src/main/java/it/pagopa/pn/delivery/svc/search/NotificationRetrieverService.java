@@ -34,12 +34,15 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class NotificationRetrieverService {
+
+	public static final long MAX_DOCUMENTS_AVAILABLE_DAYS = 120L;
 
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
@@ -207,6 +210,7 @@ public class NotificationRetrieverService {
 			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
+				setIsDocumentsAvailable( notification );
 			}
 			return notification;
 		} else {
@@ -234,12 +238,31 @@ public class NotificationRetrieverService {
 		return notification;
 	}
 
+	private void setIsDocumentsAvailable(InternalNotification notification) {
+		log.debug( "Documents available for iun={}", notification.getIun() );
+		notification.setDocumentsAvailable( true );
+		// cerco elemento timeline con category refinement o notificationView
+		List<TimelineElement> timelineElementList = notification.getTimeline()
+				.stream()
+				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.collect(Collectors.toList());
+		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
+		if (!timelineElementList.isEmpty()) {
+			Date refinementDate = timelineElementList.get( 0 ).getTimestamp();
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+			if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
+				log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
+				notification.setDocumentsAvailable( false );
+			}
+		}
+	}
+
 	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
 		if (StringUtils.isNotBlank(userId)) {
 			notifyNotificationViewedEvent(notification, userId);
 		} else {
-			log.error("UserId is not present, can't update state {}", iun);
-			throw new PnInternalException("UserId is not present, can't update state " + iun);
+			log.error("UserId is not present, can't create notification view event for iun={}", iun);
+			throw new PnInternalException("UserId is not present, can't create notification view event for iun=" + iun);
 		}
 	}
 
@@ -252,10 +275,6 @@ public class NotificationRetrieverService {
 
 		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
 
-		//ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.timeline.TimelineElement.class, TimelineElement.class );
-		//Set<TimelineElement> rawTimeline = timelineStatusHistoryDto.getTimeline().stream()
-		//		.map( el -> mapperTimeline.map( el, TimelineElement.class ))
-		//		.collect(Collectors.toSet());
 		
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()

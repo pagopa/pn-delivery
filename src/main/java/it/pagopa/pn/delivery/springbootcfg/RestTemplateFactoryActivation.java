@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.pnclient;
+package it.pagopa.pn.delivery.springbootcfg;
 
 import it.pagopa.pn.commons.pnclients.RestTemplateFactory;
 import org.springframework.context.annotation.Configuration;
