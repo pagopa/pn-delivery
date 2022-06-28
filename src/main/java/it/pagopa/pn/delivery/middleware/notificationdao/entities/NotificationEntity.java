@@ -21,6 +21,7 @@ import java.util.List;
 @DynamoDbBean
 public class NotificationEntity {
     public static final String FIELD_IUN = "iun";
+    public static final String FIELD_ABSTRACT = "abstract";
     public static final String FIELD_PA_NOTIFICATION_ID = "paNotificationId";
     public static final String FIELD_SUBJECT = "subject";
     public static final String FIELD_SENT_AT = "sentAt";
@@ -39,6 +40,7 @@ public class NotificationEntity {
     public static final String FIELD_PAYMENT_EXPIRATION_DATE = "paymentExpirationDate";
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String _abstract;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_NOTIFICATION_ID)})) private String paNotificationId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SUBJECT)})) private String subject;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENT_AT)})) private Instant sentAt;
