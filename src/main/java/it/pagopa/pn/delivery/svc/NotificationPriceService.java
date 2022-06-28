@@ -33,12 +33,12 @@ public class NotificationPriceService {
         this.cfg = cfg;
     }
 
-    public NotificationPriceResponse getNotificationPrice(String paTaxId, String noticeNumber) {
+    public NotificationPriceResponse getNotificationPrice(String paTaxId, String noticeCode) {
         // richiesta al dao per recuperare la notifica dato paTaxId e noticeNumber
         Date effectiveDate = null;
         String amount = null;
-        log.info( "Get notification cost for paTaxId={} noticeNumber={}", paTaxId, noticeNumber );
-        Optional<NotificationCost> optionalNotificationCost = notificationCostEntityDao.getNotificationByPaymentInfo( paTaxId, noticeNumber );
+        log.info( "Get notification cost for paTaxId={} noticeCode={}", paTaxId, noticeCode );
+        Optional<NotificationCost> optionalNotificationCost = notificationCostEntityDao.getNotificationByPaymentInfo( paTaxId, noticeCode );
         if (optionalNotificationCost.isPresent()) {
             log.info( "Get notification with iun={}", optionalNotificationCost.get().getIun() );
                 Optional<InternalNotification> optionalNotification = notificationDao.getNotificationByIun( optionalNotificationCost.get().getIun() );
@@ -64,8 +64,8 @@ public class NotificationPriceService {
                 }
 
         } else {
-            log.info( "No notification by paTaxId={} noticeNumber={}", paTaxId, noticeNumber );
-            throw new PnNotFoundException( String.format( "No notification by paTaxId=%s noticeNumber=%s", paTaxId, noticeNumber ) );
+            log.info( "No notification by paTaxId={} noticeCode={}", paTaxId, noticeCode );
+            throw new PnNotFoundException( String.format( "No notification by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) );
         }
 
         // creazione dto response

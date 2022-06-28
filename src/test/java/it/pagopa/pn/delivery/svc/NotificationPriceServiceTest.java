@@ -25,7 +25,7 @@ import java.util.*;
 class NotificationPriceServiceTest {
 
     private static final String PA_TAX_ID = "paTaxId";
-    private static final String NOTICE_NUMBER = "noticeNumber";
+    private static final String NOTICE_CODE = "noticeCode";
 
     @Mock
     private NotificationDao notificationDao;
@@ -76,7 +76,7 @@ class NotificationPriceServiceTest {
 
         Mockito.when( cfg.getCosts() ).thenReturn( costs );
 
-        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
         Assertions.assertNotNull( response );
@@ -109,7 +109,7 @@ class NotificationPriceServiceTest {
                 .thenReturn( internalNotification );
 
 
-        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
         Assertions.assertNotNull( response );
@@ -126,7 +126,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.empty() );
 
-        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
@@ -147,7 +147,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( Optional.empty() );
 
-        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
@@ -175,7 +175,7 @@ class NotificationPriceServiceTest {
                 .thenReturn( internalNotification );
 
 
-        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
         Assertions.assertThrows(PnNotFoundException.class, todo);
@@ -194,7 +194,7 @@ class NotificationPriceServiceTest {
                                 .build())
                         .payment( NotificationPaymentInfo.builder()
                                 .creditorTaxId( PA_TAX_ID )
-                                .noticeNumber( NOTICE_NUMBER )
+                                .noticeCode( NOTICE_CODE )
                                 .build() )
                         .build()) )
                 .timeline( List.of( TimelineElement.builder()
@@ -224,7 +224,7 @@ class NotificationPriceServiceTest {
                                 .build())
                         .payment( NotificationPaymentInfo.builder()
                                 .creditorTaxId( PA_TAX_ID )
-                                .noticeNumber( NOTICE_NUMBER )
+                                .noticeCode( NOTICE_CODE )
                                 .build() )
                         .build()) )
                 .timeline( List.of( TimelineElement.builder()

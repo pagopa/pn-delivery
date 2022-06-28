@@ -9,7 +9,7 @@ components:
       description: Identificativo Univoco Notifica
       type: string
 
-    noticeNumber:
+    noticeCode:
       description: Payment notice number  numero avviso
       example: '302000100000019421'
       type: string
@@ -248,19 +248,19 @@ components:
        notifica utilizzato. <br/>
          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o 
             calcolato puntualmente. <br/>
-         - _noticeNumber_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+         - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
       type: object
       required:
-        - noticeNumber
+        - noticeCode
         - creditorTaxId
         - pagoPaForm
       properties:
-        noticeNumber:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeNumber'
+        noticeCode:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
         creditorTaxId:
           $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
         pagoPaForm:
