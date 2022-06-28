@@ -34,7 +34,7 @@ public class NotificationPriceService {
     }
 
     public NotificationPriceResponse getNotificationPrice(String paTaxId, String noticeCode) {
-        // richiesta al dao per recuperare la notifica dato paTaxId e noticeNumber
+        // richiesta al dao per recuperare la notifica dato paTaxId e noticeCode
         Date effectiveDate = null;
         String amount = null;
         log.info( "Get notification cost for paTaxId={} noticeCode={}", paTaxId, noticeCode );
