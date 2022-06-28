@@ -29,10 +29,10 @@ public class NotificationEnitytCostDynamo extends AbstractDynamoKeyValueStore<No
     }
 
     @Override
-    public Optional<NotificationCost> getNotificationByPaymentInfo(String paTaxId, String noticeNumber) {
+    public Optional<NotificationCost> getNotificationByPaymentInfo(String paTaxId, String noticeCode) {
 
         Key key = Key.builder()
-                .partitionValue( paTaxId+"##"+noticeNumber )
+                .partitionValue( paTaxId+"##"+noticeCode )
                 .build();
 
         NotificationCostEntity notificationCostEntity = table.getItem( key );

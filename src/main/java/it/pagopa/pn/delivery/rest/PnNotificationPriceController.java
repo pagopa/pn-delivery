@@ -25,17 +25,17 @@ public class PnNotificationPriceController implements NotificationPriceApi {
     }
 
     @Override
-    public ResponseEntity<NotificationPriceResponse> getNotificationPrice(String paTaxId, String noticeNumber) {
+    public ResponseEntity<NotificationPriceResponse> getNotificationPrice(String paTaxId, String noticeCode) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_REQCOST, "getNotificationPrice paTaxId={} noticeNumber={}", paTaxId, noticeNumber )
+                .before(PnAuditLogEventType.AUD_NT_REQCOST, "getNotificationPrice paTaxId={} noticeCode={}", paTaxId, noticeCode )
                 .mdcEntry("paTaxId",paTaxId)
-                .mdcEntry("noticeNumber", noticeNumber)
+                .mdcEntry("noticeCode", noticeCode)
                 .build();
         logEvent.log();
         NotificationPriceResponse response;
         try {
-            response = service.getNotificationPrice( paTaxId, noticeNumber );
+            response = service.getNotificationPrice( paTaxId, noticeCode );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure("Exception on get notification price= " + exc.getMessage()).log();

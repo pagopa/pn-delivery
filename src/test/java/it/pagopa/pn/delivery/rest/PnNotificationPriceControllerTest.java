@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PnNotificationPriceControllerTest {
 
     private static final String PA_TAX_ID = "77777777777";
-    private static final String NOTICE_NUMBER = "302000100000019421";
+    private static final String NOTICE_CODE = "302000100000019421";
 
     @Autowired
     WebTestClient webTestClient;
@@ -44,9 +44,9 @@ class PnNotificationPriceControllerTest {
         Mockito.when( service.getNotificationPrice( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( priceResponse );
 
         webTestClient.get()
-                .uri( "/delivery/price/{paTaxId}/{noticeNumber}"
+                .uri( "/delivery/price/{paTaxId}/{noticeCode}"
                         .replace( "{paTaxId}", PA_TAX_ID )
-                        .replace( "{noticeNumber}", NOTICE_NUMBER ))
+                        .replace( "{noticeCode}", NOTICE_CODE ))
                 .accept( MediaType.APPLICATION_JSON )
                 .exchange()
                 .expectStatus()
@@ -55,7 +55,7 @@ class PnNotificationPriceControllerTest {
 
 
         //Then
-        Mockito.verify( service ).getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        Mockito.verify( service ).getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
     }
 
     @Test
@@ -64,9 +64,9 @@ class PnNotificationPriceControllerTest {
         Mockito.when( service.getNotificationPrice( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(PnNotFoundException.class);
 
         webTestClient.get()
-                .uri( "/delivery/price/{paTaxId}/{noticeNumber}"
+                .uri( "/delivery/price/{paTaxId}/{noticeCode}"
                         .replace( "{paTaxId}", PA_TAX_ID )
-                        .replace( "{noticeNumber}", NOTICE_NUMBER ))
+                        .replace( "{noticeCode}", NOTICE_CODE ))
                 .accept( MediaType.APPLICATION_JSON )
                 .exchange()
                 .expectStatus()

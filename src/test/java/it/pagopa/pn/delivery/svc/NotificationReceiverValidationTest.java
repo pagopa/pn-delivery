@@ -382,7 +382,7 @@ class NotificationReceiverValidationTest {
                                                         .build() )
                                                 .build() )
                                         .creditorTaxId( "12345678901" )
-                                        .noticeNumber("123456789012345678")
+                                        .noticeCode("123456789012345678")
                                         .pagoPaForm( NotificationPaymentAttachment.builder()
                                                 .digests( NotificationAttachmentDigests.builder()
                                                         .sha256( SHA256_BODY )
