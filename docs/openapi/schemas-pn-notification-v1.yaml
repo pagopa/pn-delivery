@@ -239,16 +239,20 @@ components:
          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
       type: object
       required:
-        - noticeNumber
+        - noticeCode
         - creditorTaxId
         - pagoPaForm
       properties:
         noticeCode:
           type: string
           description: Numero Avviso di pagamento del sistema pagoPA, usato per pagamento online
+          maxLength: 18
+          minLength: 18
         creditorTaxId:
           type: string
           description: Codice fiscale dell'ente a cui fa riferimento il "numero avviso".
+          maxLength: 11
+          minLength: 11
         pagoPaForm:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24flatRate:
