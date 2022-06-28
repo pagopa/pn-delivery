@@ -43,9 +43,6 @@ Parameters:
     Type: String
     Description: 'Queue to pull for inputs event'
 
-  #KeyspaceName:
-  #  Type: String
-  #  Description: 'Where to write database data'
   SandboxSafeStorageBaseUrl:
      Type: String
      Description: 'Url to the SafeStorage microservice'
@@ -113,10 +110,18 @@ Parameters:
   AlarmSNSTopicArn:
     Type: String
     Description: ARN of alarm topic
-  
+
+  LogsBucketName:
+    Type: String
+    Description: Bucket name where the logs must be exported
+  LogsExporterRoleArn:
+    Type: String
+    Description: ARN of the role used to write to external logs bucket
+
   Version:
     Type: String
     Description: 'keep track of used projects commitIds'
+
 
 Resources:
 
@@ -248,7 +253,7 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
-# Expose PN-Delivery microservice public API with API-GW for IO Backend usage
+  # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -262,3 +267,16 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  # Export cloudwatch logs to Log analysis account
+  StreamLogsToExternalBucket:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/export-cloudwatch-logs.yaml"
+      Parameters:
+        ProjectName: !Ref ProjectName
+        LogsBucketName: !Ref LogsBucketName
+        LogsExporterRoleArn: !Ref LogsExporterRoleArn
+        StreamNamePrefix: pnDelivery
+        LogGroupName: '/ecs/pn-delivery'
+
