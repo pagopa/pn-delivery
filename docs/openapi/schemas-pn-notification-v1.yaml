@@ -9,6 +9,22 @@ components:
       description: Identificativo Univoco Notifica
       type: string
 
+    noticeNumber:
+      description: Payment notice number  numero avviso
+      example: '302000100000019421'
+      type: string
+      maxLength: 18
+      minLength: 18
+      pattern: '^\d+$'
+
+    paTaxId:
+      description: Payment PA fiscal code
+      example: '77777777777'
+      type: string
+      maxLength: 11
+      minLength: 11
+      pattern: '^\d+$'
+
     ############################################################################################
     ###                                 DTO DELLE NOTIFICHE                                  ###
     ############################################################################################
@@ -199,6 +215,7 @@ components:
               description: >- 
                 Indice del documento partendo da 0.
 
+
     NotificationAttachmentDigests:
       description: Codici per la verifica del corretto caricamento di un allegato
       type: object
@@ -223,7 +240,6 @@ components:
           type: string
           description: Token per recuperare l'esatta istanza dell'allegato
 
-
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
       description: >-
@@ -232,7 +248,7 @@ components:
        notifica utilizzato. <br/>
          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o 
             calcolato puntualmente. <br/>
-         - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+         - _noticeNumber_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
@@ -243,12 +259,10 @@ components:
         - creditorTaxId
         - pagoPaForm
       properties:
-        noticeCode:
-          type: string
-          description: Numero Avviso di pagamento del sistema pagoPA, usato per pagamento online
+        noticeNumber:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeNumber'
         creditorTaxId:
-          type: string
-          description: Codice fiscale dell'ente a cui fa riferimento il "numero avviso".
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
         pagoPaForm:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24flatRate:
@@ -295,7 +309,8 @@ components:
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
             raggiungere il destinatario.
-    
+ 
+
     NotificationPhysicalAddress:
       description: Indirizzo fisico scoperto durante fase di consegna
       type: object

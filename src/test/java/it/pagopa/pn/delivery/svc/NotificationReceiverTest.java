@@ -304,8 +304,8 @@ class NotificationReceiverTest {
 				.paProtocolNumber( "paProtocolNumber" )
 				.recipients( Collections.singletonList( NotificationRecipient.builder()
 						.payment( NotificationPaymentInfo.builder()
-								.creditorTaxId( "creditorTaxId" )
-								.noticeCode( "noticeCode" )
+								.creditorTaxId( "77777777777" )
+								.noticeNumber("123456789012345678")
 								.f24flatRate( NotificationPaymentAttachment.builder()
 										.digests( NotificationAttachmentDigests.builder()
 												.sha256( SHA256_BODY )
@@ -379,11 +379,11 @@ class NotificationReceiverTest {
 
 		for( NotificationRecipient recipient : notification.getRecipients()) {
 			recipient.payment( NotificationPaymentInfo.builder()
-					.noticeCode( "IUV_01" )
+					.noticeNumber( "123456789012345678" )
 					.f24flatRate( buildPaymentAttachment() )
 					.f24standard( buildPaymentAttachment() )
 					.pagoPaForm( buildPaymentAttachment()  )
-					.creditorTaxId( "creditorTaxId" )
+					.creditorTaxId( "12345678901" )
 					.build()
 			);
 		}
