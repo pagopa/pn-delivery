@@ -3,6 +3,9 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -55,6 +58,14 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationSearchResponse> searchSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Date startDate, Date endDate, List<String> xPagopaPnCxGroups, String recipientId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_SEARCH_SND, "searchSentNotification")
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .iun(iunMatch)
+                .uid(xPagopaPnUid)
+                .build();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
                 .senderReceiverId(xPagopaPnCxId)
@@ -68,11 +79,17 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
-
-        ResultPaginationDto<NotificationSearchRow,String> serviceResult =  retrieveSvc.searchNotification( searchDto );
-
-        ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
-        NotificationSearchResponse response = mapper.map( serviceResult, NotificationSearchResponse.class );
+        ResultPaginationDto<NotificationSearchRow,String> serviceResult;
+        NotificationSearchResponse response = new NotificationSearchResponse();
+        try {
+            serviceResult =  retrieveSvc.searchNotification( searchDto );
+            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
+            response = mapper.map( serviceResult, NotificationSearchResponse.class );
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
         return ResponseEntity.ok( response );
     }
 
@@ -126,13 +143,44 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientIdx.intValue(), attachmentName);
+        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment={}", attachmentName)
+                .uid(xPagopaPnUid)
+                .iun(iun)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .build();
+        try {
+            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientIdx.intValue(), attachmentName);
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
+     
         return ResponseEntity.ok( response );
     }
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentDownloadMetadataResponse response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}", docIdx)
+                .uid(xPagopaPnUid)
+                .iun(iun)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .build();
+        try {
+            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
         return ResponseEntity.ok( response );
     }
 }

@@ -19,21 +19,10 @@
         <default.package>it.pagopa.pn.delivery</default.package>
     </properties>
     <dependencies>
-        <!--<dependency>
-            <groupId>it.pagopa.pn</groupId>
-            <artifactId>pn-model</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>-->
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.data</groupId>
-                    <artifactId>spring-data-cassandra</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -83,18 +72,6 @@
     </dependencies>
     <build>
         <plugins>
-            <!--<plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>-->
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>

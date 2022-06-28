@@ -20,13 +20,14 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 public class PnReceivedNotificationsController implements RecipientReadApi {
     private final NotificationRetrieverService retrieveSvc;
@@ -46,7 +47,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     public ResponseEntity<NotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, Date startDate, Date endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "getReceivedNotification")
+                .before(PnAuditLogEventType.AUD_NT_SEARCH_RCP, "searchReceivedNotification")
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .iun(iunMatch)
@@ -66,13 +67,18 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
-
-        ResultPaginationDto<NotificationSearchRow, String> serviceResult = retrieveSvc.searchNotification(searchDto);
-
-        ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
-        NotificationSearchResponse response = mapper.map(serviceResult, NotificationSearchResponse.class);
-        logEvent.generateSuccess().log();
-
+        log.info("Search received notification for senderId={} iun={}", senderId, iunMatch);
+        ResultPaginationDto<NotificationSearchRow, String> serviceResult;
+        NotificationSearchResponse response = new NotificationSearchResponse();
+        try {
+            serviceResult = retrieveSvc.searchNotification(searchDto);
+            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
+            response = mapper.map(serviceResult, NotificationSearchResponse.class);
+            logEvent.generateSuccess().log();
+        } catch (Exception exc ){
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
         return ResponseEntity.ok(response);
     }
 
@@ -129,7 +135,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationAttachment {}", attachmentName)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationAttachment={}", attachmentName)
                 .iun(iun)
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
