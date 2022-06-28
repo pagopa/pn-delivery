@@ -328,22 +328,16 @@ paths:
           description: Payment PA fiscal code                                       
           in: path                                                                  
           required: true                                                            
-          example: '77777777777'                                                    
-          schema:                                                                   
-            type: string                                                            
-            maxLength: 11                                                           
-            minLength: 11                                                           
-            pattern: '^\d+$'                                                        
+          example: '77777777777'
+          schema:
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
         - name: noticeNumber                                                        
           description: Payment notice number  numero avviso                         
           in: path                                                                  
           required: true                                                            
           example: '302000100000019421'                                             
-          schema:                                                                   
-            type: string                                                            
-            maxLength: 18                                                           
-            minLength: 18                                                           
-            pattern: '^\d+$'                                                        
+          schema:
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeNumber'
       responses:                                                                    
         '200':                                                                      
           description: OK                                                           
