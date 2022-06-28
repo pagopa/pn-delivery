@@ -221,7 +221,9 @@ class NotificationReceiverTest {
 	@Test
 	void throwsPnInternalExceptionInTheUncommonCaseOfDuplicatedIun() throws IdConflictException {
 		// Given
-		Mockito.doThrow( new IdConflictException("IUN") )
+		Map<String,String> keyValueConflict = new HashMap<>();
+		keyValueConflict.put( "iun", "iun_01" );
+		Mockito.doThrow( new IdConflictException(keyValueConflict) )
 				.when( notificationDao )
 				.addNotification( Mockito.any( InternalNotification.class) );
 
@@ -243,7 +245,7 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification );
 
 		// Then
-		PnInternalException exc = Assertions.assertThrows( PnInternalException.class, todo );
+		IdConflictException exc = Assertions.assertThrows( IdConflictException.class, todo );
 		Mockito.verify( notificationDao, Mockito.times( 1 ) )
 				                              .addNotification( Mockito.any( InternalNotification.class ));
 	}

@@ -14,7 +14,9 @@ import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -68,13 +70,13 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         try {
             dynamoDbEnhancedClient.transactWriteItems( enhancedRequest );
         } catch (TransactionCanceledException ex) {
-            List<String> duplicatedErrors = getDuplicationErrors(notificationEntity, notificationCostEntityList);
+            Map<String,String> duplicatedErrors = getDuplicationErrors(notificationEntity, notificationCostEntityList);
             throw new IdConflictException( duplicatedErrors );
         }
     }
 
     @NotNull
-    private List<String> getDuplicationErrors(NotificationEntity notificationEntity, List<NotificationCostEntity> notificationCostEntityList) {
+    private Map<String,String> getDuplicationErrors(NotificationEntity notificationEntity, List<NotificationCostEntity> notificationCostEntityList) {
         NotificationEntity iunDuplicated = dynamoDbTable.getItem( Key.builder()
                         .partitionValue( notificationEntity.getIun() )
                 .build() );
@@ -88,15 +90,15 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                     .partitionValue( notificationCostEntity.getCreditorTaxId_noticeCode() )
                     .build()));
         }
-        List<String> duplicatedErrors = new ArrayList<>();
+        Map<String,String> duplicatedErrors = new HashMap<>();
         if ( iunDuplicated != null ) {
-            duplicatedErrors.add( notificationEntity.getIun() );
+            duplicatedErrors.put( "iun", notificationEntity.getIun() );
         }
         if ( paProtocolDuplicated != null ) {
-            duplicatedErrors.add( controlIun );
+            duplicatedErrors.put("senderPaId##paProtocolNumber##cancelledIun" , controlIun );
         }
         for ( NotificationCostEntity nce : costEntitiesDuplicated ) {
-            duplicatedErrors.add(nce.getCreditorTaxId_noticeCode());
+            duplicatedErrors.put("creditorTaxId##noticeCode", nce.getCreditorTaxId_noticeCode());
         }
         return duplicatedErrors;
     }

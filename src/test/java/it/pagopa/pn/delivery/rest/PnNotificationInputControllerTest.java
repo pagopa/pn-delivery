@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -56,7 +57,7 @@ class PnNotificationInputControllerTest {
 	private PnDeliveryConfigs cfg;
 
 	@Test
-	void postSuccess() {
+	void postSuccess() throws IdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
 				.group( "group" )
@@ -134,7 +135,7 @@ class PnNotificationInputControllerTest {
 	}
 
 	@Test
-	void postSuccessWithAmount() {
+	void postSuccessWithAmount() throws IdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
 				.group( "group" )
@@ -270,6 +271,8 @@ class PnNotificationInputControllerTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.body(Mono.just(requests), PreloadRequest.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header( PnDeliveryRestConstants.UID_HEADER, "uid" )
+				.header( PnDeliveryRestConstants.CX_TYPE_HEADER, "PF" )
 				.exchange()
 				.expectStatus().isBadRequest();
 

@@ -58,7 +58,7 @@ public class NotificationReceiverService {
 	 * @return A model with the generated IUN and the paNotificationId sent by the
 	 *         Public Administration
 	 */
-	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest) {
+	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest) throws IdConflictException {
 		log.info("New notification storing START");
 		log.debug("New notification storing START for={}", newNotificationRequest);
 		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
@@ -86,22 +86,14 @@ public class NotificationReceiverService {
 				.build();
 	}
 
-	private String doSaveWithRethrow( InternalNotification internalNotification) {
+	private String doSaveWithRethrow( InternalNotification internalNotification) throws IdConflictException {
 		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
 				internalNotification.getPaProtocolNumber() );
 
-		String iun = null;
-		try {
-			Instant createdAt = clock.instant();
-			iun = iunGenerator.generatePredictedIun( createdAt );
-			log.debug( "Generated iun={}", iun );
-			doSave(internalNotification, createdAt, iun);
-		}
-		catch ( IdConflictException exc ) {
-			log.error("New notification insert throws conflict exception={}", exc.getMessage() );
-			throw new PnInternalException( "New notification insert throws conflict exception=" + exc.getMessage() );
-		}
-
+		Instant createdAt = clock.instant();
+		String iun = iunGenerator.generatePredictedIun( createdAt );
+		log.debug( "Generated iun={}", iun );
+		doSave(internalNotification, createdAt, iun);
 		return iun;
 	}
 	

@@ -214,7 +214,9 @@ class NotificationDaoDynamoTest {
                     .build();
             NotificationEntity previous =  storage.putIfAbsent( key, notificationEntity );
             if (previous != null) {
-                throw new IdConflictException( notificationEntity );
+                Map<String,String> keyValueConflicts = new HashMap<>();
+                keyValueConflicts.put( "iun", previous.getIun() );
+                throw new IdConflictException( keyValueConflicts );
             }
         }
 
