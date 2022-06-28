@@ -43,7 +43,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
         int recIdx = 0;
         for (NotificationRecipient rec : sentNotification.getRecipients()) {
-            rec.setTaxId(notification.getRecipientIds().get(recIdx));
+            rec.setInternalId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }
 
