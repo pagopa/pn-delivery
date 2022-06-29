@@ -272,8 +272,9 @@ Resources:
   StreamLogsToExternalBucket:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/export-cloudwatch-logs.yaml"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/export-microservice-logs.yaml"
       Parameters:
+        TemplateBucketBaseUrl: !Ref TemplateBucketBaseUrl
         ProjectName: !Ref ProjectName
         LogsBucketName: !Ref LogsBucketName
         LogsExporterRoleArn: !Ref LogsExporterRoleArn
