@@ -168,6 +168,8 @@ class NotificationReceiverTest {
 		assertEquals( notificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( notificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
+		assertEquals( notificationRequest.getAbstract(), savedNotification.getValue().getAbstract() );
+
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
@@ -332,8 +334,18 @@ class NotificationReceiverTest {
 								.type( NotificationDigitalAddress.TypeEnum.PEC )
 								.address( "address@pec.it" )
 								.build() )
-						.build() ) )
+						.physicalAddress( NotificationPhysicalAddress.builder()
+								.at( "at" )
+								.province( "province" )
+								.zip( "00100" )
+								.address( "address" )
+								.addressDetails( "addressDetail" )
+								.municipality( "municipality" )
+								.municipalityDetails( "municipalityDetail" )
+								.build() )
+						.build() ))
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				._abstract( "abstract" )
 				.build();
 	}
 

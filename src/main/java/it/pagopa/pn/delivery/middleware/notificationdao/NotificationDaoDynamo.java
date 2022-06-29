@@ -90,7 +90,8 @@ public class NotificationDaoDynamo implements NotificationDao {
 				.cap( notificationPhysicalAddress.getZip() )
 				.municipality( notificationPhysicalAddress.getMunicipality() )
 				.province( notificationPhysicalAddress.getProvince() )
-				.state( notificationPhysicalAddress.getForeignState() );
+				.state( notificationPhysicalAddress.getForeignState() )
+				.municipalityDetails( notificationPhysicalAddress.getMunicipalityDetails() );
 	}
 
 	private AddressDto createDigitalDomicile(NotificationDigitalAddress digitalAddress) {
@@ -185,6 +186,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 				.zip( analogDomicile.getCap() )
 				.province( analogDomicile.getProvince() )
 				.municipality( analogDomicile.getMunicipality() )
+				.municipalityDetails(analogDomicile.getMunicipalityDetails() )
 				.build();
 	}
 
