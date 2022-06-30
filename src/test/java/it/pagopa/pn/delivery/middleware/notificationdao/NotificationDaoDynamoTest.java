@@ -119,7 +119,7 @@ class NotificationDaoDynamoTest {
                 .cap( "cap1" )
                 .state( "state1" ));
 
-        Mockito.when( pnDataVaultClient.getNotificationAddressesByIun( Mockito.anyString() ) ).thenReturn( List.of( notificationRecipientAddressesDto1 ,notificationRecipientAddressesDto ) );
+        Mockito.when( pnDataVaultClient.getNotificationAddressesByIun( Mockito.anyString() ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
         Assertions.assertTrue( saved.isPresent() );
         // verifica ordine taxId destinatari
