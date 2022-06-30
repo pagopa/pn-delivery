@@ -81,7 +81,8 @@ public class StatusService {
                         Map.entry( "iun", notification.getIun() ),
                         Map.entry( "recipientsIds", recipientsIds.toString() ),
                         Map.entry( "paProtocolNumber", notification.getPaProtocolNumber() ),
-                        Map.entry( "subject", notification.getSubject())  ) )
+                        Map.entry( "subject", notification.getSubject() ),
+                        Map.entry( "senderDenomination", notification.getSenderDenomination()) ) )
                 .senderId_recipientId( createConcatenation( notification.getSenderPaId(), recipientId  ) )
                 .senderId_creationMonth( createConcatenation( notification.getSenderPaId(), creationMonth ) )
                 .recipientId_creationMonth( createConcatenation( recipientId , creationMonth ) )
