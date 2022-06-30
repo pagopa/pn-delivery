@@ -86,12 +86,12 @@
           </elementProp>
           <elementProp name="connTimeout" elementType="Argument">
             <stringProp name="Argument.name">connTimeout</stringProp>
-            <stringProp name="Argument.value">100000</stringProp>
+            <stringProp name="Argument.value">10000</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="respTimeout" elementType="Argument">
             <stringProp name="Argument.name">respTimeout</stringProp>
-            <stringProp name="Argument.value">300000</stringProp>
+            <stringProp name="Argument.value">30000</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -131,7 +131,7 @@
           <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
           <stringProp name="HTTPSampler.path"></stringProp>
           <stringProp name="HTTPSampler.concurrentPool">6</stringProp>
-          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <stringProp name="HTTPSampler.implementation">Java</stringProp>
           <stringProp name="HTTPSampler.connect_timeout">${connTimeout}</stringProp>
           <stringProp name="HTTPSampler.response_timeout">${respTimeout}</stringProp>
         </ConfigTestElement>
@@ -263,6 +263,14 @@
               <stringProp name="JSONPostProcessor.defaultValues">NA</stringProp>
             </JSONPostProcessor>
             <hashTree/>
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="key JSON Extractor" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">preload_key</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$[0].key</stringProp>
+              <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+              <stringProp name="Scope.variable"></stringProp>
+              <stringProp name="JSONPostProcessor.defaultValues">NA</stringProp>
+            </JSONPostProcessor>
+            <hashTree/>
             <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Protocol Regular Expression Extractor" enabled="true">
               <stringProp name="RegexExtractor.useHeaders">false</stringProp>
               <stringProp name="RegexExtractor.refname">preload_url_match</stringProp>
@@ -373,7 +381,7 @@ catch (Throwable ex) {
   &quot;idempotenceToken&quot;: &quot;${__UUID()}&quot;,	&#xd;
   &quot;paProtocolNumber&quot;: &quot;${__UUID()}&quot;,&#xd;
   &quot;subject&quot;: &quot;${subject}&quot;,&#xd;
-  &quot;abstract&quot;: &quot;abstract &quot;,&#xd;
+  &quot;abstract&quot;: &quot;abstract text&quot;,&#xd;
   &quot;notificationFeePolicy&quot;: &quot;FLAT_RATE&quot;,&#xd;
   &quot;recipients&quot;: [&#xd;
     {&#xd;
@@ -398,7 +406,7 @@ catch (Throwable ex) {
         &quot;creditorTaxId&quot;: &quot;77777777777&quot;,&#xd;
         &quot;pagoPaForm&quot;: {&#xd;
             &quot;ref&quot;: {&#xd;
-                &quot;key&quot;: &quot;doc_1&quot;,&#xd;
+                &quot;key&quot;: &quot;${preload_key}&quot;,&#xd;
                 &quot;versionToken&quot;: &quot;${version_id-0}&quot;&#xd;
             },&#xd;
             &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
@@ -413,7 +421,7 @@ catch (Throwable ex) {
   &quot;documents&quot;: [&#xd;
     {&#xd;
         &quot;ref&quot;: {&#xd;
-            &quot;key&quot;: &quot;doc_1&quot;,&#xd;
+            &quot;key&quot;: &quot;${preload_key}&quot;,&#xd;
             &quot;versionToken&quot;: &quot;${version_id-0}&quot;&#xd;
         },&#xd;
         &quot;contentType&quot;: &quot;application/pdf&quot;,&#xd;
@@ -447,9 +455,9 @@ catch (Throwable ex) {
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            <stringProp name="HTTPSampler.implementation">Java</stringProp>
-            <stringProp name="HTTPSampler.connect_timeout">10000</stringProp>
-            <stringProp name="HTTPSampler.response_timeout">50000</stringProp>
+            <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="PN - HTTP Header Manager local" enabled="false">
@@ -509,22 +517,39 @@ catch (Throwable ex) {
           </hashTree>
         </hashTree>
         <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="notificationCheckLoop" enabled="true">
-          <stringProp name="WhileController.condition">${__groovy(${__jm__notificationCheckLoop__idx} &lt; 10 &amp;&amp; &quot;${notificationRequestStatus}&quot; == &quot;WAITING&quot;)}</stringProp>
+          <stringProp name="WhileController.condition">${__groovy(${__jm__notificationCheckLoop__idx} &lt; 10 &amp;&amp; &quot;${notificationRequestStatus}&quot;?:&apos;NONE&apos; == &quot;WAITING&quot;)}</stringProp>
         </WhileController>
         <hashTree>
-          <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Counter" enabled="false">
-            <stringProp name="CounterConfig.start">1</stringProp>
-            <stringProp name="CounterConfig.end"></stringProp>
-            <stringProp name="CounterConfig.incr">1</stringProp>
-            <stringProp name="CounterConfig.name">checkCounter</stringProp>
-            <stringProp name="CounterConfig.format"></stringProp>
-            <boolProp name="CounterConfig.per_user">true</boolProp>
-            <boolProp name="CounterConfig.reset_on_tg_iteration">true</boolProp>
-          </CounterConfig>
+          <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="retry_delay1" elementType="Argument">
+                <stringProp name="Argument.name">retry_delay1</stringProp>
+                <stringProp name="Argument.value">${__jexl3(vars.get(&quot;retryAfter&quot;)*1000,)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="retry_delay2" elementType="Argument">
+                <stringProp name="Argument.name">retry_delay2</stringProp>
+                <stringProp name="Argument.value">${__jexl3(10*1000)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="retry_delay3" elementType="Argument">
+                <stringProp name="Argument.name">retry_delay3</stringProp>
+                <stringProp name="Argument.value">${__jexl3(vars.get(&quot;retryAfter&quot;),)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="retry_delay4" elementType="Argument">
+                <stringProp name="Argument.name">retry_delay4</stringProp>
+                <stringProp name="Argument.value">${__evalVar(retry_delay1)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </Arguments>
           <hashTree/>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Constant Timer" enabled="true">
-            <stringProp name="ConstantTimer.delay">${retryAfter}*1000</stringProp>
-          </ConstantTimer>
+          <TestAction guiclass="TestActionGui" testclass="TestAction" testname="Flow Control Action" enabled="true">
+            <intProp name="ActionProcessor.action">1</intProp>
+            <intProp name="ActionProcessor.target">0</intProp>
+            <stringProp name="ActionProcessor.duration">10000</stringProp>
+          </TestAction>
           <hashTree/>
           <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
             <boolProp name="displayJMeterProperties">false</boolProp>
@@ -606,17 +631,17 @@ catch (Throwable ex) {
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="notificationRequestStatus JSON Extractor" enabled="true">
-              <stringProp name="JSONPostProcessor.referenceNames">notificationRequestStatus</stringProp>
-              <stringProp name="JSONPostProcessor.jsonPathExprs">$.notificationRequestStatus</stringProp>
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="retryAfter JSON Extractor" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">retryAfter</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.retryAfter</stringProp>
               <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
               <stringProp name="Scope.variable"></stringProp>
               <stringProp name="JSONPostProcessor.defaultValues">NA</stringProp>
             </JSONPostProcessor>
             <hashTree/>
-            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="retryAfter JSON Extractor" enabled="true">
-              <stringProp name="JSONPostProcessor.referenceNames">retryAfter</stringProp>
-              <stringProp name="JSONPostProcessor.jsonPathExprs">$.retryAfter</stringProp>
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="notificationRequestStatus JSON Extractor" enabled="true">
+              <stringProp name="JSONPostProcessor.referenceNames">notificationRequestStatus</stringProp>
+              <stringProp name="JSONPostProcessor.jsonPathExprs">$.notificationRequestStatus</stringProp>
               <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
               <stringProp name="Scope.variable"></stringProp>
               <stringProp name="JSONPostProcessor.defaultValues">NA</stringProp>
