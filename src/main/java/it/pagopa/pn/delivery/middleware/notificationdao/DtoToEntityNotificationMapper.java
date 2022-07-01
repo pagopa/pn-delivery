@@ -18,6 +18,7 @@ public class DtoToEntityNotificationMapper {
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
+                ._abstract( dto.getAbstract() )
                 .paNotificationId( dto.getPaProtocolNumber())
                 .senderDenomination( dto.getSenderDenomination() )
                 .senderTaxId( dto.getSenderTaxId() )

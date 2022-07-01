@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 class NotificationMetadataEntityDaoDynamoTest {
+    public static final String SENDER_DENOMINATION = "SenderDenomination";
     private NotificationMetadataEntityDao metadataEntityDao;
 
 
@@ -49,7 +50,8 @@ class NotificationMetadataEntityDaoDynamoTest {
                         Map.entry( "iun", "IUN" ),
                         Map.entry( "recipientsIds", Collections.singletonList( "RecipientId" ).toString() ),
                         Map.entry( "paNotificationId", "PaNotificationId" ),
-                        Map.entry( "subject", "Subject"  ) )
+                        Map.entry( "subject", "Subject"  ),
+                        Map.entry("senderDenomination", SENDER_DENOMINATION))
                 )
                 .recipientId( "RecipientId" )
                 .build();
@@ -75,6 +77,7 @@ class NotificationMetadataEntityDaoDynamoTest {
                 null);
 
         Assertions.assertNotNull( result );
+        Assertions.assertEquals( result.getResultsPage().get( 0 ).getSender(), SENDER_DENOMINATION );
     }
 
     private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao {

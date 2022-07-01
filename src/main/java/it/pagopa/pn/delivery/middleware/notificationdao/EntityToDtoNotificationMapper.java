@@ -29,6 +29,7 @@ public class EntityToDtoNotificationMapper {
 
         return new InternalNotification(FullSentNotification.builder()
                 .senderDenomination( entity.getSenderDenomination() )
+                ._abstract( entity.get_abstract() )
                 .senderTaxId( entity.getSenderTaxId() )
                 .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.fromValue( entity.getNotificationFeePolicy().getValue() ))
                 .iun( entity.getIun() )

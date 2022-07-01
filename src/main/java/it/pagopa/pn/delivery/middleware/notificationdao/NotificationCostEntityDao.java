@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface NotificationCostEntityDao extends KeyValueStore<Key, NotificationCostEntity> {
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-dao";
-    Optional<NotificationCost> getNotificationByPaymentInfo(String paTaxId, String noticeNumber );
+    Optional<NotificationCost> getNotificationByPaymentInfo(String paTaxId, String noticeCode );
 }

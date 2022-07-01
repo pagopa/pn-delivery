@@ -312,13 +312,13 @@ paths:
             application/json:                                                       
               schema:                                                               
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     
-  '/delivery/price/{paTaxId}/{noticeNumber}':                                       
+  '/delivery/price/{paTaxId}/{noticeCode}':                                       
     get:                                                                            
       operationId: getNotificationPrice                                              
       summary: Retrieve notification price and effective date                       
       description: >-                                                               
         Used to retrieve the notification price charged and effective date          
-        from PagoPa identifiers paTaxId and noticeNumber.                           
+        from PagoPa identifiers paTaxId and noticeCode.                           
         Called from PA to turn notification cost to the receiver during the         
         pagoPa payment verification phase.                                          
       tags:                                                                         
@@ -328,22 +328,16 @@ paths:
           description: Payment PA fiscal code                                       
           in: path                                                                  
           required: true                                                            
-          example: '77777777777'                                                    
-          schema:                                                                   
-            type: string                                                            
-            maxLength: 11                                                           
-            minLength: 11                                                           
-            pattern: '^\d+$'                                                        
-        - name: noticeNumber                                                        
+          example: '77777777777'
+          schema:
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
+        - name: noticeCode                                                        
           description: Payment notice number  numero avviso                         
           in: path                                                                  
           required: true                                                            
           example: '302000100000019421'                                             
-          schema:                                                                   
-            type: string                                                            
-            maxLength: 18                                                           
-            minLength: 18                                                           
-            pattern: '^\d+$'                                                        
+          schema:
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
       responses:                                                                    
         '200':                                                                      
           description: OK                                                           

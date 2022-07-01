@@ -337,13 +337,13 @@ paths:
             application/json:                                                       # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
-  '/delivery/price/{paTaxId}/{noticeNumber}':                                       # ONLY EXTERNAL
+  '/delivery/price/{paTaxId}/{noticeCode}':                                       # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: getNotificationPrice                                              # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
         Used to retrieve the notification price charged and effective date          # ONLY EXTERNAL
-        from PagoPa identifiers paTaxId and noticeNumber.                           # ONLY EXTERNAL
+        from PagoPa identifiers paTaxId and noticeCode.                           # ONLY EXTERNAL
         Called from PA to turn notification cost to the receiver during the         # ONLY EXTERNAL
         pagoPa payment verification phase.                                          # ONLY EXTERNAL
       tags:                                                                         # ONLY EXTERNAL
@@ -355,20 +355,14 @@ paths:
           required: true                                                            # ONLY EXTERNAL
           example: '77777777777'                                                    # ONLY EXTERNAL
           schema:                                                                   # ONLY EXTERNAL
-            type: string                                                            # ONLY EXTERNAL
-            maxLength: 11                                                           # ONLY EXTERNAL
-            minLength: 11                                                           # ONLY EXTERNAL
-            pattern: '^\d+$'                                                        # ONLY EXTERNAL
-        - name: noticeNumber                                                        # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'     # ONLY EXTERNAL
+        - name: noticeCode                                                        # ONLY EXTERNAL
           description: Payment notice number  numero avviso                         # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
           example: '302000100000019421'                                             # ONLY EXTERNAL
           schema:                                                                   # ONLY EXTERNAL
-            type: string                                                            # ONLY EXTERNAL
-            maxLength: 18                                                           # ONLY EXTERNAL
-            minLength: 18                                                           # ONLY EXTERNAL
-            pattern: '^\d+$'                                                        # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'# ONLY EXTERNAL
       responses:                                                                    # ONLY EXTERNAL
         '200':                                                                      # ONLY EXTERNAL
           description: OK                                                           # ONLY EXTERNAL

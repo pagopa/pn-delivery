@@ -43,7 +43,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
         int recIdx = 0;
         for (NotificationRecipient rec : sentNotification.getRecipients()) {
-            rec.setTaxId(notification.getRecipientIds().get(recIdx));
+            rec.setInternalId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }
 
@@ -53,12 +53,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     @Override
     public ResponseEntity<Void> updateStatus(RequestUpdateStatusDto requestUpdateStatusDto) {
         String logMessage = String.format(
-                "Update status for iun %s netxStatus %s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
+                "Update status for iun=%s nextStatus=%s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
         );
         log.info(logMessage);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_STATUS, "updateStatus")
+                .before(PnAuditLogEventType.AUD_NT_STATUS, logMessage)
                 .iun(requestUpdateStatusDto.getIun())
                 .build();
         try {
