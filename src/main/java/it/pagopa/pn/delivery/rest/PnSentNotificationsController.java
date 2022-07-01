@@ -133,9 +133,13 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             case IN_VALIDATION: {
                 response.setNotificationRequestStatus( "WAITING" );
                 response.retryAfter( BigDecimal.valueOf(10L) );
+                response.setIun( null );
                 break;
             }
-            case REFUSED: response.setNotificationRequestStatus( "REFUSED" ); break;
+            case REFUSED: {
+                response.setNotificationRequestStatus( "REFUSED" );
+                response.setIun( null );
+                break; }
             default: response.setNotificationRequestStatus( "ACCEPTED" );
         }
         return ResponseEntity.ok( response );
