@@ -33,10 +33,9 @@ class NotificationRetrieverServiceTest {
 
     private static final String IUN = "iun";
     private static final String USER_ID = "userId";
-    private static final String FAKE_URL = "fake_url";
+    private static final String MANDATE_ID = "mandateId";
 
     private Clock clock;
-    private FileStorage fileStorage;
     private NotificationViewedProducer notificationViewedProducer;
     private NotificationDao notificationDao;
     private PnDeliveryPushClientImpl pnDeliveryPushClient;
@@ -227,7 +226,62 @@ class NotificationRetrieverServiceTest {
         Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, null );
+
+        //Then
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, null, 0 );
+        Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
+    }
+
+    @Test
+    void getNotificationAndViewEventByDelegateSuccess() {
+        //Given
+        InternalNotification internalNotification = getNewInternalNotification();
+
+        List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                .elementId( "elementId" )
+                .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                .timestamp(  Instant.now()
+                        .atOffset(ZoneOffset.UTC) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+
+        //When
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId( MANDATE_ID );
+        internalMandateDto.setDelegate( "senderId" );
+        internalMandateDto.setDelegator( "userId" );
+        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
+
+        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+        //When
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+
+        ModelMapper mapperTimeline = new ModelMapper();
+        mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class );
+        Mockito.when( modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class ) )
+                .thenReturn( mapperTimeline );
+
+        ModelMapper mapperStatusHistory = new ModelMapper();
+        mapperStatusHistory.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.class );
+        Mockito.when( modelMapperFactory.createModelMapper( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.class ) )
+                .thenReturn( mapperStatusHistory );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, MANDATE_ID );
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, null, 0 );
@@ -272,7 +326,7 @@ class NotificationRetrieverServiceTest {
                 .thenReturn( mapperNotification );
 
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, null );
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, null, 0 );
@@ -317,7 +371,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        Executable todo = () -> svc.getNotificationAndNotifyViewedEvent( IUN, "" );
+        Executable todo = () -> svc.getNotificationAndNotifyViewedEvent( IUN, "", null );
 
         //Then
         Assertions.assertThrows(PnInternalException.class, todo);

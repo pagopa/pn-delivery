@@ -79,6 +79,7 @@ paths:
         - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchMandateId'
       responses:
         '200':
           description: OK
