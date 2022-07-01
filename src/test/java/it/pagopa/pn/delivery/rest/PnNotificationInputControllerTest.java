@@ -130,7 +130,7 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isAccepted();
 		
 		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
@@ -211,7 +211,7 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
 				.exchange()
-				.expectStatus().isOk();
+				.expectStatus().isAccepted();
 
 		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
