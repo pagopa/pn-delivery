@@ -126,18 +126,19 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.getIun() );
 		List<String> opaqueRecipientsIds = new ArrayList<>();
-
 		int recipientIndex = 0;
 		for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
 			String opaqueTaxId = recipient.getTaxId();
 			opaqueRecipientsIds.add( opaqueTaxId );
 
-			BaseRecipientDto baseRec =
-					recipientIndex < baseRecipientDtoList.size()
-					? baseRecipientDtoList.get( recipientIndex ) : null;
+			BaseRecipientDto baseRec = baseRecipientDtoList.stream()
+					.filter( el ->Objects.equals( opaqueTaxId, el.getInternalId()) )
+					.findAny()
+					.orElse( null );
+
 			NotificationRecipientAddressesDto clearDataAddresses =
 					recipientIndex < notificationRecipientAddressesDtoList.size()
-					? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
+							? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
 
 			if ( baseRec != null) {
 				recipient.setTaxId(baseRec.getTaxId());
@@ -153,7 +154,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 			} else {
 				log.error( "Unable to find any recipient addresses from data-vault for recipient={}", opaqueTaxId );
 			}
-
 			recipientIndex += 1;
 		}
 		daoResult.setRecipientIds( opaqueRecipientsIds );
