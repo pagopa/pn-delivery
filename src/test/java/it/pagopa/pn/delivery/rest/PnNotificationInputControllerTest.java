@@ -136,6 +136,25 @@ class PnNotificationInputControllerTest {
 	}
 
 	@Test
+	void postFailure() {
+		// Given
+		NewNotificationRequest request = NewNotificationRequest.builder().build();
+
+		//Then
+		webTestClient.post()
+				.uri("/delivery/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(request), NewNotificationRequest.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus().isBadRequest();
+	}
+
+	@Test
 	void postSuccessWithAmount() throws IdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()

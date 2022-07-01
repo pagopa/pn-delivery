@@ -13,12 +13,14 @@ import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleIdConflict;
 import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
+import it.pagopa.pn.delivery.rest.utils.HandleWebExchangeBindException;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.support.WebExchangeBindException;
 
 import java.util.Collections;
 import java.util.List;
@@ -94,5 +96,10 @@ public class PnNotificationInputController implements NewNotificationApi {
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Problem> handleRuntimeException( RuntimeException ex ) {
         return HandleRuntimeException.handleRuntimeException( ex );
+    }
+
+    @ExceptionHandler({WebExchangeBindException.class})
+    public ResponseEntity<Problem> handleWebExchangeBindException( WebExchangeBindException ex ) {
+        return HandleWebExchangeBindException.handleWebExchangeBindException( ex );
     }
 }
