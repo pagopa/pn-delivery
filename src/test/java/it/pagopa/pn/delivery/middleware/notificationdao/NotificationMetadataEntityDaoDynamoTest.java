@@ -77,7 +77,7 @@ class NotificationMetadataEntityDaoDynamoTest {
                 null);
 
         Assertions.assertNotNull( result );
-        Assertions.assertEquals( result.getResultsPage().get( 0 ).getSender(), SENDER_DENOMINATION );
+        Assertions.assertEquals( SENDER_DENOMINATION, result.getResultsPage().get( 0 ).getSender() );
     }
 
     private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao {

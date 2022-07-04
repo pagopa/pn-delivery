@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -17,15 +16,15 @@ import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -109,7 +108,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -120,7 +119,13 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .cxType(xPagopaPnCxType.toString())
                 .build();
         try {
-            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+            response = notificationAttachmentService.downloadDocumentWithRedirect(
+                    iun,
+                    xPagopaPnCxType.toString(),
+                    xPagopaPnCxId,
+                    mandateId,
+                    docIdx.intValue()
+            );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
@@ -142,7 +147,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .uid(xPagopaPnUid)
                 .build();
         try {
-            response = notificationAttachmentService.downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(iun, xPagopaPnCxId, attachmentName, mandateId);
+            response = notificationAttachmentService.downloadAttachmentWithRedirect(
+                    iun,
+                    xPagopaPnCxType.toString(),
+                    xPagopaPnCxId,
+                    mandateId,
+                    null,
+                    attachmentName
+            );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();

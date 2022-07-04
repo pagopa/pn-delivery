@@ -10,7 +10,11 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
+import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
+import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
+import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
@@ -40,11 +44,13 @@ public class NotificationAttachmentService {
     private final PnSafeStorageClientImpl safeStorageClient;
     private final NotificationDao notificationDao;
     private final PnMandateClientImpl pnMandateClient;
+    private final CheckAuthComponent checkAuthComponent;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, PnMandateClientImpl pnMandateClient) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, PnMandateClientImpl pnMandateClient, CheckAuthComponent checkAuthComponent) {
         this.safeStorageClient = safeStorageClient;
         this.notificationDao = notificationDao;
         this.pnMandateClient = pnMandateClient;
+        this.checkAuthComponent = checkAuthComponent;
     }
 
     private FileDownloadResponse getFile(String fileKey){
@@ -71,73 +77,92 @@ public class NotificationAttachmentService {
         }).collect(Collectors.toList());
     }
 
+    public static class FileDownloadIdentify {
+        private Integer documentIdx;
+        private Integer recipientIdx;
+        private String attachmentName;
 
-    public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirectByIunAndRecIdxAttachName(String iun, int recipientIdx, String attachmentName) {
-       return downloadDocumentWithRedirect(iun, null, recipientIdx, null, attachmentName, null);
+        private FileDownloadIdentify() {}
+
+        public FileDownloadIdentify(Integer documentIdx) {
+            this.documentIdx = documentIdx;
+        }
+
+        public FileDownloadIdentify(Integer recipientIdx, String attachmentName) {
+            this.recipientIdx = recipientIdx;
+            this.attachmentName = attachmentName;
+        }
+
+        public static FileDownloadIdentify create(Integer documentIndex, Integer recipientIdx, String attachmentName) {
+            if (documentIndex != null) {
+                return new FileDownloadIdentify( documentIndex );
+            } else {
+                return new FileDownloadIdentify( recipientIdx, attachmentName );
+            }
+        }
     }
 
-    public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirectByIunAndDocIndex(String iun, int documentIndex) {
-        return downloadDocumentWithRedirect(iun, documentIndex, null, null,null,null);
+    public static class FileKeyAndName{
+        private String fileKey;
+        private String fileName;
+
+        public FileKeyAndName(String fileKey, String fileName) {
+            this.fileKey = fileKey;
+            this.fileName = fileName;
+        }
+    }
+
+    public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(
+            String iun,
+            String cxType,
+            String xPagopaPnCxId,
+            String mandateId,
+            Integer documentIdx) {
+        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, documentIdx, null, null);
     }
 
 
-    public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirectByIunRecUidAttachNameMandateId(String iun, String xPagopaPnCxId, String attachmentName, String mandateId) {
-        return downloadDocumentWithRedirect(iun, null, null, xPagopaPnCxId, attachmentName, mandateId);
+    public NotificationAttachmentDownloadMetadataResponse downloadAttachmentWithRedirect(
+            String iun,
+            String cxType,
+            String xPagopaPnCxId,
+            String mandateId,
+            Integer recipientIdx,
+            String attachmentName) {
+        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, null, recipientIdx, attachmentName);
     }
 
-    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(String iun, Integer documentIndex, Integer recipientIdx, String xPagopaPnCxId, String attachmentName, String mandateId ) {
-        log.info("downloadDocumentWithRedirect for iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={}", iun, documentIndex, recipientIdx, xPagopaPnCxId, attachmentName, mandateId );
+    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(
+            String cxType,
+            String cxId,
+            String mandateId,
+            String iun,
+            Integer documentIndex,
+            Integer recipientIdx,
+            String attachmentName) {
+        log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId );
+
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, iun, recipientIdx );
+
+
+
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
-
-
         if (optNotification.isPresent()) {
             InternalNotification notification = optNotification.get();
-            String fileKey;
-            String fileName;
-            if (documentIndex != null)
-            {
-                NotificationDocument doc = notification.getDocuments().get( documentIndex );
-                fileName = buildFilename(iun, doc.getTitle());
-                fileKey = doc.getRef().getKey();
+
+
+            AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
+
+            Integer downloadRecipientIdx = handleReceiverAttachmentDownload( recipientIdx, authorizationOutcome.getEffectiveRecipientIdx(), documentIndex );
+            FileDownloadIdentify fileDownloadIdentify = FileDownloadIdentify.create( documentIndex, downloadRecipientIdx, attachmentName );
+            if ( !authorizationOutcome.isAuthorized() ) {
+                log.error("Error download attachment. xPagopaPnCxId={} mandateId={} recipientIdx={} cannot download attachment for notification with iun={}", cxId, mandateId, recipientIdx, iun);
+                throw new PnNotFoundException("Notification not found for iun=" + iun);
             }
-            else
-            {
-                NotificationRecipient doc;
-                if (recipientIdx != null)
-                {
-                    doc = recipientIdx<notification.getRecipients().size()?notification.getRecipients().get(recipientIdx):null;
-                }
-                else
-                {
-                    String recipientId = xPagopaPnCxId;
-                    if (mandateId != null)
-                    {
-                        List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(xPagopaPnCxId, mandateId);
-                        if(!mandates.isEmpty()) {
-                            recipientId = mandates.get(0).getDelegator();
-                        }
-                        else
-                        {
-                            String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", xPagopaPnCxId, mandateId);
-                            log.error( message );
-                            throw new PnNotFoundException( message );
-                        }
-                    }
 
-                    int idx = notification.getRecipientIds().indexOf(recipientId);
-                    doc = idx>=0?notification.getRecipients().get(idx):null;
-                }
-
-                if (doc == null)
-                {
-                    log.error("downloadDocumentWithRedirect NotificationRecipient not found for iun={}", iun);
-                    throw new PnInternalException("NotificationRecipient not found for iun=" + iun);
-                }
-
-
-                fileKey = getFileKeyOfAttachment(iun, doc, attachmentName, optNotification.get().getNotificationFeePolicy());
-                fileName = buildFilename(iun, attachmentName);
-            }
+            FileKeyAndName fileKeyAndName = computeFileInfo( fileDownloadIdentify, notification );
+            String fileKey = fileKeyAndName.fileKey;
+            String fileName = fileKeyAndName.fileName;
 
             log.info("downloadDocumentWithRedirect with fileKey={} filename:{} ", fileKey, fileName);
             FileDownloadResponse r = this.getFile(fileKey);
@@ -151,8 +176,50 @@ public class NotificationAttachmentService {
                     .build();
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
-            throw new PnInternalException("Notification not found for iun=" + iun);
+            throw new PnNotFoundException("Notification not found for iun=" + iun);
         }
+    }
+
+    private Integer handleReceiverAttachmentDownload(Integer recipientIdx, Integer effectiveRecipientIdx, Integer documentIdx) {
+        // - Se è stato richiesto il download di un documento ...
+        if (documentIdx != null ) {
+            // ... non serve il recipientIdx documenti associati alla notifica non al destinatario
+            return null;
+        } else {
+            // - Altrimenti per esclusione stiamo scaricando un attachment.
+            // - In tal caso solo il destinatario può non specificare il parametro recipientIdx nella chiamata ...
+            if ( recipientIdx == null ) {
+                // ... lo evinciamo dalle informazioni di autenticazione.
+                return effectiveRecipientIdx;
+            } else {
+                // - E' stato richiesto download di un attachment da un mittente che è obbligato a specificare il recipienIdx
+                return recipientIdx;
+            }
+        }
+
+
+    }
+
+    public FileKeyAndName computeFileInfo(FileDownloadIdentify fileDownloadIdentify, InternalNotification notification ) {
+        String fileName;
+        String fileKey;
+
+        String iun = notification.getIun();
+        Integer documentIndex = fileDownloadIdentify.documentIdx;
+        if (documentIndex != null)
+        {
+            NotificationDocument doc = notification.getDocuments().get( documentIndex );
+            fileName = buildFilename(iun, doc.getTitle());
+            fileKey = doc.getRef().getKey();
+        }
+        else
+        {
+            String attachmentName = fileDownloadIdentify.attachmentName;
+            NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
+            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, notification.getNotificationFeePolicy());
+            fileName = buildFilename(iun, attachmentName);
+        }
+        return new FileKeyAndName( fileKey, fileName );
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy){

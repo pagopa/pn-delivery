@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
+import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -157,7 +158,13 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .cxType(xPagopaPnCxType.toString())
                 .build();
         try {
-            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientIdx.intValue(), attachmentName);
+            response = notificationAttachmentService.downloadAttachmentWithRedirect( iun,
+                    xPagopaPnCxType.toString(),
+                    xPagopaPnCxId,
+                    null,
+                    recipientIdx.intValue(),
+                    attachmentName
+            );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
@@ -179,7 +186,13 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .cxType(xPagopaPnCxType.toString())
                 .build();
         try {
-            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+            response = notificationAttachmentService.downloadDocumentWithRedirect(
+                    iun,
+                    xPagopaPnCxType.toString(),
+                    xPagopaPnCxId,
+                    null,
+                    docIdx.intValue()
+            );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
