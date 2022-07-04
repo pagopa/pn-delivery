@@ -257,7 +257,7 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <!--Inserire commit id preciso una volta effettuato il merge-->
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/feature/PN-1644/docs/openapi/api-private-v1.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/c8b449ac03503aa67e0bbd699c416b6c8266aeea/docs/openapi/api-private-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
