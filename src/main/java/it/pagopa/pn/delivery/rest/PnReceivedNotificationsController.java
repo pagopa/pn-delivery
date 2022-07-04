@@ -83,7 +83,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         FullReceivedNotification result = null;
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -94,7 +94,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .uid(xPagopaPnUid)
                 .build();
         try {
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, mandateId);
 
             ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, FullReceivedNotification.class);
 

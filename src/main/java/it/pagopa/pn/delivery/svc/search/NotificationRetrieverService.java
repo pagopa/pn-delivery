@@ -231,11 +231,44 @@ public class NotificationRetrieverService {
 	 * @param userId identifier of a user
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId, String mandateId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
+
+		String delegatorId = null;
+		if (mandateId != null) {
+			delegatorId = checkMandateForNotificationDetail(userId, mandateId);
+		}
+
 		InternalNotification notification = getNotificationInformation(iun);
-		handleNotificationViewedEvent(iun, userId, notification);
+		handleNotificationViewedEvent(iun, delegatorId != null? delegatorId : userId, notification);
 		return notification;
+	}
+
+	private String checkMandateForNotificationDetail(String userId, String mandateId) {
+		String delegatorId = null;
+
+		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(userId, mandateId);
+		if(!mandates.isEmpty()) {
+			boolean validMandate = false;
+			for ( InternalMandateDto mandate : mandates ) {
+				if (mandate.getDelegator() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
+					delegatorId = mandate.getDelegator();
+					validMandate = true;
+					log.info( "Valid mandate for notification detail for delegate={}", userId );
+					break;
+				}
+			}
+			if (!validMandate){
+				String message = String.format("Unable to find valid mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
+				log.error( message );
+				throw new PnNotFoundException( message );
+			}
+		} else {
+			String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
+			log.error( message );
+			throw new PnNotFoundException( message );
+		}
+		return delegatorId;
 	}
 
 	private void setIsDocumentsAvailable(InternalNotification notification) {
@@ -331,7 +364,7 @@ public class NotificationRetrieverService {
 
 		if( recipientIndex == -1 ) {
 			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
-			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient=" + userId );
+			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient/delegator=" + userId );
 		}
 
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);

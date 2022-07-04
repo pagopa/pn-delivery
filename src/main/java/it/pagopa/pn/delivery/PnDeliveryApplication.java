@@ -20,5 +20,4 @@ public class PnDeliveryApplication {
 			return "Sono Vivo";
 		}
 	}
-
 }

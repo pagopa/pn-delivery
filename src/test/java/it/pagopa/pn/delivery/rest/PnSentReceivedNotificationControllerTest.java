@@ -25,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.eq;
+
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class PnSentReceivedNotificationControllerTest {
 	
@@ -37,7 +39,7 @@ class PnSentReceivedNotificationControllerTest {
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
 	private static final String FILENAME = "filename.pdf";
 	private static final String REQUEST_ID = "VkdLVi1VS0hOLVZJQ0otMjAyMjA1LVAtMQ==";
-
+	private static final String MANDATE_ID = "mandateId";
 
 
 	@Autowired
@@ -123,7 +125,7 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString() ) )
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
 				.thenReturn( notification );
 
 		// Then
@@ -140,7 +142,41 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody(FullReceivedNotification.class);
 
-		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID);
+		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, null);
+	}
+
+	@Test
+	void getReceivedNotificationByDelegateSuccess() {
+		// Given
+		InternalNotification notification = newNotification();
+
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
+
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) )
+				.thenReturn( notification );
+
+		// Then
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/notifications/received/" + IUN )
+								.queryParam("mandateId", MANDATE_ID)
+								.build())
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody(FullReceivedNotification.class);
+
+		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, MANDATE_ID);
 	}
 
 	@Test

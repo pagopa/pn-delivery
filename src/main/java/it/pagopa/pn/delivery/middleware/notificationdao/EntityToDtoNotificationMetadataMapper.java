@@ -15,7 +15,7 @@ public class EntityToDtoNotificationMetadataMapper {
     public NotificationSearchRow entity2Dto(NotificationMetadataEntity entity) {
         return NotificationSearchRow.builder()
                 .iun( entity.getIun_recipientId().substring(0 ,entity.getIun_recipientId().indexOf("##")) )
-                .sender( entity.getSenderId() )
+                .sender( entity.getTableRow().get( "senderDenomination" ) )
                 .recipients( entity.getRecipientIds() )
                 .sentAt( Date.from(entity.getSentAt() ))
                 .subject( entity.getTableRow().get( "subject" ) )

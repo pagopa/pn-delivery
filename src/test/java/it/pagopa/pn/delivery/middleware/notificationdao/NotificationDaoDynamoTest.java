@@ -87,7 +87,13 @@ class NotificationDaoDynamoTest {
         baseRecipientDto.setInternalId( "opaqueTaxId" );
         baseRecipientDto.setTaxId( "recipientTaxId" );
 
-        Mockito.when( pnDataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( Collections.singletonList( baseRecipientDto ) );
+        BaseRecipientDto baseRecipientDto1 = new BaseRecipientDto();
+        baseRecipientDto1.setRecipientType( RecipientType.PF );
+        baseRecipientDto1.setDenomination( "recipientDenomination1" );
+        baseRecipientDto1.setInternalId( "opaqueTaxId1" );
+        baseRecipientDto1.setTaxId( "recipientTaxId1" );
+
+        Mockito.when( pnDataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( List.of(baseRecipientDto1, baseRecipientDto ) );
 
         NotificationRecipientAddressesDto notificationRecipientAddressesDto = new NotificationRecipientAddressesDto();
         notificationRecipientAddressesDto.setDenomination( "recipientDenomination" );
@@ -101,9 +107,25 @@ class NotificationDaoDynamoTest {
                 .cap( "cap" )
                 .state( "state" ));
 
-        Mockito.when( pnDataVaultClient.getNotificationAddressesByIun( Mockito.anyString() ) ).thenReturn( Collections.singletonList( notificationRecipientAddressesDto ) );
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
+        notificationRecipientAddressesDto1.setDigitalAddress( new AddressDto().value( "digitalAddress1" ) );
+        notificationRecipientAddressesDto1.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress1" )
+                .addressDetails( "addressDetail1" )
+                .at( "at1" )
+                .municipality( "municipality1" )
+                .province( "province1" )
+                .cap( "cap1" )
+                .state( "state1" ));
+
+        Mockito.when( pnDataVaultClient.getNotificationAddressesByIun( Mockito.anyString() ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
         Assertions.assertTrue( saved.isPresent() );
+        // verifica ordine taxId destinatari
+        Assertions.assertEquals(saved.get().getRecipients().get(0).getTaxId(), baseRecipientDto.getTaxId());
+        // verifica ordine indirizzi
+        Assertions.assertEquals( saved.get().getRecipients().get(0).getDigitalDomicile().getAddress(), notificationRecipientAddressesDto.getDigitalAddress().getValue() );
         //Assertions.assertEquals( notification, saved.get() );
     }
 
@@ -214,7 +236,9 @@ class NotificationDaoDynamoTest {
                     .build();
             NotificationEntity previous =  storage.putIfAbsent( key, notificationEntity );
             if (previous != null) {
-                throw new IdConflictException( notificationEntity );
+                Map<String,String> keyValueConflicts = new HashMap<>();
+                keyValueConflicts.put( "iun", previous.getIun() );
+                throw new IdConflictException( keyValueConflicts );
             }
         }
 

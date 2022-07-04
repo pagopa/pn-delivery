@@ -5,22 +5,18 @@ import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationPaymentInfoEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.NotificationCost;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -74,9 +70,37 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         try {
             dynamoDbEnhancedClient.transactWriteItems( enhancedRequest );
         } catch (TransactionCanceledException ex) {
-            log.error("Unable to insert notification={}", notificationEntity ,ex );
-            throw new IdConflictException( notificationEntity );
+            Map<String,String> duplicatedErrors = getDuplicationErrors(notificationEntity, notificationCostEntityList);
+            throw new IdConflictException( duplicatedErrors );
         }
+    }
+
+    @NotNull
+    private Map<String,String> getDuplicationErrors(NotificationEntity notificationEntity, List<NotificationCostEntity> notificationCostEntityList) {
+        NotificationEntity iunDuplicated = dynamoDbTable.getItem( Key.builder()
+                        .partitionValue( notificationEntity.getIun() )
+                .build() );
+        String controlIun = getControlIun(notificationEntity);
+        NotificationEntity paProtocolDuplicated = dynamoDbTable.getItem( Key.builder()
+                        .partitionValue( controlIun )
+                .build() );
+        List<NotificationCostEntity> costEntitiesDuplicated = new ArrayList<>();
+        for ( NotificationCostEntity notificationCostEntity : notificationCostEntityList) {
+            costEntitiesDuplicated.add(dynamoDbCostTable.getItem( Key.builder()
+                    .partitionValue( notificationCostEntity.getCreditorTaxId_noticeCode() )
+                    .build()));
+        }
+        Map<String,String> duplicatedErrors = new HashMap<>();
+        if ( iunDuplicated != null ) {
+            duplicatedErrors.put( "iun", notificationEntity.getIun() );
+        }
+        if ( paProtocolDuplicated != null ) {
+            duplicatedErrors.put("senderPaId##paProtocolNumber##cancelledIun" , controlIun );
+        }
+        for ( NotificationCostEntity nce : costEntitiesDuplicated ) {
+            duplicatedErrors.put("creditorTaxId##noticeCode", nce.getCreditorTaxId_noticeCode());
+        }
+        return duplicatedErrors;
     }
 
     private TransactWriteItemsEnhancedRequest createTransactWriteItems(PutItemEnhancedRequest<NotificationEntity> request1, PutItemEnhancedRequest<NotificationEntity> request2, List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList) {

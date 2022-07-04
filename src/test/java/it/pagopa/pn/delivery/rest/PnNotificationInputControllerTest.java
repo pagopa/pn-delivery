@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -56,7 +57,7 @@ class PnNotificationInputControllerTest {
 	private PnDeliveryConfigs cfg;
 
 	@Test
-	void postSuccess() {
+	void postSuccess() throws IdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
 				.group( "group" )
@@ -129,13 +130,32 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isAccepted();
 		
 		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
 
 	@Test
-	void postSuccessWithAmount() {
+	void postFailure() {
+		// Given
+		NewNotificationRequest request = NewNotificationRequest.builder().build();
+
+		//Then
+		webTestClient.post()
+				.uri("/delivery/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(request), NewNotificationRequest.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus().isBadRequest();
+	}
+
+	@Test
+	void postSuccessWithAmount() throws IdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
 				.group( "group" )
@@ -210,7 +230,7 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
 				.exchange()
-				.expectStatus().isOk();
+				.expectStatus().isAccepted();
 
 		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
@@ -272,6 +292,8 @@ class PnNotificationInputControllerTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.body(Mono.just(requests), PreloadRequest.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header( PnDeliveryRestConstants.UID_HEADER, "uid" )
+				.header( PnDeliveryRestConstants.CX_TYPE_HEADER, "PF" )
 				.exchange()
 				.expectStatus().isBadRequest();
 
