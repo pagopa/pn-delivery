@@ -138,6 +138,14 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                     .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
                     .build()
             );
+            if ( rec.getPayment().getCreditorTaxId_optional() != null && rec.getPayment().getNoticeCode_optional() != null ) {
+                notificationCostEntityList.add( NotificationCostEntity.builder()
+                        .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
+                        .iun( notificationEntity.getIun() )
+                        .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId_optional() + "##" + rec.getPayment().getNoticeCode_optional() )
+                        .build()
+                );
+            }
         }
         return notificationCostEntityList;
     }

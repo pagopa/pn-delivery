@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 public class NotificationRetrieverService {
 
 	public static final long MAX_DOCUMENTS_AVAILABLE_DAYS = 120L;
+	public static final long MAX_FIRST_IUV_DAYS = 5L;
+	public static final long MAX_SECOND_IUV_DAYS = 60L;
 
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
@@ -211,12 +213,84 @@ public class NotificationRetrieverService {
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 				setIsDocumentsAvailable( notification );
+				computeIuvToReturn( notification );
 			}
 			return notification;
 		} else {
 			String msg = String.format( "Error retrieving Notification with iun=%s withTimeline=%b", iun, withTimeline );
 			log.debug( msg );
 			throw new PnInternalException( msg );
+		}
+	}
+
+	private void computeIuvToReturn(InternalNotification notification) {
+		log.debug( "Set IUV to return" );
+		// cerco elemento timeline con category refinement o notificationView
+		List<TimelineElement> timelineElementList = notification.getTimeline()
+				.stream()
+				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.collect(Collectors.toList());
+		// se trovo la data di perfezionamento della notifica
+		if (!timelineElementList.isEmpty()) {
+			findAndSetIUVToReturn(notification, timelineElementList);
+		}
+	}
+
+	private void findAndSetIUVToReturn(InternalNotification notification, List<TimelineElement> timelineElementList) {
+		Integer iuvToReturn = null;
+		Optional<TimelineElement> optionalMin = timelineElementList.stream().min( Comparator.comparing( TimelineElement::getTimestamp ) );
+		if (optionalMin.isPresent()) {
+			Date refinementDate = optionalMin.get().getTimestamp();
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+			if (daysBetween <= MAX_FIRST_IUV_DAYS) {
+				log.debug( "Return first IUV for iun={}, days from refinement={}", notification.getIun(), daysBetween );
+				iuvToReturn = 1;
+			}
+			if ( daysBetween > MAX_FIRST_IUV_DAYS && daysBetween <= MAX_SECOND_IUV_DAYS ) {
+				log.debug( "Return second IUV for iun={}, days from refinement={}", notification.getIun(), daysBetween );
+				iuvToReturn = 2;
+			}
+			if ( daysBetween > MAX_SECOND_IUV_DAYS ) {
+				log.debug( "Return no IUV for iun={}, days from refinement={}", notification.getIun(), daysBetween );
+				iuvToReturn = 0;
+			}
+			setIuvToReturn(notification, iuvToReturn);
+		}
+	}
+
+	private void setIuvToReturn(InternalNotification notification, Integer iuvToReturn) {
+		List<NotificationRecipient> recipientList = notification.getRecipients();
+		for ( NotificationRecipient recipient : recipientList ) {
+			NotificationPaymentInfo paymentInfo = recipient.getPayment();
+			if ( paymentInfo != null ) {
+				if (paymentInfo.getNoticeCodeOptional() != null && paymentInfo.getCreditorTaxIdOptional() != null) {
+					switch (iuvToReturn) {
+						case 1: {
+							paymentInfo.setCreditorTaxIdOptional( null );
+							paymentInfo.setNoticeCodeOptional( null );
+							break;
+						}
+						case 2: {
+							paymentInfo.setCreditorTaxId( paymentInfo.getCreditorTaxIdOptional() );
+							paymentInfo.setNoticeCode( paymentInfo.getNoticeCodeOptional() );
+							paymentInfo.setCreditorTaxIdOptional( null );
+							paymentInfo.setNoticeCodeOptional( null );
+							break;
+						}
+						case 0: {
+							paymentInfo.setCreditorTaxId( null );
+							paymentInfo.setNoticeCode( null );
+							paymentInfo.setCreditorTaxIdOptional( null );
+							paymentInfo.setNoticeCodeOptional( null );
+							break;
+						}
+						default: {
+							paymentInfo.setCreditorTaxIdOptional( null );
+							paymentInfo.setNoticeCodeOptional( null );
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -281,11 +355,14 @@ public class NotificationRetrieverService {
 				.collect(Collectors.toList());
 		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
 		if (!timelineElementList.isEmpty()) {
-			Date refinementDate = timelineElementList.get( 0 ).getTimestamp();
-			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
-			if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
-				log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
-				notification.setDocumentsAvailable( false );
+			Optional<TimelineElement> optionalMin = timelineElementList.stream().min( Comparator.comparing( TimelineElement::getTimestamp ) );
+			if ( optionalMin.isPresent() ) {
+				Date refinementDate = optionalMin.get().getTimestamp();
+				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+				if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
+					log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
+					notification.setDocumentsAvailable( false );
+				}
 			}
 		}
 	}
