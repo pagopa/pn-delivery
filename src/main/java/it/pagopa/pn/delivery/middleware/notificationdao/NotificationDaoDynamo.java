@@ -142,7 +142,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 			if ( baseRec != null) {
 				recipient.setTaxId(baseRec.getTaxId());
-				recipient.setDenomination(baseRec.getDenomination());
 			}
 			else {
 				log.error( "Unable to find any recipient info from data-vault for recipient={}", opaqueTaxId );
