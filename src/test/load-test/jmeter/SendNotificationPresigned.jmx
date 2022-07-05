@@ -104,6 +104,11 @@
             <stringProp name="Argument.value">${configPath}../inputs/attachments/docs</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="notificationRequestStatus" elementType="Argument">
+            <stringProp name="Argument.name">notificationRequestStatus</stringProp>
+            <stringProp name="Argument.value">UNDEFINED</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
@@ -189,6 +194,7 @@
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
           </HTTPSamplerProxy>
@@ -517,7 +523,7 @@ catch (Throwable ex) {
           </hashTree>
         </hashTree>
         <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="notificationCheckLoop" enabled="true">
-          <stringProp name="WhileController.condition">${__groovy(${__jm__notificationCheckLoop__idx} &lt; 10 &amp;&amp; &quot;${notificationRequestStatus}&quot;?:&apos;NONE&apos; == &quot;WAITING&quot;)}</stringProp>
+          <stringProp name="WhileController.condition">${__groovy(${__jm__notificationCheckLoop__idx} &lt; 10 &amp;&amp; &quot;WAITING&quot;.equals(&quot;${notificationRequestStatus}&quot;))}</stringProp>
         </WhileController>
         <hashTree>
           <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
