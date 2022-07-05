@@ -15,7 +15,6 @@ public class NotificationPaymentInfoEntity {
     private String noticeCode;
     private String creditorTaxId;
     private String noticeCode_optional;
-    private String creditorTaxId_optional;
     private PaymentAttachmentEntity pagoPaForm;
     private PaymentAttachmentEntity f24flatRate;
     private PaymentAttachmentEntity f24standard;
@@ -47,14 +46,6 @@ public class NotificationPaymentInfoEntity {
         this.noticeCode_optional = noticeCode_optional;
     }
 
-    @DynamoDbAttribute(value = "creditorTaxId_optional")
-    public String getCreditorTaxId_optional() {
-        return creditorTaxId_optional;
-    }
-
-    public void setCreditorTaxId_optional(String creditorTaxId_optional) {
-        this.creditorTaxId_optional = creditorTaxId_optional;
-    }
 
     @DynamoDbAttribute(value = "pagoPaForm")
     public PaymentAttachmentEntity getPagoPaForm() {

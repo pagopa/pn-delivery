@@ -175,7 +175,6 @@ class NotificationRetrieverServiceTest {
                         .payment( NotificationPaymentInfo.builder()
                                 .creditorTaxId( "77777777777" )
                                 .noticeCode( "302000100000019421" )
-                                .creditorTaxIdOptional( "77777777778" )
                                 .noticeCodeOptional( "302000100000019422" )
                                 .build() )
                         .build())

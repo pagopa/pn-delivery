@@ -60,7 +60,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .partitionValue( "77777777777##002720356512737953" )
                 .build();
         Key costKey3 = Key.builder()
-                .partitionValue("creditorTaxId_opt##noticeCode_opt")
+                .partitionValue("creditorTaxId##noticeCode_opt")
                 .build();
 
         removeItemFromDb( key );
@@ -123,7 +123,6 @@ class NotificationEntityDaoDynamoTestIT {
                                 .payment( NotificationPaymentInfoEntity.builder()
                                         .creditorTaxId( "creditorTaxId" )
                                         .noticeCode( "noticeCode" )
-                                        .creditorTaxId_optional( "creditorTaxId_opt" )
                                         .noticeCode_optional( "noticeCode_opt" )
                                         .pagoPaForm( PaymentAttachmentEntity.builder()
                                                 .contentType( "application/pdf" )
