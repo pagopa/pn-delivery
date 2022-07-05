@@ -1,22 +1,30 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.log.PnAuditLogBuilder;
+import it.pagopa.pn.commons.log.PnAuditLogEvent;
+import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleIdConflict;
+import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
-import it.pagopa.pn.delivery.svc.NotificationReceiverService;
+import it.pagopa.pn.delivery.rest.utils.HandleWebExchangeBindException;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
+import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.support.WebExchangeBindException;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Slf4j
 @RestController
@@ -35,29 +43,63 @@ public class PnNotificationInputController implements NewNotificationApi {
 
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
-        NewNotificationResponse svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
-        return ResponseEntity.ok( svcRes );
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification")
+                .uid(xPagopaPnUid)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .build();
+        NewNotificationResponse svcRes = null;
+        try {
+            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
+        } catch (Exception ex) {
+            logEvent.generateFailure(ex.getMessage()).log();
+            throw ex;
+        }
+        logEvent.generateSuccess().log();
+        return ResponseEntity.accepted().body( svcRes );
     }
 
 
     @Override
-    public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
+    public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(
+            String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
         Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
-        if ( preLoadRequest.size() > numberOfPresignedRequest ) {
-            log.error( "Presigned upload request lenght={} is more than maximum allowed={}",
-                    preLoadRequest.size(), numberOfPresignedRequest );
-            throw new PnValidationException("request",
-                    Collections.singleton( new ConstraintViolationImpl<>(
-                            String.format( "request.length = %d is more than maximum allowed = %d",
-                                    preLoadRequest.size(),
-                                    numberOfPresignedRequest))));
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, "presignedUploadRequest")
+                .uid(xPagopaPnUid)
+                .cxId(xPagopaPnCxId)
+                .cxType(xPagopaPnCxType.toString())
+                .build();
+        if (preLoadRequest.size() > numberOfPresignedRequest) {
+            String logMessage = String.format("Presigned upload request lenght=%d is more than maximum allowed=%d",
+                    preLoadRequest.size(), numberOfPresignedRequest);
+            log.error(logMessage);
+            logEvent.generateFailure(logMessage).log();
+            throw new PnValidationException("request", Collections.singleton(new ConstraintViolationImpl<>(String.format(logMessage))));
         }
-
-        return ResponseEntity.ok( this.notificationAttachmentService.preloadDocuments(preLoadRequest));
+        logEvent.generateSuccess().log();
+        return ResponseEntity.ok(this.notificationAttachmentService.preloadDocuments(preLoadRequest));
     }
 
     @ExceptionHandler({PnValidationException.class})
-    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
-        return HandleValidation.handleValidationException(ex,NOTIFICATION_VALIDATION_ERROR_STATUS );
+    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex) {
+        return HandleValidation.handleValidationException(ex, NOTIFICATION_VALIDATION_ERROR_STATUS);
+    }
+
+    @ExceptionHandler({IdConflictException.class})
+    public ResponseEntity<Problem> handleIdConflictException(IdConflictException ex) {
+        return HandleIdConflict.handleIdConflictException( ex );
+    }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<Problem> handleRuntimeException( RuntimeException ex ) {
+        return HandleRuntimeException.handleRuntimeException( ex );
+    }
+
+    @ExceptionHandler({WebExchangeBindException.class})
+    public ResponseEntity<Problem> handleWebExchangeBindException( WebExchangeBindException ex ) {
+        return HandleWebExchangeBindException.handleWebExchangeBindException( ex );
     }
 }

@@ -1,11 +1,12 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.pagopa.pn.api.dto.notification.timeline.NotificationHistoryResponse;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -13,12 +14,15 @@ import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClient;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,22 +32,25 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class NotificationRetrieverService {
 
+	public static final long MAX_DOCUMENTS_AVAILABLE_DAYS = 120L;
+
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
-	private final PnDeliveryPushClient pnDeliveryPushClient;
+	private final PnDeliveryPushClientImpl pnDeliveryPushClient;
 	private final PnDeliveryConfigs cfg;
 	private final PnMandateClientImpl pnMandateClient;
+	private final PnDataVaultClientImpl dataVaultClient;
 	private final ModelMapperFactory modelMapperFactory;
 
 
@@ -51,15 +58,16 @@ public class NotificationRetrieverService {
 	public NotificationRetrieverService(Clock clock,
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
-										PnDeliveryPushClient pnDeliveryPushClient,
+										PnDeliveryPushClientImpl pnDeliveryPushClient,
 										PnDeliveryConfigs cfg,
-										PnMandateClientImpl pnMandateClient, ModelMapperFactory modelMapperFactory) {
+										PnMandateClientImpl pnMandateClient, PnDataVaultClientImpl dataVaultClient, ModelMapperFactory modelMapperFactory) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.cfg = cfg;
 		this.pnMandateClient = pnMandateClient;
+		this.dataVaultClient = dataVaultClient;
 		this.modelMapperFactory = modelMapperFactory;
 	}
 
@@ -84,18 +92,26 @@ public class NotificationRetrieverService {
 			}
 		}
 
+		//devo opacizzare i campi di ricerca
+		if (searchDto.getFilterId() != null && searchDto.isBySender() ) {
+			log.info( "[start] Send request to data-vault" );
+			String opaqueTaxId = dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDto.getFilterId() );
+			log.info( "[end] Ensured recipient for search" );
+			searchDto.setFilterId( opaqueTaxId );
+		}
+
 		MultiPageSearch multiPageSearch = new MultiPageSearch(
 				notificationDao,
 				searchDto,
 				lastEvaluatedKey,
-				cfg
-		);
+				cfg,
+				dataVaultClient);
 
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult( searchResult.getNextPagesKey() != null )
-				.result( searchResult.getResult() );
+				.resultsPage( searchResult.getResultsPage() );
 		if ( searchResult.getNextPagesKey() != null ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
@@ -194,6 +210,7 @@ public class NotificationRetrieverService {
 			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
+				setIsDocumentsAvailable( notification );
 			}
 			return notification;
 		} else {
@@ -214,58 +231,123 @@ public class NotificationRetrieverService {
 	 * @param userId identifier of a user
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId, String mandateId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
+
+		String delegatorId = null;
+		if (mandateId != null) {
+			delegatorId = checkMandateForNotificationDetail(userId, mandateId);
+		}
+
 		InternalNotification notification = getNotificationInformation(iun);
-		handleNotificationViewedEvent(iun, userId, notification);
+		handleNotificationViewedEvent(iun, delegatorId != null? delegatorId : userId, notification);
 		return notification;
+	}
+
+	private String checkMandateForNotificationDetail(String userId, String mandateId) {
+		String delegatorId = null;
+
+		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(userId, mandateId);
+		if(!mandates.isEmpty()) {
+			boolean validMandate = false;
+			for ( InternalMandateDto mandate : mandates ) {
+				if (mandate.getDelegator() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
+					delegatorId = mandate.getDelegator();
+					validMandate = true;
+					log.info( "Valid mandate for notification detail for delegate={}", userId );
+					break;
+				}
+			}
+			if (!validMandate){
+				String message = String.format("Unable to find valid mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
+				log.error( message );
+				throw new PnNotFoundException( message );
+			}
+		} else {
+			String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
+			log.error( message );
+			throw new PnNotFoundException( message );
+		}
+		return delegatorId;
+	}
+
+	private void setIsDocumentsAvailable(InternalNotification notification) {
+		log.debug( "Documents available for iun={}", notification.getIun() );
+		notification.setDocumentsAvailable( true );
+		// cerco elemento timeline con category refinement o notificationView
+		List<TimelineElement> timelineElementList = notification.getTimeline()
+				.stream()
+				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.collect(Collectors.toList());
+		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
+		if (!timelineElementList.isEmpty()) {
+			Date refinementDate = timelineElementList.get( 0 ).getTimestamp();
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+			if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
+				log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
+				notification.setDocumentsAvailable( false );
+			}
+		}
 	}
 
 	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
 		if (StringUtils.isNotBlank(userId)) {
 			notifyNotificationViewedEvent(notification, userId);
 		} else {
-			log.error("UserId is not present, can't update state {}", iun);
-			throw new PnInternalException("UserId is not present, can't update state " + iun);
+			log.error("UserId is not present, can't create notification view event for iun={}", iun);
+			throw new PnInternalException("UserId is not present, can't create notification view event for iun=" + iun);
 		}
 	}
 
-	private InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
+	public InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
-		Instant createdAt =  notification.getSentAt().toInstant();
+		Date createdAt =  notification.getSentAt();
+		OffsetDateTime offsetDateTime = createdAt.toInstant()
+				.atOffset(ZoneOffset.UTC);
 
-		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients,createdAt);
+		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
 
-		ModelMapper mapperTimeline = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.timeline.TimelineElement.class, TimelineElement.class );
-		Set<TimelineElement> rawTimeline = timelineStatusHistoryDto.getTimelineElements().stream()
-				.map( el -> mapperTimeline.map( el, TimelineElement.class ))
-				.collect(Collectors.toSet());
 		
-		List<TimelineElement> timeline = rawTimeline
+		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()
-				.sorted( Comparator.comparing( TimelineElement::getTimestamp ))
+				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp))
 				.collect(Collectors.toList());
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 		
-		List<it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getStatusHistory();
+		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		ModelMapper mapperStatusHistory = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class );
-
-		ModelMapper mapperStatus = modelMapperFactory.createModelMapper( it.pagopa.pn.api.dto.notification.status.NotificationStatus.class, NotificationStatus.class );
+		ModelMapper mapperStatusHistory = new ModelMapper();
+		mapperStatusHistory.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class )
+				.addMapping( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
+		mapperStatusHistory.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
+		Converter<OffsetDateTime,Date> dateConverter = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
+		mapperStatusHistory.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
-		
+
+		ModelMapper mapperTimeline = new ModelMapper();
+		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
+				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
+		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		mapperTimeline.addConverter( dateConverter, OffsetDateTime.class, Date.class );
+
 		FullSentNotification resultFullSent = notification
-				.timeline( timeline )
+				.timeline( timelineList.stream()
+						.map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) )
+						.collect(Collectors.toList())  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
 						.collect(Collectors.toList())
 				)
-				.notificationStatus( mapperStatus.map(timelineStatusHistoryDto.getNotificationStatus(), NotificationStatus.class));
+				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 
 		return mapperNotification.map( resultFullSent, InternalNotification.class );
+	}
+
+	private Date fromOffsetToDate(OffsetDateTime source) {
+		return Date.from( source.toInstant() );
 	}
 
 
@@ -273,16 +355,16 @@ public class NotificationRetrieverService {
 		String iun = notification.getIun();
 
 		int recipientIndex = -1;
-		for( int idx = 0 ; idx < notification.getRecipients().size(); idx++) {
-			NotificationRecipient nr = notification.getRecipients().get( idx );
-			if( userId.equals( nr.getTaxId() ) ) {
+		for( int idx = 0 ; idx < notification.getRecipientIds().size(); idx++) {
+			String recipientId = notification.getRecipientIds().get( idx );
+			if( userId.equals( recipientId ) ) {
 				recipientIndex = idx;
 			}
 		}
 
 		if( recipientIndex == -1 ) {
 			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
-			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient=" + userId );
+			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient/delegator=" + userId );
 		}
 
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);

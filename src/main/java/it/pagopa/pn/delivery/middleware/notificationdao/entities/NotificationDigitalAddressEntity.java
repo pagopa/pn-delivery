@@ -5,30 +5,16 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttri
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 @DynamoDbBean
 public class NotificationDigitalAddressEntity {
-    private DigitalAddressTypeEntity type;
-    private String address;
+    public static final String FIELD_TYPE = "type";
+    public static final String FIELD_ADDRESS = "address";
 
-    @DynamoDbAttribute(value = "type")
-    public DigitalAddressTypeEntity getType() {
-        return type;
-    }
-
-    public void setType(DigitalAddressTypeEntity type) {
-        this.type = type;
-    }
-
-    @DynamoDbAttribute(value = "address")
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_TYPE)})) private DigitalAddressTypeEntity type;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ADDRESS)})) private String address;
 }

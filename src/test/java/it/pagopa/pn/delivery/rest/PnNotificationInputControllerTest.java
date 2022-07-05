@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
+import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -19,10 +19,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @WebFluxTest(PnNotificationInputController.class)
@@ -54,7 +57,7 @@ class PnNotificationInputControllerTest {
 	private PnDeliveryConfigs cfg;
 
 	@Test
-	void postSuccess() {
+	void postSuccess() throws IdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
 				.group( "group" )
@@ -76,7 +79,8 @@ class PnNotificationInputControllerTest {
 										.address( "address" )
 										.build() )
 								.payment( NotificationPaymentInfo.builder()
-										.creditorTaxId( "creditor_tax_id" )
+										.creditorTaxId( "12345678901" )
+										.noticeCode("123456789012345678")
 										.pagoPaForm( NotificationPaymentAttachment.builder()
 												.digests( NotificationAttachmentDigests.builder()
 														.sha256( "sha_256" )
@@ -104,7 +108,7 @@ class PnNotificationInputControllerTest {
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-						.notificationRequestId( EncodingUtils.base64Encoding(IUN) ).build();
+						.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) ).build();
 				
 		// When
 		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
@@ -126,8 +130,108 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isAccepted();
 		
+		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
+	}
+
+	@Test
+	void postFailure() {
+		// Given
+		NewNotificationRequest request = NewNotificationRequest.builder().build();
+
+		//Then
+		webTestClient.post()
+				.uri("/delivery/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(request), NewNotificationRequest.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus().isBadRequest();
+	}
+
+	@Test
+	void postSuccessWithAmount() throws IdConflictException {
+		// Given
+		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
+				.group( "group" )
+				.senderDenomination( "sender_denomination" )
+				.senderTaxId( "sender_tax_id" )
+				.paProtocolNumber( "protocol_number" )
+				.amount(10000)
+				.paymentExpirationDate("2023-10-22")
+				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
+				.recipients( Collections.singletonList( NotificationRecipient.builder()
+						.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+						.taxId( "recipient_tax_id" )
+						.denomination( "recipient_denomination" )
+						.digitalDomicile( NotificationDigitalAddress.builder()
+								.type( NotificationDigitalAddress.TypeEnum.PEC )
+								.address( "address" )
+								.build() )
+						.physicalAddress( NotificationPhysicalAddress.builder()
+								.zip( "zip" )
+								.municipality( "mnicipality" )
+								.address( "address" )
+								.build() )
+						.payment( NotificationPaymentInfo.builder()
+								.creditorTaxId( "12345678901" )
+								.noticeCode("123456789012345678")
+								.pagoPaForm( NotificationPaymentAttachment.builder()
+										.digests( NotificationAttachmentDigests.builder()
+												.sha256( "sha_256" )
+												.build() )
+										.contentType( "application/pdf" )
+										.ref( NotificationAttachmentBodyRef.builder()
+												.key( "key" )
+												.versionToken( "version_token" )
+												.build() )
+										.build() )
+								.build() )
+						.build() ) )
+				.documents( Collections.singletonList( NotificationDocument.builder()
+						.digests( NotificationAttachmentDigests.builder()
+								.sha256( "sha_256" )
+								.build() )
+						.contentType( "application/pdf" )
+						.ref( NotificationAttachmentBodyRef.builder()
+								.key( "key" )
+								.versionToken( "version_token" )
+								.build() )
+						.build() ) )
+				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				.subject( "subject" )
+				.build();
+
+		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
+				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) ).build();
+
+		// When
+		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
+				.thenReturn( savedNotification );
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) )
+				.thenReturn( mapper );
+
+		// Then
+		webTestClient.post()
+				.uri("/delivery/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(notificationRequest), NewNotificationRequest.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus().isAccepted();
+
 		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
 
@@ -188,6 +292,8 @@ class PnNotificationInputControllerTest {
 				.accept(MediaType.APPLICATION_JSON)
 				.body(Mono.just(requests), PreloadRequest.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header( PnDeliveryRestConstants.UID_HEADER, "uid" )
+				.header( PnDeliveryRestConstants.CX_TYPE_HEADER, "PF" )
 				.exchange()
 				.expectStatus().isBadRequest();
 

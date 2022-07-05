@@ -1,8 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
-
-
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -14,7 +12,6 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
@@ -25,10 +22,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -101,7 +95,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         // imposto i risultati della query mappandoli da NotificationMetadata a NotificationSearchRow
         ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,PnLastEvaluatedKey> resultPaginationDtoBuilder = ResultPaginationDto.builder();
-        resultPaginationDtoBuilder.result( fromNotificationMetadataToNotificationSearchRow( page.items() )).moreResult( false );
+        resultPaginationDtoBuilder.resultsPage( fromNotificationMetadataToNotificationSearchRow( page.items() )).moreResult( false );
 
         // imposto la LEK in base al risultato della query
         if ( page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty()) {
@@ -194,20 +188,13 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     private List<NotificationSearchRow> fromNotificationMetadataToNotificationSearchRow(List<NotificationMetadataEntity> metadataEntityList) {
-        metadataEntityList.forEach( entity ->
-                entity.setRecipientIds( dataVaultClient.getRecipientDenominationByInternalId( entity.getRecipientIds() ).stream()
-                        .map(BaseRecipientDto::getTaxId)
-                        .collect(Collectors.toList()) ));
-
-        Map<NotificationMetadataEntity,List<String>> opaqueTaxIds = new HashMap<>();
-        for (NotificationMetadataEntity entity : metadataEntityList) {
-            opaqueTaxIds.put(entity ,entity.getRecipientIds());
-        }
-        List<BaseRecipientDto> dataVaultResults = dataVaultClient.getRecipientDenominationByInternalId( opaqueTaxIds.values() );
-        metadataEntityList.forEach( entity -> entity. );
-
         List<NotificationSearchRow> result = new ArrayList<>();
-        metadataEntityList.forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
+        Map<String, NotificationMetadataEntity> metadataEntityMap = new HashMap<String,NotificationMetadataEntity>();
+        for ( NotificationMetadataEntity entity : metadataEntityList ) {
+            metadataEntityMap.putIfAbsent(entity.getTableRow().get("iun"), entity);
+        }
+        metadataEntityMap.values().stream().sorted( Comparator.comparing( NotificationMetadataEntity::getSentAt ).reversed() )
+                .forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
         return result;
     }
 

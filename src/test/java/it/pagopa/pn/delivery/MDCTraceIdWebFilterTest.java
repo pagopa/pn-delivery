@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery;
 
+import it.pagopa.pn.delivery.springbootcfg.MDCTraceIdActivation;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -33,13 +34,13 @@ class MDCTraceIdWebFilterTest {
     @TestConfiguration
     static class SpringTestConfiguration {
         @Bean
-        public MDCTraceIdWebFilter mdcTraceIdWebFilter(){
-            return new MDCTraceIdWebFilter();
+        public MDCTraceIdActivation mdcTraceIdWebFilter(){
+            return new MDCTraceIdActivation();
         };
     }
 
     @Autowired
-    MDCTraceIdWebFilter mdcTraceIdWebFilter;
+    MDCTraceIdActivation mdcTraceIdWebFilter;
 
     @Test
     void filterTraceIdConfig() {
@@ -51,7 +52,7 @@ class MDCTraceIdWebFilterTest {
         WebHandler webHandler = new WebHandler() {
             @Override
             public Mono<Void> handle(ServerWebExchange serverWebExchange) {
-                Assertions.assertEquals(MY_HEADER, MDC.get(MDCTraceIdWebFilter.MDC_TRACE_ID_KEY));
+                Assertions.assertEquals(MY_HEADER, MDC.get(MDCTraceIdActivation.MDC_TRACE_ID_KEY));
                 return Mono.empty();
             }
         };

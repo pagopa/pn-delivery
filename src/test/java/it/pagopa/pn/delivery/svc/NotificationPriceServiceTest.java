@@ -25,7 +25,7 @@ import java.util.*;
 class NotificationPriceServiceTest {
 
     private static final String PA_TAX_ID = "paTaxId";
-    private static final String NOTICE_NUMBER = "noticeNumber";
+    private static final String NOTICE_CODE = "noticeCode";
 
     @Mock
     private NotificationDao notificationDao;
@@ -49,7 +49,7 @@ class NotificationPriceServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void getNotificationPriceSuccess() {
+    void getNotificationPriceDeliveryModeSuccess() {
         //Given
         InternalNotification internalNotification = getNewInternalNotification();
 
@@ -76,12 +76,45 @@ class NotificationPriceServiceTest {
 
         Mockito.when( cfg.getCosts() ).thenReturn( costs );
 
-        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
         Assertions.assertNotNull( response );
         Assertions.assertEquals("iun" , response.getIun() );
         Assertions.assertEquals( "740", response.getAmount() );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationPriceFlatRateSuccess() {
+        //Given
+        InternalNotification internalNotification = getNewInternalNotification();
+        internalNotification.setNotificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE );
+
+
+        NotificationCost notificationCost = NotificationCost.builder()
+                .recipientIdx( 0 )
+                .iun( "iun" )
+                .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
+                .build();
+
+        //When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
+                .thenReturn( Optional.of( notificationCost ) );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( Optional.of( internalNotification ) );
+
+        Mockito.when( retrieverService.enrichWithTimelineAndStatusHistory( Mockito.anyString(), Mockito.any( InternalNotification.class ) ) )
+                .thenReturn( internalNotification );
+
+
+        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
+
+        //Then
+        Assertions.assertNotNull( response );
+        Assertions.assertEquals("iun" , response.getIun() );
+        Assertions.assertEquals( "0", response.getAmount() );
     }
 
 
@@ -93,7 +126,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.empty() );
 
-        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
@@ -114,7 +147,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( Optional.empty() );
 
-        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
@@ -142,7 +175,7 @@ class NotificationPriceServiceTest {
                 .thenReturn( internalNotification );
 
 
-        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_NUMBER );
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
         Assertions.assertThrows(PnNotFoundException.class, todo);
@@ -152,6 +185,7 @@ class NotificationPriceServiceTest {
     @NotNull
     private InternalNotification getNewInternalNotification() {
         return new InternalNotification(FullSentNotification.builder()
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE )
                 .iun( "iun" )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
@@ -160,7 +194,7 @@ class NotificationPriceServiceTest {
                                 .build())
                         .payment( NotificationPaymentInfo.builder()
                                 .creditorTaxId( PA_TAX_ID )
-                                .noticeCode( NOTICE_NUMBER )
+                                .noticeCode( NOTICE_CODE )
                                 .build() )
                         .build()) )
                 .timeline( List.of( TimelineElement.builder()
@@ -190,7 +224,7 @@ class NotificationPriceServiceTest {
                                 .build())
                         .payment( NotificationPaymentInfo.builder()
                                 .creditorTaxId( PA_TAX_ID )
-                                .noticeCode( NOTICE_NUMBER )
+                                .noticeCode( NOTICE_CODE )
                                 .build() )
                         .build()) )
                 .timeline( List.of( TimelineElement.builder()

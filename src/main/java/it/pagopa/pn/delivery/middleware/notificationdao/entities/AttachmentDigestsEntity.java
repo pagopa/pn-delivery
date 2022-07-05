@@ -8,17 +8,11 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Data
 @ToString
 @DynamoDbBean
 public class AttachmentDigestsEntity {
-    private String sha256;
+    public static final String FIELD_SHA_256 = "sha256";
 
-    @DynamoDbAttribute(value = "sha256")
-    public String getSha256() {
-        return sha256;
-    }
-
-    public void setSha256(String sha256) {
-        this.sha256 = sha256;
-    }
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SHA_256)})) private String sha256;
 }

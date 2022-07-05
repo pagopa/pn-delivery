@@ -1,15 +1,12 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,17 +15,10 @@ import java.util.stream.Collectors;
 @Component
 public class DtoToEntityNotificationMapper {
 
-    private final ObjectWriter recipientWriter;
-    private ModelMapperFactory modelMapperFactory;
-
-    public DtoToEntityNotificationMapper(ObjectMapper objMapper, ModelMapperFactory modelMapperFactory) {
-        this.recipientWriter = objMapper.writerFor(NotificationRecipient.class);
-        this.modelMapperFactory = modelMapperFactory;
-    }
-
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
+                ._abstract( dto.getAbstract() )
                 .paNotificationId( dto.getPaProtocolNumber())
                 .senderDenomination( dto.getSenderDenomination() )
                 .senderTaxId( dto.getSenderTaxId() )
@@ -38,55 +28,56 @@ public class DtoToEntityNotificationMapper {
                 .cancelledByIun( dto.getCancelledByIun() )
                 .senderPaId( dto.getSenderPaId() )
                 .recipients( dto2RecipientsEntity( dto.getRecipients() ) )
-                .recipientIds( dto.getRecipients().stream()
-                        .map( NotificationRecipient::getTaxId )
-                        .collect(Collectors.toList())
-                )
-                .documentsKeys( listDocumentsKeys( dto.getDocuments() ))
-                .documentsDigestsSha256( listDocumentsSha256( dto.getDocuments() ))
-                .documentsVersionIds( listDocumentsVersionIds( dto.getDocuments() ))
-                .documentsContentTypes( listDocumentsContentTypes( dto.getDocuments() ) )
-                .documentsTitles( listDocumentsTitles( dto.getDocuments() ))
+                .documents( convertDocuments( dto.getDocuments() ))
                 .physicalCommunicationType ( dto.getPhysicalCommunicationType() )
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
-                .group( dto.getGroup() );
+                .group( dto.getGroup() )
+                .amount(dto.getAmount())
+                .paymentExpirationDate(dto.getPaymentExpirationDate());
 
         return builder.build();
     }
 
-    private List<NotificationRecipientEntity> dto2RecipientsEntity(List<NotificationRecipient> recipients) {
-       ModelMapper mapper = modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class );
-       return recipients.stream().map( r ->  mapper.map( r, NotificationRecipientEntity.class )).collect(Collectors.toList());
+    private List<NotificationRecipientEntity> dto2RecipientsEntity(
+            List<NotificationRecipient> recipients
+    ) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        mapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
+                .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
+
+        return recipients.stream()
+               .map( r -> mapper.map( r, NotificationRecipientEntity.class ))
+               .collect(Collectors.toList());
     }
 
-    private List<String> listDocumentsContentTypes(List<NotificationDocument> documents) {
-        return documents.stream()
-                .map(NotificationDocument::getContentType)
-                .collect( Collectors.toList() );
+
+    private List<DocumentAttachmentEntity> convertDocuments(List<NotificationDocument> dtoList) {
+        List<DocumentAttachmentEntity> entityList = null;
+        if( dtoList != null ) {
+            entityList = dtoList.stream().map(this::convertDocument).collect(Collectors.toList());
+        }
+        return entityList;
     }
 
-    private List<String> listDocumentsKeys(List<NotificationDocument> documents) {
-        return documents.stream()
-                .map( doc -> doc.getRef().getKey() )
-                .collect(Collectors.toList());
+    private DocumentAttachmentEntity convertDocument( NotificationDocument dto ) {
+        DocumentAttachmentEntity entity = null;
+        if( dto != null ) {
+            entity = new DocumentAttachmentEntity();
+            entity.setContentType( dto.getContentType() );
+            entity.setTitle( dto.getTitle() );
+
+
+            entity.setDigests( AttachmentDigestsEntity.builder()
+                    .sha256( dto.getDigests().getSha256() )
+                    .build());
+            entity.setRef( AttachmentRefEntity.builder()
+                    .key( dto.getRef().getKey() )
+                    .versionToken( dto.getRef().getVersionToken() )
+                    .build());
+        }
+        return  entity;
     }
 
-    private List<String> listDocumentsSha256(List<NotificationDocument> documents) {
-        return documents.stream()
-                .map( doc -> doc.getDigests().getSha256() )
-                .collect(Collectors.toList());
-    }
-
-    private List<String> listDocumentsVersionIds(List<NotificationDocument> documents) {
-        return documents.stream()
-                .map( attachment -> attachment.getRef().getVersionToken() )
-                .collect(Collectors.toList());
-    }
-
-    private List<String> listDocumentsTitles(List<NotificationDocument> documents) {
-        return documents.stream()
-                .map(NotificationDocument::getTitle)
-                .collect(Collectors.toList());
-    }
 
 }

@@ -6,6 +6,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -17,30 +18,7 @@ public class NotificationCostEntity {
     private static final String FIELD_IUN = "iun";
     private static final String FIELD_RECIPIENT_IDX = "recipientIdx";
 
-    private String creditorTaxId_noticeCode;
-    private String iun;
-    private int recipientIdx;
-
-
-    @DynamoDbPartitionKey
-    @DynamoDbAttribute(value = FIELD_CREDITOR_TAX_ID_NOTICE_CODE)
-    public String getCreditorTaxId_noticeCode() { return creditorTaxId_noticeCode; }
-
-    public void setCreditorTaxId_noticeCode(String creditorTaxId_noticeCode) {
-        this.creditorTaxId_noticeCode = creditorTaxId_noticeCode;
-    }
-
-    @DynamoDbAttribute(value = FIELD_IUN )
-    public String getIun() { return iun; }
-
-    public void setIun( String iun ) {
-        this.iun = iun;
-    }
-
-    @DynamoDbAttribute(value = FIELD_RECIPIENT_IDX)
-    public int getRecipientIdx() { return recipientIdx; }
-
-    public void setRecipientIdx( int recipientIdx ) {
-        this.recipientIdx = recipientIdx;
-    }
+    @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_CREDITOR_TAX_ID_NOTICE_CODE)})) private String creditorTaxId_noticeCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_IUN)})) private String iun;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENT_IDX)})) private int recipientIdx;
 }

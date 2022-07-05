@@ -135,10 +135,11 @@ Resources:
         ContainerEnvEntry9: !Sub 'PN_DELIVERY_DELIVERYPUSHBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry10: !Sub 'PN_DELIVERY_NOTIFICATIONDAO_TABLENAME=${NotificationsDynamoTableName}'
         ContainerEnvEntry11: !Sub 'PN_DELIVERY_NOTIFICATIONMETADATADAO_TABLENAME=${NotificationsMetadataDynamoTableName}'
-        ContainerEnvEntry12: !Sub 'PN_DELIVERY_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry13: !Sub 'PN_DELIVERY_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
-        ContainerEnvEntry14: !Sub 'PN_DELIVERY_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry15: 'PN_DELIVERY_SAFESTORAGECXID=pn-delivery'
+        ContainerEnvEntry12: !Sub 'PN_DELIVERY_NOTIFICATIONCOSTDAO_TABLENAME=${NotificationsCostDynamoTableName}'
+        ContainerEnvEntry13: !Sub 'PN_DELIVERY_MANDATEBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry14: !Sub 'PN_DELIVERY_SAFESTORAGEBASEURL=${SandboxSafeStorageBaseUrl}'
+        ContainerEnvEntry15: !Sub 'PN_DELIVERY_DATAVAULTBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry16: 'PN_DELIVERY_SAFESTORAGECXID=pn-delivery'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
@@ -206,8 +207,8 @@ Resources:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}/*"
-
-
+              - !Sub "${NotificationsCostDynamoTableArn}"
+              - !Sub "${NotificationsCostDynamoTableArn}/*"
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:

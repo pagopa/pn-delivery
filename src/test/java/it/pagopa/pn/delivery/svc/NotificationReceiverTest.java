@@ -6,7 +6,6 @@ import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.commons_delivery.utils.EncodingUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -165,9 +164,11 @@ class NotificationReceiverTest {
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
-		assertEquals( EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
+		assertEquals( Base64Utils.encodeToString(savedNotification.getValue().getIun().getBytes(StandardCharsets.UTF_8)), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
 		assertEquals( notificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( notificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
+
+		assertEquals( notificationRequest.getAbstract(), savedNotification.getValue().getAbstract() );
 
 		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
@@ -195,7 +196,7 @@ class NotificationReceiverTest {
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
-		assertEquals( EncodingUtils.base64Encoding(savedNotification.getValue().getIun()), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
+		assertEquals( Base64Utils.encodeToString(savedNotification.getValue().getIun().getBytes(StandardCharsets.UTF_8)), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
 		assertEquals( newNotificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( newNotificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
@@ -222,7 +223,9 @@ class NotificationReceiverTest {
 	@Test
 	void throwsPnInternalExceptionInTheUncommonCaseOfDuplicatedIun() throws IdConflictException {
 		// Given
-		Mockito.doThrow( new IdConflictException("IUN") )
+		Map<String,String> keyValueConflict = new HashMap<>();
+		keyValueConflict.put( "iun", "iun_01" );
+		Mockito.doThrow( new IdConflictException(keyValueConflict) )
 				.when( notificationDao )
 				.addNotification( Mockito.any( InternalNotification.class) );
 
@@ -244,7 +247,7 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification );
 
 		// Then
-		PnInternalException exc = Assertions.assertThrows( PnInternalException.class, todo );
+		IdConflictException exc = Assertions.assertThrows( IdConflictException.class, todo );
 		Mockito.verify( notificationDao, Mockito.times( 1 ) )
 				                              .addNotification( Mockito.any( InternalNotification.class ));
 	}
@@ -303,7 +306,8 @@ class NotificationReceiverTest {
 				.paProtocolNumber( "paProtocolNumber" )
 				.recipients( Collections.singletonList( NotificationRecipient.builder()
 						.payment( NotificationPaymentInfo.builder()
-								.creditorTaxId( "creditorTaxId" )
+								.creditorTaxId( "77777777777" )
+								.noticeCode("123456789012345678")
 								.f24flatRate( NotificationPaymentAttachment.builder()
 										.digests( NotificationAttachmentDigests.builder()
 												.sha256( SHA256_BODY )
@@ -332,8 +336,18 @@ class NotificationReceiverTest {
 								.type( NotificationDigitalAddress.TypeEnum.PEC )
 								.address( "address@pec.it" )
 								.build() )
-						.build() ) )
+						.physicalAddress( NotificationPhysicalAddress.builder()
+								.at( "at" )
+								.province( "province" )
+								.zip( "00100" )
+								.address( "address" )
+								.addressDetails( "addressDetail" )
+								.municipality( "municipality" )
+								.municipalityDetails( "municipalityDetail" )
+								.build() )
+						.build() ))
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				._abstract( "abstract" )
 				.build();
 	}
 
@@ -367,11 +381,11 @@ class NotificationReceiverTest {
 
 		for( NotificationRecipient recipient : notification.getRecipients()) {
 			recipient.payment( NotificationPaymentInfo.builder()
-					.noticeCode( "IUV_01" )
+					.noticeCode( "123456789012345678" )
 					.f24flatRate( buildPaymentAttachment() )
 					.f24standard( buildPaymentAttachment() )
 					.pagoPaForm( buildPaymentAttachment()  )
-					.creditorTaxId( "creditorTaxId" )
+					.creditorTaxId( "12345678901" )
 					.build()
 			);
 		}
