@@ -1,0 +1,80 @@
+scenarios:
+  SendNotificationPresigned:
+    think-time: 2
+    requests:
+      - label: reserve_load
+        url: ${BASE_URL}/delivery/attachments/preload
+        method: POST
+        body:
+          - preloadIdx: "1"
+            contentType: "application/pdf"
+        headers:
+          Content-Type: application/json
+          accept: application/json
+          x-api-key: ${API_KEY}
+          x-pagopa-pn-cx-type: 'PA'
+          x-pagopa-pn-cx-id: 'pa_uno'
+          x-pagopa-pn-uid: 'Operatore610106'
+        extract-jsonpath:
+          preload_secret: $[0].secret
+          preload_url: $[0].url
+        extract-regexp:
+          preload_url_local:
+            regexp: http://localhost:([^"])".*  # regular expression
+            default: NOT_FOUND  # default value to use when regexp not found
+            match-no: 1  # if multiple values has matched, which match use (0=random)
+            template: 1  # which capture group to take, integer or template string
+      - label: preload
+        url: http://host.docker.internal:4566/${preload_url_local}
+        method: PUT
+        body-file: ${documentFile}
+        headers:
+          Content-Type: application/pdf
+          x-amz-meta-secret: ${preload_secret}
+        extract-regexp:
+          version_id:
+            regexp: "x-amz-version-id: (.*)"
+            match-no: 1
+            template: 1
+            subject: headers
+#      - label: send_notification_presigned
+#        url: ${BASE_URL}/delivery/notifications/sent
+#        method: POST
+#        body:
+#          paNotificationId: ${__UUID()}
+#          subject: ${subject}
+#          physicalCommunicationType: ${physicalCommunicationType}
+#          cancelledIun: null
+#          group: "testGruppo"
+#          recipients:
+#          - denomination: ${denomination}
+#            digitalDomicile:
+#              type: "PEC"
+#              address: "nome.cognome@works.demo.it"
+#            recipientType: "PF"
+#            physicalAddress:
+#              address: ${address}
+#              addressDetails: ${addressDetails}
+#              at: ${at}
+#              municipality: ${municipality}
+#              province: ${province}
+#              state: ${state}
+#              zip: ${zip}
+#            taxId: ${taxId}
+#          documents:
+#            - ref:
+#                key: "doc_1"
+#                versionToken: ${version_id}
+#              digests:
+#                sha256: ${documentSha}
+#        headers:
+#          Content-Type: application/json
+#          accept: application/json
+#          x-api-key: ${API_KEY}
+    data-sources:
+      - path: ${INPUT_FILE}
+        delimiter: ','
+        quoted: false
+        encoding: "utf-8"
+        loop: true
+        random-order: false
