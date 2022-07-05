@@ -148,6 +148,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 			}
 
 			if ( clearDataAddresses != null ) {
+				recipient.setDenomination(clearDataAddresses.getDenomination());
 				recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
 				recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
 			} else {
