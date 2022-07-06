@@ -224,7 +224,7 @@ public class NotificationRetrieverService {
 	}
 
 	private void computeNoticeCodeToReturn(InternalNotification notification) {
-		log.debug( "Compute notice code to return for iun={}", notification.getIun() );
+		log.info( "Compute notice code to return for iun={}", notification.getIun() );
 		// cerco elemento timeline con category refinement o notificationView
 		List<TimelineElement> timelineElementList = notification.getTimeline()
 				.stream()
@@ -238,6 +238,8 @@ public class NotificationRetrieverService {
 				NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
 				setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
 			}
+		} else {
+			log.info( "Notification iun={} not perfected", notification.getIun() );
 		}
 	}
 
@@ -275,7 +277,6 @@ public class NotificationRetrieverService {
 						break;
 					}
 					case NO_NOTICE_CODE: {
-						paymentInfo.setCreditorTaxId( null );
 						paymentInfo.setNoticeCode( null );
 						break;
 					}
