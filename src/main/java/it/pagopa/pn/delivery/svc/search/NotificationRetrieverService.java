@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 public class NotificationRetrieverService {
 
 	public static final long MAX_DOCUMENTS_AVAILABLE_DAYS = 120L;
+	public static final long MAX_FIRST_NOTICE_CODE_DAYS = 5L;
+	public static final long MAX_SECOND_NOTICE_CODE_DAYS = 60L;
 
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
@@ -211,6 +213,7 @@ public class NotificationRetrieverService {
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 				setIsDocumentsAvailable( notification );
+				computeNoticeCodeToReturn( notification );
 			}
 			return notification;
 		} else {
@@ -218,6 +221,90 @@ public class NotificationRetrieverService {
 			log.debug( msg );
 			throw new PnInternalException( msg );
 		}
+	}
+
+	private void computeNoticeCodeToReturn(InternalNotification notification) {
+		log.info( "Compute notice code to return for iun={}", notification.getIun() );
+		// cerco elemento timeline con category refinement o notificationView
+		List<TimelineElement> timelineElementList = notification.getTimeline()
+				.stream()
+				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.collect(Collectors.toList());
+		// se trovo la data di perfezionamento della notifica
+		if (!timelineElementList.isEmpty()) {
+			Optional<TimelineElement> optionalMin = timelineElementList.stream().min( Comparator.comparing( TimelineElement::getTimestamp ) );
+			if (optionalMin.isPresent()) {
+				Date refinementDate = optionalMin.get().getTimestamp();
+				NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
+				setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
+			}
+		} else {
+			log.info( "Notification iun={} not perfected", notification.getIun() );
+		}
+	}
+
+	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, Date refinementDate) {
+		NoticeCodeToReturn noticeCodeToReturn = null;
+		long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+		// restituire il primo notice code se data perfezionamento max 5 gg da oggi
+		if (daysBetween <= MAX_FIRST_NOTICE_CODE_DAYS) {
+			log.debug( "Return first notice code for iun={}, days from refinement={}", iun, daysBetween );
+			noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
+		}
+		// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
+		if ( daysBetween > MAX_FIRST_NOTICE_CODE_DAYS && daysBetween <= MAX_SECOND_NOTICE_CODE_DAYS) {
+			log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
+			noticeCodeToReturn = NoticeCodeToReturn.SECOND_NOTICE_CODE;
+		}
+		// non restituire nessuno notice code se data perfezionamento più di 60 gg da oggi
+		if ( daysBetween > MAX_SECOND_NOTICE_CODE_DAYS) {
+			log.debug( "Return no notice code for iun={}, days from refinement={}", iun, daysBetween );
+			noticeCodeToReturn = NoticeCodeToReturn.NO_NOTICE_CODE;
+		}
+		return noticeCodeToReturn;
+	}
+
+	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
+		for ( NotificationRecipient recipient : recipientList ) {
+			NotificationPaymentInfo paymentInfo = recipient.getPayment();
+			if ( paymentInfo != null && paymentInfo.getNoticeCodeOptional() != null ) {
+				switch (noticeCodeToReturn) {
+					case FIRST_NOTICE_CODE: {
+						break;
+					}
+					case SECOND_NOTICE_CODE: {
+						paymentInfo.setNoticeCode( paymentInfo.getNoticeCodeOptional() );
+						break;
+					}
+					case NO_NOTICE_CODE: {
+						paymentInfo.setNoticeCode( null );
+						break;
+					}
+					default: {
+						throw new UnsupportedOperationException( "Unable to compute notice code to return for iun="+ iun );
+					}
+				}
+				// in ogni caso non restituisco il noticeCode opzionale
+				paymentInfo.setNoticeCodeOptional( null );
+			}
+		}
+	}
+
+	public enum NoticeCodeToReturn {
+		FIRST_NOTICE_CODE("FIRST_NOTICE_CODE"),
+		SECOND_NOTICE_CODE("SECOND_NOTICE_CODE"),
+		NO_NOTICE_CODE("NO_NOTICE_CODE");
+
+		private String value;
+
+		NoticeCodeToReturn(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
 	}
 
 	public InternalNotification getNotificationInformation(String iun) {
@@ -281,11 +368,14 @@ public class NotificationRetrieverService {
 				.collect(Collectors.toList());
 		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
 		if (!timelineElementList.isEmpty()) {
-			Date refinementDate = timelineElementList.get( 0 ).getTimestamp();
-			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
-			if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
-				log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
-				notification.setDocumentsAvailable( false );
+			Optional<TimelineElement> optionalMin = timelineElementList.stream().min( Comparator.comparing( TimelineElement::getTimestamp ) );
+			if ( optionalMin.isPresent() ) {
+				Date refinementDate = optionalMin.get().getTimestamp();
+				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+				if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
+					log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
+					notification.setDocumentsAvailable( false );
+				}
 			}
 		}
 	}
@@ -308,14 +398,14 @@ public class NotificationRetrieverService {
 
 		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
 
-		
+
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()
 				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp))
 				.collect(Collectors.toList());
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
-		
+
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
 		ModelMapper mapperStatusHistory = new ModelMapper();

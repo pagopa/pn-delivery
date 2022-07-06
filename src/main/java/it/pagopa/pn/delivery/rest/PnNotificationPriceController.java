@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NotificationPriceAp
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
+import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PnNotificationPriceController implements NotificationPriceApi {
 
+    public static final String VALIDATION_ERROR_STATUS = "Notification price validation error";
     private final NotificationPriceService service;
 
     public PnNotificationPriceController(NotificationPriceService service) {
@@ -42,6 +44,10 @@ public class PnNotificationPriceController implements NotificationPriceApi {
             throw exc;
         }
         return ResponseEntity.ok( response );
+    }
+    @ExceptionHandler({javax.validation.ConstraintViolationException.class})
+    public ResponseEntity<ResErrorDto> handleValidationException(javax.validation.ConstraintViolationException ex) {
+        return HandleValidation.handleValidationException(ex, ex.getMessage());
     }
 
     @ExceptionHandler({PnNotFoundException.class})

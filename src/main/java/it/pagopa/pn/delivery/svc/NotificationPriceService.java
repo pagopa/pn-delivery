@@ -48,7 +48,7 @@ public class NotificationPriceService {
                     InternalNotification notification = retrieverService.enrichWithTimelineAndStatusHistory( optionalNotificationCost.get().getIun(), optionalNotification.get() );
                     Optional<TimelineElement> timelineElement = notification.getTimeline()
                             .stream()
-                            .filter( tle -> tle.getCategory().equals( TimelineElementCategory.REFINEMENT ) )
+                            .filter( tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory()) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
                             .findFirst();
                     if (timelineElement.isPresent()){
                         effectiveDate = timelineElement.get().getTimestamp();
