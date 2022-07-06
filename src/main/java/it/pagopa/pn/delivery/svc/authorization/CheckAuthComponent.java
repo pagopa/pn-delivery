@@ -9,6 +9,8 @@ import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,10 +47,13 @@ public class CheckAuthComponent {
         String mandateId = action.getMandateId();
         if (recipientIdx == null && mandateId != null) {
             List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(cxId, mandateId);
-            if(!mandates.isEmpty()) {
-               String delegatedCxId = mandates.get(0).getDelegator();
-               rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
-               recipientIdx = (rIdx >= 0 ? rIdx : null);
+            if(!mandates.isEmpty()
+                    && notification.getSentAt().after(
+                            Date.from( Instant.parse(Objects.requireNonNull(mandates.get(0).getDatefrom()))))
+            ) {
+                String delegatedCxId = mandates.get(0).getDelegator();
+                rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
+                recipientIdx = (rIdx >= 0 ? rIdx : null);
             }
             else
             {
