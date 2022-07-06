@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -39,11 +40,12 @@ class NotificationReceiverValidationTest {
 
 
     private NotificationReceiverValidator validator;
+    private PnDeliveryConfigs cfg;
 
     @BeforeEach
     void initializeValidator() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = new NotificationReceiverValidator( factory.getValidator() );
+        validator = new NotificationReceiverValidator( factory.getValidator(), cfg);
     }
 
     @Test
