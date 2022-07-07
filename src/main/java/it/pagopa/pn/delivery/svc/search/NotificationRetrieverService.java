@@ -212,8 +212,9 @@ public class NotificationRetrieverService {
 			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
-				setIsDocumentsAvailable( notification );
-				computeNoticeCodeToReturn( notification );
+				Date refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
+				checkDocumentsAvailability( notification, refinementDate );
+				computeNoticeCodeToReturn( notification, refinementDate );
 			}
 			return notification;
 		} else {
@@ -223,43 +224,47 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private void computeNoticeCodeToReturn(InternalNotification notification) {
-		log.info( "Compute notice code to return for iun={}", notification.getIun() );
+	private Date findRefinementDate(List<TimelineElement> timeline, String iun) {
+		log.debug( "Find refinement date iun={}", iun );
+		Date refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
-		List<TimelineElement> timelineElementList = notification.getTimeline()
+		List<TimelineElement> timelineElementList = timeline
 				.stream()
 				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
 				.collect(Collectors.toList());
 		// se trovo la data di perfezionamento della notifica
 		if (!timelineElementList.isEmpty()) {
-			Optional<TimelineElement> optionalMin = timelineElementList.stream().min( Comparator.comparing( TimelineElement::getTimestamp ) );
+			Optional<TimelineElement> optionalMin = timelineElementList.stream().min(Comparator.comparing(TimelineElement::getTimestamp));
 			if (optionalMin.isPresent()) {
-				Date refinementDate = optionalMin.get().getTimestamp();
-				NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
-				setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
+				refinementDate = optionalMin.get().getTimestamp();
 			}
 		} else {
-			log.info( "Notification iun={} not perfected", notification.getIun() );
+			log.debug( "Notification iun={} not perfected", iun );
 		}
+		return refinementDate;
+	}
+
+	private void computeNoticeCodeToReturn(InternalNotification notification, Date refinementDate) {
+		log.debug( "Compute notice code to return for iun={}", notification.getIun() );
+		NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
+		setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
 	}
 
 	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, Date refinementDate) {
-		NoticeCodeToReturn noticeCodeToReturn = null;
-		long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
-		// restituire il primo notice code se data perfezionamento max 5 gg da oggi
-		if (daysBetween <= MAX_FIRST_NOTICE_CODE_DAYS) {
-			log.debug( "Return first notice code for iun={}, days from refinement={}", iun, daysBetween );
-			noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
-		}
-		// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
-		if ( daysBetween > MAX_FIRST_NOTICE_CODE_DAYS && daysBetween <= MAX_SECOND_NOTICE_CODE_DAYS) {
-			log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
-			noticeCodeToReturn = NoticeCodeToReturn.SECOND_NOTICE_CODE;
-		}
-		// non restituire nessuno notice code se data perfezionamento più di 60 gg da oggi
-		if ( daysBetween > MAX_SECOND_NOTICE_CODE_DAYS) {
-			log.debug( "Return no notice code for iun={}, days from refinement={}", iun, daysBetween );
-			noticeCodeToReturn = NoticeCodeToReturn.NO_NOTICE_CODE;
+		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
+		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
+		if ( refinementDate != null ) {
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+			// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
+			if ( daysBetween > MAX_FIRST_NOTICE_CODE_DAYS && daysBetween <= MAX_SECOND_NOTICE_CODE_DAYS) {
+				log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
+				noticeCodeToReturn = NoticeCodeToReturn.SECOND_NOTICE_CODE;
+			}
+			// non restituire nessuno notice code se data perfezionamento più di 60 gg da oggi
+			if ( daysBetween > MAX_SECOND_NOTICE_CODE_DAYS) {
+				log.debug( "Return no notice code for iun={}, days from refinement={}", iun, daysBetween );
+				noticeCodeToReturn = NoticeCodeToReturn.NO_NOTICE_CODE;
+			}
 		}
 		return noticeCodeToReturn;
 	}
@@ -358,24 +363,32 @@ public class NotificationRetrieverService {
 		return delegatorId;
 	}
 
-	private void setIsDocumentsAvailable(InternalNotification notification) {
-		log.debug( "Documents available for iun={}", notification.getIun() );
+	private void checkDocumentsAvailability(InternalNotification notification, Date refinementDate) {
+		log.debug( "Check if documents are available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
-		// cerco elemento timeline con category refinement o notificationView
-		List<TimelineElement> timelineElementList = notification.getTimeline()
-				.stream()
-				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.collect(Collectors.toList());
-		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
-		if (!timelineElementList.isEmpty()) {
-			Optional<TimelineElement> optionalMin = timelineElementList.stream().min( Comparator.comparing( TimelineElement::getTimestamp ) );
-			if ( optionalMin.isPresent() ) {
-				Date refinementDate = optionalMin.get().getTimestamp();
+		if ( !NotificationStatus.CANCELLED.equals( notification.getNotificationStatus() ) ) {
+			if ( refinementDate != null ) {
 				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
-				if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
-					log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
-					notification.setDocumentsAvailable( false );
+				if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS ) {
+					log.debug("Documents not more available for iun={} from={}", notification.getIun(), refinementDate);
+					removeDocuments( notification );
 				}
+			}
+		} else {
+			log.debug("Documents not more available for iun={} because is cancelled", notification.getIun());
+			removeDocuments(notification);
+		}
+	}
+
+	private void removeDocuments(InternalNotification notification) {
+		notification.setDocumentsAvailable( false );
+		notification.setDocuments( null );
+		for ( NotificationRecipient recipient : notification.getRecipients() ) {
+			NotificationPaymentInfo payment = recipient.getPayment();
+			if ( payment != null ) {
+				payment.setPagoPaForm( null );
+				payment.setF24flatRate( null );
+				payment.setF24standard( null );
 			}
 		}
 	}
