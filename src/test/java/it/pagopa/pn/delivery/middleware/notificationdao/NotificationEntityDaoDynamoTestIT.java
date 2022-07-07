@@ -123,7 +123,7 @@ class NotificationEntityDaoDynamoTestIT {
                                 .payment( NotificationPaymentInfoEntity.builder()
                                         .creditorTaxId( "creditorTaxId" )
                                         .noticeCode( "noticeCode" )
-                                        .noticeCode_optional( "noticeCode_opt" )
+                                        .noticeCodeOptional( "noticeCode_opt" )
                                         .pagoPaForm( PaymentAttachmentEntity.builder()
                                                 .contentType( "application/pdf" )
                                                 .digests( AttachmentDigestsEntity.builder()
