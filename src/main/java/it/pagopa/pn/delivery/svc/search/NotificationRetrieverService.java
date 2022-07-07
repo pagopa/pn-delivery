@@ -267,13 +267,13 @@ public class NotificationRetrieverService {
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
 		for ( NotificationRecipient recipient : recipientList ) {
 			NotificationPaymentInfo paymentInfo = recipient.getPayment();
-			if ( paymentInfo != null && paymentInfo.getNoticeCodeOptional() != null ) {
+			if ( paymentInfo != null && paymentInfo.getNoticeCodeAlternative() != null ) {
 				switch (noticeCodeToReturn) {
 					case FIRST_NOTICE_CODE: {
 						break;
 					}
 					case SECOND_NOTICE_CODE: {
-						paymentInfo.setNoticeCode( paymentInfo.getNoticeCodeOptional() );
+						paymentInfo.setNoticeCode( paymentInfo.getNoticeCodeAlternative() );
 						break;
 					}
 					case NO_NOTICE_CODE: {
@@ -285,7 +285,7 @@ public class NotificationRetrieverService {
 					}
 				}
 				// in ogni caso non restituisco il noticeCode opzionale
-				paymentInfo.setNoticeCodeOptional( null );
+				paymentInfo.setNoticeCodeAlternative( null );
 			}
 		}
 	}
