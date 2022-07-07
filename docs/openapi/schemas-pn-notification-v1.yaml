@@ -257,13 +257,12 @@ components:
       required:
         - noticeCode
         - creditorTaxId
-        - pagoPaForm
       properties:
         noticeCode:
           $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
         creditorTaxId:
           $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
-        noticeCode_optional:
+        noticeCodeOptional:
           $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
         pagoPaForm:
           $ref: "#/components/schemas/NotificationPaymentAttachment"

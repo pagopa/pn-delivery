@@ -46,6 +46,8 @@ public class PnDeliveryConfigs {
 
     private Costs costs;
 
+    private boolean MVPTrial;
+
     @Data
     public static class Topics {
         private String newNotifications;
