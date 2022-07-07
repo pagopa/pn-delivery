@@ -36,11 +36,9 @@ public class NotificationReceiverValidator {
     }
 
     public void checkNewNotificationRequestBeforeInsertAndThrow(NewNotificationRequest newNotificationRequest) {
-        Set<ConstraintViolation<NewNotificationRequest>> errors;
-        if ( cfg.isMVPTrial() ) {
-            errors = checkNewNotificationRequestForMilan( newNotificationRequest );
-        } else {
-            errors = checkNewNotificationRequestBeforeInsert(newNotificationRequest);
+        Set<ConstraintViolation<NewNotificationRequest>> errors = checkNewNotificationRequestBeforeInsert( newNotificationRequest );
+        if ( cfg.isMVPTrial() && errors.isEmpty() ) {
+            errors = checkNewNotificationRequestForMVP( newNotificationRequest );
         }
         if( ! errors.isEmpty() ) {
             throw new PnValidationException(newNotificationRequest.getPaProtocolNumber(), errors);
@@ -51,7 +49,7 @@ public class NotificationReceiverValidator {
         return validator.validate( internalNotification );
     }
 
-    public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestForMilan( NewNotificationRequest notificationRequest ) {
+    public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestForMVP( NewNotificationRequest notificationRequest ) {
         Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
         if ( !StringUtils.hasText(notificationRequest.getSenderDenomination()) ) {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No sender denomination" );
