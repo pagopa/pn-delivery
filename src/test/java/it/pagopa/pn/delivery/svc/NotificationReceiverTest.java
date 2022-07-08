@@ -109,9 +109,6 @@ class NotificationReceiverTest {
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification );
 
 		// Then
-		//Mockito.when( notificationDao.addNotification(
-		//		Mockito.any( InternalNotification.class ),
-		//		Mockito.any( Runnable.class ))).
 		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture(), Mockito.any( Runnable.class ) );
 
 		InternalNotification savedNotification = savedNotificationCaptor.getValue();
