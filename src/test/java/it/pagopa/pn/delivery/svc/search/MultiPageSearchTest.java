@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-class MultiPageSearchTest {
+public class MultiPageSearchTest {
 
     private NotificationDao notificationDao;
     private InputSearchNotificationDto inputSearchNotificationDto;
@@ -62,7 +62,7 @@ class MultiPageSearchTest {
         Assertions.assertNotNull( result );
     }
 
-    private static class NotificationDaoMock implements NotificationDao {
+    public static class NotificationDaoMock implements NotificationDao {
 
         private final EntityToDtoNotificationMetadataMapper entityToDto = new EntityToDtoNotificationMetadataMapper();
 
@@ -70,8 +70,10 @@ class MultiPageSearchTest {
 
 
         @Override
-        public void addNotification(InternalNotification notification) throws IdConflictException {
-
+        public void addNotification(InternalNotification notification, Runnable runnable) throws IdConflictException {
+            if ( runnable != null ) {
+                runnable.run();
+            }
         }
 
         @Override

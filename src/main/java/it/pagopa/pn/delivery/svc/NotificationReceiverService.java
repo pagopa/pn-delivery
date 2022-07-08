@@ -110,12 +110,12 @@ public class NotificationReceiverService {
 		internalNotification.setTokens( tokens );
 
 
-		// - Will be delayed from the receiver
-		log.debug("Send \"new notification\" event for iun={}", iun);
-		newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
-
 		log.info("Store the notification metadata for iun={}", iun);
-		notificationDao.addNotification(internalNotification);
+		notificationDao.addNotification(internalNotification, () -> {
+			// - Will be delayed from the receiver
+			log.debug("Send \"new notification\" event for iun={}", iun);
+			newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
+		});
 	}
 
 

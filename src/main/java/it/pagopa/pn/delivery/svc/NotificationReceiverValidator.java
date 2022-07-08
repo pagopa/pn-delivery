@@ -63,6 +63,12 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
             errors.add( constraintViolation );
         }
+        String noticeCode = notificationRequest.getRecipients().get(0).getPayment().getNoticeCode();
+        String noticeCodeAlternative = notificationRequest.getRecipients().get(0).getPayment().getNoticeCodeAlternative();
+        if ( noticeCode.equals(noticeCodeAlternative) ) {
+            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
+            errors.add( constraintViolation );
+        }
         return errors;
     }
 
