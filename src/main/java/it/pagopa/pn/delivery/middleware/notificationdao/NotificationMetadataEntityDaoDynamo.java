@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -13,6 +14,7 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
@@ -137,16 +139,25 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
     private void addStatusFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
                                            QueryEnhancedRequest.Builder requestBuilder) {
-        if ( inputSearchNotificationDto.getStatus() != null ) {
-            Expression filterStatusExpression = Expression.builder()
-                    .expression( "notificationStatus = :notificationStatusValue" )
-                    .putExpressionValue(
-                            ":notificationStatusValue",
-                            AttributeValue.builder()
-                                    .s( inputSearchNotificationDto.getStatus().toString() )
-                                    .build()
-                    ).build();
-            requestBuilder.filterExpression( filterStatusExpression );
+        if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses())) {
+            Expression.Builder filterStatusExpressionBuilder = Expression.builder();
+
+            StringBuilder exp = new StringBuilder();
+            for (int i = 0;i<inputSearchNotificationDto.getStatuses().size();i++) {
+                NotificationStatus notificationStatus = inputSearchNotificationDto.getStatuses().get(i);
+                exp.append("notificationStatus = :notificationStatusValue");
+                exp.append(i + " ");
+                if (i<inputSearchNotificationDto.getStatuses().size()-1)
+                    exp.append(" OR ");
+
+                filterStatusExpressionBuilder.putExpressionValue(":notificationStatusValue"+i,
+                        AttributeValue.builder()
+                                .s( notificationStatus.toString() )
+                                .build());
+            }
+
+            filterStatusExpressionBuilder.expression(exp.toString());
+            requestBuilder.filterExpression( filterStatusExpressionBuilder.build() );
         }
     }
 

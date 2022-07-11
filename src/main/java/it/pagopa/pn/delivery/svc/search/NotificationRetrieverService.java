@@ -95,7 +95,7 @@ public class NotificationRetrieverService {
 		}
 
 		//devo opacizzare i campi di ricerca
-		if (searchDto.getFilterId() != null && searchDto.isBySender() ) {
+		if (searchDto.getFilterId() != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
 			log.info( "[start] Send request to data-vault" );
 			String opaqueTaxId = dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDto.getFilterId() );
 			log.info( "[end] Ensured recipient for search" );
