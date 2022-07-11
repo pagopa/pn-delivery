@@ -268,16 +268,3 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
-  # Export cloudwatch logs to Log analysis account
-  StreamLogsToExternalBucket:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/export-microservice-logs.yaml"
-      Parameters:
-        TemplateBucketBaseUrl: !Ref TemplateBucketBaseUrl
-        ProjectName: !Ref ProjectName
-        LogsBucketName: !Ref LogsBucketName
-        LogsExporterRoleArn: !Ref LogsExporterRoleArn
-        StreamNamePrefix: pnDelivery
-        LogGroupName: '/ecs/pn-delivery'
-
