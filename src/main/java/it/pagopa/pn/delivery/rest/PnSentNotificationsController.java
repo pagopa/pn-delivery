@@ -48,7 +48,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
         FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
         return ResponseEntity.ok( result );
@@ -107,7 +107,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     @ExceptionHandler({PnInternalException.class})
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
-        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
 
         ModelMapper mapper = modelMapperFactory.createModelMapper(
                 InternalNotification.class,
