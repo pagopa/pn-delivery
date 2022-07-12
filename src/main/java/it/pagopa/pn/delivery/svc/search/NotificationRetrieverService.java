@@ -200,12 +200,14 @@ public class NotificationRetrieverService {
 	 * Get the full detail of a notification by IUN
 	 *
 	 * @param iun unique identifier of a Notification
+	 * @param withTimeline true if return Notification with Timeline and StatusHistory
+	 * @param requestBySender true if the request came from Sender
 	 *
 	 * @return Notification DTO
 	 *
 	 */
-	public InternalNotification getNotificationInformation(String iun, boolean withTimeline) {
-		log.debug( "Retrieve notification by iun={} withTimeline={} START", iun, withTimeline );
+	public InternalNotification getNotificationInformation(String iun, boolean withTimeline, boolean requestBySender) {
+		log.debug( "Retrieve notification by iun={} withTimeline={} requestBySender={} START", iun, withTimeline, requestBySender );
 		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
@@ -214,7 +216,9 @@ public class NotificationRetrieverService {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 				Date refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 				checkDocumentsAvailability( notification, refinementDate );
-				computeNoticeCodeToReturn( notification, refinementDate );
+				if ( !requestBySender ) {
+					computeNoticeCodeToReturn( notification, refinementDate );
+				}
 			}
 			return notification;
 		} else {
@@ -313,7 +317,7 @@ public class NotificationRetrieverService {
 	}
 
 	public InternalNotification getNotificationInformation(String iun) {
-		return getNotificationInformation( iun, true );
+		return getNotificationInformation( iun, true, false );
 	}
 
 	/**
