@@ -46,12 +46,16 @@ public class MultiPageSearch {
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> globalResult = new ResultPaginationDto<>();
 
+        log.debug( "START retrieve indexName" );
         // recupero dell'indice dove andrò ad eseguire la query di ricerca
-        retrieveIndexName(inputSearchNotificationDto);
+        retrieveIndexName(inputSearchNotificationDto.isBySender() ,inputSearchNotificationDto.getFilterId());
+        log.debug( "END retrieve indexName" );
 
+        log.debug( "START list month partitions" );
         // nel caso di ricerche multi mese elenca le partizioni mensili di ricerca dalla partizione più recente a quella più lontana
         // per ricerche che non dipendono dal mese restituisce una singola partizione
         List<String> partitions = listMonthPartitions( inputSearchNotificationDto, lastEvaluatedKey );
+        log.debug( "END list month partitions={}", partitions );
 
         int pIdx = 0;
         int numPages = 0;
@@ -72,11 +76,18 @@ public class MultiPageSearch {
                 oneMonthKey = lastEvaluatedKey;
             }
 
+            log.debug( "START compute partition value" );
             // calcolo del valore della partizione dove verrà effettuata la query
             // nel caso di partizioni mensili dipende dal mese di interesse (partition)
             // se valorizzata dipende dalla LastEvaluatedKey fornita dal FE per query a pagine successive alla prima
-            String partitionValue = computePartitionValue( inputSearchNotificationDto, partition, lastEvaluatedKey );
+            String partitionValue = computePartitionValue( inputSearchNotificationDto.getSenderReceiverId(),
+                    inputSearchNotificationDto.getFilterId(),
+                    partition,
+                    lastEvaluatedKey
+            );
+            log.debug( "END compute partition value" );
 
+            log.debug( "START search for one month indexName={} partitionValue={} missingLinesOnPage={}", indexName, partitionValue, missingLinesOnPage );
             ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> oneQueryResult;
             oneQueryResult = notificationDao.searchForOneMonth(
                     inputSearchNotificationDto,
@@ -84,6 +95,8 @@ public class MultiPageSearch {
                     partitionValue,
                     missingLinesOnPage,
                     oneMonthKey);
+            log.debug( "END search for one month indexName={} partitionValue={} missingLinesOnPage={}", indexName, partitionValue, missingLinesOnPage );
+
 
             // inserisco i risultati della query ad una singola partizione nei risultati globali di ricerca
             if( numPages == 0 ) {
@@ -146,9 +159,8 @@ public class MultiPageSearch {
         return globalResult;
     }
 
-    private void retrieveIndexName(InputSearchNotificationDto inputSearchNotificationDto) {
-        final String filterId = inputSearchNotificationDto.getFilterId();
-        if(inputSearchNotificationDto.isBySender()) {
+    private void retrieveIndexName(boolean isBySender, String filterId) {
+        if( isBySender ) {
             indexName = NotificationMetadataEntity.INDEX_SENDER_ID;
         } else {
             indexName = NotificationMetadataEntity.INDEX_RECIPIENT_ID;
@@ -170,6 +182,7 @@ public class MultiPageSearch {
     }
 
     private List<String> retrieveCreationMonth(Instant startDate, Instant endDate) {
+        log.debug( "START retrieve creation months" );
         List<String> creationMonths = new ArrayList<>();
         ZonedDateTime currentMonth = ZonedDateTime.ofInstant( startDate, ZoneId.of( "UTC" ) )
                 .truncatedTo(ChronoUnit.DAYS)
@@ -184,10 +197,8 @@ public class MultiPageSearch {
         return creationMonths;
     }
 
-    private String computePartitionValue(InputSearchNotificationDto inputSearchNotificationDto, String oneMonth, PnLastEvaluatedKey lastEvaluatedKey) {
+    private String computePartitionValue(String senderReceiverId, String filterId, String oneMonth, PnLastEvaluatedKey lastEvaluatedKey) {
         String partitionValue;
-        final String senderReceiverId = inputSearchNotificationDto.getSenderReceiverId();
-        final String filterId = inputSearchNotificationDto.getFilterId();
         if (filterId != null) {
             partitionValue = senderReceiverId
                     + "##" + filterId;
