@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -17,7 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Slf4j
@@ -72,9 +71,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(Date startDate, Date endDate,
-                                  String recipientId, Boolean recipientIdOpaque, List<NotificationStatus> status,
-                                  Integer size, String nextPagesKey) {
+    public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
+                                                                                  String recipientId, Boolean recipientIdOpaque, List<NotificationStatus> status,
+                                                                                  Integer size, String nextPagesKey) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -82,9 +81,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .build();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
+                .senderReceiverId(recipientId)
                 .startDate(startDate.toInstant())
                 .endDate(endDate.toInstant())
-                .filterId(recipientId)
                 .statuses(status==null?List.of():status)
                 .receiverIdIsOpaque(recipientIdOpaque)
                 .size(size)
