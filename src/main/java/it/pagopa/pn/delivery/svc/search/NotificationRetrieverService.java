@@ -82,6 +82,8 @@ public class NotificationRetrieverService {
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId);
+			} else {
+				log.debug( "Search from receiver without mandate" );
 			}
 		} else {
 			log.debug( "Search from receiver" );
@@ -163,6 +165,7 @@ public class NotificationRetrieverService {
 			log.error( message );
 			throw new PnNotFoundException( message );
 		}
+		log.info( "END check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
 	}
 
 	/**
