@@ -52,6 +52,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .iun(iunMatch)
                 .uid(xPagopaPnUid)
                 .build();
+        logEvent.log();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
                 .senderReceiverId(xPagopaPnCxId)
@@ -92,6 +93,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .iun(iun)
                 .uid(xPagopaPnUid)
                 .build();
+        logEvent.log();
         try {
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, mandateId);
 
@@ -118,6 +120,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .build();
+        logEvent.log();
         try {
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
@@ -146,6 +149,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .cxType(xPagopaPnCxType.toString())
                 .uid(xPagopaPnUid)
                 .build();
+        logEvent.log();
         try {
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,

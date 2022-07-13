@@ -73,6 +73,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .iun(iunMatch)
                 .uid(xPagopaPnUid)
                 .build();
+        logEvent.log();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
                 .senderReceiverId(xPagopaPnCxId)
@@ -169,6 +170,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .build();
+        logEvent.log();
         try {
             response = notificationAttachmentService.downloadAttachmentWithRedirect( iun,
                     xPagopaPnCxType.toString(),
@@ -197,6 +199,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .build();
+        logEvent.log();
         try {
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
