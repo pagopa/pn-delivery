@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HandleWebExchangeBindException {
-    public HandleWebExchangeBindException() {}
+    private HandleWebExchangeBindException() {}
 
     public static ResponseEntity<Problem> handleWebExchangeBindException(WebExchangeBindException ex) {
         List<ObjectError> objectErrorList = ex.getAllErrors();

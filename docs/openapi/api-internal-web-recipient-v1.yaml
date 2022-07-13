@@ -111,6 +111,7 @@ paths:
         - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/queryMandateId'
       responses:
         '200':
           description: OK
