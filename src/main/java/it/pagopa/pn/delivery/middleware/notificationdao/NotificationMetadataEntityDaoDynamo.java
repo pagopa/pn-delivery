@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
@@ -78,7 +79,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         log.debug( "START add filter expression" );
         // aggiunta dei filtri alla query: status, groups, iun
-        addFilterExpression(inputSearchNotificationDto.getStatus(),
+        addFilterExpression(inputSearchNotificationDto.getStatuses(),
                 inputSearchNotificationDto.getGroups(),
                 inputSearchNotificationDto.getIunMatch(),
                 requestBuilder);
@@ -138,29 +139,37 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return attributeName;
     }
 
-    private void addFilterExpression(NotificationStatus status,
+    private void addFilterExpression(List<NotificationStatus> statuses,
                                         List<String> groups,
                                         String iunMatch,
                                         QueryEnhancedRequest.Builder requestBuilder
     ) {
-        addStatusFilterExpression( status, requestBuilder);
+        addStatusFilterExpression( statuses, requestBuilder);
         addGroupFilterExpression( groups, requestBuilder);
         addIunFilterExpression( iunMatch, requestBuilder );
     }
 
-    private void addStatusFilterExpression(NotificationStatus status,
+    private void addStatusFilterExpression(List<NotificationStatus> statuses,
                                            QueryEnhancedRequest.Builder requestBuilder) {
-        if ( status != null ) {
-            log.debug( "Add status filter expression" );
-            Expression filterStatusExpression = Expression.builder()
-                    .expression( "notificationStatus = :notificationStatusValue" )
-                    .putExpressionValue(
-                            ":notificationStatusValue",
-                            AttributeValue.builder()
-                                    .s( status.toString() )
-                                    .build()
-                    ).build();
-            requestBuilder.filterExpression( filterStatusExpression );
+        if (!CollectionUtils.isEmpty(statuses)) {
+            Expression.Builder filterStatusExpressionBuilder = Expression.builder();
+
+            StringBuilder exp = new StringBuilder();
+            for (int i = 0;i<statuses.size();i++) {
+                NotificationStatus notificationStatus = statuses.get(i);
+                exp.append("notificationStatus = :notificationStatusValue");
+                exp.append(i + " ");
+                if (i<statuses.size()-1)
+                    exp.append(" OR ");
+
+                filterStatusExpressionBuilder.putExpressionValue(":notificationStatusValue"+i,
+                        AttributeValue.builder()
+                                .s( notificationStatus.toString() )
+                                .build());
+            }
+
+            filterStatusExpressionBuilder.expression(exp.toString());
+            requestBuilder.filterExpression( filterStatusExpressionBuilder.build() );
         }
     }
 
