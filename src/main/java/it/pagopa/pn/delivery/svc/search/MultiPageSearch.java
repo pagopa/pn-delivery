@@ -49,7 +49,7 @@ public class MultiPageSearch {
         log.debug( "START retrieve indexName" );
         // recupero dell'indice dove andrò ad eseguire la query di ricerca
         retrieveIndexName(inputSearchNotificationDto.isBySender() ,inputSearchNotificationDto.getFilterId());
-        log.debug( "END retrieve indexName" );
+        log.debug( "END retrieve indexName={}", indexName );
 
         log.debug( "START list month partitions" );
         // nel caso di ricerche multi mese elenca le partizioni mensili di ricerca dalla partizione più recente a quella più lontana
@@ -85,7 +85,7 @@ public class MultiPageSearch {
                     partition,
                     lastEvaluatedKey
             );
-            log.debug( "END compute partition value" );
+            log.debug( "END compute partition value={}", partitionValue );
 
             log.debug( "START search for one month indexName={} partitionValue={} missingLinesOnPage={}", indexName, partitionValue, missingLinesOnPage );
             ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> oneQueryResult;
@@ -113,11 +113,13 @@ public class MultiPageSearch {
             // dalla singola query sulla partizione
             int retrievedRowsNum = oneQueryResult.getResultsPage().size();
             missingLinesOnPage -= retrievedRowsNum;
+            log.debug( "Update missing lines on page={}", missingLinesOnPage );
 
             // se non posso restituire altri elementi al FE allora pagina dei risultati è completa,
             // quindi proseguo per riempire altra pagina oppure mi sposto a partizione mensile precedente
             if( missingLinesOnPage == 0 ) {
                 missingLinesOnPage = inputSearchNotificationDto.getSize();
+                log.debug( "Update missing lines on page={} after page completition", missingLinesOnPage );
             }
             else {
                 pIdx += 1;
@@ -127,13 +129,18 @@ public class MultiPageSearch {
             if( oneQueryResult.getNextPagesKey() != null ) {
                 List<PnLastEvaluatedKey> oldLastEvaluatedKey = globalResult.getNextPagesKey();
                 if ( oldLastEvaluatedKey != null ) {
+                    log.debug( "Set next pages key to global result with old" );
                     oldLastEvaluatedKey.addAll(oneQueryResult.getNextPagesKey());
                     globalResult.setNextPagesKey(oldLastEvaluatedKey);
                 }
                 else {
+                    log.debug( "Set new next pages key to global result" );
                     globalResult.setNextPagesKey( oneQueryResult.getNextPagesKey() );
                 }
                 numPages = globalResult.getNextPagesKey().size();
+                log.debug( "Update num pages={}", numPages );
+            } else {
+                log.debug( "No next page key for this one query result" );
             }
         }
         // faccio richiesta a data-vault per restituire i CF non opachi al FE
