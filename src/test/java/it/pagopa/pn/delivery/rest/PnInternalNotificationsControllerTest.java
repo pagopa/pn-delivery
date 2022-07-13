@@ -144,7 +144,7 @@ class PnInternalNotificationsControllerTest {
 
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
-                .filterId(RECIPIENT_INTERNAL_ID)
+                .senderReceiverId(RECIPIENT_INTERNAL_ID)
                 .receiverIdIsOpaque(true)
                 .startDate(Instant.parse(START_DATE))
                 .endDate(Instant.parse(END_DATE))
