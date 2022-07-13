@@ -406,18 +406,21 @@ components:
     ############################################################################################
     pathDocumentIdx:
       name: docIdx
+      description: indice del documento nella lista partendo da 0.
       in: path
       required: true
       schema:
         type: number
     pathRecipientIdx:
       name: recipientIdx
+      description: indice dei destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
         type: number
     pathAttachmentName:
       name: attachmentName
+      description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24_FLAT|F24_STANDARD
       in: path
       required: true
       schema:

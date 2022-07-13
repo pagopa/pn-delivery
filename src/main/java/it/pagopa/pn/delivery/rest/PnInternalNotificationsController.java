@@ -17,8 +17,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @Slf4j
 @RestController
 public class PnInternalNotificationsController implements InternalOnlyApi {
@@ -37,7 +35,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<SentNotification> getSentNotificationPrivate(String iun) {
-        InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false);
+        InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
         ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, SentNotification.class);
         SentNotification sentNotification = mapper.map(notification, SentNotification.class);
 
@@ -55,12 +53,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         String logMessage = String.format(
                 "Update status for iun=%s nextStatus=%s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
         );
-        log.info(logMessage);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_STATUS, logMessage)
                 .iun(requestUpdateStatusDto.getIun())
                 .build();
+        logEvent.log();
         try {
             statusService.updateStatus(requestUpdateStatusDto);
             logEvent.generateSuccess().log();

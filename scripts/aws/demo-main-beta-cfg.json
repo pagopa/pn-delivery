@@ -1,7 +1,0 @@
-{
-  "Parameters" : {
-    "EnvName" : "demo-main",
-    "EnvNumber" : "6",
-    "KeyspaceName": "demo_delivery"
-  }
-}

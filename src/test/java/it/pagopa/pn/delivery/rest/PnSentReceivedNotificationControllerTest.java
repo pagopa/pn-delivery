@@ -69,7 +69,7 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
 				
 		// Then		
 		webTestClient.get()
@@ -85,7 +85,7 @@ class PnSentReceivedNotificationControllerTest {
 			.isOk()
 			.expectBody(FullSentNotification.class);
 		
-		Mockito.verify( svc ).getNotificationInformation(IUN, true);
+		Mockito.verify( svc ).getNotificationInformation(IUN, true, true);
 	}
 
 	@Test
@@ -93,7 +93,7 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 		InternalNotification notification = newNotification();
 
-		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
@@ -114,7 +114,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true );
+		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true, true );
 	}
 
 	@Test
