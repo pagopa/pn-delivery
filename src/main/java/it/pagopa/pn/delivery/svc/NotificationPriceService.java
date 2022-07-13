@@ -52,12 +52,9 @@ public class NotificationPriceService {
                             .findFirst();
                     if (timelineElement.isPresent()){
                         effectiveDate = timelineElement.get().getTimestamp();
-                        // calcolo costo della notifica
-                        amount = computeAmount( optionalNotificationCost.get().getRecipientIdx(), notification );
-                    } else {
-                        log.error( "Unable to find timeline element category={} iun={}", TimelineElementCategory.REFINEMENT, notification.getIun() );
-                        throw new PnNotFoundException( String.format( "Unable to find timeline element category=%s iun=%s", TimelineElementCategory.REFINEMENT, notification.getIun() ) );
                     }
+                    // calcolo costo della notifica
+                    amount = computeAmount( optionalNotificationCost.get().getRecipientIdx(), notification );
                 } else {
                     log.error( "Unable to find notification for iun={}", optionalNotificationCost.get().getIun() );
                     throw new PnNotFoundException( String.format("Unable to find notification for iun=%s", optionalNotificationCost.get().getIun() ));
