@@ -86,9 +86,12 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                 .build() );
         List<NotificationCostEntity> costEntitiesDuplicated = new ArrayList<>();
         for ( NotificationCostEntity notificationCostEntity : notificationCostEntityList) {
-            costEntitiesDuplicated.add(dynamoDbCostTable.getItem( Key.builder()
+            NotificationCostEntity costEntityDuplicated = dynamoDbCostTable.getItem( Key.builder()
                     .partitionValue( notificationCostEntity.getCreditorTaxId_noticeCode() )
-                    .build()));
+                    .build());
+            if ( costEntityDuplicated != null ) {
+                costEntitiesDuplicated.add( costEntityDuplicated );
+            }
         }
         Map<String,String> duplicatedErrors = new HashMap<>();
         if ( iunDuplicated != null ) {

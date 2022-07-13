@@ -19,12 +19,12 @@ import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -80,9 +80,13 @@ public class NotificationRetrieverService {
 
 		if ( !searchDto.isBySender() ) {
 			String mandateId = searchDto.getMandateId();
-			if (mandateId != null) {
+			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId);
+			} else {
+				log.debug( "Search from receiver without mandate" );
 			}
+		} else {
+			log.debug( "Search from receiver" );
 		}
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
@@ -92,14 +96,18 @@ public class NotificationRetrieverService {
 			} catch (JsonProcessingException e) {
 				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey", e );
 			}
+		} else {
+			log.debug( "First page search" );
 		}
 
 		//devo opacizzare i campi di ricerca
-		if (searchDto.getFilterId() != null && searchDto.isBySender() ) {
+		if (searchDto.getFilterId() != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
 			log.info( "[start] Send request to data-vault" );
 			String opaqueTaxId = dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDto.getFilterId() );
 			log.info( "[end] Ensured recipient for search" );
 			searchDto.setFilterId( opaqueTaxId );
+		} else {
+			log.debug( "No filterId or search is by receiver" );
 		}
 
 		MultiPageSearch multiPageSearch = new MultiPageSearch(
@@ -109,7 +117,9 @@ public class NotificationRetrieverService {
 				cfg,
 				dataVaultClient);
 
+		log.debug( "START search notification metadata" );
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
+		log.debug( "END search notification metadata" );
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult( searchResult.getNextPagesKey() != null )
@@ -133,6 +143,7 @@ public class NotificationRetrieverService {
 	 */
 	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
+		log.info( "START check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
 		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
@@ -154,6 +165,7 @@ public class NotificationRetrieverService {
 			log.error( message );
 			throw new PnNotFoundException( message );
 		}
+		log.info( "END check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
 	}
 
 	/**
@@ -177,7 +189,7 @@ public class NotificationRetrieverService {
 		log.debug( "Adjust search date, startDate={} endDate={}", searchDto.getStartDate(), searchDto.getEndDate() );
 
 		String delegator = mandate.getDelegator();
-		if (StringUtils.isNotBlank( delegator )) {
+		if (StringUtils.hasText( delegator )) {
 			searchDto.setSenderReceiverId( delegator );
 		}
 		log.debug( "Adjust receiverId={}", delegator );
@@ -398,7 +410,7 @@ public class NotificationRetrieverService {
 	}
 
 	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
-		if (StringUtils.isNotBlank(userId)) {
+		if (StringUtils.hasText(userId)) {
 			notifyNotificationViewedEvent(notification, userId);
 		} else {
 			log.error("UserId is not present, can't create notification view event for iun={}", iun);
