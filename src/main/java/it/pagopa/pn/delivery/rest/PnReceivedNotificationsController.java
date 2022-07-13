@@ -66,7 +66,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .size(size)
                 .nextPagesKey(nextPagesKey)
                 .build();
-        log.info("Search received notification for senderId={} iun={}", senderId, iunMatch);
+        log.info("Search received notification with filter senderId={} iun={}", senderId, iunMatch);
         ResultPaginationDto<NotificationSearchRow, String> serviceResult;
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {

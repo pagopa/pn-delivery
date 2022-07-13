@@ -4,8 +4,8 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -23,7 +23,6 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -51,15 +50,18 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             int size,
             PnLastEvaluatedKey lastEvaluatedKey
     ) {
+        log.debug( "START search for one month" );
         Instant startDate = inputSearchNotificationDto.getStartDate();
         Instant endDate = inputSearchNotificationDto.getEndDate();
 
+        log.debug( "Key building" );
         // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
         Key key = builder.build();
         Key key1 = builder.sortValue(startDate.toString()).build();
         Key key2 = builder.sortValue(endDate.toString()).build();
 
+        log.debug( "Create query conditional" );
         QueryConditional queryConditional = QueryConditional
                 .keyEqualTo( key );
         QueryConditional betweenConditional = QueryConditional
@@ -74,8 +76,13 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 .limit( size )
                 .scanIndexForward( false );
 
+        log.debug( "START add filter expression" );
         // aggiunta dei filtri alla query: status, groups, iun
-        addFilterExpression(inputSearchNotificationDto, requestBuilder);
+        addFilterExpression(inputSearchNotificationDto.getStatus(),
+                inputSearchNotificationDto.getGroups(),
+                inputSearchNotificationDto.getIunMatch(),
+                requestBuilder);
+        log.debug( "END add filter expression" );
 
         // se query su partizione precedente ha restituito una LEK
         // recupero nome dell'attributo in base all'indice di ricerca ed imposto
@@ -87,8 +94,10 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             }
         }
 
+        log.debug( "START query execution" );
         // eseguo la query
         SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( requestBuilder.build() );
+        log.debug( "END query execution" );
 
         // recupero i risultati della query
         Page<NotificationMetadataEntity> page = notificationMetadataPages.iterator().next();
@@ -107,6 +116,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             resultPaginationDtoBuilder.nextPagesKey( lastEvaluatedKeyList )
                     .moreResult( true );
         }
+        log.debug( "END mapper from metadata to searchRow" );
         return resultPaginationDtoBuilder.build();
     }
 
@@ -128,48 +138,53 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return attributeName;
     }
 
-    private void addFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
-                                     QueryEnhancedRequest.Builder requestBuilder) {
-        addStatusFilterExpression(inputSearchNotificationDto, requestBuilder);
-        addGroupFilterExpression(inputSearchNotificationDto, requestBuilder);
-        addIunFilterExpression( inputSearchNotificationDto, requestBuilder );
+    private void addFilterExpression(NotificationStatus status,
+                                        List<String> groups,
+                                        String iunMatch,
+                                        QueryEnhancedRequest.Builder requestBuilder
+    ) {
+        addStatusFilterExpression( status, requestBuilder);
+        addGroupFilterExpression( groups, requestBuilder);
+        addIunFilterExpression( iunMatch, requestBuilder );
     }
 
-    private void addStatusFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
+    private void addStatusFilterExpression(NotificationStatus status,
                                            QueryEnhancedRequest.Builder requestBuilder) {
-        if ( inputSearchNotificationDto.getStatus() != null ) {
+        if ( status != null ) {
+            log.debug( "Add status filter expression" );
             Expression filterStatusExpression = Expression.builder()
                     .expression( "notificationStatus = :notificationStatusValue" )
                     .putExpressionValue(
                             ":notificationStatusValue",
                             AttributeValue.builder()
-                                    .s( inputSearchNotificationDto.getStatus().toString() )
+                                    .s( status.toString() )
                                     .build()
                     ).build();
             requestBuilder.filterExpression( filterStatusExpression );
         }
     }
 
-    private void addIunFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
+    private void addIunFilterExpression(String iunMatch,
                                         QueryEnhancedRequest.Builder requestBuilder) {
-        if ( inputSearchNotificationDto.getIunMatch() != null ) {
+        if ( iunMatch != null ) {
+            log.debug( "Add iun filter expression" );
             Expression filterIunExpression = Expression.builder()
                     .expression( "begins_with(iun_recipientId, :iunValue)" )
                     .putExpressionValue(
                             ":iunValue",
                             AttributeValue.builder()
-                                    .s( inputSearchNotificationDto.getIunMatch() )
+                                    .s( iunMatch )
                                     .build()
                     ).build();
             requestBuilder.filterExpression( filterIunExpression );
         }
     }
 
-    private void addGroupFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
+    private void addGroupFilterExpression(List<String> groupList,
                                           QueryEnhancedRequest.Builder requestBuilder) {
-        if ( inputSearchNotificationDto.getGroups() != null ) {
+        if ( groupList != null ) {
+            log.debug( "Add group filter expression" );
             List<String> queries = new ArrayList<>();
-            List<String> groupList = inputSearchNotificationDto.getGroups();
             Map<String,AttributeValue> mav = new HashMap<>();
             for (int i = 0; i < groupList.size(); i++) {
                 String placeHolder = ":val" + i;
@@ -188,6 +203,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     }
 
     private List<NotificationSearchRow> fromNotificationMetadataToNotificationSearchRow(List<NotificationMetadataEntity> metadataEntityList) {
+        log.debug( "START mapper from metadata to searchRow" );
         List<NotificationSearchRow> result = new ArrayList<>();
         Map<String, NotificationMetadataEntity> metadataEntityMap = new HashMap<String,NotificationMetadataEntity>();
         for ( NotificationMetadataEntity entity : metadataEntityList ) {
@@ -195,6 +211,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         }
         metadataEntityMap.values().stream().sorted( Comparator.comparing( NotificationMetadataEntity::getSentAt ).reversed() )
                 .forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
+        log.debug( "END search for one month" );
         return result;
     }
 
