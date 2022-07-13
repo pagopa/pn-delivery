@@ -125,7 +125,7 @@
                                 <apiPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.config</configPackage>
                                 <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
-                                <dateLibrary>java11</dateLibrary>
+                                <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
                                 <interfaceOnly>true</interfaceOnly>
                                 <annotationLibrary>none</annotationLibrary>

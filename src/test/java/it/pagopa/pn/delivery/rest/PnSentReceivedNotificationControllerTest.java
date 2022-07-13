@@ -89,6 +89,35 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
+	void getSentNotificationNotFoundCauseIN_VALIDATION() {
+		// Given
+		InternalNotification notification = newNotification();
+		notification.setNotificationStatus( NotificationStatus.IN_VALIDATION );
+
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
+
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/sent/" + IUN  )
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+
+		Mockito.verify( svc ).getNotificationInformation(IUN, true, true);
+	}
+
+	@Test
 	void getNotificationRequestStatusSuccess() {
 		// Given
 		InternalNotification notification = newNotification();
