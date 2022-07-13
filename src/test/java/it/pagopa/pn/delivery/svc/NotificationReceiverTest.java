@@ -11,8 +11,8 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.svc.search.MultiPageSearchTest;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.NotificationDaoMock;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,7 +68,7 @@ class NotificationReceiverTest {
 	public void setup() {
 		Clock clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
 
-		notificationDao = Mockito.spy(new MultiPageSearchTest.NotificationDaoMock());
+		notificationDao = Mockito.spy( new NotificationDaoMock() );
 		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
 		fileStorage = Mockito.mock( FileStorage.class );
 		modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
