@@ -40,12 +40,14 @@ public class CheckAuthComponent {
 
     private AuthorizationOutcome pfCanAccess(ReadAccessAuth action, InternalNotification notification) {
         String cxId = action.getCxId();
+        log.debug( "Check if cxId={} can access documents iun={}", cxId, notification.getIun() );
         int rIdx = notification.getRecipientIds().indexOf(cxId);
         Integer recipientIdx = (rIdx >= 0 ? rIdx : null);
 
         // gestione deleghe
         String mandateId = action.getMandateId();
         if (recipientIdx == null && mandateId != null) {
+            log.debug( "Check validity mandateId={} cxId={} iun={}", mandateId, cxId, notification.getIun() );
             List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(cxId, mandateId);
             if(!mandates.isEmpty()
                     && notification.getSentAt().after(
@@ -80,6 +82,7 @@ public class CheckAuthComponent {
 
     private AuthorizationOutcome paCanAccess(ReadAccessAuth action, InternalNotification notification) {
         String senderId = action.getCxId();
+        log.debug( "Check if senderId={} can access iun={}", senderId, notification.getIun() );
         boolean authorized = senderId.equals( notification.getSenderPaId() );
         AuthorizationOutcome result;
         if ( authorized ) {

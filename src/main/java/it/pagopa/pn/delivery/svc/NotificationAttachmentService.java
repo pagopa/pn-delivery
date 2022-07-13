@@ -150,15 +150,17 @@ public class NotificationAttachmentService {
         if (optNotification.isPresent()) {
             InternalNotification notification = optNotification.get();
 
-
+            log.info( "START check authorization" );
             AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
+            log.info( "END check authorization={}", authorizationOutcome );
 
-            Integer downloadRecipientIdx = handleReceiverAttachmentDownload( recipientIdx, authorizationOutcome.getEffectiveRecipientIdx(), documentIndex );
-            FileDownloadIdentify fileDownloadIdentify = FileDownloadIdentify.create( documentIndex, downloadRecipientIdx, attachmentName );
             if ( !authorizationOutcome.isAuthorized() ) {
                 log.error("Error download attachment. xPagopaPnCxId={} mandateId={} recipientIdx={} cannot download attachment for notification with iun={}", cxId, mandateId, recipientIdx, iun);
                 throw new PnNotFoundException("Notification not found for iun=" + iun);
             }
+
+            Integer downloadRecipientIdx = handleReceiverAttachmentDownload( recipientIdx, authorizationOutcome.getEffectiveRecipientIdx(), documentIndex );
+            FileDownloadIdentify fileDownloadIdentify = FileDownloadIdentify.create( documentIndex, downloadRecipientIdx, attachmentName );
 
             FileKeyAndName fileKeyAndName = computeFileInfo( fileDownloadIdentify, notification );
             String fileKey = fileKeyAndName.fileKey;
