@@ -3,21 +3,21 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.SentNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import java.time.OffsetDateTime;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -25,19 +25,18 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     private final NotificationRetrieverService retrieveSvc;
     private final StatusService statusService;
-    private final PnDeliveryConfigs cfg;
+
     private final ModelMapperFactory modelMapperFactory;
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, PnDeliveryConfigs cfg, ModelMapperFactory modelMapperFactory) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
-        this.cfg = cfg;
         this.modelMapperFactory = modelMapperFactory;
     }
 
     @Override
     public ResponseEntity<SentNotification> getSentNotificationPrivate(String iun) {
-        InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false);
+        InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
         ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, SentNotification.class);
         SentNotification sentNotification = mapper.map(notification, SentNotification.class);
 
@@ -55,12 +54,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         String logMessage = String.format(
                 "Update status for iun=%s nextStatus=%s", requestUpdateStatusDto.getIun(), requestUpdateStatusDto.getNextStatus()
         );
-        log.info(logMessage);
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_STATUS, logMessage)
                 .iun(requestUpdateStatusDto.getIun())
                 .build();
+        logEvent.log();
         try {
             statusService.updateStatus(requestUpdateStatusDto);
             logEvent.generateSuccess().log();
@@ -69,5 +68,39 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             throw exc;
         }
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
+                                                                                  String recipientId, Boolean recipientIdOpaque, List<NotificationStatus> status,
+                                                                                  Integer size, String nextPagesKey) {
+
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_SEARCH_SND, "searchNotificationsPrivate")
+                .build();
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+                .bySender(false)
+                .senderReceiverId(recipientId)
+                .startDate(startDate.toInstant())
+                .endDate(endDate.toInstant())
+                .statuses(status==null?List.of():status)
+                .receiverIdIsOpaque(recipientIdOpaque)
+                .size(size)
+                .nextPagesKey(nextPagesKey)
+                .build();
+        ResultPaginationDto<NotificationSearchRow,String> serviceResult;
+        NotificationSearchResponse response = new NotificationSearchResponse();
+        try {
+            serviceResult =  retrieveSvc.searchNotification( searchDto );
+            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
+            response = mapper.map( serviceResult, NotificationSearchResponse.class );
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok( response );
+
     }
 }

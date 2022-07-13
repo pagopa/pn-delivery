@@ -163,6 +163,7 @@ class NotificationRetrieverServiceTest {
         
         //Then
         Assertions.assertNotNull( result );
+        Assertions.assertNull( result.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
     }
 
     @NotNull

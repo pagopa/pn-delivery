@@ -47,6 +47,15 @@ components:
       description: identificativo del destinatario
       schema:
         type: string
+    notificationSearchRecipientIdIsOpaque:
+      name: recipientIdOpaque
+      description: >-
+        Se presente indica che il recipient id è opaco (usato da BE) o in chiaro (usato da FE)
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
     notificationSearchStatus:
       name: status
       in: query
@@ -54,6 +63,15 @@ components:
       description: stato della notifica
       schema:
         $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+    notificationSearchStatuses:
+      name: status
+      in: query
+      required: false
+      description: stato della notifica
+      schema:
+        type: array
+        items:
+          $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     notificationSearchSubject:
       name: subjectRegExp
       description: >-

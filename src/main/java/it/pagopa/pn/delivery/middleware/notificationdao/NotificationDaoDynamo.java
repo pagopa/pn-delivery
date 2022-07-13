@@ -143,6 +143,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 					recipientIndex < notificationRecipientAddressesDtoList.size()
 							? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
 
+
 			if ( baseRec != null) {
 				recipient.setTaxId(baseRec.getTaxId());
 			}
