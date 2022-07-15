@@ -1,0 +1,165 @@
+---
+execution:
+- concurrency: 1
+  iterations: 1
+  ramp-up: 60s
+  scenario: Thread Group Invio notifiche
+scenarios:
+  Thread Group Invio notifiche:
+    content-encoding: UTF-8
+    data-sources:
+    - delimiter: ','
+      loop: true
+      path: ${configPath}../inputs/notifications_data.csv
+      quoted: true
+    - delimiter: ','
+      loop: true
+      path: ${configPath}../inputs/attachments.csv
+      quoted: false
+    default-address: ${protocol}://${host}:${port}/
+    requests:
+    - body:
+      - contentType: application/pdf
+        preloadIdx: doc_1
+        sha256: ${attachment_sha256}
+      extract-jsonpath:
+        preload_httpMethod:
+          default: NA
+          jsonpath: $[0].httpMethod
+        preload_secret:
+          default: NA
+          jsonpath: $[0].secret
+        preload_url:
+          default: NA
+          jsonpath: $[0].url
+      extract-regexp:
+        preload_url_match:
+          default: ''
+          match-no: 1
+          regexp: (http[s]?):\/\/?([^\/\s]+)\/(.*)
+          template: $0$
+      follow-redirects: true
+      headers:
+        Content-type: application/json
+        accept: application/json
+        x-api-key: ${apikey}
+      label: Post /delivery/attachments/preload-${attachment_file}
+      method: POST
+      url: /delivery/attachments/preload
+    - do:
+      - extract-regexp:
+          version_id-${__jm__UploadLoop__idx}:
+            default: NA
+            match-no: 1
+            regexp: 'x-amz-version-id: (.*)'
+            template: $1$
+        follow-redirects: false
+        headers:
+          Accept: '*/*'
+          Content-Type: application/pdf
+          X-Amz-Checksum-Sha256: ${attachment_sha256}
+          X-Amz-Meta-Secret: ${preload_secret}
+        label: ${preload_httpMethod} UploadFile ${__jm__UploadLoop__idx}-${attachment_file}
+        method: PUT
+        timeout: 10000ms
+        upload-files: []
+        url: ${preload_url_match_g1}://${preload_url_match_g2}:443${preload_url_match_g3}
+      loop: 1
+    - body:
+        abstract: abstract
+        documents:
+        - contentType: application/pdf
+          digests:
+            sha256: ${attachment_sha256}
+          ref:
+            key: doc_1
+            versionToken: ${version_id-0}
+          requiresAck: false
+          sendByMail: false
+          title: multa.pdf
+        group: ${group}
+        idempotenceToken: ${idempotenceToken}
+        notificationFeePolicy: FLAT_RATE
+        paProtocolNumber: ${__UUID()}
+        physicalCommunicationType: ${physicalCommunicationType}
+        recipients:
+        - denomination: ${denomination}
+          digitalDomicile:
+            address: ${digitalDomicile}
+            type: PEC
+          payment:
+            creditorTaxId: '77777777777'
+            noticeCode: ${__time(yyyyMMddHHmmss,)}${__RandomString(4,0123456789)}
+            pagoPaForm:
+              contentType: application/pdf
+              digests:
+                sha256: ${attachment_sha256}
+              ref:
+                key: doc_1
+                versionToken: ${version_id-0}
+          physicalAddress:
+            address: ${address}
+            addressDetails: ${addressDetails}
+            at: ${at}
+            foreignState: ${state}
+            municipality: ${municipality}
+            municipalityDetails: amet sed in incididunt
+            province: ${province}
+            zip: ${zip}
+          recipientType: PF
+          taxId: ${taxId}
+        senderDenomination: ${senderDenomination}
+        senderTaxId: ${senderTaxId}
+        subject: ${subject}
+      extract-jsonpath:
+        notificationRequestId:
+          default: NA
+          jsonpath: $.notificationRequestId
+      follow-redirects: true
+      headers:
+        Content-type: application/json
+        accept: application/json
+        x-api-key: ${apikey}
+      label: newNotificationPost
+      method: POST
+      url: /delivery/requests
+    - do:
+      - body:
+          notificationRequestId: ${notificationRequestId}
+        extract-jsonpath:
+          notificationRequestStatus:
+            default: NA
+            jsonpath: $.notificationRequestStatus
+          retryAfter:
+            default: NA
+            jsonpath: $.retryAfter
+        follow-redirects: true
+        headers:
+          Content-type: application/json
+          accept: application/json
+          x-api-key: ${apikey}
+        label: notificatioCheck-${__jm__notificationCheckLoop__idx}
+        method: GET
+        url: /delivery/requests
+      while: ${__groovy(${__jm__notificationCheckLoop__idx} < 10 && "${notificationRequestStatus}"?:'NONE' == "WAITING")}
+    store-cache: false
+    store-cookie: false
+    timeout: ${connTimeout}ms
+    use-dns-cache-mgr: false
+    variables:
+      apikey: ${__P(apikey,'N/A')}
+      attachment_path: ${configPath}../inputs/attachments/docs
+      configPath: ${__BeanShell(import org.apache.jmeter.services.FileServer; FileServer.getFileServer().getBaseDir();)}${__BeanShell(File.separator,)}
+      connTimeout: '10000'
+      host: ${__P(host,api.dev.pn.pagopa.it)}
+      idempotenceToken: ${__UUID()}
+      loop: ${__P(loop,1)}
+      numUser: ${__P(numUser,1)}
+      port: ${__P(port,443)}
+      protocol: ${__P(protocol,https)}
+      rampUp: ${__P(rampUp,1)}
+      respTimeout: '30000'
+      timer_delay_ms: '1500'
+      timer_offset_ms: '500'
+      timestamp: ${__time(YMDHMS)}
+
