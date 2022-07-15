@@ -19,12 +19,12 @@ import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 public class NotificationRetrieverService {
 
 	public static final long MAX_DOCUMENTS_AVAILABLE_DAYS = 120L;
+	public static final long MAX_FIRST_NOTICE_CODE_DAYS = 5L;
+	public static final long MAX_SECOND_NOTICE_CODE_DAYS = 60L;
 
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
@@ -78,9 +80,13 @@ public class NotificationRetrieverService {
 
 		if ( !searchDto.isBySender() ) {
 			String mandateId = searchDto.getMandateId();
-			if (mandateId != null) {
+			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId);
+			} else {
+				log.debug( "Search from receiver without mandate" );
 			}
+		} else {
+			log.debug( "Search from receiver" );
 		}
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
@@ -90,14 +96,18 @@ public class NotificationRetrieverService {
 			} catch (JsonProcessingException e) {
 				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey", e );
 			}
+		} else {
+			log.debug( "First page search" );
 		}
 
 		//devo opacizzare i campi di ricerca
-		if (searchDto.getFilterId() != null && searchDto.isBySender() ) {
+		if (searchDto.getFilterId() != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
 			log.info( "[start] Send request to data-vault" );
 			String opaqueTaxId = dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDto.getFilterId() );
 			log.info( "[end] Ensured recipient for search" );
 			searchDto.setFilterId( opaqueTaxId );
+		} else {
+			log.debug( "No filterId or search is by receiver" );
 		}
 
 		MultiPageSearch multiPageSearch = new MultiPageSearch(
@@ -107,7 +117,9 @@ public class NotificationRetrieverService {
 				cfg,
 				dataVaultClient);
 
+		log.debug( "START search notification metadata" );
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
+		log.debug( "END search notification metadata" );
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult( searchResult.getNextPagesKey() != null )
@@ -131,6 +143,7 @@ public class NotificationRetrieverService {
 	 */
 	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
+		log.info( "START check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
 		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
@@ -152,6 +165,7 @@ public class NotificationRetrieverService {
 			log.error( message );
 			throw new PnNotFoundException( message );
 		}
+		log.info( "END check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
 	}
 
 	/**
@@ -175,7 +189,7 @@ public class NotificationRetrieverService {
 		log.debug( "Adjust search date, startDate={} endDate={}", searchDto.getStartDate(), searchDto.getEndDate() );
 
 		String delegator = mandate.getDelegator();
-		if (StringUtils.isNotBlank( delegator )) {
+		if (StringUtils.hasText( delegator )) {
 			searchDto.setSenderReceiverId( delegator );
 		}
 		log.debug( "Adjust receiverId={}", delegator );
@@ -198,19 +212,25 @@ public class NotificationRetrieverService {
 	 * Get the full detail of a notification by IUN
 	 *
 	 * @param iun unique identifier of a Notification
+	 * @param withTimeline true if return Notification with Timeline and StatusHistory
+	 * @param requestBySender true if the request came from Sender
 	 *
 	 * @return Notification DTO
 	 *
 	 */
-	public InternalNotification getNotificationInformation(String iun, boolean withTimeline) {
-		log.debug( "Retrieve notification by iun={} withTimeline={} START", iun, withTimeline );
+	public InternalNotification getNotificationInformation(String iun, boolean withTimeline, boolean requestBySender) {
+		log.debug( "Retrieve notification by iun={} withTimeline={} requestBySender={} START", iun, withTimeline, requestBySender );
 		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
 		if (optNotification.isPresent()) {
 			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
-				setIsDocumentsAvailable( notification );
+				Date refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
+				checkDocumentsAvailability( notification, refinementDate );
+				if ( !requestBySender ) {
+					computeNoticeCodeToReturn( notification, refinementDate );
+				}
 			}
 			return notification;
 		} else {
@@ -220,8 +240,96 @@ public class NotificationRetrieverService {
 		}
 	}
 
+	private Date findRefinementDate(List<TimelineElement> timeline, String iun) {
+		log.debug( "Find refinement date iun={}", iun );
+		Date refinementDate = null;
+		// cerco elemento timeline con category refinement o notificationView
+		List<TimelineElement> timelineElementList = timeline
+				.stream()
+				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.collect(Collectors.toList());
+		// se trovo la data di perfezionamento della notifica
+		if (!timelineElementList.isEmpty()) {
+			Optional<TimelineElement> optionalMin = timelineElementList.stream().min(Comparator.comparing(TimelineElement::getTimestamp));
+			if (optionalMin.isPresent()) {
+				refinementDate = optionalMin.get().getTimestamp();
+			}
+		} else {
+			log.debug( "Notification iun={} not perfected", iun );
+		}
+		return refinementDate;
+	}
+
+	private void computeNoticeCodeToReturn(InternalNotification notification, Date refinementDate) {
+		log.debug( "Compute notice code to return for iun={}", notification.getIun() );
+		NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
+		setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
+	}
+
+	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, Date refinementDate) {
+		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
+		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
+		if ( refinementDate != null ) {
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+			// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
+			if ( daysBetween > MAX_FIRST_NOTICE_CODE_DAYS && daysBetween <= MAX_SECOND_NOTICE_CODE_DAYS) {
+				log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
+				noticeCodeToReturn = NoticeCodeToReturn.SECOND_NOTICE_CODE;
+			}
+			// non restituire nessuno notice code se data perfezionamento più di 60 gg da oggi
+			if ( daysBetween > MAX_SECOND_NOTICE_CODE_DAYS) {
+				log.debug( "Return no notice code for iun={}, days from refinement={}", iun, daysBetween );
+				noticeCodeToReturn = NoticeCodeToReturn.NO_NOTICE_CODE;
+			}
+		}
+		return noticeCodeToReturn;
+	}
+
+	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
+		for ( NotificationRecipient recipient : recipientList ) {
+			NotificationPaymentInfo paymentInfo = recipient.getPayment();
+			if ( paymentInfo != null && paymentInfo.getNoticeCodeAlternative() != null ) {
+				switch (noticeCodeToReturn) {
+					case FIRST_NOTICE_CODE: {
+						break;
+					}
+					case SECOND_NOTICE_CODE: {
+						paymentInfo.setNoticeCode( paymentInfo.getNoticeCodeAlternative() );
+						break;
+					}
+					case NO_NOTICE_CODE: {
+						paymentInfo.setNoticeCode( null );
+						break;
+					}
+					default: {
+						throw new UnsupportedOperationException( "Unable to compute notice code to return for iun="+ iun );
+					}
+				}
+				// in ogni caso non restituisco il noticeCode opzionale
+				paymentInfo.setNoticeCodeAlternative( null );
+			}
+		}
+	}
+
+	public enum NoticeCodeToReturn {
+		FIRST_NOTICE_CODE("FIRST_NOTICE_CODE"),
+		SECOND_NOTICE_CODE("SECOND_NOTICE_CODE"),
+		NO_NOTICE_CODE("NO_NOTICE_CODE");
+
+		private String value;
+
+		NoticeCodeToReturn(String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+	}
+
 	public InternalNotification getNotificationInformation(String iun) {
-		return getNotificationInformation( iun, true );
+		return getNotificationInformation( iun, true, false );
 	}
 
 	/**
@@ -271,27 +379,38 @@ public class NotificationRetrieverService {
 		return delegatorId;
 	}
 
-	private void setIsDocumentsAvailable(InternalNotification notification) {
-		log.debug( "Documents available for iun={}", notification.getIun() );
+	private void checkDocumentsAvailability(InternalNotification notification, Date refinementDate) {
+		log.debug( "Check if documents are available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
-		// cerco elemento timeline con category refinement o notificationView
-		List<TimelineElement> timelineElementList = notification.getTimeline()
-				.stream()
-				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.collect(Collectors.toList());
-		// se trovo elemento confronto con data odierna e se differenza > 120 gg allora documentsAvailable = false
-		if (!timelineElementList.isEmpty()) {
-			Date refinementDate = timelineElementList.get( 0 ).getTimestamp();
-			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
-			if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS) {
-				log.debug( "Documents not more available for iun={} from={}", notification.getIun(), refinementDate );
-				notification.setDocumentsAvailable( false );
+		if ( !NotificationStatus.CANCELLED.equals( notification.getNotificationStatus() ) ) {
+			if ( refinementDate != null ) {
+				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+				if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS ) {
+					log.debug("Documents not more available for iun={} from={}", notification.getIun(), refinementDate);
+					removeDocuments( notification );
+				}
+			}
+		} else {
+			log.debug("Documents not more available for iun={} because is cancelled", notification.getIun());
+			removeDocuments(notification);
+		}
+	}
+
+	private void removeDocuments(InternalNotification notification) {
+		notification.setDocumentsAvailable( false );
+		notification.setDocuments( null );
+		for ( NotificationRecipient recipient : notification.getRecipients() ) {
+			NotificationPaymentInfo payment = recipient.getPayment();
+			if ( payment != null ) {
+				payment.setPagoPaForm( null );
+				payment.setF24flatRate( null );
+				payment.setF24standard( null );
 			}
 		}
 	}
 
 	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
-		if (StringUtils.isNotBlank(userId)) {
+		if (StringUtils.hasText(userId)) {
 			notifyNotificationViewedEvent(notification, userId);
 		} else {
 			log.error("UserId is not present, can't create notification view event for iun={}", iun);
@@ -308,14 +427,14 @@ public class NotificationRetrieverService {
 
 		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
 
-		
+
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()
 				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp))
 				.collect(Collectors.toList());
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
-		
+
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
 		ModelMapper mapperStatusHistory = new ModelMapper();

@@ -331,7 +331,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
                 .size( 10 )
-                .status( NotificationStatus.ACCEPTED )
+                .statuses(List.of(NotificationStatus.ACCEPTED))
                 .build();
 
         String indexName = "senderId";

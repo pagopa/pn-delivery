@@ -48,16 +48,13 @@ public class NotificationPriceService {
                     InternalNotification notification = retrieverService.enrichWithTimelineAndStatusHistory( optionalNotificationCost.get().getIun(), optionalNotification.get() );
                     Optional<TimelineElement> timelineElement = notification.getTimeline()
                             .stream()
-                            .filter( tle -> tle.getCategory().equals( TimelineElementCategory.REFINEMENT ) )
+                            .filter( tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory()) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
                             .findFirst();
                     if (timelineElement.isPresent()){
                         effectiveDate = timelineElement.get().getTimestamp();
-                        // calcolo costo della notifica
-                        amount = computeAmount( optionalNotificationCost.get().getRecipientIdx(), notification );
-                    } else {
-                        log.error( "Unable to find timeline element category={} iun={}", TimelineElementCategory.REFINEMENT, notification.getIun() );
-                        throw new PnNotFoundException( String.format( "Unable to find timeline element category=%s iun=%s", TimelineElementCategory.REFINEMENT, notification.getIun() ) );
                     }
+                    // calcolo costo della notifica
+                    amount = computeAmount( optionalNotificationCost.get().getRecipientIdx(), notification );
                 } else {
                     log.error( "Unable to find notification for iun={}", optionalNotificationCost.get().getIun() );
                     throw new PnNotFoundException( String.format("Unable to find notification for iun=%s", optionalNotificationCost.get().getIun() ));

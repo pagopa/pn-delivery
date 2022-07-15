@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -13,8 +14,10 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
+import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +51,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
+        if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() ) ) {
+            log.info( "Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus() );
+            throw new PnNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
+        }
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
         FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
         return ResponseEntity.ok( result );
@@ -66,13 +73,15 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .iun(iunMatch)
                 .uid(xPagopaPnUid)
                 .build();
+        logEvent.log();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
                 .senderReceiverId(xPagopaPnCxId)
                 .startDate(startDate.toInstant())
                 .endDate(endDate.toInstant())
                 .filterId(recipientId)
-                .status(status)
+                .statuses(status==null?List.of():List.of(status))
+                .receiverIdIsOpaque(false)
                 //.groups( groups != null ? Arrays.asList( groups ) : null )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
@@ -98,6 +107,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
     }
 
+    @ExceptionHandler({PnNotFoundException.class})
+    public ResponseEntity<ResErrorDto> handleNotFoundException(PnNotFoundException ex) {
+        return HandleNotFound.handleNotFoundException( ex, ex.getMessage() );
+    }
+
     @Override
     public Optional<NativeWebRequest> getRequest() {
         return SenderReadB2BApi.super.getRequest();
@@ -107,7 +121,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     @ExceptionHandler({PnInternalException.class})
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
-        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true );
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
 
         ModelMapper mapper = modelMapperFactory.createModelMapper(
                 InternalNotification.class,
@@ -156,8 +170,15 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .build();
+        logEvent.log();
         try {
-            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndRecIdxAttachName(iun, recipientIdx.intValue(), attachmentName);
+            response = notificationAttachmentService.downloadAttachmentWithRedirect( iun,
+                    xPagopaPnCxType.toString(),
+                    xPagopaPnCxId,
+                    null,
+                    recipientIdx.intValue(),
+                    attachmentName
+            );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
@@ -178,8 +199,15 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .build();
+        logEvent.log();
         try {
-            response = notificationAttachmentService.downloadDocumentWithRedirectByIunAndDocIndex(iun, docIdx.intValue());
+            response = notificationAttachmentService.downloadDocumentWithRedirect(
+                    iun,
+                    xPagopaPnCxType.toString(),
+                    xPagopaPnCxId,
+                    null,
+                    docIdx.intValue()
+            );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();

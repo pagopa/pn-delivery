@@ -52,7 +52,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 	}
 
 	@Override
-	public void addNotification(InternalNotification internalNotification) throws IdConflictException {
+	public void addNotification(InternalNotification internalNotification, Runnable doBeforeSave ) throws IdConflictException {
 
 		List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
 		List<NotificationRecipient> cleanedRecipientList = new ArrayList<>();
@@ -71,6 +71,9 @@ public class NotificationDaoDynamo implements NotificationDao {
 		internalNotification.setRecipients( cleanedRecipientList );
 
 		NotificationEntity entity = dto2entityMapper.dto2Entity( internalNotification );
+		if ( doBeforeSave != null) {
+			doBeforeSave.run();
+		}
 		entityDao.putIfAbsent( entity );
 	}
 
@@ -140,6 +143,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 					recipientIndex < notificationRecipientAddressesDtoList.size()
 							? notificationRecipientAddressesDtoList.get( recipientIndex ) : null;
 
+
 			if ( baseRec != null) {
 				recipient.setTaxId(baseRec.getTaxId());
 			}
@@ -148,6 +152,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 			}
 
 			if ( clearDataAddresses != null ) {
+				recipient.setDenomination(clearDataAddresses.getDenomination());
 				recipient.setDigitalDomicile( setNotificationDigitalAddress( clearDataAddresses.getDigitalAddress() ));
 				recipient.setPhysicalAddress( setNotificationPhysicalAddress( clearDataAddresses.getPhysicalAddress() ) );
 			} else {

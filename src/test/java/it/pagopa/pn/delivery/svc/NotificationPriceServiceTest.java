@@ -154,7 +154,7 @@ class NotificationPriceServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void getNotificationPriceNoTimelineRefinementFailure() {
+    void getNotificationPriceNoTimelineRefinementSuccess() {
         //Given
         InternalNotification internalNotification = getNewInternalNotificationNoRefinement();
 
@@ -175,10 +175,12 @@ class NotificationPriceServiceTest {
                 .thenReturn( internalNotification );
 
 
-        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
+        NotificationPriceResponse priceResponse = svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
-        Assertions.assertThrows(PnNotFoundException.class, todo);
+        Assertions.assertNotNull( priceResponse );
+        Assertions.assertNull( priceResponse.getEffectiveDate() );
+        Assertions.assertEquals( "0", priceResponse.getAmount() );
 
     }
 
@@ -217,6 +219,7 @@ class NotificationPriceServiceTest {
     private InternalNotification getNewInternalNotificationNoRefinement() {
         return new InternalNotification(FullSentNotification.builder()
                 .iun( "iun" )
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .physicalAddress(NotificationPhysicalAddress.builder()

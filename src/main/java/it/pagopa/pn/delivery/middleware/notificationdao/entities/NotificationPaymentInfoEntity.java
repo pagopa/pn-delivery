@@ -14,6 +14,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 public class NotificationPaymentInfoEntity {
     private String noticeCode;
     private String creditorTaxId;
+    private String noticeCodeAlternative;
     private PaymentAttachmentEntity pagoPaForm;
     private PaymentAttachmentEntity f24flatRate;
     private PaymentAttachmentEntity f24standard;
@@ -35,6 +36,16 @@ public class NotificationPaymentInfoEntity {
     public void setCreditorTaxId(String creditorTaxId) {
         this.creditorTaxId = creditorTaxId;
     }
+
+    @DynamoDbAttribute(value = "noticeCodeAlternative")
+    public String getNoticeCodeAlternative() {
+        return noticeCodeAlternative;
+    }
+
+    public void setNoticeCodeAlternative(String noticeCodeAlternative) {
+        this.noticeCodeAlternative = noticeCodeAlternative;
+    }
+
 
     @DynamoDbAttribute(value = "pagoPaForm")
     public PaymentAttachmentEntity getPagoPaForm() {

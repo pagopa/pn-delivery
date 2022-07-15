@@ -28,13 +28,15 @@ public class InputSearchNotificationDto {
     
     private String filterId;
     
-    private NotificationStatus status;
+    private  List<NotificationStatus> statuses;
 
     private final List<String> groups;
     
     private final String subjectRegExp;
 
     private final String iunMatch;
+
+    private final boolean receiverIdIsOpaque;
 
     @Positive
     @NotNull
@@ -44,20 +46,28 @@ public class InputSearchNotificationDto {
     
     private final boolean bySender;
 
-    public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId, NotificationStatus status,
+    public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId,  List<NotificationStatus> statuses,
                                       List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender) {
+        this(senderReceiverId, startDate, endDate, mandateId, filterId, statuses,
+                groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, false);
+    }
+
+
+    public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId, List<NotificationStatus> statuses,
+                                      List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender, boolean receiverIdIsOpaque) {
         this.senderReceiverId = senderReceiverId;
         this.startDate = startDate;
         this.endDate = endDate;
         this.mandateId = mandateId;
         this.filterId = filterId;
-        this.status = status;
+        this.statuses = statuses;
         this.groups = groups;
         this.subjectRegExp = subjectRegExp;
         this.iunMatch = iunMatch;
         this.size = size;
         this.nextPagesKey = nextPagesKey;
         this.bySender = bySender;
+        this.receiverIdIsOpaque = receiverIdIsOpaque;
     }
 
     public String getSenderReceiverId() {
@@ -76,8 +86,8 @@ public class InputSearchNotificationDto {
 
     public void setFilterId(String filterId) { this.filterId = filterId; }
     
-    public void setStatus(NotificationStatus status){
-        this.status = status;
+    public void setStatuses(List<NotificationStatus>  statuses){
+        this.statuses = statuses;
     }
     
     public static class Builder
@@ -87,12 +97,14 @@ public class InputSearchNotificationDto {
         private Instant endDate;
         private String mandateId;
         private String filterId;
-        private NotificationStatus status;
+        private List<NotificationStatus> statuses;
         private String subjectRegExp;
         private String iunMatch;
         private Integer size;
         private String nextPagesKey;
         private boolean bySender;
+        private boolean receiverIdIsOpaque;
+
         private List<String> groups;
 
         public Builder() {}
@@ -127,8 +139,8 @@ public class InputSearchNotificationDto {
             return this;
         }
 
-        public Builder status(NotificationStatus status) {
-            this.status = status;
+        public Builder statuses( List<NotificationStatus> statuses) {
+            this.statuses = statuses;
             return this;
         }
 
@@ -156,10 +168,16 @@ public class InputSearchNotificationDto {
             this.groups = groups;
             return this;
         }
+
+
+        public Builder receiverIdIsOpaque(Boolean receiverIdIsOpaque) {
+            this.receiverIdIsOpaque = receiverIdIsOpaque;
+            return this;
+        }
         
         public InputSearchNotificationDto build() {
-           return new InputSearchNotificationDto(senderReceiverId, startDate, endDate, mandateId, filterId, status,
-                   groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender);
+           return new InputSearchNotificationDto(senderReceiverId, startDate, endDate, mandateId, filterId, statuses,
+                   groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, receiverIdIsOpaque);
         }
         
     }

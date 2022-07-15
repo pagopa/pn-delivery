@@ -108,7 +108,8 @@ class PnNotificationInputControllerTest {
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-						.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) ).build();
+						.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+						.paProtocolNumber("protocol_number").build();
 				
 		// When
 		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
@@ -208,7 +209,8 @@ class PnNotificationInputControllerTest {
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
-				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) ).build();
+				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.paProtocolNumber( "protocol_number" ).build();
 
 		// When
 		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))

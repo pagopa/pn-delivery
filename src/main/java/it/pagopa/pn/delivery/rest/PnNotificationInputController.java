@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,20 +45,23 @@ public class PnNotificationInputController implements NewNotificationApi {
     @Override
     public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification")
+        @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}", paProtocolNumber)
                 .uid(xPagopaPnUid)
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .build();
-        NewNotificationResponse svcRes = null;
+        logEvent.log();
+        NewNotificationResponse svcRes;
         try {
             svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
         } catch (Exception ex) {
             logEvent.generateFailure(ex.getMessage()).log();
             throw ex;
         }
-        logEvent.generateSuccess().log();
+        @NotNull String requestId = svcRes.getNotificationRequestId();
+        @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
+        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}", requestId, protocolNumber).log();
         return ResponseEntity.accepted().body( svcRes );
     }
 
@@ -72,6 +76,7 @@ public class PnNotificationInputController implements NewNotificationApi {
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .build();
+        logEvent.log();
         if (preLoadRequest.size() > numberOfPresignedRequest) {
             String logMessage = String.format("Presigned upload request lenght=%d is more than maximum allowed=%d",
                     preLoadRequest.size(), numberOfPresignedRequest);

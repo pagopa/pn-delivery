@@ -111,13 +111,6 @@ Parameters:
     Type: String
     Description: ARN of alarm topic
 
-  LogsBucketName:
-    Type: String
-    Description: Bucket name where the logs must be exported
-  LogsExporterRoleArn:
-    Type: String
-    Description: ARN of the role used to write to external logs bucket
-
   Version:
     Type: String
     Description: 'keep track of used projects commitIds'
@@ -267,17 +260,4 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-
-  # Export cloudwatch logs to Log analysis account
-  StreamLogsToExternalBucket:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/export-microservice-logs.yaml"
-      Parameters:
-        TemplateBucketBaseUrl: !Ref TemplateBucketBaseUrl
-        ProjectName: !Ref ProjectName
-        LogsBucketName: !Ref LogsBucketName
-        LogsExporterRoleArn: !Ref LogsExporterRoleArn
-        StreamNamePrefix: pnDelivery
-        LogGroupName: '/ecs/pn-delivery'
 
