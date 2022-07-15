@@ -1,0 +1,4 @@
+Digitale piattaforma ok PEC: nome.cognome@works.demo.it
+Digitale piattaforma ok al secondo tentativo PEC: nome1.cognome1@fail-both.domicilio-digitale.it
+Digitale PA ok PEC: nome2.cognome2@fail-first.domicilio-digitale.it
+Digitale fail PEC: nome3.cognome3@fail-both.domicilio-digitale.it
