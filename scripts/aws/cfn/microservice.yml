@@ -127,6 +127,9 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         CpuValue: 1024
         MemoryAmount: 2GB
+        HealthCheckTimeout: 15
+        AutoscalingStrategy: REST-API
+        AutoscalingThreshold: 20
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
