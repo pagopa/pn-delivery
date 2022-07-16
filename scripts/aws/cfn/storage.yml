@@ -22,36 +22,15 @@ Parameters:
 
 Resources:
 
-  AttachmentsBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+  ## KINESIS SOURCE STREAM FOR NOTIFICATION Change Data Capture
+  NotificationCdcKinesis:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      # No default retention neither legal hold.
-      # Can define retention period or legal hold when upload new object or version
-      ObjectLockEnabled: true
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
-      CorsConfiguration:
-        CorsRules:
-          - AllowedHeaders:
-              - "*"
-            AllowedMethods:
-              - GET
-              - PUT
-              - POST
-              - DELETE
-              - HEAD
-            AllowedOrigins:
-              #- { 'Fn::ImportValue': { 'Fn::Sub':'${EnvName}-cdn-url'}}
-              - "*"
-            ExposedHeaders:
-                - "x-amz-version-id"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-stream.yaml"
+      Parameters:
+        StreamName: !Sub '${ProjectName}-notification-cdc-stream'
+        StreamRetentionPeriodHours: 24
+        StreamShardCount: 10
   
   # Dynamo Table
   NotificationsTable:
@@ -65,6 +44,10 @@ Resources:
         - AttributeName: "iun"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      KinesisStreamSpecification:
+        StreamArn: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamArn
+      StreamSpecification: 
+        StreamViewType: NEW_IMAGE
 
   NotificationsCostTable:
     Type: AWS::DynamoDB::Table
@@ -126,14 +109,7 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
 
 Outputs:
-  AttachmentsBucketName:
-    Description: name of bucket going to contains notification documents
-    Value: !Ref AttachmentsBucket
-
-  AttachmentsBucketArn:
-    Description: ARN of bucket going to contains notification documents
-    Value: !Sub '${AttachmentsBucket.Arn}'
-
+  
   # Dynamo table
   NotificationsDynamoTableName:
     Description: Name of dynamodb table containing notifications
@@ -155,3 +131,17 @@ Outputs:
   NotificationsMetadataDynamoTableArn:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
+
+  # Notification Change Data Capture kinesis stream
+  NotificationCdcKinesisStreamName:
+    Value: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamName
+    Description: kinesis stream name for notification dynamo table
+  NotificationCdcKinesisStreamArn:
+    Value: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamArn
+    Description: kinesis stream Arn for notification dynamo table
+  NotificationCdcKinesisKeyArn:
+    Value: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamKeyArn
+    Description: KMS key arn for notification stream decryption
+  NotificationCdcKinesisStreamReadOnlyRoleArn:
+    Value: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamReadOnlyRoleArn
+    Description: KMS key arn for notification stream decryption
