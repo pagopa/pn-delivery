@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
@@ -24,6 +25,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -105,7 +107,14 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         // imposto i risultati della query mappandoli da NotificationMetadata a NotificationSearchRow
         ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,PnLastEvaluatedKey> resultPaginationDtoBuilder = ResultPaginationDto.builder();
-        resultPaginationDtoBuilder.resultsPage( fromNotificationMetadataToNotificationSearchRow( page.items() )).moreResult( false );
+        List<NotificationMetadataEntity> itemsToReturn = page.items();
+        // gestione paginazione per risultati filtrati
+        // se il numero di page.items() > size creare lastEvaluatedKey
+        if ( page.items().size() > size ) {
+            itemsToReturn = getItemsToReturn(indexName, partitionValue, size, page, resultPaginationDtoBuilder);
+        }
+        // altrimenti restituire risultato
+        resultPaginationDtoBuilder.resultsPage( fromNotificationMetadataToNotificationSearchRow( itemsToReturn )).moreResult( false );
 
         // imposto la LEK in base al risultato della query
         if ( page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty()) {
@@ -119,6 +128,46 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         }
         log.debug( "END mapper from metadata to searchRow" );
         return resultPaginationDtoBuilder.build();
+    }
+
+    @NotNull
+    private List<NotificationMetadataEntity> getItemsToReturn(
+                    String indexName,
+                    String partitionValue,
+                    int size,
+                    Page<NotificationMetadataEntity> page,
+                    ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,PnLastEvaluatedKey> resultPaginationDtoBuilder
+    ) {
+        List<NotificationMetadataEntity> itemsToReturn;
+        itemsToReturn = page.items().stream().limit(size).collect(Collectors.toList());
+        // recupero ultimo elemento valutato
+        NotificationMetadataEntity lastEvaluatedEntity = page.items().get( size - 1 );
+        Map<String,AttributeValue> internalLastEvaluatedKey = new HashMap<>();
+        internalLastEvaluatedKey.put( NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder()
+                .s( lastEvaluatedEntity.getIun_recipientId() )
+                .build() );
+        internalLastEvaluatedKey.put( NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder()
+                .s( lastEvaluatedEntity.getSentAt().toString() )
+                .build() );
+        if ( indexName.equals( NotificationMetadataEntity.INDEX_SENDER_ID ) ) {
+            internalLastEvaluatedKey.put( NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH, AttributeValue.builder()
+                    .s( lastEvaluatedEntity.getSenderId_creationMonth() )
+                    .build() );
+        }
+        if ( indexName.equals( NotificationMetadataEntity.INDEX_RECIPIENT_ID ) ) {
+            internalLastEvaluatedKey.put( NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH, AttributeValue.builder()
+                    .s( lastEvaluatedEntity.getRecipientId_creationMonth() )
+                    .build() );
+        }
+        PnLastEvaluatedKey pnLastEvaluatedKey = new PnLastEvaluatedKey();
+        pnLastEvaluatedKey.setExternalLastEvaluatedKey( partitionValue );
+        pnLastEvaluatedKey.setInternalLastEvaluatedKey( internalLastEvaluatedKey );
+
+        List<PnLastEvaluatedKey> lastEvaluatedKeyList = new ArrayList<>();
+        lastEvaluatedKeyList.add( pnLastEvaluatedKey );
+        resultPaginationDtoBuilder.nextPagesKey( lastEvaluatedKeyList )
+                .moreResult( true );
+        return itemsToReturn;
     }
 
     private String retrieveAttributeName(String indexName) {
@@ -170,6 +219,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
             filterStatusExpressionBuilder.expression(exp.toString());
             requestBuilder.filterExpression( filterStatusExpressionBuilder.build() );
+            requestBuilder.limit( null );
         }
     }
 
@@ -186,6 +236,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                     .build()
                     ).build();
             requestBuilder.filterExpression( filterIunExpression );
+            requestBuilder.limit( null );
         }
     }
 
@@ -208,6 +259,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                     .expression( query )
                     .expressionValues( mav )
                     .build());
+            requestBuilder.limit( null );
         }
     }
 

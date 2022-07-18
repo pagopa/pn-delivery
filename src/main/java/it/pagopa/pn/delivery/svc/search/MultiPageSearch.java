@@ -83,7 +83,7 @@ public class MultiPageSearch {
             String partitionValue = computePartitionValue( inputSearchNotificationDto.getSenderReceiverId(),
                     inputSearchNotificationDto.getFilterId(),
                     partition,
-                    lastEvaluatedKey
+                    oneMonthKey
             );
             log.debug( "END compute partition value={}", partitionValue );
 
@@ -97,6 +97,12 @@ public class MultiPageSearch {
                     oneMonthKey);
             log.debug( "END search for one month indexName={} partitionValue={} missingLinesOnPage={}", indexName, partitionValue, missingLinesOnPage );
 
+            // ho valutato l'ultima pagina da restituire ed è vuota
+            if ( oneQueryResult.getResultsPage().isEmpty() && !globalResult.getNextPagesKey().isEmpty()  ) {
+                int lastIndex = globalResult.getNextPagesKey().size();
+                globalResult.getNextPagesKey().remove( lastIndex - 1 );
+                globalResult.setMoreResult( false );
+            }
 
             // inserisco i risultati della query ad una singola partizione nei risultati globali di ricerca
             if( numPages == 0 ) {
@@ -117,7 +123,7 @@ public class MultiPageSearch {
 
             // se non posso restituire altri elementi al FE allora pagina dei risultati è completa,
             // quindi proseguo per riempire altra pagina oppure mi sposto a partizione mensile precedente
-            if( missingLinesOnPage == 0 ) {
+            if( missingLinesOnPage == 0 && oneQueryResult.getNextPagesKey() != null ) {
                 missingLinesOnPage = inputSearchNotificationDto.getSize();
                 log.debug( "Update missing lines on page={} after page completition", missingLinesOnPage );
             }

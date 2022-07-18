@@ -43,7 +43,7 @@ import java.util.*;
 @SpringBootTest
 class NotificationMetadataEntityDaoDynamoTestIT {
 
-    private static final String IUN = "KSAU-CKOB-OFKR-202205-O-1";
+    private static final String IUN = "NSAU-CKOB-OFKR-202205-O-1";
     private static final String OPAQUE_TAX_ID_R1 = "TFZMREFBODVUNTBHNzAyQg==";
     private static final String TAX_ID_R1 = "LVLDAA85T50G702B";
     private static final String DENOMINATION_R1 = "Ada Lovelace";
@@ -438,16 +438,16 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         tableRowMap.put( "recipientsIds", "["+OPAQUE_TAX_ID_R1+","+ OPAQUE_TAX_ID_R2+"]" );
         tableRowMap.put( "subject", "multa" );
         return NotificationMetadataEntity.builder()
-                .iun_recipientId( "KSAU-CKOB-OFKR-202205-O-1##"+OPAQUE_TAX_ID_R1 )
+                .iun_recipientId( IUN+"##"+OPAQUE_TAX_ID_R1 )
                 .notificationGroup( "NotificationGroup1" )
-                .notificationStatus( NotificationStatus.ACCEPTED.toString() )
+                .notificationStatus( NotificationStatus.ACCEPTED.getValue() )
                 .recipientIds( List.of( OPAQUE_TAX_ID_R1, OPAQUE_TAX_ID_R2 ) )
                 .recipientOne( false )
                 .senderId( "c_h501" )
                 .recipientId_creationMonth( OPAQUE_TAX_ID_R1+"##202205" )
                 .senderId_creationMonth("c_h501##202205")
                 .senderId_recipientId( "c_h501##"+OPAQUE_TAX_ID_R1 )
-                .sentAt( Instant.parse( "2022-05-20T09:51:00.00Z" ) )
+                .sentAt( Instant.parse( "2022-05-20T09:11:00.00Z" ) )
                 .tableRow( tableRowMap )
                 .build();
     }
