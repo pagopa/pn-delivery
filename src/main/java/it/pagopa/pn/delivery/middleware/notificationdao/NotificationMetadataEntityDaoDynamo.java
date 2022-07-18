@@ -32,6 +32,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     private EntityToDtoNotificationMetadataMapper entityToDto;
     private PnDataVaultClientImpl dataVaultClient;
 
+    private static final Instant PN_EPOCH = Instant.ofEpochSecond( 1651399200 ); // 2022-05-01T12:00:00.000 GMT+2:00
+
     protected NotificationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, EntityToDtoNotificationMetadataMapper entityToDto, PnDeliveryConfigs cfg, PnDataVaultClientImpl dataVaultClient) {
         super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationMetadataEntity.class)));
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
@@ -55,16 +57,18 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         Instant startDate = inputSearchNotificationDto.getStartDate();
         Instant endDate = inputSearchNotificationDto.getEndDate();
 
-        log.debug( "Key building" );
+        if( PN_EPOCH.isAfter( startDate ) ) {
+            startDate = PN_EPOCH;
+        }
+
+        log.debug( "Key building ..." );
         // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
-        Key key = builder.build();
         Key key1 = builder.sortValue(startDate.toString()).build();
         Key key2 = builder.sortValue(endDate.toString()).build();
+        log.debug( " ... key building done startKey={} endKey={}", key1, key2 );
 
         log.debug( "Create query conditional" );
-        QueryConditional queryConditional = QueryConditional
-                .keyEqualTo( key );
         QueryConditional betweenConditional = QueryConditional
                 .sortBetween( key1, key2 );
 
@@ -72,8 +76,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder();
 
-        requestBuilder.queryConditional( queryConditional )
-                .queryConditional( betweenConditional )
+        requestBuilder.queryConditional( betweenConditional )
                 .limit( size )
                 .scanIndexForward( false );
 
