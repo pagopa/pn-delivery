@@ -32,8 +32,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     private EntityToDtoNotificationMetadataMapper entityToDto;
     private PnDataVaultClientImpl dataVaultClient;
 
-    private static final Instant PN_EPOCH = Instant.ofEpochSecond( 1651399200 ); // 2022-05-01T12:00:00.000 GMT+2:00
-
     protected NotificationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, EntityToDtoNotificationMetadataMapper entityToDto, PnDeliveryConfigs cfg, PnDataVaultClientImpl dataVaultClient) {
         super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationMetadataEntity.class)));
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
@@ -56,10 +54,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         log.debug( "START search for one month" );
         Instant startDate = inputSearchNotificationDto.getStartDate();
         Instant endDate = inputSearchNotificationDto.getEndDate();
-
-        if( PN_EPOCH.isAfter( startDate ) ) {
-            startDate = PN_EPOCH;
-        }
 
         log.debug( "Key building ..." );
         // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse

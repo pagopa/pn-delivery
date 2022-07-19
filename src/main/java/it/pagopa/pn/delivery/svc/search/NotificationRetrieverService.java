@@ -46,6 +46,8 @@ public class NotificationRetrieverService {
 	public static final long MAX_FIRST_NOTICE_CODE_DAYS = 5L;
 	public static final long MAX_SECOND_NOTICE_CODE_DAYS = 60L;
 
+	private static final Instant PN_EPOCH = Instant.ofEpochSecond( 1651399200 ); // 2022-05-01T12:00:00.000 GMT+2:00
+
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
@@ -74,6 +76,13 @@ public class NotificationRetrieverService {
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
+
+		Instant startDate = searchDto.getStartDate();
+		if( PN_EPOCH.isAfter(startDate) ) {
+			log.info("Start date is {} but PiattaformaNotifica exsists since {} ", startDate, PN_EPOCH);
+			searchDto.setStartDate( PN_EPOCH );
+		}
+
 		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
 
 		validateInput(searchDto);
