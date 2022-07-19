@@ -66,7 +66,11 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
         Key key1 = builder.sortValue(startDate.toString()).build();
         Key key2 = builder.sortValue(endDate.toString()).build();
-        log.debug( " ... key building done startKey={} endKey={}", key1, key2 );
+        log.debug( " ... key building done " +
+                "startKeyPartition={} startKeyRange={} endKeyPartition={} endKeyRange={}",
+                key1.partitionKeyValue(), key1.sortKeyValue(),
+                key2.partitionKeyValue(), key2.sortKeyValue()
+            );
 
         log.debug( "Create query conditional" );
         QueryConditional betweenConditional = QueryConditional
