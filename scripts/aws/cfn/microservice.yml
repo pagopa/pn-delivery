@@ -130,6 +130,7 @@ Resources:
         HealthCheckTimeout: 15
         AutoscalingStrategy: REST-API
         AutoscalingThreshold: 70
+        MinTasksNumber: 2
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
