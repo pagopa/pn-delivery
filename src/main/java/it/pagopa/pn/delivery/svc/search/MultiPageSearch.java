@@ -61,7 +61,12 @@ public class MultiPageSearch {
         int numPages = 0;
         int missingLinesOnPage = inputSearchNotificationDto.getSize();
 
+        int maxCycles = 100;
         while ( numPages < cfg.getMaxPageSize() && pIdx < partitions.size() ) {
+            maxCycles -= 1;
+            if( maxCycles <= 0 ) {
+                break;
+            }
 
             String partition = partitions.get( pIdx );
 
