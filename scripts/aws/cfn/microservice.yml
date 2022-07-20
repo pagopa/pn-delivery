@@ -127,7 +127,7 @@ Resources:
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PN_DELIVERY_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
-        ContainerEnvEntry3: !Sub 'AWS_BUCKETNAME=${AttachmentsBucketName}'
+        #ContainerEnvEntry3: !Sub 'AWS_BUCKETNAME=${AttachmentsBucketName}'
         ContainerEnvEntry4: 'PN_DELIVERY_IUNRETRY=3'
         #ContainerEnvEntry5: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
         #ContainerEnvEntry6: 'SPRING_DATA_CASSANDRA_SSL=true'
