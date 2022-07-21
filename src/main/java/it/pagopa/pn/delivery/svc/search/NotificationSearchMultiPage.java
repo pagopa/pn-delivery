@@ -119,10 +119,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
                 .collect(Collectors.toList()));
 
         // dato che requiredSize era maggiore di 1, devo tornare che ci sono ancora elementi se la size è >= di required
-        if (cumulativeQueryResult.size() >= requiredSize)
-        {
-            globalResult.setMoreResult(true);
-        }
+        globalResult.setMoreResult(cumulativeQueryResult.size() >= requiredSize);
 
         // calcolo le varie pagine, a partire dai risultati
         for(int i = 1;i<=cfg.getMaxPageSize();i++)
