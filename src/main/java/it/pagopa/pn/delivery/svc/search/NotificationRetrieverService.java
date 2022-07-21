@@ -24,6 +24,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
@@ -127,7 +128,7 @@ public class NotificationRetrieverService {
 		log.debug( "END search notification metadata" );
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
-		builder.moreResult( searchResult.getNextPagesKey() != null )
+		builder.moreResult(!CollectionUtils.isEmpty(searchResult.getNextPagesKey() ) )
 				.resultsPage( searchResult.getResultsPage() );
 		if ( searchResult.getNextPagesKey() != null ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()

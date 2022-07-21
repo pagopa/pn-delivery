@@ -85,6 +85,7 @@ class NotificationSearchMultiPageTest {
         Assertions.assertNotNull( result );
         Assertions.assertEquals(1, result.getResultsPage().size());
         Assertions.assertEquals(0, result.getNextPagesKey().size());
+        Assertions.assertEquals(false, result.isMoreResult());
     }
 
 
@@ -115,6 +116,7 @@ class NotificationSearchMultiPageTest {
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(4, result.getNextPagesKey().size());
+        Assertions.assertEquals(true, result.isMoreResult());
     }
 
 
@@ -145,6 +147,7 @@ class NotificationSearchMultiPageTest {
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(2, result.getNextPagesKey().size());
+        Assertions.assertEquals(false, result.isMoreResult());
     }
 
     @Test
@@ -175,6 +178,7 @@ class NotificationSearchMultiPageTest {
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(4, result.getNextPagesKey().size());
+        Assertions.assertEquals(true, result.isMoreResult());
     }
 
 
@@ -210,6 +214,7 @@ class NotificationSearchMultiPageTest {
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(4, result.getNextPagesKey().size());
+        Assertions.assertEquals(true, result.isMoreResult());
     }
 
 
@@ -254,6 +259,7 @@ class NotificationSearchMultiPageTest {
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(4, result.getNextPagesKey().size());
+        Assertions.assertEquals(true, result.isMoreResult());
     }
 
 
@@ -299,5 +305,6 @@ class NotificationSearchMultiPageTest {
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(4, result.getNextPagesKey().size());
+        Assertions.assertEquals(true, result.isMoreResult());
     }
 }
