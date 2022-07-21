@@ -18,22 +18,25 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 class NotificationSearchFactoryTest {
 
-    @Mock
+
     private NotificationDao notificationDao;
-    @Mock
+
     private EntityToDtoNotificationMetadataMapper entityToDto;
-    @Mock
+
     private PnDeliveryConfigs cfg;
-    @Mock
+
     private PnDataVaultClientImpl dataVaultClient;
 
     NotificationSearchFactory notificationSearchFactory;
 
     @BeforeEach
     void setup() {
+        notificationDao = Mockito.mock(NotificationDao.class);
+        entityToDto = Mockito.mock(EntityToDtoNotificationMetadataMapper.class);
+        cfg = Mockito.mock(PnDeliveryConfigs.class);
+        dataVaultClient = Mockito.mock(PnDataVaultClientImpl.class);
         notificationSearchFactory = new NotificationSearchFactory(notificationDao, entityToDto, cfg, dataVaultClient);
     }
 
