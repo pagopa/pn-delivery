@@ -71,14 +71,6 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing notifications metadata'
 
-  AttachmentsBucketName:
-    Type: String
-    Description: 'Where to write documents files'
-
-  AttachmentsBucketArn:
-    Type: String
-    Description: 'Where to write documents files'
-
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -135,7 +127,7 @@ Resources:
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
         ContainerEnvEntry2: !Sub 'PN_DELIVERY_TOPICS_NEWNOTIFICATIONS=${DeliveryPushInputsQueueName}'
-        ContainerEnvEntry3: !Sub 'AWS_BUCKETNAME=${AttachmentsBucketName}'
+        #ContainerEnvEntry3: !Sub 'AWS_BUCKETNAME=${AttachmentsBucketName}'
         ContainerEnvEntry4: 'PN_DELIVERY_IUNRETRY=3'
         #ContainerEnvEntry5: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
         #ContainerEnvEntry6: 'SPRING_DATA_CASSANDRA_SSL=true'
@@ -181,28 +173,6 @@ Resources:
               - sqs:SendMessageBatch
             Resource:
               - !Ref DeliveryPushInputsQueueARN
-          - Effect: Allow
-            Action:
-              - s3:GetObject
-              - s3:GetObjectAcl
-              - s3:GetObjectLegalHold
-              - s3:GetObjectRetention
-              - s3:GetObjectTagging
-              - s3:GetObjectVersion
-              - s3:GetObjectVersionAcl
-              - s3:GetObjectVersionTagging
-              - s3:PutObject
-              - s3:PutObjectLegalHold
-              - s3:PutObjectRetention
-              - s3:PutObjectTagging
-              - s3:PutObjectVersionTagging
-            Resource:
-              - !Sub '${AttachmentsBucketArn}/*'
-          - Effect: Allow
-            Action:
-              - s3:ListBucket
-            Resource:
-              - !Ref AttachmentsBucketArn
           - Effect: Allow
             Action:
               - cassandra:Modify
