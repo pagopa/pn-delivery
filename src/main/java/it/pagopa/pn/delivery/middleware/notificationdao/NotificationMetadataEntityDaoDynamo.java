@@ -4,47 +4,111 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
 public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueStore<NotificationMetadataEntity> implements NotificationMetadataEntityDao {
-    private DynamoDbEnhancedClient dynamoDbEnhancedClient;
-    private EntityToDtoNotificationMetadataMapper entityToDto;
-    private PnDataVaultClientImpl dataVaultClient;
 
-    protected NotificationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, EntityToDtoNotificationMetadataMapper entityToDto, PnDeliveryConfigs cfg, PnDataVaultClientImpl dataVaultClient) {
+    protected NotificationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryConfigs cfg) {
         super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationMetadataEntity.class)));
-        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
-        this.entityToDto = entityToDto;
-        this.dataVaultClient = dataVaultClient;
     }
 
     private static String tableName( PnDeliveryConfigs cfg ) {
         return cfg.getNotificationMetadataDao().getTableName();
     }
 
+
     @Override
-    public ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchForOneMonth(
+    public PageSearchTrunk<NotificationMetadataEntity> searchByIun(
+            InputSearchNotificationDto inputSearchNotificationDto,
+            String partitionValue,
+            String sentValue
+    ) {
+        log.debug( "START search for single IUN" );
+        // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
+
+        GetItemEnhancedRequest.Builder requestBuilder = GetItemEnhancedRequest.builder();
+        requestBuilder.key(Key.builder().partitionValue(partitionValue).sortValue(sentValue).build());
+
+
+        log.debug( "START query execution" );
+        // eseguo la query
+        NotificationMetadataEntity entity = table.getItem( requestBuilder.build() );
+
+        // applico i filtri
+        // filtro per stato
+        if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses()) && !inputSearchNotificationDto.getStatuses().contains(NotificationStatus.fromValue(entity.getNotificationStatus())))
+        {
+            log.debug("result not satisfy filter status");
+            return new PageSearchTrunk<>();
+        }
+        // filtro per gruppi
+        if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getGroups()) && !inputSearchNotificationDto.getGroups().contains(entity.getNotificationGroup()))
+        {
+            log.debug("result not satisfy filter groups");
+            return new PageSearchTrunk<>();
+        }
+        // filtro per range date
+        if (!entity.getSentAt().isAfter(inputSearchNotificationDto.getStartDate()) || !entity.getSentAt().isBefore(inputSearchNotificationDto.getEndDate()))
+        {
+            log.debug("result not satisfy filter dates");
+            return  new PageSearchTrunk<>();
+        }
+        // filtro per mittente
+        if (inputSearchNotificationDto.isBySender() && !entity.getSenderId().equals(inputSearchNotificationDto.getSenderReceiverId()) )
+        {
+            log.debug("result not satisfy filter sender");
+            return  new PageSearchTrunk<>();
+        }
+        // filtro per destinatario
+        if (!inputSearchNotificationDto.isBySender() && !entity.getRecipientIds().contains(inputSearchNotificationDto.getSenderReceiverId()) )
+        {
+            log.debug("result not satisfy filter receiver");
+            return  new PageSearchTrunk<>();
+        }
+        // filtro per destinatario (su filterId, quindi a logica invertita rispetto ai 2 filtri precedenti)
+        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId()) && inputSearchNotificationDto.isBySender() && !entity.getRecipientIds().contains(inputSearchNotificationDto.getFilterId()) )
+        {
+            log.debug("result not satisfy filter filterid receiver");
+            return  new PageSearchTrunk<>();
+        }
+        // filtro per mittente (su filterId, quindi a logica invertita rispetto ai 2 filtri precedenti)
+        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId()) && !inputSearchNotificationDto.isBySender() && entity.getSenderId().equals(inputSearchNotificationDto.getFilterId()) )
+        {
+            log.debug("result not satisfy filter filterid sender");
+            return  new PageSearchTrunk<>();
+        }
+
+        // preparo i risultati
+        PageSearchTrunk<NotificationMetadataEntity> res = new PageSearchTrunk<>();
+        res.setResults(List.of(entity));
+
+        log.debug( "END query execution" );
+
+        return res;
+    }
+
+    @Override
+    public PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(
             InputSearchNotificationDto inputSearchNotificationDto,
             String indexName,
             String partitionValue,
@@ -80,10 +144,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
         log.debug( "START add filter expression" );
         // aggiunta dei filtri alla query: status, groups, iun
-        addFilterExpression(inputSearchNotificationDto.getStatuses(),
-                inputSearchNotificationDto.getGroups(),
-                inputSearchNotificationDto.getIunMatch(),
-                requestBuilder);
+        addFilterExpression(inputSearchNotificationDto, requestBuilder);
         log.debug( "END add filter expression" );
 
         // se query su partizione precedente ha restituito una LEK
@@ -99,27 +160,20 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         log.debug( "START query execution" );
         // eseguo la query
         SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( requestBuilder.build() );
+
         log.debug( "END query execution" );
 
         // recupero i risultati della query
         Page<NotificationMetadataEntity> page = notificationMetadataPages.iterator().next();
 
         // imposto i risultati della query mappandoli da NotificationMetadata a NotificationSearchRow
-        ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,PnLastEvaluatedKey> resultPaginationDtoBuilder = ResultPaginationDto.builder();
-        resultPaginationDtoBuilder.resultsPage( fromNotificationMetadataToNotificationSearchRow( page.items() )).moreResult( false );
 
-        // imposto la LEK in base al risultato della query
-        if ( page.lastEvaluatedKey() != null && !page.lastEvaluatedKey().isEmpty()) {
-            PnLastEvaluatedKey pnLastEvaluatedKey = new PnLastEvaluatedKey();
-            pnLastEvaluatedKey.setExternalLastEvaluatedKey( partitionValue  );
-            pnLastEvaluatedKey.setInternalLastEvaluatedKey( page.lastEvaluatedKey() );
-            List<PnLastEvaluatedKey> lastEvaluatedKeyList = new ArrayList<>();
-            lastEvaluatedKeyList.add( pnLastEvaluatedKey );
-            resultPaginationDtoBuilder.nextPagesKey( lastEvaluatedKeyList )
-                    .moreResult( true );
-        }
+        PageSearchTrunk<NotificationMetadataEntity> res = new PageSearchTrunk<>();
+        res.setResults( page.items() );
+        res.setLastEvaluatedKey(page.lastEvaluatedKey());
+
         log.debug( "END mapper from metadata to searchRow" );
-        return resultPaginationDtoBuilder.build();
+        return res;
     }
 
     private String retrieveAttributeName(String indexName) {
@@ -140,15 +194,31 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         return attributeName;
     }
 
-    private void addFilterExpression(List<NotificationStatus> statuses,
-                                        List<String> groups,
-                                        String iunMatch,
+    private void addFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
                                         QueryEnhancedRequest.Builder requestBuilder
     ) {
-        addStatusFilterExpression( statuses, requestBuilder);
-        addGroupFilterExpression( groups, requestBuilder);
-        addIunFilterExpression( iunMatch, requestBuilder );
+        addRecipientOneFilterExpression( inputSearchNotificationDto, requestBuilder );
+        addStatusFilterExpression( inputSearchNotificationDto.getStatuses(), requestBuilder);
+        addGroupFilterExpression( inputSearchNotificationDto.getGroups(), requestBuilder);
     }
+
+    private void addRecipientOneFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
+                                                 QueryEnhancedRequest.Builder requestBuilder) {
+
+        // nel caso in cui sono il mittente e sto cercando senza specificare il destinatario, applico il filtro su recipientOne (così mi torna solo il un record per iun multidestinatario)
+        if (inputSearchNotificationDto.isBySender() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId())) {
+            Expression.Builder filterStatusExpressionBuilder = Expression.builder();
+
+            filterStatusExpressionBuilder.putExpressionValue(":recipientOne",
+                    AttributeValue.builder()
+                            .bool(Boolean.TRUE)
+                            .build());
+
+            filterStatusExpressionBuilder.expression(NotificationMetadataEntity.FIELD_RECIPIENT_ONE + " = :recipientOne");
+            requestBuilder.filterExpression(filterStatusExpressionBuilder.build());
+        }
+    }
+
 
     private void addStatusFilterExpression(List<NotificationStatus> statuses,
                                            QueryEnhancedRequest.Builder requestBuilder) {
@@ -174,22 +244,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         }
     }
 
-    private void addIunFilterExpression(String iunMatch,
-                                        QueryEnhancedRequest.Builder requestBuilder) {
-        if ( iunMatch != null ) {
-            log.debug( "Add iun filter expression" );
-            Expression filterIunExpression = Expression.builder()
-                    .expression( "begins_with(iun_recipientId, :iunValue)" )
-                    .putExpressionValue(
-                            ":iunValue",
-                            AttributeValue.builder()
-                                    .s( iunMatch )
-                                    .build()
-                    ).build();
-            requestBuilder.filterExpression( filterIunExpression );
-        }
-    }
-
     private void addGroupFilterExpression(List<String> groupList,
                                           QueryEnhancedRequest.Builder requestBuilder) {
         if ( groupList != null ) {
@@ -210,19 +264,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                     .expressionValues( mav )
                     .build());
         }
-    }
-
-    private List<NotificationSearchRow> fromNotificationMetadataToNotificationSearchRow(List<NotificationMetadataEntity> metadataEntityList) {
-        log.debug( "START mapper from metadata to searchRow" );
-        List<NotificationSearchRow> result = new ArrayList<>();
-        Map<String, NotificationMetadataEntity> metadataEntityMap = new HashMap<String,NotificationMetadataEntity>();
-        for ( NotificationMetadataEntity entity : metadataEntityList ) {
-            metadataEntityMap.putIfAbsent(entity.getTableRow().get("iun"), entity);
-        }
-        metadataEntityMap.values().stream().sorted( Comparator.comparing( NotificationMetadataEntity::getSentAt ).reversed() )
-                .forEach( entity -> result.add( entityToDto.entity2Dto( entity )) );
-        log.debug( "END search for one month" );
-        return result;
     }
 
     @Override

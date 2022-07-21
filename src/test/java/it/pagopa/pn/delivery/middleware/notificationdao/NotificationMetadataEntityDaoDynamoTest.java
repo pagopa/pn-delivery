@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Assertions;
@@ -23,7 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 class NotificationMetadataEntityDaoDynamoTest {
-    public static final String SENDER_DENOMINATION = "SenderDenomination";
+    public static final String SENDER_DENOMINATION = "SenderId";
     private NotificationMetadataEntityDao metadataEntityDao;
 
 
@@ -69,7 +70,7 @@ class NotificationMetadataEntityDaoDynamoTest {
         metadataEntityDao.putIfAbsent( entityToInsert );
 
         //Then
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = metadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = metadataEntityDao.searchForOneMonth(
                 searchDto,
                 "senderId",
                 "SenderId##CreationMonth",
@@ -77,7 +78,7 @@ class NotificationMetadataEntityDaoDynamoTest {
                 null);
 
         Assertions.assertNotNull( result );
-        Assertions.assertEquals( SENDER_DENOMINATION, result.getResultsPage().get( 0 ).getSender() );
+        Assertions.assertEquals( SENDER_DENOMINATION, result.getResults().get( 0 ).getSenderId() );
     }
 
     private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao {
@@ -110,18 +111,31 @@ class NotificationMetadataEntityDaoDynamoTest {
 
         }
 
+
         @Override
-        public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+        public PageSearchTrunk<NotificationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String partitionValue, String sentAt) {
             Key key = Key.builder()
                     .partitionValue( "IUN##RecipientId" )
                     .sortValue( "2022-04-06T17:48:00Z" )
                     .build();
             NotificationMetadataEntity getResult = storage.get( key );
 
-            return ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
-                    .moreResult( false )
-                    .resultsPage( Collections.singletonList( entityToDto.entity2Dto( getResult ) ) )
+            PageSearchTrunk<NotificationMetadataEntity> res =new PageSearchTrunk<>();
+            res.setResults( Collections.singletonList(  getResult ) );
+            return res;
+        }
+
+        @Override
+        public PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+            Key key = Key.builder()
+                    .partitionValue( "IUN##RecipientId" )
+                    .sortValue( "2022-04-06T17:48:00Z" )
                     .build();
+            NotificationMetadataEntity getResult = storage.get( key );
+
+            PageSearchTrunk<NotificationMetadataEntity> res =new PageSearchTrunk<>();
+            res.setResults( Collections.singletonList(  getResult ) );
+            return res;
         }
     }
 

@@ -11,6 +11,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchR
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
@@ -77,7 +78,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
@@ -158,7 +159,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         //When
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
@@ -189,7 +190,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
@@ -233,7 +234,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         //When
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
@@ -266,7 +267,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
         //When
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
@@ -311,7 +312,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
@@ -341,7 +342,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
-        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
@@ -372,7 +373,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         Mockito.when( dataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( dataVaultResults );
 
-        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
@@ -401,7 +402,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         String indexName = "senderId";
         String partitionValue = "c_h501##202205";
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationMetadataEntityDao.searchForOneMonth(
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
                 inputSearch,
                 indexName,
                 partitionValue,
