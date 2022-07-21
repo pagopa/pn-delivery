@@ -39,7 +39,6 @@ info:
     - _content-type_: valorizzato come il campo "contentType" della richiesta di cui al punto (1.a) <br/>
     - _x-amz-meta-secret_: valorizzato con il valore del campo "secret" della risposta di cui al punto (1.a) <br/>
     - _trailer_: valorizzato con ```x-amz-checksum-sha256``` <br/>
-    - _x-amz-sdk-checksum-algorithm_: valorizzato con ```SHA256``` <br/>
     - _x-amz-checksum-sha256_: valorizzato con lo sha256 del file inviato. (__N.B.__ questo è un trailer HTTP non un header).
       Vedi [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
 
@@ -478,10 +477,6 @@ components:
     PreLoadRequest:
       title: Richiesta di precaricamento di un File
       type: object
-      required:
-        - preloadIdx
-        - contentType
-        - sha256
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
