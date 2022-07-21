@@ -52,10 +52,10 @@ public class NotificationRetrieverService {
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
 	private final PnDeliveryPushClientImpl pnDeliveryPushClient;
-	private final PnDeliveryConfigs cfg;
 	private final PnMandateClientImpl pnMandateClient;
 	private final PnDataVaultClientImpl dataVaultClient;
 	private final ModelMapperFactory modelMapperFactory;
+	private final NotificationSearchFactory notificationSearchFactory;
 
 
 	@Autowired
@@ -63,16 +63,15 @@ public class NotificationRetrieverService {
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClientImpl pnDeliveryPushClient,
-										PnDeliveryConfigs cfg,
-										PnMandateClientImpl pnMandateClient, PnDataVaultClientImpl dataVaultClient, ModelMapperFactory modelMapperFactory) {
+										PnMandateClientImpl pnMandateClient, PnDataVaultClientImpl dataVaultClient, ModelMapperFactory modelMapperFactory, NotificationSearchFactory notificationSearchFactory) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
-		this.cfg = cfg;
 		this.pnMandateClient = pnMandateClient;
 		this.dataVaultClient = dataVaultClient;
 		this.modelMapperFactory = modelMapperFactory;
+		this.notificationSearchFactory = notificationSearchFactory;
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
@@ -119,15 +118,12 @@ public class NotificationRetrieverService {
 			log.debug( "No filterId or search is by receiver" );
 		}
 
-		MultiPageSearch multiPageSearch = new MultiPageSearch(
-				notificationDao,
+		NotificationSearch pageSearch = notificationSearchFactory.getMultiPageSearch(
 				searchDto,
-				lastEvaluatedKey,
-				cfg,
-				dataVaultClient);
+				lastEvaluatedKey);
 
 		log.debug( "START search notification metadata" );
-		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
+		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = pageSearch.searchNotificationMetadata();
 		log.debug( "END search notification metadata" );
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
