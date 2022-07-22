@@ -78,14 +78,14 @@ class NotificationSearchMultiPageTest {
         Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
                         .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(1, result.getResultsPage().size());
         Assertions.assertEquals(0, result.getNextPagesKey().size());
-        Assertions.assertEquals(false, result.isMoreResult());
+        Assertions.assertFalse(result.isMoreResult());
     }
 
 
@@ -109,14 +109,14 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr);
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(4, result.getNextPagesKey().size());
-        Assertions.assertEquals(true, result.isMoreResult());
+        Assertions.assertEquals(3, result.getNextPagesKey().size());
+        Assertions.assertTrue(result.isMoreResult());
     }
 
 
@@ -140,21 +140,21 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(0, result.getNextPagesKey().size());
-        Assertions.assertEquals(false, result.isMoreResult());
+        Assertions.assertFalse(result.isMoreResult());
     }
 
     @Test
     void searchNotificationMetadataManyPageSizeMaxSize() {
         PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
         rrr.setResults(new ArrayList<>());
-        for(int i = 0;i<PAGE_SIZE*4;i++)
+        for(int i = 0;i<PAGE_SIZE*3;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
                     .iun_recipientId("IUN##internalId"+i )
@@ -170,21 +170,21 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(3, result.getNextPagesKey().size());
-        Assertions.assertEquals(false, result.isMoreResult());
+        Assertions.assertEquals(2, result.getNextPagesKey().size());
+        Assertions.assertFalse(result.isMoreResult());
     }
 
     @Test
     void searchNotificationMetadataManyPageSizeMaxSizePlus1() {
         PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
         rrr.setResults(new ArrayList<>());
-        for(int i = 0;i<PAGE_SIZE*4+1;i++)
+        for(int i = 0;i<PAGE_SIZE*3+1;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
                     .iun_recipientId("IUN##internalId"+i )
@@ -200,14 +200,14 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(4, result.getNextPagesKey().size());
-        Assertions.assertEquals(true, result.isMoreResult());
+        Assertions.assertEquals(3, result.getNextPagesKey().size());
+        Assertions.assertTrue(result.isMoreResult());
     }
 
 
@@ -231,14 +231,14 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
         Assertions.assertEquals(2, result.getNextPagesKey().size());
-        Assertions.assertEquals(false, result.isMoreResult());
+        Assertions.assertFalse(result.isMoreResult());
     }
 
     @Test
@@ -262,14 +262,14 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr);
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(4, result.getNextPagesKey().size());
-        Assertions.assertEquals(true, result.isMoreResult());
+        Assertions.assertEquals(3, result.getNextPagesKey().size());
+        Assertions.assertTrue(result.isMoreResult());
     }
 
 
@@ -298,14 +298,14 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr);
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(4, result.getNextPagesKey().size());
-        Assertions.assertEquals(true, result.isMoreResult());
+        Assertions.assertEquals(3, result.getNextPagesKey().size());
+        Assertions.assertTrue(result.isMoreResult());
     }
 
 
@@ -343,14 +343,14 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr);
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(4, result.getNextPagesKey().size());
-        Assertions.assertEquals(true, result.isMoreResult());
+        Assertions.assertEquals(3, result.getNextPagesKey().size());
+        Assertions.assertTrue(result.isMoreResult());
     }
 
 
@@ -389,13 +389,13 @@ class NotificationSearchMultiPageTest {
                 .thenReturn(rrr);
 
 
-        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(4, result.getNextPagesKey().size());
-        Assertions.assertEquals(true, result.isMoreResult());
+        Assertions.assertEquals(3, result.getNextPagesKey().size());
+        Assertions.assertTrue(result.isMoreResult());
     }
 }
