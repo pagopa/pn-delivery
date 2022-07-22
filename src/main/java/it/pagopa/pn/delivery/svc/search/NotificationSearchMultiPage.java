@@ -125,7 +125,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
         for(int i = 1;i<=cfg.getMaxPageSize();i++)
         {
             int index = inputSearchNotificationDto.getSize()*i;
-            if (cumulativeQueryResult.size() >= index)
+            if (cumulativeQueryResult.size() > index)
             {
                 PnLastEvaluatedKey pageLastEvaluatedKey = new PnLastEvaluatedKey();
                 NotificationMetadataEntity keyelement = cumulativeQueryResult.get(index-1);
