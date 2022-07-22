@@ -135,6 +135,8 @@ public class NotificationRetrieverService {
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
 					.collect(Collectors.toList()) );
 		}
+		else
+			builder.nextPagesKey(new ArrayList<>());
 		return builder.build();
 	}
 
