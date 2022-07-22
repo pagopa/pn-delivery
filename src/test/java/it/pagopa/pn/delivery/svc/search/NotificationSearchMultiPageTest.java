@@ -121,6 +121,97 @@ class NotificationSearchMultiPageTest {
 
 
     @Test
+    void searchNotificationMetadataManyPageSize() {
+        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
+        rrr.setResults(new ArrayList<>());
+        for(int i = 0;i<PAGE_SIZE;i++)
+        {
+            rrr.getResults().add( NotificationMetadataEntity.builder()
+                    .iun_recipientId("IUN##internalId"+i )
+                    .notificationStatus( NotificationStatus.VIEWED.getValue() )
+                    .senderId( "SenderId" )
+                    .sentAt(Instant.now())
+                    .recipientIds(List.of( "internalId"+i ) )
+                    .build() );
+        }
+
+
+        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
+                .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
+
+
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
+        Assertions.assertEquals(0, result.getNextPagesKey().size());
+        Assertions.assertEquals(false, result.isMoreResult());
+    }
+
+    @Test
+    void searchNotificationMetadataManyPageSizeMaxSize() {
+        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
+        rrr.setResults(new ArrayList<>());
+        for(int i = 0;i<PAGE_SIZE*4;i++)
+        {
+            rrr.getResults().add( NotificationMetadataEntity.builder()
+                    .iun_recipientId("IUN##internalId"+i )
+                    .notificationStatus( NotificationStatus.VIEWED.getValue() )
+                    .senderId( "SenderId" )
+                    .sentAt(Instant.now())
+                    .recipientIds(List.of( "internalId"+i ) )
+                    .build() );
+        }
+
+
+        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
+                .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
+
+
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
+        Assertions.assertEquals(3, result.getNextPagesKey().size());
+        Assertions.assertEquals(false, result.isMoreResult());
+    }
+
+    @Test
+    void searchNotificationMetadataManyPageSizeMaxSizePlus1() {
+        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
+        rrr.setResults(new ArrayList<>());
+        for(int i = 0;i<PAGE_SIZE*4+1;i++)
+        {
+            rrr.getResults().add( NotificationMetadataEntity.builder()
+                    .iun_recipientId("IUN##internalId"+i )
+                    .notificationStatus( NotificationStatus.VIEWED.getValue() )
+                    .senderId( "SenderId" )
+                    .sentAt(Instant.now())
+                    .recipientIds(List.of( "internalId"+i ) )
+                    .build() );
+        }
+
+
+        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
+                .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
+
+
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
+        Assertions.assertEquals(4, result.getNextPagesKey().size());
+        Assertions.assertEquals(true, result.isMoreResult());
+    }
+
+
+    @Test
     void searchNotificationMetadataManyButNotAll() {
         PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
         rrr.setResults(new ArrayList<>());
