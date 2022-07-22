@@ -128,13 +128,15 @@ public class NotificationRetrieverService {
 		log.debug( "END search notification metadata" );
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
-		builder.moreResult(!CollectionUtils.isEmpty(searchResult.getNextPagesKey() ) )
+		builder.moreResult(searchResult.isMoreResult() )
 				.resultsPage( searchResult.getResultsPage() );
-		if ( searchResult.getNextPagesKey() != null ) {
+		if ( !CollectionUtils.isEmpty(searchResult.getNextPagesKey()) ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
 					.collect(Collectors.toList()) );
 		}
+		else
+			builder.nextPagesKey(new ArrayList<>());
 		return builder.build();
 	}
 
