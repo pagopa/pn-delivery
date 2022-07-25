@@ -32,11 +32,11 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElement:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3461f99c15919a6e308b2f55dac3ae9f8410f51a/docs/openapi/schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/19f21d11419bf7ed29b15cfd37e2533b1a833910/docs/openapi/schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3461f99c15919a6e308b2f55dac3ae9f8410f51a/docs/openapi/schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/19f21d11419bf7ed29b15cfd37e2533b1a833910/docs/openapi/schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3461f99c15919a6e308b2f55dac3ae9f8410f51a/docs/openapi/schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/19f21d11419bf7ed29b15cfd37e2533b1a833910/docs/openapi/schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3461f99c15919a6e308b2f55dac3ae9f8410f51a/docs/openapi/schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/19f21d11419bf7ed29b15cfd37e2533b1a833910/docs/openapi/schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 

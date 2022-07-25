@@ -7,6 +7,9 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import it.pagopa.pn.api.dto.notification.Notification;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import org.springframework.stereotype.Component;
 
 import it.pagopa.pn.commons.abstractions.IdConflictException;
@@ -195,8 +198,29 @@ public class NotificationDaoDynamo implements NotificationDao {
 	}
 
 	@Override
-	public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+	public PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
 		return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, partitionValue, size, lastEvaluatedKey );
+	}
+
+
+	@Override
+	public PageSearchTrunk<NotificationMetadataEntity> searchByIUN(InputSearchNotificationDto inputSearchNotificationDto) {
+		log.debug("searchByIUN iun={}", inputSearchNotificationDto.getIunMatch());
+
+		String iun = inputSearchNotificationDto.getIunMatch();
+
+		Key keyToSearch = Key.builder()
+				.partitionValue(iun)
+				.build();
+		Optional<NotificationEntity> daoResult = entityDao.get( keyToSearch );
+
+		if(daoResult.isPresent()) {
+			log.debug("notification found, proceeding with retrieve by recipient");
+			String recipientId = daoResult.get().getRecipients().get(0).getRecipientId();
+			return this.metadataEntityDao.searchByIun( inputSearchNotificationDto,  iun + "##" + recipientId, daoResult.get().getSentAt().toString());
+		}
+
+		return new PageSearchTrunk<>();
 	}
 
 

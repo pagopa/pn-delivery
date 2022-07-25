@@ -2,8 +2,10 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
@@ -14,18 +16,22 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.Instant;
+import java.util.List;
 
-class MultiPageSearchTest {
+class NotificationSearchExactTest {
 
     private NotificationDao notificationDao;
     private InputSearchNotificationDto inputSearchNotificationDto;
     private PnDeliveryConfigs cfg;
     private PnDataVaultClientImpl dataVaultClient;
+    private NotificationSearchExact notificationSearchExact;
+    private EntityToDtoNotificationMetadataMapper entityToDtoNotificationMetadataMapper;
 
     @BeforeEach
     void setup() {
         this.notificationDao = new NotificationDaoMock();
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
+        this.entityToDtoNotificationMetadataMapper = Mockito.mock(EntityToDtoNotificationMetadataMapper.class);
         this.dataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
         this.inputSearchNotificationDto = new InputSearchNotificationDto.Builder()
                 .bySender( true )
@@ -33,19 +39,27 @@ class MultiPageSearchTest {
                 .endDate( Instant.now() )
                 .size( 10 )
                 .build();
+
+        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto(Mockito.any())).thenReturn(NotificationSearchRow.builder()
+                        .recipients(List.of("recipientId1"))
+                .build());
+
+        BaseRecipientDto baseRecipientDto = new BaseRecipientDto();
+        baseRecipientDto.setInternalId("recipientId1");
+        baseRecipientDto.setDenomination("nome cognome");
+        baseRecipientDto.setTaxId("EEEEEEEEEEEEE");
+        Mockito.when(dataVaultClient.getRecipientDenominationByInternalId(Mockito.any())).thenReturn(List.of(baseRecipientDto));
+
+
+        this.notificationSearchExact = new NotificationSearchExact(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto,  dataVaultClient);
     }
 
     @Test
     void searchNotificationMetadata() {
-        MultiPageSearch multiPageSearch = new MultiPageSearch(
-                notificationDao,
-                inputSearchNotificationDto,
-                null,
-                cfg, dataVaultClient);
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = multiPageSearch.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchExact.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
     }

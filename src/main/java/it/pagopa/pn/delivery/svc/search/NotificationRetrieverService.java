@@ -24,6 +24,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
@@ -46,14 +47,16 @@ public class NotificationRetrieverService {
 	public static final long MAX_FIRST_NOTICE_CODE_DAYS = 5L;
 	public static final long MAX_SECOND_NOTICE_CODE_DAYS = 60L;
 
+	private static final Instant PN_EPOCH = Instant.ofEpochSecond( 1651399200 ); // 2022-05-01T12:00:00.000 GMT+2:00
+
 	private final Clock clock;
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
 	private final PnDeliveryPushClientImpl pnDeliveryPushClient;
-	private final PnDeliveryConfigs cfg;
 	private final PnMandateClientImpl pnMandateClient;
 	private final PnDataVaultClientImpl dataVaultClient;
 	private final ModelMapperFactory modelMapperFactory;
+	private final NotificationSearchFactory notificationSearchFactory;
 
 
 	@Autowired
@@ -61,19 +64,25 @@ public class NotificationRetrieverService {
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClientImpl pnDeliveryPushClient,
-										PnDeliveryConfigs cfg,
-										PnMandateClientImpl pnMandateClient, PnDataVaultClientImpl dataVaultClient, ModelMapperFactory modelMapperFactory) {
+										PnMandateClientImpl pnMandateClient, PnDataVaultClientImpl dataVaultClient, ModelMapperFactory modelMapperFactory, NotificationSearchFactory notificationSearchFactory) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
-		this.cfg = cfg;
 		this.pnMandateClient = pnMandateClient;
 		this.dataVaultClient = dataVaultClient;
 		this.modelMapperFactory = modelMapperFactory;
+		this.notificationSearchFactory = notificationSearchFactory;
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
+
+		Instant startDate = searchDto.getStartDate();
+		if( PN_EPOCH.isAfter(startDate) ) {
+			log.info("Start date is {} but PiattaformaNotifica exsists since {} ", startDate, PN_EPOCH);
+			searchDto.setStartDate( PN_EPOCH );
+		}
+
 		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
 
 		validateInput(searchDto);
@@ -110,25 +119,24 @@ public class NotificationRetrieverService {
 			log.debug( "No filterId or search is by receiver" );
 		}
 
-		MultiPageSearch multiPageSearch = new MultiPageSearch(
-				notificationDao,
+		NotificationSearch pageSearch = notificationSearchFactory.getMultiPageSearch(
 				searchDto,
-				lastEvaluatedKey,
-				cfg,
-				dataVaultClient);
+				lastEvaluatedKey);
 
 		log.debug( "START search notification metadata" );
-		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
+		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = pageSearch.searchNotificationMetadata();
 		log.debug( "END search notification metadata" );
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
-		builder.moreResult( searchResult.getNextPagesKey() != null )
+		builder.moreResult(searchResult.isMoreResult() )
 				.resultsPage( searchResult.getResultsPage() );
-		if ( searchResult.getNextPagesKey() != null ) {
+		if ( !CollectionUtils.isEmpty(searchResult.getNextPagesKey()) ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
 					.collect(Collectors.toList()) );
 		}
+		else
+			builder.nextPagesKey(new ArrayList<>());
 		return builder.build();
 	}
 

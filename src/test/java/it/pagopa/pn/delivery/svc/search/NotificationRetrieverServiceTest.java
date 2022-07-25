@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 
-import it.pagopa.pn.commons.abstractions.FileStorage;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
@@ -41,11 +40,12 @@ class NotificationRetrieverServiceTest {
     private PnDeliveryPushClientImpl pnDeliveryPushClient;
     private PnMandateClientImpl pnMandateClient;
     private PnDataVaultClientImpl dataVaultClient;
-    private PnDeliveryConfigs cfg;
     private ModelMapperFactory modelMapperFactory;
 
     private NotificationRetrieverService svc;
 
+    private NotificationSearchFactory notificationSearchFactory;
+    private NotificationSearch notificationSearch;
 
     @BeforeEach
     void setup() {
@@ -53,18 +53,21 @@ class NotificationRetrieverServiceTest {
         this.notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
         this.notificationDao = Mockito.mock(NotificationDao.class);
         this.pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClientImpl.class);
-        this.cfg = Mockito.mock(PnDeliveryConfigs.class);
         this.pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
         this.dataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
         this.modelMapperFactory = Mockito.mock(ModelMapperFactory.class);
+        this.notificationSearchFactory = Mockito.mock(NotificationSearchFactory.class);
+        this.notificationSearch = Mockito.mock(NotificationSearch.class);
+
+        Mockito.when(notificationSearchFactory.getMultiPageSearch(Mockito.any(), Mockito.any())).thenReturn(notificationSearch);
+
         this.svc = new NotificationRetrieverService(clock,
                 notificationViewedProducer,
                 notificationDao,
                 pnDeliveryPushClient,
-                cfg,
                 pnMandateClient,
                 dataVaultClient,
-                modelMapperFactory);
+                modelMapperFactory, notificationSearchFactory);
     }
 
     @Test
@@ -84,6 +87,8 @@ class NotificationRetrieverServiceTest {
         internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
 
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(new ResultPaginationDto<>());
 
         //When
         Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
