@@ -406,7 +406,7 @@ public class NotificationRetrieverService {
 
 	private void removeDocuments(InternalNotification notification) {
 		notification.setDocumentsAvailable( false );
-		notification.setDocuments( null );
+		notification.setDocuments( Collections.emptyList() );
 		for ( NotificationRecipient recipient : notification.getRecipients() ) {
 			NotificationPaymentInfo payment = recipient.getPayment();
 			if ( payment != null ) {
