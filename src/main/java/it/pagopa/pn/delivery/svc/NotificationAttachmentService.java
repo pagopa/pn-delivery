@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.MimeTypesUtils;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -14,7 +14,6 @@ import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
@@ -102,13 +101,13 @@ public class NotificationAttachmentService {
         }
     }
 
-    public static class FileKeyAndName{
-        private String fileKey;
+    public static class FileInfos {
         private String fileName;
+        private FileDownloadResponse fileDownloadResponse;
 
-        public FileKeyAndName(String fileKey, String fileName) {
-            this.fileKey = fileKey;
+        public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse) {
             this.fileName = fileName;
+            this.fileDownloadResponse = fileDownloadResponse;
         }
     }
 
@@ -162,19 +161,15 @@ public class NotificationAttachmentService {
             Integer downloadRecipientIdx = handleReceiverAttachmentDownload( recipientIdx, authorizationOutcome.getEffectiveRecipientIdx(), documentIndex );
             FileDownloadIdentify fileDownloadIdentify = FileDownloadIdentify.create( documentIndex, downloadRecipientIdx, attachmentName );
 
-            FileKeyAndName fileKeyAndName = computeFileInfo( fileDownloadIdentify, notification );
-            String fileKey = fileKeyAndName.fileKey;
-            String fileName = fileKeyAndName.fileName;
+            FileInfos fileInfos = computeFileInfo( fileDownloadIdentify, notification );
 
-            log.info("downloadDocumentWithRedirect with fileKey={} filename:{} ", fileKey, fileName);
-            FileDownloadResponse r = this.getFile(fileKey);
             return NotificationAttachmentDownloadMetadataResponse.builder()
-                    .filename( fileName)
-                    .url( r.getDownload().getUrl() )
-                    .contentLength(r.getContentLength())
-                    .contentType( r.getContentType() )
-                    .sha256( r.getChecksum() )
-                    .retryAfter(r.getDownload().getRetryAfter())
+                    .filename( fileInfos.fileName)
+                    .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
+                    .contentLength(fileInfos.fileDownloadResponse.getContentLength())
+                    .contentType( fileInfos.fileDownloadResponse.getContentType() )
+                    .sha256( fileInfos.fileDownloadResponse.getChecksum() )
+                    .retryAfter(fileInfos.fileDownloadResponse.getDownload().getRetryAfter())
                     .build();
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
@@ -202,16 +197,17 @@ public class NotificationAttachmentService {
 
     }
 
-    public FileKeyAndName computeFileInfo(FileDownloadIdentify fileDownloadIdentify, InternalNotification notification ) {
+    public FileInfos computeFileInfo(FileDownloadIdentify fileDownloadIdentify, InternalNotification notification ) {
         String fileName;
         String fileKey;
 
         String iun = notification.getIun();
         Integer documentIndex = fileDownloadIdentify.documentIdx;
+        String name = "";
         if (documentIndex != null)
         {
             NotificationDocument doc = notification.getDocuments().get( documentIndex );
-            fileName = buildFilename(iun, doc.getTitle());
+            name   = doc.getTitle();
             fileKey = doc.getRef().getKey();
         }
         else
@@ -219,9 +215,17 @@ public class NotificationAttachmentService {
             String attachmentName = fileDownloadIdentify.attachmentName;
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
             fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, notification.getNotificationFeePolicy());
-            fileName = buildFilename(iun, attachmentName);
+            name = attachmentName;
         }
-        return new FileKeyAndName( fileKey, fileName );
+
+        log.info("downloadDocumentWithRedirect with fileKey={} name:{} ", fileKey, name);
+
+        FileDownloadResponse r = this.getFile(fileKey);
+        fileName = buildFilename(iun, name, r.getContentType());
+
+        log.info("downloadDocumentWithRedirect with fileKey={} filename:{} ", fileKey, fileName);
+
+        return new FileInfos( fileName, r );
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy){
@@ -244,8 +248,16 @@ public class NotificationAttachmentService {
         throw new PnInternalException("NotificationRecipient invalid attachmentName for iun=" + iun);
     }
 
-    private String buildFilename(String iun, String name){
+    private String buildFilename(String iun, String name, String contentType){
+        String extension = "pdf";
+        try{
+            extension = MimeTypesUtils.getDefaultExt(contentType);
+        } catch (Exception e)
+        {
+            log.warn("right extension not found, using PDF");
+        }
+
         String unescapedFileName = iun + "__" + name;
-        return unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + ".pdf";
+        return unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + "." + extension;
     }
 }
