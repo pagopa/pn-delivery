@@ -175,7 +175,7 @@ class NotificationRetrieverServiceTest {
     private InternalNotification getNewInternalNotification() {
         return new InternalNotification(FullSentNotification.builder()
                 .iun( IUN )
-                .sentAt(Date.from(Instant.now()))
+                .sentAt( OffsetDateTime.now() )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .payment( NotificationPaymentInfo.builder()

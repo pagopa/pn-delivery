@@ -26,6 +26,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -299,7 +300,7 @@ class NotificationDaoDynamoTest {
                 .cancelledIun("IUN_00")
                 .group( "Group_1" )
                 .senderPaId( "pa_02" )
-                .sentAt( Date.from( Instant.now() ) )
+                .sentAt( OffsetDateTime.now() )
                 .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                                 .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
