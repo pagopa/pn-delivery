@@ -447,8 +447,6 @@ public class NotificationRetrieverService {
 		mapperStatusHistory.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class )
 				.addMapping( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
 		mapperStatusHistory.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
-		Converter<OffsetDateTime,Date> dateConverter = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
-		mapperStatusHistory.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
@@ -456,7 +454,6 @@ public class NotificationRetrieverService {
 		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
 				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
 		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-		mapperTimeline.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream()
