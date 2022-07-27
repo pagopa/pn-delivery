@@ -37,6 +37,8 @@ class NotificationRetrieverServiceTest {
     private static final String IUN = "iun";
     private static final String USER_ID = "userId";
     private static final String MANDATE_ID = "mandateId";
+    public static final String NOTICE_CODE = "302000100000019421";
+    public static final String NOTICE_CODE_ALTERNATIVE = "302000100000019422";
 
     private Clock clock;
     private NotificationViewedProducer notificationViewedProducer;
@@ -194,8 +196,8 @@ class NotificationRetrieverServiceTest {
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .payment( NotificationPaymentInfo.builder()
                                 .creditorTaxId( "77777777777" )
-                                .noticeCode( "302000100000019421" )
-                                .noticeCodeAlternative( "302000100000019422" )
+                                .noticeCode( NOTICE_CODE )
+                                .noticeCodeAlternative( NOTICE_CODE_ALTERNATIVE )
                                 .build() )
                         .build())
                 ).build(), Collections.emptyMap(), Collections.singletonList( "userId" ) );
@@ -403,24 +405,64 @@ class NotificationRetrieverServiceTest {
     }
 
     @Test
-    void getNotificationWith2IUVWithFirstIUVPayed() {
+    void getNotificationWith2IUVBeforeTerms() {
         InternalNotification internalNotification = getNewInternalNotification();
 
         List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
-                .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
-                .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC )),
+                        .elementId( "elementId" )
+                        .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
                 new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
                         .elementId( "elementId_1" )
                         .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.NOTIFICATION_VIEWED )
-                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-06-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
                 .timeline( tle )
                 .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
                 .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
                         .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
-                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+        //When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, null );
+
+        //Then
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0 );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
+        Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
+
+    }
+
+    @Test
+    void getNotificationWith2IUVWithFirstIUVPayedAfterTerms() {
+        InternalNotification internalNotification = getNewInternalNotification();
+
+        List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                .elementId( "elementId" )
+                .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
+                new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                        .elementId( "elementId_1" )
+                        .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         PaymentInfo paymentInfo = new PaymentInfo()
                 .status( PaymentStatus.SUCCEEDED );
@@ -429,6 +471,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-02-11T00:00:00.00Z" ) );
         Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
         ModelMapper mapperTimeline = new ModelMapper();
@@ -449,28 +492,30 @@ class NotificationRetrieverServiceTest {
         InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, null );
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, null, 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-02-11T00:00:00.00Z" ), 0 );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
+        Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
     }
 
     @Test
-    void getNotificationWith2IUVWithFirstIUVNoPayed() {
+    void getNotificationWith2IUVWithFirstIUVNoPayedAfterTerms() {
         InternalNotification internalNotification = getNewInternalNotification();
 
         List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
                         .elementId( "elementId" )
                         .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
-                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC )),
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
                 new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
                         .elementId( "elementId_1" )
                         .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.NOTIFICATION_VIEWED )
-                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-06-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
                 .timeline( tle )
                 .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
                 .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
                         .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
-                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         PaymentInfo paymentInfo = new PaymentInfo()
                 .status( PaymentStatus.REQUIRED );
@@ -479,6 +524,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-02-11T00:00:00.00Z" ) );
         Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
         ModelMapper mapperTimeline = new ModelMapper();
@@ -499,7 +545,48 @@ class NotificationRetrieverServiceTest {
         InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, null );
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, null, 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-02-11T00:00:00.00Z" ), 0 );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
+        Assertions.assertEquals( NOTICE_CODE_ALTERNATIVE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
+    }
+
+    @Test
+    void getNotificationWith2IUVAfterMaxTerms() {
+        InternalNotification internalNotification = getNewInternalNotification();
+
+        List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                        .elementId( "elementId" )
+                        .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
+                new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                        .elementId( "elementId_1" )
+                        .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+        //When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-05-11T00:00:00.00Z" ) );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, null );
+
+        //Then
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-05-11T00:00:00.00Z" ), 0 );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
     }
 
     @Test
@@ -509,23 +596,24 @@ class NotificationRetrieverServiceTest {
         List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
                         .elementId( "elementId" )
                         .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
-                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC )),
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
                 new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
                         .elementId( "elementId_1" )
                         .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.NOTIFICATION_VIEWED )
-                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-06-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
                 .timeline( tle )
                 .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
                 .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
                         .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
-                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-03-11T00:00:00.00Z" ) );
         Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenThrow( RestClientException.class );
 
         ModelMapper mapperNotification = new ModelMapper();
@@ -535,7 +623,9 @@ class NotificationRetrieverServiceTest {
 
         InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, null );
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, null, 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-03-11T00:00:00.00Z" ), 0 );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
     }
 
     @Test

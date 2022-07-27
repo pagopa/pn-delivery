@@ -292,7 +292,7 @@ public class NotificationRetrieverService {
 		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
 		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
 		if ( refinementDate != null ) {
-			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), clock.instant() );
 			// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
 			if ( daysBetween > MAX_FIRST_NOTICE_CODE_DAYS && daysBetween <= MAX_SECOND_NOTICE_CODE_DAYS) {
 				log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
