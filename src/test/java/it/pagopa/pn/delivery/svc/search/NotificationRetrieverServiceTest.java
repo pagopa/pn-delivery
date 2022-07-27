@@ -474,7 +474,7 @@ class NotificationRetrieverServiceTest {
         InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, USER_ID, null );
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
-        Assertions.assertNull( internalNotification.getDocuments() );
+        Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
         Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayment().getPagoPaForm() );
         Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayment().getF24flatRate() );
         Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayment().getF24standard() );
