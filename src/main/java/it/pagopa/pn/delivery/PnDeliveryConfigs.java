@@ -26,6 +26,8 @@ public class PnDeliveryConfigs {
 
     private String safeStorageCxId;
 
+    private String externalRegistriesBaseUrl;
+
     private Topics topics;
 
     private Duration preloadUrlDuration;

@@ -1,0 +1,133 @@
+openapi: 3.0.1
+info:
+  title: API di integrazione con pagoPA
+  version: v1
+  description: Api di integrazione al sistema di pagamento pagoPA
+  license:
+    name: PagoPA PN license
+    url: http://pn.pagopa.it
+servers:
+  - url: https://placeholder
+    description: placeholder
+tags:
+  - name: PaymentInfo
+    description: Informazioni sullo stato del pagamento
+paths:
+  /ext-registry/pagopa/v1/paymentinfo/{paTaxId}/{noticeNumber}:
+    get:
+      operationId: getPaymentInfo
+      summary: Retrieve payment information
+      description: Use to enable payment button in notification detail page and display amount
+      tags:
+        - PaymentInfo
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            type: string
+            maxLength: 11
+            minLength: 11
+            pattern: '^\d+$'
+        - name: noticeNumber
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            type: string
+            maxLength: 18
+            minLength: 18
+            pattern: '^\d+$'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInfo'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: 'pn-errors.yaml#/components/schemas/Problem'
+components:
+  schemas:
+    PaymentInfo:
+      title: Payment brief information
+      description: Payment minimal information
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        detail:
+          $ref: '#/components/schemas/Detail'
+        detail_v2:
+          $ref: '#/components/schemas/Detail_v2'
+        errorCode:
+          description: error code to show at the user
+          type: string
+          example: PPT_AUTORIZZAZIONE
+        amount:
+          description: Amount for required payment in eurocents
+          example: 1200
+          type: integer
+        url:
+          description: Checkout base url used for check payment info
+          example: https://api.uat.platform.pagopa.it/checkout/auth/payments/v2
+          type: string
+    PaymentStatus:
+      title: Payment status
+      example: 'REQUIRED'
+      description: >
+        Payment status:
+          * `REQUIRED` - payment required
+          * `SUCCEEDED` - payment done
+          * `IN_PROGRESS` - waiting confirm
+          * `FAILURE` - error see errorType
+      type: string
+      enum:
+        - REQUIRED
+        - SUCCEEDED
+        - IN_PROGRESS
+        - FAILURE
+    Detail:
+      title: Error classification
+      description: >
+        Classification to help user address the issue
+          * `PAYMENT_UNAVAILABLE`: Technical Error.
+          * `PAYMENT_UNKNOWN`: Payment data error.
+          * `DOMAIN_UNKNOWN`: creditor institution error.
+          * `PAYMENT_ONGOING`: payment on going.
+          * `PAYMENT_EXPIRED`: payment expired.
+          * `PAYMENT_CANCELED`: payment cancelled.
+          * `PAYMENT_DUPLICATED`: payment duplicated.
+          * `GENERIC_ERROR`: generic error.
+      example: PAYMENT_UNAVAILABLE
+      type: string
+      enum:
+        - PAYMENT_UNAVAILABLE
+        - PAYMENT_UNKNOWN
+        - DOMAIN_UNKNOWN
+        - PAYMENT_ONGOING
+        - PAYMENT_EXPIRED
+        - PAYMENT_CANCELED
+        - PAYMENT_DUPLICATED
+        - GENERIC_ERROR
+    Detail_v2:
+      title: Error classification detail
+      description: >
+        Classification detail to help user address the issue
+      example: PPT_PSP_SCONOSCIUTO
+      type: string

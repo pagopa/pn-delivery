@@ -7,6 +7,8 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -16,6 +18,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -55,8 +58,10 @@ public class NotificationRetrieverService {
 	private final PnDeliveryPushClientImpl pnDeliveryPushClient;
 	private final PnMandateClientImpl pnMandateClient;
 	private final PnDataVaultClientImpl dataVaultClient;
+	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private final ModelMapperFactory modelMapperFactory;
 	private final NotificationSearchFactory notificationSearchFactory;
+	private final PnDeliveryConfigs cfg;
 
 
 	@Autowired
@@ -64,15 +69,23 @@ public class NotificationRetrieverService {
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClientImpl pnDeliveryPushClient,
-										PnMandateClientImpl pnMandateClient, PnDataVaultClientImpl dataVaultClient, ModelMapperFactory modelMapperFactory, NotificationSearchFactory notificationSearchFactory) {
+										PnMandateClientImpl pnMandateClient,
+										PnDataVaultClientImpl dataVaultClient,
+										PnExternalRegistriesClientImpl pnExternalRegistriesClient,
+										ModelMapperFactory modelMapperFactory,
+										NotificationSearchFactory notificationSearchFactory,
+										PnDeliveryConfigs cfg
+	) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
 		this.pnMandateClient = pnMandateClient;
 		this.dataVaultClient = dataVaultClient;
+		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 		this.modelMapperFactory = modelMapperFactory;
 		this.notificationSearchFactory = notificationSearchFactory;
+		this.cfg = cfg;
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
@@ -236,7 +249,7 @@ public class NotificationRetrieverService {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 				Date refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 				checkDocumentsAvailability( notification, refinementDate );
-				if ( !requestBySender ) {
+				if ( cfg.isMVPTrial() && !requestBySender ) {
 					computeNoticeCodeToReturn( notification, refinementDate );
 				}
 			}
@@ -294,19 +307,24 @@ public class NotificationRetrieverService {
 	}
 
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
+		// - per l'MVP la notifica ha necessariamente un solo destinatario
 		for ( NotificationRecipient recipient : recipientList ) {
-			NotificationPaymentInfo paymentInfo = recipient.getPayment();
-			if ( paymentInfo != null && paymentInfo.getNoticeCodeAlternative() != null ) {
+			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
+			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
+			String noticeCode = notificationPaymentInfo.getNoticeCode();
+			if ( notificationPaymentInfo != null && notificationPaymentInfo.getNoticeCodeAlternative() != null ) {
 				switch (noticeCodeToReturn) {
 					case FIRST_NOTICE_CODE: {
 						break;
 					}
+					// - se devo restituire il notice code alternativo...
 					case SECOND_NOTICE_CODE: {
-						paymentInfo.setNoticeCode( paymentInfo.getNoticeCodeAlternative() );
+						// - ...verifico che il primo notice code non è stato già pagato
+						verifyNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
 						break;
 					}
 					case NO_NOTICE_CODE: {
-						paymentInfo.setNoticeCode( null );
+						notificationPaymentInfo.setNoticeCode( null );
 						break;
 					}
 					default: {
@@ -314,8 +332,29 @@ public class NotificationRetrieverService {
 					}
 				}
 				// in ogni caso non restituisco il noticeCode opzionale
-				paymentInfo.setNoticeCodeAlternative( null );
+				notificationPaymentInfo.setNoticeCodeAlternative( null );
 			}
+		}
+	}
+
+	private void verifyNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
+		log.debug( "Start getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
+		PaymentInfo paymentInfo = this.pnExternalRegistriesClient.getPaymentInfo(creditorTaxId, noticeCode);
+		if ( paymentInfo != null ) {
+			// - se il primo notice code NON è stato già pagato
+			if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
+				log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
+				// - restituisco il notice code alternativo
+				log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getNoticeCodeAlternative() );
+				notificationPaymentInfo.setNoticeCode( notificationPaymentInfo.getNoticeCodeAlternative() );
+			} else {
+				// - il primo notice code è stato già pagato quindi lo restituisco
+				log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
+			}
+		} else {
+			// - External-registries non risponde quindi non restituisco nessun notice code
+			log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
+			notificationPaymentInfo.setNoticeCode( null );
 		}
 	}
 
