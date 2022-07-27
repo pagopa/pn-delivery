@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -339,23 +340,30 @@ public class NotificationRetrieverService {
 
 	private void verifyNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
 		log.debug( "Start getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
-		PaymentInfo paymentInfo = this.pnExternalRegistriesClient.getPaymentInfo(creditorTaxId, noticeCode);
-		if ( paymentInfo != null ) {
-			// - se il primo notice code NON è stato già pagato
-			if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
-				log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
-				// - restituisco il notice code alternativo
-				log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getNoticeCodeAlternative() );
-				notificationPaymentInfo.setNoticeCode( notificationPaymentInfo.getNoticeCodeAlternative() );
+		try {
+			PaymentInfo paymentInfo = this.pnExternalRegistriesClient.getPaymentInfo(creditorTaxId, noticeCode);
+			if ( paymentInfo != null ) {
+				// - se il primo notice code NON è stato già pagato
+				if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
+					log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
+					// - restituisco il notice code alternativo
+					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getNoticeCodeAlternative() );
+					notificationPaymentInfo.setNoticeCode( notificationPaymentInfo.getNoticeCodeAlternative() );
+				} else {
+					// - il primo notice code è stato già pagato quindi lo restituisco
+					log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
+				}
 			} else {
-				// - il primo notice code è stato già pagato quindi lo restituisco
-				log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
+				// - External-registries non risponde quindi non restituisco nessun notice code
+				log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
+				notificationPaymentInfo.setNoticeCode( null );
 			}
-		} else {
+		} catch ( RestClientException ex ) {
 			// - External-registries non risponde quindi non restituisco nessun notice code
-			log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
+			log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
 			notificationPaymentInfo.setNoticeCode( null );
 		}
+
 	}
 
 	public enum NoticeCodeToReturn {
