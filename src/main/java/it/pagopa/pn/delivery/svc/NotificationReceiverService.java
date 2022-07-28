@@ -84,6 +84,7 @@ public class NotificationReceiverService {
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
 				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
+				.idempotenceToken( internalNotification.getIdempotenceToken() )
 				.build();
 	}
 
