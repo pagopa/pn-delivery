@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -48,7 +49,7 @@ class StatusServiceTest {
         // WHEN
         Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
                 .iun(iun)
-                .sentAt( Date.from(Instant.parse("2021-09-16T15:00:00.00Z") ))
+                .sentAt( OffsetDateTime.parse("2021-09-16T15:00:00.00Z") )
                 .subject( "Subject" )
                 .paProtocolNumber( "123" )
                 .senderPaId( "PAID" )

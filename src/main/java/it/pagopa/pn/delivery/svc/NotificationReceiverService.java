@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.*;
 
 
@@ -106,7 +107,7 @@ public class NotificationReceiverService {
 		Map<NotificationRecipient,String> tokens = generateToken( internalNotification.getRecipients(), iun );
 
 		internalNotification.iun( iun );
-		internalNotification.sentAt( Date.from(createdAt) );
+		internalNotification.sentAt( createdAt.atOffset( ZoneOffset.UTC ) );
 		internalNotification.setTokens( tokens );
 
 

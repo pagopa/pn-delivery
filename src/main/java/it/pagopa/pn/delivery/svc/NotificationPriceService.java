@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ public class NotificationPriceService {
 
     public NotificationPriceResponse getNotificationPrice(String paTaxId, String noticeCode) {
         // richiesta al dao per recuperare la notifica dato paTaxId e noticeCode
-        Date effectiveDate = null;
+        OffsetDateTime effectiveDate = null;
         String amount = null;
         log.info( "Get notification cost for paTaxId={} noticeCode={}", paTaxId, noticeCode );
         Optional<NotificationCost> optionalNotificationCost = notificationCostEntityDao.getNotificationByPaymentInfo( paTaxId, noticeCode );

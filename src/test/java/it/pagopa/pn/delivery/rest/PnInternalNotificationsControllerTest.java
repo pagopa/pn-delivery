@@ -24,6 +24,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -106,7 +107,7 @@ class PnInternalNotificationsControllerTest {
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
                 .sender(SENDER_ID)
-                .sentAt(Date.from(Instant.parse("2021-09-17T13:45:28.00Z")))
+                .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_INTERNAL_ID))
                 .paProtocolNumber("123")
                 .subject("asdasd")
