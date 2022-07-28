@@ -66,6 +66,8 @@ public class DtoToEntityNotificationMapper {
             entity = new DocumentAttachmentEntity();
             entity.setContentType( dto.getContentType() );
             entity.setTitle( dto.getTitle() );
+            entity.setRequiresAck( dto.getRequiresAck() );
+            entity.setSendByMail( dto.getSendByMail() );
 
 
             entity.setDigests( AttachmentDigestsEntity.builder()
