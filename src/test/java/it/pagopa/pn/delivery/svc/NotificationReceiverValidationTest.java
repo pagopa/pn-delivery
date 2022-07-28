@@ -18,6 +18,7 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -300,7 +301,7 @@ class NotificationReceiverValidationTest {
 
     private FullSentNotification newFullSentNotification() {
         return FullSentNotification.builder()
-                .sentAt(Date.from(Instant.now()))
+                .sentAt( OffsetDateTime.now() )
                 .iun( "IUN_01" )
                 .paProtocolNumber("protocol1")
                 .group("group_1")
@@ -327,7 +328,7 @@ class NotificationReceiverValidationTest {
                                         .build() )
                         .build() ))
                 .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
-                                .activeFrom( Date.from( Instant.now() ) )
+                                .activeFrom( OffsetDateTime.now() )
                                 .status( NotificationStatus.ACCEPTED )
                                 .relatedTimelineElements( Collections.emptyList() )
                         .build() ) )

@@ -248,7 +248,7 @@ public class NotificationRetrieverService {
 			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
-				Date refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
+				OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 				checkDocumentsAvailability( notification, refinementDate );
 				if ( cfg.isMVPTrial() && !requestBySender ) {
 					computeNoticeCodeToReturn( notification, refinementDate );
@@ -262,9 +262,9 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private Date findRefinementDate(List<TimelineElement> timeline, String iun) {
+	private OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
-		Date refinementDate = null;
+		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
 		List<TimelineElement> timelineElementList = timeline
 				.stream()
@@ -282,13 +282,13 @@ public class NotificationRetrieverService {
 		return refinementDate;
 	}
 
-	private void computeNoticeCodeToReturn(InternalNotification notification, Date refinementDate) {
+	private void computeNoticeCodeToReturn(InternalNotification notification, OffsetDateTime refinementDate) {
 		log.debug( "Compute notice code to return for iun={}", notification.getIun() );
 		NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
 		setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
 	}
 
-	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, Date refinementDate) {
+	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, OffsetDateTime refinementDate) {
 		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
 		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
 		if ( refinementDate != null ) {
@@ -435,7 +435,7 @@ public class NotificationRetrieverService {
 		return delegatorId;
 	}
 
-	private void checkDocumentsAvailability(InternalNotification notification, Date refinementDate) {
+	private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate) {
 		log.debug( "Check if documents are available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
 		if ( !NotificationStatus.CANCELLED.equals( notification.getNotificationStatus() ) ) {
@@ -478,11 +478,9 @@ public class NotificationRetrieverService {
 	public InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
-		Date createdAt =  notification.getSentAt();
-		OffsetDateTime offsetDateTime = createdAt.toInstant()
-				.atOffset(ZoneOffset.UTC);
+		OffsetDateTime createdAt =  notification.getSentAt();
 
-		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
+		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, createdAt);
 
 
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
@@ -498,8 +496,6 @@ public class NotificationRetrieverService {
 		mapperStatusHistory.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class )
 				.addMapping( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
 		mapperStatusHistory.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
-		Converter<OffsetDateTime,Date> dateConverter = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
-		mapperStatusHistory.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
@@ -507,7 +503,6 @@ public class NotificationRetrieverService {
 		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
 				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
 		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-		mapperTimeline.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream()

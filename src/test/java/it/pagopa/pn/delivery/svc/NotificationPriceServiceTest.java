@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 class NotificationPriceServiceTest {
@@ -201,7 +202,7 @@ class NotificationPriceServiceTest {
                         .build()) )
                 .timeline( List.of( TimelineElement.builder()
                                 .category( TimelineElementCategory.REFINEMENT )
-                                .timestamp( Date.from( Instant.now() ) )
+                                .timestamp( OffsetDateTime.now() )
                                 .build(),
                         TimelineElement.builder()
                                 .category( TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER )

@@ -1,13 +1,12 @@
 package it.pagopa.pn.delivery.rest;
 
 
-
-
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
@@ -18,17 +17,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
@@ -70,7 +64,7 @@ class NotificationSearchControllerTest {
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
                 .sender(SENDER_ID)
-                .sentAt(Date.from(Instant.parse("2021-09-17T13:45:28.00Z")))
+                .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients( Collections.singletonList( RECIPIENT_ID ) )
                 .paProtocolNumber("123")
                 .subject("asdasd")
@@ -132,7 +126,7 @@ class NotificationSearchControllerTest {
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
                 .sender(SENDER_ID)
-                .sentAt(Date.from(Instant.parse("2021-09-17T13:45:28.00Z")))
+                .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_ID))
                 .paProtocolNumber("123")
                 .subject("asdasd")
@@ -193,7 +187,7 @@ class NotificationSearchControllerTest {
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
                 .notificationStatus(STATUS)
                 .sender(SENDER_ID)
-                .sentAt(Date.from(Instant.parse("2021-09-17T13:45:28.00Z")))
+                .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients(Collections.singletonList(RECIPIENT_ID))
                 .paProtocolNumber("123")
                 .subject("asdasd")
