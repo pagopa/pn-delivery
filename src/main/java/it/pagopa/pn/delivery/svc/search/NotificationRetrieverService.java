@@ -22,7 +22,6 @@ import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesCli
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -344,16 +342,14 @@ public class NotificationRetrieverService {
 		try {
 			PaymentInfo paymentInfo = this.pnExternalRegistriesClient.getPaymentInfo(creditorTaxId, noticeCode);
 			if ( paymentInfo != null ) {
+				log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
 				// - se il primo notice code NON è stato già pagato
 				if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
-					log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
 					// - restituisco il notice code alternativo
 					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getNoticeCodeAlternative() );
 					notificationPaymentInfo.setNoticeCode( notificationPaymentInfo.getNoticeCodeAlternative() );
-				} else {
-					// - il primo notice code è stato già pagato quindi lo restituisco
-					log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
 				}
+				// - il primo notice code è stato già pagato quindi lo restituisco
 			} else {
 				// - External-registries non risponde quindi non restituisco nessun notice code
 				log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
