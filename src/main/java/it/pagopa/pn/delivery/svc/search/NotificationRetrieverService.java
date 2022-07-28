@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -355,7 +356,7 @@ public class NotificationRetrieverService {
 				log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
 				notificationPaymentInfo.setNoticeCode( null );
 			}
-		} catch ( RestClientException ex ) {
+		} catch ( PnHttpResponseException ex ) {
 			// - External-registries non risponde quindi non restituisco nessun notice code
 			log.error( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
 			notificationPaymentInfo.setNoticeCode( null );
