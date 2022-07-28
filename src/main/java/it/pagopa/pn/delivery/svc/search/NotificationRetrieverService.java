@@ -292,7 +292,8 @@ public class NotificationRetrieverService {
 		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
 		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
 		if ( refinementDate != null ) {
-			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), clock.instant() );
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo(ChronoUnit.DAYS),
+					clock.instant().truncatedTo( ChronoUnit.DAYS ) );
 			// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
 			if ( daysBetween > MAX_FIRST_NOTICE_CODE_DAYS && daysBetween <= MAX_SECOND_NOTICE_CODE_DAYS) {
 				log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
@@ -360,7 +361,7 @@ public class NotificationRetrieverService {
 			}
 		} catch ( RestClientException ex ) {
 			// - External-registries non risponde quindi non restituisco nessun notice code
-			log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
+			log.error( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
 			notificationPaymentInfo.setNoticeCode( null );
 		}
 
@@ -439,7 +440,8 @@ public class NotificationRetrieverService {
 		notification.setDocumentsAvailable( true );
 		if ( !NotificationStatus.CANCELLED.equals( notification.getNotificationStatus() ) ) {
 			if ( refinementDate != null ) {
-				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo( ChronoUnit.DAYS ),
+						clock.instant().truncatedTo( ChronoUnit.DAYS ) );
 				if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS ) {
 					log.debug("Documents not more available for iun={} from={}", notification.getIun(), refinementDate);
 					removeDocuments( notification );
