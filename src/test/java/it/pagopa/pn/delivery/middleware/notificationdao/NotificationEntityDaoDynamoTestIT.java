@@ -17,7 +17,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,13 +44,17 @@ class NotificationEntityDaoDynamoTestIT {
         //Given
         NotificationEntity notificationToInsert = newNotification();
 
-        String controlIun = getControlIun(notificationToInsert);
+        String controlPaProtocolNumber = getControlPaProtocolNumber(notificationToInsert);
+        String controlIdempotenceToken = getControlIdempotenceToken( notificationToInsert );
 
         Key key = Key.builder()
                 .partitionValue(notificationToInsert.getIun())
                 .build();
-        Key controlKey = Key.builder()
-                .partitionValue( controlIun )
+        Key controlPaProtocolKey = Key.builder()
+                .partitionValue( controlPaProtocolNumber )
+                .build();
+        Key controlIdempotenceKey = Key.builder()
+                .partitionValue( controlIdempotenceToken )
                 .build();
         Key costKey1 = Key.builder()
                 .partitionValue( "creditorTaxId##noticeCode" )
@@ -64,7 +67,8 @@ class NotificationEntityDaoDynamoTestIT {
                 .build();
 
         removeItemFromDb( key );
-        removeItemFromDb( controlKey );
+        removeItemFromDb( controlPaProtocolKey );
+        removeItemFromDb( controlIdempotenceKey );
         removeFromNotificationCostDb( costKey1 );
         removeFromNotificationCostDb( costKey2 );
         removeFromNotificationCostDb( costKey3 );
@@ -74,13 +78,22 @@ class NotificationEntityDaoDynamoTestIT {
 
         //Then
         Optional<NotificationEntity> elementFromDb = notificationEntityDao.get( key );
-        Optional<NotificationEntity> controlElementFromDb = notificationEntityDao.get( controlKey );
+        Optional<NotificationEntity> controlPaProtocolElementFromDb = notificationEntityDao.get( controlPaProtocolKey );
+        Optional<NotificationEntity> controlIdempotenceTokenElementFromDb = notificationEntityDao.get( controlIdempotenceKey );
 
         Assertions.assertTrue( elementFromDb.isPresent() );
-        Assertions.assertTrue( controlElementFromDb.isPresent() );
+        Assertions.assertTrue( controlPaProtocolElementFromDb.isPresent() );
+        Assertions.assertTrue( controlIdempotenceTokenElementFromDb.isPresent() );
         Assertions.assertEquals( notificationToInsert, elementFromDb.get() );
-        Assertions.assertEquals( controlIun, controlElementFromDb.get().getIun() );
+        Assertions.assertEquals( controlPaProtocolNumber, controlPaProtocolElementFromDb.get().getIun() );
+        Assertions.assertEquals( controlIdempotenceToken, controlIdempotenceTokenElementFromDb.get().getIun() );
 
+    }
+
+    private String getControlIdempotenceToken(NotificationEntity notificationToInsert) {
+        return notificationToInsert.getSenderPaId()
+                + "##" + notificationToInsert.getPaNotificationId()
+                + "##" + notificationToInsert.getIdempotenceToken();
     }
 
     @Test
@@ -92,7 +105,7 @@ class NotificationEntityDaoDynamoTestIT {
     }
 
     @NotNull
-    private String getControlIun(NotificationEntity notificationToInsert) {
+    private String getControlPaProtocolNumber(NotificationEntity notificationToInsert) {
         return notificationToInsert.getSenderPaId()
                 + "##" + notificationToInsert.getPaNotificationId()
                 + "##" + notificationToInsert.getCancelledIun();
@@ -103,6 +116,7 @@ class NotificationEntityDaoDynamoTestIT {
         return NotificationEntity.builder()
                 .iun("IUN_01")
                 ._abstract( "Abstract" )
+                .idempotenceToken( "idempotenceToken" )
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
                 .physicalCommunicationType(FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
