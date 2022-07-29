@@ -69,12 +69,12 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                 .build()
         );
 
-        NotificationEntity controlPaProtocolNumber = NotificationEntity.builder()
-                .iun( getControlPaProtocolNumber(notificationEntity) )
+        NotificationEntity controlCancelledIun = NotificationEntity.builder()
+                .iun( getControlCancelledIun(notificationEntity) )
                 .build();
 
         notificationRequestList.add( PutItemEnhancedRequest.builder( NotificationEntity.class )
-                .item( controlPaProtocolNumber )
+                .item( controlCancelledIun )
                 .conditionExpression( conditionExpressionPut )
                 .build()
         );
@@ -104,9 +104,9 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                         .partitionValue( notificationEntity.getIun() )
                 .build() );
 
-        String controlPaProtocolNumber = getControlPaProtocolNumber(notificationEntity);
-        NotificationEntity paProtocolDuplicated = dynamoDbTable.getItem( Key.builder()
-                        .partitionValue( controlPaProtocolNumber )
+        String controlCancelledIun = getControlCancelledIun(notificationEntity);
+        NotificationEntity cancelledIunDuplicated = dynamoDbTable.getItem( Key.builder()
+                        .partitionValue( controlCancelledIun )
                 .build() );
 
         String controlIdempotenceToken = getControlIdempotenceToken( notificationEntity );
@@ -127,8 +127,8 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         if ( Objects.nonNull( iunDuplicated ) ) {
             duplicatedErrors.put( "iun", notificationEntity.getIun() );
         }
-        if ( Objects.nonNull( paProtocolDuplicated ) ) {
-            duplicatedErrors.put("senderPaId##paProtocolNumber##cancelledIun" , controlPaProtocolNumber );
+        if ( Objects.nonNull( cancelledIunDuplicated ) ) {
+            duplicatedErrors.put("senderPaId##paProtocolNumber##cancelledIun" , controlCancelledIun );
         }
         if ( Objects.nonNull( idempotenceTokenDuplicated ) ) {
             duplicatedErrors.put("senderPaId##paProtocolNumber##idempotenceToken" , controlIdempotenceToken );
@@ -189,7 +189,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
     }
 
     @NotNull
-    private String getControlPaProtocolNumber(NotificationEntity notificationEntity) {
+    private String getControlCancelledIun(NotificationEntity notificationEntity) {
         return notificationEntity.getSenderPaId()
                 + "##" + notificationEntity.getPaNotificationId()
                 + "##" + notificationEntity.getCancelledIun();

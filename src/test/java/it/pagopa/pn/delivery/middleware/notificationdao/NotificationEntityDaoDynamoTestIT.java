@@ -44,14 +44,14 @@ class NotificationEntityDaoDynamoTestIT {
         //Given
         NotificationEntity notificationToInsert = newNotification();
 
-        String controlPaProtocolNumber = getControlPaProtocolNumber(notificationToInsert);
+        String controlCancelledIun = getControlCancelledIun(notificationToInsert);
         String controlIdempotenceToken = getControlIdempotenceToken( notificationToInsert );
 
         Key key = Key.builder()
                 .partitionValue(notificationToInsert.getIun())
                 .build();
         Key controlPaProtocolKey = Key.builder()
-                .partitionValue( controlPaProtocolNumber )
+                .partitionValue( controlCancelledIun )
                 .build();
         Key controlIdempotenceKey = Key.builder()
                 .partitionValue( controlIdempotenceToken )
@@ -85,7 +85,7 @@ class NotificationEntityDaoDynamoTestIT {
         Assertions.assertTrue( controlPaProtocolElementFromDb.isPresent() );
         Assertions.assertTrue( controlIdempotenceTokenElementFromDb.isPresent() );
         Assertions.assertEquals( notificationToInsert, elementFromDb.get() );
-        Assertions.assertEquals( controlPaProtocolNumber, controlPaProtocolElementFromDb.get().getIun() );
+        Assertions.assertEquals( controlCancelledIun, controlPaProtocolElementFromDb.get().getIun() );
         Assertions.assertEquals( controlIdempotenceToken, controlIdempotenceTokenElementFromDb.get().getIun() );
 
     }
@@ -105,7 +105,7 @@ class NotificationEntityDaoDynamoTestIT {
     }
 
     @NotNull
-    private String getControlPaProtocolNumber(NotificationEntity notificationToInsert) {
+    private String getControlCancelledIun(NotificationEntity notificationToInsert) {
         return notificationToInsert.getSenderPaId()
                 + "##" + notificationToInsert.getPaNotificationId()
                 + "##" + notificationToInsert.getCancelledIun();
