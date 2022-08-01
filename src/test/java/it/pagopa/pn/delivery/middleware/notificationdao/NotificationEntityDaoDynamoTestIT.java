@@ -6,7 +6,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificatio
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.NotificationCost;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,14 +43,10 @@ class NotificationEntityDaoDynamoTestIT {
         //Given
         NotificationEntity notificationToInsert = newNotification();
 
-        String controlCancelledIun = getControlCancelledIun(notificationToInsert);
         String controlIdempotenceToken = getControlIdempotenceToken( notificationToInsert );
 
         Key key = Key.builder()
                 .partitionValue(notificationToInsert.getIun())
-                .build();
-        Key controlPaProtocolKey = Key.builder()
-                .partitionValue( controlCancelledIun )
                 .build();
         Key controlIdempotenceKey = Key.builder()
                 .partitionValue( controlIdempotenceToken )
@@ -67,7 +62,6 @@ class NotificationEntityDaoDynamoTestIT {
                 .build();
 
         removeItemFromDb( key );
-        removeItemFromDb( controlPaProtocolKey );
         removeItemFromDb( controlIdempotenceKey );
         removeFromNotificationCostDb( costKey1 );
         removeFromNotificationCostDb( costKey2 );
@@ -78,14 +72,11 @@ class NotificationEntityDaoDynamoTestIT {
 
         //Then
         Optional<NotificationEntity> elementFromDb = notificationEntityDao.get( key );
-        Optional<NotificationEntity> controlPaProtocolElementFromDb = notificationEntityDao.get( controlPaProtocolKey );
         Optional<NotificationEntity> controlIdempotenceTokenElementFromDb = notificationEntityDao.get( controlIdempotenceKey );
 
         Assertions.assertTrue( elementFromDb.isPresent() );
-        Assertions.assertTrue( controlPaProtocolElementFromDb.isPresent() );
         Assertions.assertTrue( controlIdempotenceTokenElementFromDb.isPresent() );
         Assertions.assertEquals( notificationToInsert, elementFromDb.get() );
-        Assertions.assertEquals( controlCancelledIun, controlPaProtocolElementFromDb.get().getIun() );
         Assertions.assertEquals( controlIdempotenceToken, controlIdempotenceTokenElementFromDb.get().getIun() );
 
     }
@@ -104,12 +95,6 @@ class NotificationEntityDaoDynamoTestIT {
         Assertions.assertEquals( "IUN_01" , result.get().getIun() );
     }
 
-    @NotNull
-    private String getControlCancelledIun(NotificationEntity notificationToInsert) {
-        return notificationToInsert.getSenderPaId()
-                + "##" + notificationToInsert.getPaNotificationId()
-                + "##" + notificationToInsert.getCancelledIun();
-    }
 
 
     private NotificationEntity newNotification() {

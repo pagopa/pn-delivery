@@ -69,15 +69,6 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                 .build()
         );
 
-        NotificationEntity controlCancelledIun = NotificationEntity.builder()
-                .iun( getControlCancelledIun(notificationEntity) )
-                .build();
-
-        notificationRequestList.add( PutItemEnhancedRequest.builder( NotificationEntity.class )
-                .item( controlCancelledIun )
-                .conditionExpression( conditionExpressionPut )
-                .build()
-        );
 
         NotificationEntity controlIdempotenceToken = NotificationEntity.builder()
                 .iun( getControlIdempotenceToken(notificationEntity) )
@@ -104,10 +95,6 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                         .partitionValue( notificationEntity.getIun() )
                 .build() );
 
-        String controlCancelledIun = getControlCancelledIun(notificationEntity);
-        NotificationEntity cancelledIunDuplicated = dynamoDbTable.getItem( Key.builder()
-                        .partitionValue( controlCancelledIun )
-                .build() );
 
         String controlIdempotenceToken = getControlIdempotenceToken( notificationEntity );
         NotificationEntity idempotenceTokenDuplicated = dynamoDbTable.getItem( Key.builder()
@@ -126,9 +113,6 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         Map<String,String> duplicatedErrors = new HashMap<>();
         if ( Objects.nonNull( iunDuplicated ) ) {
             duplicatedErrors.put( "iun", notificationEntity.getIun() );
-        }
-        if ( Objects.nonNull( cancelledIunDuplicated ) ) {
-            duplicatedErrors.put("senderPaId##paProtocolNumber##cancelledIun" , controlCancelledIun );
         }
         if ( Objects.nonNull( idempotenceTokenDuplicated ) ) {
             duplicatedErrors.put("senderPaId##paProtocolNumber##idempotenceToken" , controlIdempotenceToken );
@@ -188,11 +172,5 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         return notificationCostEntityList;
     }
 
-    @NotNull
-    private String getControlCancelledIun(NotificationEntity notificationEntity) {
-        return notificationEntity.getSenderPaId()
-                + "##" + notificationEntity.getPaNotificationId()
-                + "##" + notificationEntity.getCancelledIun();
-    }
 
 }
