@@ -36,6 +36,7 @@ public class EntityToDtoNotificationMapper {
                 .subject( entity.getSubject() )
                 .sentAt( entity.getSentAt().atOffset( ZoneOffset.UTC ) )
                 .paProtocolNumber( entity.getPaNotificationId() )
+                .idempotenceToken( entity.getIdempotenceToken() )
                 .cancelledByIun( entity.getCancelledByIun() )
                 .cancelledIun( entity.getCancelledIun() )
                 .physicalCommunicationType( entity.getPhysicalCommunicationType() )

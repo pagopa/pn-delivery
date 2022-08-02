@@ -13,10 +13,7 @@ import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -43,29 +40,13 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
     @Override
     public void putIfAbsent(NotificationEntity notificationEntity) throws IdConflictException {
-        Expression conditionExpressionPut = Expression.builder()
-                .expression("attribute_not_exists(iun)")
-                .build();
-
-        PutItemEnhancedRequest<NotificationEntity> request1 = PutItemEnhancedRequest.builder( NotificationEntity.class )
-                .item( notificationEntity )
-                .conditionExpression( conditionExpressionPut )
-                .build();
-
-        NotificationEntity controlNotificationEntity = NotificationEntity.builder()
-                .iun( getControlIun(notificationEntity) )
-                .build();
+        List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList = createNotificationPutItemRequests( notificationEntity );
 
         List<NotificationCostEntity> notificationCostEntityList = getNotificationCostEntities( notificationEntity );
 
-        List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList = createPutItemRequests( notificationCostEntityList );
+        List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList = createCostPutItemRequests( notificationCostEntityList );
 
-        PutItemEnhancedRequest<NotificationEntity> request2 = PutItemEnhancedRequest.builder( NotificationEntity.class )
-                .item( controlNotificationEntity )
-                .conditionExpression( conditionExpressionPut )
-                .build();
-
-        TransactWriteItemsEnhancedRequest enhancedRequest = createTransactWriteItems( request1, request2, costRequestList );
+        TransactWriteItemsEnhancedRequest enhancedRequest = createTransactWriteItems( notificationRequestList, costRequestList );
 
         try {
             dynamoDbEnhancedClient.transactWriteItems( enhancedRequest );
@@ -75,15 +56,51 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         }
     }
 
+    private List<PutItemEnhancedRequest<NotificationEntity>> createNotificationPutItemRequests(NotificationEntity notificationEntity) {
+        List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList = new ArrayList<>();
+
+        Expression conditionExpressionPut = Expression.builder()
+                .expression("attribute_not_exists(iun)")
+                .build();
+
+        notificationRequestList.add( PutItemEnhancedRequest.builder( NotificationEntity.class )
+                .item( notificationEntity )
+                .conditionExpression( conditionExpressionPut )
+                .build()
+        );
+
+
+        NotificationEntity controlIdempotenceToken = NotificationEntity.builder()
+                .iun( getControlIdempotenceToken(notificationEntity) )
+                .build();
+
+        notificationRequestList.add( PutItemEnhancedRequest.builder( NotificationEntity.class )
+                .item( controlIdempotenceToken )
+                .conditionExpression( conditionExpressionPut )
+                .build()
+        );
+
+        return notificationRequestList;
+    }
+
+    private String getControlIdempotenceToken(NotificationEntity notificationEntity) {
+        return notificationEntity.getSenderPaId()
+                + "##" + notificationEntity.getPaNotificationId()
+                + "##" + notificationEntity.getIdempotenceToken();
+    }
+
     @NotNull
     private Map<String,String> getDuplicationErrors(NotificationEntity notificationEntity, List<NotificationCostEntity> notificationCostEntityList) {
         NotificationEntity iunDuplicated = dynamoDbTable.getItem( Key.builder()
                         .partitionValue( notificationEntity.getIun() )
                 .build() );
-        String controlIun = getControlIun(notificationEntity);
-        NotificationEntity paProtocolDuplicated = dynamoDbTable.getItem( Key.builder()
-                        .partitionValue( controlIun )
+
+
+        String controlIdempotenceToken = getControlIdempotenceToken( notificationEntity );
+        NotificationEntity idempotenceTokenDuplicated = dynamoDbTable.getItem( Key.builder()
+                        .partitionValue( controlIdempotenceToken )
                 .build() );
+
         List<NotificationCostEntity> costEntitiesDuplicated = new ArrayList<>();
         for ( NotificationCostEntity notificationCostEntity : notificationCostEntityList) {
             NotificationCostEntity costEntityDuplicated = dynamoDbCostTable.getItem( Key.builder()
@@ -94,11 +111,11 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
             }
         }
         Map<String,String> duplicatedErrors = new HashMap<>();
-        if ( iunDuplicated != null ) {
+        if ( Objects.nonNull( iunDuplicated ) ) {
             duplicatedErrors.put( "iun", notificationEntity.getIun() );
         }
-        if ( paProtocolDuplicated != null ) {
-            duplicatedErrors.put("senderPaId##paProtocolNumber##cancelledIun" , controlIun );
+        if ( Objects.nonNull( idempotenceTokenDuplicated ) ) {
+            duplicatedErrors.put("senderPaId##paProtocolNumber##idempotenceToken" , controlIdempotenceToken );
         }
         for ( NotificationCostEntity nce : costEntitiesDuplicated ) {
             duplicatedErrors.put("creditorTaxId##noticeCode", nce.getCreditorTaxId_noticeCode());
@@ -106,17 +123,19 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         return duplicatedErrors;
     }
 
-    private TransactWriteItemsEnhancedRequest createTransactWriteItems(PutItemEnhancedRequest<NotificationEntity> request1, PutItemEnhancedRequest<NotificationEntity> request2, List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList) {
+    private TransactWriteItemsEnhancedRequest createTransactWriteItems(List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList, List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList) {
         TransactWriteItemsEnhancedRequest.Builder requestBuilder = TransactWriteItemsEnhancedRequest.builder();
-        requestBuilder.addPutItem( dynamoDbTable, request1 );
-        requestBuilder.addPutItem( dynamoDbTable, request2 );
+
+        for ( PutItemEnhancedRequest<NotificationEntity> putItemNotification: notificationRequestList ) {
+            requestBuilder.addPutItem( dynamoDbTable, putItemNotification);
+        }
         for (PutItemEnhancedRequest<NotificationCostEntity> putItemCost : costRequestList  ) {
             requestBuilder.addPutItem( dynamoDbCostTable, putItemCost );
         }
         return requestBuilder.build();
     }
 
-    private List<PutItemEnhancedRequest<NotificationCostEntity>> createPutItemRequests(List<NotificationCostEntity> notificationCostEntityList) {
+    private List<PutItemEnhancedRequest<NotificationCostEntity>> createCostPutItemRequests(List<NotificationCostEntity> notificationCostEntityList) {
         List<PutItemEnhancedRequest<NotificationCostEntity>> putItemEnhancedRequestList = new ArrayList<>();
         Expression conditionExpressionPut = Expression.builder()
                 .expression("attribute_not_exists(creditorTaxId_noticeCode)")
@@ -153,11 +172,5 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         return notificationCostEntityList;
     }
 
-    @NotNull
-    private String getControlIun(NotificationEntity notificationEntity) {
-        return notificationEntity.getSenderPaId()
-                + "##" + notificationEntity.getPaNotificationId()
-                + "##" + notificationEntity.getCancelledIun();
-    }
 
 }

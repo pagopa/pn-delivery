@@ -61,7 +61,8 @@ public class NotificationReceiverService {
 	 */
 	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest) throws IdConflictException {
 		log.info("New notification storing START");
-		log.debug("New notification storing START for={}", newNotificationRequest);
+		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
+				newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken());
 		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
 		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
 
@@ -84,6 +85,7 @@ public class NotificationReceiverService {
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
 				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
+				.idempotenceToken( internalNotification.getIdempotenceToken() )
 				.build();
 	}
 

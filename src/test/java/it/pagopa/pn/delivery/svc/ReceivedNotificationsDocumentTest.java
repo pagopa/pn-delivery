@@ -53,6 +53,7 @@ class ReceivedNotificationsDocumentTest {
 	private static final Integer AMOUNT = 10000;
 	private static final String PAYMENT_EXPIRE_DATE = "2023-12-29";
 	private static final String ABSTRACT = "abstract";
+	private static final String IDEMPOTENCE_TOKEN = "idempotenceToken";
 
 	@MockBean
 	private NotificationRetrieverService svc;
@@ -154,7 +155,7 @@ class ReceivedNotificationsDocumentTest {
 	}
 
 	private Optional<NotificationEntity> createNotificationEntities() {
-		NotificationEntity ne = new NotificationEntity(IUN, ABSTRACT, REQUEST_ID, REDIRECT_URL, null, IUN, IUN, PA_ID, null, null, null, null, IUN, FILENAME, ATTACHMENT_BODY_STR, AMOUNT, PAYMENT_EXPIRE_DATE);
+		NotificationEntity ne = new NotificationEntity(IUN, ABSTRACT, IDEMPOTENCE_TOKEN, REQUEST_ID, REDIRECT_URL, null, IUN, IUN, PA_ID, null, null, null, null, IUN, FILENAME, ATTACHMENT_BODY_STR, AMOUNT, PAYMENT_EXPIRE_DATE);
 		Optional<NotificationEntity> result = Optional.ofNullable(ne);
 		return result;
 	}

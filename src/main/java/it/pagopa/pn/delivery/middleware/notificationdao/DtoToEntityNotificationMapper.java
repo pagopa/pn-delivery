@@ -19,6 +19,7 @@ public class DtoToEntityNotificationMapper {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
                 ._abstract( dto.getAbstract() )
+                .idempotenceToken( dto.getIdempotenceToken() )
                 .paNotificationId( dto.getPaProtocolNumber())
                 .senderDenomination( dto.getSenderDenomination() )
                 .senderTaxId( dto.getSenderTaxId() )
