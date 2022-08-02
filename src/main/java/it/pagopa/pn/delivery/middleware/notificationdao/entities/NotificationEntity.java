@@ -9,7 +9,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -22,6 +21,7 @@ import java.util.List;
 public class NotificationEntity {
     public static final String FIELD_IUN = "iun";
     public static final String FIELD_ABSTRACT = "abstract";
+    public static final String FIELD_IDEMPOTENCE_TOKEN = "idempotenceToken";
     public static final String FIELD_PA_NOTIFICATION_ID = "paNotificationId";
     public static final String FIELD_SUBJECT = "subject";
     public static final String FIELD_SENT_AT = "sentAt";
@@ -41,6 +41,7 @@ public class NotificationEntity {
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String _abstract;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_IDEMPOTENCE_TOKEN)})) private String idempotenceToken;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_NOTIFICATION_ID)})) private String paNotificationId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SUBJECT)})) private String subject;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENT_AT)})) private Instant sentAt;
