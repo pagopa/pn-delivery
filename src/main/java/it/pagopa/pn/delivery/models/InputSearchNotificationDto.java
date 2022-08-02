@@ -46,15 +46,17 @@ public class InputSearchNotificationDto {
     
     private final boolean bySender;
 
+    private final boolean isPrivate;
+
     public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId,  List<NotificationStatus> statuses,
                                       List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender) {
         this(senderReceiverId, startDate, endDate, mandateId, filterId, statuses,
-                groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, false);
+                groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, false, false);
     }
 
 
     public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId, List<NotificationStatus> statuses,
-                                      List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender, boolean receiverIdIsOpaque) {
+                                      List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender, boolean receiverIdIsOpaque, boolean isPrivate) {
         this.senderReceiverId = senderReceiverId;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -68,6 +70,7 @@ public class InputSearchNotificationDto {
         this.nextPagesKey = nextPagesKey;
         this.bySender = bySender;
         this.receiverIdIsOpaque = receiverIdIsOpaque;
+        this.isPrivate = isPrivate;
     }
 
     public String getSenderReceiverId() {
@@ -104,6 +107,7 @@ public class InputSearchNotificationDto {
         private String nextPagesKey;
         private boolean bySender;
         private boolean receiverIdIsOpaque;
+        private boolean isPrivate;
 
         private List<String> groups;
 
@@ -174,10 +178,15 @@ public class InputSearchNotificationDto {
             this.receiverIdIsOpaque = receiverIdIsOpaque;
             return this;
         }
+
+        public Builder isPrivate(Boolean isPrivate) {
+            this.isPrivate = isPrivate;
+            return this;
+        }
         
         public InputSearchNotificationDto build() {
            return new InputSearchNotificationDto(senderReceiverId, startDate, endDate, mandateId, filterId, statuses,
-                   groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, receiverIdIsOpaque);
+                   groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, receiverIdIsOpaque, isPrivate);
         }
         
     }
