@@ -143,12 +143,12 @@ class PnInternalNotificationsControllerTest {
 
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(true)
-                .isPrivate(true)
                 .senderReceiverId(SENDER_ID)
                 .startDate(Instant.parse(START_DATE))
                 .endDate(Instant.parse(END_DATE))
                 .statuses(List.of(STATUS))
                 .size(null)
+                .maxPageNumber( 1 )
                 .nextPagesKey(null)
                 .build();
 
@@ -200,13 +200,13 @@ class PnInternalNotificationsControllerTest {
 
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender(false)
-                .isPrivate(true)
                 .senderReceiverId(RECIPIENT_INTERNAL_ID)
                 .receiverIdIsOpaque(true)
                 .startDate(Instant.parse(START_DATE))
                 .endDate(Instant.parse(END_DATE))
                 .statuses(List.of(STATUS))
                 .size(null)
+                .maxPageNumber( 1 )
                 .nextPagesKey(null)
                 .build();
 

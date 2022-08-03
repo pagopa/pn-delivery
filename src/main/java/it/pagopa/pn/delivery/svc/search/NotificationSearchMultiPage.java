@@ -50,8 +50,8 @@ public class NotificationSearchMultiPage extends NotificationSearch {
 
         log.info( "notification paged search indexName={}", indexNameAndPartitions.getIndexName() );
 
-        // - per le API private il numero di pagine è 1 per le API esposte è definito in configurazione
-        Integer maxPageNumber = inputSearchNotificationDto.isPrivate() ? 1 : cfg.getMaxPageSize();
+        // - le API private impostano il numero di pagine richiesto. Le API esposte il valore è definito in configurazione
+        Integer maxPageNumber = inputSearchNotificationDto.getMaxPageNumber() != null? inputSearchNotificationDto.getMaxPageNumber() : cfg.getMaxPageSize();
 
         // numero di elementi totali da cercare, di fatto la size della pagina * il numero di pagine + 1, così so per certo se ci sono altri elementi dopo o no.
         int requiredSize = inputSearchNotificationDto.getSize() * maxPageNumber + 1;

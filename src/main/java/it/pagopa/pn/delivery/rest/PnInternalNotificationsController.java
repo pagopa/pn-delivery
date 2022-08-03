@@ -89,13 +89,13 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         }
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
                 .bySender( StringUtils.hasText( senderId ) )
-                .isPrivate(true)
                 .senderReceiverId( StringUtils.hasText( recipientId )? recipientId : senderId)
                 .startDate(startDate.toInstant())
                 .endDate(endDate.toInstant())
                 .statuses(status==null?List.of():status)
                 .receiverIdIsOpaque(recipientIdOpaque)
                 .size(size)
+                .maxPageNumber( 1 )
                 .nextPagesKey(nextPagesKey)
                 .build();
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
