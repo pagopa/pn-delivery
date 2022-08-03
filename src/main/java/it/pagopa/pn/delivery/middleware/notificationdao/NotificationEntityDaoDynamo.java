@@ -9,10 +9,12 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRec
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
@@ -72,6 +74,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
         NotificationEntity controlIdempotenceToken = NotificationEntity.builder()
                 .iun( getControlIdempotenceToken(notificationEntity) )
+                .requestId( Base64Utils.encodeToString( notificationEntity.getIun().getBytes(StandardCharsets.UTF_8) ) )
                 .build();
 
         notificationRequestList.add( PutItemEnhancedRequest.builder( NotificationEntity.class )

@@ -120,6 +120,16 @@ public class NotificationDaoDynamo implements NotificationDao {
 		return daoResult;
 	}
 
+	@Override
+	public Optional<String> getRequestId( String senderId, String paProtocolNumber, String idempotenceToken ) {
+		Key keyToSearch = Key.builder()
+				.partitionValue( senderId + "##" + paProtocolNumber + "##" + idempotenceToken )
+				.build();
+
+		return entityDao.get( keyToSearch )
+				.map(NotificationEntity::getRequestId);
+	}
+
 	private void handleRecipients(InternalNotification daoResult) {
 		List<NotificationRecipient> daoNotificationRecipientList = daoResult.getRecipients();
 

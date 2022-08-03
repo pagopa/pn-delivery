@@ -27,6 +27,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
@@ -383,6 +384,16 @@ public class NotificationRetrieverService {
 
 	public InternalNotification getNotificationInformation(String iun) {
 		return getNotificationInformation( iun, true, false );
+	}
+
+	public InternalNotification getNotificationInformation(String senderId, String paProtocolNumber, String idempotenceToken) {
+		Optional<String> optionalRequestId = notificationDao.getRequestId( senderId, paProtocolNumber, idempotenceToken );
+		if (optionalRequestId.isEmpty()) {
+			String msg = String.format( "Unable to find requestId for senderId=%s paProtocolNumber=%s idempotenceToken=%s", senderId, paProtocolNumber, idempotenceToken );
+			throw new PnInternalException( msg );
+		}
+		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
+		return getNotificationInformation( iun, true, true );
 	}
 
 	/**

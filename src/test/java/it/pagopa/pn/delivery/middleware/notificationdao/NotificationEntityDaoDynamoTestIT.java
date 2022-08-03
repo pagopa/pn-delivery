@@ -36,6 +36,9 @@ class NotificationEntityDaoDynamoTestIT {
     private NotificationEntityDao notificationEntityDao;
 
     @Autowired
+    private NotificationDaoDynamo notificationDao;
+
+    @Autowired
     private NotificationCostEntityDao notificationCostEntityDao;
 
     @Test
@@ -93,6 +96,14 @@ class NotificationEntityDaoDynamoTestIT {
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals( "IUN_01" , result.get().getIun() );
+    }
+
+    @Test
+    void getRequestIdByPaProtocolNumberAndIdempotenceToken() {
+        Optional<String> requestId = notificationDao.getRequestId( "pa_02", "protocol_01", "idempotenceToken" );
+
+        Assertions.assertNotNull( requestId );
+        Assertions.assertEquals( "SVVOXzAx", requestId.get() );
     }
 
 

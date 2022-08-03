@@ -22,6 +22,8 @@ public interface NotificationDao {
 
     Optional<InternalNotification> getNotificationByIun(String iun);
 
+    Optional<String> getRequestId( String senderId, String paProtocolNumber, String idempotenceToken );
+
     PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(
             InputSearchNotificationDto inputSearchNotificationDto,
             String indexName,

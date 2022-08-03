@@ -14,16 +14,18 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleIllegalArgumentException;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
+import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -31,7 +33,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,16 +114,33 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return HandleNotFound.handleNotFoundException( ex, ex.getMessage() );
     }
 
+    @ExceptionHandler({IllegalArgumentException.class})
+    public ResponseEntity<Problem> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return HandleIllegalArgumentException.handleIllegalArgumentException( ex );
+    }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<Problem> handlePnInternalException( RuntimeException ex ) {
+        return HandleRuntimeException.handleRuntimeException( ex );
+    }
+
     @Override
     public Optional<NativeWebRequest> getRequest() {
         return SenderReadB2BApi.super.getRequest();
     }
 
     @Override
-    @ExceptionHandler({PnInternalException.class})
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
-        String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
-        InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
+        InternalNotification internalNotification;
+        if (StringUtils.hasText( notificationRequestId )) {
+            String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
+            internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
+        } else {
+            if ( !StringUtils.hasText( paProtocolNumber ) || !StringUtils.hasText( idempotenceToken ) ) {
+                throw new IllegalArgumentException( "Please specify paProtocolNumber and idempotenceToken" );
+            }
+            internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken);
+        }
 
         ModelMapper mapper = modelMapperFactory.createModelMapper(
                 InternalNotification.class,
@@ -132,7 +150,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 internalNotification,
                 NewNotificationRequestStatusResponse.class
         );
-        response.setNotificationRequestId( notificationRequestId );
+        response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 
         NotificationStatus lastStatus;
         if ( internalNotification.getNotificationStatusHistory() != null
@@ -140,7 +158,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             lastStatus = internalNotification.getNotificationStatusHistory().get(
                     internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
         } else {
-            log.error( "No status history for notificationRequestId={}", notificationRequestId );
+            log.debug( "No status history for notificationRequestId={}", notificationRequestId );
             lastStatus = NotificationStatus.IN_VALIDATION;
         }
 
