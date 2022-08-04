@@ -82,7 +82,7 @@ info:
     ##### 3.2 Richiesta avanzamento via "stream" di verifica di accettazione
     
     Questa modalità è consigliata. Per essere fruita è necessaria una operazione preliminare 
-    tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
+    tramite la chiamata alla API [createEventStream](https://redocly.github.io/redoc/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
     per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:
     
     ``
@@ -95,7 +95,7 @@ info:
     }
     ``
     
-    Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
+    Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://redocly.github.io/redoc/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
     
     
     __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
@@ -119,13 +119,13 @@ info:
     #### 4.1 Monitoraggio tramite stream
     
     Questa modalità è consigliata. Per essere fruita è necessaria una operazione preliminare
-    tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
+    tramite la chiamata alla API [createEventStream](https://redocly.github.io/redoc/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
     per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:
     
     ``
     {
       "title": "NotificationAccepted",
-      "eventType": "STATUS",
+      "eventType": "STATUS"
     }
     ``
     
