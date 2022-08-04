@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -172,10 +173,25 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             case REFUSED: {
                 response.setNotificationRequestStatus( "REFUSED" );
                 response.setIun( null );
+                Optional<TimelineElement> timelineElement = internalNotification.getTimeline().stream().filter(
+                        tle -> TimelineElementCategory.REQUEST_REFUSED.equals( tle.getCategory() ) ).findFirst();
+                setRefusedErrors( response, timelineElement );
                 break; }
             default: response.setNotificationRequestStatus( "ACCEPTED" );
         }
         return ResponseEntity.ok( response );
+    }
+
+    private void setRefusedErrors(NewNotificationRequestStatusResponse response, Optional<TimelineElement> timelineElement) {
+        if (timelineElement.isPresent() ) {
+            List<String> errors = timelineElement.get().getDetails().getErrors();
+            List<ProblemError> problemErrorList = errors.stream().map(
+                    error -> ProblemError.builder()
+                    .detail( error )
+                    .build()
+            ).collect(Collectors.toList());
+            response.setErrors( problemErrorList );
+        }
     }
 
     @Override
