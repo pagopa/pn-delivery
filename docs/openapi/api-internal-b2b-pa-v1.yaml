@@ -85,7 +85,7 @@ info:
     tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
     per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:
     
-´´´json 
+    ```json 
     {
       "title": "NotificationAccepted",
       "eventType": "STATUS",
@@ -93,7 +93,7 @@ info:
         "ACCEPTED"
       ]
     }
-```
+    ```
     
     Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
     
@@ -121,7 +121,7 @@ info:
     tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
     per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:
     
-    ´´´json
+    ```json
     {
       "title": "NotificationAccepted",
       "eventType": "STATUS",
