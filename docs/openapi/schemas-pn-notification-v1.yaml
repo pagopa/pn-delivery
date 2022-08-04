@@ -68,6 +68,7 @@ components:
           description: Documenti notificati
           items:
             $ref: "#/components/schemas/NotificationDocument"
+          minItems: 1
         notificationFeePolicy:
           type: string
           description: >-
