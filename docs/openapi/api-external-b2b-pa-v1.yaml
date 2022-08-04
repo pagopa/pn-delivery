@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   version: v1.0
-  description: >- 
+  description: >-
     ## Abstract
       API utilizzate dalle pubbliche amministrazioni per __inviare richieste di notifiche__ e 
       __ottenere informazioni in modalità pull__ informazioni sullo stato della 
@@ -24,7 +24,7 @@ info:
     
     Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
     con cui prenotare il caricamento. </br> 
-     
+    
     In risposta di ottengono le seguenti informazioni:<br/>
     - httpMethod <br/>
     - secret <br/>
@@ -85,7 +85,7 @@ info:
     tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
     per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:
     
-    ```json 
+    ``
     {
       "title": "NotificationAccepted",
       "eventType": "STATUS",
@@ -93,9 +93,10 @@ info:
         "ACCEPTED"
       ]
     }
-    ```
+    ``
     
     Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
+    
     
     __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
     dello stream.
@@ -121,14 +122,15 @@ info:
     tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
     per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:
     
-    ```json
+    ``
     {
       "title": "NotificationAccepted",
       "eventType": "STATUS",
     }
-    ```
+    ``
     
     Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
+
 
     __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
     dello stream.    
@@ -139,12 +141,12 @@ info:
     name: Licenza di PN
     url: 'https://da-definire/'
 servers:
-- url: https://api.pn.pagopa.it
-  description: Ambiente di produzione
-- url: https://api.uat.pn.pagopa.it
-  description: Ambiente di test
-- url: https://api.dev.pn.pagopa.it
-  description: Ambiente di sviluppo
+  - url: https://api.pn.pagopa.it
+    description: Ambiente di produzione
+  - url: https://api.uat.pn.pagopa.it
+    description: Ambiente di test
+  - url: https://api.dev.pn.pagopa.it
+    description: Ambiente di sviluppo
 tags:
   - name: NewNotification
     description: >-
@@ -158,9 +160,9 @@ tags:
       Invocazioni per determinare il costo della notifica per il destinario.
 
 paths:
-    ###########################################################################################
-    ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
-    ###########################################################################################
+  ###########################################################################################
+  ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
+  ###########################################################################################
   "/delivery/attachments/preload":
     post:
       summary: Richiesta di pre-caricamento allegati
@@ -223,7 +225,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: "#/components/schemas/NewNotificationResponse"
+                $ref: "#/components/schemas/NewNotificationResponse"
         '400':
           description: Bad request
           content:
@@ -255,7 +257,7 @@ paths:
           content:
             application/json:
               schema:
-                 $ref: "#/components/schemas/NewNotificationRequestStatusResponse"
+                $ref: "#/components/schemas/NewNotificationRequestStatusResponse"
         '400':
           description: Bad request
           content:
@@ -318,7 +320,7 @@ paths:
             application/json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-        
+
   "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
       summary: Download allegato per pagamento
@@ -342,37 +344,37 @@ paths:
             application/json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-  
-  
+
+
     ###########################################################################################
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
     ###########################################################################################
-  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':                 # ONLY EXTERNAL
-    get:                                                                            # ONLY EXTERNAL
+  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}': # ONLY EXTERNAL
+    get: # ONLY EXTERNAL
       summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
-      tags:                                                                         # ONLY EXTERNAL
+      tags: # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
       operationId: getLegalFact                                                     # ONLY EXTERNAL
-      parameters:                                                                   # ONLY EXTERNAL
+      parameters: # ONLY EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
-      responses:                                                                    # ONLY EXTERNAL
-        '200':                                                                      # ONLY EXTERNAL
+      responses: # ONLY EXTERNAL
+        '200': # ONLY EXTERNAL
           description: OK                                                           # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
+          content: # ONLY EXTERNAL
+            application/json: # ONLY EXTERNAL
+              schema: # ONLY EXTERNAL
                 $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      # ONLY EXTERNAL
-        '400':                                                                      # ONLY EXTERNAL
+        '400': # ONLY EXTERNAL
           description: Bad request                                                  # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
+          content: # ONLY EXTERNAL
+            application/json: # ONLY EXTERNAL
+              schema: # ONLY EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
-  '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
-    get:                                                                            # ONLY EXTERNAL
+  '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL
+    get: # ONLY EXTERNAL
       operationId: getNotificationPrice                                             # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
@@ -380,41 +382,41 @@ paths:
         from PagoPa identifiers paTaxId and noticeCode.                             # ONLY EXTERNAL
         Called from PA to turn notification cost to the receiver during the         # ONLY EXTERNAL
         pagoPa payment verification phase.                                          # ONLY EXTERNAL
-      tags:                                                                         # ONLY EXTERNAL
+      tags: # ONLY EXTERNAL
         - NotificationPrice                                                         # ONLY EXTERNAL
-      parameters:                                                                   # ONLY EXTERNAL
+      parameters: # ONLY EXTERNAL
         - name: paTaxId                                                              # ONLY EXTERNAL
           description: Payment PA fiscal code                                       # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
           example: '77777777777'                                                    # ONLY EXTERNAL
-          schema:                                                                   # ONLY EXTERNAL
+          schema: # ONLY EXTERNAL
             $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'     # ONLY EXTERNAL
         - name: noticeCode                                                          # ONLY EXTERNAL
           description: Payment notice number  numero avviso                         # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
           example: '302000100000019421'                                             # ONLY EXTERNAL
-          schema:                                                                   # ONLY EXTERNAL
+          schema: # ONLY EXTERNAL
             $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'  # ONLY EXTERNAL
-      responses:                                                                    # ONLY EXTERNAL
-        '200':                                                                      # ONLY EXTERNAL
+      responses: # ONLY EXTERNAL
+        '200': # ONLY EXTERNAL
           description: OK                                                           # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
+          content: # ONLY EXTERNAL
+            application/json: # ONLY EXTERNAL
+              schema: # ONLY EXTERNAL
                 $ref: '#/components/schemas/NotificationPriceResponse'              # ONLY EXTERNAL
-        '400':                                                                      # ONLY EXTERNAL
+        '400': # ONLY EXTERNAL
           description: Invalid input                                                # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
+          content: # ONLY EXTERNAL
+            application/problem+json: # ONLY EXTERNAL
+              schema: # ONLY EXTERNAL
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       # ONLY EXTERNAL
-        '500':                                                                      # ONLY EXTERNAL
+        '500': # ONLY EXTERNAL
           description: Internal Server Error                                        # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
+          content: # ONLY EXTERNAL
+            application/problem+json: # ONLY EXTERNAL
+              schema: # ONLY EXTERNAL
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       # ONLY EXTERNAL
 components:
   
@@ -530,7 +532,7 @@ components:
             checksum sha256, codificato in base 64, del contenuto binario del file che verrà
             caricato
           type: string
-          
+
     PreLoadResponse:
       title: Informazioni per il caricamento file
       description: >-
@@ -613,14 +615,14 @@ components:
           type: string
     
     NewNotificationRequestStatusResponse:
-      allOf: 
+      allOf:
         - $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
         - type: object
           required:
             - notificationRequestId
             - notificationRequestStatus
           properties:
-            notificationRequestId: 
+            notificationRequestId:
               description: >-
                 identificativo univoco di una richiesta di invio notifica, non è lo IUN
               type: string
@@ -653,14 +655,14 @@ components:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
-      allOf: 
+      allOf:
         - $ref: './schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
         - type: object
-          required: 
+          required:
             - notificationStatus
             - notificationStatusHistory
             - timeline
-          properties:  
+          properties:
             notificationStatus:
               $ref: '#/components/schemas/NotificationStatus'
             notificationStatusHistory:
@@ -681,15 +683,15 @@ components:
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
-   
-  securitySchemes:        # ONLY EXTERNAL
-    ApiKeyAuth:           # ONLY EXTERNAL
-      type: apiKey        # ONLY EXTERNAL
-      in: header          # ONLY EXTERNAL
-      name: x-api-key     # ONLY EXTERNAL
 
-security:                 # ONLY EXTERNAL
-  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+        #  securitySchemes:        # ONLY EXTERNAL
+        #    ApiKeyAuth:           # ONLY EXTERNAL
+        #      type: apiKey        # ONLY EXTERNAL
+        #      in: header          # ONLY EXTERNAL
+        #      name: x-api-key     # ONLY EXTERNAL
+
+        #security:                 # ONLY EXTERNAL
+        #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
               
 
 
