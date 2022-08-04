@@ -60,7 +60,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
         // se ho dei filtri ulteriori, suppongo che i dati vengano ulteriormente filtrati, quindi aumento il numero di elementi da leggere
         if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses())
             || !CollectionUtils.isEmpty(inputSearchNotificationDto.getGroups())
-            || (inputSearchNotificationDto.isBySender() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId()))) //TODO perchè se non filtrata aumento la page size?
+            || (inputSearchNotificationDto.isBySender() && StringUtils.hasText(inputSearchNotificationDto.getFilterId())))
             dynamoDbPageSize = dynamoDbPageSize * FILTER_EXPRESSION_APPLIED_MULTIPLIER;
 
         int logItemCount = 0;
