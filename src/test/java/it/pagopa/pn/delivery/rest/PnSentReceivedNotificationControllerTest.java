@@ -42,6 +42,8 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String MANDATE_ID = "mandateId";
 	public static final String CX_TYPE_PF = "PF";
 	private static final String CX_TYPE_PA = "PA";
+	private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
+	private static final String IDEMPOTENCE_TOKEN = "idempotenceToken";
 
 
 	@Autowired
@@ -118,7 +120,7 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
-	void getNotificationRequestStatusSuccess() {
+	void getNotificationRequestStatusByRequestIdSuccess() {
 		// Given
 		InternalNotification notification = newNotification();
 
@@ -144,6 +146,36 @@ class PnSentReceivedNotificationControllerTest {
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
 		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true, true );
+	}
+
+	@Test
+	void getNotificationRequestStatusByProtocolAndIdempotenceSuccess() {
+		// Given
+		InternalNotification notification = newNotification();
+
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class ) ).thenReturn( mapper );
+
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/requests" )
+								.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
+								.queryParam( "idempotenceToken", IDEMPOTENCE_TOKEN )
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody( NewNotificationRequestStatusResponse.class );
+
+		Mockito.verify( svc ).getNotificationInformation( PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
 	}
 
 	@Test

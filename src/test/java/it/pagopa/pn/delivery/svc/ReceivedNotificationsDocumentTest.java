@@ -3,12 +3,14 @@ package it.pagopa.pn.delivery.svc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,13 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentBodyRef;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDigests;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDaoDynamo;
@@ -45,6 +40,7 @@ class ReceivedNotificationsDocumentTest {
 	private static final String IUN = "IUN";
 	private static final String PA_ID = "PA_ID";
 	private static final int DOCUMENT_INDEX = 0;
+	private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
 	private static final String REDIRECT_URL = "http://redirectUrl";
 	public static final String ATTACHMENT_BODY_STR = "Body";
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
@@ -155,7 +151,18 @@ class ReceivedNotificationsDocumentTest {
 	}
 
 	private Optional<NotificationEntity> createNotificationEntities() {
-		NotificationEntity ne = new NotificationEntity(IUN, ABSTRACT, IDEMPOTENCE_TOKEN, REQUEST_ID, REDIRECT_URL, null, IUN, IUN, PA_ID, null, null, null, null, IUN, FILENAME, ATTACHMENT_BODY_STR, AMOUNT, PAYMENT_EXPIRE_DATE);
+		NotificationEntity ne = NotificationEntity.builder()
+				.iun( IUN )
+				.requestId( REQUEST_ID )
+				.idempotenceToken( IDEMPOTENCE_TOKEN )
+				.sentAt( Instant.now() )
+				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
+				._abstract( ABSTRACT )
+				.paNotificationId( PA_PROTOCOL_NUMBER )
+				.paymentExpirationDate( PAYMENT_EXPIRE_DATE )
+				.senderPaId( PA_ID )
+				.amount( AMOUNT )
+				.build(); //new NotificationEntity(IUN, ABSTRACT, IDEMPOTENCE_TOKEN, PA_PROTOCOL_NUMBER , null, IUN, IUN, PA_ID, null, null, null, null, IUN, FILENAME, ATTACHMENT_BODY_STR, AMOUNT, PAYMENT_EXPIRE_DATE, REQUEST_ID);
 		Optional<NotificationEntity> result = Optional.ofNullable(ne);
 		return result;
 	}

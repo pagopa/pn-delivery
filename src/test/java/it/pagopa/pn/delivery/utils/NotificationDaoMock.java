@@ -39,6 +39,11 @@ public class NotificationDaoMock implements NotificationDao {
     }
 
     @Override
+    public Optional<String> getRequestId(String senderId, String paProtocolNumber, String idempotenceToken) {
+        return Optional.empty();
+    }
+
+    @Override
     public PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
 
         PageSearchTrunk<NotificationMetadataEntity> result = new PageSearchTrunk<>();
