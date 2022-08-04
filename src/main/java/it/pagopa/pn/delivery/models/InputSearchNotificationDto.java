@@ -46,15 +46,11 @@ public class InputSearchNotificationDto {
     
     private final boolean bySender;
 
-    public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId,  List<NotificationStatus> statuses,
-                                      List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender) {
-        this(senderReceiverId, startDate, endDate, mandateId, filterId, statuses,
-                groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, false);
-    }
+    private final Integer maxPageNumber;
 
 
     public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId, List<NotificationStatus> statuses,
-                                      List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender, boolean receiverIdIsOpaque) {
+                                      List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender, boolean receiverIdIsOpaque, Integer maxPageNumber) {
         this.senderReceiverId = senderReceiverId;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -68,6 +64,7 @@ public class InputSearchNotificationDto {
         this.nextPagesKey = nextPagesKey;
         this.bySender = bySender;
         this.receiverIdIsOpaque = receiverIdIsOpaque;
+        this.maxPageNumber = maxPageNumber;
     }
 
     public String getSenderReceiverId() {
@@ -104,6 +101,7 @@ public class InputSearchNotificationDto {
         private String nextPagesKey;
         private boolean bySender;
         private boolean receiverIdIsOpaque;
+        private Integer maxPageNumber;
 
         private List<String> groups;
 
@@ -174,10 +172,15 @@ public class InputSearchNotificationDto {
             this.receiverIdIsOpaque = receiverIdIsOpaque;
             return this;
         }
+
+        public Builder maxPageNumber(Integer maxPageNumber) {
+            this.maxPageNumber = maxPageNumber;
+            return this;
+        }
         
         public InputSearchNotificationDto build() {
            return new InputSearchNotificationDto(senderReceiverId, startDate, endDate, mandateId, filterId, statuses,
-                   groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, receiverIdIsOpaque);
+                   groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, receiverIdIsOpaque, maxPageNumber);
         }
         
     }

@@ -83,6 +83,7 @@ paths:
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchRecipientId'
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchRecipientIdIsOpaque'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchSenderId'
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStatuses'

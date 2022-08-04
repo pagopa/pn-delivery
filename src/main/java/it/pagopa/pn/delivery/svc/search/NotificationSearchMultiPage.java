@@ -50,14 +50,17 @@ public class NotificationSearchMultiPage extends NotificationSearch {
 
         log.info( "notification paged search indexName={}", indexNameAndPartitions.getIndexName() );
 
+        // - le API private impostano il numero di pagine richiesto. Le API esposte il valore è definito in configurazione
+        Integer maxPageNumber = inputSearchNotificationDto.getMaxPageNumber() != null? inputSearchNotificationDto.getMaxPageNumber() : cfg.getMaxPageSize();
+
         // numero di elementi totali da cercare, di fatto la size della pagina * il numero di pagine + 1, così so per certo se ci sono altri elementi dopo o no.
-        int requiredSize = inputSearchNotificationDto.getSize() * cfg.getMaxPageSize() + 1;
+        int requiredSize = inputSearchNotificationDto.getSize() * maxPageNumber + 1;
         // numero di elementi da chiedere a dynamoDb
         int dynamoDbPageSize = requiredSize;
         // se ho dei filtri ulteriori, suppongo che i dati vengano ulteriormente filtrati, quindi aumento il numero di elementi da leggere
         if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses())
             || !CollectionUtils.isEmpty(inputSearchNotificationDto.getGroups())
-            || (inputSearchNotificationDto.isBySender() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId())))
+            || (inputSearchNotificationDto.isBySender() && StringUtils.hasText(inputSearchNotificationDto.getFilterId())))
             dynamoDbPageSize = dynamoDbPageSize * FILTER_EXPRESSION_APPLIED_MULTIPLIER;
 
         int logItemCount = 0;

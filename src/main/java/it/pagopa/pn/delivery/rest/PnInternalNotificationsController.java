@@ -8,12 +8,15 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
@@ -72,7 +75,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
-                                                                                  String recipientId, Boolean recipientIdOpaque, List<NotificationStatus> status,
+                                                                                  String recipientId, Boolean recipientIdOpaque,
+                                                                                  String senderId, List<NotificationStatus> status,
                                                                                   Integer size, String nextPagesKey) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
@@ -80,14 +84,18 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .before(PnAuditLogEventType.AUD_NT_SEARCH_SND, "searchNotificationsPrivate")
                 .build();
         logEvent.log();
+        if (StringUtils.hasText( recipientId ) && StringUtils.hasText( senderId )) {
+            throw new IllegalArgumentException( "Please specify alternatively recipientId or senderId search params" );
+        }
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
-                .bySender(false)
-                .senderReceiverId(recipientId)
+                .bySender( StringUtils.hasText( senderId ) )
+                .senderReceiverId( StringUtils.hasText( recipientId )? recipientId : senderId)
                 .startDate(startDate.toInstant())
                 .endDate(endDate.toInstant())
                 .statuses(status==null?List.of():status)
                 .receiverIdIsOpaque(recipientIdOpaque)
                 .size(size)
+                .maxPageNumber( 1 )
                 .nextPagesKey(nextPagesKey)
                 .build();
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
@@ -103,5 +111,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         }
         return ResponseEntity.ok( response );
 
+    }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<Problem> handleRuntimeException( RuntimeException ex ) {
+        return HandleRuntimeException.handleRuntimeException( ex );
     }
 }

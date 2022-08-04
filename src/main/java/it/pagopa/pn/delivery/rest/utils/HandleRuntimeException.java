@@ -12,15 +12,15 @@ public class HandleRuntimeException {
     private HandleRuntimeException() {}
 
     public static ResponseEntity<Problem> handleRuntimeException(RuntimeException ex) {
-        log.error("handleRuntimeException {}", ex.getMessage(), ex);
+        log.error("handleRuntimeException - {}", ex.getMessage(), ex);
         List<ProblemError> problemErrorList = Collections.singletonList( ProblemError.builder()
                 .code( "" )
                 .detail( "" )
                 .build() );
 
         Problem problem = Problem.builder()
-                .type( "" )
-                .detail( "" )
+                .type( "Runtime Exception" )
+                .detail( ex.getMessage() )
                 .title( "" )
                 .status( 500 )
                 .errors( problemErrorList )
