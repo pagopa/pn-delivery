@@ -51,7 +51,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     private static final String OPAQUE_TAX_ID_R2 = "Q0xNQ1NUNDJSMTJEOTY5Wg==";
     private static final String TAX_ID_R2 = "CLMCST42R12D969Z";
     private static final String DENOMINATION_R2 = "Cristoforo Colombo";
-    private static final String ACCEPTED_DATE = "2022-08-05T13:27Z";
+    private static final String ACCEPTED_DATE = "2022-08-04T13:27Z";
 
     @Autowired
     private NotificationMetadataEntityDao notificationMetadataEntityDao;
@@ -412,6 +412,26 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         );
 
         Assertions.assertNotNull( result );
+    }
+
+    @Test
+    void putIfAbsent() throws IdConflictException {
+        //Given
+        NotificationMetadataEntity metadataEntityToInsert = newNotificationMetadata();
+
+        Key key = Key.builder()
+                .partitionValue(metadataEntityToInsert.getIun_recipientId())
+                .sortValue( metadataEntityToInsert.getSentAt().toString() )
+                .build();
+
+        //When
+        notificationMetadataEntityDao.putIfAbsent( metadataEntityToInsert );
+
+        //Then
+        Optional<NotificationMetadataEntity> elementFromDb = notificationMetadataEntityDao.get( key );
+
+        Assertions.assertTrue( elementFromDb.isPresent() );
+        Assertions.assertEquals( metadataEntityToInsert, elementFromDb.get() );
     }
 
 

@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -40,16 +41,32 @@ public class StatusService {
             InternalNotification notification = notificationOptional.get();
             log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
 
-            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification);
+            OffsetDateTime acceptedAt = null;
+
+            if ( !NotificationStatus.ACCEPTED.equals( dto.getNextStatus() ) ) {
+                Key key = Key.builder()
+                        .partitionValue( notification.getIun() + "##" + notification.getRecipientIds().get( 0 ) )
+                        .sortValue( notification.getSentAt().toString() )
+                        .build();
+                Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
+                if (optMetadata.isPresent() ) {
+                    acceptedAt = OffsetDateTime.parse( optMetadata.get().getTableRow().get( "acceptedAt" ) );
+                } else {
+                    log.debug( "Unable to retrieve accepted date - iun={} recipientId={}", notification.getIun(), notification.getRecipientIds().get( 0 ) );
+                }
+            } else {
+                acceptedAt = dto.getTimestamp();
+            }
+
+            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
             nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
         } else {
             throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun());
         }
     }
 
-    private List<NotificationMetadataEntity> computeMetadataEntry(RequestUpdateStatusDto dto, InternalNotification notification) {
+    private List<NotificationMetadataEntity> computeMetadataEntry(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
         NotificationStatus lastStatus = dto.getNextStatus();
-        OffsetDateTime timestamp = dto.getTimestamp();
         String creationMonth = extractCreationMonth( notification.getSentAt().toInstant() );
 
         List<String> opaqueTaxIds = new ArrayList<>();
@@ -58,7 +75,7 @@ public class StatusService {
         }
 
         return opaqueTaxIds.stream()
-                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, timestamp))
+                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt))
                     .collect(Collectors.toList());
     }
 
@@ -68,11 +85,11 @@ public class StatusService {
             String recipientId,
             List<String> recipientsIds,
             String creationMonth,
-            OffsetDateTime timestamp
+            OffsetDateTime acceptedAt
     ) {
         int recipientIndex = recipientsIds.indexOf( recipientId );
 
-        Map<String,String> tableRowMap = createTableRowMap(notification, lastStatus, recipientsIds, timestamp);
+        Map<String,String> tableRowMap = createTableRowMap(notification, lastStatus, recipientsIds, acceptedAt);
 
         return NotificationMetadataEntity.builder()
                 .notificationStatus( lastStatus.toString() )
@@ -91,15 +108,15 @@ public class StatusService {
     }
 
     @NotNull
-    private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatus lastStatus, List<String> recipientsIds, OffsetDateTime timestamp) {
+    private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatus lastStatus, List<String> recipientsIds, OffsetDateTime acceptedAt) {
         Map<String,String> tableRowMap = new HashMap<>();
         tableRowMap.put( "iun", notification.getIun() );
         tableRowMap.put( "recipientsIds", recipientsIds.toString() );
         tableRowMap.put( "paProtocolNumber", notification.getPaProtocolNumber() );
         tableRowMap.put( "subject", notification.getSubject() );
         tableRowMap.put( "senderDenomination", notification.getSenderDenomination() );
-        if ( NotificationStatus.ACCEPTED.equals(lastStatus)) {
-            tableRowMap.put( "acceptedAt", timestamp.toString() );
+        if ( Objects.nonNull( acceptedAt )) {
+            tableRowMap.put( "acceptedAt", acceptedAt.toString() );
         }
         return tableRowMap;
     }
