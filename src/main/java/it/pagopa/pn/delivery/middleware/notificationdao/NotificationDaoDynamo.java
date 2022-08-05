@@ -134,7 +134,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 		List<NotificationRecipient> daoNotificationRecipientList = daoResult.getRecipients();
 
 		Set<String> opaqueIds = daoNotificationRecipientList.stream()
-				.map(NotificationRecipient::getTaxId)
+				.map(NotificationRecipient::getInternalId)
 				.collect(Collectors.toSet());
 
 		List<BaseRecipientDto> baseRecipientDtoList =
@@ -144,7 +144,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 		List<String> opaqueRecipientsIds = new ArrayList<>();
 		int recipientIndex = 0;
 		for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
-			String opaqueTaxId = recipient.getTaxId();
+			String opaqueTaxId = recipient.getInternalId();
 			opaqueRecipientsIds.add( opaqueTaxId );
 
 			BaseRecipientDto baseRec = baseRecipientDtoList.stream()

@@ -45,7 +45,7 @@ public class StatusService {
 
             if ( !NotificationStatus.ACCEPTED.equals( dto.getNextStatus() ) ) {
                 Key key = Key.builder()
-                        .partitionValue( notification.getIun() + "##" + notification.getRecipientIds().get( 0 ) )
+                        .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )
                         .sortValue( notification.getSentAt().toString() )
                         .build();
                 Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
