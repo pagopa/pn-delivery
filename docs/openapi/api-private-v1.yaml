@@ -118,6 +118,10 @@ components:
           $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/IUN'
         nextStatus:
           $ref: "remote-refs.yaml#/components/schemas/NotificationStatus"
+        timestamp:
+          type: string
+          description: timestamp del passaggio di stato
+          format: date-time
                     
     
     Problem:

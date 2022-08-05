@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
 
@@ -20,6 +21,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 .sentAt( entity.getSentAt().atOffset( ZoneOffset.UTC ))
                 .subject( entity.getTableRow().get( "subject" ) )
                 .paProtocolNumber( entity.getTableRow().get("paProtocolNumber") )
+                .requestAcceptedAt(OffsetDateTime.parse( entity.getTableRow().get( "acceptedAt" ) ) )
                 //.group( entity.getNotificationGroup() )
                 .notificationStatus( NotificationStatus.valueOf( entity.getNotificationStatus() ))
                 .build();

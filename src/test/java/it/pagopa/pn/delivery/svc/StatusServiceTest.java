@@ -65,6 +65,7 @@ class StatusServiceTest {
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
                 .nextStatus(NotificationStatus.DELIVERED)
+                .timestamp( OffsetDateTime.now() )
                 .build();
         
         assertDoesNotThrow(() -> statusService.updateStatus(dto));
