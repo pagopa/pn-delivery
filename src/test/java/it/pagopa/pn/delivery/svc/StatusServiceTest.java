@@ -59,7 +59,7 @@ class StatusServiceTest {
                         .taxId( "CodiceFiscale" )
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .build()) )
-                .build(), Collections.emptyMap(), Collections.emptyList()));
+                .build(), Collections.emptyMap(), List.of( "recipientId" )));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
