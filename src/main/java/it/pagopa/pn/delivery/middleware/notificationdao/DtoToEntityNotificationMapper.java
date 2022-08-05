@@ -19,6 +19,7 @@ public class DtoToEntityNotificationMapper {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
                 .iun( dto.getIun() )
                 ._abstract( dto.getAbstract() )
+                .idempotenceToken( dto.getIdempotenceToken() )
                 .paNotificationId( dto.getPaProtocolNumber())
                 .senderDenomination( dto.getSenderDenomination() )
                 .senderTaxId( dto.getSenderTaxId() )
@@ -66,6 +67,8 @@ public class DtoToEntityNotificationMapper {
             entity = new DocumentAttachmentEntity();
             entity.setContentType( dto.getContentType() );
             entity.setTitle( dto.getTitle() );
+            entity.setRequiresAck( dto.getRequiresAck() );
+            entity.setSendByMail( dto.getSendByMail() );
 
 
             entity.setDigests( AttachmentDigestsEntity.builder()

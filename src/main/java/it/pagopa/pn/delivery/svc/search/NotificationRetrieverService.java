@@ -1,12 +1,15 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -16,15 +19,18 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -33,7 +39,6 @@ import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,10 +57,12 @@ public class NotificationRetrieverService {
 	private final NotificationViewedProducer notificationAcknowledgementProducer;
 	private final NotificationDao notificationDao;
 	private final PnDeliveryPushClientImpl pnDeliveryPushClient;
-	private final PnDeliveryConfigs cfg;
 	private final PnMandateClientImpl pnMandateClient;
 	private final PnDataVaultClientImpl dataVaultClient;
+	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private final ModelMapperFactory modelMapperFactory;
+	private final NotificationSearchFactory notificationSearchFactory;
+	private final PnDeliveryConfigs cfg;
 
 
 	@Autowired
@@ -63,16 +70,23 @@ public class NotificationRetrieverService {
 										NotificationViewedProducer notificationAcknowledgementProducer,
 										NotificationDao notificationDao,
 										PnDeliveryPushClientImpl pnDeliveryPushClient,
-										PnDeliveryConfigs cfg,
-										PnMandateClientImpl pnMandateClient, PnDataVaultClientImpl dataVaultClient, ModelMapperFactory modelMapperFactory) {
+										PnMandateClientImpl pnMandateClient,
+										PnDataVaultClientImpl dataVaultClient,
+										PnExternalRegistriesClientImpl pnExternalRegistriesClient,
+										ModelMapperFactory modelMapperFactory,
+										NotificationSearchFactory notificationSearchFactory,
+										PnDeliveryConfigs cfg
+	) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
 		this.pnDeliveryPushClient = pnDeliveryPushClient;
-		this.cfg = cfg;
 		this.pnMandateClient = pnMandateClient;
 		this.dataVaultClient = dataVaultClient;
+		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 		this.modelMapperFactory = modelMapperFactory;
+		this.notificationSearchFactory = notificationSearchFactory;
+		this.cfg = cfg;
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
@@ -119,25 +133,24 @@ public class NotificationRetrieverService {
 			log.debug( "No filterId or search is by receiver" );
 		}
 
-		MultiPageSearch multiPageSearch = new MultiPageSearch(
-				notificationDao,
+		NotificationSearch pageSearch = notificationSearchFactory.getMultiPageSearch(
 				searchDto,
-				lastEvaluatedKey,
-				cfg,
-				dataVaultClient);
+				lastEvaluatedKey);
 
 		log.debug( "START search notification metadata" );
-		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = multiPageSearch.searchNotificationMetadata();
+		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = pageSearch.searchNotificationMetadata();
 		log.debug( "END search notification metadata" );
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
-		builder.moreResult( searchResult.getNextPagesKey() != null )
+		builder.moreResult(searchResult.isMoreResult() )
 				.resultsPage( searchResult.getResultsPage() );
-		if ( searchResult.getNextPagesKey() != null ) {
+		if ( !CollectionUtils.isEmpty(searchResult.getNextPagesKey()) ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
 					.collect(Collectors.toList()) );
 		}
+		else
+			builder.nextPagesKey(new ArrayList<>());
 		return builder.build();
 	}
 
@@ -235,9 +248,9 @@ public class NotificationRetrieverService {
 			InternalNotification notification = optNotification.get();
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
-				Date refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
+				OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 				checkDocumentsAvailability( notification, refinementDate );
-				if ( !requestBySender ) {
+				if ( cfg.isMVPTrial() && !requestBySender ) {
 					computeNoticeCodeToReturn( notification, refinementDate );
 				}
 			}
@@ -249,9 +262,9 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private Date findRefinementDate(List<TimelineElement> timeline, String iun) {
+	private OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
-		Date refinementDate = null;
+		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
 		List<TimelineElement> timelineElementList = timeline
 				.stream()
@@ -269,17 +282,18 @@ public class NotificationRetrieverService {
 		return refinementDate;
 	}
 
-	private void computeNoticeCodeToReturn(InternalNotification notification, Date refinementDate) {
+	private void computeNoticeCodeToReturn(InternalNotification notification, OffsetDateTime refinementDate) {
 		log.debug( "Compute notice code to return for iun={}", notification.getIun() );
 		NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
 		setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
 	}
 
-	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, Date refinementDate) {
+	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, OffsetDateTime refinementDate) {
 		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
 		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
 		if ( refinementDate != null ) {
-			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo(ChronoUnit.DAYS),
+					clock.instant().truncatedTo( ChronoUnit.DAYS ) );
 			// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
 			if ( daysBetween > MAX_FIRST_NOTICE_CODE_DAYS && daysBetween <= MAX_SECOND_NOTICE_CODE_DAYS) {
 				log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
@@ -295,19 +309,24 @@ public class NotificationRetrieverService {
 	}
 
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
+		// - per l'MVP la notifica ha necessariamente un solo destinatario
 		for ( NotificationRecipient recipient : recipientList ) {
-			NotificationPaymentInfo paymentInfo = recipient.getPayment();
-			if ( paymentInfo != null && paymentInfo.getNoticeCodeAlternative() != null ) {
+			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
+			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
+			String noticeCode = notificationPaymentInfo.getNoticeCode();
+			if ( notificationPaymentInfo != null && notificationPaymentInfo.getNoticeCodeAlternative() != null ) {
 				switch (noticeCodeToReturn) {
 					case FIRST_NOTICE_CODE: {
 						break;
 					}
+					// - se devo restituire il notice code alternativo...
 					case SECOND_NOTICE_CODE: {
-						paymentInfo.setNoticeCode( paymentInfo.getNoticeCodeAlternative() );
+						// - ...verifico che il primo notice code non è stato già pagato
+						verifyNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
 						break;
 					}
 					case NO_NOTICE_CODE: {
-						paymentInfo.setNoticeCode( null );
+						notificationPaymentInfo.setNoticeCode( null );
 						break;
 					}
 					default: {
@@ -315,9 +334,35 @@ public class NotificationRetrieverService {
 					}
 				}
 				// in ogni caso non restituisco il noticeCode opzionale
-				paymentInfo.setNoticeCodeAlternative( null );
+				notificationPaymentInfo.setNoticeCodeAlternative( null );
 			}
 		}
+	}
+
+	private void verifyNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
+		log.debug( "Start getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
+		try {
+			PaymentInfo paymentInfo = this.pnExternalRegistriesClient.getPaymentInfo(creditorTaxId, noticeCode);
+			if ( paymentInfo != null ) {
+				log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
+				// - se il primo notice code NON è stato già pagato
+				if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
+					// - restituisco il notice code alternativo
+					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getNoticeCodeAlternative() );
+					notificationPaymentInfo.setNoticeCode( notificationPaymentInfo.getNoticeCodeAlternative() );
+				}
+				// - il primo notice code è stato già pagato quindi lo restituisco
+			} else {
+				// - External-registries non risponde quindi non restituisco nessun notice code
+				log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
+				notificationPaymentInfo.setNoticeCode( null );
+			}
+		} catch ( PnHttpResponseException ex ) {
+			// - External-registries non risponde quindi non restituisco nessun notice code
+			log.error( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
+			notificationPaymentInfo.setNoticeCode( null );
+		}
+
 	}
 
 	public enum NoticeCodeToReturn {
@@ -339,6 +384,16 @@ public class NotificationRetrieverService {
 
 	public InternalNotification getNotificationInformation(String iun) {
 		return getNotificationInformation( iun, true, false );
+	}
+
+	public InternalNotification getNotificationInformation(String senderId, String paProtocolNumber, String idempotenceToken) {
+		Optional<String> optionalRequestId = notificationDao.getRequestId( senderId, paProtocolNumber, idempotenceToken );
+		if (optionalRequestId.isEmpty()) {
+			String msg = String.format( "Unable to find requestId for senderId=%s paProtocolNumber=%s idempotenceToken=%s", senderId, paProtocolNumber, idempotenceToken );
+			throw new PnInternalException( msg );
+		}
+		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
+		return getNotificationInformation( iun, true, true );
 	}
 
 	/**
@@ -388,12 +443,13 @@ public class NotificationRetrieverService {
 		return delegatorId;
 	}
 
-	private void checkDocumentsAvailability(InternalNotification notification, Date refinementDate) {
+	private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate) {
 		log.debug( "Check if documents are available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
 		if ( !NotificationStatus.CANCELLED.equals( notification.getNotificationStatus() ) ) {
 			if ( refinementDate != null ) {
-				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant(), Instant.now() );
+				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo( ChronoUnit.DAYS ),
+						clock.instant().truncatedTo( ChronoUnit.DAYS ) );
 				if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS ) {
 					log.debug("Documents not more available for iun={} from={}", notification.getIun(), refinementDate);
 					removeDocuments( notification );
@@ -407,7 +463,7 @@ public class NotificationRetrieverService {
 
 	private void removeDocuments(InternalNotification notification) {
 		notification.setDocumentsAvailable( false );
-		notification.setDocuments( null );
+		notification.setDocuments( Collections.emptyList() );
 		for ( NotificationRecipient recipient : notification.getRecipients() ) {
 			NotificationPaymentInfo payment = recipient.getPayment();
 			if ( payment != null ) {
@@ -430,11 +486,9 @@ public class NotificationRetrieverService {
 	public InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
-		Date createdAt =  notification.getSentAt();
-		OffsetDateTime offsetDateTime = createdAt.toInstant()
-				.atOffset(ZoneOffset.UTC);
+		OffsetDateTime createdAt =  notification.getSentAt();
 
-		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, offsetDateTime);
+		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, createdAt);
 
 
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
@@ -450,8 +504,6 @@ public class NotificationRetrieverService {
 		mapperStatusHistory.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class )
 				.addMapping( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
 		mapperStatusHistory.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
-		Converter<OffsetDateTime,Date> dateConverter = ctx -> ctx.getSource() != null ? fromOffsetToDate( ctx.getSource() ) : null;
-		mapperStatusHistory.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
 
@@ -459,7 +511,6 @@ public class NotificationRetrieverService {
 		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
 				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
 		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-		mapperTimeline.addConverter( dateConverter, OffsetDateTime.class, Date.class );
 
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream()

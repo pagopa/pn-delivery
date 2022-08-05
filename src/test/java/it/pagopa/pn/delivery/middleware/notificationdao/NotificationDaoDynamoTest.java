@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRec
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
@@ -25,6 +26,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -277,7 +279,12 @@ class NotificationDaoDynamoTest {
         }
 
         @Override
-        public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+        public PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+            return null;
+        }
+
+        @Override
+        public PageSearchTrunk<NotificationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String partitionValue, String sentAt) {
             return null;
         }
     }
@@ -293,7 +300,7 @@ class NotificationDaoDynamoTest {
                 .cancelledIun("IUN_00")
                 .group( "Group_1" )
                 .senderPaId( "pa_02" )
-                .sentAt( Date.from( Instant.now() ) )
+                .sentAt( OffsetDateTime.now() )
                 .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                                 .recipientType( NotificationRecipient.RecipientTypeEnum.PF )

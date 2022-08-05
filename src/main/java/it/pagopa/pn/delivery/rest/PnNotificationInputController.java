@@ -69,23 +69,34 @@ public class PnNotificationInputController implements NewNotificationApi {
     @Override
     public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(
             String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
-        Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, "presignedUploadRequest")
                 .uid(xPagopaPnUid)
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .build();
-        logEvent.log();
-        if (preLoadRequest.size() > numberOfPresignedRequest) {
-            String logMessage = String.format("Presigned upload request lenght=%d is more than maximum allowed=%d",
-                    preLoadRequest.size(), numberOfPresignedRequest);
-            log.error(logMessage);
-            logEvent.generateFailure(logMessage).log();
-            throw new PnValidationException("request", Collections.singleton(new ConstraintViolationImpl<>(String.format(logMessage))));
+
+        try {
+            Integer numberOfPresignedRequest = cfgs.getNumberOfPresignedRequest();
+
+            logEvent.log();
+            if (preLoadRequest.size() > numberOfPresignedRequest) {
+                String logMessage = String.format("Presigned upload request lenght=%d is more than maximum allowed=%d",
+                        preLoadRequest.size(), numberOfPresignedRequest);
+                log.error(logMessage);
+                logEvent.generateFailure(logMessage).log();
+                throw new PnValidationException("request", Collections.singleton(new ConstraintViolationImpl<>(String.format(logMessage))));
+            }
+
+            List<PreLoadResponse> res = this.notificationAttachmentService.preloadDocuments(preLoadRequest);
+            logEvent.generateSuccess().log();
+
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            log.error("catched exception", e);
+            logEvent.generateFailure("catched exception on preload", e).log();
+            throw e;
         }
-        logEvent.generateSuccess().log();
-        return ResponseEntity.ok(this.notificationAttachmentService.preloadDocuments(preLoadRequest));
     }
 
     @ExceptionHandler({PnValidationException.class})

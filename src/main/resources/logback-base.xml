@@ -5,7 +5,6 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
     <logger name="it.pagopa.pn" level="DEBUG" />
-    <logger name="org.apache.http.impl.conn" level="DEBUG" />
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>

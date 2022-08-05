@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +37,7 @@ class PnNotificationPriceControllerTest {
         //Given
         NotificationPriceResponse priceResponse = NotificationPriceResponse.builder()
                 .iun( "iun" )
-                .effectiveDate( Date.from( Instant.now() ) )
+                .effectiveDate( OffsetDateTime.now() )
                 .amount( "2000" )
                 .build();
 

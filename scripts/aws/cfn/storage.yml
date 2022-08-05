@@ -30,7 +30,6 @@ Resources:
       Parameters:
         StreamName: !Sub '${ProjectName}-notification-cdc-stream'
         StreamRetentionPeriodHours: 24
-        StreamShardCount: 10
   
   # Dynamo Table
   NotificationsTable:

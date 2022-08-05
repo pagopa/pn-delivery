@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.*;
 
 
@@ -60,7 +61,8 @@ public class NotificationReceiverService {
 	 */
 	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest) throws IdConflictException {
 		log.info("New notification storing START");
-		log.debug("New notification storing START for={}", newNotificationRequest);
+		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
+				newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken());
 		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
 		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
 
@@ -83,6 +85,7 @@ public class NotificationReceiverService {
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
 				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
+				.idempotenceToken( internalNotification.getIdempotenceToken() )
 				.build();
 	}
 
@@ -106,7 +109,7 @@ public class NotificationReceiverService {
 		Map<NotificationRecipient,String> tokens = generateToken( internalNotification.getRecipients(), iun );
 
 		internalNotification.iun( iun );
-		internalNotification.sentAt( Date.from(createdAt) );
+		internalNotification.sentAt( createdAt.atOffset( ZoneOffset.UTC ) );
 		internalNotification.setTokens( tokens );
 
 

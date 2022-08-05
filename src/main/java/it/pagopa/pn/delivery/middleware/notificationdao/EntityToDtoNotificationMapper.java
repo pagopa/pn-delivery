@@ -10,9 +10,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,8 +34,9 @@ public class EntityToDtoNotificationMapper {
                 .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.fromValue( entity.getNotificationFeePolicy().getValue() ))
                 .iun( entity.getIun() )
                 .subject( entity.getSubject() )
-                .sentAt( Date.from(entity.getSentAt()) )
+                .sentAt( entity.getSentAt().atOffset( ZoneOffset.UTC ) )
                 .paProtocolNumber( entity.getPaNotificationId() )
+                .idempotenceToken( entity.getIdempotenceToken() )
                 .cancelledByIun( entity.getCancelledByIun() )
                 .cancelledIun( entity.getCancelledIun() )
                 .physicalCommunicationType( entity.getPhysicalCommunicationType() )

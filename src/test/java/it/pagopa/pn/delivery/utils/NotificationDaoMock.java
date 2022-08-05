@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationM
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -38,19 +39,34 @@ public class NotificationDaoMock implements NotificationDao {
     }
 
     @Override
-    public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+    public Optional<String> getRequestId(String senderId, String paProtocolNumber, String idempotenceToken) {
+        return Optional.empty();
+    }
 
-        return ResultPaginationDto.<NotificationSearchRow, PnLastEvaluatedKey>builder()
-                .resultsPage(Collections.singletonList( NotificationSearchRow.builder()
-                        .iun( "IUN" )
-                        //.group( "GRP" )
-                        .paProtocolNumber( "paProtocolNumber" )
-                        .notificationStatus( NotificationStatus.VIEWED )
-                        .sender( "SenderId" )
-                        .subject( "Subject" )
-                        .recipients( List.of( "internalId1", "internalId2" ) )
-                        .build() ))
-                .moreResult( false )
-                .build();
+    @Override
+    public PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+
+        PageSearchTrunk<NotificationMetadataEntity> result = new PageSearchTrunk<>();
+        result.setResults(Collections.singletonList( NotificationMetadataEntity.builder()
+                .iun_recipientId("IUN##internalId1" )
+                .notificationStatus( NotificationStatus.VIEWED.getValue() )
+                .senderId( "SenderId" )
+                .recipientIds(List.of( "internalId1", "internalId2" ) )
+                .build() ));
+
+        return result;
+    }
+
+    @Override
+    public PageSearchTrunk<NotificationMetadataEntity> searchByIUN(InputSearchNotificationDto inputSearchNotificationDto) {
+        PageSearchTrunk<NotificationMetadataEntity> result = new PageSearchTrunk<>();
+        result.setResults(Collections.singletonList( NotificationMetadataEntity.builder()
+                .iun_recipientId("IUN##internalId1" )
+                .notificationStatus( NotificationStatus.VIEWED.getValue() )
+                .senderId( "SenderId" )
+                .recipientIds(List.of( "internalId1", "internalId2" ) )
+                .build() ));
+
+        return result;
     }
 }
