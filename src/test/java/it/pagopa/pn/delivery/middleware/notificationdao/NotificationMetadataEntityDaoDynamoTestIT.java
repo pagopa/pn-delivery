@@ -51,6 +51,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     private static final String OPAQUE_TAX_ID_R2 = "Q0xNQ1NUNDJSMTJEOTY5Wg==";
     private static final String TAX_ID_R2 = "CLMCST42R12D969Z";
     private static final String DENOMINATION_R2 = "Cristoforo Colombo";
+    private static final String ACCEPTED_DATE = "2022-08-04T13:27Z";
 
     @Autowired
     private NotificationMetadataEntityDao notificationMetadataEntityDao;
@@ -433,11 +434,13 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         Assertions.assertEquals( metadataEntityToInsert, elementFromDb.get() );
     }
 
+
     private NotificationMetadataEntity newNotificationMetadata() {
         Map<String,String> tableRowMap = new HashMap<>();
         tableRowMap.put( "iun", IUN );
         tableRowMap.put( "recipientsIds", "["+OPAQUE_TAX_ID_R1+","+ OPAQUE_TAX_ID_R2+"]" );
         tableRowMap.put( "subject", "multa" );
+        tableRowMap.put( "acceptedAt", ACCEPTED_DATE );
         return NotificationMetadataEntity.builder()
                 .iun_recipientId( "KSAU-CKOB-OFKR-202205-O-1##"+OPAQUE_TAX_ID_R1 )
                 .notificationGroup( "NotificationGroup1" )
