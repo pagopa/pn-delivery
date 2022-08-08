@@ -308,6 +308,37 @@ class NotificationAttachmentServiceTest {
         assertNotNull(result.getUrl());
     }
 
+    @Test
+    void downloadAttachmentWithRedirectByIunAndAttachmentNameFailure() {
+        //Given
+        String iun = "iun";
+        String cxType = "PF";
+
+        Optional<InternalNotification> optNotification = Optional.of(buildNotification(iun, X_PAGOPA_PN_CX_ID));
+
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .taxId( X_PAGOPA_PN_CX_ID )
+                .build();
+
+        AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(
+                recipient,
+                0
+        );
+
+
+        when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
+        when(checkAuthComponent.canAccess(
+                Mockito.any(ReadAccessAuth.class),
+                Mockito.any( InternalNotification.class ) )
+        ).thenReturn( authorizationOutcome );
+
+        //When
+        assertThrows(PnNotFoundException.class, () -> attachmentService.downloadAttachmentWithRedirect(
+                iun, cxType, X_PAGOPA_PN_CX_ID, null, 0 , F_24));
+
+    }
+
 
     @Test
     void downloadAttachmentWithRedirectByIunRecUidAttachNameMandateId() {

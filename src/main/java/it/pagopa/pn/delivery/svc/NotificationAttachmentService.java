@@ -15,9 +15,11 @@ import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -215,6 +217,9 @@ public class NotificationAttachmentService {
             String attachmentName = fileDownloadIdentify.attachmentName;
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
             fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, notification.getNotificationFeePolicy());
+            if (!StringUtils.hasText( fileKey )) {
+                throw new PnNotFoundException( "Unable to find key for " + attachmentName + " attachment - iun=" + iun);
+            }
             name = attachmentName;
         }
 
@@ -229,23 +234,42 @@ public class NotificationAttachmentService {
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy){
-        switch (ATTACHMENT_TYPE.valueOf(attachmentName))
-        {
-            case PAGOPA:
-                return doc.getPayment().getPagoPaForm().getRef().getKey();
-            case F24:
-                if (notificationFeePolicy== FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE)
-                    return doc.getPayment().getF24flatRate().getRef().getKey();
-                else
-                    return doc.getPayment().getF24standard().getRef().getKey();
-            case F24_FLAT:
-                return doc.getPayment().getF24flatRate().getRef().getKey();
-            case F24_STANDARD:
-                return doc.getPayment().getF24standard().getRef().getKey();
+        NotificationPaymentInfo payment = doc.getPayment();
+        if ( !Objects.nonNull( payment ) ) {
+            log.error( "Notification without payment attachment - iun={}", iun );
+            throw new PnInternalException("Notification without payment attachment - iun=" + iun);
         }
 
-        log.error("NotificationRecipient invalid attachmentname attachmentName={}", attachmentName);
-        throw new PnInternalException("NotificationRecipient invalid attachmentName for iun=" + iun);
+        switch (ATTACHMENT_TYPE.valueOf(attachmentName))
+        {
+            case PAGOPA: {
+                return getKey( payment.getPagoPaForm() );
+            }
+            case F24: {
+                if (FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE.equals( notificationFeePolicy )) {
+                    return getKey( payment.getF24flatRate() );
+                } else {
+                    return getKey( payment.getF24standard() );
+                }
+            }
+            case F24_FLAT: {
+                return getKey( payment.getF24flatRate() );
+            }
+            case F24_STANDARD: {
+                return getKey( payment.getF24standard() );
+            }
+        }
+
+        log.error("Invalid attachmentName={} for iun={}", attachmentName, iun);
+        throw new PnInternalException("Invalid attachmentName for iun=" + iun);
+    }
+
+    private String getKey(NotificationPaymentAttachment payment) {
+        String key = null;
+        if (Objects.nonNull( payment ) ) {
+            key = payment.getRef().getKey();
+        }
+        return key;
     }
 
     private String buildFilename(String iun, String name, String contentType){
