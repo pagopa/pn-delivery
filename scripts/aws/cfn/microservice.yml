@@ -108,9 +108,9 @@ Parameters:
     Description: 'keep track of used projects commitIds'
 
   NotificationCheckAddress:
-    Type: Boolean
+    Type: String
     Description: 'enables check on physical address when creating notification'
-
+    AllowedValues: [true, false]
 
 Resources:
 
