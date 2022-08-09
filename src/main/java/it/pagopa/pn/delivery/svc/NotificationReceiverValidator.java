@@ -59,7 +59,7 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max one recipient" );
             errors.add( constraintViolation );
         }
-        if ( notificationRequest.getRecipients().get( 0 ).getPhysicalAddress() == null ) {
+        if ( cfg.isNotificationCheckAddress() && notificationRequest.getRecipients().get( 0 ).getPhysicalAddress() == null ) {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
             errors.add( constraintViolation );
         }
