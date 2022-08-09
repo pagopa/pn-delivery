@@ -1,6 +1,6 @@
 {
   "Parameters" : {
     "SandboxSafeStorageBaseUrl": "https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev",
-    "NotificationCheckAddress": true
+    "NotificationCheckAddress": "true"
   }
 }
