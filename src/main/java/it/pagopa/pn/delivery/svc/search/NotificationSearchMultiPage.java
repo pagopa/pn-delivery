@@ -20,6 +20,8 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNull;
+
 @Slf4j
 public class NotificationSearchMultiPage extends NotificationSearch {
 
@@ -110,7 +112,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
      * @param requiredSize dimensione totale richiesta
      * @return risultati ricerca
      */
-    private ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> prepareGlobalResult(List<NotificationMetadataEntity> cumulativeQueryResult, int requiredSize){
+    private ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> prepareGlobalResult(List<NotificationMetadataEntity> cumulativeQueryResult, int requiredSize) {
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> globalResult = new ResultPaginationDto<>();
         globalResult.setNextPagesKey(new ArrayList<>());

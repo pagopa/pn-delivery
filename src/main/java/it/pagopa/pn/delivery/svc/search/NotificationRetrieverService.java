@@ -187,7 +187,7 @@ public class NotificationRetrieverService {
 			log.error( message );
 			throw new PnNotFoundException( message );
 		}
-		log.info( "END check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
+		log.info( "END check mandate for receiverId={} and mandateId={}", senderReceiverId, mandateId );
 	}
 
 	/**

@@ -153,7 +153,7 @@ public class NotificationAttachmentService {
 
             log.info( "START check authorization" );
             AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
-            log.info( "END check authorization={}", authorizationOutcome );
+            log.info( "END check authorization autorized={} xPagopaPnCxId={} mandateId={} recipientIdx={} iun={}", authorizationOutcome.isAuthorized(), cxId, mandateId, recipientIdx, iun);
 
             if ( !authorizationOutcome.isAuthorized() ) {
                 log.error("Error download attachment. xPagopaPnCxId={} mandateId={} recipientIdx={} cannot download attachment for notification with iun={}", cxId, mandateId, recipientIdx, iun);
@@ -218,7 +218,8 @@ public class NotificationAttachmentService {
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
             fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, notification.getNotificationFeePolicy());
             if (!StringUtils.hasText( fileKey )) {
-                throw new PnNotFoundException( "Unable to find key for " + attachmentName + " attachment - iun=" + iun);
+                String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
+                throw new PnNotFoundException(exMessage);
             }
             name = attachmentName;
         }
