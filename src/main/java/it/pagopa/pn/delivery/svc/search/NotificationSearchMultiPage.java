@@ -126,7 +126,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
                     try {
                         return entityToDto.entity2Dto(notificationMetadata);
                     } catch (Exception e) {
-                        String excMessage = String.format("Exception in mapping notificationMetadata for iun###recipient_id=%s", notificationMetadata.getIun_recipientId());
+                        String excMessage = String.format("Exception in mapping result for notificationMetadata iun###recipient_id=%s", notificationMetadata.getIun_recipientId());
                         throw new PnInternalException(excMessage);
                     }
                 })
