@@ -59,12 +59,13 @@ class StatusServiceTest {
                         .taxId( "CodiceFiscale" )
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .build()) )
-                .build(), Collections.emptyMap(), Collections.emptyList()));
+                .build(), Collections.emptyMap(), List.of( "recipientId" )));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
                 .nextStatus(NotificationStatus.DELIVERED)
+                .timestamp( OffsetDateTime.now() )
                 .build();
         
         assertDoesNotThrow(() -> statusService.updateStatus(dto));

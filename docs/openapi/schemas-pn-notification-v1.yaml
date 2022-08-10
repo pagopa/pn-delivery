@@ -68,6 +68,7 @@ components:
           description: Documenti notificati
           items:
             $ref: "#/components/schemas/NotificationDocument"
+          minItems: 1
         notificationFeePolicy:
           type: string
           description: >-
@@ -403,6 +404,10 @@ components:
           type: array
           items:
             type: string
+        requestAcceptedAt:
+          description: Data accettazione notifica
+          type: string
+          format: date-time
     
     #NotificationStatus:
       #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'

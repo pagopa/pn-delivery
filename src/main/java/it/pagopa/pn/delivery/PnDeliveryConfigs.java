@@ -50,6 +50,8 @@ public class PnDeliveryConfigs {
 
     private boolean MVPTrial;
 
+    private boolean NotificationCheckAddress;
+
     @Data
     public static class Topics {
         private String newNotifications;

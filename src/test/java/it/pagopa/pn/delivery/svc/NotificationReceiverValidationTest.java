@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
 
 import javax.validation.ConstraintViolation;
@@ -17,13 +19,16 @@ import javax.validation.Path;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 class NotificationReceiverValidationTest {
+
+    @Mock
+    private PnDeliveryConfigs cfg;
 
     public static final String ATTACHMENT_BODY_STR = "Body";
     public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
@@ -41,10 +46,10 @@ class NotificationReceiverValidationTest {
 
 
     private NotificationReceiverValidator validator;
-    private PnDeliveryConfigs cfg;
 
     @BeforeEach
     void initializeValidator() {
+        this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = new NotificationReceiverValidator( factory.getValidator(), cfg);
     }
@@ -268,6 +273,79 @@ class NotificationReceiverValidationTest {
         Assertions.assertEquals( 3, errors.size() );
     }
 
+    @Test
+    // pass all mvp checks
+    void newNotificationRequestForMVPValidCheckAddress() {
+
+        Mockito.when( cfg.isNotificationCheckAddress() ).thenReturn( true );
+
+        // GIVEN
+        NewNotificationRequest n = newNotification();
+
+        // WHEN
+        Set<ConstraintViolation<NewNotificationRequest>> errors;
+        errors = validator.checkNewNotificationRequestForMVP( n );
+
+        // THEN
+        Assertions.assertEquals( 0, errors.size() );
+    }
+
+    @Test
+        // pass all mvp checks
+    void newNotificationRequestForMVPValidDontCheckAddress() {
+
+        Mockito.when( cfg.isNotificationCheckAddress() ).thenReturn( false );
+
+        // GIVEN
+        NewNotificationRequest n = newNotification();
+        n.getRecipients().get(0).setPhysicalAddress(null);
+
+        // WHEN
+        Set<ConstraintViolation<NewNotificationRequest>> errors;
+        errors = validator.checkNewNotificationRequestForMVP( n );
+
+        // THEN
+        Assertions.assertEquals( 0, errors.size() );
+    }
+
+    @Test
+    // doesn't pass mvp checks
+    void newNotificationRequestForMVPInvalid() {
+
+        Mockito.when( cfg.isNotificationCheckAddress() ).thenReturn( true );
+
+        // GIVEN
+        NewNotificationRequest n = newNotification();
+        n.setSenderDenomination(null);
+        n.addRecipientsItem(NotificationRecipient.builder()
+                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .taxId("FiscalCode")
+                .denomination("Nome Cognome / Ragione Sociale")
+                .digitalDomicile(  NotificationDigitalAddress.builder().build() )
+                .build());
+        n.getRecipients().get(0).setPhysicalAddress(null);
+        String noticeCode = n.getRecipients().get(0).getPayment().getNoticeCode();
+        n.getRecipients().get(0).getPayment().setNoticeCodeAlternative(noticeCode);
+
+        // WHEN
+        Set<ConstraintViolation<NewNotificationRequest>> errors;
+        errors = validator.checkNewNotificationRequestForMVP( n );
+
+        // THEN
+        Assertions.assertEquals( 4, errors.size() );
+        assertConstraintViolationPresentByMessage( errors, "No sender denomination" );
+        assertConstraintViolationPresentByMessage( errors, "Max one recipient" );
+        assertConstraintViolationPresentByMessage( errors, "No recipient physical address" );
+        assertConstraintViolationPresentByMessage( errors, "Alternative notice code equals to notice code" );
+    }
+
+    private <T> void assertConstraintViolationPresentByMessage( Set<ConstraintViolation<T>> set, String message ) {
+        long actual = set.stream()
+                .filter( cv -> cv.getMessage().equals( message ) )
+                .count();
+        Assertions.assertEquals( 1, actual);
+    }
+
     private <T> void assertConstraintViolationPresentByField( Set<ConstraintViolation<T>> set, String propertyPath ) {
         long actual = set.stream()
                 .filter( cv -> propertyPathToString( cv.getPropertyPath() ).equals( propertyPath ) )
@@ -280,22 +358,35 @@ class NotificationReceiverValidationTest {
     }
 
     private NewNotificationRequest newNotification() {
+        List<NotificationRecipient> recipients = new ArrayList<>();
+        recipients.add(NotificationRecipient.builder()
+                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .taxId( "FiscalCode" )
+                .denomination( "Nome Cognome / Ragione Sociale" )
+                .digitalDomicile( NotificationDigitalAddress.builder()
+                        .type( NotificationDigitalAddress.TypeEnum.PEC )
+                        .address( "account@domain.it" )
+                        .build()
+                )
+                .physicalAddress(NotificationPhysicalAddress.builder()
+                        .address("Indirizzo")
+                        .zip("zip")
+                        .province("province")
+                        .municipality("municipality")
+                        .at("at")
+                        .build())
+                .payment(NotificationPaymentInfo.builder()
+                        .noticeCode("noticeCode")
+                        .noticeCodeAlternative("noticeCodeAlternative")
+                        .build())
+                .build());
         return NewNotificationRequest.builder()
+                .senderDenomination("Sender Denomination")
                 .idempotenceToken("IUN_01")
                 .paProtocolNumber( "protocol1" )
                 .subject( "subject" )
                 .senderTaxId( "paId" )
-                .recipients( Collections.singletonList(NotificationRecipient.builder()
-                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                        .taxId( "FiscalCode" )
-                        .denomination( "Nome Cognome / Ragione Sociale" )
-                        .digitalDomicile( NotificationDigitalAddress.builder()
-                                .type( NotificationDigitalAddress.TypeEnum.PEC )
-                                .address( "account@domain.it" )
-                                .build()
-                        )
-                        .build())
-                )
+                .recipients( recipients )
                 .build();
     }
 

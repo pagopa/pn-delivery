@@ -54,7 +54,7 @@ public class EntityToDtoNotificationMapper {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         mapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
-                .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setTaxId );
+                .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setInternalId );
 
         return recipients.stream()
                 .map( r -> mapper.map(r, NotificationRecipient.class))
