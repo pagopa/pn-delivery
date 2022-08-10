@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -18,6 +19,7 @@ import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -120,7 +122,14 @@ public class NotificationSearchMultiPage extends NotificationSearch {
         // tronco i risultati alla dimensione della pagina
         globalResult.setResultsPage(cumulativeQueryResult.stream()
                 .limit(inputSearchNotificationDto.getSize())
-                .map(entityToDto::entity2Dto)
+                .map(notificationMetadata ->{
+                    try {
+                        return entityToDto.entity2Dto(notificationMetadata);
+                    } catch (Exception e) {
+                        String excMessage = String.format("Exception in mapping notificationMetadata for iun###recipient_id=%s", notificationMetadata.getIun_recipientId());
+                        throw new PnInternalException(excMessage);
+                    }
+                })
                 .collect(Collectors.toList()));
 
         // dato che requiredSize era maggiore di 1, devo tornare che ci sono ancora elementi se la size è >= di required
