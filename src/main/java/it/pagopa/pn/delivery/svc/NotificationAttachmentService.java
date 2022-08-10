@@ -246,7 +246,8 @@ public class NotificationAttachmentService {
                 return getKey( payment.getPagoPaForm() );
             }
             case F24: {
-                if (FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE.equals( notificationFeePolicy )) {
+                // TODO: Al momento viene restituito semplicemente l'F24 presente a seguito della issue PN-1835 MA c'è da definire la logica corretta da adottare!!
+                if (doc.getPayment().getF24flatRate() != null) {
                     return getKey( payment.getF24flatRate() );
                 } else {
                     return getKey( payment.getF24standard() );
