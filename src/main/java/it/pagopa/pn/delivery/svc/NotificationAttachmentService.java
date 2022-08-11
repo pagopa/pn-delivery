@@ -224,12 +224,12 @@ public class NotificationAttachmentService {
             name = attachmentName;
         }
 
-        log.info("downloadDocumentWithRedirect with fileKey={} name:{} ", fileKey, name);
+        log.info("downloadDocumentWithRedirect with fileKey={} name:{} - iun={}", fileKey, name, iun);
 
         FileDownloadResponse r = this.getFile(fileKey);
         fileName = buildFilename(iun, name, r.getContentType());
 
-        log.info("downloadDocumentWithRedirect with fileKey={} filename:{} ", fileKey, fileName);
+        log.info("downloadDocumentWithRedirect with fileKey={} filename:{} - iun={}", fileKey, fileName, iun);
 
         return new FileInfos( fileName, r );
     }
