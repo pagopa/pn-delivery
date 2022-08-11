@@ -23,8 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -89,7 +91,9 @@ public class PnNotificationInputController implements NewNotificationApi {
             }
 
             List<PreLoadResponse> res = this.notificationAttachmentService.preloadDocuments(preLoadRequest);
-            logEvent.generateSuccess().log();
+            String[] keys = res.stream().map(PreLoadResponse::getKey).toArray(String[]::new);
+            String successMessage = "PreloadResponse file keys=" + String.join(", ", keys);
+            logEvent.generateSuccess(successMessage).log();
 
             return ResponseEntity.ok(res);
         } catch (Exception e) {
