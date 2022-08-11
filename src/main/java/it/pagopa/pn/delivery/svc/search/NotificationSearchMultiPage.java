@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -18,7 +19,10 @@ import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 public class NotificationSearchMultiPage extends NotificationSearch {
@@ -110,7 +114,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
      * @param requiredSize dimensione totale richiesta
      * @return risultati ricerca
      */
-    private ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> prepareGlobalResult(List<NotificationMetadataEntity> cumulativeQueryResult, int requiredSize){
+    private ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> prepareGlobalResult(List<NotificationMetadataEntity> cumulativeQueryResult, int requiredSize) {
 
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> globalResult = new ResultPaginationDto<>();
         globalResult.setNextPagesKey(new ArrayList<>());
@@ -118,7 +122,14 @@ public class NotificationSearchMultiPage extends NotificationSearch {
         // tronco i risultati alla dimensione della pagina
         globalResult.setResultsPage(cumulativeQueryResult.stream()
                 .limit(inputSearchNotificationDto.getSize())
-                .map(entityToDto::entity2Dto)
+                .map(notificationMetadata ->{
+                    try {
+                        return entityToDto.entity2Dto(notificationMetadata);
+                    } catch (Exception exc) {
+                        String excMessage = String.format("Exception in mapping result for notificationMetadata iun###recipient_id=%s", notificationMetadata.getIun_recipientId());
+                        throw new PnInternalException(excMessage, exc);
+                    }
+                })
                 .collect(Collectors.toList()));
 
         // dato che requiredSize era maggiore di 1, devo tornare che ci sono ancora elementi se la size è >= di required

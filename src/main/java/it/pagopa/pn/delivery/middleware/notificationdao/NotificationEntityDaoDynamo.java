@@ -115,13 +115,13 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         }
         Map<String,String> duplicatedErrors = new HashMap<>();
         if ( Objects.nonNull( iunDuplicated ) ) {
-            duplicatedErrors.put( "iun", notificationEntity.getIun() );
+            duplicatedErrors.put( "Duplicated notification for iun", notificationEntity.getIun() );
         }
         if ( Objects.nonNull( idempotenceTokenDuplicated ) ) {
-            duplicatedErrors.put("senderPaId##paProtocolNumber##idempotenceToken" , controlIdempotenceToken );
+            duplicatedErrors.put("Duplicated notification for senderPaId##paProtocolNumber##idempotenceToken" , controlIdempotenceToken );
         }
         for ( NotificationCostEntity nce : costEntitiesDuplicated ) {
-            duplicatedErrors.put("creditorTaxId##noticeCode", nce.getCreditorTaxId_noticeCode());
+            duplicatedErrors.put("Duplicated notification for creditorTaxId##noticeCode", nce.getCreditorTaxId_noticeCode());
         }
         return duplicatedErrors;
     }
