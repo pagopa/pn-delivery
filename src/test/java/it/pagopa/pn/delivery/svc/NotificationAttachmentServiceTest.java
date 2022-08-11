@@ -152,6 +152,88 @@ class NotificationAttachmentServiceTest {
     }
 
     @Test
+    void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24FlatNotNull() {
+        //Given
+        String iun = "iun";
+        String cxType = "PA";
+        String cxId = "paId";
+        int recipientidx = 0;
+        String attachmentName = F_24;
+
+        InternalNotification notification = buildNotification(iun, X_PAGOPA_PN_CX_ID, F_24_FLAT);
+
+        Optional<InternalNotification> optNotification = Optional.of(notification);
+
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .taxId( X_PAGOPA_PN_CX_ID )
+                .build();
+
+        AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(
+                recipient, 0);
+
+        when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
+        when(checkAuthComponent.canAccess(
+                Mockito.any(ReadAccessAuth.class),
+                Mockito.any( InternalNotification.class ) )
+        ).thenReturn( authorizationOutcome );
+
+        //When
+        NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
+                iun, cxType, cxId, null, recipientidx, attachmentName);
+
+        //Then
+        NotificationRecipient notificationRecipient = notification.getRecipients().get(0);
+
+        Mockito.verify(pnSafeStorageClient).getFile( notificationRecipient.getPayment().getF24flatRate().getRef().getKey(), false);
+
+        assertNotNull(result);
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
+        assertNotNull(result.getUrl());
+    }
+
+    @Test
+    void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24StandardNotNull() {
+        //Given
+        String iun = "iun";
+        String cxType = "PA";
+        String cxId = "paId";
+        int recipientidx = 0;
+        String attachmentName = F_24;
+
+        InternalNotification notification = buildNotification(iun, X_PAGOPA_PN_CX_ID, F_24_STANDARD);
+        Optional<InternalNotification> optNotification = Optional.of(notification);
+
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .taxId( X_PAGOPA_PN_CX_ID )
+                .build();
+
+        AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(
+                recipient, 0);
+
+        when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
+        when(checkAuthComponent.canAccess(
+                Mockito.any(ReadAccessAuth.class),
+                Mockito.any( InternalNotification.class ) )
+        ).thenReturn( authorizationOutcome );
+
+        //When
+        NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
+                iun, cxType, cxId, null, recipientidx, attachmentName);
+        
+        //Then
+        NotificationRecipient notificationRecipient = notification.getRecipients().get(0);
+        
+        Mockito.verify(pnSafeStorageClient).getFile( notificationRecipient.getPayment().getF24standard().getRef().getKey(), false);
+
+
+        assertNotNull(result);
+        assertEquals(iun + "__" +attachmentName + ".pdf",  result.getFilename());
+        assertNotNull(result.getUrl());
+    }
+    
+    @Test
     void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24FLAT() {
         //Given
         String iun = "iun";
@@ -480,12 +562,27 @@ class NotificationAttachmentServiceTest {
         NotificationAttachmentBodyRef notificationAttachmentBodyRef = new NotificationAttachmentBodyRef();
         notificationAttachmentBodyRef.setKey("filekey");
         notificationPaymentAttachment.setRef(notificationAttachmentBodyRef);
+        
+        NotificationPaymentAttachment notificationPaymentAttachmentF24Flat = NotificationPaymentAttachment.builder()
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key("filekeyf24Flat")
+                        .build()
+                )
+                .build();
+
+        NotificationPaymentAttachment notificationPaymentAttachmentF24Standard = NotificationPaymentAttachment.builder()
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key("filekeyf24FStandard")
+                        .build()
+                )
+                .build();
+        
         if (channel.equals(PAGOPA))
             notificationPaymentInfo.setPagoPaForm(notificationPaymentAttachment);
         else if (channel.equals(F_24) || channel.equals(F_24_STANDARD))
-            notificationPaymentInfo.setF24standard(notificationPaymentAttachment);
+            notificationPaymentInfo.setF24standard(notificationPaymentAttachmentF24Standard);
         else if (channel.equals(F_24_FLAT))
-            notificationPaymentInfo.setF24flatRate(notificationPaymentAttachment);
+            notificationPaymentInfo.setF24flatRate(notificationPaymentAttachmentF24Flat);
 
         notificationRecipient.setPayment(notificationPaymentInfo);
         notification.addRecipientsItem(notificationRecipient);
