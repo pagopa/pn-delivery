@@ -258,7 +258,7 @@ public class NotificationRetrieverService {
 		} else {
 			String msg = String.format( "Error retrieving Notification with iun=%s withTimeline=%b", iun, withTimeline );
 			log.debug( msg );
-			throw new PnInternalException( msg );
+			throw new PnNotFoundException( msg );
 		}
 	}
 
