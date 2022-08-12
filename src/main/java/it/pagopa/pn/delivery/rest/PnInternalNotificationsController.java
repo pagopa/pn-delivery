@@ -3,11 +3,14 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
@@ -25,6 +28,7 @@ import java.util.List;
 @Slf4j
 @RestController
 public class PnInternalNotificationsController implements InternalOnlyApi {
+    public static final String NOT_FOUND_ERROR_STATUS = "Not Found Error";
 
     private final NotificationRetrieverService retrieveSvc;
     private final StatusService statusService;
@@ -117,4 +121,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public ResponseEntity<Problem> handleRuntimeException( RuntimeException ex ) {
         return HandleRuntimeException.handleRuntimeException( ex );
     }
+
+    @ExceptionHandler({PnNotFoundException.class})
+    public ResponseEntity<ResErrorDto> handleNotFoundException(PnNotFoundException ex) {
+        return HandleNotFound.handleNotFoundException(ex, NOT_FOUND_ERROR_STATUS);
+    }
+
 }
