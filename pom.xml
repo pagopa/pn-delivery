@@ -20,6 +20,10 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
             <version>0.0.1-SNAPSHOT</version>
@@ -341,6 +345,5 @@
                 </executions>
             </plugin>
         </plugins>
-
     </build>
 </project>
