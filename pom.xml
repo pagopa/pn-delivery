@@ -26,7 +26,6 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-cloudwatch2</artifactId>
-            <version>1.9.3</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
