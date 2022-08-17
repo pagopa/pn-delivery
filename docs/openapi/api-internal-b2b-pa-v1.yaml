@@ -143,7 +143,7 @@ info:
 servers:
   - url: https://api.pn.pagopa.it
     description: Ambiente di produzione
-  - url: https://api.uat.pn.pagopa.it
+  - url: https://api.svil.pn.pagopa.it
     description: Ambiente di test
   - url: https://api.dev.pn.pagopa.it
     description: Ambiente di sviluppo
