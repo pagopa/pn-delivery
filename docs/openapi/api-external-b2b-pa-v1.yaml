@@ -683,15 +683,14 @@ components:
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
+  securitySchemes:        # ONLY EXTERNAL
+    ApiKeyAuth:           # ONLY EXTERNAL
+      type: apiKey        # ONLY EXTERNAL
+      in: header          # ONLY EXTERNAL
+      name: x-api-key     # ONLY EXTERNAL
 
-        #  securitySchemes:        # ONLY EXTERNAL
-        #    ApiKeyAuth:           # ONLY EXTERNAL
-        #      type: apiKey        # ONLY EXTERNAL
-        #      in: header          # ONLY EXTERNAL
-        #      name: x-api-key     # ONLY EXTERNAL
-
-        #security:                 # ONLY EXTERNAL
-        #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+security:                 # ONLY EXTERNAL
+  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
               
 
 
