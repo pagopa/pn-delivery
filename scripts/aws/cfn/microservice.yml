@@ -169,14 +169,11 @@ Resources:
           - Effect: Allow
             Action:
               - sqs:ChangeMessageVisibility
-              - sqs:ChangeMessageVisibilityBatch
               - sqs:DeleteMessage
-              - sqs:DeleteMessageBatch
               - sqs:GetQueueAttributes
               - sqs:GetQueueUrl
               - sqs:ReceiveMessage
               - sqs:SendMessage
-              - sqs:SendMessageBatch
             Resource:
               - !Ref DeliveryPushInputsQueueARN
           - Effect: Allow
