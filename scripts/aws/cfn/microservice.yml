@@ -207,7 +207,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
-        WAFName: !Sub '${ProjectName}-delivery-web'
+        WAFName: !Sub '${ProjectName}-delivery-b2b'
         WAFRuleVendors: "AWS, AWS, AWS, AWS"
         WAFRuleNames: "AWSManagedRulesBotControlRuleSet, AWSManagedRulesKnownBadInputsRuleSet, AWSManagedRulesAdminProtectionRuleSet, AWSManagedRulesCommonRuleSet"
         APIGatewayARN: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
