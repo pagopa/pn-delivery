@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import org.springframework.stereotype.Component;
@@ -46,7 +47,18 @@ public class NotificationReceiverValidator {
     }
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
-        return validator.validate( internalNotification );
+        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+        if ( internalNotification.getRecipients().size() > 1 ) {
+            Set<String> distinctTaxIds = new HashSet<>();
+            for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+                if ( !distinctTaxIds.add( recipient.getTaxId() )){
+                    ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+                    errors.add( constraintViolation );
+                }
+            }
+        }
+        errors.addAll( validator.validate( internalNotification ));
+        return errors;
     }
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestForMVP( NewNotificationRequest notificationRequest ) {

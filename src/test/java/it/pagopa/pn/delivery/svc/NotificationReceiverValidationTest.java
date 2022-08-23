@@ -129,6 +129,24 @@ class NotificationReceiverValidationTest {
         Assertions.assertEquals( 4, errors.size() );
     }
 
+    @Test
+    void duplicatedRecipientTaxId() {
+        // Given
+        NewNotificationRequest n = newNotification();
+        n.addRecipientsItem( NotificationRecipient.builder()
+                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .taxId( "FiscalCode" )
+                .denomination( "recipientDenomination" )
+                .build() );
+
+        // When
+        Set<ConstraintViolation<NewNotificationRequest>> errors;
+        errors = validator.checkNewNotificationRequestBeforeInsert( n );
+
+        // Then
+        assertConstraintViolationPresentByMessage( errors, "Duplicated recipient taxId" );
+    }
+
     @Test @Disabled
     void invalidNullValuesInCollections() {
 
@@ -430,7 +448,7 @@ class NotificationReceiverValidationTest {
                 .build();
     }
 
-    private InternalNotification newNotificationRequets() {
+    private InternalNotification newInternalNotification() {
         return new InternalNotification( newFullSentNotification(), Collections.emptyMap(), Collections.emptyList() );
     }
 
