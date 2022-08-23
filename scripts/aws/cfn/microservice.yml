@@ -178,12 +178,6 @@ Resources:
               - !Ref DeliveryPushInputsQueueARN
           - Effect: Allow
             Action:
-              - cassandra:Modify
-              - cassandra:Select
-            Resource:
-              - !Sub "arn:aws:cassandra:*:${AWS::AccountId}:/keyspace/*/table/*"
-          - Effect: Allow
-            Action:
               - 'dynamodb:GetItem'
               - 'dynamodb:Query'
               - 'dynamodb:PutItem'
@@ -231,7 +225,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-web'
         WAFRuleVendors: "AWS, AWS, AWS, AWS"
         WAFRuleNames: "AWSManagedRulesBotControlRuleSet, AWSManagedRulesKnownBadInputsRuleSet, AWSManagedRulesAdminProtectionRuleSet, AWSManagedRulesCommonRuleSet"
-        APIGatewayARN: !GetAtt DeliveryMicroservicePublicWebAPI.Output.APIGatewayARN
+        APIGatewayARN: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
