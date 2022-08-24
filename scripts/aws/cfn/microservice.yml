@@ -208,8 +208,8 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-b2b'
-        WAFRuleVendors: "AWS, AWS, AWS, AWS"
-        WAFRuleNames: "AWSManagedRulesBotControlRuleSet, AWSManagedRulesKnownBadInputsRuleSet, AWSManagedRulesAdminProtectionRuleSet, AWSManagedRulesCommonRuleSet"
+        WAFRuleVendors: "AWS"
+        WAFRuleNames: "AWSManagedRulesBotControlRuleSet"
         APIGatewayARN: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
