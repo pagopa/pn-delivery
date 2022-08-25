@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -11,6 +12,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
+import it.pagopa.pn.delivery.rest.utils.HandleBadRequest;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
@@ -35,6 +37,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     private final ModelMapperFactory modelMapperFactory;
     public static final String VALIDATION_ERROR_STATUS = "Validation error";
     public static final String NOT_FOUND_ERROR_STATUS = "Not Found Error";
+    public static final String BAD_REQUEST_ERROR_STATUS = "Bad Request Error";
 
     public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
@@ -143,7 +146,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachment={}", attachmentName)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationAttachment={}", attachmentName)
                 .iun(iun)
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
@@ -175,5 +178,10 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     @ExceptionHandler({PnNotFoundException.class})
     public ResponseEntity<ResErrorDto> handleNotFoundException(PnNotFoundException ex) {
         return HandleNotFound.handleNotFoundException(ex, NOT_FOUND_ERROR_STATUS);
+    }
+
+    @ExceptionHandler({PnBadRequestException.class})
+    public ResponseEntity<ResErrorDto> handleBadRequestException(PnBadRequestException ex) {
+        return HandleBadRequest.handleBadRequestException(ex, BAD_REQUEST_ERROR_STATUS);
     }
 }

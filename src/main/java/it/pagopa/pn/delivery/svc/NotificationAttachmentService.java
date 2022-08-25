@@ -1,7 +1,9 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MimeTypesUtils;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
@@ -14,8 +16,10 @@ import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -145,8 +149,6 @@ public class NotificationAttachmentService {
 
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, iun, recipientIdx );
 
-
-
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
         if (optNotification.isPresent()) {
             InternalNotification notification = optNotification.get();
@@ -225,13 +227,18 @@ public class NotificationAttachmentService {
         }
 
         log.info("downloadDocumentWithRedirect with fileKey={} name:{} - iun={}", fileKey, name, iun);
+        try {
+            FileDownloadResponse r = this.getFile(fileKey);
+            fileName = buildFilename(iun, name, r.getContentType());
 
-        FileDownloadResponse r = this.getFile(fileKey);
-        fileName = buildFilename(iun, name, r.getContentType());
-
-        log.info("downloadDocumentWithRedirect with fileKey={} filename:{} - iun={}", fileKey, fileName, iun);
-
-        return new FileInfos( fileName, r );
+            log.info("downloadDocumentWithRedirect with fileKey={} filename:{} - iun={}", fileKey, fileName, iun);
+            return new FileInfos( fileName, r );
+        } catch (Exception exc) {
+            if (exc instanceof PnHttpResponseException && ((PnHttpResponseException) exc).getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                throw new PnBadRequestException("Request took too long to complete.");
+            }
+            throw exc;
+        }
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy){
