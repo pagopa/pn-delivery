@@ -1,8 +1,11 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
@@ -20,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
 
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +46,7 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String CX_TYPE_PA = "PA";
 	private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
 	private static final String IDEMPOTENCE_TOKEN = "idempotenceToken";
+	private static final String PAGOPA = "PAGOPA";
 
 
 	@Autowired
@@ -120,6 +123,74 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
+	void getNotificationRequestStatusByRequestIdIN_VALIDATION() {
+		// Given
+		InternalNotification notification = newNotification();
+		notification.setNotificationStatusHistory( null );
+
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class ) ).thenReturn( mapper );
+
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/requests" )
+								.queryParam("notificationRequestId", REQUEST_ID)
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody( NewNotificationRequestStatusResponse.class );
+
+		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true, true );
+	}
+
+	@Test
+	void getNotificationRequestStatusByRequestIdREFUSED() {
+		// Given
+		InternalNotification notification = newNotification();
+		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
+						.status( NotificationStatus.REFUSED )
+				.build() ) );
+		notification.setTimeline( Collections.singletonList( TimelineElement.builder()
+						.category( TimelineElementCategory.REQUEST_REFUSED )
+						.details( TimelineElementDetails.builder()
+								.errors( Collections.singletonList( "Errore" ) )
+								.build() )
+				.build() ) );
+
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class ) ).thenReturn( mapper );
+
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/requests" )
+								.queryParam("notificationRequestId", REQUEST_ID)
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody( NewNotificationRequestStatusResponse.class );
+
+		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true, true );
+	}
+
+	@Test
 	void getNotificationRequestStatusByRequestIdSuccess() {
 		// Given
 		InternalNotification notification = newNotification();
@@ -146,6 +217,23 @@ class PnSentReceivedNotificationControllerTest {
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
 		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true, true );
+	}
+
+	@Test
+	void getNotificationRequestStatusByProtocolOnlyFailure() {
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/requests" )
+								.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isBadRequest();
 	}
 
 	@Test
@@ -360,7 +448,6 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getSentNotificationAttachmentSuccess() {
 		//Given
-		String pagopa = "PAGOPA";
 		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
 				.url( REDIRECT_URL )
 				.contentType( "application/pdf" )
@@ -381,7 +468,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",pagopa))
+				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
@@ -392,7 +479,47 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PA, USER_ID, null,  0, pagopa);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PA, USER_ID, null,  0, PAGOPA);
+	}
+
+	@Test
+	void getSentNotificationAttachmentFailure() {
+		// When
+		Mockito.doThrow( new PnNotFoundException("Simulated Error") )
+				.when( attachmentService )
+				.downloadDocumentWithRedirect(
+						Mockito.anyString(),
+						Mockito.anyString(),
+						Mockito.anyString(),
+						Mockito.anyString(),
+						Mockito.anyInt()
+				);
+
+		webTestClient.get()
+				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange();
+	}
+
+	@Test
+	void getSentNotificationDocumentFailure() {
+		// When
+		Mockito.when( attachmentService.downloadDocumentWithRedirect( Mockito.anyString(),
+				Mockito.anyString(),
+				Mockito.anyString(),
+				Mockito.anyString(),
+				Mockito.anyInt())).thenThrow( new PnNotFoundException("Simulated Error") );
+
+		webTestClient.get()
+				.uri( "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}".replace("{iun}",IUN).replace("{docIdx}","0"))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange();
 	}
 
 	@Test
@@ -435,6 +562,31 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk();
 
 		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, MANDATE_ID, null, pagopa);
+	}
+
+	@Test
+	void searchSentNotificationFailure() {
+		// When
+		Mockito.doThrow( new PnInternalException("Simulated Error") )
+				.when( svc )
+				.searchNotification( Mockito.any( InputSearchNotificationDto.class) );
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/notifications/sent" )
+								.queryParam("startDate", "2022-08-25T12:30:28Z" )
+								.queryParam( "endDate",  "2022-08-26T12:30:28Z" )
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange();
 	}
 
 	/*@Test

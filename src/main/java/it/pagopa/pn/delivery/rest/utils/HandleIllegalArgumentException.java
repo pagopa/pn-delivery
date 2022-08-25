@@ -5,7 +5,9 @@ import org.springframework.http.ResponseEntity;
 
 public class HandleIllegalArgumentException {
 
-    public HandleIllegalArgumentException() {}
+    private HandleIllegalArgumentException() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static ResponseEntity<Problem> handleIllegalArgumentException(IllegalArgumentException ex) {
         Problem problem = Problem.builder()
