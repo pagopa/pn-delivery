@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
@@ -350,6 +350,37 @@ class NotificationAttachmentServiceTest {
 
     }
 
+    @Test
+    void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameFileNotFound() {
+        //Given
+        String iun = "iun";
+        String cxType = "PA";
+        String cxId = "paId";
+        int recipientidx = 0;
+        String attachmentName = PAGOPA;
+
+        Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(iun, X_PAGOPA_PN_CX_ID));
+
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .taxId( X_PAGOPA_PN_CX_ID )
+                .build();
+
+        AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(
+                recipient, 0);
+
+
+        when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+        when(checkAuthComponent.canAccess(
+                Mockito.any(ReadAccessAuth.class),
+                Mockito.any( InternalNotification.class ) )
+        ).thenReturn( authorizationOutcome );
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenThrow(PnBadRequestException.class);
+
+        //Then
+        assertThrows(PnBadRequestException.class, () -> attachmentService.downloadAttachmentWithRedirect(
+                iun, cxType, cxId, null, recipientidx, attachmentName));
+
+    }
 
     @Test
     void downloadDocumentWithRedirectByIunAndDocIndex() {
@@ -420,7 +451,6 @@ class NotificationAttachmentServiceTest {
                 iun, cxType, X_PAGOPA_PN_CX_ID, null, 0 , F_24));
 
     }
-
 
     @Test
     void downloadAttachmentWithRedirectByIunRecUidAttachNameMandateId() {
@@ -502,7 +532,6 @@ class NotificationAttachmentServiceTest {
         assertNotNull(result.getUrl());
     }
 
-
     @Test
     void downloadAttachmentWithRedirectByIunRecUidAttachNameMandateIdWithMandateNotFound() {
         //Given
@@ -530,7 +559,6 @@ class NotificationAttachmentServiceTest {
                 iun, cxType, X_PAGOPA_PN_CX_ID, mandateId, null, PAGOPA));
 
     }
-
 
     private InternalNotification buildNotification(String iun, String taxid) {
         return buildNotification(iun, taxid, PAGOPA);
