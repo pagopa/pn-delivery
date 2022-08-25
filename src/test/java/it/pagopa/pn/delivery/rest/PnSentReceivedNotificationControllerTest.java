@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -12,7 +13,9 @@ import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -487,13 +490,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnNotFoundException("Simulated Error") )
 				.when( attachmentService )
-				.downloadDocumentWithRedirect(
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyInt()
-				);
+				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0, PAGOPA );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
@@ -501,17 +498,16 @@ class PnSentReceivedNotificationControllerTest {
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
-				.exchange();
+				.exchange()
+				.expectStatus()
+				.isNotFound();
 	}
 
 	@Test
 	void getSentNotificationDocumentFailure() {
 		// When
-		Mockito.when( attachmentService.downloadDocumentWithRedirect( Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyInt())).thenThrow( new PnNotFoundException("Simulated Error") );
+		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0 ))
+				.thenThrow( new PnNotFoundException("Simulated Error") );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}".replace("{iun}",IUN).replace("{docIdx}","0"))
@@ -519,7 +515,9 @@ class PnSentReceivedNotificationControllerTest {
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
-				.exchange();
+				.exchange()
+				.expectStatus()
+				.isNotFound();
 	}
 
 	@Test
@@ -586,7 +584,10 @@ class PnSentReceivedNotificationControllerTest {
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
-				.exchange();
+				.exchange()
+				.expectStatus()
+				.is5xxServerError();
+
 	}
 
 	/*@Test

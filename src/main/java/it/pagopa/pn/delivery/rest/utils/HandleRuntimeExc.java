@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.List;
 @Slf4j
-public class HandleRuntimeException {
-    private HandleRuntimeException() {}
+public class HandleRuntimeExc {
+    private HandleRuntimeExc() {}
 
     public static ResponseEntity<Problem> handleRuntimeException(RuntimeException ex) {
         log.error("handleRuntimeException - {}", ex.getMessage(), ex);

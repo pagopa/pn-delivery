@@ -64,4 +64,13 @@ public class InternalNotification extends FullSentNotification {
 
     public void setRecipientIds( List<String> recipientIds ) { this.recipientIds = recipientIds; }
 
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

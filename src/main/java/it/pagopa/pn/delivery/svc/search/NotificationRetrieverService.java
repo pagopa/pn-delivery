@@ -525,9 +525,6 @@ public class NotificationRetrieverService {
 		return mapperNotification.map( resultFullSent, InternalNotification.class );
 	}
 
-	private Date fromOffsetToDate(OffsetDateTime source) {
-		return Date.from( source.toInstant() );
-	}
 
 
 	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {

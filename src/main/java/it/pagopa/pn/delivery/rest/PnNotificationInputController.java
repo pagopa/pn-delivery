@@ -11,9 +11,9 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleIdConflict;
-import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
+import it.pagopa.pn.delivery.rest.utils.HandleRuntimeExc;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
-import it.pagopa.pn.delivery.rest.utils.HandleWebExchangeBindException;
+import it.pagopa.pn.delivery.rest.utils.HandleWebExchangeBindExc;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -115,11 +113,11 @@ public class PnNotificationInputController implements NewNotificationApi {
 
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Problem> handleRuntimeException( RuntimeException ex ) {
-        return HandleRuntimeException.handleRuntimeException( ex );
+        return HandleRuntimeExc.handleRuntimeException( ex );
     }
 
     @ExceptionHandler({WebExchangeBindException.class})
     public ResponseEntity<Problem> handleWebExchangeBindException( WebExchangeBindException ex ) {
-        return HandleWebExchangeBindException.handleWebExchangeBindException( ex );
+        return HandleWebExchangeBindExc.handleWebExchangeBindException( ex );
     }
 }

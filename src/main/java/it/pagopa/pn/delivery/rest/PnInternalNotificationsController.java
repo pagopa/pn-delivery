@@ -11,7 +11,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
-import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
+import it.pagopa.pn.delivery.rest.utils.HandleRuntimeExc;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -119,7 +119,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Problem> handleRuntimeException( RuntimeException ex ) {
-        return HandleRuntimeException.handleRuntimeException( ex );
+        return HandleRuntimeExc.handleRuntimeException( ex );
     }
 
     @ExceptionHandler({PnNotFoundException.class})
