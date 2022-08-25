@@ -235,7 +235,7 @@ public class NotificationAttachmentService {
             return new FileInfos( fileName, r );
         } catch (Exception exc) {
             if (exc instanceof PnHttpResponseException && ((PnHttpResponseException) exc).getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                throw new PnBadRequestException("Request took too long to complete.");
+                throw new PnBadRequestException("Request took too long to complete.", exc.getCause());
             }
             throw exc;
         }
