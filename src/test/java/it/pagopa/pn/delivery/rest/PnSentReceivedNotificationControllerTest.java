@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
@@ -300,6 +301,31 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
+	void getReceivedNotificationFailure() {
+
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
+
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+				.thenThrow( PnNotFoundException.class );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/received/" + IUN  )
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+	}
+
+	@Test
 	void getReceivedNotificationByDelegateSuccess() {
 		// Given
 		InternalNotification notification = newNotification();
@@ -521,6 +547,57 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
+	void getReceivedNotificationDocumentFailure() {
+		// When
+		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0 ))
+				.thenThrow( new PnNotFoundException("Simulated Error") );
+
+		webTestClient.get()
+				.uri( "/delivery/notifications/received/{iun}/attachments/documents/{docIdx}".replace("{iun}",IUN).replace("{docIdx}","0"))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+	}
+
+	@Test
+	void getReceivedNotificationAttachmentFailure() {
+		// When
+		Mockito.doThrow( new PnNotFoundException("Simulated Error") )
+				.when( attachmentService )
+				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null,null, PAGOPA );
+
+		webTestClient.get()
+				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+	}
+
+	@Test
+	void getReceivedNotificationAttachmentBadRequestFailure() {
+		// When
+		Mockito.doThrow( new PnBadRequestException("Simulated Error") )
+				.when( attachmentService )
+				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null,null, PAGOPA );
+
+		webTestClient.get()
+				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.exchange()
+				.expectStatus()
+				.isBadRequest();
+	}
+
+	@Test
 	void getReceivedNotificationAttachmentSuccess() {
 		//Given
 		String pagopa = "PAGOPA";
@@ -590,54 +667,61 @@ class PnSentReceivedNotificationControllerTest {
 
 	}
 
-	/*@Test
-	void getSentNotificationDocumentsFailure() {
-		//Given
-		ResponseEntity<Resource> response = ResponseEntity.ok()
-				.headers( headers() )
-				.contentLength( CONTENT_LENGTH )
-				.body( new InputStreamResource( InputStream.nullInputStream() ));
-
+	@Test
+	void searchSentNotificationValidationFailure() {
 		// When
-		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-		Mockito.when( svc.downloadDocument( Mockito.anyString(), Mockito.anyInt() ))
-				.thenReturn( response );
+		Mockito.doThrow( new PnValidationException("Simulated Error", Collections.emptySet()) )
+				.when( svc )
+				.searchNotification( Mockito.any( InputSearchNotificationDto.class) );
 
-		// Then
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+
 		webTestClient.get()
-				.uri( "/delivery/notifications/sent/" + IUN + "/documents/" + DOCUMENT_INDEX)
-				.accept( MediaType.ALL )
-				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
-				.exchange().expectStatus().is5xxServerError();
-	}*/
-
-	/*@Test
-	void getReceivedNotificationDocumentsSuccess() {
-		//Given
-		ResponseEntity<Resource> response = ResponseEntity.ok()
-				.headers( headers() )
-				.contentLength( CONTENT_LENGTH )
-				.contentType( MediaType.APPLICATION_PDF )
-				.body( new InputStreamResource( InputStream.nullInputStream() ));
-
-		// When
-		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-		Mockito.when( svc.downloadDocument( Mockito.anyString(), Mockito.anyInt() ))
-				.thenReturn( response );
-
-		// Then
-		webTestClient.get()
-				.uri( "/delivery/notifications/received/" + IUN + "/documents/" + DOCUMENT_INDEX)
-				.accept( MediaType.ALL )
-				.header(HttpHeaders.ACCEPT, "application/json")
-				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/notifications/sent" )
+								.queryParam("startDate", "2022-08-25T12:30:28Z" )
+								.queryParam( "endDate",  "2022-08-26T12:30:28Z" )
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
 				.exchange()
 				.expectStatus()
-				.isOk();
+				.isBadRequest();
 
-		Mockito.verify( svc ).downloadDocument( IUN, DOCUMENT_INDEX );
-	}*/
+	}
+
+	@Test
+	void searchReceivedNotificationValidationFailure() {
+		// When
+		Mockito.doThrow( new PnValidationException("Simulated Error", Collections.emptySet()) )
+				.when( svc )
+				.searchNotification( Mockito.any( InputSearchNotificationDto.class) );
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/notifications/received" )
+								.queryParam("startDate", "2022-08-25T12:30:28Z" )
+								.queryParam( "endDate",  "2022-08-26T12:30:28Z" )
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isBadRequest();
+
+	}
 
 	private HttpHeaders headers() {
 		HttpHeaders headers = new HttpHeaders();

@@ -4,10 +4,10 @@ import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.doThrow;
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
 class PnInternalNotificationsControllerTest {
 
+    private static final String IUN = "IUN";
     private static final String SENDER_ID = "test";
     private static final String START_DATE = "2021-09-17T00:00:00.000Z";
     private static final String END_DATE = "2021-09-18T00:00:00.000Z";
@@ -209,7 +211,7 @@ class PnInternalNotificationsControllerTest {
     }
 
     @Test
-    void searchNotificationsPrivateFailure() {
+    void searchNotificationsPrivateIllegalArgExcFailure() {
         //Given
         NotificationSearchRow searchRow = NotificationSearchRow.builder()
                 .iun("202109-2d74ffe9-aa40-47c2-88ea-9fb171ada637")
@@ -250,5 +252,93 @@ class PnInternalNotificationsControllerTest {
                 .exchange()
                 .expectStatus()
                 .is5xxServerError();
+    }
+
+    @Test
+    void searchNotificationsPrivateFailure() {
+        Mockito.when( retrieveSvc.searchNotification( Mockito.any( InputSearchNotificationDto.class ) ) ).thenThrow( PnNotFoundException.class );
+
+        webTestClient.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path( "/delivery-private/search")
+                                .queryParam("startDate", START_DATE)
+                                .queryParam("endDate", END_DATE)
+                                .build())
+                .accept(MediaType.ALL)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getSentNotificationPrivateSuccess() {
+        // Given
+        InternalNotification notification = newNotification();
+
+
+        // When
+        Mockito.when( retrieveSvc.getNotificationInformation( IUN, false, true )).thenReturn( notification );
+
+        ModelMapper mapper = new ModelMapper();
+        mapper.createTypeMap( InternalNotification.class, SentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, SentNotification.class ) ).thenReturn( mapper );
+
+        webTestClient.get()
+                .uri( "/delivery-private/notifications/{iun}".replace( "{iun}", IUN ) )
+                .accept(MediaType.ALL)
+                .exchange()
+                .expectStatus()
+                .isOk();
+    }
+
+    private InternalNotification newNotification() {
+        return new InternalNotification(FullSentNotification.builder()
+                .iun("IUN_01")
+                .paProtocolNumber("protocol_01")
+                .subject("Subject 01")
+                .cancelledByIun("IUN_05")
+                .cancelledIun("IUN_00")
+                .senderPaId( "pa_02" )
+                .notificationStatus( NotificationStatus.ACCEPTED )
+                .recipients( Collections.singletonList(
+                        NotificationRecipient.builder()
+                                .taxId("Codice Fiscale 01")
+                                .denomination("Nome Cognome/Ragione Sociale")
+                                .digitalDomicile(NotificationDigitalAddress.builder()
+                                        .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                        .address("account@dominio.it")
+                                        .build())
+                                .build()
+                ))
+                .documents(Arrays.asList(
+                        NotificationDocument.builder()
+                                .ref( NotificationAttachmentBodyRef.builder()
+                                        .key("doc00")
+                                        .versionToken("v01_doc00")
+                                        .build()
+                                )
+                                .digests(NotificationAttachmentDigests.builder()
+                                        .sha256("sha256_doc00")
+                                        .build()
+                                )
+                                .build(),
+                        NotificationDocument.builder()
+                                .ref( NotificationAttachmentBodyRef.builder()
+                                        .key("doc01")
+                                        .versionToken("v01_doc01")
+                                        .build()
+                                )
+                                .digests(NotificationAttachmentDigests.builder()
+                                        .sha256("sha256_doc01")
+                                        .build()
+                                )
+                                .build()
+                ))
+                .timeline( Collections.singletonList(TimelineElement.builder().build()))
+                .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
+                        .status( NotificationStatus.ACCEPTED )
+                        .build() ) )
+                .build(), Collections.emptyMap(), Collections.singletonList( "recipientId" ));
     }
 }
