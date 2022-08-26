@@ -57,7 +57,7 @@ public class NotificationAttachmentService {
         this.checkAuthComponent = checkAuthComponent;
     }
 
-    private FileDownloadResponse getFile(String fileKey){
+    public FileDownloadResponse getFile(String fileKey){
         log.info("getFile with fileKey={} ", fileKey);
         return this.safeStorageClient.getFile(fileKey, false);
     }
@@ -113,6 +113,10 @@ public class NotificationAttachmentService {
         public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse) {
             this.fileName = fileName;
             this.fileDownloadResponse = fileDownloadResponse;
+        }
+
+        public String getFileName() {
+            return fileName;
         }
     }
 
@@ -267,9 +271,9 @@ public class NotificationAttachmentService {
                 return getKey( payment.getF24standard() );
             }
         }
-
-        log.error("Invalid attachmentName={} for iun={}", attachmentName, iun);
-        throw new PnInternalException("Invalid attachmentName for iun=" + iun);
+        return null;
+        /*log.error("Invalid attachmentName={} for iun={}", attachmentName, iun);
+        throw new PnInternalException("Invalid attachmentName for iun=" + iun);*/
     }
 
     private String getKey(NotificationPaymentAttachment payment) {
@@ -282,11 +286,11 @@ public class NotificationAttachmentService {
 
     private String buildFilename(String iun, String name, String contentType){
         String extension = "pdf";
-        try{
-            extension = MimeTypesUtils.getDefaultExt(contentType);
-        } catch (Exception e)
-        {
+        String defaultExtension = MimeTypesUtils.getDefaultExt(contentType);
+        if( defaultExtension.equals( "unknown" ) ) {
             log.warn("right extension not found, using PDF");
+        } else {
+            extension = defaultExtension;
         }
 
         String unescapedFileName = iun + "__" + name;
