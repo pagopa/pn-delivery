@@ -2,13 +2,11 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.NotificationEntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.NotificationCost;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
@@ -16,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
-import java.util.Date;
 import java.util.Optional;
 
 @Service

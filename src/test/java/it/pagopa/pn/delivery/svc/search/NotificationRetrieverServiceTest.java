@@ -4,6 +4,7 @@ package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
@@ -13,8 +14,10 @@ import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMan
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
@@ -96,14 +99,17 @@ class NotificationRetrieverServiceTest {
                 .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
                 .senderReceiverId( "receiverId" )
+                .mandateId( "mandateId" )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
 
         InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId( "mandateId" );
         internalMandateDto.setDelegate( "senderId" );
         internalMandateDto.setDelegator( "receiverId" );
         internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
+        internalMandateDto.setDateto( "2022-05-23T23:23:00Z" );
 
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
 
@@ -143,6 +149,46 @@ class NotificationRetrieverServiceTest {
         Executable todo = () -> svc.searchNotification( inputSearch );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
+    }
+
+    @Test
+    void searchValidateInputException() {
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto(
+                null,
+                Instant.now(),
+                Instant.now(),
+                null,
+                null,
+                Collections.emptyList(),
+                Collections.emptyList(),
+                null,
+                null,
+                null,
+                null,
+                true,
+                true,
+                null
+        );
+
+        Executable todo = () -> svc.searchNotification( inputSearch );
+
+        Assertions.assertThrows( PnValidationException.class, todo );
+    }
+
+    @Test
+    void searchNotificationUnableDeserializeLEK() {
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+                .bySender( true )
+                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
+                .senderReceiverId( "senderId" )
+                .size( 10 )
+                .nextPagesKey( "fakeNextPageKey" )
+                .build();
+
+        Executable todo = () -> svc.searchNotification( inputSearch );
+
+        Assertions.assertThrows( PnInternalException.class, todo );
     }
     
     @Test
@@ -228,6 +274,37 @@ class NotificationRetrieverServiceTest {
 
         // Then
         Assertions.assertThrows(PnInternalException.class, todo);
+    }
+
+    @Test
+    void getNotificationInfoReturnFirstNoticeCode() {
+        InternalNotification notification = getNewInternalNotification();
+
+        List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                .elementId( "elementId" )
+                .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REQUEST_ACCEPTED )
+                .timestamp(  Instant.now()
+                        .atOffset(ZoneOffset.UTC) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
+
+        InternalNotification result = svc.getNotificationInformation( IUN, true, false );
+
+        Assertions.assertNotNull( result );
     }
 
     @NotNull
