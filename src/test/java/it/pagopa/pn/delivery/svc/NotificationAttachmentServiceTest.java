@@ -56,7 +56,7 @@ class NotificationAttachmentServiceTest {
         checkAuthComponent = Mockito.mock( CheckAuthComponent.class );
 
         attachmentService = new NotificationAttachmentService(
-                 pnSafeStorageClient, notificationDao, pnMandateClient, checkAuthComponent);
+                 pnSafeStorageClient, notificationDao, checkAuthComponent);
     }
 
     @Test
@@ -531,7 +531,7 @@ class NotificationAttachmentServiceTest {
         String internalIdDelegator = "PF-bcd-123-bcd-123";
         String mandateId = "123-abcd-123456";
 
-        Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(IUN, internalIdDelegator));
+        Optional<InternalNotification> optNotification = Optional.of(buildNotification(IUN, internalIdDelegator));
 
         AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.fail();
 

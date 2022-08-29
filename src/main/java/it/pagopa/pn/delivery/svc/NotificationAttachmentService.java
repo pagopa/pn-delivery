@@ -47,13 +47,11 @@ public class NotificationAttachmentService {
 
     private final PnSafeStorageClientImpl safeStorageClient;
     private final NotificationDao notificationDao;
-    private final PnMandateClientImpl pnMandateClient;
     private final CheckAuthComponent checkAuthComponent;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, PnMandateClientImpl pnMandateClient, CheckAuthComponent checkAuthComponent) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent) {
         this.safeStorageClient = safeStorageClient;
         this.notificationDao = notificationDao;
-        this.pnMandateClient = pnMandateClient;
         this.checkAuthComponent = checkAuthComponent;
     }
 
@@ -221,7 +219,7 @@ public class NotificationAttachmentService {
         {
             String attachmentName = fileDownloadIdentify.attachmentName;
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
-            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, notification.getNotificationFeePolicy());
+            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName);
             if (!StringUtils.hasText( fileKey )) {
                 String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
                 throw new PnNotFoundException(exMessage);
@@ -244,7 +242,7 @@ public class NotificationAttachmentService {
         }
     }
 
-    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy){
+    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName){
         NotificationPaymentInfo payment = doc.getPayment();
         if ( !Objects.nonNull( payment ) ) {
             log.error( "Notification without payment attachment - iun={}", iun );
@@ -272,8 +270,6 @@ public class NotificationAttachmentService {
             }
         }
         return null;
-        /*log.error("Invalid attachmentName={} for iun={}", attachmentName, iun);
-        throw new PnInternalException("Invalid attachmentName for iun=" + iun);*/
     }
 
     private String getKey(NotificationPaymentAttachment payment) {
