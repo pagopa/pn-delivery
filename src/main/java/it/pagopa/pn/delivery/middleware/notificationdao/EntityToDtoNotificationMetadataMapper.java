@@ -30,7 +30,7 @@ public class EntityToDtoNotificationMetadataMapper {
                 .subject( tableRow.get( "subject" ) )
                 .paProtocolNumber( tableRow.get("paProtocolNumber") )
                 .requestAcceptedAt( requestAcceptedAt )
-                //.group( entity.getNotificationGroup() )
+                .group( entity.getNotificationGroup() )
                 .notificationStatus( NotificationStatus.valueOf( entity.getNotificationStatus() ))
                 .build();
     }

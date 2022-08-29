@@ -1,3 +1,5 @@
+info:
+  version: v1.0
 components:
   schemas:
 
@@ -408,6 +410,9 @@ components:
           description: Data accettazione notifica
           type: string
           format: date-time
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
     
     #NotificationStatus:
       #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
