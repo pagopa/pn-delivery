@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
 import org.junit.jupiter.api.Assertions;
@@ -15,11 +16,15 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 class PnExternalRegistriesClientImplTest {
 
     private static final String PA_TAX_ID = "paTaxId";
     private static final String NOTICE_CODE = "noticeCode";
+    private static final String SENDER_ID = "senderId";
 
     @Mock
     private RestTemplate restTemplate;
@@ -54,6 +59,31 @@ class PnExternalRegistriesClientImplTest {
 
         // Then
         Assertions.assertNotNull( paymentInfoResult );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getGroups() {
+
+        List<PaGroup> res = new ArrayList<>();
+        PaGroup dto = new PaGroup();
+        dto.setId("123456789");
+        dto.setName("amministrazione");
+        res.add(dto);
+        dto = new PaGroup();
+        dto.setId("987654321");
+        dto.setName("dirigenza");
+        res.add(dto);
+
+        ResponseEntity<List<PaGroup>> response = ResponseEntity.ok( res );
+
+        // When
+        Mockito.when( restTemplate.exchange(  Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn( response );
+        List<PaGroup> groups = externalRegistriesClient.getGroups( SENDER_ID );
+
+        // Then
+        Assertions.assertNotNull( groups );
     }
 
 }

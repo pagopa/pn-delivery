@@ -78,7 +78,7 @@ class NotificationSearchControllerTest {
                 .build();
         
         //When
-        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class), Mockito.anyString())).thenReturn(result);
 
         ModelMapper mapper = new ModelMapper();
         mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
@@ -116,7 +116,7 @@ class NotificationSearchControllerTest {
                 .nextPagesKey(null)
                 .build();
 
-        Mockito.verify(svc).searchNotification(searchDto);
+        Mockito.verify(svc).searchNotification(searchDto, SENDER_ID);
     }
 
     @Test
@@ -141,7 +141,7 @@ class NotificationSearchControllerTest {
                         .build();
 
         //When
-        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+        Mockito.when(svc.searchNotification(Mockito.any(InputSearchNotificationDto.class), Mockito.anyString())).thenReturn(result);
 
         ModelMapper mapper = new ModelMapper();
         mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
@@ -176,7 +176,7 @@ class NotificationSearchControllerTest {
                 .nextPagesKey( NEXT_PAGES_KEY )
                 .build();
 
-        Mockito.verify(svc).searchNotification(searchDto);
+        Mockito.verify(svc).searchNotification(searchDto, SENDER_ID);
     }
 
     

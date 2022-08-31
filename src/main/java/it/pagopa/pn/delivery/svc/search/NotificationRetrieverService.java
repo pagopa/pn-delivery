@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -89,7 +90,7 @@ public class NotificationRetrieverService {
 		this.cfg = cfg;
 	}
 
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto, String senderId ) {
 
 		Instant startDate = searchDto.getStartDate();
 		if( PN_EPOCH.isAfter(startDate) ) {
@@ -141,6 +142,9 @@ public class NotificationRetrieverService {
 		ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult = pageSearch.searchNotificationMetadata();
 		log.debug( "END search notification metadata" );
 
+		// labelize groups
+		labelizeGroups(searchResult, senderId);
+
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult(searchResult.isMoreResult() )
 				.resultsPage( searchResult.getResultsPage() );
@@ -152,6 +156,10 @@ public class NotificationRetrieverService {
 		else
 			builder.nextPagesKey(new ArrayList<>());
 		return builder.build();
+	}
+
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
+		return searchNotification(searchDto, null);
 	}
 
 	/**
@@ -236,11 +244,12 @@ public class NotificationRetrieverService {
 	 * @param iun unique identifier of a Notification
 	 * @param withTimeline true if return Notification with Timeline and StatusHistory
 	 * @param requestBySender true if the request came from Sender
+	 * @param senderId unique identifier of the sender
 	 *
 	 * @return Notification DTO
 	 *
 	 */
-	public InternalNotification getNotificationInformation(String iun, boolean withTimeline, boolean requestBySender) {
+	public InternalNotification getNotificationInformation(String iun, boolean withTimeline, boolean requestBySender, String senderId) {
 		log.debug( "Retrieve notification by iun={} withTimeline={} requestBySender={} START", iun, withTimeline, requestBySender );
 		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
 
@@ -254,12 +263,27 @@ public class NotificationRetrieverService {
 					computeNoticeCodeToReturn( notification, refinementDate );
 				}
 			}
+			labelizeGroup(notification, senderId);
 			return notification;
 		} else {
 			String msg = String.format( "Error retrieving Notification with iun=%s withTimeline=%b", iun, withTimeline );
 			log.debug( msg );
 			throw new PnNotFoundException( msg );
 		}
+	}
+
+	/**
+	 * Get the full detail of a notification by IUN
+	 *
+	 * @param iun unique identifier of a Notification
+	 * @param withTimeline true if return Notification with Timeline and StatusHistory
+	 * @param requestBySender true if the request came from Sender
+	 *
+	 * @return Notification DTO
+	 *
+	 */
+	public InternalNotification getNotificationInformation(String iun, boolean withTimeline, boolean requestBySender) {
+		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
 	private OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
@@ -529,7 +553,6 @@ public class NotificationRetrieverService {
 		return Date.from( source.toInstant() );
 	}
 
-
 	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
 		String iun = notification.getIun();
 
@@ -549,5 +572,43 @@ public class NotificationRetrieverService {
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
 		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex );
+	}
+
+	private void labelizeGroup(InternalNotification notification, String senderId) {
+		String notificationGroup = notification.getGroup();
+		if (notificationGroup != null && !notificationGroup.isEmpty() && senderId != null) {
+			List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
+			if (groups != null) {
+				PaGroup group = groups.stream()
+						.filter(g -> g.getId().equals(notificationGroup))
+						.findAny()
+						.orElse(null);
+				if (group != null) {
+					notification.setGroup(group.getName());
+				}
+			}
+		}
+	}
+
+	private void labelizeGroups(ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult, String senderId) {
+		if (searchResult != null) {
+			List<NotificationSearchRow> notifications = searchResult.getResultsPage();
+			if (notifications != null && !notifications.isEmpty() && senderId != null) {
+				List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
+				for (int i = 0; i < notifications.size(); i++) {
+					NotificationSearchRow notification = notifications.get(i);
+					String notificationGroup = notification.getGroup();
+					if (groups != null && notificationGroup != null && !notificationGroup.isEmpty()) {
+						PaGroup group = groups.stream()
+								.filter(g -> g.getId().equals(notificationGroup))
+								.findAny()
+								.orElse(null);
+						if (group != null) {
+							notification.setGroup(group.getName());
+						}
+					}
+				}
+			}
+		}
 	}
 }
