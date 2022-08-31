@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 @ToString
-public class NotificationCost {
+public class InternalNotificationCost {
     private String creditorTaxId_noticeCode;
     private String iun;
     private int recipientIdx;
