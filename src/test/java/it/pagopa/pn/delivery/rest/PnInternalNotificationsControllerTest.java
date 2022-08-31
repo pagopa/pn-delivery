@@ -4,11 +4,11 @@ import it.pagopa.pn.api.dto.status.RequestUpdateStatusDto;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -46,6 +46,8 @@ class PnInternalNotificationsControllerTest {
     private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
     private static final String DELEGATOR_ID = "DelegatorId";
     private static final String MANDATE_ID = "mandateId";
+    private static final String PA_TAX_ID = "77777777777";
+    private static final String NOTICE_CODE = "302000100000019421";
 
 
     @Autowired
@@ -56,6 +58,9 @@ class PnInternalNotificationsControllerTest {
 
     @MockBean
     private NotificationRetrieverService retrieveSvc;
+
+    @MockBean
+    private NotificationPriceService priceService;
 
     @MockBean
     private PnDeliveryConfigs cfg;
@@ -256,5 +261,46 @@ class PnInternalNotificationsControllerTest {
                 .exchange()
                 .expectStatus()
                 .is5xxServerError();
+    }
+
+    @Test
+    void getNotificationCostSuccess(){
+
+        //Given
+        NotificationCostResponse costResponse = NotificationCostResponse.builder()
+                .iun( "iun" )
+                .recipientIdx( 0 )
+                .build();
+
+        //When
+        Mockito.when( priceService.getNotificationCost( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( costResponse );
+
+        webTestClient.get()
+                .uri( "/delivery-private/notifications/{paTaxId}/{noticeCode}"
+                        .replace( "{paTaxId}", PA_TAX_ID )
+                        .replace( "{noticeCode}", NOTICE_CODE ))
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(NotificationCostResponse.class );
+
+        //Then
+        Mockito.verify( priceService ).getNotificationCost( PA_TAX_ID, NOTICE_CODE );
+    }
+
+    @Test
+    void getNotificationCostFailure(){
+        //When
+        Mockito.when( priceService.getNotificationCost( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(PnNotFoundException.class);
+
+        webTestClient.get()
+                .uri( "/delivery-private/notifications/{paTaxId}/{noticeCode}"
+                        .replace( "{paTaxId}", PA_TAX_ID )
+                        .replace( "{noticeCode}", NOTICE_CODE ))
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isNotFound();
     }
 }

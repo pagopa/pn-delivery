@@ -114,6 +114,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/notifications/{paTaxId}/{noticeCode}":
+    get:
+      summary: servizio che restituisce IUN data la coppia paTaxId_noticeCode
+      tags:
+        - internal-only
+      operationId: getNotificationCostPrivate
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
+        - name: noticeCode
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationCostResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
 components:
   schemas:
     
@@ -128,6 +170,15 @@ components:
           type: string
           description: timestamp del passaggio di stato
           format: date-time
+
+    NotificationCostResponse:
+      type: object
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/IUN'
+        recipientIdx:
+          type: integer
+          description: indice del destinatario
                     
     
     Problem:

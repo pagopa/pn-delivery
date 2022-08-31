@@ -5,7 +5,7 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
-import it.pagopa.pn.delivery.models.NotificationCost;
+import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -92,7 +92,7 @@ class NotificationEntityDaoDynamoTestIT {
 
     @Test
     void getNotificationByPayment() {
-        Optional<NotificationCost> result = notificationCostEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode" );
+        Optional<InternalNotificationCost> result = notificationCostEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode" );
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals( "IUN_01" , result.get().getIun() );
