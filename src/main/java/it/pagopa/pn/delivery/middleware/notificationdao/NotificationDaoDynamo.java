@@ -186,7 +186,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 		}
 	}
 
-
 	private NotificationDigitalAddress setNotificationDigitalAddress( AddressDto addressDto ) {
 		return addressDto == null ? null : NotificationDigitalAddress.builder()
 				.type( NotificationDigitalAddress.TypeEnum.PEC )
@@ -211,7 +210,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 	public PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
 		return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, partitionValue, size, lastEvaluatedKey );
 	}
-
 
 	@Override
 	public PageSearchTrunk<NotificationMetadataEntity> searchByIUN(InputSearchNotificationDto inputSearchNotificationDto) {

@@ -71,7 +71,7 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString() ) ).thenReturn( notification );
 				
 		// Then		
 		webTestClient.get()
@@ -87,7 +87,7 @@ class PnSentReceivedNotificationControllerTest {
 			.isOk()
 			.expectBody(FullSentNotification.class);
 		
-		Mockito.verify( svc ).getNotificationInformation(IUN, true, true);
+		Mockito.verify( svc ).getNotificationInformation(IUN, true, true, "PA_ID");
 	}
 
 	@Test
@@ -101,7 +101,7 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString() ) ).thenReturn( notification );
 
 		// Then
 		webTestClient.get()
@@ -116,7 +116,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isNotFound();
 
-		Mockito.verify( svc ).getNotificationInformation(IUN, true, true);
+		Mockito.verify( svc ).getNotificationInformation(IUN, true, true, "PA_ID");
 	}
 
 	@Test
