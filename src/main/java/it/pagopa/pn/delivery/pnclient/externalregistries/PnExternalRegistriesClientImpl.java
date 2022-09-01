@@ -32,6 +32,11 @@ public class PnExternalRegistriesClientImpl {
     }
 
     public List<PaGroup> getGroups(String senderId) {
-        return internalOnlyApi.getAllGroupsPrivate(senderId, null);
+        try {
+            return internalOnlyApi.getAllGroupsPrivate(senderId, null);
+        } catch (Exception exc) {
+            log.error("Error during retrieve of the groups", exc);
+            return null;
+        }
     }
 }

@@ -94,7 +94,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
-            serviceResult =  retrieveSvc.searchNotification( searchDto, xPagopaPnCxId );
+            serviceResult =  retrieveSvc.searchNotification( searchDto );
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
             response = mapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();

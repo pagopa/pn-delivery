@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
@@ -63,7 +64,7 @@ class PnExternalRegistriesClientImplTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void getGroups() {
+    void getGroupsSuccess() {
 
         List<PaGroup> res = new ArrayList<>();
         PaGroup dto = new PaGroup();
@@ -78,12 +79,25 @@ class PnExternalRegistriesClientImplTest {
         ResponseEntity<List<PaGroup>> response = ResponseEntity.ok( res );
 
         // When
-        Mockito.when( restTemplate.exchange(  Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
+        Mockito.when( restTemplate.exchange(  Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn( response );
         List<PaGroup> groups = externalRegistriesClient.getGroups( SENDER_ID );
 
         // Then
         Assertions.assertNotNull( groups );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getGroupsFail() {
+
+        // When
+        Mockito.when( restTemplate.exchange(  Mockito.any(RequestEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenThrow(PnNotFoundException.class);
+        List<PaGroup> groups = externalRegistriesClient.getGroups( SENDER_ID );
+
+        // Then
+        Assertions.assertNull( groups );
     }
 
 }

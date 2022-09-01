@@ -97,7 +97,7 @@ class NotificationRetrieverServiceTest {
                 .bySender( false )
                 .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
-                .senderReceiverId( "receiverId" )
+                .senderReceiverId( "SENDER_ID" )
                 .size( 10 )
                 .nextPagesKey( null )
                 .build();
@@ -108,7 +108,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
         Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch, "SENDER_ID" );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
 
         // Then
         Assertions.assertNotNull( result );

@@ -90,7 +90,7 @@ public class NotificationRetrieverService {
 		this.cfg = cfg;
 	}
 
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto, String senderId ) {
+	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
 
 		Instant startDate = searchDto.getStartDate();
 		if( PN_EPOCH.isAfter(startDate) ) {
@@ -143,7 +143,7 @@ public class NotificationRetrieverService {
 		log.debug( "END search notification metadata" );
 
 		// labelize groups
-		labelizeGroups(searchResult, senderId);
+		labelizeGroups(searchResult, searchDto.getSenderReceiverId());
 
 		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow,String> builder = ResultPaginationDto.builder();
 		builder.moreResult(searchResult.isMoreResult() )
@@ -156,10 +156,6 @@ public class NotificationRetrieverService {
 		else
 			builder.nextPagesKey(new ArrayList<>());
 		return builder.build();
-	}
-
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
-		return searchNotification(searchDto, null);
 	}
 
 	/**
