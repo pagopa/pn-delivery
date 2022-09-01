@@ -576,37 +576,42 @@ public class NotificationRetrieverService {
 
 	private void labelizeGroup(InternalNotification notification, String senderId) {
 		String notificationGroup = notification.getGroup();
-		if (notificationGroup != null && !notificationGroup.isEmpty() && senderId != null) {
-			List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
-			if (groups != null) {
+		// no notification or no sender id
+		if (notificationGroup == null || notificationGroup.isEmpty() || senderId == null) {
+			return;
+		}
+		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
+		if (groups != null) {
+			PaGroup group = groups.stream()
+					.filter(g -> g.getId().equals(notificationGroup))
+					.findAny()
+					.orElse(null);
+			if (group != null) {
+				notification.setGroup(group.getName());
+			}
+		}
+	}
+
+	private void labelizeGroups(ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult, String senderId) {
+		// no results
+		if (searchResult == null) {
+			return;
+		}
+		List<NotificationSearchRow> notifications = searchResult.getResultsPage();
+		// no notification or no sender id
+		if (notifications == null || notifications.isEmpty() || senderId == null) {
+			return;
+		}
+		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
+		for (NotificationSearchRow notification : notifications) {
+			String notificationGroup = notification.getGroup();
+			if (groups != null && notificationGroup != null && !notificationGroup.isEmpty()) {
 				PaGroup group = groups.stream()
 						.filter(g -> g.getId().equals(notificationGroup))
 						.findAny()
 						.orElse(null);
 				if (group != null) {
 					notification.setGroup(group.getName());
-				}
-			}
-		}
-	}
-
-	private void labelizeGroups(ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> searchResult, String senderId) {
-		if (searchResult != null) {
-			List<NotificationSearchRow> notifications = searchResult.getResultsPage();
-			if (notifications != null && !notifications.isEmpty() && senderId != null) {
-				List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
-				for (int i = 0; i < notifications.size(); i++) {
-					NotificationSearchRow notification = notifications.get(i);
-					String notificationGroup = notification.getGroup();
-					if (groups != null && notificationGroup != null && !notificationGroup.isEmpty()) {
-						PaGroup group = groups.stream()
-								.filter(g -> g.getId().equals(notificationGroup))
-								.findAny()
-								.orElse(null);
-						if (group != null) {
-							notification.setGroup(group.getName());
-						}
-					}
 				}
 			}
 		}
