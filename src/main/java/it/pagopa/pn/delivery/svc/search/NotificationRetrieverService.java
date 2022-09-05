@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestClientException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -110,7 +109,7 @@ public class NotificationRetrieverService {
 				log.debug( "Search from receiver without mandate" );
 			}
 		} else {
-			log.debug( "Search from receiver" );
+			log.debug( "Search from sender" );
 		}
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
@@ -545,9 +544,6 @@ public class NotificationRetrieverService {
 		return mapperNotification.map( resultFullSent, InternalNotification.class );
 	}
 
-	private Date fromOffsetToDate(OffsetDateTime source) {
-		return Date.from( source.toInstant() );
-	}
 
 	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
 		String iun = notification.getIun();

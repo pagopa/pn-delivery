@@ -146,14 +146,12 @@ class NotificationDaoDynamoTest {
                         .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
 
 
-        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
         Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
+        Executable todo = () -> this.dao.addNotification( newNotificationWithoutPayments() );
 
         // THEN
-        Assertions.assertThrows( IdConflictException.class, () ->
-                this.dao.addNotification( newNotificationWithoutPayments() )
-        );
+        Assertions.assertThrows( IdConflictException.class, todo );
     }
 
 

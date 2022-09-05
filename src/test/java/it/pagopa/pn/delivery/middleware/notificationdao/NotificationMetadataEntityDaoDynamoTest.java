@@ -5,16 +5,13 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
 import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;

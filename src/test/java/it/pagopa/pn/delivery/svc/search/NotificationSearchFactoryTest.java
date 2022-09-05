@@ -1,22 +1,16 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class NotificationSearchFactoryTest {
 

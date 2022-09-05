@@ -105,7 +105,9 @@ public class InputSearchNotificationDto {
 
         private List<String> groups;
 
-        public Builder() {}
+        public Builder builder() {
+            return this;
+        }
         
         public Builder bySender(boolean bySender) {
             this.bySender = bySender;

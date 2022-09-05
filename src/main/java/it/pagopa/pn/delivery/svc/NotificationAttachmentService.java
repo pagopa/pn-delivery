@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -48,17 +47,15 @@ public class NotificationAttachmentService {
 
     private final PnSafeStorageClientImpl safeStorageClient;
     private final NotificationDao notificationDao;
-    private final PnMandateClientImpl pnMandateClient;
     private final CheckAuthComponent checkAuthComponent;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, PnMandateClientImpl pnMandateClient, CheckAuthComponent checkAuthComponent) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent) {
         this.safeStorageClient = safeStorageClient;
         this.notificationDao = notificationDao;
-        this.pnMandateClient = pnMandateClient;
         this.checkAuthComponent = checkAuthComponent;
     }
 
-    private FileDownloadResponse getFile(String fileKey){
+    public FileDownloadResponse getFile(String fileKey){
         log.info("getFile with fileKey={} ", fileKey);
         return this.safeStorageClient.getFile(fileKey, false);
     }
@@ -114,6 +111,10 @@ public class NotificationAttachmentService {
         public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse) {
             this.fileName = fileName;
             this.fileDownloadResponse = fileDownloadResponse;
+        }
+
+        public String getFileName() {
+            return fileName;
         }
     }
 
@@ -218,7 +219,7 @@ public class NotificationAttachmentService {
         {
             String attachmentName = fileDownloadIdentify.attachmentName;
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
-            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, notification.getNotificationFeePolicy());
+            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName);
             if (!StringUtils.hasText( fileKey )) {
                 String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
                 throw new PnNotFoundException(exMessage);
@@ -241,7 +242,7 @@ public class NotificationAttachmentService {
         }
     }
 
-    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, FullSentNotification.@NotNull NotificationFeePolicyEnum notificationFeePolicy){
+    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName){
         NotificationPaymentInfo payment = doc.getPayment();
         if ( !Objects.nonNull( payment ) ) {
             log.error( "Notification without payment attachment - iun={}", iun );
@@ -268,9 +269,7 @@ public class NotificationAttachmentService {
                 return getKey( payment.getF24standard() );
             }
         }
-
-        log.error("Invalid attachmentName={} for iun={}", attachmentName, iun);
-        throw new PnInternalException("Invalid attachmentName for iun=" + iun);
+        return null;
     }
 
     private String getKey(NotificationPaymentAttachment payment) {
@@ -283,11 +282,11 @@ public class NotificationAttachmentService {
 
     private String buildFilename(String iun, String name, String contentType){
         String extension = "pdf";
-        try{
-            extension = MimeTypesUtils.getDefaultExt(contentType);
-        } catch (Exception e)
-        {
+        String defaultExtension = MimeTypesUtils.getDefaultExt(contentType);
+        if( defaultExtension.equals( "unknown" ) ) {
             log.warn("right extension not found, using PDF");
+        } else {
+            extension = defaultExtension;
         }
 
         String unescapedFileName = iun + "__" + name;

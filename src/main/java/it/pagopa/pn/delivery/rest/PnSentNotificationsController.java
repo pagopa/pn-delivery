@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -14,9 +13,9 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
-import it.pagopa.pn.delivery.rest.utils.HandleIllegalArgumentException;
+import it.pagopa.pn.delivery.rest.utils.HandleIllegalArgumentExc;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
-import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
+import it.pagopa.pn.delivery.rest.utils.HandleRuntimeExc;
 import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
@@ -117,12 +116,12 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<Problem> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return HandleIllegalArgumentException.handleIllegalArgumentException( ex );
+        return HandleIllegalArgumentExc.handleIllegalArgumentException( ex );
     }
 
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Problem> handlePnInternalException( RuntimeException ex ) {
-        return HandleRuntimeException.handleRuntimeException( ex );
+        return HandleRuntimeExc.handleRuntimeException( ex );
     }
 
     @Override
