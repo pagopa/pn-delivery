@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
 import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
 import it.pagopa.pn.delivery.rest.utils.HandleRuntimeExc;
+import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -32,13 +33,35 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     private final NotificationRetrieverService retrieveSvc;
     private final StatusService statusService;
+    private final NotificationPriceService priceService;
 
     private final ModelMapperFactory modelMapperFactory;
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, ModelMapperFactory modelMapperFactory) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
+        this.priceService = priceService;
         this.modelMapperFactory = modelMapperFactory;
+    }
+
+    @Override
+    public ResponseEntity<NotificationCostResponse> getNotificationCostPrivate(String paTaxId, String noticeCode) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_REQCOST, "getNotificationCostPrivate paTaxId={} noticeCode={}", paTaxId, noticeCode)
+                .mdcEntry("paTaxId",paTaxId)
+                .mdcEntry("noticeCode", noticeCode)
+                .build();
+        logEvent.log();
+        NotificationCostResponse response;
+        try {
+            response = priceService.getNotificationCost( paTaxId, noticeCode );
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure("Exception on get notification cost private= " + exc.getMessage()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok( response );
     }
 
     @Override

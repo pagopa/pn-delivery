@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
-import it.pagopa.pn.delivery.models.NotificationCost;
+import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -26,7 +26,7 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
     }
 
     @Override
-    public Optional<NotificationCost> getNotificationByPaymentInfo(String paTaxId, String noticeCode) {
+    public Optional<InternalNotificationCost> getNotificationByPaymentInfo(String paTaxId, String noticeCode) {
 
         Key key = Key.builder()
                 .partitionValue( paTaxId+"##"+noticeCode )
@@ -34,7 +34,7 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
 
         NotificationCostEntity notificationCostEntity = table.getItem( key );
         if ( notificationCostEntity != null ){
-            return Optional.of(NotificationCost.builder()
+            return Optional.of(InternalNotificationCost.builder()
                     .creditorTaxId_noticeCode( notificationCostEntity.getCreditorTaxId_noticeCode() )
                     .iun( notificationCostEntity.getIun() )
                     .recipientIdx( notificationCostEntity.getRecipientIdx() )

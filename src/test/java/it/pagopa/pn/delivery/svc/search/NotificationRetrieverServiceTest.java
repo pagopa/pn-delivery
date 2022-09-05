@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -88,6 +89,59 @@ class NotificationRetrieverServiceTest {
                 notificationSearchFactory,
                 cfg
         );
+    }
+
+    @Test
+    void checkMachingGroups() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+                .bySender( false )
+                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
+                .senderReceiverId( "SENDER_ID" )
+                .size( 10 )
+                .nextPagesKey( null )
+                .build();
+        List<PaGroup> groups = getGroups();
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+        Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+
+        // Then
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals( results.getResultsPage().get(0).getGroup(), "Group");
+        Assertions.assertEquals( results.getResultsPage().get(1).getGroup(), "Group no match");
+        Assertions.assertEquals( results.getResultsPage().get(2).getGroup(), "group-code-fake");
+    }
+
+    @NotNull
+    private ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> getPaginatedNotifications() {
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = new ResultPaginationDto<>();
+        List<NotificationSearchRow> notifications = new ArrayList<>();
+        // first notification
+        NotificationSearchRow notification = new NotificationSearchRow();
+        notification.setIun("first-iun");
+        notification.setPaProtocolNumber("first-protocol-number");
+        notification.setGroup("group-code");
+        notifications.add(notification);
+        // second notification
+        notification = new NotificationSearchRow();
+        notification.setIun("second-iun");
+        notification.setPaProtocolNumber("second-protocol-number");
+        notification.setGroup("group-code-no-match");
+        notifications.add(notification);
+        // third notification
+        notification = new NotificationSearchRow();
+        notification.setIun("third-iun");
+        notification.setPaProtocolNumber("third-protocol-number");
+        notification.setGroup("group-code-fake");
+        results.setResultsPage(notifications);
+        notifications.add(notification);
+        return  results;
     }
 
     @Test
@@ -323,6 +377,22 @@ class NotificationRetrieverServiceTest {
                 ).build(), Collections.emptyMap(), Collections.singletonList( "userId" ) );
     }
 
+    @NotNull
+    private List<PaGroup> getGroups() {
+        List<PaGroup> groups = new ArrayList<>();
+        // first group
+        PaGroup dto = new PaGroup();
+        dto.setId("group-code");
+        dto.setName("Group");
+        groups.add(dto);
+        // second group
+        dto = new PaGroup();
+        dto.setId("group-code-no-match");
+        dto.setName("Group no match");
+        groups.add(dto);
+        return groups;
+    }
+
     @Test
     void getNotificationWithTimelineInfoError() {
         //Given
@@ -333,6 +403,54 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Assertions.assertThrows(PnNotFoundException.class, todo);
+    }
+
+    @Test
+    void getNotificationWithMatchingGroup() {
+        //Given
+        InternalNotification notification = getNewInternalNotification();
+        notification.setGroup("group-code");
+        List<PaGroup> groups = getGroups();
+
+        //When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+        Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        InternalNotification result = svc.getNotificationInformation( IUN, false, true, "SENDER_ID");
+
+        //Then
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals(result.getGroup(), "Group");
+    }
+
+    @Test
+    void getNotificationWithNoMatchingGroup() {
+        //Given
+        InternalNotification notification = getNewInternalNotification();
+        notification.setGroup("group-code-fake");
+        List<PaGroup> groups = getGroups();
+
+        //When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+        Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        InternalNotification result = svc.getNotificationInformation( IUN, false, true, "SENDER_ID");
+
+        //Then
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals(result.getGroup(), "group-code-fake");
     }
 
     @Test

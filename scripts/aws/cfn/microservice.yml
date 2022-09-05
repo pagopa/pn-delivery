@@ -123,10 +123,11 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         CpuValue: 1024
         MemoryAmount: 2GB
+        HealthCheckPath: /actuator/health
         HealthCheckTimeout: 15
         AutoscalingStrategy: REST-API
         AutoscalingThreshold: 70
-        MinTasksNumber: 2
+        MinTasksNumber: 1
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
@@ -210,7 +211,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-b2b'
         WAFRuleVendors: "AWS,AWS,AWS"
         WAFRuleNames: "AWSManagedRulesKnownBadInputsRuleSet,AWSManagedRulesAdminProtectionRuleSet,AWSManagedRulesCommonRuleSet"
-        APIGatewayARN: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
+        APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
   DeliveryMicroservicePublicWebAPI:
@@ -234,7 +235,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-web'
         WAFRuleVendors: "AWS, AWS, AWS, AWS"
         WAFRuleNames: "AWSManagedRulesBotControlRuleSet, AWSManagedRulesKnownBadInputsRuleSet, AWSManagedRulesAdminProtectionRuleSet, AWSManagedRulesCommonRuleSet"
-        APIGatewayARN: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
+        APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
 
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
