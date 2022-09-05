@@ -32,8 +32,9 @@ public class HandleValidation {
                         .build());
     }
 
+    // TODO Rimuovire una volta che non serve
     public static ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex, String statusError){
-        List<ErrorDto> listErrorDto = ex.getValidationErrors().stream()
+        /*List<ErrorDto> listErrorDto = ex.getValidationErrors().stream()
                 .map(msg ->
                         ErrorDto.builder()
                                 .message(msg.getMessage())
@@ -51,6 +52,7 @@ public class HandleValidation {
                         .identificationId(ex.getValidationTargetId())
                         .status(statusError)
                         .errorDtoList(listErrorDto)
-                        .build());
+                        .build());*/
+        return null;
     }
 }

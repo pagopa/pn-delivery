@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -57,7 +58,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true, true, xPagopaPnCxId);
         if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() ) ) {
             log.info( "Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus() );
-            throw new PnNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
+            throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
         FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
@@ -104,7 +105,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         }
         return ResponseEntity.ok( response );
     }
-
+/* TODO Rimuovere
     @ExceptionHandler({PnValidationException.class})
     public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
         return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
@@ -123,7 +124,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Problem> handlePnInternalException( RuntimeException ex ) {
         return HandleRuntimeException.handleRuntimeException( ex );
-    }
+    }*/
 
     @Override
     public Optional<NativeWebRequest> getRequest() {

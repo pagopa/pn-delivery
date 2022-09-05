@@ -169,7 +169,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         }
         return ResponseEntity.ok(response);
     }
-
+/* TODO rimuovere
     @ExceptionHandler({PnValidationException.class})
     public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex) {
         return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
@@ -183,5 +183,5 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     @ExceptionHandler({PnBadRequestException.class})
     public ResponseEntity<ResErrorDto> handleBadRequestException(PnBadRequestException ex) {
         return HandleBadRequest.handleBadRequestException(ex, BAD_REQUEST_ERROR_STATUS);
-    }
+    }*/
 }

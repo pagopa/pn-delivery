@@ -102,7 +102,7 @@ public class PnNotificationInputController implements NewNotificationApi {
             throw e;
         }
     }
-
+/* TODO RImuovere una volta rilasciato
     @ExceptionHandler({PnValidationException.class})
     public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex) {
         return HandleValidation.handleValidationException(ex, NOTIFICATION_VALIDATION_ERROR_STATUS);
@@ -121,5 +121,5 @@ public class PnNotificationInputController implements NewNotificationApi {
     @ExceptionHandler({WebExchangeBindException.class})
     public ResponseEntity<Problem> handleWebExchangeBindException( WebExchangeBindException ex ) {
         return HandleWebExchangeBindException.handleWebExchangeBindException( ex );
-    }
+    }*/
 }
