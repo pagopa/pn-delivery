@@ -1,7 +1,10 @@
 openapi: 3.0.3
 info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-internal-b2b-pa
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
-  version: v1.0
+  x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
+  version: '1.0.0'
   description: >-
     ## Abstract
       API utilizzate dalle pubbliche amministrazioni per __inviare richieste di notifiche__ e 
@@ -148,6 +151,9 @@ servers:
   - url: https://api.dev.pn.pagopa.it
     description: Ambiente di sviluppo
 tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
   - name: NewNotification
     description: >-
       Invocazioni per precaricare allegati e inviare notifiche
@@ -160,6 +166,18 @@ tags:
       Invocazioni per determinare il costo della notifica per il destinario.
 
 paths:
+  "/status":
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
   ###########################################################################################
   ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
   ###########################################################################################
@@ -196,7 +214,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -238,7 +256,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -274,7 +292,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -307,7 +325,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -338,7 +356,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -366,7 +384,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -395,7 +413,7 @@ paths:
         '400': # ONLY EXTERNAL
           description: Bad request                                                  # ONLY EXTERNAL
           content: # ONLY EXTERNAL
-            application/json: # ONLY EXTERNAL
+            application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL
@@ -496,14 +514,16 @@ components:
       in: path
       required: true
       schema:
-        type: number
+        type: integer
+        format: int32
     pathRecipientIdx:
       name: recipientIdx
       description: indice dei destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
-        type: number
+        type: integer
+        format: int32
     pathAttachmentName:
       name: attachmentName
       description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24_FLAT|F24_STANDARD
@@ -604,7 +624,7 @@ components:
           example: 'KXFY-CSZL-GUIE-202206-Y-1'
         amount:
           description: amount in euro cents
-          example: 1220
+          example: '1220'
           type: string
         effectiveDate:
           description: notification effective date
@@ -658,7 +678,8 @@ components:
                 - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_
               type: string
             retryAfter:
-              type: number
+              type: integer
+              format: int32
               description: >-
                 Numero di secondi da attendere prima di effettuare una nuova richiesta per 
                 la stessa entità; valorizzato quando lo status è __WAITING__.

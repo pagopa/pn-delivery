@@ -261,7 +261,7 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: retrieveNotificationRequestStatus
+      operationId: getNotificationRequestStatus
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -300,7 +300,7 @@ paths:
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotification
+      operationId: getSentNotification
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
       responses:
@@ -328,7 +328,7 @@ paths:
         Questa operazione permette di recuperare il documento allegato alla notifica
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationDocument
+      operationId: getSentNotificationDocument
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -353,7 +353,7 @@ paths:
       summary: Download allegato per pagamento
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationAttachment
+      operationId: getSentNotificationAttachment
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
@@ -382,7 +382,7 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
       tags: # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
-      operationId: retrieveLegalFact                                                     # ONLY EXTERNAL
+      operationId: getLegalFact                                                     # ONLY EXTERNAL
       parameters: # ONLY EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
@@ -402,7 +402,7 @@ paths:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL
     get: # ONLY EXTERNAL
-      operationId: retrieveNotificationPrice                                             # ONLY EXTERNAL
+      operationId: getNotificationPrice                                             # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
         Used to retrieve the notification price charged and effective date          # ONLY EXTERNAL

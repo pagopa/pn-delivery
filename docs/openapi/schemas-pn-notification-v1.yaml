@@ -100,7 +100,7 @@ components:
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
         amount:
           type: integer
-          format: int64
+          format: int32
           description: Importo della notifica in eurocent
         paymentExpirationDate:
           type: string
