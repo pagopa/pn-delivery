@@ -36,8 +36,8 @@ paths:
       tags:
         - RecipientRead
       operationId: searchReceivedNotification
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'
         - $ref: '#/components/parameters/cxTypeAuthFleet'
@@ -75,13 +75,9 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotification
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchMandateId'
       responses:
@@ -110,13 +106,9 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationDocument
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryMandateId'
@@ -142,13 +134,9 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
@@ -257,13 +245,13 @@ components:
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
-#  securitySchemes:                                      # ONLY EXTERNAL
-#    bearerAuth:                                         # ONLY EXTERNAL
-#      type: http                                        # ONLY EXTERNAL
-#      scheme: bearer                                    # ONLY EXTERNAL
-#      bearerFormat: JWT                                 # ONLY EXTERNAL
-# security:                                              # ONLY EXTERNAL
-#  - bearerAuth: []                                      # ONLY EXTERNAL
+  securitySchemes:                                      # ONLY EXTERNAL
+    bearerAuth:                                         # ONLY EXTERNAL
+      type: http                                        # ONLY EXTERNAL
+      scheme: bearer                                    # ONLY EXTERNAL
+      bearerFormat: JWT                                 # ONLY EXTERNAL
+ security:                                              # ONLY EXTERNAL
+  - bearerAuth: []                                      # ONLY EXTERNAL
               
 
 

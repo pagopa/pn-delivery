@@ -1,8 +1,10 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
+import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,11 +14,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.time.Instant;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
-import java.util.Date;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
 @WebFluxTest(PnNotificationPriceController.class)
 class PnNotificationPriceControllerTest {
 
@@ -73,6 +77,23 @@ class PnNotificationPriceControllerTest {
                 .expectStatus()
                 .isNotFound();
 
+    }
+
+    @Test
+    void getPriceFailureValidationExc() {
+        Set<ConstraintViolation<String>> constraintViolations = new HashSet<>();
+        constraintViolations.add( new ConstraintViolationImpl<>( "message" ));
+        ConstraintViolationException exception = new ConstraintViolationException( constraintViolations );
+        Mockito.when( service.getNotificationPrice( PA_TAX_ID, NOTICE_CODE ) ).thenThrow( exception );
+
+        webTestClient.get()
+                .uri( "/delivery/price/{paTaxId}/{noticeCode}"
+                        .replace( "{paTaxId}", PA_TAX_ID )
+                        .replace( "{noticeCode}", NOTICE_CODE ))
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
     }
 
 }

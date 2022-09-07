@@ -10,9 +10,7 @@ import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 

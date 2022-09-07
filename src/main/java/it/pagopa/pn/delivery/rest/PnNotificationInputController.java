@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
@@ -9,24 +8,15 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
-import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
-import it.pagopa.pn.delivery.rest.utils.HandleIdConflict;
-import it.pagopa.pn.delivery.rest.utils.HandleRuntimeException;
-import it.pagopa.pn.delivery.rest.utils.HandleValidation;
-import it.pagopa.pn.delivery.rest.utils.HandleWebExchangeBindException;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.support.WebExchangeBindException;
 
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j

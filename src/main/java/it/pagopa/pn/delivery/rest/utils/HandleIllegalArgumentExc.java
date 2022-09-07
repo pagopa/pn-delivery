@@ -3,9 +3,9 @@ package it.pagopa.pn.delivery.rest.utils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.Problem;
 import org.springframework.http.ResponseEntity;
 
-public class HandleIllegalArgumentException {
+public class HandleIllegalArgumentExc {
 
-    public HandleIllegalArgumentException() {}
+    private HandleIllegalArgumentExc() {}
 
     public static ResponseEntity<Problem> handleIllegalArgumentException(IllegalArgumentException ex) {
         Problem problem = Problem.builder()

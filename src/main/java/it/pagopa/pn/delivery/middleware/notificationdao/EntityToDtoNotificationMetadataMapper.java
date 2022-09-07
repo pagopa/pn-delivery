@@ -18,7 +18,7 @@ public class EntityToDtoNotificationMetadataMapper {
         OffsetDateTime requestAcceptedAt = null;
 
         final Map<String, String> tableRow = entity.getTableRow();
-        if ((tableRow != null) && (tableRow.get( "acceptedAt" ) != null)) {
+        if ( (tableRow.get( "acceptedAt" ) != null) ) {
             requestAcceptedAt = OffsetDateTime.parse( tableRow.get( "acceptedAt" ) );
         }
         

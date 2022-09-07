@@ -15,13 +15,10 @@ import java.util.Optional;
 
 @Component
 @Slf4j
-public class NotificationEnitytCostDynamo extends AbstractDynamoKeyValueStore<NotificationCostEntity> implements NotificationCostEntityDao {
+public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<NotificationCostEntity> implements NotificationCostEntityDao {
 
-    private DynamoDbEnhancedClient dynamoDbEnhancedClient;
-
-    protected NotificationEnitytCostDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryConfigs cfg) {
+    protected NotificationEntityCostDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryConfigs cfg) {
         super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationCostEntity.class)));
-        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
     }
 
     private static String tableName( PnDeliveryConfigs cfg ) {

@@ -61,19 +61,6 @@ public class EntityToDtoNotificationMapper {
                 .collect(Collectors.toList());
     }
 
-    private NotificationDocument buildDocument(String key, String version, String sha256, String contentType, String title ) {
-        return NotificationDocument.builder()
-                .title( title )
-                .ref(NotificationAttachmentBodyRef.builder()
-                        .versionToken( version )
-                        .key( key )
-                        .build())
-                .digests( NotificationAttachmentDigests.builder()
-                        .sha256( sha256 )
-                        .build() )
-                .contentType( contentType )
-                .build();
-    }
 
 
     private List<NotificationDocument> buildDocumentsList(NotificationEntity entity ) {

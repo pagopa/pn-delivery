@@ -9,8 +9,8 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HandleWebExchangeBindException {
-    private HandleWebExchangeBindException() {}
+public class HandleWebExchangeBindExc {
+    private HandleWebExchangeBindExc() {}
 
     public static ResponseEntity<Problem> handleWebExchangeBindException(WebExchangeBindException ex) {
         List<ObjectError> objectErrorList = ex.getAllErrors();

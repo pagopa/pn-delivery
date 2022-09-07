@@ -123,6 +123,7 @@ Resources:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         CpuValue: 1024
         MemoryAmount: 2GB
+        HealthCheckPath: /actuator/health
         HealthCheckTimeout: 15
         AutoscalingStrategy: REST-API
         AutoscalingThreshold: 70
