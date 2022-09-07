@@ -177,14 +177,10 @@ paths:
         - HealthCheck
       operationId: status
       responses:
-        '202':
-          description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NewNotificationResponse"
+        '200':
+          description: Ok
         '500':
-          description: server error
+          description: Internal Server Error
 
 
   ###########################################################################################
@@ -213,14 +209,15 @@ paths:
           content:
             application/json:
               schema:
+                type: array
                 items:
-                  $ref: "#/components/schemas/PreLoadResponses"
+                  $ref: "#/components/schemas/PreLoadResponse"
         '400':
           description: Bad request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
     ###########################################################################################
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
@@ -243,7 +240,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/NewNotificationRequest"
+              $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
         required: true
       responses:
         '202':
@@ -257,7 +254,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
     ###########################################################################################
@@ -289,7 +286,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
     ###########################################################################################
@@ -305,7 +302,7 @@ paths:
         - SenderReadB2B
       operationId: retrieveSentNotification
       parameters:
-        - $ref: '#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
       responses:
         '200':
           description: OK
@@ -318,7 +315,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
     ###########################################################################################
     ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
@@ -333,7 +330,7 @@ paths:
         - SenderReadB2B
       operationId: retrieveSentNotificationDocument
       parameters:
-        - $ref: '#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
       responses:
         '200':
@@ -341,13 +338,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
   "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
@@ -358,7 +355,7 @@ paths:
         - SenderReadB2B
       operationId: retrieveSentNotificationAttachment
       parameters:
-        - $ref: '#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
       responses:
@@ -367,13 +364,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
     ###########################################################################################
@@ -387,7 +384,7 @@ paths:
         - LegalFacts                                                                # ONLY EXTERNAL
       operationId: retrieveLegalFact                                                     # ONLY EXTERNAL
       parameters: # ONLY EXTERNAL
-        - $ref: '#/components/parameters/pathIun' # ONLY EXTERNAL
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
       responses: # ONLY EXTERNAL
@@ -402,7 +399,7 @@ paths:
           content: # ONLY EXTERNAL
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'     # ONLY EXTERNAL
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL
     get: # ONLY EXTERNAL
       operationId: retrieveNotificationPrice                                             # ONLY EXTERNAL
@@ -421,14 +418,14 @@ paths:
           required: true                                                            # ONLY EXTERNAL
           example: '77777777777'                                                    # ONLY EXTERNAL
           schema: # ONLY EXTERNAL
-            $ref: '#/components/schemas/PaTaxId'     # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'     # ONLY EXTERNAL
         - name: noticeCode                                                          # ONLY EXTERNAL
           description: Payment notice number  numero avviso                         # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
           example: '302000100000019421'                                             # ONLY EXTERNAL
           schema: # ONLY EXTERNAL
-            $ref: '#/components/schemas/NoticeCode'  # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'  # ONLY EXTERNAL
       responses: # ONLY EXTERNAL
         '200': # ONLY EXTERNAL
           description: OK                                                           # ONLY EXTERNAL
@@ -441,36 +438,17 @@ paths:
           content: # ONLY EXTERNAL
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'       # ONLY EXTERNAL
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       # ONLY EXTERNAL
         '500': # ONLY EXTERNAL
           description: Internal Server Error                                        # ONLY EXTERNAL
           content: # ONLY EXTERNAL
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'       # ONLY EXTERNAL
+                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       # ONLY EXTERNAL
 components:
 
   parameters:
-    pathIun:
-      description: >-
-        Identificativo Univoco Notifica
-      name: iun
-      in: path
-      required: true
-      schema:
-        type: string
 
-    ############################################################################################
-    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
-    ############################################################################################
-    cxTypeAuthFleet:
-      $ref: '#/components/parameters/cxTypeAuthFleet'
-    cxIdAuthFleet:
-      $ref: '#/components/parameters/cxIdAuthFleet'
-    cxGroupsAuthFleet:
-      $ref: '#/components/parameters/cxGroupsAuthFleet'
-    uidAuthFleet:
-      $ref: '#/components/parameters/uidAuthFleet'
 
     ############################################################################################
     ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
@@ -543,80 +521,12 @@ components:
     ############################################################################################
 
     pathLegalFactType:
-      description: >-
-        Categoria dell'atto opponbile a terzi
-      name: legalFactType
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/LegalFactCategory'
-
+      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactType'
     pathLegalFactId:
-      description: >-
-        Identificativo dell'atto opponbile a terzi
-      name: legalFactId
-      in: path
-      required: true
-      schema:
-        type: string
+      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactId'
 
 
   schemas:
-
-    Problem:
-      properties:
-        type:
-          description: URI reference of type definition
-          type: string
-        status:
-          description: The HTTP status code generated by the origin server for this occurrence of the problem.
-          example: 400
-          exclusiveMaximum: true
-          format: int32
-          maximum: 600
-          minimum: 100
-          type: integer
-        title:
-          description: A short, summary of the problem type. Written in english and readable
-          example: Service Unavailable
-          maxLength: 64
-          pattern: '^[ -~]{0,64}$'
-          type: string
-        detail:
-          description: A human readable explanation of the problem.
-          example: Request took too long to complete.
-          maxLength: 4096
-          pattern: '^.{0,1024}$'
-          type: string
-        errors:
-          type: array
-          minItems: 0
-          items:
-            $ref: '#/components/schemas/ProblemError'
-      additionalProperties: false
-      required:
-        - type
-        - status
-        - title
-        - errors
-    ProblemError:
-      properties:
-        code:
-          description: Internal code of the error
-          example: 123-4567
-          minLength: 8
-          maxLength: 8
-          pattern: '^[0-9]{3}-[0-9]{4}$'
-          type: string
-        detail:
-          description: A human readable explanation specific to this occurrence of the problem.
-          example: Parameter not valid
-          maxLength: 4096
-          pattern: '^.{0,1024}$'
-          type: string
-      required:
-        - code
-        - detail
 
     ###########################################################################################
     ###                             DTO PRECARICAMENTO ALLEGATI                             ###
@@ -643,14 +553,6 @@ components:
             caricato
           type: string
 
-    PreLoadResponses:
-      title: Risposta di precaricamento file
-      type: object
-      properties:
-        preloadResponse:
-          type: array
-          items:
-            $ref: "#/components/schemas/PreLoadResponse"
 
     PreLoadResponse:
       title: Informazioni per il caricamento file
@@ -706,125 +608,9 @@ components:
           format: date-time
           example: 2017-07-21T17:32:28Z
 
-    NotificationAttachmentDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: >-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentType
-        - contentLength
-        - sha256
-      properties:
-        filename:
-          type: string
-        contentType:
-          type: string
-          example: 'application/pdf'
-        contentLength:
-          type: number
-          format: decimal32
-          example: 54092
-          description: dmensione, in byte, del contenuto.
-        sha256:
-          type: string
-          description: >-
-            SHA256 del contenuto del file.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere il
-            contenuto del documento. Presente solo se il documento è pronto per il download.
-        retryAfter:
-          type: number
-          format: decimal32
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del
-            documento sia disponibile per il download.
-
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
     ###########################################################################################
-    NewNotificationRequest:
-      description: I campi utilizzati per la creazione di una nuova Notifica.
-      type: object
-      required:
-        - paProtocolNumber
-        - subject
-        - recipients
-        - documents
-        - physicalCommunicationType
-        - notificationFeePolicy
-      properties:
-        idempotenceToken:
-          description: >-
-            Identificativo utilizzabile dal chiamante per disambiguare differenti
-            "richieste di notificazione" effetuate con lo stesso numero di protocollo
-            (campo _paProtocolNumber_). Questo può essere necessario in caso di
-            "richiesta di notifica" rifiutata per errori nei codici di verifica degli
-            allegati.
-          type: string
-        paProtocolNumber:
-          description: >-
-            Numero di protocollo che la PA mittente assegna alla notifica stessa
-          type: string
-        subject:
-          type: string
-          description: titolo della notifica
-        abstract:
-          type: string
-          description: descrizione sintetica della notifica
-        recipients:
-          type: array
-          description: Informazioni sui destinatari
-          items:
-            $ref: "#/components/schemas/NotificationRecipient"
-        documents:
-          type: array
-          description: Documenti notificati
-          items:
-            $ref: "#/components/schemas/NotificationDocument"
-          minItems: 1
-        notificationFeePolicy:
-          type: string
-          description: >-
-            Politica di addebitamento dei costi di notifica. <br/>
-            - _FLAT_RATE_: costo forfettario fisso. <br/>
-            - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
-          enum:
-            - FLAT_RATE
-            - DELIVERY_MODE
-        cancelledIun:
-          type: string
-          description: IUN della notifica annullata da questa notifica
-        physicalCommunicationType:
-          type: string
-          description: Tipologia comunicazione fisica
-          enum:
-            - SIMPLE_REGISTERED_LETTER
-            - REGISTERED_LETTER_890
-        senderDenomination:
-          description: Denominazione dell'ente mittente
-          type: string
-        senderTaxId:
-          description: Codice Fiscale dell'ente mittente
-          type: string
-        group:
-          type: string
-          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-        amount:
-          type: integer
-          format: int64
-          description: Importo della notifica in eurocent
-        paymentExpirationDate:
-          type: string
-          pattern: "^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$"
-          description: Data di scadenza del pagamento nel formato YYYY-MM-DD riferito all'Italia
-          # gestito come stringa e pattern perchè con format: date open-api-generator non lo gestiva correttamente
 
     NewNotificationResponse:
       title: Identificativi della richiesta di notifica
@@ -851,7 +637,7 @@ components:
 
     NewNotificationRequestStatusResponse:
       allOf:
-        - $ref: "#/components/schemas/NewNotificationRequest"
+        - $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
         - type: object
           required:
             - notificationRequestId
@@ -874,51 +660,25 @@ components:
                 Numero di secondi da attendere prima di effettuare una nuova richiesta per
                 la stessa entità; valorizzato quando lo status è __WAITING__.
             iun:
-              $ref: "#/components/schemas/Iun"
+              $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/IUN"
             errors:
               description: >-
                 Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
               type: array
               items:
-                $ref: '#/components/schemas/ProblemError'
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/ProblemError'
 
 
     ###########################################################################################
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
-    SentNotification:
-      description: >-
-        Le informazioni riguardanti una richiesta di notifica accettata
-      allOf:
-        - $ref: '#/components/schemas/NewNotificationRequest'
-        - type: object
-          required:
-            - iun
-            - sentAt
-          properties:
-            senderPaId:
-              type: string
-              description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
-            iun:
-              type: string
-              description: L'Identificativo Univoco Notifica assegnato da PN
-            sentAt:
-              type: string
-              description: Momento di ricezione della notifica da parte di PN
-              format: date-time
-            cancelledByIun:
-              type: string
-              description: IUN della notifica che ha annullato questa notifica
-            documentsAvailable:
-              type: boolean
-              description: Indica se i documenti notificati sono ancora disponibili.
 
     FullSentNotification:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: '#/components/schemas/SentNotification'
+        - $ref: './schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
         - type: object
           required:
             - notificationStatus
@@ -936,249 +696,14 @@ components:
               items:
                 $ref: '#/components/schemas/TimelineElement'
 
-    NotificationRecipient:
-      description: Informazioni sui destinatari
-      required:
-        - denomination
-        - recipientType
-        - taxId
-      type: object
-      properties:
-        recipientType:
-          type: string
-          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
-            (PG)'
-          enum:
-            - PF
-            - PG
-        taxId:
-          type: string
-          description: Codice Fiscale del destinatario
-        internalId:
-          type: string
-          description: id interno anonimizzato
-        denomination:
-          type: string
-          description: Nome e cognome / ragione sociale
-        digitalDomicile:
-          $ref: "#/components/schemas/NotificationDigitalAddress"
-        physicalAddress:
-          $ref: "#/components/schemas/NotificationPhysicalAddress"
-        payment:
-          $ref: "#/components/schemas/NotificationPaymentInfo"
-
-    NotificationDocument:
-      description: >-
-        Un documento da notifcare
-      allOf:
-        - $ref: "#/components/schemas/NotificationAttachment"
-        - type: object
-          properties:
-            title:
-              type: string
-              description: Titolo del documento allegato
-            requiresAck:
-              type: boolean
-              description: >-
-                Se presente e valorizzato __true__ il download del documento
-                diventa necessario al fine del perfezionamento per presa visione.
-            sendByMail:
-              type: boolean
-              description: >-
-                Se presente e valorizzato __true__ il documento verrà spedito
-                nelle comunicazioni cartacee. In MVP questo flag sarà attivabile
-                solo su un documento.
-            docIdx:
-              type: string
-              description: >-
-                Indice del documento partendo da 0.
-
-    NotificationDigitalAddress:
-      description: Indirizzo di invio della notifica
-      required:
-        - address
-        - type
-      type: object
-      properties:
-        type:
-          type: string
-          description: tipo di indirizzo PEC, REM, SERCQ, ...
-          enum:
-            - PEC
-        address:
-          type: string
-          example: account@domain
-          description: >-
-            Indirizzo PEC o REM che il mittente della notifica intende utilizzare per
-            raggiungere il destinatario.
-
-    NotificationPhysicalAddress:
-      description: Indirizzo fisico scoperto durante fase di consegna
-      type: object
-      required:
-        - address
-        - municipality
-        - zip
-      properties:
-        at:
-          type: string
-          description: Campo "presso" dell'indirizzo
-        address:
-          type: string
-          description: Indirizzo del domicilio fisico
-        addressDetails:
-          type: string
-          description: Seconda riga dell'indirizzo fisico
-        zip:
-          type: string
-          description: Codice di avviamento postale
-        municipality:
-          type: string
-          description: Comune
-        municipalityDetails:
-          type: string
-          description: Frazione o località
-        province:
-          type: string
-          description: Provincia
-        foreignState:
-          type: string
-          description: Denominazione paese estero
-
-    NotificationPaymentInfo:
-      title: Informazioni per effettuare il pagamento
-      description: >-
-        Informazioni utili per effettuare il pagamento di una notifica, sono associate al
-        destinatario perché le spese di notifica possono differire a seconda del canale di
-        notifica utilizzato. <br/>
-          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
-             calcolato puntualmente. <br/>
-          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
-          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
-          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
-          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
-          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
-      type: object
-      required:
-        - noticeCode
-        - creditorTaxId
-      properties:
-        noticeCode:
-          $ref: '#/components/schemas/NoticeCode'
-        creditorTaxId:
-          $ref: '#/components/schemas/PaTaxId'
-        noticeCodeAlternative:
-          $ref: '#/components/schemas/NoticeCode'
-        pagoPaForm:
-          $ref: "#/components/schemas/NotificationPaymentAttachment"
-        f24flatRate:
-          $ref: "#/components/schemas/NotificationPaymentAttachment"
-        f24standard:
-          $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digital:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digitalWithRs:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digitalWithRi:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRaccSingle:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRaccDouble:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRiSingle:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRiDouble:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-
-    NotificationPaymentAttachment:
-      description: >-
-        Un modulo di pagamento allegato alla notifica
-      allOf:
-        - $ref: "#/components/schemas/NotificationAttachment"
-
-    NotificationAttachment:
-      description: >-
-        Un allegato della notifica.
-      type: object
-      required:
-        - digests
-        - contentType
-        - ref
-      properties:
-        digests:
-          $ref: "#/components/schemas/NotificationAttachmentDigests"
-        contentType:
-          type: string
-          description: tipo di contenuto dell'allegato, supportato application/pdf
-        ref:
-          $ref: "#/components/schemas/NotificationAttachmentBodyRef"
-
-    NotificationAttachmentDigests:
-      description: Codici per la verifica del corretto caricamento di un allegato
-      type: object
-      required:
-        - sha256
-      properties:
-        sha256:
-          type: string
-          description: Digest "sha256" della codifica binaria dell'allegato
-
-    NotificationAttachmentBodyRef:
-      description: Riferimento all'allegato precaricato
-      required:
-        - key
-        - versionToken
-      type: object
-      properties:
-        key:
-          type: string
-          description: Chiave in cui è stato salvato l'allegato
-        versionToken:
-          type: string
-          description: Token per recuperare l'esatta istanza dell'allegato
-
     TimelineElement:
-      $ref: '#/components/schemas/TimelineElement'
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
-      $ref: '#/components/schemas/NotificationStatus'
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: '#/components/schemas/NotificationStatusHistory'
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
-      $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
-
-    PaTaxId:
-      description: Payment PA fiscal code
-      example: '77777777777'
-      type: string
-      maxLength: 11
-      minLength: 11
-      pattern: '^\d+$'
-
-    NoticeCode:
-      description: Payment notice number  numero avviso
-      example: '302000100000019421'
-      type: string
-      maxLength: 18
-      minLength: 18
-      pattern: '^\d+$'
-
-    Iun:
-      description: Identificativo Univoco Notifica
-      type: string
-
-    LegalFactCategory:
-      title: Tipi di atti opponibili a terzi
-      description: >-
-        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
-          - _SENDER_ACK_: atto di "presa in carico" di una notifica
-          - _DIGITAL_DELIVERY_: ...
-      type: string
-      enum:
-        - SENDER_ACK
-        - DIGITAL_DELIVERY
-        - ANALOG_DELIVERY
-        - RECIPIENT_ACCESS
-        - PEC_RECEIPT
+      $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
   securitySchemes:        # ONLY EXTERNAL
     ApiKeyAuth:           # ONLY EXTERNAL

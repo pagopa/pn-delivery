@@ -100,6 +100,7 @@ components:
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
         amount:
           type: integer
+          format: int64
           description: Importo della notifica in eurocent
         paymentExpirationDate:
           type: string
@@ -109,7 +110,7 @@ components:
     SentNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
-      allOf: 
+      allOf:
         - $ref: '#/components/schemas/NewNotificationRequest'
         - type: object
           required:
@@ -246,10 +247,10 @@ components:
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
       description: >-
-       Informazioni utili per effettuare il pagamento di una notifica, sono associate al 
-       destinatario perché le spese di notifica possono differire a seconda del canale di 
+       Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+       destinatario perché le spese di notifica possono differire a seconda del canale di
        notifica utilizzato. <br/>
-         - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o 
+         - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
             calcolato puntualmente. <br/>
          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
@@ -444,6 +445,7 @@ components:
           example: 'application/pdf'
         contentLength:
           type: number
+          format: decimal32
           example: 54092
           description: dmensione, in byte, del contenuto.
         sha256:
@@ -457,6 +459,7 @@ components:
             contenuto del documento. Presente solo se il documento è pronto per il download.
         retryAfter:
           type: number
+          format: decimal32
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
