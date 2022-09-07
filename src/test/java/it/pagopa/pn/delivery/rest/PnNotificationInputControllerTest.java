@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
@@ -157,7 +158,7 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
 				.exchange()
 				.expectStatus()
-				.isBadRequest();
+				.isEqualTo(HttpStatus.CONFLICT);
 	}
 
 	@Test

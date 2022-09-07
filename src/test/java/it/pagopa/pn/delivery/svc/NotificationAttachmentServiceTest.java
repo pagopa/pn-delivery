@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -378,7 +379,7 @@ class NotificationAttachmentServiceTest {
         when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenThrow(new PnHttpResponseException("test", HttpStatus.NOT_FOUND.value()));
 
         //Then
-        assertThrows(PnNotFoundException.class, () -> attachmentService.downloadAttachmentWithRedirect(
+        assertThrows(PnBadRequestException.class, () -> attachmentService.downloadAttachmentWithRedirect(
                 IUN, cxType, cxId, null, recipientidx, attachmentName));
 
     }
@@ -569,7 +570,7 @@ class NotificationAttachmentServiceTest {
 
         Executable todo = () -> attachmentService.computeFileInfo( fileDownloadIdentify, notification );
 
-        Assertions.assertThrows( PnNotFoundException.class, todo );
+        Assertions.assertThrows( PnBadRequestException.class, todo );
     }
 
     @Test
