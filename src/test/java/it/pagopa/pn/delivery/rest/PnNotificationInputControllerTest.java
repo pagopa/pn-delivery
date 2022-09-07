@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -52,7 +52,7 @@ class PnNotificationInputControllerTest {
 	private PnDeliveryConfigs cfg;
 
 	@Test
-	void postSuccess() throws IdConflictException {
+	void postSuccess() throws PnIdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = newNotificationRequest();
 
@@ -141,7 +141,7 @@ class PnNotificationInputControllerTest {
 		NewNotificationRequest request = newNotificationRequest();
 		Map<String,String> conflictMap = new HashMap<>();
 		conflictMap.put( "noticeCode", "duplicatedNoticeCode" );
-		IdConflictException exception = new IdConflictException( conflictMap );
+		PnIdConflictException exception = new PnIdConflictException( conflictMap );
 
 		// When
 		Mockito.when( deliveryService.receiveNotification( PA_ID, request ) ).thenThrow( exception );
@@ -200,7 +200,7 @@ class PnNotificationInputControllerTest {
 	}
 
 	@Test
-	void postSuccessWithAmount() throws IdConflictException {
+	void postSuccessWithAmount() throws PnIdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
 				.group( "group" )

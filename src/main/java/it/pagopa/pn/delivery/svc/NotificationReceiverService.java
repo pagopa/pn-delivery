@@ -1,15 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.*;
-
-
-import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -20,9 +11,17 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -59,7 +58,7 @@ public class NotificationReceiverService {
 	 * @return A model with the generated IUN and the paNotificationId sent by the
 	 *         Public Administration
 	 */
-	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest) throws IdConflictException {
+	public NewNotificationResponse receiveNotification(String xPagopaPnCxId, NewNotificationRequest newNotificationRequest) throws PnIdConflictException {
 		log.info("New notification storing START");
 		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
 				newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken());
@@ -89,7 +88,7 @@ public class NotificationReceiverService {
 				.build();
 	}
 
-	private String doSaveWithRethrow( InternalNotification internalNotification) throws IdConflictException {
+	private String doSaveWithRethrow( InternalNotification internalNotification) throws PnIdConflictException {
 		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
 				internalNotification.getPaProtocolNumber() );
 
@@ -101,7 +100,7 @@ public class NotificationReceiverService {
 	}
 	
 
-	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws IdConflictException {
+	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws PnIdConflictException {
 		String paId = internalNotification.getSenderPaId();
 
 		log.debug("Generate tokens for iun={}", iun);

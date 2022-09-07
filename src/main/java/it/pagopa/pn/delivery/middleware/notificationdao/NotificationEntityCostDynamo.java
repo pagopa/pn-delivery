@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
@@ -45,7 +45,7 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
     }
 
     @Override
-    public void putIfAbsent(NotificationCostEntity notificationCostEntity) throws IdConflictException {
+    public void putIfAbsent(NotificationCostEntity notificationCostEntity) throws PnIdConflictException {
         throw new UnsupportedOperationException();
     }
 }

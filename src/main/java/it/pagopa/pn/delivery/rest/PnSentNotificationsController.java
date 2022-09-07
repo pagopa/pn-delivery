@@ -3,6 +3,8 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
+import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
@@ -28,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED;
+
 @RestController
 @Slf4j
 public class PnSentNotificationsController implements SenderReadB2BApi,SenderReadWebApi {
@@ -35,7 +39,6 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     private final NotificationRetrieverService retrieveSvc;
     private final NotificationAttachmentService notificationAttachmentService;
     private final ModelMapperFactory modelMapperFactory;
-    public static final String VALIDATION_ERROR_STATUS = "Validation error";
 
     public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
@@ -95,26 +98,6 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         }
         return ResponseEntity.ok( response );
     }
-/* TODO Rimuovere
-    @ExceptionHandler({PnValidationException.class})
-    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
-        return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
-    }
-
-    @ExceptionHandler({PnNotFoundException.class})
-    public ResponseEntity<ResErrorDto> handleNotFoundException(PnNotFoundException ex) {
-        return HandleNotFound.handleNotFoundException( ex, ex.getMessage() );
-    }
-
-    @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity<Problem> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return HandleIllegalArgumentException.handleIllegalArgumentException( ex );
-    }
-
-    @ExceptionHandler({RuntimeException.class})
-    public ResponseEntity<Problem> handlePnInternalException( RuntimeException ex ) {
-        return HandleRuntimeException.handleRuntimeException( ex );
-    }*/
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
@@ -128,8 +111,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
             internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
         } else {
-            if ( !StringUtils.hasText( paProtocolNumber ) || !StringUtils.hasText( idempotenceToken ) ) {
-                throw new IllegalArgumentException( "Please specify paProtocolNumber and idempotenceToken" );
+            if ( !StringUtils.hasText( paProtocolNumber ) ) {
+                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "paProtocolNumber" );
+            }
+            if (!StringUtils.hasText( idempotenceToken ) ) {
+                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "idempotenceToken" );
             }
             internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken);
         }

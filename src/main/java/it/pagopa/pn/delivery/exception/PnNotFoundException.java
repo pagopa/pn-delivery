@@ -11,4 +11,8 @@ public class PnNotFoundException extends PnRuntimeException {
         super(message, description, HttpStatus.NOT_FOUND.value(), errorcode, null, null);
     }
 
+    public PnNotFoundException(String message, String description, String errorcode, Exception cause) {
+        super(message, description, HttpStatus.NOT_FOUND.value(), errorcode, null, null, cause);
+    }
+
 }

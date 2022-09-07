@@ -262,7 +262,7 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void searchNotificationsPrivateFailure() {
-        Mockito.when( retrieveSvc.searchNotification( Mockito.any( InputSearchNotificationDto.class ) ) ).thenThrow( PnNotFoundException.class );
+        Mockito.when( retrieveSvc.searchNotification( Mockito.any( InputSearchNotificationDto.class ) ) ).thenThrow( new PnNotFoundException("test", "test", "test") );
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -327,7 +327,7 @@ class PnInternalNotificationsControllerTest {
     @Test
     void getNotificationCostFailure(){
         //When
-        Mockito.when( priceService.getNotificationCost( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(PnNotFoundException.class);
+        Mockito.when( priceService.getNotificationCost( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.get()
                 .uri( "/delivery-private/notifications/{paTaxId}/{noticeCode}"

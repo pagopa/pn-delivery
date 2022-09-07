@@ -11,7 +11,6 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDow
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
@@ -21,13 +20,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT;
 
 @Service
 @Slf4j
@@ -108,8 +107,8 @@ public class NotificationAttachmentService {
     }
 
     public static class FileInfos {
-        private String fileName;
-        private FileDownloadResponse fileDownloadResponse;
+        private final String fileName;
+        private final FileDownloadResponse fileDownloadResponse;
 
         public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse) {
             this.fileName = fileName;
@@ -211,7 +210,7 @@ public class NotificationAttachmentService {
 
         String iun = notification.getIun();
         Integer documentIndex = fileDownloadIdentify.documentIdx;
-        String name = "";
+        String name;
         if (documentIndex != null)
         {
             NotificationDocument doc = notification.getDocuments().get( documentIndex );
@@ -239,7 +238,7 @@ public class NotificationAttachmentService {
             return new FileInfos( fileName, r );
         } catch (Exception exc) {
             if (exc instanceof PnHttpResponseException && ((PnHttpResponseException) exc).getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                throw new PnBadRequestException("Request took too long to complete.", exc);
+                throw new PnBadRequestException("Request took too long to complete.", exc.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, exc);
             }
             throw exc;
         }
@@ -249,7 +248,7 @@ public class NotificationAttachmentService {
         NotificationPaymentInfo payment = doc.getPayment();
         if ( !Objects.nonNull( payment ) ) {
             log.error( "Notification without payment attachment - iun={}", iun );
-            throw new PnInternalException("Notification without payment attachment - iun=" + iun);
+            throw new PnInternalException("Notification without payment attachment - iun=" + iun, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
         }
 
         switch (ATTACHMENT_TYPE.valueOf(attachmentName))

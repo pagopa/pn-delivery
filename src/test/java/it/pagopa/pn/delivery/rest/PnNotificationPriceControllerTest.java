@@ -66,7 +66,7 @@ class PnNotificationPriceControllerTest {
     @Test
     void getPriceFailure() {
 
-        Mockito.when( service.getNotificationPrice( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(PnNotFoundException.class);
+        Mockito.when( service.getNotificationPrice( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.get()
                 .uri( "/delivery/price/{paTaxId}/{noticeCode}"
