@@ -262,8 +262,8 @@ components:
 #      type: http                                        # ONLY EXTERNAL
 #      scheme: bearer                                    # ONLY EXTERNAL
 #      bearerFormat: JWT                                 # ONLY EXTERNAL
-# security:                                              # ONLY EXTERNAL
-#  - bearerAuth: []                                      # ONLY EXTERNAL
+#security:                                               # ONLY EXTERNAL
+# - bearerAuth: []                                       # ONLY EXTERNAL
               
 
 
