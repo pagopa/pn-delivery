@@ -168,7 +168,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '401':

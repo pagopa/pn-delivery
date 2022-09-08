@@ -196,13 +196,13 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -244,19 +244,19 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '409':
           description: Conflict
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -292,13 +292,13 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -331,13 +331,13 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
@@ -368,13 +368,13 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -402,13 +402,13 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -437,13 +437,13 @@ paths:
         '400': # ONLY EXTERNAL
           description: Bad request                                                  # ONLY EXTERNAL
           content: # ONLY EXTERNAL
-            application/json: # ONLY EXTERNAL
+            application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
         '500': # ONLY EXTERNAL
           description: Internal error                                               # ONLY EXTERNAL
           content: # ONLY EXTERNAL
-            application/json: # ONLY EXTERNAL
+            application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL

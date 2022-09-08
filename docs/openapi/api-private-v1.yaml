@@ -33,13 +33,13 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
   
@@ -65,19 +65,19 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '404':
           description: Not Found
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
   "/delivery-private/search":
@@ -105,13 +105,13 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
 
@@ -152,13 +152,13 @@ paths:
         '404':
           description: Not Found
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
 
