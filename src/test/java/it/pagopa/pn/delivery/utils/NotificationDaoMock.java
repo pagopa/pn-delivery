@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.utils;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
@@ -9,7 +8,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMet
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
@@ -27,7 +25,7 @@ public class NotificationDaoMock implements NotificationDao {
 
 
     @Override
-    public void addNotification(InternalNotification notification, Runnable runnable) throws IdConflictException {
+    public void addNotification(InternalNotification notification, Runnable runnable) throws PnIdConflictException {
         if ( runnable != null ) {
             runnable.run();
         }

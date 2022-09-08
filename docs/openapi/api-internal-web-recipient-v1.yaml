@@ -65,6 +65,12 @@ paths:
             application/json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
   
   "/delivery/notifications/received/{iun}":
     get:
@@ -162,7 +168,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '401':

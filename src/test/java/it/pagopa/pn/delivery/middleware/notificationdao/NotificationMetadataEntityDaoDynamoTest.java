@@ -4,7 +4,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
@@ -31,7 +31,7 @@ class NotificationMetadataEntityDaoDynamoTest {
     }
 
     @Test
-    void InsertMetadataEntitySuccess() throws IdConflictException {
+    void InsertMetadataEntitySuccess() throws PnIdConflictException {
         //Given
         NotificationMetadataEntity entityToInsert = NotificationMetadataEntity.builder()
                 .notificationGroup("Notification_Group")
@@ -90,7 +90,7 @@ class NotificationMetadataEntityDaoDynamoTest {
         }
 
         @Override
-        public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) throws IdConflictException {
+        public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) throws PnIdConflictException {
             Key key = Key.builder()
                     .partitionValue( notificationMetadataEntity.getIun_recipientId() )
                     .sortValue( notificationMetadataEntity.getSentAt().toString() )
