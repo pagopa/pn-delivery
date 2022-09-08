@@ -46,7 +46,7 @@ paths:
           content:
             "*/*":
               schema:
-                $ref: "./api-internal-web-recipient-v1.yaml#/components/schemas/FullReceivedNotification"
+                $ref: "#/components/schemas/FullReceivedNotification"
         '400':
           description: Bad request
           content:
@@ -122,6 +122,27 @@ components:
     pathLegalFactId:
       $ref: './remote-refs.yaml#/components/parameters/pathLegalFactId'
   schemas:
+    FullReceivedNotification:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
+        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche) per IO.
+      allOf:
+        $ref: "./api-internal-web-recipient-v1.yaml#/components/schemas/FullReceivedNotification"
+        - type: object
+          properties:
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica per IO
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElement'
+    TimelineElement:
+      allOf:
+        $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+        - type: object
+          properties:
+            category:
+              type: "string"
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
