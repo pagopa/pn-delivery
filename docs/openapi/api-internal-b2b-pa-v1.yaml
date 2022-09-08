@@ -217,6 +217,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
     ###########################################################################################
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
@@ -259,6 +265,18 @@ paths:
             application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
 
     ###########################################################################################
@@ -291,6 +309,12 @@ paths:
                 $ref: "#/components/schemas/NewNotificationRequestStatusResponse"
         '400':
           description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal error
           content:
             application/problem+json:
               schema:
@@ -328,6 +352,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     
     ###########################################################################################
     ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
@@ -355,6 +385,12 @@ paths:
                 $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal error
           content:
             application/problem+json:
               schema:
@@ -387,6 +423,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
 
     ###########################################################################################
@@ -412,6 +454,12 @@ paths:
                 $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      # ONLY EXTERNAL
         '400': # ONLY EXTERNAL
           description: Bad request                                                  # ONLY EXTERNAL
+          content: # ONLY EXTERNAL
+            application/problem+json: # ONLY EXTERNAL
+              schema: # ONLY EXTERNAL
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
+        '500': # ONLY EXTERNAL
+          description: Internal error                                               # ONLY EXTERNAL
           content: # ONLY EXTERNAL
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL

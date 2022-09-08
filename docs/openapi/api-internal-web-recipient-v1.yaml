@@ -39,10 +39,10 @@ paths:
 #      security:                                      # ONLY EXTERNAL
 #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'        
+        - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchMandateId'
@@ -61,6 +61,12 @@ paths:
                 $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationSearchResponse'
         '400':
           description: Bad request       
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+        '500':
+          description: Internal error
           content:
             application/json:
               schema:
@@ -162,7 +168,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
         '401':
@@ -174,14 +180,14 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
-    cxIdAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'
-    cxGroupsAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
-    uidAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'
+    cxTypeAuthFleet:                                                               # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'            # NO EXTERNAL
+    cxIdAuthFleet:                                                                 # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'              # NO EXTERNAL
+    cxGroupsAuthFleet:                                                             # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'          # NO EXTERNAL
+    uidAuthFleet:                                                                  # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
 
     
     ############################################################################################
@@ -262,8 +268,8 @@ components:
 #      type: http                                        # ONLY EXTERNAL
 #      scheme: bearer                                    # ONLY EXTERNAL
 #      bearerFormat: JWT                                 # ONLY EXTERNAL
-# security:                                              # ONLY EXTERNAL
-#  - bearerAuth: []                                      # ONLY EXTERNAL
+#security:                                               # ONLY EXTERNAL
+# - bearerAuth: []                                       # ONLY EXTERNAL
               
 
 

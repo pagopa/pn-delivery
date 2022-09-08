@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND;
 
 @Service
 @Slf4j
@@ -56,12 +59,12 @@ public class NotificationPriceService {
                     amount = computeAmount( optionalNotificationCost.get().getRecipientIdx(), notification );
                 } else {
                     log.error( "Unable to find notification for iun={}", optionalNotificationCost.get().getIun() );
-                    throw new PnNotFoundException( String.format("Unable to find notification for iun=%s", optionalNotificationCost.get().getIun() ));
+                    throw new PnNotificationNotFoundException( String.format("Unable to find notification for iun=%s", optionalNotificationCost.get().getIun() ));
                 }
 
         } else {
             log.info( "No notification by paTaxId={} noticeCode={}", paTaxId, noticeCode );
-            throw new PnNotFoundException( String.format( "No notification by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) );
+            throw new PnNotificationNotFoundException( String.format( "No notification by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) );
         }
 
         // creazione dto response
@@ -120,7 +123,7 @@ public class NotificationPriceService {
             recipientIdx = optionalNotificationCost.get().getRecipientIdx();
         } else {
             log.info( "No notification cost info by paTaxId={} noticeCode={}", paTaxId, noticeCode );
-            throw new PnNotFoundException( String.format( "No notification cost info by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) );
+            throw new PnNotFoundException("Notification cost not found", String.format( "No notification cost info by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) , ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND );
         }
 
         return NotificationCostResponse.builder()
