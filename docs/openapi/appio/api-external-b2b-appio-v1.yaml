@@ -148,11 +148,11 @@ components:
               items:
                 $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
-      $ref: '../remote-refs.yaml#/components/schemas/NotificationStatus'
+      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: '../remote-refs.yaml#/components/schemas/NotificationStatusHistory'
+      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
-      $ref: '../remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
   securitySchemes:
     ApiKeyAuth:
