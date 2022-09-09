@@ -38,7 +38,7 @@ paths:
         - AppIO-PN-Notification
       operationId: getReceivedNotification
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
       responses:
         '200':
@@ -52,7 +52,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
   "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}":
     get:
@@ -61,8 +61,8 @@ paths:
         - AppIO-PN-Documents
       operationId: getSentNotificationDocument
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
-        - $ref: './api-external-b2b-pa-v1.yaml#/components/parameters/pathDocumentIdx'
+        - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '../api-external-b2b-pa-v1.yaml#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
       responses:
         '200':
@@ -70,13 +70,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     ###########################################################################################
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
     ###########################################################################################
@@ -89,7 +89,7 @@ paths:
         - AppIO-PN-LegalFacts
       operationId: getLegalFact
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
@@ -105,29 +105,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'                
+                $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 components:
   parameters:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+      $ref: '../remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
     cxIdAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+      $ref: '../remote-refs.yaml#/components/parameters/cxIdAuthFleet'
     cxTaxIdAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
+      $ref: '../remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
     pathLegalFactType:
-      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactType'
+      $ref: '../remote-refs.yaml#/components/parameters/pathLegalFactType'
     pathLegalFactId:
-      $ref: './remote-refs.yaml#/components/parameters/pathLegalFactId'
+      $ref: '../remote-refs.yaml#/components/parameters/pathLegalFactId'
   schemas:
     FullReceivedNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche) per IO.
       allOf:
-        - $ref: "./api-internal-web-recipient-v1.yaml#/components/schemas/FullReceivedNotification"
+        - $ref: "../api-internal-web-recipient-v1.yaml#/components/schemas/FullReceivedNotification"
         - type: object
           properties:
             timeline:
@@ -135,16 +135,16 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica per IO
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/TimelineElement'
     TimelineElement:
       allOf:
-        - $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+        - $ref: '../remote-refs.yaml#/components/schemas/TimelineElement'
         - type: object
           properties:
             category:
               type: "string"
     LegalFactDownloadMetadataResponse:
-      $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: '../remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
   securitySchemes:
     ApiKeyAuth:

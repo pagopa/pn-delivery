@@ -1,0 +1,542 @@
+
+components:
+  schemas:
+    TimelineElementId:
+      type: string
+    
+    TimelineElementCategory:
+      type: string
+      description: >
+        stato di avanzamento del processo di notifica:`
+          * `REQUEST_ACCEPTED` - 
+          * `SEND_COURTESY_MESSAGE` - 
+          * `GET_ADDRESS` - 
+          * `PUBLIC_REGISTRY_CALL` - 
+          * `PUBLIC_REGISTRY_RESPONSE` - 
+          * `SCHEDULE_ANALOG_WORKFLOW` - 
+          * `SCHEDULE_DIGITAL_WORKFLOW` - 
+          * `SEND_DIGITAL_DOMICILE` - 
+          * `SEND_DIGITAL_DOMICILE_FEEDBACK` - 
+          * `SEND_DIGITAL_FEEDBACK` - 
+          * `REFINEMENT` - 
+          * `SCHEDULE_REFINEMENT` - 
+          * `DIGITAL_SUCCESS_WORKFLOW` - 
+          * `DIGITAL_FAILURE_WORKFLOW` - 
+          * `ANALOG_SUCCESS_WORKFLOW` - 
+          * `ANALOG_FAILURE_WORKFLOW` - 
+          * `SEND_SIMPLE_REGISTERED_LETTER` - 
+          * `NOTIFICATION_VIEWED` - 
+          * `SEND_ANALOG_DOMICILE` - 
+          * `SEND_PAPER_FEEDBACK` - 
+          * `PAYMENT` - 
+          * `COMPLETELY_UNREACHABLE` - 
+          * `REQUEST_REFUSED` - 
+          * `AAR_GENERATION` - 
+          * `NOT_HANDLED` -      
+    
+    TimelineElement:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della notifica definisce in 
+            maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          description: Momento in cui avviene l'evento descritto in questo elemento
+            di timeline
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactsId"
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
+            Questo elemento
+        category:
+          $ref: '#/components/schemas/TimelineElementCategory'
+        details:
+          $ref: '#/components/schemas/TimelineElementDetails'
+
+    TimelineElementDetails:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - "$ref": "#/components/schemas/NotificationRequestAcceptedDetails"
+        - "$ref": "#/components/schemas/AnalogFailureWorkflowDetails"
+        - "$ref": "#/components/schemas/AnalogSuccessWorkflowDetails"
+        - "$ref": "#/components/schemas/CompletelyUnreachableDetails"
+        - "$ref": "#/components/schemas/DigitalFailureWorkflowDetails"
+        - "$ref": "#/components/schemas/DigitalSuccessWorkflowDetails"
+        - "$ref": "#/components/schemas/GetAddressInfoDetails"
+        - "$ref": "#/components/schemas/NotificationViewedDetails"
+        - "$ref": "#/components/schemas/PublicRegistryCallDetails"
+        - "$ref": "#/components/schemas/PublicRegistryResponseDetails"
+        - "$ref": "#/components/schemas/RefinementDetails"
+        - "$ref": "#/components/schemas/RequestRefusedDetails"
+        - "$ref": "#/components/schemas/ScheduleAnalogWorkflowDetails"
+        - "$ref": "#/components/schemas/ScheduleDigitalWorkflowDetails"
+        - "$ref": "#/components/schemas/ScheduleRefinementDetails"
+        - "$ref": "#/components/schemas/SendCourtesyMessageDetails"
+        - "$ref": "#/components/schemas/SendDigitalDetails"
+        - "$ref": "#/components/schemas/SendDigitalFeedbackDetails"
+        - "$ref": "#/components/schemas/SendDigitalProgressDetails"
+        - "$ref": "#/components/schemas/SendAnalogDetails"
+        - "$ref": "#/components/schemas/SendAnalogFeedbackDetails"
+        - "$ref": "#/components/schemas/SimpleRegisteredLetterDetails"
+        - "$ref": "#/components/schemas/AarGenerationDetails"
+        - "$ref": "#/components/schemas/NotHandledDetails"
+        - "$ref": "#/components/schemas/NotificationPaidDetails"
+  
+
+    NotificationRequestAcceptedDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          
+    AnalogFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          
+    AnalogSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        physicalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          
+    DigitalFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex: 
+          type: integer
+          description: Index destinatario notifica digitale
+          
+    DigitalSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          
+    CompletelyUnreachableDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          
+    GetAddressInfoDetails: 
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - isAvailable
+        - attemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        isAvailable:
+          type: boolean
+          description: Disponibilità indirizzo
+        attemptDate:
+          type: string
+          description: Data tentativo
+          format: date-time
+
+    NotificationViewedDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
+          example: 1220
+          type: integer
+          
+    PublicRegistryCallDetails:
+      type: object
+      required:
+        - recIndex
+        - deliveryMode
+        - contactPhase
+        - sentAttemptMade
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        contactPhase:
+          $ref: '#/components/schemas/ContactPhase'
+        sentAttemptMade:
+          type: integer
+          description: Numero di tentativi di notificazione già effettuati
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+          
+    PublicRegistryResponseDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        physicalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          
+    RefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per visualizzazione
+          example: 1220
+          type: integer
+          
+    RequestRefusedDetails:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            type: string
+            description: Motivazioni che hanno portato al rifiuto della notifica
+            
+    ScheduleAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          
+    ScheduleDigitalWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - sentAttemptMade
+        - lastAttemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        sentAttemptMade:
+          type: integer
+        lastAttemptDate:
+          type: string
+          format: date-time
+            
+    ScheduleRefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          
+    SendCourtesyMessageDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        sendDate:
+          type: string
+          description: data invio messaggio di cortesia
+          format: date-time
+          
+    SendDigitalDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - retryNumber
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+
+    SendDigitalProgressDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        eventCode:
+          type: string
+          description: esito tornate da ext-channel
+        shouldRetry:
+          type: boolean
+          description: indica se il progress ha dato luogo ad un ritentativo
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+            
+    SendDigitalFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - responseStatus
+        - notificationDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        errors:
+          type: array
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+            
+    SendAnalogDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - investigation
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        physicalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+        investigation:
+          type: boolean
+          description: E' richiesta investigazione indirizzo fisico alternativo
+        numberOfPages:
+          type: integer
+          description: numero pagine pdf inviato
+
+    SendAnalogFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - investigation
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        physicalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+        serviceLevel:
+          "$ref": "#/components/schemas/ServiceLevel"
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+        investigation:
+          type: boolean
+          description: E' richiesta investigazione indirizzo fisico alternativo
+        newAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+        errors:
+          type: array
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+            
+    SimpleRegisteredLetterDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        physicalAddress:
+          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+        numberOfPages:
+          type: integer
+          description: numero pagine pdf inviato
+
+    AarGenerationDetails:
+      type: object
+      required:
+        - recIndex
+        - generatedAarUrl
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
+    
+    NotHandledDetails:
+      type: object
+      required:
+        - recIndex
+        - reasonCode
+        - reason
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+        reasonCode:
+          type: string
+          description: Codice motivazione casistica non gestita
+        reason:
+          type: string
+          description: Motivazione casistica non gestita
+          
+    NotificationPaidDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          
+    DigitalAddressSource:
+      type: string
+      description: sorgente indirizzo di invio della notifica
+      enum:
+        - PLATFORM
+        - SPECIAL
+        - GENERAL
+
+    ServiceLevel:
+      type: string
+      description: Livello Servizio
+      enum:
+        - SIMPLE_REGISTERED_LETTER
+        - REGISTERED_LETTER_890
+          
+    ResponseStatus:
+      type: string
+      description: stato risposta ricevuta da externalChannel
+      enum:
+        - OK
+        - KO
+    
+    ContactPhase:
+      type: string
+      description: Fase in cui è avvenuta la richiesta
+      enum:
+        - CHOOSE_DELIVERY
+        - SEND_ATTEMPT
+
+    DeliveryMode:
+      type: string
+      description: Tipologia Domiciliazione
+      enum:
+        - DIGITAL
+        - ANALOG
+
+    SendingReceipt:
+      type: object
+      properties:
+        id:
+          type: string
+        system:
+          type: string
