@@ -90,40 +90,40 @@ components:
         category:
           $ref: '#/components/schemas/LegalFactCategory'
 
-      LegalFactCategory:
-        title: Tipi di atti opponibili a terzi
-        description: >-
-          Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
-            - SENDER_ACK: atto di "presa in carico" di una notifica
-            - DIGITAL_DELIVERY: ...
-            - ANALOG_DELIVERY
-            - ANALOG_DELIVERY
-            - RECIPIENT_ACCESS
-            - PEC_RECEIPT
-        type: string
+    LegalFactCategory:
+      title: Tipi di atti opponibili a terzi
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
+          - SENDER_ACK: atto di "presa in carico" di una notifica
+          - DIGITAL_DELIVERY: ...
+          - ANALOG_DELIVERY
+          - ANALOG_DELIVERY
+          - RECIPIENT_ACCESS
+          - PEC_RECEIPT
+      type: string
 
-      LegalFactList:
-        title: Elenco atti opponibili
-        description: Elenco degli atti opponibili a terzi correlati a una notifica
-        type: array
-        items:
-          $ref: '#/components/schemas/LegalFactListElement'
+    LegalFactList:
+      title: Elenco atti opponibili
+      description: Elenco degli atti opponibili a terzi correlati a una notifica
+      type: array
+      items:
+        $ref: '#/components/schemas/LegalFactListElement'
 
-      LegalFactListElement:
-        description: Informazioni relative ad un atto opponibile a terzi
-        type: object
-        required:
-          - iun
-          - legalFactsId
-        properties:
-          taxId:
-            description: Valorizzato se l'atto si riferisce a uno specifico destinatario
-            type: string
-          iun:
-            description: Identificativo Univoco Notifica a cui l'atto è associato
-            type: string
-          legalFactsId:
-            $ref: '#/components/schemas/LegalFactsId'
+    LegalFactListElement:
+      description: Informazioni relative ad un atto opponibile a terzi
+      type: object
+      required:
+        - iun
+        - legalFactsId
+      properties:
+        taxId:
+          description: Valorizzato se l'atto si riferisce a uno specifico destinatario
+          type: string
+        iun:
+          description: Identificativo Univoco Notifica a cui l'atto è associato
+          type: string
+        legalFactsId:
+          $ref: '#/components/schemas/LegalFactsId'
 
     TimelineElementId:
       type: string
