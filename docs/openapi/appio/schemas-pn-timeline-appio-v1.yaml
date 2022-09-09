@@ -542,85 +542,19 @@ components:
           type: string
 
   ###########################################################
-  ###  da  schemas-addresses-v1.yaml     ####################
+  ###  link a  schemas-addresses-v1.yaml     ################
   ###########################################################
 
-
     DigitalAddress:
-      description: Indirizzo di invio della notifica
-      required:
-        - address
-        - type
-      type: object
-      properties:
-        type:
-          type: string
-          description: tipo di indirizzo PEC, REM, SERCQ, ...
-        address:
-          type: string
-          description: account@domain
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5767743f485b5de261aaa80ac06cde340b10580e/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/DigitalAddress'
 
     PhysicalAddress:
-      type: object
-      required:
-        - address
-        - municipality
-        - zip
-      properties:
-        at:
-          type: string
-          description: Campo "presso" dell'indirizzo
-        address:
-          type: string
-          description: Indirizzo del domicilio fisico
-        addressDetails:
-          type: string
-          description: Seconda riga dell'indirizzo fisico
-        zip:
-          type: string
-          description: Codice di avviamento postale
-        municipality:
-          type: string
-          description: Comune in cui l'indirizzo si trova
-        municipalityDetails:
-          type: string
-          description: Frazione o località
-        province:
-          type: string
-          description: Provincia in cui si trova l'indirizzo
-        foreignState:
-          type: string
-          description: Denominazione paese estero
-      description: Indirizzo fisico scoperto durante fase di consegna
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5767743f485b5de261aaa80ac06cde340b10580e/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress'
 
     ###########################################################
-    ###  da  schemas-pn-legal-facts-v1.yaml     ###############
+    ###  link a schemas-pn-legal-facts-v1.yaml     ###############
     ###########################################################
 
     LegalFactsId:
-      description: Chiavi dei documenti generati durante il processo di consegna cartacea
-      type: object
-      required:
-        - key
-        - category
-      properties:
-        key:
-          description: >-
-            Chiave dell'atto opponibile a terzi generato durante il processo di consegna
-          type: string
-        category:
-          $ref: '#/components/schemas/LegalFactCategory'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5767743f485b5de261aaa80ac06cde340b10580e/docs/openapi/schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactsId'
 
-    LegalFactCategory:
-      title: Tipi di atti opponibili a terzi
-      description: >-
-        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
-          - _SENDER_ACK_: atto di "presa in carico" di una notifica
-          - _DIGITAL_DELIVERY_: ...
-      type: string
-      enum:
-        - SENDER_ACK
-        - DIGITAL_DELIVERY
-        - ANALOG_DELIVERY
-        - RECIPIENT_ACCESS
-        - PEC_RECEIPT
