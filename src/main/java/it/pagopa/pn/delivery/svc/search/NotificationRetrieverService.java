@@ -5,7 +5,9 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
@@ -42,6 +44,9 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_MANDATENOTFOUND;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
 
 @Service
 @Slf4j
@@ -183,12 +188,12 @@ public class NotificationRetrieverService {
 			if (!validMandate){
 				String message = String.format("Unable to find valid mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
 				log.error( message );
-				throw new PnNotFoundException( message );
+				throw new PnMandateNotFoundException( message );
 			}
 		} else {
 			String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
 			log.error( message );
-			throw new PnNotFoundException( message );
+			throw new PnMandateNotFoundException(  message );
 		}
 		log.info( "END check mandate for receiverId={} and mandateId={}", senderReceiverId, mandateId );
 	}
@@ -263,7 +268,7 @@ public class NotificationRetrieverService {
 		} else {
 			String msg = String.format( "Error retrieving Notification with iun=%s withTimeline=%b", iun, withTimeline );
 			log.debug( msg );
-			throw new PnNotFoundException( msg );
+			throw new PnNotificationNotFoundException(  msg );
 		}
 	}
 
@@ -452,12 +457,12 @@ public class NotificationRetrieverService {
 			if (!validMandate){
 				String message = String.format("Unable to find valid mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
 				log.error( message );
-				throw new PnNotFoundException( message );
+				throw new PnMandateNotFoundException( message );
 			}
 		} else {
 			String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
 			log.error( message );
-			throw new PnNotFoundException( message );
+			throw new PnMandateNotFoundException( message );
 		}
 		return delegatorId;
 	}

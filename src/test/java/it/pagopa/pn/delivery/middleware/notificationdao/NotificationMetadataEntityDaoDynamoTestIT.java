@@ -1,10 +1,8 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
-
-
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
@@ -412,7 +410,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     }
 
     @Test
-    void putIfAbsent() throws IdConflictException {
+    void putIfAbsent() throws PnIdConflictException {
         //Given
         NotificationMetadataEntity metadataEntityToInsert = newNotificationMetadata();
 

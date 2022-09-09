@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
@@ -39,7 +39,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
     }
 
     @Override
-    public void putIfAbsent(NotificationEntity notificationEntity) throws IdConflictException {
+    public void putIfAbsent(NotificationEntity notificationEntity) throws PnIdConflictException {
         List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList = createNotificationPutItemRequests( notificationEntity );
 
         List<NotificationCostEntity> notificationCostEntityList = getNotificationCostEntities( notificationEntity );
@@ -52,7 +52,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
             dynamoDbEnhancedClient.transactWriteItems( enhancedRequest );
         } catch (TransactionCanceledException ex) {
             Map<String,String> duplicatedErrors = getDuplicationErrors(notificationEntity, notificationCostEntityList);
-            throw new IdConflictException( duplicatedErrors );
+            throw new PnIdConflictException( duplicatedErrors );
         }
     }
 

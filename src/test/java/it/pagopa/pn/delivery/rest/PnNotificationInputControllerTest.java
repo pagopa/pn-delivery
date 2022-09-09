@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.api.dto.preload.PreloadRequest;
 import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
@@ -52,7 +53,7 @@ class PnNotificationInputControllerTest {
 	private PnDeliveryConfigs cfg;
 
 	@Test
-	void postSuccess() throws IdConflictException {
+	void postSuccess() throws PnIdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = newNotificationRequest();
 
@@ -141,7 +142,7 @@ class PnNotificationInputControllerTest {
 		NewNotificationRequest request = newNotificationRequest();
 		Map<String,String> conflictMap = new HashMap<>();
 		conflictMap.put( "noticeCode", "duplicatedNoticeCode" );
-		IdConflictException exception = new IdConflictException( conflictMap );
+		PnIdConflictException exception = new PnIdConflictException( conflictMap );
 
 		// When
 		Mockito.when( deliveryService.receiveNotification( PA_ID, request ) ).thenThrow( exception );
@@ -157,7 +158,7 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
 				.exchange()
 				.expectStatus()
-				.isBadRequest();
+				.isEqualTo(HttpStatus.CONFLICT);
 	}
 
 	@Test
@@ -200,7 +201,7 @@ class PnNotificationInputControllerTest {
 	}
 
 	@Test
-	void postSuccessWithAmount() throws IdConflictException {
+	void postSuccessWithAmount() throws PnIdConflictException {
 		// Given
 		NewNotificationRequest notificationRequest = NewNotificationRequest.builder()
 				.group( "group" )

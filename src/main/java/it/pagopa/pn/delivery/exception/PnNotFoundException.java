@@ -1,15 +1,18 @@
 package it.pagopa.pn.delivery.exception;
 
-
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-public class PnNotFoundException extends RuntimeException {
-    public PnNotFoundException(String message, Throwable cause) {
-        super(message, cause);
+@Getter
+public class PnNotFoundException extends PnRuntimeException {
+
+    public PnNotFoundException(String message, String description, String errorcode) {
+        super(message, description, HttpStatus.NOT_FOUND.value(), errorcode, null, null);
     }
-    public PnNotFoundException(String message) {
-        super(message);
+
+    public PnNotFoundException(String message, String description, String errorcode, Exception cause) {
+        super(message, description, HttpStatus.NOT_FOUND.value(), errorcode, null, null, cause);
     }
+
 }

@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc.authorization;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -59,7 +60,7 @@ public class CheckAuthComponent {
             {
                 String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", cxId, mandateId);
                 log.error( message );
-                throw new PnNotFoundException( message );
+                throw new PnMandateNotFoundException( message );
             }
         }
 
