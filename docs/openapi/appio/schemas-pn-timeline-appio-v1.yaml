@@ -51,7 +51,7 @@ components:
         legalFactsIds:
           type: array
           items:
-            $ref: "./schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactsId"
+            $ref: "#/components/schemas/LegalFactsId"
           description: >-
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline.
             Questo elemento
@@ -116,7 +116,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "#/components/schemas/PhysicalAddress"
           
     DigitalFailureWorkflowDetails:
       type: object
@@ -137,7 +137,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "#/components/schemas/DigitalAddress"
           
     CompletelyUnreachableDetails:
       type: object
@@ -215,9 +215,9 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "#/components/schemas/DigitalAddress"
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "#/components/schemas/PhysicalAddress"
           
     RefinementDetails:
       type: object
@@ -266,7 +266,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         sentAttemptMade:
@@ -295,7 +295,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "#/components/schemas/DigitalAddress"
         sendDate:
           type: string
           description: data invio messaggio di cortesia
@@ -313,7 +313,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         retryNumber:
@@ -334,7 +334,7 @@ components:
           type: boolean
           description: indica se il progress ha dato luogo ad un ritentativo
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "#/components/schemas/DigitalAddress"
         digitalAddressSource:
           $ref: '#/components/schemas/DigitalAddressSource'
         notificationDate:
@@ -362,7 +362,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         digitalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/DigitalAddress"
+          $ref: "#/components/schemas/DigitalAddress"
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
         notificationDate:
@@ -394,7 +394,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "#/components/schemas/PhysicalAddress"
         serviceLevel:
           "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
@@ -420,7 +420,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "#/components/schemas/PhysicalAddress"
         serviceLevel:
           "$ref": "#/components/schemas/ServiceLevel"
         sentAttemptMade:
@@ -430,7 +430,7 @@ components:
           type: boolean
           description: E' richiesta investigazione indirizzo fisico alternativo
         newAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "#/components/schemas/PhysicalAddress"
         errors:
           type: array
           description: Lista errori, vuota in caso di successo
@@ -449,7 +449,7 @@ components:
           type: integer
           description: Index destinatario notifica digitale
         physicalAddress:
-          $ref: "./schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress"
+          $ref: "#/components/schemas/PhysicalAddress"
         numberOfPages:
           type: integer
           description: numero pagine pdf inviato
@@ -540,3 +540,87 @@ components:
           type: string
         system:
           type: string
+
+  ###########################################################
+  ###  da  schemas-addresses-v1.yaml     ####################
+  ###########################################################
+
+
+    DigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+        - address
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+        address:
+          type: string
+          description: account@domain
+
+    PhysicalAddress:
+      type: object
+      required:
+        - address
+        - municipality
+        - zip
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune in cui l'indirizzo si trova
+        municipalityDetails:
+          type: string
+          description: Frazione o località
+        province:
+          type: string
+          description: Provincia in cui si trova l'indirizzo
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+      description: Indirizzo fisico scoperto durante fase di consegna
+
+    ###########################################################
+    ###  da  schemas-pn-legal-facts-v1.yaml     ###############
+    ###########################################################
+
+    LegalFactsId:
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+      type: object
+      required:
+        - key
+        - category
+      properties:
+        key:
+          description: >-
+            Chiave dell'atto opponibile a terzi generato durante il processo di consegna
+          type: string
+        category:
+          $ref: '#/components/schemas/LegalFactCategory'
+
+    LegalFactCategory:
+      title: Tipi di atti opponibili a terzi
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
+          - _SENDER_ACK_: atto di "presa in carico" di una notifica
+          - _DIGITAL_DELIVERY_: ...
+      type: string
+      enum:
+        - SENDER_ACK
+        - DIGITAL_DELIVERY
+        - ANALOG_DELIVERY
+        - RECIPIENT_ACCESS
+        - PEC_RECEIPT
