@@ -95,11 +95,10 @@ components:
       description: >-
         Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
           - SENDER_ACK: atto di "presa in carico" di una notifica
-          - DIGITAL_DELIVERY: ...
-          - ANALOG_DELIVERY
-          - ANALOG_DELIVERY
-          - RECIPIENT_ACCESS
-          - PEC_RECEIPT
+          - DIGITAL_DELIVERY: atto di consegna digitale
+          - ANALOG_DELIVERY: atto di consegna cartacea
+          - RECIPIENT_ACCESS: atto di consegna per avvenuto accesso alla piattaforma
+          - PEC_RECEIPT: ricevuta PEC
       type: string
 
     LegalFactList:
