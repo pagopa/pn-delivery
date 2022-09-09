@@ -125,24 +125,26 @@ components:
     FullReceivedNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
-        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche) per IO.
+        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
       allOf:
-        - $ref: "../api-internal-web-recipient-v1.yaml#/components/schemas/FullReceivedNotification"
+        - $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
         - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
           properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
             timeline:
               description: >-
-                elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica per IO
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
                 $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/TimelineElement'
-    TimelineElement:
-      allOf:
-        - $ref: '../remote-refs.yaml#/components/schemas/TimelineElement'
-        - type: object
-          properties:
-            category:
-              type: "string"
+
     LegalFactDownloadMetadataResponse:
       $ref: '../remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
