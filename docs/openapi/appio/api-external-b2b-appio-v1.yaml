@@ -1,18 +1,21 @@
 openapi: 3.0.3
 info:
-  title: 'Piattaforma Notifiche: API B2B per backend AppIO'
-  version: v1.0
-  description: >-
+  termsOfService: https://da-definire/
+  x-api-id: api-external-b2b-appio
+  title: "Piattaforma Notifiche: API B2B per backend AppIO"
+  x-summary: 'Piattaforma Notifiche: API B2B per backend AppIO'
+  description: |-
     ## Abstract
       API utilizzate dal backend di AppIO per recuperare:
       - i dettagli della notifica
       - gli url dei documenti allegati alla notifica
       - gli url degli atti opponibili a terzi
   contact:
-      email: pn@pagopa.it
+    email: pn@pagopa.it
   license:
     name: Licenza di PN
-    url: 'https://da-definire/'
+    url: https://da-definire/
+  version: '1.0.0'
 servers:
   - url: https://api-io.pn.pagopa.it
     description: Ambiente di produzione
@@ -50,7 +53,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 
@@ -74,7 +77,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
     ###########################################################################################
@@ -103,7 +106,7 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
 components:
