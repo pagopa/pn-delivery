@@ -444,8 +444,8 @@ components:
           type: string
           example: 'application/pdf'
         contentLength:
-          type: number
-          format: decimal32
+          type: integer
+          format: int32
           example: 54092
           description: dmensione, in byte, del contenuto.
         sha256:
@@ -458,8 +458,8 @@ components:
             URL preautorizzato a cui effettuare una richiesta GET per ottenere il 
             contenuto del documento. Presente solo se il documento è pronto per il download.
         retryAfter:
-          type: number
-          format: decimal32
+          type: integer
+          format: int32
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
