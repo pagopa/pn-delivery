@@ -144,7 +144,10 @@ components:
               type: array
               items:
                 $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/TimelineElement'
-
+    NotificationStatus:
+      $ref: '../remote-refs.yaml#/components/schemas/NotificationStatus'
+    NotificationStatusHistory:
+      $ref: '../remote-refs.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: '../remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
