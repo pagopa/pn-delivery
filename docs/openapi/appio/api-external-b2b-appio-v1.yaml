@@ -121,9 +121,21 @@ components:
     cxTaxIdAuthFleet:
       $ref: '../remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
     pathLegalFactType:
-      $ref: '../remote-refs.yaml#/components/parameters/pathLegalFactType'
+      description: >-
+        Categoria dell'atto opponbile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactCategory'
     pathLegalFactId:
-      $ref: '../remote-refs.yaml#/components/parameters/pathLegalFactId'
+      description: >-
+        Identificativo dell'atto opponbile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
     FullReceivedNotification:
       description: >-
