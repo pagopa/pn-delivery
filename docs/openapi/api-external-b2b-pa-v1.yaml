@@ -1,33 +1,33 @@
 openapi: 3.0.3
 info:
   termsOfService: https://termofservice.it
-  x-summary: API B2B per le Pubbliche Amministrazioni
   x-api-id: api-external-b2b-pa
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
-  version: "1.0.0"
+  x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
+  version: '1.0.0'
   description: >-
     ## Abstract
-      API utilizzate dalle pubbliche amministrazioni per __inviare richieste di notifiche__ e
-      __ottenere informazioni in modalità pull__ informazioni sullo stato della
-      _"richiesta di notifica"_ (accettata o rifiutata) e, in caso di richiesta accettata,
+      API utilizzate dalle pubbliche amministrazioni per __inviare richieste di notifiche__ e 
+      __ottenere informazioni in modalità pull__ informazioni sullo stato della 
+      _"richiesta di notifica"_ (accettata o rifiutata) e, in caso di richiesta accettata, 
       sulle comunicazioni effettuate, o solo tentate, nei confronti dei destinatari della notifica.
-
+    
     ## Operazioni utilizzate, in sequenza temporale
 
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="580" height="1069"><desc>title%20Invio%20notifica%0A%0Aparticipant%20PA%0Aparticipant%20PN%0Aparticipant%20PN%20Safe-Storage%0A%0APA-%3EPN%3A%20presignedUploadRequest%0APN-%3EPA%3A%20presigned%20urls%20%5B%5D%0Aloop%20upload%0APA-%3EPN%20Safe-Storage%3A%20attachmentUpload%0APN%20Safe-Storage-%3EPA%3A%20result%0Aend%0APA-%3EPN%3A%20sendNewNotification%0APN-%3EPA%3A%20reqId%0Aalt%20Single%20request%20check%0Anote%20over%20PA%2CPN%3A%20Only%20for%20test%20purpouse%0Aloop%20check%0APA-%3EPN%3A%20getNotificationRequestStatus(reqId)%0APN-%3EPA%3A%20IUN%0Aend%0Aelse%20Stream%20solution%0Anote%20over%20PA%2CPN%3A%20See%3A%20%3Clink%3Ahttps%3A%2F%2Fpetstore.swagger.io%2F%3Furl%3Dhttps%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml%3EAPI%20B2B%20avanzamento%20notifiche%3C%2Flink%3E%0APA-%3EPN%3A%20getEvents(Stream)%0APN-%3EPA%3A%20events%5B%5D%0Aend%0A%0A</desc><defs/><g><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g><rect fill="white" stroke="none" x="0" y="0" width="580" height="1069"/></g><g><text fill="black" stroke="none" font-family="sans-serif" font-size="16.5pt" font-style="normal" font-weight="normal" text-decoration="normal" x="229.13593204153057" y="26.3876361" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">Invio notifica</text></g><g/><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 96.7546657 103.26361593799999 L 96.7546657 1069.051097198" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray="13.532121076923076,5.863919133333333"/><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 375.9064362471354 103.26361593799999 L 375.9064362471354 1069.051097198" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray="13.532121076923076,5.863919133333333"/><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 497.26641578667835 103.26361593799999 L 497.26641578667835 1069.051097198" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray="13.532121076923076,5.863919133333333"/></g><g><path fill="none" stroke="none"/><g><path fill="white" stroke="black" paint-order="fill stroke markers" d=" M 68.4299609107461 55.765870957999994 L 125.0793704892539 55.765870957999994 L 125.0793704892539 103.26361593799999 L 68.4299609107461 103.26361593799999 L 68.4299609107461 55.765870957999994 Z" stroke-miterlimit="10" stroke-width="2.814681184" stroke-dasharray=""/></g><g><g/><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="87.5170176897461" y="85.67185853800001" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">PA</text></g><path fill="none" stroke="none"/><g><path fill="white" stroke="black" paint-order="fill stroke markers" d=" M 346.6368462039752 55.765870957999994 L 405.1760262902955 55.765870957999994 L 405.1760262902955 103.26361593799999 L 346.6368462039752 103.26361593799999 L 346.6368462039752 55.765870957999994 Z" stroke-miterlimit="10" stroke-width="2.814681184" stroke-dasharray=""/></g><g><g/><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="365.72390298297523" y="85.67185853800001" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">PN</text></g><path fill="none" stroke="none"/><g><path fill="white" stroke="black" paint-order="fill stroke markers" d=" M 422.7677836902955 55.765870957999994 L 571.7650478830611 55.765870957999994 L 571.7650478830611 103.26361593799999 L 422.7677836902955 103.26361593799999 L 422.7677836902955 55.765870957999994 Z" stroke-miterlimit="10" stroke-width="2.814681184" stroke-dasharray=""/></g><g><g/><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="441.85484046929554" y="85.67185853800001" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">PN Safe-Storage</text></g></g><g><g><g><rect fill="white" stroke="none" x="150.96812403348954" y="138.44713073799997" width="170.72485388015625" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="153.60688764348956" y="154.279712398" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">presignedUploadRequest</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 96.7546657 161.31641535799997 L 361.42255598780207 161.31641535799997" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(375.9064362471354,161.31641535799997) translate(-375.9064362471354,-161.31641535799997)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 361.24663841380203 153.9865164413333 L 375.9064362471354 161.31641535799997 L 361.24663841380203 168.64631427466665 Z"/></g></g><g><g><rect fill="white" stroke="none" x="181.54077875761064" y="187.70405145799995" width="109.57954443191406" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="184.17954236761065" y="203.53663311799997" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">presigned urls []</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 375.9064362471354 210.57333607799995 L 111.23854595933334 210.57333607799995" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(96.7546657,210.57333607799995) translate(-96.7546657,-210.57333607799995)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 111.41446353333333 203.24343716133328 L 96.7546657 210.57333607799995 L 111.41446353333333 217.90323499466663 Z"/></g></g><g><g><rect fill="white" stroke="none" x="234.8800245088275" y="284.45871715799996" width="124.26103246902343" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="237.5187881188275" y="300.291298818" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">attachmentUpload</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 96.7546657 307.32800177799993 L 482.78253552734503 307.32800177799993" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(497.26641578667835,307.32800177799993) translate(-497.26641578667835,-307.32800177799993)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 482.606617953345 299.9981028613333 L 497.26641578667835 307.32800177799993 L 482.606617953345 314.6579006946666 Z"/></g></g><g><g><rect fill="white" stroke="none" x="276.44766672074155" y="333.71563787799994" width="41.12574804519531" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="279.08643033074156" y="349.54821953799996" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">result</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 497.26641578667835 356.5849224979999 L 111.23854595933334 356.5849224979999" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(96.7546657,356.5849224979999) translate(-96.7546657,-356.5849224979999)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 111.41446353333333 349.25502358133326 L 96.7546657 356.5849224979999 L 111.41446353333333 363.91482141466656 Z"/></g></g><g><g><rect fill="white" stroke="none" x="166.87362635282548" y="409.36019469799993" width="138.91384924148437" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="169.5123899628255" y="425.19277635799995" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">sendNewNotification</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 96.7546657 432.2294793179999 L 361.42255598780207 432.2294793179999" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(375.9064362471354,432.2294793179999) translate(-375.9064362471354,-432.2294793179999)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 361.24663841380203 424.89958040133325 L 375.9064362471354 432.2294793179999 L 361.24663841380203 439.55937823466655 Z"/></g></g><g><g><rect fill="white" stroke="none" x="216.9845653787044" y="458.6171154179999" width="38.69197118972656" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="219.6233289887044" y="474.44969707799993" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">reqId</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 375.9064362471354 481.4864000379999 L 111.23854595933334 481.4864000379999" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(96.7546657,481.4864000379999) translate(-96.7546657,-481.4864000379999)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 111.41446353333333 474.15650112133324 L 96.7546657 481.4864000379999 L 111.41446353333333 488.81629895466654 Z"/></g></g><path fill="white" stroke="black" paint-order="fill stroke markers" d=" M 80.92208404 555.3717811179998 L 375.90643624713533 555.3717811179998 L 391.73901790713535 571.2043627779998 L 391.73901790713535 595.8328231379999 L 80.92208404 595.8328231379999 L 80.92208404 555.3717811179998 M 375.90643624713533 555.3717811179998 L 375.90643624713533 571.2043627779998 L 391.73901790713535 571.2043627779998" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="164.21533185735672" y="580.0002414779999" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">Only for test purpouse</text></g><g><g><rect fill="white" stroke="none" x="117.57157862333331" y="669.7182042179999" width="237.51794470046875" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="120.21034223333331" y="685.5507858779998" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">getNotificationRequestStatus(reqId)</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 96.7546657 692.5874888379999 L 361.42255598780207 692.5874888379999" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(375.9064362471354,692.5874888379999) translate(-375.9064362471354,-692.5874888379999)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 361.24663841380203 685.2575899213332 L 375.9064362471354 692.5874888379999 L 361.24663841380203 699.9173877546666 Z"/></g></g><g><g><rect fill="white" stroke="none" x="221.0683056130794" y="718.9751249379999" width="30.524490720976562" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="223.7070692230794" y="734.8077065979999" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">IUN</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 375.9064362471354 741.8444095579999 L 111.23854595933334 741.8444095579999" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(96.7546657,741.8444095579999) translate(-96.7546657,-741.8444095579999)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 111.41446353333333 734.5145106413332 L 96.7546657 741.8444095579999 L 111.41446353333333 749.1743084746666 Z"/></g></g><path fill="white" stroke="black" paint-order="fill stroke markers" d=" M 80.92208404 842.1174267379998 L 375.90643624713533 842.1174267379998 L 391.73901790713535 857.9500083979998 L 391.73901790713535 882.5784687579999 L 80.92208404 882.5784687579999 L 80.92208404 842.1174267379998 M 375.90643624713533 842.1174267379998 L 375.90643624713533 857.9500083979998 L 391.73901790713535 857.9500083979998" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="116.12658674016922" y="866.7458870979999" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">See: </text><a xlink:href="https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery-push/develop/docs/openapi/api-external-b2b-webhook-v1.yaml"><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="underline" x="150.35707074895828" y="866.7458870979999" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">API B2B avanzamento notifiche</text></a></g><g><g><rect fill="white" stroke="none" x="172.58587610868486" y="908.9661048579999" width="127.48934972976562" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="175.22463971868487" y="924.7986865179998" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">getEvents(Stream)</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 96.7546657 931.8353894779999 L 361.42255598780207 931.8353894779999" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(375.9064362471354,931.8353894779999) translate(-375.9064362471354,-931.8353894779999)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 361.24663841380203 924.5054905613332 L 375.9064362471354 931.8353894779999 L 361.24663841380203 939.1652883946666 Z"/></g></g><g><g><rect fill="white" stroke="none" x="208.0225063577083" y="958.2230255779999" width="56.616089231718746" height="22.86928462"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="11pt" font-style="normal" font-weight="normal" text-decoration="normal" x="210.6612699677083" y="974.0556072379999" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">events[]</text></g><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 375.9064362471354 981.092310198 L 111.23854595933334 981.092310198" stroke-miterlimit="10" stroke-width="1.4659797833333332" stroke-dasharray=""/><g transform="translate(96.7546657,981.092310198) translate(-96.7546657,-981.092310198)"><path fill="black" stroke="none" paint-order="stroke fill markers" d=" M 111.41446353333333 973.7624112813332 L 96.7546657 981.092310198 L 111.41446353333333 988.4222091146667 Z"/></g></g><g><g/><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 35.18351480000001 236.96097217799996 L 558.8375666866783 236.96097217799996 L 558.8375666866783 382.9725585979999 L 35.18351480000001 382.9725585979999 L 35.18351480000001 236.96097217799996 Z" stroke-miterlimit="10" stroke-width="2.5131082" stroke-dasharray=""/><path fill="white" stroke="black" paint-order="fill stroke markers" d=" M 35.18351480000001 236.96097217799996 L 35.18351480000001 258.07108105799995 L 95.12142413125001 258.07108105799995 L 105.67647857125002 247.51602661799996 L 105.67647857125002 236.96097217799996 L 35.18351480000001 236.96097217799996" stroke-miterlimit="10" stroke-width="2.5131082" stroke-dasharray=""/><text fill="black" stroke="none" font-family="sans-serif" font-size="8.8pt" font-style="normal" font-weight="bold" text-decoration="normal" x="52.77527220000001" y="251.03437809799993" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">loop</text><g><rect fill="white" stroke="none" x="120.62947236125002" y="238.36831276999993" width="51.533081419218746" height="18.295427696"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="8.8pt" font-style="normal" font-weight="bold" text-decoration="normal" x="123.26823597125002" y="251.03437809799993" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">[upload]</text></g><g><g/><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 17.591757400000006 507.87403613799995 L 455.0693445471354 507.87403613799995 L 455.0693445471354 1007.479946298 L 17.591757400000006 1007.479946298 L 17.591757400000006 507.87403613799995 Z" stroke-miterlimit="10" stroke-width="2.5131082" stroke-dasharray=""/><path fill="white" stroke="black" paint-order="fill stroke markers" d=" M 17.591757400000006 507.87403613799995 L 17.591757400000006 528.9841450179999 L 66.46406919707032 528.9841450179999 L 77.01912363707032 518.429090578 L 77.01912363707032 507.87403613799995 L 17.591757400000006 507.87403613799995" stroke-miterlimit="10" stroke-width="2.5131082" stroke-dasharray=""/><text fill="black" stroke="none" font-family="sans-serif" font-size="8.8pt" font-style="normal" font-weight="bold" text-decoration="normal" x="35.183514800000005" y="521.947442058" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">alt</text><g><rect fill="white" stroke="none" x="91.97211742707033" y="509.28137673" width="130.43557775710937" height="18.295427696"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="8.8pt" font-style="normal" font-weight="bold" text-decoration="normal" x="94.61088103707033" y="521.947442058" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">[Single request check]</text><g><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 17.591757400000006 794.619681758 L 455.0693445471354 794.619681758" stroke-miterlimit="10" stroke-width="2.5131082" stroke-dasharray="4.39793935"/></g><g/><g><rect fill="white" stroke="none" x="91.97211742707033" y="796.02702235" width="101.72915685867187" height="18.295427696"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="8.8pt" font-style="normal" font-weight="bold" text-decoration="normal" x="94.61088103707033" y="808.693087678" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">[Stream solution]</text></g><g><g/><path fill="none" stroke="black" paint-order="fill stroke markers" d=" M 35.18351480000001 622.2204592379999 L 437.4775871471354 622.2204592379999 L 437.4775871471354 768.232045658 L 35.18351480000001 768.232045658 L 35.18351480000001 622.2204592379999 Z" stroke-miterlimit="10" stroke-width="2.5131082" stroke-dasharray=""/><path fill="white" stroke="black" paint-order="fill stroke markers" d=" M 35.18351480000001 622.2204592379999 L 35.18351480000001 643.3305681179999 L 95.12142413125001 643.3305681179999 L 105.67647857125002 632.7755136779999 L 105.67647857125002 622.2204592379999 L 35.18351480000001 622.2204592379999" stroke-miterlimit="10" stroke-width="2.5131082" stroke-dasharray=""/><text fill="black" stroke="none" font-family="sans-serif" font-size="8.8pt" font-style="normal" font-weight="bold" text-decoration="normal" x="52.77527220000001" y="636.2938651579999" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">loop</text><g><rect fill="white" stroke="none" x="120.62947236125002" y="623.62779983" width="46.34968603347656" height="18.295427696"/></g><text fill="black" stroke="none" font-family="sans-serif" font-size="8.8pt" font-style="normal" font-weight="bold" text-decoration="normal" x="123.26823597125002" y="636.2938651579999" text-anchor="start" dominant-baseline="alphabetic" xml:space="preserve">[check]</text></g><g/></g><g/><g/><g/></g></svg>
-
+    
     ### Ciclo di vita della notifica lato mittente
-
+    
     #### 1. Caricamento allegati della notifica
-
-    Prima di invocare la richiesta di notifica è necessario caricare gli allegati
+    
+    Prima di invocare la richiesta di notifica è necessario caricare gli allegati 
     (documenti e bollettini di pagamento). <br/>
-
+    
     ##### 1.a. Richiesta presigned Url
-
-    Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest)
-    con cui prenotare il caricamento. </br>
-
+    
+    Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
+    con cui prenotare il caricamento. </br> 
+    
     In risposta di ottengono le seguenti informazioni:<br/>
     - httpMethod <br/>
     - secret <br/>
@@ -36,10 +36,10 @@ info:
     L'url restituito ha una validità di 1h.
     
     ##### 1.b Upload allegati
-
-    Per ogni allegato utilizzare un richiesta HTTP con metodo _httpMethod_ (POST o PUT)
+    
+    Per ogni allegato utilizzare un richiesta HTTP con metodo _httpMethod_ (POST o PUT) 
     all'url indicato dal campo _url_. <br/>
-
+    
     In tale richiesta vanno aggiunti i seguenti header: <br/>
     - _content-type_: valorizzato come il campo "contentType" della richiesta di cui al punto (1.a) <br/>
     - _x-amz-meta-secret_: valorizzato con il valore del campo "secret" della risposta di cui al punto (1.a) <br/>
@@ -47,49 +47,49 @@ info:
     - _x-amz-checksum-sha256_: valorizzato con lo sha256 del file inviato. (__N.B.__ questo è un trailer HTTP non un header).
       Vedi [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
 
-    Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione
-    successiva di richiesta creazione della notifica. Questo garantisce che eventuali utilizzi multipli (anche malevoli) del
-    presignedUrl non vadano a sovrascrivere il file generando disservizi.
-
+    Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
+    successiva di richiesta creazione della notifica. Questo garantisce che eventuali utilizzi multipli (anche malevoli) del 
+    presignedUrl non vadano a sovrascrivere il file generando disservizi. 
+    
     #### 2. Richiesta di invio della notifica
-
-    Per effettuare una richiesta di invio notifica, invocare l'operazione
-    [sendNewNotification](#/NewNotification/sendNewNotification) utilizzando i riferimenti dei file
+    
+    Per effettuare una richiesta di invio notifica, invocare l'operazione 
+    [sendNewNotification](#/NewNotification/sendNewNotification) utilizzando i riferimenti dei file 
     caricati ottenuti al punto (1.b).
-
+    
     #### 3. Verifica accettazione richiesta di invio notifica
-
+    
     Per questa verifica possono essere utilizzate due modalità:
-
+    
     1. __richiesta puntale__: consigliato solo ai fini di test</br>
     2. __lettura da stream configurato__: consigliato per ambienti di produzione
-
+    
     La differenza tra le due modalità è nell'interazione e nell'efficienza.
-
+    
     Con la modalità _richiesta puntuale_ è necessario l'invocazione per ogni notifica.
     Mentre con la modalità _"stream"_ è possibile avere gli aggiornamenti
     di stato di più notifiche con una sola invocazione.
-
+    
     ##### 3.1 Richiesta puntuale di verifica accettazione
-
+    
     Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
     di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
-
-    Se il passo (2) avviene con successo si utilizza l'operazione
+    
+    Se il passo (2) avviene con successo si utilizza l'operazione 
     [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus)
     per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
-
+    
     Nel campo _notificationRequestStatus_ sarà indicato:</br>
     - WAITING: se la validazione è ancora in corso.</br>
     - ACCEPTED: se richiesta di notifica accettata, lo _IUN_ è valorizzato.</br>
     - REFUSED: se richiesta di notifica rifiutata, è valorizzato il campo _errors_.</br>
-
+    
     ##### 3.2 Richiesta avanzamento via "stream" di verifica di accettazione
-
-    Questa modalità è consigliata. Per essere fruita è necessaria una operazione preliminare
+    
+    Questa modalità è consigliata. Per essere fruita è necessaria una operazione preliminare 
     tramite la chiamata alla API [createEventStream](https://redocly.github.io/redoc/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
     per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:
-
+    
     ``
     {
       "title": "NotificationAccepted",
@@ -99,46 +99,46 @@ info:
       ]
     }
     ``
-
+    
     Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://redocly.github.io/redoc/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
-
-
+    
+    
     __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
     dello stream.
-
+    
     #### 4. Monitorare l'avanzamento di una notifica
-
-    Allo stesso modo del monitoraggio dell'accettazione della notifica da parte della Piattaforma sono
+    
+    Allo stesso modo del monitoraggio dell'accettazione della notifica da parte della Piattaforma sono 
     disponibili le due modalità.
-
+    
     #### 4.1 Monitoraggio puntuale
-
-    Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà
-    identificata dalla IUN restituito dall'operazione
-    [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus).</br>
-
-    A tal punto si potranno utilizzare l'operazione _GET /delivery/notifications/sent/{iun}_ per
+    
+    Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
+    identificata dalla IUN restituito dall'operazione 
+    [getNotificationRequestStatus](#/SenderRead/getNotificationRequestStatus).</br> 
+    
+    A tal punto si potranno utilizzare l'operazione _GET /delivery/notifications/sent/{iun}_ per 
     ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
     notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
-
+    
     #### 4.1 Monitoraggio tramite stream
-
+    
     Questa modalità è consigliata. Per essere fruita è necessaria una operazione preliminare
     tramite la chiamata alla API [createEventStream](https://redocly.github.io/redoc/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
     per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:
-
+    
     ``
     {
       "title": "NotificationAccepted",
       "eventType": "STATUS"
     }
     ``
-
+    
     Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
 
 
     __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
-    dello stream.
+    dello stream.    
 
   contact:
     email: pn@pagopa.it
@@ -161,14 +161,11 @@ tags:
       Invocazioni per precaricare allegati e inviare notifiche
   - name: SenderReadB2B
     description: >-
-      Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
       di notifica inviate e delle notifiche accettate.
   - name: NotificationPrice
     description: >-
       Invocazioni per determinare il costo della notifica per il destinario.
-  - name: LegalFacts
-    description: >-
-      Invocazioni per recuperare gli atti opponibili
 
 paths:
   "/status":
@@ -183,8 +180,6 @@ paths:
           description: Ok
         '500':
           description: Internal Server Error
-
-
   ###########################################################################################
   ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
   ###########################################################################################
@@ -192,7 +187,7 @@ paths:
     post:
       summary: Richiesta di pre-caricamento allegati
       description: >-
-        Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie
+        Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
         a precaricare uno o più file da allegare a una notifica. <br/>
       tags:
         - NewNotification
@@ -275,7 +270,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-
+    
 
     ###########################################################################################
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
@@ -288,7 +283,7 @@ paths:
       description: >-
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
         lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
         _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/notificationRequestId'
@@ -313,12 +308,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-
-
+    
+    
     ###########################################################################################
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
-
+  
   "/delivery/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica'
@@ -348,7 +343,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
-
+    
     ###########################################################################################
     ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
     ###########################################################################################
@@ -356,8 +351,6 @@ paths:
   "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}":
     get:
       summary: Download documento notificato
-      description: >-
-        Questa operazione permette di recuperare il documento allegato alla notifica
       tags:
         - SenderReadB2B
       operationId: getSentNotificationDocument
@@ -386,8 +379,6 @@ paths:
 
   "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
-      description: >-
-        Qeusta operazione permette di recuperare l'allegato di pagamento della notifica
       summary: Download allegato per pagamento
       tags:
         - SenderReadB2B
@@ -496,9 +487,19 @@ paths:
               schema: # ONLY EXTERNAL
                 $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       # ONLY EXTERNAL
 components:
-
+  
   parameters:
-
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:
+      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+    cxIdAuthFleet:
+      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'
+    cxGroupsAuthFleet:
+      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
+    uidAuthFleet:
+      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'
 
     ############################################################################################
     ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
@@ -521,14 +522,14 @@ components:
     idempotenceToken:
       name: idempotenceToken
       description: >-
-        token usato per disambiguare "richieste di notificazione" effetuate con lo stesso
-        numero di protocollo.
+        token usato per disambiguare "richieste di notificazione" effetuate con lo stesso 
+        numero di protocollo. 
       in: query
       required: false
       schema:
         type: string
-
-
+    
+    
     ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
     ############################################################################################
@@ -538,16 +539,16 @@ components:
       in: path
       required: true
       schema:
-        type: number
-        format: decimal32
+        type: integer
+        format: int32
     pathRecipientIdx:
       name: recipientIdx
       description: indice dei destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
-        type: number
-        format: decimal32
+        type: integer
+        format: int32
     pathAttachmentName:
       name: attachmentName
       description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24_FLAT|F24_STANDARD
@@ -564,12 +565,11 @@ components:
         #      - PAGOPA
         #      - F24_FLAT
         #      - F24_STANDARD
-
-
+    
+    
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
     ############################################################################################
-
     pathLegalFactType:
       $ref: './remote-refs.yaml#/components/parameters/pathLegalFactType'
     pathLegalFactId:
@@ -577,7 +577,7 @@ components:
 
 
   schemas:
-
+    
     ###########################################################################################
     ###                             DTO PRECARICAMENTO ALLEGATI                             ###
     ###########################################################################################
@@ -588,7 +588,7 @@ components:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
           description: >-
-            Identificativo univoco all'interno della request HTTP, serve per correlare la risposta.
+            Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. 
           type: string
         contentType:
           title: MIME type del file che verrà caricato
@@ -603,11 +603,10 @@ components:
             caricato
           type: string
 
-
     PreLoadResponse:
       title: Informazioni per il caricamento file
       description: >-
-        Per ogni richiesta che è stata fatta viene fornito un presigned URL e le
+        Per ogni richiesta che è stata fatta viene fornito un presigned URL e le 
         informazioni per usarlo.
       type: object
       properties:
@@ -616,7 +615,7 @@ components:
           type: string
         secret:
           description: >-
-            Token aggiuntivo per far si che sia necessario intercettare anche gli
+            Token aggiuntivo per far si che sia necessario intercettare anche gli 
             header e non solo l'URL di upload del contenuto del documento.
           example: AZ23RF12
           type: string
@@ -634,7 +633,7 @@ components:
           type: string
         key:
           description: >-
-            la chiave restituita sarà globalmente unica e andrà utilizzata nella richiesta
+            la chiave restituita sarà globalmente unica e andrà utilizzata nella richiesta 
             di notifica.
           example: '8F7E/9A3B/1234/AB87'
           type: string
@@ -681,10 +680,10 @@ components:
           description: Identificativo inviato dalla pubblica amministrazione
         idempotenceToken:
           description: >-
-            Ripetizione del token usato per disambiguare "richieste di notificazione"
-            effetuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
+            Ripetizione del token usato per disambiguare "richieste di notificazione" 
+            effetuate con lo stesso numero di protocollo (campo _paProtocolNumber_). 
           type: string
-
+    
     NewNotificationRequestStatusResponse:
       allOf:
         - $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
@@ -704,10 +703,10 @@ components:
                 - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_
               type: string
             retryAfter:
-              type: number
-              format: decimal32
+              type: integer
+              format: int32
               description: >-
-                Numero di secondi da attendere prima di effettuare una nuova richiesta per
+                Numero di secondi da attendere prima di effettuare una nuova richiesta per 
                 la stessa entità; valorizzato quando lo status è __WAITING__.
             iun:
               $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/IUN"
@@ -725,7 +724,7 @@ components:
 
     FullSentNotification:
       description: >-
-        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il
+        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
         - $ref: './schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
@@ -745,7 +744,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
-
+    
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
@@ -763,7 +762,7 @@ components:
 
 security:                 # ONLY EXTERNAL
   - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+              
 
 
-
-
+  
