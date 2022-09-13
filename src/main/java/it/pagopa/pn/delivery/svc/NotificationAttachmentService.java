@@ -170,15 +170,13 @@ public class NotificationAttachmentService {
 
             FileInfos fileInfos = computeFileInfo( fileDownloadIdentify, notification );
 
-            assert fileInfos.fileDownloadResponse.getDownload() != null;
-            assert fileInfos.fileDownloadResponse.getDownload().getRetryAfter() != null;
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
-                    .contentLength(fileInfos.fileDownloadResponse.getContentLength().intValue())
+                    .contentLength( fileInfos.fileDownloadResponse.getContentLength().intValue() )
                     .contentType( fileInfos.fileDownloadResponse.getContentType() )
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
-                    .retryAfter( fileInfos.fileDownloadResponse.getDownload().getRetryAfter().intValue() )
+                    .retryAfter( fileInfos.fileDownloadResponse.getDownload().getRetryAfter() != null ?  fileInfos.fileDownloadResponse.getDownload().getRetryAfter().intValue() : null )
                     .build();
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
