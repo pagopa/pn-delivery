@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -170,13 +171,14 @@ public class NotificationAttachmentService {
 
             FileInfos fileInfos = computeFileInfo( fileDownloadIdentify, notification );
 
+            BigDecimal retryAfter = fileInfos.fileDownloadResponse.getDownload().getRetryAfter();
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
                     .contentLength( fileInfos.fileDownloadResponse.getContentLength().intValue() )
                     .contentType( fileInfos.fileDownloadResponse.getContentType() )
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
-                    .retryAfter( fileInfos.fileDownloadResponse.getDownload().getRetryAfter() != null ?  fileInfos.fileDownloadResponse.getDownload().getRetryAfter().intValue() : null )
+                    .retryAfter( retryAfter != null ? retryAfter.intValue() : null )
                     .build();
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
