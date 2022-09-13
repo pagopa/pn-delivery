@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -171,10 +172,11 @@ public class NotificationAttachmentService {
 
             FileInfos fileInfos = computeFileInfo( fileDownloadIdentify, notification );
 
-            BigDecimal retryAfter = fileInfos.fileDownloadResponse.getDownload().getRetryAfter();
+            FileDownloadInfo download = fileInfos.fileDownloadResponse.getDownload();
+            BigDecimal retryAfter = download != null ? download.getRetryAfter() : null;
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
-                    .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
+                    .url( download != null ? download.getUrl() : null )
                     .contentLength( fileInfos.fileDownloadResponse.getContentLength().intValue() )
                     .contentType( fileInfos.fileDownloadResponse.getContentType() )
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
