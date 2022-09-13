@@ -38,7 +38,7 @@ class NotificationSearchControllerTest {
     private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
     private static final String DELEGATOR_ID = "DelegatorId";
     private static final String MANDATE_ID = "mandateId";
-    public static final String GROUP = "Group1";
+    public static final List<String> GROUPS = List.of("Group1", "Group2");
     public static final String UID = "Uid";
 
 
@@ -69,7 +69,7 @@ class NotificationSearchControllerTest {
                 .sentAt( OffsetDateTime.parse("2021-09-17T13:45:28.00Z") )
                 .recipients( Collections.singletonList( RECIPIENT_ID ) )
                 .paProtocolNumber("123")
-                .subject(GROUP)
+                .subject(SUBJECT_REG_EXP)
                 .build();
 
         ResultPaginationDto<NotificationSearchRow,String> result =
@@ -101,7 +101,7 @@ class NotificationSearchControllerTest {
                 .header( PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUP)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0)+","+GROUPS.get(1))
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -113,7 +113,7 @@ class NotificationSearchControllerTest {
                 .endDate(Instant.parse(END_DATE))
                 .filterId(RECIPIENT_ID)
                 .statuses(List.of(STATUS))
-                .groups( List.of( GROUP ))
+                .groups( GROUPS )
                 .subjectRegExp(SUBJECT_REG_EXP)
                 .size(null)
                 .nextPagesKey(null)
@@ -133,7 +133,7 @@ class NotificationSearchControllerTest {
                 .recipients(Collections.singletonList(RECIPIENT_ID))
                 .paProtocolNumber("123")
                 .subject(SUBJECT_REG_EXP)
-                .group(GROUP)
+                .group(GROUPS.get( 0 ))
                 .build();
 
         ResultPaginationDto<NotificationSearchRow,String> result =
@@ -163,7 +163,7 @@ class NotificationSearchControllerTest {
                 .header( PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUP)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) + "," + GROUPS.get(1) )
                 .exchange()
                 .expectStatus()
                 .isOk();
@@ -174,7 +174,7 @@ class NotificationSearchControllerTest {
                 .senderReceiverId(SENDER_ID)
                 .startDate(Instant.parse(START_DATE))
                 .endDate(Instant.parse(END_DATE))
-                .groups( List.of(GROUP) )
+                .groups( GROUPS )
                 .statuses(List.of())
                 .size( SIZE )
                 .nextPagesKey( NEXT_PAGES_KEY )
@@ -227,7 +227,7 @@ class NotificationSearchControllerTest {
                 .header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUP)
+                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, String.valueOf(GROUPS))
                 .exchange()
                 .expectStatus()
                 .isOk();
