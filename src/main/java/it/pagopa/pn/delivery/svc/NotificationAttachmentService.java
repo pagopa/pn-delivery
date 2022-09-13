@@ -172,15 +172,17 @@ public class NotificationAttachmentService {
 
             FileInfos fileInfos = computeFileInfo( fileDownloadIdentify, notification );
 
-            FileDownloadInfo download = fileInfos.fileDownloadResponse.getDownload();
-            BigDecimal retryAfter = download != null ? download.getRetryAfter() : null;
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
-                    .url( download != null ? download.getUrl() : null )
-                    .contentLength( fileInfos.fileDownloadResponse.getContentLength().intValue() )
+                    .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
+                    .contentLength( nullSafeBigDecimalToInteger(
+                            fileInfos.fileDownloadResponse.getContentLength()
+                    ))
                     .contentType( fileInfos.fileDownloadResponse.getContentType() )
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
-                    .retryAfter( retryAfter != null ? retryAfter.intValue() : null )
+                    .retryAfter( nullSafeBigDecimalToInteger(
+                            fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
+                    ))
                     .build();
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
@@ -298,4 +300,9 @@ public class NotificationAttachmentService {
         String unescapedFileName = iun + "__" + name;
         return unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + "." + extension;
     }
+
+    private Integer nullSafeBigDecimalToInteger(BigDecimal bd) {
+        return bd != null ? bd.intValue() : null;
+    }
+
 }
