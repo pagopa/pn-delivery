@@ -102,7 +102,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups, String mandateId) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder

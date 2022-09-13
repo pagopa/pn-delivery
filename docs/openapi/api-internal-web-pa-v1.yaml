@@ -1,7 +1,10 @@
 openapi: 3.0.3
 info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-internal-web-pa
   title: 'Piattaforma Notifiche: API per il Front End delle PA'
-  version: v1.0
+  x-summary: 'Piattaforma Notifiche: API per il Front End delle PA'
+  version: '1.0.0'
   description: >- 
     ## Abstract
       API utilizzate dal portale di Piattaforma Notifiche dedicato alle Pubbliche Amministrazioni
@@ -18,12 +21,27 @@ servers:
 - url: https://webapi.dev.pn.pagopa.it
   description: Ambiente di sviluppo
 tags:
-  - name: SenderRead
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
+  - name: SenderReadWeb
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle notifiche inviate
 
 
 paths:
+  "/status":
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
     ###########################################################################################
     ###                                  RICERCA NOTIFICHE                                  ###
     ###########################################################################################

@@ -630,6 +630,7 @@ class NotificationAttachmentServiceTest {
         fileDownloadInfo.setUrl("https://url123");
         fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
         fileDownloadResponse.setDownload(fileDownloadInfo);
+        fileDownloadResponse.setContentLength(BigDecimal.valueOf( 0 ));
         return fileDownloadResponse;
     }
 

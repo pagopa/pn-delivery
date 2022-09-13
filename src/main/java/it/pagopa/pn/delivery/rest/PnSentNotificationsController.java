@@ -143,7 +143,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         switch ( lastStatus ) {
             case IN_VALIDATION: {
                 response.setNotificationRequestStatus( "WAITING" );
-                response.retryAfter( BigDecimal.valueOf(10L) );
+                response.retryAfter( 10 );
                 response.setIun( null );
                 break;
             }
@@ -172,7 +172,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -201,7 +201,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
