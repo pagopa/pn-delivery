@@ -227,7 +227,6 @@ class NotificationSearchControllerTest {
                 .header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
                 .header(PnDeliveryRestConstants.UID_HEADER, UID)
                 .header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-                .header(PnDeliveryRestConstants.CX_GROUPS_HEADER, String.valueOf(GROUPS))
                 .exchange()
                 .expectStatus()
                 .isOk();
