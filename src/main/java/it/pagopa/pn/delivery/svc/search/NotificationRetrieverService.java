@@ -588,7 +588,7 @@ public class NotificationRetrieverService {
 			return;
 		}
 		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
-		if (groups != null) {
+		if (!groups.isEmpty()) {
 			PaGroup group = groups.stream()
 					.filter(g -> g.getId().equals(notificationGroup))
 					.findAny()
@@ -612,7 +612,7 @@ public class NotificationRetrieverService {
 		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
 		for (NotificationSearchRow notification : notifications) {
 			String notificationGroup = notification.getGroup();
-			if (groups != null && notificationGroup != null && !notificationGroup.isEmpty()) {
+			if (!groups.isEmpty() && notificationGroup != null && !notificationGroup.isEmpty()) {
 				PaGroup group = groups.stream()
 						.filter(g -> g.getId().equals(notificationGroup))
 						.findAny()

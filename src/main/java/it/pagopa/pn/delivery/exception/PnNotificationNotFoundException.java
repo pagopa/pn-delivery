@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.exception;
 
 import lombok.Getter;
 
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_MANDATENOTFOUND;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
 
 @Getter

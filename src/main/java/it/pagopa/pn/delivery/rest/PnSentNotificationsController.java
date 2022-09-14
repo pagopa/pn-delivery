@@ -188,7 +188,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
                     null,
-                    recipientIdx.intValue(),
+                    recipientIdx,
                     attachmentName
             );
             logEvent.generateSuccess().log();
@@ -218,7 +218,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
                     null,
-                    docIdx.intValue()
+                    docIdx
             );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {

@@ -113,9 +113,9 @@ class NotificationRetrieverServiceTest {
 
         // Then
         Assertions.assertNotNull( result );
-        Assertions.assertEquals( results.getResultsPage().get(0).getGroup(), "Group");
-        Assertions.assertEquals( results.getResultsPage().get(1).getGroup(), "Group no match");
-        Assertions.assertEquals( results.getResultsPage().get(2).getGroup(), "group-code-fake");
+        Assertions.assertEquals( "Group", results.getResultsPage().get(0).getGroup());
+        Assertions.assertEquals( "Group no match", results.getResultsPage().get(1).getGroup());
+        Assertions.assertEquals( "group-code-fake", results.getResultsPage().get(2).getGroup());
     }
 
     @NotNull
@@ -426,7 +426,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Assertions.assertNotNull( result );
-        Assertions.assertEquals(result.getGroup(), "Group");
+        Assertions.assertEquals("Group", result.getGroup());
     }
 
     @Test
@@ -450,7 +450,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Assertions.assertNotNull( result );
-        Assertions.assertEquals(result.getGroup(), "group-code-fake");
+        Assertions.assertEquals("group-code-fake", result.getGroup());
     }
 
     @Test
