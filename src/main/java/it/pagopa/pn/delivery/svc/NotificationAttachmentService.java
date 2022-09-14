@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -170,15 +172,17 @@ public class NotificationAttachmentService {
 
             FileInfos fileInfos = computeFileInfo( fileDownloadIdentify, notification );
 
-            assert fileInfos.fileDownloadResponse.getDownload() != null;
-            assert fileInfos.fileDownloadResponse.getDownload().getRetryAfter() != null;
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
-                    .contentLength(fileInfos.fileDownloadResponse.getContentLength().intValue())
+                    .contentLength( nullSafeBigDecimalToInteger(
+                            fileInfos.fileDownloadResponse.getContentLength()
+                    ))
                     .contentType( fileInfos.fileDownloadResponse.getContentType() )
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
-                    .retryAfter( fileInfos.fileDownloadResponse.getDownload().getRetryAfter().intValue() )
+                    .retryAfter( nullSafeBigDecimalToInteger(
+                            fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
+                    ))
                     .build();
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
@@ -296,4 +300,9 @@ public class NotificationAttachmentService {
         String unescapedFileName = iun + "__" + name;
         return unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + "." + extension;
     }
+
+    private Integer nullSafeBigDecimalToInteger(BigDecimal bd) {
+        return bd != null ? bd.intValue() : null;
+    }
+
 }
