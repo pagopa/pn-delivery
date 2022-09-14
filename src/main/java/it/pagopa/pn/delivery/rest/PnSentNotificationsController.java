@@ -79,7 +79,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .filterId(recipientId)
                 .statuses(status==null?List.of():List.of(status))
                 .receiverIdIsOpaque(false)
-                //.groups( groups != null ? Arrays.asList( groups ) : null )
+                .groups( xPagopaPnCxGroups )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
                 .size(size)
