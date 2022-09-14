@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -36,7 +37,7 @@ public class PnExternalRegistriesClientImpl {
             return internalOnlyApi.getAllGroupsPrivate(senderId, null);
         } catch (Exception exc) {
             log.error("Error during retrieve of the groups", exc);
-            return null;
+            return Collections.emptyList();
         }
     }
 }

@@ -119,7 +119,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
                     mandateId,
-                    docIdx.intValue()
+                    docIdx
             );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {

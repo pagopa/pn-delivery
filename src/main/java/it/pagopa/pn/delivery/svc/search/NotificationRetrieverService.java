@@ -98,8 +98,18 @@ public class NotificationRetrieverService {
 
 		Instant startDate = searchDto.getStartDate();
 		if( PN_EPOCH.isAfter(startDate) ) {
-			log.info("Start date is {} but PiattaformaNotifica exsists since {} ", startDate, PN_EPOCH);
+			log.info("Start date is={} but Piattaforma Notifiche exists since={} ", startDate, PN_EPOCH);
 			searchDto.setStartDate( PN_EPOCH );
+		}
+		// controllo endDate di ricerca sia dopo 2022-05-01T12:00:00.000 GMT+2:00
+		Instant endDate = searchDto.getEndDate();
+		if( PN_EPOCH.isAfter( endDate ) ) {
+			log.info("End date is={} but Piattaforma Notifiche exists since={}", endDate, PN_EPOCH);
+			return ResultPaginationDto.<NotificationSearchRow, String>builder()
+					.resultsPage( Collections.emptyList() )
+					.nextPagesKey( Collections.emptyList() )
+					.moreResult( false )
+					.build();
 		}
 
 		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
@@ -578,7 +588,7 @@ public class NotificationRetrieverService {
 			return;
 		}
 		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
-		if (groups != null) {
+		if (!groups.isEmpty()) {
 			PaGroup group = groups.stream()
 					.filter(g -> g.getId().equals(notificationGroup))
 					.findAny()
@@ -602,7 +612,7 @@ public class NotificationRetrieverService {
 		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
 		for (NotificationSearchRow notification : notifications) {
 			String notificationGroup = notification.getGroup();
-			if (groups != null && notificationGroup != null && !notificationGroup.isEmpty()) {
+			if (!groups.isEmpty() && notificationGroup != null && !notificationGroup.isEmpty()) {
 				PaGroup group = groups.stream()
 						.filter(g -> g.getId().equals(notificationGroup))
 						.findAny()

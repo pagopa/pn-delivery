@@ -97,7 +97,7 @@ class PnExternalRegistriesClientImplTest {
         List<PaGroup> groups = externalRegistriesClient.getGroups( SENDER_ID );
 
         // Then
-        Assertions.assertNull( groups );
+        Assertions.assertTrue( groups.isEmpty() );
     }
 
 }
