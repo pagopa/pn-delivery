@@ -96,8 +96,8 @@ class NotificationRetrieverServiceTest {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( false )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "SENDER_ID" )
                 .size( 10 )
                 .nextPagesKey( null )
@@ -180,8 +180,8 @@ class NotificationRetrieverServiceTest {
     void checkMandateNoValidMandate() {
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( false )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "receiverId" )
                 .mandateId( "mandateId" )
                 .size( 10 )
@@ -231,8 +231,8 @@ class NotificationRetrieverServiceTest {
     void searchNotificationUnableDeserializeLEK() {
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
                 .bySender( true )
-                .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "senderId" )
                 .size( 10 )
                 .nextPagesKey( "fakeNextPageKey" )

@@ -98,8 +98,18 @@ public class NotificationRetrieverService {
 
 		Instant startDate = searchDto.getStartDate();
 		if( PN_EPOCH.isAfter(startDate) ) {
-			log.info("Start date is {} but PiattaformaNotifica exsists since {} ", startDate, PN_EPOCH);
+			log.info("Start date is={} but Piattaforma Notifiche exists since={} ", startDate, PN_EPOCH);
 			searchDto.setStartDate( PN_EPOCH );
+		}
+		// controllo endDate di ricerca sia dopo 2022-05-01T12:00:00.000 GMT+2:00
+		Instant endDate = searchDto.getEndDate();
+		if( PN_EPOCH.isAfter( endDate ) ) {
+			log.info("End date is={} but Piattaforma Notifiche exists since={}", endDate, PN_EPOCH);
+			return ResultPaginationDto.<NotificationSearchRow, String>builder()
+					.resultsPage( Collections.emptyList() )
+					.nextPagesKey( Collections.emptyList() )
+					.moreResult( false )
+					.build();
 		}
 
 		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
