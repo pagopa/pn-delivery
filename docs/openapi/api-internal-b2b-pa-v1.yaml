@@ -680,7 +680,7 @@ components:
           description: notification effective date
           type: string
           format: date-time
-          example: 2017-07-21T17:32:28Z
+          example: 2017-07-21T17:32:59.645442Z
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
