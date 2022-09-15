@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
@@ -12,6 +13,7 @@ import org.springframework.util.StringUtils;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
@@ -75,11 +77,17 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
             errors.add( constraintViolation );
         }
-        String noticeCode = notificationRequest.getRecipients().get(0).getPayment().getNoticeCode();
-        String noticeCodeAlternative = notificationRequest.getRecipients().get(0).getPayment().getNoticeCodeAlternative();
-        if ( noticeCode.equals(noticeCodeAlternative) ) {
-            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
+        NotificationPaymentInfo payment = notificationRequest.getRecipients().get(0).getPayment();
+        if (Objects.isNull( payment )) {
+            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient payment" );
             errors.add( constraintViolation );
+        } else {
+            String noticeCode = payment.getNoticeCode();
+            String noticeCodeAlternative = payment.getNoticeCodeAlternative();
+            if ( noticeCode.equals(noticeCodeAlternative) ) {
+                ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
+                errors.add( constraintViolation );
+            }
         }
         return errors;
     }
