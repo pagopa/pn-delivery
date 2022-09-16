@@ -356,6 +356,24 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByMessage( errors, "Alternative notice code equals to notice code" );
     }
 
+    @Test
+    // doesn't pass mvp checks
+    void newNotificationRequestForMVPInvalidNoPayment() {
+        Mockito.when( cfg.isNotificationCheckAddress() ).thenReturn( true );
+
+        // GIVEN
+        NewNotificationRequest n = newNotification();
+        n.getRecipients().get(0).setPayment( null );
+
+        // WHEN
+        Set<ConstraintViolation<NewNotificationRequest>> errors;
+        errors = validator.checkNewNotificationRequestForMVP( n );
+
+        // THEN
+        Assertions.assertNotNull( errors );
+        assertConstraintViolationPresentByMessage( errors, "No recipient payment" );
+    }
+
     private <T> void assertConstraintViolationPresentByMessage( Set<ConstraintViolation<T>> set, String message ) {
         long actual = set.stream()
                 .filter( cv -> cv.getMessage().equals( message ) )
