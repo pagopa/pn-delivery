@@ -42,3 +42,11 @@ components:
     LegalFactDownloadMetadataResponse:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/70b8b50813e3cab7fef8140b0720f8e30a9dbd89/docs/openapi/schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
+    ############################################################################################
+    ###                          STRUTTURE DATI DI PN-COMMONS                                ###
+    ############################################################################################
+
+    Problem:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/8ffbaaab8d9d97c1b218e3d7a320a890c28cd551/docs/openapi/pn-errors.yaml#/components/schemas/Problem'
+    ProblemError:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/8ffbaaab8d9d97c1b218e3d7a320a890c28cd551/docs/openapi/pn-errors.yaml#/components/schemas/ProblemError'

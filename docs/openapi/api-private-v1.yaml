@@ -212,4 +212,4 @@ components:
                     
     
     Problem:
-      $ref: "schemas-pn-errors-v1.yaml#/components/schemas/Problem"
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
