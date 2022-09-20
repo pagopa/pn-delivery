@@ -14,7 +14,7 @@ components:
     Denomination:
       description: Denominazione ente o persona fisica
       type: string
-      pattern: ^\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+$
+      pattern: ^\b([A-ZÀ-ÿ][-,a-zà-ÿ. ']+[ ]*)+$
 
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
