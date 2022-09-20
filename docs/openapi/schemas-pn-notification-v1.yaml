@@ -11,6 +11,18 @@ components:
       description: Identificativo Univoco Notifica
       type: string
 
+    Denomination:
+      description: Denominazione ente o persona fisica
+      type: string
+      pattern: ^\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+$
+
+    TaxId:
+      description: C.F. persona fisica o persona giuridica (Partita iva)
+      type: string
+      minLength: 11
+      maxLength: 16
+      pattern: ^(^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z])|(^[0-9]{11})$
+
     noticeCode:
       description: Payment notice number  numero avviso
       example: '302000100000019421'
@@ -92,9 +104,11 @@ components:
         senderDenomination:
           description: Denominazione dell'ente mittente
           type: string
+          $ref: '#/components/schemas/Denomination'
         senderTaxId:
           description: Codice Fiscale dell'ente mittente
           type: string
+          $ref: '#/components/schemas/TaxId'
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
@@ -157,12 +171,14 @@ components:
         taxId:
           type: string
           description: Codice Fiscale del destinatario
+          $ref: '#/components/schemas/TaxId'
         internalId:
           type: string
           description: id interno anonimizzato
         denomination:
           type: string
           description: Nome e cognome / ragione sociale
+          $ref: '#/components/schemas/Denomination'
         digitalDomicile:
            $ref: "#/components/schemas/NotificationDigitalAddress"
         physicalAddress:
