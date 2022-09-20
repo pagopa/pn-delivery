@@ -82,7 +82,7 @@ paths:
         '200':
           description: OK
           content:
-            "*/*":
+            "application/json":
               schema:
                 $ref: "schemas-pn-notification-v1.yaml#/components/schemas/SentNotification"
         '400':
