@@ -187,7 +187,7 @@ paths:
 
   "/delivery-private/check-aar-qr-code":
     post:
-      summary: servizio per l'aggiornamento dello stato di invio della notifica
+      summary: servizio per la verifica del qr code
       tags:
       - internal-only
       operationId: checkAarQrCode
@@ -207,25 +207,25 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '404':
           description: QrCode reference Not Found
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '403':
           description: QrCode Reference misused
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
         '409':
           description: To many usage of the given QrCode Reference
           content:
-            application/json:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
 
@@ -260,7 +260,7 @@ components:
       properties:
         iun:
           type: string
-          description: valore del QR-Code presente sull'avviso di avvenuta ricezione
+          description: iun associato al valore del QR-Code presente sull'avviso di avvenuta ricezione
         
 
     RequestUpdateStatusDto:
