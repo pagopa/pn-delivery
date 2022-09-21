@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
@@ -21,12 +22,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.RestClientException;
 
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -370,7 +376,7 @@ class NotificationAttachmentServiceTest {
                 Mockito.any(ReadAccessAuth.class),
                 Mockito.any( InternalNotification.class ) )
         ).thenReturn( authorizationOutcome );
-        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenThrow(PnBadRequestException.class);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenThrow(new PnHttpResponseException("test", HttpStatus.NOT_FOUND.value()));
 
         //Then
         assertThrows(PnBadRequestException.class, () -> attachmentService.downloadAttachmentWithRedirect(
@@ -624,6 +630,7 @@ class NotificationAttachmentServiceTest {
         fileDownloadInfo.setUrl("https://url123");
         fileDownloadInfo.setRetryAfter(BigDecimal.valueOf(0));
         fileDownloadResponse.setDownload(fileDownloadInfo);
+        fileDownloadResponse.setContentLength(BigDecimal.valueOf( 0 ));
         return fileDownloadResponse;
     }
 

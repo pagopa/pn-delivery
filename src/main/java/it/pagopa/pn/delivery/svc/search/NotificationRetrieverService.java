@@ -5,7 +5,9 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
@@ -42,6 +44,9 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_MANDATENOTFOUND;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
 
 @Service
 @Slf4j
@@ -93,8 +98,18 @@ public class NotificationRetrieverService {
 
 		Instant startDate = searchDto.getStartDate();
 		if( PN_EPOCH.isAfter(startDate) ) {
-			log.info("Start date is {} but PiattaformaNotifica exsists since {} ", startDate, PN_EPOCH);
+			log.info("Start date is={} but Piattaforma Notifiche exists since={} ", startDate, PN_EPOCH);
 			searchDto.setStartDate( PN_EPOCH );
+		}
+		// controllo endDate di ricerca sia dopo 2022-05-01T12:00:00.000 GMT+2:00
+		Instant endDate = searchDto.getEndDate();
+		if( PN_EPOCH.isAfter( endDate ) ) {
+			log.info("End date is={} but Piattaforma Notifiche exists since={}", endDate, PN_EPOCH);
+			return ResultPaginationDto.<NotificationSearchRow, String>builder()
+					.resultsPage( Collections.emptyList() )
+					.nextPagesKey( Collections.emptyList() )
+					.moreResult( false )
+					.build();
 		}
 
 		log.info("Start search notification - senderReceiverId={}", searchDto.getSenderReceiverId());
@@ -183,12 +198,12 @@ public class NotificationRetrieverService {
 			if (!validMandate){
 				String message = String.format("Unable to find valid mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
 				log.error( message );
-				throw new PnNotFoundException( message );
+				throw new PnMandateNotFoundException( message );
 			}
 		} else {
 			String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
 			log.error( message );
-			throw new PnNotFoundException( message );
+			throw new PnMandateNotFoundException(  message );
 		}
 		log.info( "END check mandate for receiverId={} and mandateId={}", senderReceiverId, mandateId );
 	}
@@ -263,7 +278,7 @@ public class NotificationRetrieverService {
 		} else {
 			String msg = String.format( "Error retrieving Notification with iun=%s withTimeline=%b", iun, withTimeline );
 			log.debug( msg );
-			throw new PnNotFoundException( msg );
+			throw new PnNotificationNotFoundException(  msg );
 		}
 	}
 
@@ -452,12 +467,12 @@ public class NotificationRetrieverService {
 			if (!validMandate){
 				String message = String.format("Unable to find valid mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
 				log.error( message );
-				throw new PnNotFoundException( message );
+				throw new PnMandateNotFoundException( message );
 			}
 		} else {
 			String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
 			log.error( message );
-			throw new PnNotFoundException( message );
+			throw new PnMandateNotFoundException( message );
 		}
 		return delegatorId;
 	}
@@ -573,7 +588,7 @@ public class NotificationRetrieverService {
 			return;
 		}
 		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
-		if (groups != null) {
+		if (!groups.isEmpty()) {
 			PaGroup group = groups.stream()
 					.filter(g -> g.getId().equals(notificationGroup))
 					.findAny()
@@ -597,7 +612,7 @@ public class NotificationRetrieverService {
 		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
 		for (NotificationSearchRow notification : notifications) {
 			String notificationGroup = notification.getGroup();
-			if (groups != null && notificationGroup != null && !notificationGroup.isEmpty()) {
+			if (!groups.isEmpty() && notificationGroup != null && !notificationGroup.isEmpty()) {
 				PaGroup group = groups.stream()
 						.filter(g -> g.getId().equals(notificationGroup))
 						.findAny()

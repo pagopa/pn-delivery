@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -14,10 +15,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.util.Base64Utils;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Path;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
+import javax.validation.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -93,19 +93,18 @@ class NotificationReceiverValidationTest {
         PnValidationException validationException;
         validationException = Assertions.assertThrows(PnValidationException.class, todo );
 
-        Set<ConstraintViolation> errors = validationException.getValidationErrors();
-        Set<ConstraintViolation<Object>> errorsCast = (Set<ConstraintViolation<Object>>) ((Object) errors);
-        assertConstraintViolationPresentByField( errorsCast, "recipients" );
-        assertConstraintViolationPresentByField( errorsCast, "timeline" );
-        assertConstraintViolationPresentByField( errorsCast, "notificationStatusHistory" );
-        assertConstraintViolationPresentByField( errorsCast, "documents" );
-        assertConstraintViolationPresentByField( errorsCast, "iun" );
-        assertConstraintViolationPresentByField( errorsCast, "notificationStatus" );
-        assertConstraintViolationPresentByField( errorsCast, "sentAt" );
-        assertConstraintViolationPresentByField( errorsCast, "paProtocolNumber" );
-        assertConstraintViolationPresentByField( errorsCast, "physicalCommunicationType" );
-        assertConstraintViolationPresentByField( errorsCast, "subject" );
-        assertConstraintViolationPresentByField( errorsCast, "notificationFeePolicy" );
+        @NotNull @Valid @Size(min = 1) List<ProblemError> errors = validationException.getProblem().getErrors();
+        assertProblemErrorConstraintViolationPresentByField( errors, "recipients" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "timeline" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "notificationStatusHistory" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "documents" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "iun" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "notificationStatus" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "sentAt" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "paProtocolNumber" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "physicalCommunicationType" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "subject" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "notificationFeePolicy" );
         Assertions.assertEquals( 11, errors.size() );
     }
 
@@ -357,6 +356,24 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByMessage( errors, "Alternative notice code equals to notice code" );
     }
 
+    @Test
+    // doesn't pass mvp checks
+    void newNotificationRequestForMVPInvalidNoPayment() {
+        Mockito.when( cfg.isNotificationCheckAddress() ).thenReturn( true );
+
+        // GIVEN
+        NewNotificationRequest n = newNotification();
+        n.getRecipients().get(0).setPayment( null );
+
+        // WHEN
+        Set<ConstraintViolation<NewNotificationRequest>> errors;
+        errors = validator.checkNewNotificationRequestForMVP( n );
+
+        // THEN
+        Assertions.assertNotNull( errors );
+        assertConstraintViolationPresentByMessage( errors, "No recipient payment" );
+    }
+
     private <T> void assertConstraintViolationPresentByMessage( Set<ConstraintViolation<T>> set, String message ) {
         long actual = set.stream()
                 .filter( cv -> cv.getMessage().equals( message ) )
@@ -367,6 +384,14 @@ class NotificationReceiverValidationTest {
     private <T> void assertConstraintViolationPresentByField( Set<ConstraintViolation<T>> set, String propertyPath ) {
         long actual = set.stream()
                 .filter( cv -> propertyPathToString( cv.getPropertyPath() ).equals( propertyPath ) )
+                .count();
+        Assertions.assertEquals( 1, actual, "expected validation errors on " + propertyPath );
+    }
+
+
+    private void assertProblemErrorConstraintViolationPresentByField(List<ProblemError> set, String propertyPath ) {
+        long actual = set.stream()
+                .filter( cv -> cv.getElement() != null && cv.getElement().equals( propertyPath ) )
                 .count();
         Assertions.assertEquals( 1, actual, "expected validation errors on " + propertyPath );
     }

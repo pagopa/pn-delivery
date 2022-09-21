@@ -1,37 +1,28 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.PageSearchTrunk;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import it.pagopa.pn.api.dto.notification.Notification;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
-import it.pagopa.pn.delivery.models.PageSearchTrunk;
-import org.springframework.stereotype.Component;
-
-import it.pagopa.pn.commons.abstractions.IdConflictException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.AddressDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.AnalogDomicile;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
-import it.pagopa.pn.delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
-import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
-import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 @Component
 @Slf4j
@@ -55,7 +46,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 	}
 
 	@Override
-	public void addNotification(InternalNotification internalNotification, Runnable doBeforeSave ) throws IdConflictException {
+	public void addNotification(InternalNotification internalNotification, Runnable doBeforeSave ) throws PnIdConflictException {
 
 		List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
 		List<NotificationRecipient> cleanedRecipientList = new ArrayList<>();

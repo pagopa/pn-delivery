@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
@@ -42,7 +42,7 @@ class NotificationEntityDaoDynamoTestIT {
     private NotificationCostEntityDao notificationCostEntityDao;
 
     @Test
-    void putSuccess() throws IdConflictException {
+    void putSuccess() throws PnIdConflictException {
         //Given
         NotificationEntity notificationToInsert = newNotification();
 

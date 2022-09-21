@@ -1,7 +1,10 @@
 openapi: 3.0.3
 info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-internal-web-recipient
   title: 'Piattaforma Notifiche: API web per i destinatari'
-  version: v1.0
+  x-summary: 'Piattaforma Notifiche: API web per i destinatari'
+  version: '1.0.0'
   description: >- 
     API per il destinatario delle notifiche
   contact:
@@ -17,13 +20,27 @@ servers:
 - url: https://api.dev.pn.pagopa.it
   description: Ambiente di sviluppo
 tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
   - name: RecipientRead
     description: >-
       Invocazioni utilizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.
 
 
 paths:
-    
+  "/status":
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
     ###########################################################################################
     ###                             RICERCA NOTIFICHE RICEVUTE                             ###
     ###########################################################################################
@@ -62,9 +79,15 @@ paths:
         '400':
           description: Bad request       
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   
   "/delivery/notifications/received/{iun}":
     get:
@@ -94,9 +117,9 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
     
@@ -130,9 +153,9 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
@@ -162,9 +185,9 @@ paths:
         '400':
           description: Bad request
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
@@ -192,7 +215,8 @@ components:
       in: path
       required: true
       schema:
-        type: number
+        type: integer
+        format: int32
     pathAttachmentName:
       name: attachmentName
       in: path
@@ -247,6 +271,9 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
+
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
     
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'

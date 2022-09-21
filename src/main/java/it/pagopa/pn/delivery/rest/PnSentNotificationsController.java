@@ -1,22 +1,17 @@
 package it.pagopa.pn.delivery.rest;
 
-
-import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
-import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
+import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.rest.dto.ResErrorDto;
-import it.pagopa.pn.delivery.rest.utils.HandleIllegalArgumentExc;
-import it.pagopa.pn.delivery.rest.utils.HandleNotFound;
-import it.pagopa.pn.delivery.rest.utils.HandleRuntimeExc;
-import it.pagopa.pn.delivery.rest.utils.HandleValidation;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -25,7 +20,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 
@@ -36,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED;
+
 @RestController
 @Slf4j
 public class PnSentNotificationsController implements SenderReadB2BApi,SenderReadWebApi {
@@ -43,7 +39,6 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     private final NotificationRetrieverService retrieveSvc;
     private final NotificationAttachmentService notificationAttachmentService;
     private final ModelMapperFactory modelMapperFactory;
-    public static final String VALIDATION_ERROR_STATUS = "Validation error";
 
     public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
@@ -56,7 +51,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         InternalNotification internalNotification = retrieveSvc.getNotificationInformation( iun, true, true, xPagopaPnCxId);
         if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() ) ) {
             log.info( "Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus() );
-            throw new PnNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
+            throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
         FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
@@ -84,7 +79,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .filterId(recipientId)
                 .statuses(status==null?List.of():List.of(status))
                 .receiverIdIsOpaque(false)
-                //.groups( groups != null ? Arrays.asList( groups ) : null )
+                .groups( xPagopaPnCxGroups )
                 .subjectRegExp(subjectRegExp)
                 .iunMatch(iunMatch)
                 .size(size)
@@ -104,26 +99,6 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return ResponseEntity.ok( response );
     }
 
-    @ExceptionHandler({PnValidationException.class})
-    public ResponseEntity<ResErrorDto> handleValidationException(PnValidationException ex){
-        return HandleValidation.handleValidationException(ex, VALIDATION_ERROR_STATUS);
-    }
-
-    @ExceptionHandler({PnNotFoundException.class})
-    public ResponseEntity<ResErrorDto> handleNotFoundException(PnNotFoundException ex) {
-        return HandleNotFound.handleNotFoundException( ex, ex.getMessage() );
-    }
-
-    @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity<Problem> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return HandleIllegalArgumentExc.handleIllegalArgumentException( ex );
-    }
-
-    @ExceptionHandler({RuntimeException.class})
-    public ResponseEntity<Problem> handlePnInternalException( RuntimeException ex ) {
-        return HandleRuntimeExc.handleRuntimeException( ex );
-    }
-
     @Override
     public Optional<NativeWebRequest> getRequest() {
         return SenderReadB2BApi.super.getRequest();
@@ -136,8 +111,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
             internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
         } else {
-            if ( !StringUtils.hasText( paProtocolNumber ) || !StringUtils.hasText( idempotenceToken ) ) {
-                throw new IllegalArgumentException( "Please specify paProtocolNumber and idempotenceToken" );
+            if ( !StringUtils.hasText( paProtocolNumber ) ) {
+                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "paProtocolNumber" );
+            }
+            if (!StringUtils.hasText( idempotenceToken ) ) {
+                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "idempotenceToken" );
             }
             internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken);
         }
@@ -165,7 +143,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         switch ( lastStatus ) {
             case IN_VALIDATION: {
                 response.setNotificationRequestStatus( "WAITING" );
-                response.retryAfter( BigDecimal.valueOf(10L) );
+                response.retryAfter( 10 );
                 response.setIun( null );
                 break;
             }
@@ -194,7 +172,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -210,7 +188,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
                     null,
-                    recipientIdx.intValue(),
+                    recipientIdx,
                     attachmentName
             );
             logEvent.generateSuccess().log();
@@ -223,7 +201,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, BigDecimal docIdx, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -240,7 +218,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
                     null,
-                    docIdx.intValue()
+                    docIdx
             );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {

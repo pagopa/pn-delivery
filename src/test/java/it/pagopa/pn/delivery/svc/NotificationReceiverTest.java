@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
@@ -87,7 +87,7 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void successWritingNotificationWithPaymentsInformationWithDeliveryModeFee() throws IdConflictException {
+	void successWritingNotificationWithPaymentsInformationWithDeliveryModeFee() throws PnIdConflictException {
 		ArgumentCaptor<InternalNotification> savedNotificationCaptor = ArgumentCaptor.forClass(InternalNotification.class);
 
 		// Given
@@ -120,7 +120,7 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void successWritingNotificationWithPaymentsInformationWithFlatFee() throws IdConflictException {
+	void successWritingNotificationWithPaymentsInformationWithFlatFee() throws PnIdConflictException {
 		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
 		// Given
@@ -148,7 +148,7 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void successWritingNotificationWithoutPaymentsInformation() throws IdConflictException {
+	void successWritingNotificationWithoutPaymentsInformation() throws PnIdConflictException {
 		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
 		// Given
@@ -182,7 +182,7 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void successWritingNotificationWithoutPaymentsAttachment() throws IdConflictException {
+	void successWritingNotificationWithoutPaymentsAttachment() throws PnIdConflictException {
 		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
 
 		FileData fileData = FileData.builder()
@@ -246,11 +246,11 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void throwsPnInternalExceptionInTheUncommonCaseOfDuplicatedIun() throws IdConflictException {
+	void throwsPnInternalExceptionInTheUncommonCaseOfDuplicatedIun() throws PnIdConflictException {
 		// Given
 		Map<String,String> keyValueConflict = new HashMap<>();
 		keyValueConflict.put( "iun", "iun_01" );
-		Mockito.doThrow( new IdConflictException(keyValueConflict) )
+		Mockito.doThrow( new PnIdConflictException(keyValueConflict) )
 				.when( notificationDao )
 				.addNotification( Mockito.any( InternalNotification.class), Mockito.any( Runnable.class ) );
 
@@ -272,13 +272,13 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification );
 
 		// Then
-		IdConflictException exc = Assertions.assertThrows( IdConflictException.class, todo );
+		PnIdConflictException exc = Assertions.assertThrows( PnIdConflictException.class, todo );
 		Mockito.verify( notificationDao, Mockito.times( 1 ) )
 				                              .addNotification( Mockito.any( InternalNotification.class ), Mockito.any( Runnable.class ));
 	}
 
 	@Test
-	void successfullyInsertAfterPartialFailure() throws IdConflictException {
+	void successfullyInsertAfterPartialFailure() throws PnIdConflictException {
 		// Given
 		Mockito.doThrow( new PnInternalException("Simulated Error") )
 				.doNothing()

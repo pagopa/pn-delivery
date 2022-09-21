@@ -5,12 +5,13 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MimeTypesUtils;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
+import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
@@ -20,11 +21,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT;
 
 @Service
 @Slf4j
@@ -105,8 +109,8 @@ public class NotificationAttachmentService {
     }
 
     public static class FileInfos {
-        private String fileName;
-        private FileDownloadResponse fileDownloadResponse;
+        private final String fileName;
+        private final FileDownloadResponse fileDownloadResponse;
 
         public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse) {
             this.fileName = fileName;
@@ -160,7 +164,7 @@ public class NotificationAttachmentService {
 
             if ( !authorizationOutcome.isAuthorized() ) {
                 log.error("Error download attachment. xPagopaPnCxId={} mandateId={} recipientIdx={} cannot download attachment for notification with iun={}", cxId, mandateId, recipientIdx, iun);
-                throw new PnNotFoundException("Notification not found for iun=" + iun);
+                throw new PnNotificationNotFoundException("Notification not found for iun=" + iun);
             }
 
             Integer downloadRecipientIdx = handleReceiverAttachmentDownload( recipientIdx, authorizationOutcome.getEffectiveRecipientIdx(), documentIndex );
@@ -171,14 +175,18 @@ public class NotificationAttachmentService {
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
-                    .contentLength(fileInfos.fileDownloadResponse.getContentLength())
+                    .contentLength( nullSafeBigDecimalToInteger(
+                            fileInfos.fileDownloadResponse.getContentLength()
+                    ))
                     .contentType( fileInfos.fileDownloadResponse.getContentType() )
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
-                    .retryAfter(fileInfos.fileDownloadResponse.getDownload().getRetryAfter())
+                    .retryAfter( nullSafeBigDecimalToInteger(
+                            fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
+                    ))
                     .build();
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
-            throw new PnNotFoundException("Notification not found for iun=" + iun);
+            throw new PnNotificationNotFoundException("Notification not found for iun=" + iun);
         }
     }
 
@@ -208,7 +216,7 @@ public class NotificationAttachmentService {
 
         String iun = notification.getIun();
         Integer documentIndex = fileDownloadIdentify.documentIdx;
-        String name = "";
+        String name;
         if (documentIndex != null)
         {
             NotificationDocument doc = notification.getDocuments().get( documentIndex );
@@ -222,7 +230,7 @@ public class NotificationAttachmentService {
             fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName);
             if (!StringUtils.hasText( fileKey )) {
                 String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
-                throw new PnNotFoundException(exMessage);
+                throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);
             }
             name = attachmentName;
         }
@@ -236,7 +244,7 @@ public class NotificationAttachmentService {
             return new FileInfos( fileName, r );
         } catch (Exception exc) {
             if (exc instanceof PnHttpResponseException && ((PnHttpResponseException) exc).getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                throw new PnBadRequestException("Request took too long to complete.", exc);
+                throw new PnBadRequestException("File info not found", exc.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, exc);
             }
             throw exc;
         }
@@ -246,7 +254,7 @@ public class NotificationAttachmentService {
         NotificationPaymentInfo payment = doc.getPayment();
         if ( !Objects.nonNull( payment ) ) {
             log.error( "Notification without payment attachment - iun={}", iun );
-            throw new PnInternalException("Notification without payment attachment - iun=" + iun);
+            throw new PnInternalException("Notification without payment attachment - iun=" + iun, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
         }
 
         switch (ATTACHMENT_TYPE.valueOf(attachmentName))
@@ -292,4 +300,9 @@ public class NotificationAttachmentService {
         String unescapedFileName = iun + "__" + name;
         return unescapedFileName.replaceAll( "[^A-Za-z0-9-_]", "_" ) + "." + extension;
     }
+
+    private Integer nullSafeBigDecimalToInteger(BigDecimal bd) {
+        return bd != null ? bd.intValue() : null;
+    }
+
 }

@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.commons.abstractions.IdConflictException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -64,7 +64,7 @@ class NotificationDaoDynamoTest {
     }
 
     @Test
-    void insertSuccessWithoutPayments() throws IdConflictException {
+    void insertSuccessWithoutPayments() throws PnIdConflictException {
 
         // GIVEN
         InternalNotification notification = newNotificationWithoutPayments( );
@@ -134,7 +134,7 @@ class NotificationDaoDynamoTest {
 
 
     @Test
-    void insertFailForIunConflict() throws IdConflictException {
+    void insertFailForIunConflict() throws PnIdConflictException {
 
         // GIVEN
         InternalNotification notification = newNotificationWithoutPayments( );
@@ -151,12 +151,12 @@ class NotificationDaoDynamoTest {
         Executable todo = () -> this.dao.addNotification( newNotificationWithoutPayments() );
 
         // THEN
-        Assertions.assertThrows( IdConflictException.class, todo );
+        Assertions.assertThrows( PnIdConflictException.class, todo );
     }
 
 
     @Test
-    void insertSuccessWithPaymentsFlat() throws IdConflictException {
+    void insertSuccessWithPaymentsFlat() throws PnIdConflictException {
 
         // GIVEN
         InternalNotification notification = newNotificationWithPaymentsFlat( );
@@ -230,7 +230,7 @@ class NotificationDaoDynamoTest {
         }
 
         @Override
-        public void putIfAbsent(NotificationEntity notificationEntity) throws IdConflictException {
+        public void putIfAbsent(NotificationEntity notificationEntity) throws PnIdConflictException {
             Key key = Key.builder()
                     .partitionValue( notificationEntity.getIun() )
                     .build();
@@ -238,7 +238,7 @@ class NotificationDaoDynamoTest {
             if (previous != null) {
                 Map<String,String> keyValueConflicts = new HashMap<>();
                 keyValueConflicts.put( "iun", previous.getIun() );
-                throw new IdConflictException( keyValueConflicts );
+                throw new PnIdConflictException( keyValueConflicts );
             }
         }
 
@@ -262,7 +262,7 @@ class NotificationDaoDynamoTest {
         }
 
         @Override
-        public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) throws IdConflictException {
+        public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) throws PnIdConflictException {
 
         }
 

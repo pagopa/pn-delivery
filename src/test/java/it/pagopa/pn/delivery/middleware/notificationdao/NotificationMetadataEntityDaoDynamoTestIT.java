@@ -1,10 +1,8 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
-
-
-import it.pagopa.pn.commons.abstractions.IdConflictException;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
@@ -385,7 +383,8 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataWithGroupsFilter() {
         //Given
-        String[] groups = {"Group1"};
+        List<String> groups = new ArrayList<>();
+        groups.add("Group1");
 
 
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
@@ -394,7 +393,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
                 .size( 10 )
-                .groups( Arrays.asList( groups )  )
+                .groups( groups )
                 .build();
 
         String indexName = "senderId";
@@ -412,7 +411,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     }
 
     @Test
-    void putIfAbsent() throws IdConflictException {
+    void putIfAbsent() throws PnIdConflictException {
         //Given
         NotificationMetadataEntity metadataEntityToInsert = newNotificationMetadata();
 
