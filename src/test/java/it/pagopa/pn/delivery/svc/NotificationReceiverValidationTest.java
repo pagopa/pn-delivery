@@ -128,7 +128,7 @@ class NotificationReceiverValidationTest {
                 .recipients( Collections.singletonList( NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .taxId( "invalidTaxId" )
-                        .denomination( "invalidDenomination" )
+                        .denomination( "invalid<>denomination" )
                         .build() ) ), Collections.emptyMap(), Collections.emptyList() );
 
         // WHEN

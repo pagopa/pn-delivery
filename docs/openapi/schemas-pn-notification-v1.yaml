@@ -12,9 +12,10 @@ components:
       type: string
 
     Denomination:
-      description: Denominazione ente o persona fisica
+      description: Denominazione ente o persona fisica / ragione sociale
       type: string
-      pattern: ^\b([A-ZÀ-ÿ][-,a-zà-ÿ. ']+[ ]*)+$
+      maxLength: 120
+      pattern: '[^\.\"\?\!\;\:\#\$\%\(\)\*\+\/\<\>\=\@\[\]\\\^\_\{\}\|\~]+'
 
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
@@ -95,6 +96,7 @@ components:
         cancelledIun:
           type: string
           description: IUN della notifica annullata da questa notifica
+          $ref: '#/components/schemas/IUN'
         physicalCommunicationType:
           type: string
           description: Tipologia comunicazione fisica
@@ -137,6 +139,7 @@ components:
             iun:
               type: string
               description: L'Identificativo Univoco Notifica assegnato da PN
+              $ref: '#/components/schemas/IUN'
             sentAt:
               type: string
               description: Momento di ricezione della notifica da parte di PN
@@ -144,6 +147,7 @@ components:
             cancelledByIun:
               type: string
               description: IUN della notifica che ha annullato questa notifica
+              $ref: '#/components/schemas/IUN'
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
