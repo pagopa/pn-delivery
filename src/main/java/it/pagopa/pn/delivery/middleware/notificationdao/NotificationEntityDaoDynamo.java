@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationQREntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -23,12 +24,14 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     private final DynamoDbTable<NotificationEntity> dynamoDbTable;
     private final DynamoDbTable<NotificationCostEntity> dynamoDbCostTable;
+    private final DynamoDbTable<NotificationQREntity> dynamoDbQRTable;
 
     public NotificationEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryConfigs cfg) {
         super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationEntity.class)));
         this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
         this.dynamoDbTable = dynamoDbEnhancedClient.table(tableName( cfg), TableSchema.fromClass(NotificationEntity.class));
         this.dynamoDbCostTable = dynamoDbEnhancedClient.table( costTableName(cfg), TableSchema.fromClass(NotificationCostEntity.class));
+        this.dynamoDbQRTable = dynamoDbEnhancedClient.table( qrTableName(cfg), TableSchema.fromClass(NotificationQREntity.class));
     }
 
     private static String tableName( PnDeliveryConfigs cfg ) {
@@ -37,6 +40,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
     private static String costTableName(PnDeliveryConfigs cfg ) {
         return cfg.getNotificationCostDao().getTableName();
     }
+    private static String qrTableName(PnDeliveryConfigs cfg) { return cfg.getNotificationQRDao().getTableName(); }
 
     @Override
     public void putIfAbsent(NotificationEntity notificationEntity) throws PnIdConflictException {
@@ -44,9 +48,13 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
         List<NotificationCostEntity> notificationCostEntityList = getNotificationCostEntities( notificationEntity );
 
+        List<NotificationQREntity> notificationQREntityList = getNotificationQREntities( notificationEntity );
+
         List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList = createCostPutItemRequests( notificationCostEntityList );
 
-        TransactWriteItemsEnhancedRequest enhancedRequest = createTransactWriteItems( notificationRequestList, costRequestList );
+        List<PutItemEnhancedRequest<NotificationQREntity>> qrRequestList = createQRPutItemRequests( notificationQREntityList );
+
+        TransactWriteItemsEnhancedRequest enhancedRequest = createTransactWriteItems( notificationRequestList, costRequestList, qrRequestList );
 
         try {
             dynamoDbEnhancedClient.transactWriteItems( enhancedRequest );
@@ -124,7 +132,11 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         return duplicatedErrors;
     }
 
-    private TransactWriteItemsEnhancedRequest createTransactWriteItems(List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList, List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList) {
+    private TransactWriteItemsEnhancedRequest createTransactWriteItems(
+            List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList,
+            List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList,
+            List<PutItemEnhancedRequest<NotificationQREntity>> qrRequestList
+    ) {
         TransactWriteItemsEnhancedRequest.Builder requestBuilder = TransactWriteItemsEnhancedRequest.builder();
 
         for ( PutItemEnhancedRequest<NotificationEntity> putItemNotification: notificationRequestList ) {
@@ -132,6 +144,9 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         }
         for (PutItemEnhancedRequest<NotificationCostEntity> putItemCost : costRequestList  ) {
             requestBuilder.addPutItem( dynamoDbCostTable, putItemCost );
+        }
+        for ( PutItemEnhancedRequest<NotificationQREntity> putItemQR : qrRequestList ) {
+            requestBuilder.addPutItem( dynamoDbQRTable, putItemQR );
         }
         return requestBuilder.build();
     }
@@ -145,6 +160,21 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
             putItemEnhancedRequestList.add( PutItemEnhancedRequest.builder( NotificationCostEntity.class )
                     .item( costEntity )
                     .conditionExpression( conditionExpressionPut )
+                    .build()
+            );
+        }
+        return putItemEnhancedRequestList;
+    }
+
+    private List<PutItemEnhancedRequest<NotificationQREntity>> createQRPutItemRequests(List<NotificationQREntity> notificationQREntityList) {
+        List<PutItemEnhancedRequest<NotificationQREntity>> putItemEnhancedRequestList = new ArrayList<>();
+        Expression conditionExpressionPut = Expression.builder()
+                .expression( "attribute_not_exists(aarQRCodeValue)" )
+                .build();
+        for ( NotificationQREntity qrEntity : notificationQREntityList ) {
+            putItemEnhancedRequestList.add( PutItemEnhancedRequest.builder( NotificationQREntity.class )
+                            .item( qrEntity )
+                            .conditionExpression( conditionExpressionPut )
                     .build()
             );
         }
@@ -171,6 +201,21 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
             }
         }
         return notificationCostEntityList;
+    }
+
+    private List<NotificationQREntity> getNotificationQREntities(NotificationEntity notificationEntity) {
+        List<NotificationQREntity> notificationQREntityList = new ArrayList<>();
+
+        for ( NotificationRecipientEntity rec : notificationEntity.getRecipients() ) {
+            notificationQREntityList.add( NotificationQREntity.builder()
+                            .recipientType( rec.getRecipientType() )
+                            .iun( notificationEntity.getIun() )
+                            .recipientId( rec.getRecipientId() )
+                            .aarQRCodeValue( notificationEntity.getTokens().get( rec ) )
+                    .build());
+        }
+
+        return notificationQREntityList;
     }
 
 

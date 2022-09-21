@@ -9,7 +9,9 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -34,7 +36,8 @@ public class DtoToEntityNotificationMapper {
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.fromValue( dto.getNotificationFeePolicy().getValue() ))
                 .group( dto.getGroup() )
                 .amount(dto.getAmount())
-                .paymentExpirationDate(dto.getPaymentExpirationDate());
+                .paymentExpirationDate(dto.getPaymentExpirationDate())
+                .tokens( dto2TokensEntity(dto.getTokens()) );
 
         return builder.build();
     }
@@ -50,6 +53,19 @@ public class DtoToEntityNotificationMapper {
         return recipients.stream()
                .map( r -> mapper.map( r, NotificationRecipientEntity.class ))
                .collect(Collectors.toList());
+    }
+
+    private Map<NotificationRecipientEntity, String> dto2TokensEntity( Map<NotificationRecipient, String> tokens ) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        mapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
+                .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
+
+        Map<NotificationRecipientEntity,String> recipientEntityStringMap = new HashMap<>();
+        for ( Map.Entry<NotificationRecipient, String> mapEntry : tokens.entrySet() ) {
+            recipientEntityStringMap.put( mapper.map( mapEntry.getKey(), NotificationRecipientEntity.class ), mapEntry.getValue() );
+        }
+        return recipientEntityStringMap;
     }
 
 
