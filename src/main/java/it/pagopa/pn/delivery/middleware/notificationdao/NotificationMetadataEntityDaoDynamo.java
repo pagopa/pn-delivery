@@ -247,6 +247,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     private void addGroupFilterExpression(List<String> groupList,
                                           QueryEnhancedRequest.Builder requestBuilder) {
         if ( groupList != null ) {
+            // restituire anche le notifiche con gruppo <stringa_vuota>
+            groupList.add("");
             log.debug( "Add group filter expression" );
             List<String> queries = new ArrayList<>();
             Map<String,AttributeValue> mav = new HashMap<>();
@@ -257,6 +259,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                         .build());
                 queries.add("notificationGroup = " + placeHolder);
             }
+            // restituire anche le notifiche senza gruppo
+            queries.add( "attribute_not_exists(notificationGroup)" );
 
             String query = String.join(" or ", queries);
             requestBuilder.filterExpression( Expression.builder()
