@@ -218,13 +218,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
 
     ###########################################################################################
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
@@ -266,19 +266,19 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '409':
           description: Conflict
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
     
 
     ###########################################################################################
@@ -314,13 +314,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
     
     
     ###########################################################################################
@@ -353,13 +353,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
     
     ###########################################################################################
     ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
@@ -390,13 +390,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
 
   "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
@@ -424,13 +424,13 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
           content:
             application/problem+json:
               schema:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
 
 
     ###########################################################################################
@@ -459,13 +459,13 @@ paths:
           content: # ONLY EXTERNAL
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'     # ONLY EXTERNAL
         '500': # ONLY EXTERNAL
           description: Internal error                                               # ONLY EXTERNAL
           content: # ONLY EXTERNAL
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/Problem'     # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'     # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL
     get: # ONLY EXTERNAL
       operationId: getNotificationPrice                                             # ONLY EXTERNAL
@@ -504,13 +504,13 @@ paths:
           content: # ONLY EXTERNAL
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
         '500': # ONLY EXTERNAL
           description: Internal Server Error                                        # ONLY EXTERNAL
           content: # ONLY EXTERNAL
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
-                $ref: 'schemas-pn-errors-v1.yaml#/components/schemas/Problem'       # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
 components:
   
   parameters:
@@ -740,7 +740,12 @@ components:
                 Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
               type: array
               items:
-                $ref: './schemas-pn-errors-v1.yaml#/components/schemas/ProblemError'
+                $ref: '#/components/schemas/ProblemError'
+
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
+    ProblemError:
+      $ref: './remote-refs.yaml#/components/schemas/ProblemError'
 
 
     ###########################################################################################

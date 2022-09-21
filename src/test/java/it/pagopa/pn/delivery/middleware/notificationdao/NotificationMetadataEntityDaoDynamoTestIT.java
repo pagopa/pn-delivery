@@ -383,7 +383,8 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataWithGroupsFilter() {
         //Given
-        String[] groups = {"Group1"};
+        List<String> groups = new ArrayList<>();
+        groups.add("Group1");
 
 
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
@@ -392,7 +393,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
                 .size( 10 )
-                .groups( Arrays.asList( groups )  )
+                .groups( groups )
                 .build();
 
         String indexName = "senderId";
