@@ -55,7 +55,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
 
   "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}":
     get:
@@ -79,7 +79,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
     ###########################################################################################
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
     ###########################################################################################
@@ -108,7 +108,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '../schemas-pn-errors-v1.yaml#/components/schemas/Problem'
+                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     ############################################################################################
@@ -165,6 +165,9 @@ components:
       $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
 
   securitySchemes:
     ApiKeyAuth:
