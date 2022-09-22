@@ -185,9 +185,95 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  "/delivery-private/notifications/received/{iun}/attachments/documents/{docIdx}":
+    get:
+      summary: Download documento notificato
+      tags:
+        - internal-only
+      operationId: getReceivedNotificationDocumentPrivate
+      parameters:
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/queryMandateId'
+        - $ref: '#/components/parameters/queryRecipientInternalId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  "/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}":
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - internal-only
+      operationId: getReceivedNotificationAttachmentPrivate
+      parameters:
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/queryRecipientInternalId'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
 components:
+  parameters:
+    queryRecipientInternalId:
+      name: recipientInternalId
+      in: query
+      description: Anonymous Recipient Identifier
+      required: true
+      schema:
+        type: string
+    pathDocumentIdx:
+      name: docIdx
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "PAGOPA|F24"
+    queryMandateId:
+      name: mandateId
+      in: query
+      required: false
+      schema:
+        type: string
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+
   schemas:
-    
     RequestUpdateStatusDto:
       type: object
       properties:
@@ -209,7 +295,6 @@ components:
           type: integer
           format: int32
           description: indice del destinatario
-                    
-    
+
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
