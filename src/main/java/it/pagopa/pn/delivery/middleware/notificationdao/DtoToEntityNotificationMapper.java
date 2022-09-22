@@ -55,15 +55,15 @@ public class DtoToEntityNotificationMapper {
                .collect(Collectors.toList());
     }
 
-    private Map<NotificationRecipientEntity, String> dto2TokensEntity( Map<NotificationRecipient, String> tokens ) {
+    private Map<String, String> dto2TokensEntity( Map<NotificationRecipient, String> tokens ) {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         mapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
                 .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
 
-        Map<NotificationRecipientEntity,String> recipientEntityStringMap = new HashMap<>();
+        Map<String,String> recipientEntityStringMap = new HashMap<>();
         for ( Map.Entry<NotificationRecipient, String> mapEntry : tokens.entrySet() ) {
-            recipientEntityStringMap.put( mapper.map( mapEntry.getKey(), NotificationRecipientEntity.class ), mapEntry.getValue() );
+            recipientEntityStringMap.put(  mapEntry.getKey().getTaxId(), mapEntry.getValue() );
         }
         return recipientEntityStringMap;
     }

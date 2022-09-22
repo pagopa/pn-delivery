@@ -60,6 +60,18 @@ Resources:
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
 
+  NotificationsQRTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-NotificationsQR'
+      AttributeDefinitions:
+        - AttributeName: "aarQRCodeValue"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "aarQRCodeValue"
+          KeyType: "HASH"
+      BillingMode: "PAY_PER_REQUEST"
+
   NotificationsMetadataTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -123,6 +135,13 @@ Outputs:
   NotificationsCostDynamoTableArn:
     Description: ARN of dynamodb table containing notifications cost
     Value: !Sub '${NotificationsCostTable.Arn}'
+
+  NotificationsQRDynamoTableName:
+    Description: Name of dynamo table containing notifications QR
+    Value: !Ref NotificationQRTable
+  NotificationsQRDynamoTableArn:
+    Description: ARN of dynamodb table containing notifications QR
+    Value: !Sub '${NotificationsQRTable.Arn}'
 
   NotificationsMetadataDynamoTableName:
     Description: Name of dynamodb table containing notifications metadata

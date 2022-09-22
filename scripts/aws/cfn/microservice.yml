@@ -63,6 +63,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing notifications cost'
 
+  NotificationsQRDynamoTableName:
+    Type: String
+    Description: 'Notifications QR Dynamo table name'
+
+  NotificationsQRDynamoTableArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing notifications QR'
+
   NotificationsMetadataDynamoTableName:
     Type: String
     Description: 'NotificationsMetadata Dynamo table name'

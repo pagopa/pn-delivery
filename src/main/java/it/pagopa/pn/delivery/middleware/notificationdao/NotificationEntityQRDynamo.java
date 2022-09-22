@@ -6,6 +6,8 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationQREntity;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -13,6 +15,8 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import java.util.Objects;
 import java.util.Optional;
 
+@Component
+@Slf4j
 public class NotificationEntityQRDynamo extends AbstractDynamoKeyValueStore<NotificationQREntity> implements NotificationQREntityDao {
     protected NotificationEntityQRDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient, PnDeliveryConfigs cfg) {
         super(dynamoDbEnhancedClient.table(tableName( cfg ), TableSchema.fromClass(NotificationQREntity.class)));

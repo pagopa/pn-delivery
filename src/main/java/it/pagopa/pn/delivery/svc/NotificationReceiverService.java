@@ -130,7 +130,7 @@ public class NotificationReceiverService {
 	}
 
 	public String generateToken(String iun, String taxId) {
-		return iun + "_" + taxId + "_" + UUID.randomUUID();
+		return Base64Utils.encodeToString( (iun + "_" + taxId + "_" + UUID.randomUUID()).getBytes(StandardCharsets.UTF_8) );
 	}
 
 

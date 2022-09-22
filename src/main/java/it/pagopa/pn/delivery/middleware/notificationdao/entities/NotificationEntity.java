@@ -62,6 +62,6 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENT_EXPIRATION_DATE)})) private String paymentExpirationDate;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUEST_ID)})) private String requestId;
 
-    private Map<NotificationRecipientEntity, String> tokens;
+    private Map<String, String> tokens;
 
 }

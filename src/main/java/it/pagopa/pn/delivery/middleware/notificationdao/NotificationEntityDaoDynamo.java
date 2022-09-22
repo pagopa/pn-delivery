@@ -211,7 +211,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                             .recipientType( rec.getRecipientType() )
                             .iun( notificationEntity.getIun() )
                             .recipientId( rec.getRecipientId() )
-                            .aarQRCodeValue( notificationEntity.getTokens().get( rec ) )
+                            .aarQRCodeValue( notificationEntity.getTokens().get( rec.getRecipientId() ) )
                     .build());
         }
 
