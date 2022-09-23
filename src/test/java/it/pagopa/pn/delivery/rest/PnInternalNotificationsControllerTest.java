@@ -53,6 +53,7 @@ class PnInternalNotificationsControllerTest {
     private static final String NOTICE_CODE = "302000100000019421";
     private static final String ATTACHMENT_NAME = "PAGOPA";
     private static final int DOCUMENT_IDX = 0;
+    public static final String AAR_QR_CODE_VALUE = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ%3D%3D";
 
 
     @Autowired
@@ -359,7 +360,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
         RequestCheckAarDto dto = RequestCheckAarDto.builder()
-                .aarQrCodeValue( "aarQrCodeValue" )
+                .aarQrCodeValue(AAR_QR_CODE_VALUE)
                 .recipientInternalId( "recipientInternalId" )
                 .recipientType( "PF" )
                 .build();
@@ -384,7 +385,7 @@ class PnInternalNotificationsControllerTest {
     @Test
     void getNotificationQRFailure() {
         RequestCheckAarDto dto = RequestCheckAarDto.builder()
-                .aarQrCodeValue("aarQrCodeValue")
+                .aarQrCodeValue(AAR_QR_CODE_VALUE)
                 .recipientInternalId("recipientInternalId")
                 .recipientType("PF")
                 .build();

@@ -170,7 +170,7 @@ components:
           type: string
           description: Nome e cognome / ragione sociale
         digitalDomicile:
-           $ref: "#/components/schemas/NotificationDigitalAddress"
+          $ref: "#/components/schemas/NotificationDigitalAddress"
         physicalAddress:
           $ref: "#/components/schemas/NotificationPhysicalAddress"
         payment:
