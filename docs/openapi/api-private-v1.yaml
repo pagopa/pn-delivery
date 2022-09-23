@@ -73,11 +73,7 @@ paths:
         - internal-only
       operationId: getSentNotificationPrivate
       parameters:
-      - name: iun
-        in: path
-        required: true
-        schema:
-          type: string
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
       responses:
         '200':
           description: OK
@@ -339,8 +335,7 @@ components:
         - iun
       properties:
         iun:
-          type: string
-          description: iun associato al valore del QR-Code presente sull'avviso di avvenuta ricezione
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/IUN'
         
 
     RequestUpdateStatusDto:

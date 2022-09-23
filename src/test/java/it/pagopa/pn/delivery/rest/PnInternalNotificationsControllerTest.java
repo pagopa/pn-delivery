@@ -37,7 +37,7 @@ import static org.mockito.Mockito.doThrow;
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
 class PnInternalNotificationsControllerTest {
 
-    private static final String IUN = "IUN";
+    private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     private static final String SENDER_ID = "test";
     private static final String START_DATE = "2021-09-17T00:00:00.000Z";
     private static final String END_DATE = "2021-09-18T00:00:00.000Z";
@@ -84,7 +84,7 @@ class PnInternalNotificationsControllerTest {
     @Test
     void updateStatus() {
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
-                .iun("iun")
+                .iun(IUN)
                 .build();
 
         webTestClient.post()
@@ -101,7 +101,7 @@ class PnInternalNotificationsControllerTest {
         doThrow(new PnInternalException("exception")).when(svc).updateStatus(Mockito.any());
 
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
-                .iun("iun")
+                .iun(IUN)
                 .build();
 
         webTestClient.post()

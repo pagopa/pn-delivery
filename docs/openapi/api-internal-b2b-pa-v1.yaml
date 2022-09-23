@@ -669,9 +669,7 @@ components:
       type: object
       properties:
         iun:
-          description: notification identifier
-          type: string
-          example: 'KXFY-CSZL-GUIE-202206-Y-1'
+          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/IUN'
         amount:
           description: amount in euro cents
           example: '1220'
