@@ -156,6 +156,7 @@ Resources:
         ContainerEnvEntry16: 'PN_DELIVERY_SAFESTORAGECXID=pn-delivery'
         ContainerEnvEntry17: !Sub 'PN_DELIVERY_EXTERNALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONCHECKADDRESS=${NotificationCheckAddress}'
+        ContainerEnvEntry19: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -196,6 +197,8 @@ Resources:
               - !Sub "${NotificationsMetadataDynamoTableArn}/*"
               - !Sub "${NotificationsCostDynamoTableArn}"
               - !Sub "${NotificationsCostDynamoTableArn}/*"
+              - !Sub "${NotificationsQRDynamoTableArn}"
+              - !Sub "${NotificationsQRDynamoTableArn}/*"
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
