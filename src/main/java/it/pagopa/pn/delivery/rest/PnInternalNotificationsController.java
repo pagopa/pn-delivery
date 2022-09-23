@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
@@ -30,14 +31,16 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     private final StatusService statusService;
     private final NotificationPriceService priceService;
     private final NotificationQRService qrService;
+    private final NotificationAttachmentService notificationAttachmentService;
 
     private final ModelMapperFactory modelMapperFactory;
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, ModelMapperFactory modelMapperFactory) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
+        this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapperFactory = modelMapperFactory;
     }
 
@@ -161,6 +164,59 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         }
         return ResponseEntity.ok( response );
 
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachmentPrivate(String iun, String attachmentName, String recipientInternalId, String mandateId) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachmentPrivate={}", attachmentName)
+                .iun(iun)
+                .cxId(recipientInternalId)
+                .cxType("PF")
+                .build();
+        logEvent.log();
+        try {
+            response = notificationAttachmentService.downloadAttachmentWithRedirect(
+                    iun,
+                    "PF",
+                    recipientInternalId,
+                    mandateId,
+                    null,
+                    attachmentName
+            );
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocumentPrivate(String iun, Integer docIdx, String recipientInternalId, String mandateId) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate {}", docIdx)
+                .iun(iun)
+                .cxId(recipientInternalId)
+                .build();
+        logEvent.log();
+        try {
+            response = notificationAttachmentService.downloadDocumentWithRedirect(
+                    iun,
+                    "PF",
+                    recipientInternalId,
+                    mandateId,
+                    docIdx
+            );
+            logEvent.generateSuccess().log();
+        } catch (Exception exc) {
+            logEvent.generateFailure(exc.getMessage()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok(response);
     }
 
 }

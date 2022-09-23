@@ -5,10 +5,12 @@ import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
@@ -49,6 +51,8 @@ class PnInternalNotificationsControllerTest {
     private static final String MANDATE_ID = "mandateId";
     private static final String PA_TAX_ID = "77777777777";
     private static final String NOTICE_CODE = "302000100000019421";
+    private static final String ATTACHMENT_NAME = "PAGOPA";
+    private static final int DOCUMENT_IDX = 0;
 
 
     @Autowired
@@ -65,6 +69,9 @@ class PnInternalNotificationsControllerTest {
 
     @MockBean
     private NotificationQRService qrService;
+
+    @MockBean
+    private NotificationAttachmentService attachmentService;
 
     @MockBean
     private PnDeliveryConfigs cfg;
@@ -375,21 +382,95 @@ class PnInternalNotificationsControllerTest {
     }
 
     @Test
-    void getNotificationQRFailure(){
+    void getNotificationQRFailure() {
         RequestCheckAarDto dto = RequestCheckAarDto.builder()
-                .aarQrCodeValue( "aarQrCodeValue" )
-                .recipientInternalId( "recipientInternalId" )
-                .recipientType( "PF" )
+                .aarQrCodeValue("aarQrCodeValue")
+                .recipientInternalId("recipientInternalId")
+                .recipientType("PF")
                 .build();
 
         //When
-        Mockito.when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) ) ).thenThrow(new PnNotFoundException("test", "test", "test"));
+        Mockito.when(qrService.getNotificationByQR(Mockito.any(RequestCheckAarDto.class))).thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.post()
-                .uri( "/delivery-private/check-aar-qr-code")
+                .uri("/delivery-private/check-aar-qr-code")
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept( MediaType.APPLICATION_JSON )
+                .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(dto), RequestCheckAarDto.class)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getNotificationAttachmentPrivateSuccess() {
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}", IUN)
+                                        .replace("{attachmentName}",ATTACHMENT_NAME ))
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
+
+        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, null, ATTACHMENT_NAME );
+    }
+
+    @Test
+    void getNotificationAttachmentPrivateFailure() {
+        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+                .when( attachmentService )
+                .downloadAttachmentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, null, ATTACHMENT_NAME );
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}", IUN)
+                                        .replace("{attachmentName}",ATTACHMENT_NAME ))
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getNotificationDocumentPrivateSuccess() {
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/"+ IUN +"/attachments/documents/"+DOCUMENT_IDX)
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
+
+        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX );
+    }
+
+    @Test
+    void getNotificationDocumentPrivateFailure() {
+        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+                .when( attachmentService )
+                .downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX );
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/"+ IUN +"/attachments/documents/"+DOCUMENT_IDX)
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
                 .exchange()
                 .expectStatus()
                 .isNotFound();
