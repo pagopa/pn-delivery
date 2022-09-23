@@ -1,7 +1,8 @@
 openapi: 3.0.3
 info:
   termsOfService: https://termofservice.it
-  x-api-id: api-internal-b2b-pa
+  x-api-id: api-internal-b2b-pa # NO EXTERNAL
+#  x-api-id: api-external-b2b-pa # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   version: '1.0.0'
