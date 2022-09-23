@@ -47,6 +47,6 @@ components:
     ############################################################################################
 
     Problem:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/8ffbaaab8d9d97c1b218e3d7a320a890c28cd551/docs/openapi/pn-errors.yaml#/components/schemas/Problem'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/61cdf0712f133c8c69e056abfad6ce5223242ba0/docs/openapi/pn-errors.yaml#/components/schemas/Problem'
     ProblemError:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/8ffbaaab8d9d97c1b218e3d7a320a890c28cd551/docs/openapi/pn-errors.yaml#/components/schemas/ProblemError'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/61cdf0712f133c8c69e056abfad6ce5223242ba0/docs/openapi/pn-errors.yaml#/components/schemas/ProblemError'

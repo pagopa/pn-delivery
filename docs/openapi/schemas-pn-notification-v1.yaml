@@ -10,6 +10,9 @@ components:
     IUN:
       description: Identificativo Univoco Notifica
       type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
     noticeCode:
       description: Payment notice number  numero avviso
@@ -83,6 +86,7 @@ components:
         cancelledIun:
           type: string
           description: IUN della notifica annullata da questa notifica
+          $ref: '#/components/schemas/IUN'
         physicalCommunicationType:
           type: string
           description: Tipologia comunicazione fisica
@@ -123,6 +127,7 @@ components:
             iun:
               type: string
               description: L'Identificativo Univoco Notifica assegnato da PN
+              $ref: '#/components/schemas/IUN'
             sentAt:
               type: string
               description: Momento di ricezione della notifica da parte di PN
@@ -130,6 +135,7 @@ components:
             cancelledByIun:
               type: string
               description: IUN della notifica che ha annullato questa notifica
+              $ref: '#/components/schemas/IUN'
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
@@ -164,7 +170,7 @@ components:
           type: string
           description: Nome e cognome / ragione sociale
         digitalDomicile:
-           $ref: "#/components/schemas/NotificationDigitalAddress"
+          $ref: "#/components/schemas/NotificationDigitalAddress"
         physicalAddress:
           $ref: "#/components/schemas/NotificationPhysicalAddress"
         payment:
@@ -385,6 +391,7 @@ components:
         iun:
           type: string
           description: Identificativo Univoco Notifica
+          $ref: '#/components/schemas/IUN'
         paProtocolNumber:
           type: string
           description: Numero protocollo associato alla notifica da parte della PA

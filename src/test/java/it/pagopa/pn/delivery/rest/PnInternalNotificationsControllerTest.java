@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationPriceService;
+import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.doThrow;
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
 class PnInternalNotificationsControllerTest {
 
-    private static final String IUN = "IUN";
+    private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     private static final String SENDER_ID = "test";
     private static final String START_DATE = "2021-09-17T00:00:00.000Z";
     private static final String END_DATE = "2021-09-18T00:00:00.000Z";
@@ -52,6 +53,7 @@ class PnInternalNotificationsControllerTest {
     private static final String NOTICE_CODE = "302000100000019421";
     private static final String ATTACHMENT_NAME = "PAGOPA";
     private static final int DOCUMENT_IDX = 0;
+    public static final String AAR_QR_CODE_VALUE = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
 
 
     @Autowired
@@ -67,6 +69,9 @@ class PnInternalNotificationsControllerTest {
     private NotificationPriceService priceService;
 
     @MockBean
+    private NotificationQRService qrService;
+
+    @MockBean
     private NotificationAttachmentService attachmentService;
 
     @MockBean
@@ -80,7 +85,7 @@ class PnInternalNotificationsControllerTest {
     @Test
     void updateStatus() {
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
-                .iun("iun")
+                .iun(IUN)
                 .build();
 
         webTestClient.post()
@@ -97,7 +102,7 @@ class PnInternalNotificationsControllerTest {
         doThrow(new PnInternalException("exception")).when(svc).updateStatus(Mockito.any());
 
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
-                .iun("iun")
+                .iun(IUN)
                 .build();
 
         webTestClient.post()
@@ -341,6 +346,58 @@ class PnInternalNotificationsControllerTest {
                         .replace( "{paTaxId}", PA_TAX_ID )
                         .replace( "{noticeCode}", NOTICE_CODE ))
                 .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    void getNotificationQRSuccess(){
+
+        //Given
+        ResponseCheckAarDto QrResponse = ResponseCheckAarDto.builder()
+                .iun( "iun" )
+                .build();
+
+        RequestCheckAarDto dto = RequestCheckAarDto.builder()
+                .aarQrCodeValue(AAR_QR_CODE_VALUE)
+                .recipientInternalId( "recipientInternalId" )
+                .recipientType( "PF" )
+                .build();
+
+        //When
+        Mockito.when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) )).thenReturn( QrResponse );
+
+        webTestClient.post()
+                .uri( "/delivery-private/check-aar-qr-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(dto), RequestCheckAarDto.class)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ResponseCheckAarDto.class );
+
+        //Then
+        Mockito.verify( qrService ).getNotificationByQR( dto );
+    }
+
+    @Test
+    void getNotificationQRFailure() {
+        RequestCheckAarDto dto = RequestCheckAarDto.builder()
+                .aarQrCodeValue(AAR_QR_CODE_VALUE)
+                .recipientInternalId("recipientInternalId")
+                .recipientType("PF")
+                .build();
+
+        //When
+        Mockito.when(qrService.getNotificationByQR(Mockito.any(RequestCheckAarDto.class))).thenThrow(new PnNotFoundException("test", "test", "test"));
+
+        webTestClient.post()
+                .uri("/delivery-private/check-aar-qr-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(dto), RequestCheckAarDto.class)
                 .exchange()
                 .expectStatus()
                 .isNotFound();

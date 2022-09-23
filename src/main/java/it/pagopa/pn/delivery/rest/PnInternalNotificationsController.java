@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationPriceService;
+import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -29,14 +30,16 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     private final NotificationRetrieverService retrieveSvc;
     private final StatusService statusService;
     private final NotificationPriceService priceService;
+    private final NotificationQRService qrService;
     private final NotificationAttachmentService notificationAttachmentService;
 
     private final ModelMapperFactory modelMapperFactory;
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
         this.priceService = priceService;
+        this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapperFactory = modelMapperFactory;
     }
@@ -59,6 +62,32 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             throw exc;
         }
         return ResponseEntity.ok( response );
+    }
+
+    @Override
+    public ResponseEntity<ResponseCheckAarDto> checkAarQrCode(RequestCheckAarDto requestCheckAarDto) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        String aarQrCodeValue = requestCheckAarDto.getAarQrCodeValue();
+        String recipientType = requestCheckAarDto.getRecipientType();
+        String recipientInternalId = requestCheckAarDto.getRecipientInternalId();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_REQQR, "getNotificationQrPrivate aarQrCodeValue={} recipientType={} recipientInternalId={}",
+                        aarQrCodeValue,
+                        recipientType,
+                        recipientInternalId)
+                .mdcEntry("aarQrCodeValue", aarQrCodeValue)
+                .mdcEntry("recipientType", recipientType)
+                .mdcEntry("recipientInternalId", recipientInternalId)
+                .build();
+        logEvent.log();
+        ResponseCheckAarDto responseCheckAarDto;
+        try {
+            responseCheckAarDto = qrService.getNotificationByQR( requestCheckAarDto );
+        } catch (Exception exc) {
+            logEvent.generateFailure("Exception on get notification qr private= " + exc.getMessage()).log();
+            throw exc;
+        }
+        return ResponseEntity.ok( responseCheckAarDto );
     }
 
     @Override

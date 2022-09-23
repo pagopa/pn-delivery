@@ -63,6 +63,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing notifications cost'
 
+  NotificationsQRDynamoTableName:
+    Type: String
+    Description: 'Notifications QR Dynamo table name'
+
+  NotificationsQRDynamoTableArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing notifications QR'
+
   NotificationsMetadataDynamoTableName:
     Type: String
     Description: 'NotificationsMetadata Dynamo table name'
@@ -136,7 +144,7 @@ Resources:
         ContainerEnvEntry4: 'PN_DELIVERY_IUNRETRY=3'
         #ContainerEnvEntry5: !Sub 'SPRING_DATA_CASSANDRA_KEYSPACENAME=${KeyspaceName}'
         #ContainerEnvEntry6: 'SPRING_DATA_CASSANDRA_SSL=true'
-        ContainerEnvEntry7: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
+        #ContainerEnvEntry7: !Sub 'SPRING_DATA_CASSANDRA_CONTACTPOINTS=cassandra.${AWS::Region}.${AWS::URLSuffix}:9142'
         ContainerEnvEntry8: !Sub 'CORS_ALLOWED_DOMAINS=${CorsAllowedDomains}'
         ContainerEnvEntry9: !Sub 'PN_DELIVERY_DELIVERYPUSHBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry10: !Sub 'PN_DELIVERY_NOTIFICATIONDAO_TABLENAME=${NotificationsDynamoTableName}'
@@ -148,6 +156,7 @@ Resources:
         ContainerEnvEntry16: 'PN_DELIVERY_SAFESTORAGECXID=pn-delivery'
         ContainerEnvEntry17: !Sub 'PN_DELIVERY_EXTERNALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONCHECKADDRESS=${NotificationCheckAddress}'
+        ContainerEnvEntry19: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -188,6 +197,8 @@ Resources:
               - !Sub "${NotificationsMetadataDynamoTableArn}/*"
               - !Sub "${NotificationsCostDynamoTableArn}"
               - !Sub "${NotificationsCostDynamoTableArn}/*"
+              - !Sub "${NotificationsQRDynamoTableArn}"
+              - !Sub "${NotificationsQRDynamoTableArn}/*"
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:

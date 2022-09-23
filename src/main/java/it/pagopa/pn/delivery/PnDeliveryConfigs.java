@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import java.sql.ResultSetMetaData;
 import java.time.Duration;
 
 @Configuration
@@ -44,6 +45,8 @@ public class PnDeliveryConfigs {
 
     private NotificationCostDao notificationCostDao;
 
+    private NotificationQRDao notificationQRDao;
+
     private Integer maxPageSize;
 
     private Costs costs;
@@ -69,6 +72,11 @@ public class PnDeliveryConfigs {
 
     @Data
     public static class NotificationCostDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class NotificationQRDao {
         private String tableName;
     }
 
