@@ -327,8 +327,8 @@ components:
           description: identificativo anonimizzato del destinatario
         aarQrCodeValue:
           type: string
-          description: valore del QR-Code presente sull'avviso di avvenuta ricezione
-          #pattern: ^[A-Z0-9\%]*i$
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[A-Za-z0-9_-]*$
           
     ResponseCheckAarDto:
       type: object

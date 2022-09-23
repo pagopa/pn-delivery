@@ -132,8 +132,8 @@ public class NotificationReceiverService {
 
 	public String generateToken(String iun, String taxId) {
 		byte[] bytes = (iun + "_" + taxId + "_" + UUID.randomUUID()).getBytes(StandardCharsets.UTF_8);
-		String base64Encoded = Base64Utils.encodeToString(bytes);
-		return URLEncoder.encode(base64Encoded, StandardCharsets.UTF_8);
+		String urlSafeBase64Encoded = Base64Utils.encodeToUrlSafeString( bytes );
+		return urlSafeBase64Encoded;
 	}
 
 }
