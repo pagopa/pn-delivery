@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
@@ -130,8 +131,8 @@ public class NotificationReceiverService {
 	}
 
 	public String generateToken(String iun, String taxId) {
-		return iun + "_" + taxId + "_" + UUID.randomUUID();
+		byte[] bytes = (iun + "_" + taxId + "_" + UUID.randomUUID()).getBytes(StandardCharsets.UTF_8);
+		return Base64Utils.encodeToUrlSafeString( bytes ).replace("=","");
 	}
-
 
 }

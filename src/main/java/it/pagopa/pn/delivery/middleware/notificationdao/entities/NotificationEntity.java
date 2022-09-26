@@ -10,6 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -60,5 +61,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_AMOUNT)})) private Integer amount;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENT_EXPIRATION_DATE)})) private String paymentExpirationDate;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUEST_ID)})) private String requestId;
+
+    private Map<String, String> tokens;
 
 }

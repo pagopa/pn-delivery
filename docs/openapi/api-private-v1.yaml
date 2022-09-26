@@ -73,11 +73,7 @@ paths:
         - internal-only
       operationId: getSentNotificationPrivate
       parameters:
-      - name: iun
-        in: path
-        required: true
-        schema:
-          type: string
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
       responses:
         '200':
           description: OK
@@ -185,9 +181,166 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  "/delivery-private/check-aar-qr-code":
+    post:
+      summary: servizio per la verifica del qr code
+      tags:
+      - internal-only
+      operationId: checkAarQrCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestCheckAarDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseCheckAarDto"
+        '404':
+          description: QrCode reference Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: QrCode Reference misused
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: To many usage of the given QrCode Reference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/notifications/received/{iun}/attachments/documents/{docIdx}":
+    get:
+      summary: Download documento notificato
+      tags:
+        - internal-only
+      operationId: getReceivedNotificationDocumentPrivate
+      parameters:
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/queryRecipientInternalId'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  "/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}":
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - internal-only
+      operationId: getReceivedNotificationAttachmentPrivate
+      parameters:
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/queryRecipientInternalId'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
 components:
+  parameters:
+    queryRecipientInternalId:
+      name: recipientInternalId
+      in: query
+      description: Anonymous Recipient Identifier
+      required: true
+      schema:
+        type: string
+    pathDocumentIdx:
+      name: docIdx
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "PAGOPA|F24"
+    queryMandateId:
+      name: mandateId
+      in: query
+      required: false
+      schema:
+        type: string
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+
   schemas:
     
+    RequestCheckAarDto:
+      type: object
+      required:
+        - recipientType
+        - recipientInternalId
+        - aarQrCodeValue
+      properties:
+        recipientType: 
+          type: string
+          description: |
+            tipo del destinatario <br/>
+            __PF__: Persona Fisica <br/>
+            __PG__: Persona Giuridica <br/>
+        recipientInternalId:
+          type: string
+          description: identificativo anonimizzato del destinatario
+        aarQrCodeValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[A-Za-z0-9_-]*$
+          minLength: 106
+          maxLength: 106
+          
+    ResponseCheckAarDto:
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/IUN'
+        
+
     RequestUpdateStatusDto:
       type: object
       properties:
@@ -209,7 +362,6 @@ components:
           type: integer
           format: int32
           description: indice del destinatario
-                    
-    
+
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'

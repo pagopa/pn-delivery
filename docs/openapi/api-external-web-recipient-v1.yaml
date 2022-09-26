@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   termsOfService: https://termofservice.it
-  x-api-id: api-external-web-recipient
+  x-api-id: api-external-web-recipient # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API web per i destinatari'
   x-summary: 'Piattaforma Notifiche: API web per i destinatari'
   version: '1.0.0'

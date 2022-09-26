@@ -10,6 +10,9 @@ components:
     IUN:
       description: Identificativo Univoco Notifica
       type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
     Denomination:
       description: Denominazione ente o persona fisica / ragione sociale
@@ -184,7 +187,7 @@ components:
           description: Nome e cognome / ragione sociale
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
-           $ref: "#/components/schemas/NotificationDigitalAddress"
+          $ref: "#/components/schemas/NotificationDigitalAddress"
         physicalAddress:
           $ref: "#/components/schemas/NotificationPhysicalAddress"
         payment:
@@ -405,6 +408,7 @@ components:
         iun:
           type: string
           description: Identificativo Univoco Notifica
+          $ref: '#/components/schemas/IUN'
         paProtocolNumber:
           type: string
           description: Numero protocollo associato alla notifica da parte della PA

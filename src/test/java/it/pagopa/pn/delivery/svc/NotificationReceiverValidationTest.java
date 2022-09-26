@@ -30,6 +30,7 @@ class NotificationReceiverValidationTest {
     @Mock
     private PnDeliveryConfigs cfg;
 
+    private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     public static final String ATTACHMENT_BODY_STR = "Body";
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     public static final String VERSION_TOKEN = "version_token";
@@ -476,7 +477,7 @@ class NotificationReceiverValidationTest {
     private FullSentNotification newFullSentNotification() {
         return FullSentNotification.builder()
                 .sentAt( OffsetDateTime.now() )
-                .iun( "IUN_01" )
+                .iun( IUN )
                 .paProtocolNumber("protocol1")
                 .group("group_1")
                 .idempotenceToken("idempotenceToken")

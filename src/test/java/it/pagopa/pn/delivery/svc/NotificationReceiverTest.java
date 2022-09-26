@@ -43,6 +43,7 @@ class NotificationReceiverTest {
 	private static final String CONTENT_TYPE = "application/pdf";
 	private static final String KEY = "KEY";
 	private static final String PAID = "PAID";
+	private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
 	private static final NotificationDocument notificationReferredAttachment() {
 		return NotificationDocument.builder()
 				.ref( NotificationAttachmentBodyRef.builder()
@@ -249,7 +250,7 @@ class NotificationReceiverTest {
 	void throwsPnInternalExceptionInTheUncommonCaseOfDuplicatedIun() throws PnIdConflictException {
 		// Given
 		Map<String,String> keyValueConflict = new HashMap<>();
-		keyValueConflict.put( "iun", "iun_01" );
+		keyValueConflict.put( "iun", IUN );
 		Mockito.doThrow( new PnIdConflictException(keyValueConflict) )
 				.when( notificationDao )
 				.addNotification( Mockito.any( InternalNotification.class), Mockito.any( Runnable.class ) );
@@ -381,7 +382,7 @@ class NotificationReceiverTest {
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
-				.cancelledIun("IUN_00")
+				.cancelledIun(IUN)
 				.recipients( Collections.singletonList(
 						NotificationRecipient.builder()
 								.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
@@ -460,7 +461,7 @@ class NotificationReceiverTest {
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
-				.cancelledIun("IUN_00")
+				.cancelledIun(IUN)
 				.recipients( Collections.singletonList( recipient ) )
 				.documents(List.of(
 						notificationReferredAttachment()
