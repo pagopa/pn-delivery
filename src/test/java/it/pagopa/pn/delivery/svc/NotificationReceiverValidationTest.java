@@ -121,7 +121,7 @@ class NotificationReceiverValidationTest {
     }
 
     @Test
-    void invalidRecipientTaxIdAndDenomination() {
+    void invalidRecipientTaxId() {
 
         // GIVEN
         InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
@@ -129,7 +129,7 @@ class NotificationReceiverValidationTest {
                 .recipients( Collections.singletonList( NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .taxId( "invalidTaxId" )
-                        .denomination( "invalid<>denomination" )
+                        .denomination( "valid Denomination" )
                         .build() ) ), Collections.emptyMap(), Collections.emptyList() );
 
         // WHEN
@@ -138,17 +138,16 @@ class NotificationReceiverValidationTest {
 
         // THEN
         assertConstraintViolationPresentByField( errors, "recipients[0].taxId" );
-        assertConstraintViolationPresentByField( errors, "recipients[0].denomination" );
         assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
-        Assertions.assertEquals( 3, errors.size() );
+        Assertions.assertEquals( 2, errors.size() );
     }
 
     @Test
-    void invalidSenderTaxIdAndDenomination() {
+    void invalidSenderTaxId() {
         // GIVEN
         InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
                 .senderTaxId( "invalidSenderTaxId" )
-                .senderDenomination( "Invalid<Sender>Denomination" )
+                .senderDenomination( "Valid Sender Denomination" )
                 , Collections.emptyMap(), Collections.emptyList() );
 
         // WHEN
@@ -157,9 +156,8 @@ class NotificationReceiverValidationTest {
 
         // THEN
         assertConstraintViolationPresentByFieldWithExpected( errors, "senderTaxId", 2 );
-        assertConstraintViolationPresentByField( errors, "senderDenomination" );
         assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
-        Assertions.assertEquals( 4, errors.size() );
+        Assertions.assertEquals( 3, errors.size() );
     }
 
     @Test
