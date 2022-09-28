@@ -17,8 +17,8 @@ components:
     Denomination:
       description: Denominazione ente o persona fisica / ragione sociale
       type: string
-      maxLength: 120
-      pattern: '[^\.\"\?\!\;\:\#\$\%\(\)\*\+\/\<\>\=\@\[\]\\\^\_\{\}\|\~]+'
+      #maxLength: 120
+      #pattern: '[^\.\"\?\!\;\:\#\$\%\(\)\*\+\/\<\>\=\@\[\]\\\^\_\{\}\|\~]+'
 
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
