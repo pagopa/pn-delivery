@@ -121,6 +121,26 @@ class NotificationReceiverValidationTest {
     }
 
     @Test
+    void validRecipientTaxIdOmocode() {
+        // GIVEN
+        InternalNotification n = new InternalNotification( validDocumentWithPayments()
+                .senderTaxId( "01199250158" )
+                .recipients( Collections.singletonList( NotificationRecipient.builder()
+                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                        // C.F. Omocodice 0=L 1=M 2=N 3=P 4=Q 5=R 6=S 7=T 8=U 9=V
+                        .taxId( "MRNLCU00A01H50MJ" )
+                        .denomination( "valid Denomination" )
+                        .build() ) ), Collections.emptyMap(), Collections.emptyList() );
+
+        // WHEN
+        Set<ConstraintViolation<InternalNotification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( n );
+
+        // THEN
+        Assertions.assertEquals( 0, errors.size() );
+    }
+
+    @Test
     void invalidRecipientTaxId() {
 
         // GIVEN

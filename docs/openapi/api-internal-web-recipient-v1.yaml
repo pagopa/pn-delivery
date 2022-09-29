@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  termsOfService: https://termofservice.it
+  termsOfService: https://notifichedigitali.pagopa.it/cittadini/informativa-privacy/index.html
   x-api-id: api-internal-web-recipient # NO EXTERNAL
 #  x-api-id: api-external-web-recipient # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API web per i destinatari'
