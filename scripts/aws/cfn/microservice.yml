@@ -119,6 +119,10 @@ Parameters:
     Type: String
     Description: 'enables check on physical address when creating notification'
     AllowedValues: [true, false]
+  
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Kinesis stream that receive logs'
 
 Resources:
 
@@ -165,6 +169,7 @@ Resources:
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskPolicy:
