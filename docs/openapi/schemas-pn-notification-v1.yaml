@@ -114,7 +114,7 @@ components:
         senderTaxId:
           description: Codice Fiscale dell'ente mittente
           type: string
-          $ref: '#/components/schemas/TaxId'
+          $ref: '#/components/schemas/paTaxId'
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
