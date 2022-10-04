@@ -40,6 +40,7 @@ public class NotificationEntity {
     public static final String FIELD_AMOUNT = "amount";
     public static final String FIELD_PAYMENT_EXPIRATION_DATE = "paymentExpirationDate";
     public static final String FIELD_REQUEST_ID = "requestId";
+    public static final String FIELD_TAXONOMY_CODE = "taxonomyCode";
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String _abstract;
@@ -61,6 +62,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_AMOUNT)})) private Integer amount;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENT_EXPIRATION_DATE)})) private String paymentExpirationDate;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUEST_ID)})) private String requestId;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_TAXONOMY_CODE)})) private String taxonomyCode;
 
     private Map<String, String> tokens;
 
