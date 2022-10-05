@@ -19,18 +19,13 @@ Parameters:
   Version:
     Type: String
     Description: 'keep track of used projects commitIds'
+  
+  CdcKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send CDC'
 
 Resources:
 
-  ## KINESIS SOURCE STREAM FOR NOTIFICATION Change Data Capture
-  NotificationCdcKinesis:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/kinesis-stream.yaml"
-      Parameters:
-        StreamName: !Sub '${ProjectName}-notification-cdc-stream'
-        StreamRetentionPeriodHours: 24
-  
   # Dynamo Table
   NotificationsTable:
     Type: AWS::DynamoDB::Table
@@ -44,7 +39,7 @@ Resources:
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
       KinesisStreamSpecification:
-        StreamArn: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamArn
+        StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification: 
         StreamViewType: NEW_IMAGE
 
@@ -149,17 +144,3 @@ Outputs:
   NotificationsMetadataDynamoTableArn:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
-
-  # Notification Change Data Capture kinesis stream
-  NotificationCdcKinesisStreamName:
-    Value: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamName
-    Description: kinesis stream name for notification dynamo table
-  NotificationCdcKinesisStreamArn:
-    Value: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamArn
-    Description: kinesis stream Arn for notification dynamo table
-  NotificationCdcKinesisKeyArn:
-    Value: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamKeyArn
-    Description: KMS key arn for notification stream decryption
-  NotificationCdcKinesisStreamReadOnlyRoleArn:
-    Value: !GetAtt NotificationCdcKinesis.Outputs.KinesisStreamReadOnlyRoleArn
-    Description: KMS key arn for notification stream decryption
