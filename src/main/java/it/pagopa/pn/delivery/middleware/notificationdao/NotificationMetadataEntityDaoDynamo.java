@@ -225,6 +225,9 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         if (!CollectionUtils.isEmpty(statuses)) {
             if (expressionBuilder.length() > 0)
                 expressionBuilder.append( " AND ( " );
+            else {
+                expressionBuilder.append( " ( " );
+            }
 
             for (int i = 0;i<statuses.size();i++) {
                 NotificationStatus notificationStatus = statuses.get(i);
@@ -251,6 +254,9 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             log.debug( "Add group filter expression" );
             if ( expressionBuilder.length() > 0 )
                 expressionBuilder.append( " AND ( " );
+            else {
+                expressionBuilder.append( " ( " );
+            }
 
             for (int i = 0; i < groupList.size(); i++) {
                 String group = groupList.get( i );
