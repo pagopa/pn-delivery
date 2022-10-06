@@ -314,8 +314,8 @@ class NotificationReceiverTest {
 
 	private NewNotificationRequest newNotificationRequest() {
 		return NewNotificationRequest.builder()
-				.senderTaxId( "senderTaxId" )
-				.senderDenomination( "senderDenomination" )
+				.senderTaxId( "01199250158" )
+				.senderDenomination( "Comune di Milano" )
 				.group( "group1" )
 				.subject( "subject" )
 				.documents( Collections.singletonList( NotificationDocument.builder()
@@ -356,8 +356,8 @@ class NotificationReceiverTest {
 										.build() )
 								.build() )
 						.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-						.denomination( "recipientDenomination" )
-						.taxId( "recipientTaxId" )
+						.denomination( "Ada Lovelace" )
+						.taxId( "LVLDAA85T50G702B" )
 						.digitalDomicile( NotificationDigitalAddress.builder()
 								.type( NotificationDigitalAddress.TypeEnum.PEC )
 								.address( "address@pec.it" )
@@ -386,8 +386,8 @@ class NotificationReceiverTest {
 				.recipients( Collections.singletonList(
 						NotificationRecipient.builder()
 								.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-								.taxId("Codice Fiscale 01")
-								.denomination("Nome Cognome/Ragione Sociale")
+								.taxId("LVLDAA85T50G702B")
+								.denomination("Ada Lovelace")
 								.digitalDomicile(NotificationDigitalAddress.builder()
 										.type(NotificationDigitalAddress.TypeEnum.PEC)
 										.address("account@dominio.it")

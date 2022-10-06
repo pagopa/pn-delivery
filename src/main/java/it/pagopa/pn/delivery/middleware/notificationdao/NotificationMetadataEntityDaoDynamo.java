@@ -61,12 +61,6 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             log.debug("result not satisfy filter status");
             return new PageSearchTrunk<>();
         }
-        // filtro per gruppi
-        if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getGroups()) && !inputSearchNotificationDto.getGroups().contains(entity.getNotificationGroup()))
-        {
-            log.debug("result not satisfy filter groups");
-            return new PageSearchTrunk<>();
-        }
         // filtro per range date
         if (!entity.getSentAt().isAfter(inputSearchNotificationDto.getStartDate()) || !entity.getSentAt().isBefore(inputSearchNotificationDto.getEndDate()))
         {
@@ -197,76 +191,87 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     private void addFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
                                         QueryEnhancedRequest.Builder requestBuilder
     ) {
-        addRecipientOneFilterExpression( inputSearchNotificationDto, requestBuilder );
-        addStatusFilterExpression( inputSearchNotificationDto.getStatuses(), requestBuilder);
-        addGroupFilterExpression( inputSearchNotificationDto.getGroups(), requestBuilder);
+        Expression.Builder filterExpressionBuilder = Expression.builder();
+        StringBuilder expressionBuilder = new StringBuilder();
+        addRecipientOneFilterExpression( inputSearchNotificationDto, filterExpressionBuilder, expressionBuilder );
+        addStatusFilterExpression( inputSearchNotificationDto.getStatuses(), filterExpressionBuilder, expressionBuilder);
+        addGroupFilterExpression( inputSearchNotificationDto.getGroups(), filterExpressionBuilder, expressionBuilder);
+
+        requestBuilder.filterExpression(filterExpressionBuilder
+                .expression(expressionBuilder.length() > 0 ? expressionBuilder.toString() : null)
+                .build());
     }
 
     private void addRecipientOneFilterExpression(InputSearchNotificationDto inputSearchNotificationDto,
-                                                 QueryEnhancedRequest.Builder requestBuilder) {
+                                                 Expression.Builder filterExpressionBuilder,
+                                                 StringBuilder expressionBuilder) {
 
         // nel caso in cui sono il mittente e sto cercando senza specificare il destinatario, applico il filtro su recipientOne (così mi torna solo il un record per iun multidestinatario)
         if (inputSearchNotificationDto.isBySender() && !StringUtils.hasText(inputSearchNotificationDto.getFilterId())) {
-            Expression.Builder filterStatusExpressionBuilder = Expression.builder();
 
-            filterStatusExpressionBuilder.putExpressionValue(":recipientOne",
+            filterExpressionBuilder.putExpressionValue(":recipientOne",
                     AttributeValue.builder()
                             .bool(Boolean.TRUE)
                             .build());
 
-            filterStatusExpressionBuilder.expression(NotificationMetadataEntity.FIELD_RECIPIENT_ONE + " = :recipientOne");
-            requestBuilder.filterExpression(filterStatusExpressionBuilder.build());
+            expressionBuilder.append(NotificationMetadataEntity.FIELD_RECIPIENT_ONE + " = :recipientOne");
         }
     }
 
 
     private void addStatusFilterExpression(List<NotificationStatus> statuses,
-                                           QueryEnhancedRequest.Builder requestBuilder) {
+                                           Expression.Builder filterExpressionBuilder,
+                                           StringBuilder expressionBuilder) {
         if (!CollectionUtils.isEmpty(statuses)) {
-            Expression.Builder filterStatusExpressionBuilder = Expression.builder();
+            if (expressionBuilder.length() > 0)
+                expressionBuilder.append( " AND ( " );
+            else {
+                expressionBuilder.append( " ( " );
+            }
 
-            StringBuilder exp = new StringBuilder();
             for (int i = 0;i<statuses.size();i++) {
                 NotificationStatus notificationStatus = statuses.get(i);
-                exp.append("notificationStatus = :notificationStatusValue");
-                exp.append(i + " ");
+                expressionBuilder.append("notificationStatus = :notificationStatusValue");
+                expressionBuilder.append(i).append(" ");
                 if (i<statuses.size()-1)
-                    exp.append(" OR ");
+                    expressionBuilder.append(" OR ");
 
-                filterStatusExpressionBuilder.putExpressionValue(":notificationStatusValue"+i,
+                filterExpressionBuilder.putExpressionValue(":notificationStatusValue"+i,
                         AttributeValue.builder()
                                 .s( notificationStatus.toString() )
                                 .build());
             }
-
-            filterStatusExpressionBuilder.expression(exp.toString());
-            requestBuilder.filterExpression( filterStatusExpressionBuilder.build() );
+            expressionBuilder.append( " ) ");
         }
     }
 
     private void addGroupFilterExpression(List<String> groupList,
-                                          QueryEnhancedRequest.Builder requestBuilder) {
-        if ( groupList != null ) {
+                                          Expression.Builder filterExpressionBuilder,
+                                          StringBuilder expressionBuilder) {
+        if ( !CollectionUtils.isEmpty( groupList )) {
             // restituire anche le notifiche con gruppo <stringa_vuota>
             groupList.add("");
             log.debug( "Add group filter expression" );
-            List<String> queries = new ArrayList<>();
-            Map<String,AttributeValue> mav = new HashMap<>();
-            for (int i = 0; i < groupList.size(); i++) {
-                String placeHolder = ":val" + i;
-                mav.put(placeHolder, AttributeValue.builder()
-                                .s( groupList.get(i) )
-                        .build());
-                queries.add("notificationGroup = " + placeHolder);
+            if ( expressionBuilder.length() > 0 )
+                expressionBuilder.append( " AND ( " );
+            else {
+                expressionBuilder.append( " ( " );
             }
-            // restituire anche le notifiche senza gruppo
-            queries.add( "attribute_not_exists(notificationGroup)" );
 
-            String query = String.join(" or ", queries);
-            requestBuilder.filterExpression( Expression.builder()
-                    .expression( query )
-                    .expressionValues( mav )
-                    .build());
+            for (int i = 0; i < groupList.size(); i++) {
+                String group = groupList.get( i );
+                expressionBuilder.append( "notificationGroup = :notificationGroupValue" );
+                expressionBuilder.append(i).append(" ");
+                if ( i < groupList.size() -1 )
+                    expressionBuilder.append( " OR " );
+
+                filterExpressionBuilder.putExpressionValue(":notificationGroupValue"+i,
+                        AttributeValue.builder()
+                                .s( group )
+                                .build());
+            }
+
+            expressionBuilder.append(" OR attribute_not_exists(notificationGroup) )");
         }
     }
 

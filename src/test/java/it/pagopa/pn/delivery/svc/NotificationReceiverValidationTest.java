@@ -32,18 +32,9 @@ class NotificationReceiverValidationTest {
 
     private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     public static final String ATTACHMENT_BODY_STR = "Body";
-    public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     public static final String VERSION_TOKEN = "version_token";
     public static final String KEY = "key";
-    public static final NotificationAttachment NOTIFICATION_ATTACHMENT = NotificationAttachment.builder()
-            //.body(BASE64_BODY)
-            .contentType("Content/Type")
-            .digests(NotificationAttachmentDigests.builder()
-                    .sha256(SHA256_BODY)
-                    .build()
-            )
-            .build();
 
 
     private NotificationReceiverValidator validator;
@@ -114,7 +105,7 @@ class NotificationReceiverValidationTest {
 
         // GIVEN
         InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
-                .senderTaxId( "taxid" )
+                .senderTaxId( "01199250158" )
                 .recipients( Collections.singletonList( NotificationRecipient.builder().build() ) ), Collections.emptyMap(), Collections.emptyList() );
 
         // WHEN
@@ -127,6 +118,66 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "recipients[0].denomination" );
         assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
         Assertions.assertEquals( 4, errors.size() );
+    }
+
+    @Test
+    void validRecipientTaxIdOmocode() {
+        // GIVEN
+        InternalNotification n = new InternalNotification( validDocumentWithPayments()
+                .senderTaxId( "01199250158" )
+                .recipients( Collections.singletonList( NotificationRecipient.builder()
+                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                        // C.F. Omocodice 0=L 1=M 2=N 3=P 4=Q 5=R 6=S 7=T 8=U 9=V
+                        .taxId( "MRNLCU00A01H50MJ" )
+                        .denomination( "valid Denomination" )
+                        .build() ) ), Collections.emptyMap(), Collections.emptyList() );
+
+        // WHEN
+        Set<ConstraintViolation<InternalNotification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( n );
+
+        // THEN
+        Assertions.assertEquals( 0, errors.size() );
+    }
+
+    @Test
+    void invalidRecipientTaxId() {
+
+        // GIVEN
+        InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
+                .senderTaxId( "01199250158" )
+                .recipients( Collections.singletonList( NotificationRecipient.builder()
+                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                        .taxId( "invalidTaxId" )
+                        .denomination( "valid Denomination" )
+                        .build() ) ), Collections.emptyMap(), Collections.emptyList() );
+
+        // WHEN
+        Set<ConstraintViolation<InternalNotification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( n );
+
+        // THEN
+        assertConstraintViolationPresentByField( errors, "recipients[0].taxId" );
+        assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
+        Assertions.assertEquals( 2, errors.size() );
+    }
+
+    @Test
+    void invalidSenderTaxId() {
+        // GIVEN
+        InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
+                .senderTaxId( "invalidSenderTaxId" )
+                .senderDenomination( "Valid Sender Denomination" )
+                , Collections.emptyMap(), Collections.emptyList() );
+
+        // WHEN
+        Set<ConstraintViolation<InternalNotification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( n );
+
+        // THEN
+        assertConstraintViolationPresentByFieldWithExpected( errors, "senderTaxId", 2 );
+        assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
+        Assertions.assertEquals( 3, errors.size() );
     }
 
     @Test
@@ -196,8 +247,8 @@ class NotificationReceiverValidationTest {
         // GIVEN
         InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
-                        .taxId("FiscalCode")
-                        .denomination("Nome Cognome / Ragione Sociale")
+                        .taxId("LVLDAA85T50G702B")
+                        .denomination("Ada Lovelace")
                         .digitalDomicile(  NotificationDigitalAddress.builder().build() )
                         .build() )
                 )
@@ -389,6 +440,13 @@ class NotificationReceiverValidationTest {
         Assertions.assertEquals( 1, actual, "expected validation errors on " + propertyPath );
     }
 
+    private <T> void assertConstraintViolationPresentByFieldWithExpected( Set<ConstraintViolation<T>> set, String propertyPath, long expected ) {
+        long actual = set.stream()
+                .filter( cv -> propertyPathToString( cv.getPropertyPath() ).equals( propertyPath ) )
+                .count();
+        Assertions.assertEquals( expected, actual, "expected validation errors on " + propertyPath );
+    }
+
 
     private void assertProblemErrorConstraintViolationPresentByField(List<ProblemError> set, String propertyPath ) {
         long actual = set.stream()
@@ -454,9 +512,9 @@ class NotificationReceiverValidationTest {
                                         .build() )
                         .build() ) )
                 .recipients(Collections.singletonList( NotificationRecipient.builder()
-                                .taxId( "recipientTaxId" )
+                                .taxId( "LVLDAA85T50G702B" )
                                 .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                                .denomination( "recipientDenomination" )
+                                .denomination( "Ada Lovelace" )
                                 .digitalDomicile( NotificationDigitalAddress.builder()
                                         .address( "indirizzo@pec.it" )
                                         .type(NotificationDigitalAddress.TypeEnum.PEC)
@@ -467,8 +525,8 @@ class NotificationReceiverValidationTest {
                                 .status( NotificationStatus.ACCEPTED )
                                 .relatedTimelineElements( Collections.emptyList() )
                         .build() ) )
-                .senderDenomination("senderDenomination")
-                .senderTaxId("senderTaxId")
+                .senderDenomination("Comune di Milano")
+                .senderTaxId("01199250158")
                 .subject("subject")
                 .physicalCommunicationType(FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .build();
@@ -501,9 +559,9 @@ class NotificationReceiverValidationTest {
     	return new InternalNotification( newFullSentNotification()
                 .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE )
                 .recipients(Collections.singletonList( NotificationRecipient.builder()
-                        .taxId( "recipientTaxId" )
+                        .taxId( "LVLDAA85T50G702B" )
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                        .denomination( "recipientDenomination" )
+                        .denomination( "Ada Lovelace" )
                         .digitalDomicile( NotificationDigitalAddress.builder()
                                 .address( "indirizzo@pec.it" )
                                 .type(NotificationDigitalAddress.TypeEnum.PEC)
