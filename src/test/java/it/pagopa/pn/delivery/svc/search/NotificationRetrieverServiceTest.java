@@ -454,6 +454,50 @@ class NotificationRetrieverServiceTest {
     }
 
     @Test
+    void checkRefinementDateOraSolare() {
+        // Given
+        List<TimelineElement> timelineElementList = List.of( TimelineElement.builder()
+                        .category( TimelineElementCategory.REFINEMENT )
+                        .timestamp( OffsetDateTime.parse( "2022-10-05T12:23:15.123456Z" ) )
+                .build(),
+                TimelineElement.builder()
+                        .category( TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .timestamp( OffsetDateTime.parse( "2022-10-03T10:10:15.123456Z" ) )
+                        .build()
+        );
+
+        // When
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-10-06T16:50:20.1123Z" ) );
+        OffsetDateTime refinementDate = svc.findRefinementDate(timelineElementList, IUN );
+
+        // Then
+        OffsetDateTime expectedRefinementDate = OffsetDateTime.parse( "2022-10-03T23:59:59.0+02:00" );
+        Assertions.assertEquals( expectedRefinementDate, refinementDate );
+    }
+
+    @Test
+    void checkRefinementDateOraLegale() {
+        // Given
+        List<TimelineElement> timelineElementList = List.of( TimelineElement.builder()
+                        .category( TimelineElementCategory.REFINEMENT )
+                        .timestamp( OffsetDateTime.parse( "2022-10-05T12:23:15.123456Z" ) )
+                        .build(),
+                TimelineElement.builder()
+                        .category( TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .timestamp( OffsetDateTime.parse( "2022-10-03T10:10:15.123456Z" ) )
+                        .build()
+        );
+
+        // When
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-12-06T16:50:20.1123Z" ) );
+        OffsetDateTime refinementDate = svc.findRefinementDate(timelineElementList, IUN );
+
+        // Then
+        OffsetDateTime expectedRefinementDate = OffsetDateTime.parse( "2022-10-03T23:59:59.0+01:00" );
+        Assertions.assertEquals( expectedRefinementDate, refinementDate );
+    }
+
+    @Test
     void getNotificationAndViewEventSuccess() {
         //Given
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
@@ -922,6 +966,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-06-11T00:00:00.00Z" ) );
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 

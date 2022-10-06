@@ -38,9 +38,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -296,7 +294,7 @@ public class NotificationRetrieverService {
 		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
-	private OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
+	protected OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
 		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
@@ -308,7 +306,14 @@ public class NotificationRetrieverService {
 		if (!timelineElementList.isEmpty()) {
 			Optional<TimelineElement> optionalMin = timelineElementList.stream().min(Comparator.comparing(TimelineElement::getTimestamp));
 			if (optionalMin.isPresent()) {
-				refinementDate = optionalMin.get().getTimestamp();
+				OffsetDateTime timestampUtc = optionalMin.get().getTimestamp();
+				// mi sposto all'offest IT
+				ZonedDateTime localDateTime = timestampUtc.toLocalDateTime().atZone( ZoneId.of( "Europe/Rome" ) );
+				// mi sposto alle 23:59:59
+				// int year, int month, int dayOfMonth,
+				//            int hour, int minute, int second, int nanoOfSecond, ZoneOffset offset
+				refinementDate = OffsetDateTime.of( localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(),
+						23, 59, 59, 0, ZoneId.of( "Europe/Rome" ).getRules().getOffset( clock.instant() ) );
 			}
 		} else {
 			log.debug( "Notification iun={} not perfected", iun );
