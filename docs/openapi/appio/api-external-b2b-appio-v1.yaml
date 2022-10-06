@@ -167,7 +167,7 @@ components:
       $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
     Problem:
-      $ref: './remote-refs.yaml#/components/schemas/Problem'
+      $ref: '../remote-refs.yaml#/components/schemas/Problem'
 
   securitySchemes:
     ApiKeyAuth:
