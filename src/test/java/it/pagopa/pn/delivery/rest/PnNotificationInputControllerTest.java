@@ -145,7 +145,8 @@ class PnNotificationInputControllerTest {
 		PnIdConflictException exception = new PnIdConflictException( conflictMap );
 
 		// When
-		Mockito.when( deliveryService.receiveNotification( PA_ID, request ) ).thenThrow( exception );
+		Mockito.when( deliveryService.receiveNotification(
+				Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) ) ).thenThrow( exception );
 
 		//Then
 		webTestClient.post()
@@ -323,6 +324,9 @@ class PnNotificationInputControllerTest {
 	void postPresignedUploadFailure() {
 		//GIven
 		List<PreloadRequest> requests = new ArrayList<>();
+		requests.add( PreloadRequest.builder()
+				.key( DOCUMENT_KEY )
+				.build());
 		requests.add( PreloadRequest.builder()
 				.key( DOCUMENT_KEY )
 				.build());

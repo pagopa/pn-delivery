@@ -46,6 +46,7 @@ public class EntityToDtoNotificationMapper {
                 .documents( buildDocumentsList( entity ) )
                 .amount(entity.getAmount())
                 .paymentExpirationDate(entity.getPaymentExpirationDate())
+                .taxonomyCode( entity.getTaxonomyCode() )
                 .build()
         , Collections.emptyMap(), recipientIds );
     }

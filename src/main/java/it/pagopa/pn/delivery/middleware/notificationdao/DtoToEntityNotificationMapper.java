@@ -37,6 +37,7 @@ public class DtoToEntityNotificationMapper {
                 .group( dto.getGroup() )
                 .amount(dto.getAmount())
                 .paymentExpirationDate(dto.getPaymentExpirationDate())
+                .taxonomyCode(dto.getTaxonomyCode())
                 .tokens( dto2TokensEntity(dto.getTokens()) );
 
         return builder.build();
