@@ -313,7 +313,7 @@ public class NotificationRetrieverService {
 				// int year, int month, int dayOfMonth,
 				//            int hour, int minute, int second, int nanoOfSecond, ZoneOffset offset
 				refinementDate = OffsetDateTime.of( localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(),
-						23, 59, 59, 0, ZoneId.of( "Europe/Rome" ).getRules().getOffset( clock.instant() ) );
+						23, 59, 59, 0, ZoneId.of( "Europe/Rome" ).getRules().getOffset( localDateTime.toInstant() ) );
 			}
 		} else {
 			log.debug( "Notification iun={} not perfected", iun );
