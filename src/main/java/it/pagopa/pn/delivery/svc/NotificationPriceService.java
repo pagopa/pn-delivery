@@ -12,10 +12,12 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDa
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.Optional;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND;
@@ -27,12 +29,14 @@ public class NotificationPriceService {
     private final NotificationDao notificationDao;
     private final NotificationRetrieverService retrieverService;
     private final PnDeliveryConfigs cfg;
+    private final RefinementLocalDate refinementLocalDateUtils;
 
-    public NotificationPriceService(NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationRetrieverService retrieverService, PnDeliveryConfigs cfg) {
+    public NotificationPriceService(NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationRetrieverService retrieverService, PnDeliveryConfigs cfg, RefinementLocalDate refinementLocalDateUtils) {
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
         this.retrieverService = retrieverService;
         this.cfg = cfg;
+        this.refinementLocalDateUtils = refinementLocalDateUtils;
     }
 
     public NotificationPriceResponse getNotificationPrice(String paTaxId, String noticeCode) {
@@ -50,10 +54,11 @@ public class NotificationPriceService {
                     InternalNotification notification = retrieverService.enrichWithTimelineAndStatusHistory( optionalNotificationCost.get().getIun(), optionalNotification.get() );
                     Optional<TimelineElement> timelineElement = notification.getTimeline()
                             .stream()
-                            .filter( tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory()) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-                            .findFirst();
+                            .filter( tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory())
+                                    || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+                            .min( Comparator.comparing(TimelineElement::getTimestamp) );
                     if (timelineElement.isPresent()){
-                        effectiveDate = timelineElement.get().getTimestamp();
+                        effectiveDate = refinementLocalDateUtils.setLocalRefinementDate( timelineElement.get() );
                     }
                     // calcolo costo della notifica
                     amount = computeAmount( optionalNotificationCost.get().getRecipientIdx(), notification );

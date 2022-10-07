@@ -23,6 +23,7 @@ import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +61,7 @@ class NotificationRetrieverServiceTest {
 
     private NotificationSearchFactory notificationSearchFactory;
     private NotificationSearch notificationSearch;
+    private RefinementLocalDate refinementLocalDateUtils;
 
     @BeforeEach
     void setup() {
@@ -74,6 +76,7 @@ class NotificationRetrieverServiceTest {
         this.notificationSearchFactory = Mockito.mock(NotificationSearchFactory.class);
         this.notificationSearch = Mockito.mock(NotificationSearch.class);
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
+        this.refinementLocalDateUtils = new RefinementLocalDate();
 
         Mockito.when(notificationSearchFactory.getMultiPageSearch(Mockito.any(), Mockito.any())).thenReturn(notificationSearch);
 
@@ -87,8 +90,8 @@ class NotificationRetrieverServiceTest {
                 externalRegistriesClient,
                 modelMapperFactory,
                 notificationSearchFactory,
-                cfg
-        );
+                cfg,
+                refinementLocalDateUtils);
     }
 
     @Test
