@@ -4,13 +4,13 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.RestClientException;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -51,6 +50,7 @@ class NotificationAttachmentServiceTest {
     private PnSafeStorageClientImpl pnSafeStorageClient;
     private PnMandateClientImpl pnMandateClient;
     private CheckAuthComponent checkAuthComponent;
+    private NotificationViewedProducer notificationViewedProducer;
 
     @BeforeEach
     public void setup() {
@@ -60,9 +60,10 @@ class NotificationAttachmentServiceTest {
         pnSafeStorageClient = Mockito.mock(PnSafeStorageClientImpl.class);
         pnMandateClient = Mockito.mock( PnMandateClientImpl.class );
         checkAuthComponent = Mockito.mock( CheckAuthComponent.class );
+        notificationViewedProducer = Mockito.mock( NotificationViewedProducer.class );
 
         attachmentService = new NotificationAttachmentService(
-                 pnSafeStorageClient, notificationDao, checkAuthComponent);
+                 pnSafeStorageClient, notificationDao, checkAuthComponent, notificationViewedProducer);
     }
 
     @Test

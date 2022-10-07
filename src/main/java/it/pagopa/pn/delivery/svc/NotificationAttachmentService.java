@@ -7,10 +7,10 @@ import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,11 +53,13 @@ public class NotificationAttachmentService {
     private final PnSafeStorageClientImpl safeStorageClient;
     private final NotificationDao notificationDao;
     private final CheckAuthComponent checkAuthComponent;
+    private final NotificationViewedProducer notificationViewedProducer;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer) {
         this.safeStorageClient = safeStorageClient;
         this.notificationDao = notificationDao;
         this.checkAuthComponent = checkAuthComponent;
+        this.notificationViewedProducer = notificationViewedProducer;
     }
 
     public FileDownloadResponse getFile(String fileKey){
@@ -171,6 +174,12 @@ public class NotificationAttachmentService {
             FileDownloadIdentify fileDownloadIdentify = FileDownloadIdentify.create( documentIndex, downloadRecipientIdx, attachmentName );
 
             FileInfos fileInfos = computeFileInfo( fileDownloadIdentify, notification );
+
+            // controlli per essere certi che la richiesta è stata fatta da un destinatario o da un delegato
+            // ma non da rete RADD e non da mittente
+            if( !cxType.equals( CxTypeAuthFleet.PA.getValue() ) /*&& !isPrivate*/ ) {
+                notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx() );
+            }
 
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
