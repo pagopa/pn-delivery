@@ -130,8 +130,9 @@ public class NotificationAttachmentService {
             String cxType,
             String xPagopaPnCxId,
             String mandateId,
-            Integer documentIdx) {
-        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, documentIdx, null, null);
+            Integer documentIdx,
+            Boolean isPrivate) {
+        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, documentIdx, null, null, isPrivate);
     }
 
 
@@ -141,8 +142,9 @@ public class NotificationAttachmentService {
             String xPagopaPnCxId,
             String mandateId,
             Integer recipientIdx,
-            String attachmentName) {
-        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, null, recipientIdx, attachmentName);
+            String attachmentName,
+            Boolean isPrivate) {
+        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, null, recipientIdx, attachmentName, isPrivate);
     }
 
     private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(
@@ -152,8 +154,9 @@ public class NotificationAttachmentService {
             String iun,
             Integer documentIndex,
             Integer recipientIdx,
-            String attachmentName) {
-        log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId );
+            String attachmentName,
+            Boolean isPrivate) {
+        log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} isPrivate={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, isPrivate );
 
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, iun, recipientIdx );
 
@@ -177,7 +180,7 @@ public class NotificationAttachmentService {
 
             // controlli per essere certi che la richiesta è stata fatta da un destinatario o da un delegato
             // ma non da rete RADD e non da mittente
-            if( !cxType.equals( CxTypeAuthFleet.PA.getValue() ) /*&& !isPrivate*/ ) {
+            if( !cxType.equals( CxTypeAuthFleet.PA.getValue() ) && Boolean.FALSE.equals(isPrivate) ) {
                 notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx() );
             }
 

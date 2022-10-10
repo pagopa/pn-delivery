@@ -375,7 +375,8 @@ class PnSentReceivedNotificationControllerTest {
 						Mockito.anyString(),
 						Mockito.anyString(),
 						Mockito.anyString(),
-						Mockito.anyInt()
+						Mockito.anyInt(),
+						Mockito.anyBoolean()
 				)).thenReturn( response );
 
 		// Then
@@ -393,7 +394,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PA, PA_ID, null, DOCUMENT_INDEX );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PA, PA_ID, null, DOCUMENT_INDEX, false );
 	}
 
 	@Test
@@ -413,7 +414,8 @@ class PnSentReceivedNotificationControllerTest {
 						Mockito.anyString(),
 						Mockito.anyString(),
 						Mockito.anyString(),
-						Mockito.anyInt()
+						Mockito.anyInt(),
+						Mockito.anyBoolean()
 				)).thenReturn( response );
 
 		// Then
@@ -431,7 +433,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null, DOCUMENT_INDEX );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null, DOCUMENT_INDEX, false );
 	}
 
 	@Test
@@ -451,7 +453,8 @@ class PnSentReceivedNotificationControllerTest {
 				Mockito.anyString(),
 				Mockito.anyString(),
 				Mockito.anyString(),
-				Mockito.anyInt()
+				Mockito.anyInt(),
+				Mockito.anyBoolean()
 		)).thenReturn( response );
 
 		// Then
@@ -469,7 +472,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null, DOCUMENT_INDEX );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null, DOCUMENT_INDEX, false );
 	}
 
 	// TODO inserire il test con il mandateID valorizzato
@@ -492,7 +495,8 @@ class PnSentReceivedNotificationControllerTest {
 						Mockito.anyString(),
 						Mockito.anyString(),
 						Mockito.anyInt(),
-						Mockito.anyString()
+						Mockito.anyString(),
+						Mockito.anyBoolean()
 				)).thenReturn( response );
 
 		// Then
@@ -508,7 +512,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PA, USER_ID, null,  0, PAGOPA);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PA, USER_ID, null,  0, PAGOPA, false);
 	}
 
 	@Test
@@ -516,7 +520,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0, PAGOPA );
+				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0, PAGOPA, false );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
@@ -532,7 +536,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getSentNotificationDocumentFailure() {
 		// When
-		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0 ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0, false ))
 				.thenThrow( new PnNotificationNotFoundException("Simulated Error") );
 
 		webTestClient.get()
@@ -549,7 +553,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getReceivedNotificationDocumentFailure() {
 		// When
-		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0 ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, CX_TYPE_PF, PA_ID, null, 0, false ))
 				.thenThrow( new PnNotificationNotFoundException("Simulated Error") );
 
 		webTestClient.get()
@@ -568,7 +572,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null,null, PAGOPA );
+				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null,null, PAGOPA, false );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -585,7 +589,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnBadRequestException("Request took too long to complete.", "test", ERROR_CODE_DELIVERY_FILEINFONOTFOUND))
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null,null, PAGOPA );
+				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null,null, PAGOPA, false );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -603,7 +607,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnInternalException("Simulated Error", "test") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null,null, PAGOPA );
+				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null,null, PAGOPA, false );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -634,7 +638,8 @@ class PnSentReceivedNotificationControllerTest {
 						Mockito.anyString(),
 						Mockito.anyString(),
 						Mockito.anyInt(),
-						Mockito.anyString()
+						Mockito.anyString(),
+						Mockito.anyBoolean()
 				)).thenReturn( response );
 
 		// Then
@@ -654,7 +659,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, MANDATE_ID, null, pagopa);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, USER_ID, MANDATE_ID, null, pagopa, false);
 	}
 
 	@Test

@@ -419,14 +419,14 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, null, ATTACHMENT_NAME );
+        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, null, ATTACHMENT_NAME, true );
     }
 
     @Test
     void getNotificationAttachmentPrivateFailure() {
         Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( attachmentService )
-                .downloadAttachmentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, null, ATTACHMENT_NAME );
+                .downloadAttachmentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, null, ATTACHMENT_NAME, true );
 
         webTestClient.get()
                 .uri( uriBuilder ->
@@ -456,14 +456,14 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX );
+        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX, true );
     }
 
     @Test
     void getNotificationDocumentPrivateFailure() {
         Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( attachmentService )
-                .downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX );
+                .downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX, true );
 
         webTestClient.get()
                 .uri( uriBuilder ->
