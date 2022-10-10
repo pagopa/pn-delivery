@@ -11,10 +11,10 @@ class RefinementLocalDateTest {
 
     private RefinementLocalDate refinementLocalDate;
 
-    public static final String REFINEMENT_DATE_SOLARE = "2022-10-07T11:01:25.122312Z";
-    public static final String EXPECTED_REFINEMENT_DATE_SOLARE = "2022-10-07T23:59:59.0+02:00";
-    public static final String REFINEMENT_DATE_LEGALE = "2022-12-07T11:01:25.122312Z";
-    public static final String EXPECTED_REFINEMENT_DATE_LEGALE = "2022-12-07T23:59:59.0+01:00";
+    public static final String REFINEMENT_DATE_LEGALE = "2022-10-07T11:01:25.122312Z";
+    public static final String EXPECTED_REFINEMENT_DATE_LEGALE = "2022-10-07T23:59:59.999999999+02:00";
+    public static final String REFINEMENT_DATE_SOLARE = "2022-12-07T11:01:25.122312Z";
+    public static final String EXPECTED_REFINEMENT_DATE_SOLARE = "2022-12-07T23:59:59.999999999+01:00";
 
     @BeforeEach
     void setup() { refinementLocalDate = new RefinementLocalDate(); }

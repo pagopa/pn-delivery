@@ -19,7 +19,7 @@ public class RefinementLocalDate {
         ZonedDateTime localDateTime = timestampUtc.toLocalDateTime().atZone( ZoneId.of( "Europe/Rome" ) );
         // mi sposto alle 23:59:59
         refinementDate = OffsetDateTime.of( localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(),
-                23, 59, 59, 0, ZoneId.of( "Europe/Rome" ).getRules().getOffset( localDateTime.toInstant() ) );
+                23, 59, 59, 999999999, ZoneId.of( "Europe/Rome" ).getRules().getOffset( localDateTime.toInstant() ) );
         return refinementDate;
     }
 }

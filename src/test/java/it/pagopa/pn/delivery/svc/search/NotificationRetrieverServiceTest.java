@@ -473,7 +473,7 @@ class NotificationRetrieverServiceTest {
         OffsetDateTime refinementDate = svc.findRefinementDate(timelineElementList, IUN );
 
         // Then
-        OffsetDateTime expectedRefinementDate = OffsetDateTime.parse( "2022-10-03T23:59:59.0+02:00" );
+        OffsetDateTime expectedRefinementDate = OffsetDateTime.parse( "2022-10-03T23:59:59.999999999+02:00" );
         Assertions.assertEquals( expectedRefinementDate, refinementDate );
     }
 
@@ -494,7 +494,7 @@ class NotificationRetrieverServiceTest {
         OffsetDateTime refinementDate = svc.findRefinementDate(timelineElementList, IUN );
 
         // Then
-        OffsetDateTime expectedRefinementDate = OffsetDateTime.parse( "2022-12-03T23:59:59.0+01:00" );
+        OffsetDateTime expectedRefinementDate = OffsetDateTime.parse( "2022-12-03T23:59:59.999999999+01:00" );
         Assertions.assertEquals( expectedRefinementDate, refinementDate );
     }
 

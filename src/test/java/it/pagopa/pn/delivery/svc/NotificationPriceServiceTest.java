@@ -27,7 +27,7 @@ class NotificationPriceServiceTest {
     private static final String PA_TAX_ID = "paTaxId";
     private static final String NOTICE_CODE = "noticeCode";
     public static final String REFINEMENT_DATE = "2022-10-07T11:01:25.122312Z";
-    public static final String EXPECTED_REFINEMENT_DATE = "2022-10-07T23:59:59.0+02:00";
+    public static final String EXPECTED_REFINEMENT_DATE = "2022-10-07T23:59:59.999999999+02:00";
 
     @Mock
     private NotificationDao notificationDao;
