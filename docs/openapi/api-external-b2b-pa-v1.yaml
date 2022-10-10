@@ -596,12 +596,14 @@ components:
             Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
               - application/pdf
           type: string
+          example: application/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
             checksum sha256, codificato in base 64, del contenuto binario del file che verrà
             caricato
           type: string
+          example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
 
     PreLoadResponse:
       title: Informazioni per il caricamento file
@@ -623,19 +625,20 @@ components:
           description: >-
             Indica se per l'upload del contenuto file bisogna utilizzare il metodo PUT o POST
           type: string
+          example: PUT
           enum:
             - POST
             - PUT
         url:
           description: >-
             URL a cui effettuare l'upload del contenuto del documento.
-          example: 'https://preloadpn.aws.amazon.......'
           type: string
+          example: 'https://preloadpn.aws.amazon.......'
         key:
           description: >-
             la chiave restituita sarà globalmente unica e andrà utilizzata nella richiesta 
             di notifica.
-          example: '8F7E/9A3B/1234/AB87'
+          example: 'PN_NOTIFICATION_ATTACHMENTS-0001-301W-B9CB-9U72-WIKD'
           type: string
     NotificationPriceResponse:
       title: Notification price Response
