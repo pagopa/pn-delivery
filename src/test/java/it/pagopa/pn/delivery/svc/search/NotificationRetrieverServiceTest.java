@@ -23,6 +23,7 @@ import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +61,7 @@ class NotificationRetrieverServiceTest {
 
     private NotificationSearchFactory notificationSearchFactory;
     private NotificationSearch notificationSearch;
+    private RefinementLocalDate refinementLocalDateUtils;
 
     @BeforeEach
     void setup() {
@@ -74,6 +76,7 @@ class NotificationRetrieverServiceTest {
         this.notificationSearchFactory = Mockito.mock(NotificationSearchFactory.class);
         this.notificationSearch = Mockito.mock(NotificationSearch.class);
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
+        this.refinementLocalDateUtils = new RefinementLocalDate();
 
         Mockito.when(notificationSearchFactory.getMultiPageSearch(Mockito.any(), Mockito.any())).thenReturn(notificationSearch);
 
@@ -87,8 +90,8 @@ class NotificationRetrieverServiceTest {
                 externalRegistriesClient,
                 modelMapperFactory,
                 notificationSearchFactory,
-                cfg
-        );
+                cfg,
+                refinementLocalDateUtils);
     }
 
     @Test
@@ -451,6 +454,48 @@ class NotificationRetrieverServiceTest {
         //Then
         Assertions.assertNotNull( result );
         Assertions.assertEquals("group-code-fake", result.getGroup());
+    }
+
+    @Test
+    void checkRefinementDateOraSolare() {
+        // Given
+        List<TimelineElement> timelineElementList = List.of( TimelineElement.builder()
+                        .category( TimelineElementCategory.REFINEMENT )
+                        .timestamp( OffsetDateTime.parse( "2022-10-05T12:23:15.123456Z" ) )
+                .build(),
+                TimelineElement.builder()
+                        .category( TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .timestamp( OffsetDateTime.parse( "2022-10-03T10:10:15.123456Z" ) )
+                        .build()
+        );
+
+        // When
+        OffsetDateTime refinementDate = svc.findRefinementDate(timelineElementList, IUN );
+
+        // Then
+        OffsetDateTime expectedRefinementDate = OffsetDateTime.parse( "2022-10-03T23:59:59.999999999+02:00" );
+        Assertions.assertEquals( expectedRefinementDate, refinementDate );
+    }
+
+    @Test
+    void checkRefinementDateOraLegale() {
+        // Given
+        List<TimelineElement> timelineElementList = List.of( TimelineElement.builder()
+                        .category( TimelineElementCategory.REFINEMENT )
+                        .timestamp( OffsetDateTime.parse( "2022-12-05T12:23:15.123456Z" ) )
+                        .build(),
+                TimelineElement.builder()
+                        .category( TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .timestamp( OffsetDateTime.parse( "2022-12-03T10:10:15.123456Z" ) )
+                        .build()
+        );
+
+        // When
+        OffsetDateTime refinementDate = svc.findRefinementDate(timelineElementList, IUN );
+
+        // Then
+        OffsetDateTime expectedRefinementDate = OffsetDateTime.parse( "2022-12-03T23:59:59.999999999+01:00" );
+        Assertions.assertEquals( expectedRefinementDate, refinementDate );
     }
 
     @Test
