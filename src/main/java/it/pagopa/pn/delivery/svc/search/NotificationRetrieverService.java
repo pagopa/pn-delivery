@@ -25,6 +25,7 @@ import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -38,15 +39,10 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_MANDATENOTFOUND;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
 
 @Service
 @Slf4j
@@ -68,6 +64,7 @@ public class NotificationRetrieverService {
 	private final ModelMapperFactory modelMapperFactory;
 	private final NotificationSearchFactory notificationSearchFactory;
 	private final PnDeliveryConfigs cfg;
+	private final RefinementLocalDate refinementLocalDateUtils;
 
 
 	@Autowired
@@ -80,8 +77,8 @@ public class NotificationRetrieverService {
 										PnExternalRegistriesClientImpl pnExternalRegistriesClient,
 										ModelMapperFactory modelMapperFactory,
 										NotificationSearchFactory notificationSearchFactory,
-										PnDeliveryConfigs cfg
-	) {
+										PnDeliveryConfigs cfg,
+										RefinementLocalDate refinementLocalDateUtils) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
@@ -92,6 +89,7 @@ public class NotificationRetrieverService {
 		this.modelMapperFactory = modelMapperFactory;
 		this.notificationSearchFactory = notificationSearchFactory;
 		this.cfg = cfg;
+		this.refinementLocalDateUtils = refinementLocalDateUtils;
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
@@ -296,20 +294,18 @@ public class NotificationRetrieverService {
 		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
-	private OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
+	protected OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
 		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
-		List<TimelineElement> timelineElementList = timeline
+		Optional<TimelineElement> optionalMin = timeline
 				.stream()
-				.filter(tle -> TimelineElementCategory.REFINEMENT.equals( tle.getCategory() ) || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.collect(Collectors.toList());
+				.filter(tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory() )
+								|| TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.min( Comparator.comparing(TimelineElement::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
-		if (!timelineElementList.isEmpty()) {
-			Optional<TimelineElement> optionalMin = timelineElementList.stream().min(Comparator.comparing(TimelineElement::getTimestamp));
-			if (optionalMin.isPresent()) {
-				refinementDate = optionalMin.get().getTimestamp();
-			}
+		if (optionalMin.isPresent()) {
+			refinementDate = refinementLocalDateUtils.setLocalRefinementDate(optionalMin.get());
 		} else {
 			log.debug( "Notification iun={} not perfected", iun );
 		}

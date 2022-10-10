@@ -676,10 +676,10 @@ components:
           example: '1220'
           type: string
         effectiveDate:
-          description: notification effective date
+          description: notification effective IT local date
           type: string
           format: date-time
-          example: 2017-07-21T17:32:59.645442Z
+          #example: 2017-07-21T17:32:59.645442Z
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###

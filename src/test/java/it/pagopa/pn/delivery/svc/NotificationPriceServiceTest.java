@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDa
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,8 @@ class NotificationPriceServiceTest {
 
     private static final String PA_TAX_ID = "paTaxId";
     private static final String NOTICE_CODE = "noticeCode";
+    public static final String REFINEMENT_DATE = "2022-10-07T11:01:25.122312Z";
+    public static final String EXPECTED_REFINEMENT_DATE = "2022-10-07T23:59:59.999999999+02:00";
 
     @Mock
     private NotificationDao notificationDao;
@@ -39,11 +42,13 @@ class NotificationPriceServiceTest {
     @Mock
     private NotificationRetrieverService retrieverService;
 
+    private RefinementLocalDate refinementLocalDateUtils = new RefinementLocalDate();
+
     private NotificationPriceService svc;
 
     @BeforeEach
     void setup() {
-        svc = new NotificationPriceService( notificationCostEntityDao, notificationDao, retrieverService, cfg );
+        svc = new NotificationPriceService( notificationCostEntityDao, notificationDao, retrieverService, cfg, refinementLocalDateUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -81,6 +86,7 @@ class NotificationPriceServiceTest {
         Assertions.assertNotNull( response );
         Assertions.assertEquals("iun" , response.getIun() );
         Assertions.assertEquals( "740", response.getAmount() );
+        Assertions.assertEquals( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) , response.getEffectiveDate() );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -114,6 +120,7 @@ class NotificationPriceServiceTest {
         Assertions.assertNotNull( response );
         Assertions.assertEquals("iun" , response.getIun() );
         Assertions.assertEquals( "0", response.getAmount() );
+        Assertions.assertEquals( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) , response.getEffectiveDate() );
     }
 
 
@@ -231,7 +238,7 @@ class NotificationPriceServiceTest {
                         .build()) )
                 .timeline( List.of( TimelineElement.builder()
                                 .category( TimelineElementCategory.REFINEMENT )
-                                .timestamp( OffsetDateTime.now() )
+                                .timestamp( OffsetDateTime.parse( REFINEMENT_DATE ) )
                                 .build(),
                         TimelineElement.builder()
                                 .category( TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER )
