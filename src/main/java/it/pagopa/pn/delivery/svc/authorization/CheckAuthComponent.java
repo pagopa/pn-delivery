@@ -55,6 +55,7 @@ public class CheckAuthComponent {
                 String delegatedCxId = mandates.get(0).getDelegator();
                 rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
                 recipientIdx = (rIdx >= 0 ? rIdx : null);
+                log.info("pfCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
             }
             else
             {
@@ -67,6 +68,11 @@ public class CheckAuthComponent {
         NotificationRecipient effectiveRecipient = null;
         if (recipientIdx != null ) {
             effectiveRecipient = notification.getRecipients().get( recipientIdx );
+            log.info("pfCanAccess iun={} effectiveRecipient={} recipient_size={}", notification.getIun(), effectiveRecipient==null?"NULL effective recipient":effectiveRecipient.getInternalId(), notification.getRecipients().size());
+            if (effectiveRecipient == null)
+            {
+                notification.getRecipients().forEach(x -> log.info("pfCanAccess list of recipient iun={} recipient={}", notification.getIun(), x==null?"NULL!":x.getInternalId()));
+            }
         }
 
         AuthorizationOutcome authorized;
