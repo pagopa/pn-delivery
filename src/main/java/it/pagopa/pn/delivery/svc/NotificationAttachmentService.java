@@ -131,8 +131,8 @@ public class NotificationAttachmentService {
             String xPagopaPnCxId,
             String mandateId,
             Integer documentIdx,
-            Boolean isPrivate) {
-        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, documentIdx, null, null, isPrivate);
+            Boolean isInternal) {
+        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, documentIdx, null, null, isInternal);
     }
 
 
@@ -143,8 +143,8 @@ public class NotificationAttachmentService {
             String mandateId,
             Integer recipientIdx,
             String attachmentName,
-            Boolean isPrivate) {
-        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, null, recipientIdx, attachmentName, isPrivate);
+            Boolean isInternal) {
+        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, null, recipientIdx, attachmentName, isInternal);
     }
 
     private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(
@@ -155,8 +155,8 @@ public class NotificationAttachmentService {
             Integer documentIndex,
             Integer recipientIdx,
             String attachmentName,
-            Boolean isPrivate) {
-        log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} isPrivate={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, isPrivate );
+            Boolean isInternal) {
+        log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} isInternal={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, isInternal );
 
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, iun, recipientIdx );
 
@@ -180,7 +180,7 @@ public class NotificationAttachmentService {
 
             // controlli per essere certi che la richiesta è stata fatta da un destinatario o da un delegato
             // ma non da rete RADD e non da mittente
-            if( !cxType.equals( CxTypeAuthFleet.PA.getValue() ) && Boolean.FALSE.equals(isPrivate) ) {
+            if( !cxType.equals( CxTypeAuthFleet.PA.getValue() ) && Boolean.FALSE.equals(isInternal) ) {
                 notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx() );
             }
 

@@ -454,7 +454,7 @@ class NotificationAttachmentServiceTest {
     }
 
     @Test
-    void downloadDocumentWithRedirectByIunAndDocIndexPrivate() {
+    void downloadDocumentWithRedirectByIunAndDocIndexInternal() {
         //Given
         String cxType = "PF";
         String cxId = X_PAGOPA_PN_CX_ID;
