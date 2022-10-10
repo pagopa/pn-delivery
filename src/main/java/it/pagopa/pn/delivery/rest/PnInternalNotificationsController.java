@@ -184,7 +184,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     mandateId,
                     null,
                     attachmentName,
-                    true
+                    false
             );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
@@ -211,7 +211,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     recipientInternalId,
                     mandateId,
                     docIdx,
-                    true
+                    false
             );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {

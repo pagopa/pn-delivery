@@ -442,7 +442,7 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirect(
-                IUN, cxType, cxId, null, docidx, false);
+                IUN, cxType, cxId, null, docidx, true);
 
         //Then
         assertNotNull(result);
@@ -483,7 +483,7 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirect(
-                IUN, cxType, cxId, null, docidx, true);
+                IUN, cxType, cxId, null, docidx, false);
 
         //Then
         assertNotNull(result);
@@ -554,7 +554,7 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, xPagopaPnCxId, mandateId, null,  attachmentName, false);
+                IUN, cxType, xPagopaPnCxId, mandateId, null,  attachmentName, true);
 
         //Then
         assertNotNull(result);
@@ -600,7 +600,7 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, xPagopaPnCxId, mandateId, null, attachmentName, false);
+                IUN, cxType, xPagopaPnCxId, mandateId, null, attachmentName, true);
 
         //Then
         assertNotNull(result);

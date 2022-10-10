@@ -120,7 +120,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     xPagopaPnCxId,
                     mandateId,
                     docIdx,
-                    false
+                    true
             );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
@@ -151,7 +151,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     mandateId,
                     null,
                     attachmentName,
-                    false
+                    true
             );
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
