@@ -58,11 +58,13 @@ components:
         - documents
         - physicalCommunicationType
         - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
       properties:
         idempotenceToken:
           description: >-
             Identificativo utilizzabile dal chiamante per disambiguare differenti 
-            "richieste di notificazione" effetuate con lo stesso numero di protocollo 
+            "richieste di notificazione" effettuate con lo stesso numero di protocollo 
             (campo _paProtocolNumber_). Questo può essere necessario in caso di 
             "richiesta di notifica" rifiutata per errori nei codici di verifica degli
             allegati.

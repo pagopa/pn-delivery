@@ -13,12 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.util.Base64Utils;
 
 import javax.validation.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,7 +67,9 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByField( errors, "physicalCommunicationType" );
         assertConstraintViolationPresentByField( errors, "subject" );
         assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
-        Assertions.assertEquals( 11, errors.size() );
+        assertConstraintViolationPresentByField( errors, "senderDenomination" );
+        assertConstraintViolationPresentByField( errors, "senderTaxId" );
+        Assertions.assertEquals( 13, errors.size() );
     }
 
     @Test
@@ -97,7 +97,9 @@ class NotificationReceiverValidationTest {
         assertProblemErrorConstraintViolationPresentByField( errors, "physicalCommunicationType" );
         assertProblemErrorConstraintViolationPresentByField( errors, "subject" );
         assertProblemErrorConstraintViolationPresentByField( errors, "notificationFeePolicy" );
-        Assertions.assertEquals( 11, errors.size() );
+        assertProblemErrorConstraintViolationPresentByField( errors, "senderDenomination" );
+        assertProblemErrorConstraintViolationPresentByField( errors, "senderTaxId" );
+        Assertions.assertEquals( 13, errors.size() );
     }
 
     @Test

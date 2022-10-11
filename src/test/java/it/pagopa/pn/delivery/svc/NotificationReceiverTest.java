@@ -398,6 +398,8 @@ class NotificationReceiverTest {
 						notificationReferredAttachment()
 				))
 				.group( "Group_1" )
+				.senderTaxId( "01199250158" )
+				.senderDenomination( "Comune di Milano" )
 				.build();
 	}
 
