@@ -4,13 +4,13 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.RestClientException;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -51,6 +50,7 @@ class NotificationAttachmentServiceTest {
     private PnSafeStorageClientImpl pnSafeStorageClient;
     private PnMandateClientImpl pnMandateClient;
     private CheckAuthComponent checkAuthComponent;
+    private NotificationViewedProducer notificationViewedProducer;
 
     @BeforeEach
     public void setup() {
@@ -60,9 +60,10 @@ class NotificationAttachmentServiceTest {
         pnSafeStorageClient = Mockito.mock(PnSafeStorageClientImpl.class);
         pnMandateClient = Mockito.mock( PnMandateClientImpl.class );
         checkAuthComponent = Mockito.mock( CheckAuthComponent.class );
+        notificationViewedProducer = Mockito.mock( NotificationViewedProducer.class );
 
         attachmentService = new NotificationAttachmentService(
-                 pnSafeStorageClient, notificationDao, checkAuthComponent);
+                 pnSafeStorageClient, notificationDao, checkAuthComponent, notificationViewedProducer);
     }
 
     @Test
@@ -118,12 +119,15 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName);
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false);
 
         //Then
         assertNotNull(result);
         assertEquals(IUN + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
 
     @Test
@@ -152,12 +156,15 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName);
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false);
 
         //Then
         assertNotNull(result);
         assertEquals(IUN + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
 
     @Test
@@ -188,7 +195,7 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName);
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false);
 
         //Then
         NotificationRecipient notificationRecipient = notification.getRecipients().get(0);
@@ -198,6 +205,9 @@ class NotificationAttachmentServiceTest {
         assertNotNull(result);
         assertEquals(IUN + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
 
     @Test
@@ -227,7 +237,7 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName);
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false);
         
         //Then
         NotificationRecipient notificationRecipient = notification.getRecipients().get(0);
@@ -238,6 +248,9 @@ class NotificationAttachmentServiceTest {
         assertNotNull(result);
         assertEquals(IUN + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
     
     @Test
@@ -266,12 +279,15 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName);
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false);
 
         //Then
         assertNotNull(result);
         assertEquals(IUN + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
 
     @Test
@@ -301,12 +317,15 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName);
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false);
 
         //Then
         assertNotNull(result);
         assertEquals(IUN + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
 
     @Test
@@ -330,7 +349,10 @@ class NotificationAttachmentServiceTest {
 
         //When
         assertThrows(PnNotFoundException.class, () -> attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName));
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false));
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
 
     }
 
@@ -349,7 +371,10 @@ class NotificationAttachmentServiceTest {
 
         //When
         assertThrows(PnNotFoundException.class, () -> attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName));
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false));
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
 
     }
 
@@ -380,7 +405,10 @@ class NotificationAttachmentServiceTest {
 
         //Then
         assertThrows(PnBadRequestException.class, () -> attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, cxId, null, recipientidx, attachmentName));
+                IUN, cxType, cxId, null, recipientidx, attachmentName, false));
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
 
     }
 
@@ -414,12 +442,56 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirect(
-                IUN, cxType, cxId, null, docidx);
+                IUN, cxType, cxId, null, docidx, true);
 
         //Then
         assertNotNull(result);
         assertEquals(IUN + "__" + optNotification.get().getDocuments().get(0).getTitle() + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 1 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
+    }
+
+    @Test
+    void downloadDocumentWithRedirectByIunAndDocIndexInternal() {
+        //Given
+        String cxType = "PF";
+        String cxId = X_PAGOPA_PN_CX_ID;
+        int docidx = 0;
+        String attachmentName = PAGOPA;
+
+
+        Optional<InternalNotification> optNotification = Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
+
+        NotificationRecipient recipient = NotificationRecipient.builder()
+                .taxId( X_PAGOPA_PN_CX_ID )
+                .build();
+
+        AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(
+                recipient,
+                0
+        );
+
+
+        when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+        when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean())).thenReturn(buildFileDownloadResponse());
+        when(checkAuthComponent.canAccess(
+                Mockito.any(ReadAccessAuth.class),
+                Mockito.any( InternalNotification.class ) )
+        ).thenReturn( authorizationOutcome );
+
+        //When
+        NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadDocumentWithRedirect(
+                IUN, cxType, cxId, null, docidx, false);
+
+        //Then
+        assertNotNull(result);
+        assertEquals(IUN + "__" + optNotification.get().getDocuments().get(0).getTitle() + ".pdf",  result.getFilename());
+        assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
 
     @Test
@@ -448,7 +520,10 @@ class NotificationAttachmentServiceTest {
 
         //When
         assertThrows(PnNotFoundException.class, () -> attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, X_PAGOPA_PN_CX_ID, null, 0 , F_24));
+                IUN, cxType, X_PAGOPA_PN_CX_ID, null, 0 , F_24, false));
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
 
     }
 
@@ -479,12 +554,15 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, xPagopaPnCxId, mandateId, null,  attachmentName);
+                IUN, cxType, xPagopaPnCxId, mandateId, null,  attachmentName, true);
 
         //Then
         assertNotNull(result);
         assertEquals(IUN + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 1 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
 
     @Test
@@ -522,12 +600,15 @@ class NotificationAttachmentServiceTest {
 
         //When
         NotificationAttachmentDownloadMetadataResponse result = attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, xPagopaPnCxId, mandateId, null, attachmentName);
+                IUN, cxType, xPagopaPnCxId, mandateId, null, attachmentName, true);
 
         //Then
         assertNotNull(result);
         assertEquals(IUN + "__" +attachmentName + ".pdf",  result.getFilename());
         assertNotNull(result.getUrl());
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 1 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
     }
 
     @Test
@@ -553,7 +634,10 @@ class NotificationAttachmentServiceTest {
 
         //When
         assertThrows(PnNotFoundException.class, () -> attachmentService.downloadAttachmentWithRedirect(
-                IUN, cxType, X_PAGOPA_PN_CX_ID, mandateId, null, PAGOPA));
+                IUN, cxType, X_PAGOPA_PN_CX_ID, mandateId, null, PAGOPA, false));
+
+        Mockito.verify( notificationViewedProducer, Mockito.times( 0 ) )
+                .sendNotificationViewed( Mockito.anyString(), Mockito.any( Instant.class ), Mockito.anyInt() );
 
     }
 
