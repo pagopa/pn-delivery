@@ -28,3 +28,4 @@ Nel caso in cui il comando di bash sia installato in un altra posizione, si può
 ```
     mvn antrun:run  "-Dant.windows_bash_exe=D:\path\bash.exe"
 ```
+
