@@ -25,10 +25,8 @@ public class NotificationDaoMock implements NotificationDao {
 
 
     @Override
-    public void addNotification(InternalNotification notification, Runnable runnable) throws PnIdConflictException {
-        if ( runnable != null ) {
-            runnable.run();
-        }
+    public void addNotification(InternalNotification notification) throws PnIdConflictException {
+
     }
 
     @Override

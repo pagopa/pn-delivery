@@ -8,7 +8,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -30,7 +29,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -59,7 +61,6 @@ class NotificationReceiverTest {
 	public static final String X_PAGOPA_PN_CX_ID = "paId";
 
 	private NotificationDao notificationDao;
-	private NewNotificationProducer notificationEventProducer;
 	private NotificationReceiverService deliveryService;
 	private FileStorage fileStorage;
 	private ModelMapperFactory modelMapperFactory;
@@ -70,7 +71,6 @@ class NotificationReceiverTest {
 		Clock clock = Clock.fixed( Instant.EPOCH, ZoneId.of("UTC"));
 
 		notificationDao = Mockito.spy( new NotificationDaoMock() );
-		notificationEventProducer = Mockito.mock(NewNotificationProducer.class);
 		fileStorage = Mockito.mock( FileStorage.class );
 		modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
 		cfg = Mockito.mock( PnDeliveryConfigs.class );
@@ -82,7 +82,6 @@ class NotificationReceiverTest {
 		deliveryService = new NotificationReceiverService(
 				clock,
 				notificationDao,
-				notificationEventProducer,
 				validator,
 				modelMapperFactory);
 	}
@@ -110,14 +109,13 @@ class NotificationReceiverTest {
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification );
 
 		// Then
-		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture(), Mockito.any( Runnable.class ) );
+		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture()  );
 
 		InternalNotification savedNotification = savedNotificationCaptor.getValue();
 
 		assertEquals( notification.getPaProtocolNumber(), savedNotification.getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( notification.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
-		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
 	@Test
@@ -144,8 +142,7 @@ class NotificationReceiverTest {
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest );
 
 		// Then
-		Mockito.verify( notificationDao ).addNotification( savedNotification.capture(), Mockito.any( Runnable.class ) );
-		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture()  );
 	}
 
 	@Test
@@ -172,14 +169,13 @@ class NotificationReceiverTest {
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest );
 
 		// Then
-		Mockito.verify( notificationDao ).addNotification( savedNotification.capture(), Mockito.any( Runnable.class ) );
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
 		assertEquals( Base64Utils.encodeToString(savedNotification.getValue().getIun().getBytes(StandardCharsets.UTF_8)), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
 		assertEquals( notificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( notificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
 		assertEquals( notificationRequest.getAbstract(), savedNotification.getValue().getAbstract() );
 
-		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
 	@Test
@@ -206,12 +202,11 @@ class NotificationReceiverTest {
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest );
 
 		// Then
-		Mockito.verify( notificationDao ).addNotification( savedNotification.capture(), Mockito.any( Runnable.class ) );
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
 		assertEquals( Base64Utils.encodeToString(savedNotification.getValue().getIun().getBytes(StandardCharsets.UTF_8)), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
 		assertEquals( newNotificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( newNotificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
-		Mockito.verify( notificationEventProducer ).sendNewNotificationEvent( Mockito.anyString(), Mockito.anyString(), Mockito.any( Instant.class) );
 	}
 
 
@@ -253,7 +248,7 @@ class NotificationReceiverTest {
 		keyValueConflict.put( "iun", IUN );
 		Mockito.doThrow( new PnIdConflictException(keyValueConflict) )
 				.when( notificationDao )
-				.addNotification( Mockito.any( InternalNotification.class), Mockito.any( Runnable.class ) );
+				.addNotification( Mockito.any( InternalNotification.class) );
 
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
@@ -275,7 +270,7 @@ class NotificationReceiverTest {
 		// Then
 		PnIdConflictException exc = Assertions.assertThrows( PnIdConflictException.class, todo );
 		Mockito.verify( notificationDao, Mockito.times( 1 ) )
-				                              .addNotification( Mockito.any( InternalNotification.class ), Mockito.any( Runnable.class ));
+				                              .addNotification( Mockito.any( InternalNotification.class ));
 	}
 
 	@Test
@@ -284,7 +279,7 @@ class NotificationReceiverTest {
 		Mockito.doThrow( new PnInternalException("Simulated Error") )
 				.doNothing()
 				.when( notificationDao )
-				.addNotification( Mockito.any( InternalNotification.class), Mockito.any( Runnable.class ) );
+				.addNotification( Mockito.any( InternalNotification.class) );
 
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
@@ -309,7 +304,7 @@ class NotificationReceiverTest {
 
 		// Then
 		Mockito.verify( notificationDao, Mockito.times( 2 ) )
-				.addNotification( Mockito.any( InternalNotification.class ), Mockito.any( Runnable.class ));
+				.addNotification( Mockito.any( InternalNotification.class ));
 	}
 
 	private NewNotificationRequest newNotificationRequest() {
