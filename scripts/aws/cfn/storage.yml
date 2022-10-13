@@ -24,21 +24,9 @@ Parameters:
     Type: String
     Description: 'Where to send CDC'
 
-  DeliveryPushInputsQueueARN:
+  AlarmSNSTopicName:
     Type: String
-    Description: 'Target queue ARN for insert trigger'
-
-  DeliveryPushInputsQueueURL:
-    Type: String
-    Description: 'Target queue URL for insert trigger'
-
-  PnDeliveryInsertTriggerDLQName:
-    Type: String
-    Description: 'DLQ Name for insert trigger'
-
-  PnDeliveryInsertTriggerDLQARN:
-    Type: String
-    Description: 'DLQ ARN for insert trigger'
+    Description: 'Topic alarm'
 
 Resources:
 
@@ -130,163 +118,16 @@ Resources:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
 
-  # Lambda function role
-  PnDeliveryInsertTriggerLambdaRole:
-    Type: AWS::IAM::Role
+  ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
+  PnDeliveryInsertTriggerDLQ:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      RoleName: !Sub ${ProjectName}-PnDeliveryInsertTriggerLambdaRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-      Policies:
-        - PolicyName: !Sub ${ProjectName}-PnDeliveryInsertTriggerLambdaRolePolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-#              - Sid: InvokeLambda
-#                Effect: Allow
-#                Action:
-#                  - lambda:InvokeFunction
-#                Resource: !GetAtt PnDeliveryInsertTriggerLambda.Arn
-              - Sid: WriteOnQueue
-                Effect: Allow
-                Action:
-                  - sqs:ChangeMessageVisibility
-                  - sqs:GetQueueAttributes
-                  - sqs:GetQueueUrl
-                  - sqs:SendMessage
-                Resource:
-                  - !Ref DeliveryPushInputsQueueARN
-                  - !Ref PnDeliveryInsertTriggerDLQARN
-              - Sid: ReceiveDynamoStream
-                Effect: Allow
-                Action:
-                  - "dynamodb:DescribeStream"
-                  - "dynamodb:GetRecords"
-                  - "dynamodb:GetShardIterator"
-                  - "dynamodb:ListStreams"
-                Resource:
-                  - !GetAtt NotificationsTable.StreamArn
-              - Sid: CanWriteLogs
-                Effect: "Allow"
-                Action:
-                  - "logs:CreateLogGroup"
-                  - "logs:CreateLogStream"
-                  - "logs:PutLogEvents"
-                Resource: "*"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_insert_trigger_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
 
-  PnDeliveryInsertTriggerLambdaEventSourceMapping:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !GetAtt NotificationsTable.StreamArn
-      StartingPosition: LATEST
-      BatchSize: 10
-      MaximumBatchingWindowInSeconds: 20
-      MaximumRetryAttempts: 20
-      FunctionName: !GetAtt PnDeliveryInsertTriggerLambda.Arn
-       # Add an OnFailure destination on the event source mapping
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref PnDeliveryInsertTriggerDLQARN
-
-
-  PnDeliveryInsertTriggerLambda:
-    Type: 'AWS::Lambda::Function'
-    Properties:
-      Handler: index.handler
-      Runtime: nodejs16.x
-      Description: ''
-      MemorySize: 128
-      Timeout: 10
-      Role:
-        Fn::GetAtt:
-          - "PnDeliveryInsertTriggerLambdaRole"
-          - "Arn"
-      Environment:
-        Variables:
-          QUEUE_URL: !Ref DeliveryPushInputsQueueURL
-      DeadLetterConfig:
-        TargetArn: !Ref PnDeliveryInsertTriggerDLQARN
-      Code:
-        ZipFile: |
-              const AWS = require('aws-sdk')
-              const sqs = new AWS.SQS();
-
-              const QUEUE_URL = process.env.QUEUE_URL
-
-              exports.handler = async (event) => {
-                  console.log(JSON.stringify(event, null, 2));
-                  console.log(QUEUE_URL);
-
-                  for(var i = 0;i<event.Records.length;i++)
-                  {
-                      let record = event.Records[i];
-                      if (record.eventName != 'INSERT')
-                        continue;
-
-                      console.log('Processing dynamoDB Record: %j', record.dynamodb);
-                      const iun = record.dynamodb.Keys.iun.S;
-                      if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/)==null)
-                        continue;
-
-                      var message = {
-                        DelaySeconds: 0,
-                        MessageGroupId: 'DELIVERY',
-                        MessageDeduplicationId: iun + "_start",
-                        MessageAttributes: {
-                          "createdAt": {
-                            DataType: "String",
-                            StringValue: new Date().toISOString()
-                          },
-                          "eventId": {
-                            DataType: "String",
-                            StringValue: iun + "_start"
-                          },
-                          "eventType": {
-                            DataType: "String",
-                            StringValue: "NEW_NOTIFICATION"
-                          },
-                          "iun": {
-                            DataType: "String",
-                            StringValue: iun
-                          },
-                          "publisher": {
-                            DataType: "String",
-                            StringValue: "DELIVERY"
-                          }
-                        },
-                        MessageBody: JSON.stringify({iun: iun}),
-                        QueueUrl: QUEUE_URL
-                      };
-
-                      console.log('Sending message: %j', message);
-                      try{
-                          let queueRes = await sqs.sendMessage(message).promise();
-                          console.log("Sent message", queueRes.MessageId);
-                      }catch(exc){
-                          console.log("error sending message", exc)
-                          const response = {
-                              StatusCode: 500,
-                              body: JSON.stringify(exc)
-                          };
-                          return response;
-                      }
-                  }
-
-                  const response = {
-                      StatusCode: 200
-                  };
-                  return response;
-
-              };
-      #ENDpndeliveryinserttrigger
 Outputs:
 
   # Dynamo table
@@ -317,3 +158,14 @@ Outputs:
   NotificationsMetadataDynamoTableArn:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
+
+  # Delivery Insert Trigger DLQ
+  PnDeliveryInsertTriggerDLQName:
+    Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueName
+    Description: pn-delivery_insert_trigger_DLQ queue name
+  PnDeliveryInsertTriggerDLQURL:
+    Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueURL
+    Description: pn-delivery_insert_trigger_DLQ queue URL
+  PnDeliveryInsertTriggerDLQARN:
+    Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueARN
+    Description: pn-delivery_insert_trigger_DLQ queue ARN

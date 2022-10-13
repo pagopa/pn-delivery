@@ -17,7 +17,7 @@
 
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
-        <ant.windows_bash_exe>d:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
+        <ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
     </properties>
     <dependencies>
         <dependency>
