@@ -385,9 +385,11 @@ Resources:
 
                       console.log('Processing dynamoDB Record: %j', record.dynamodb);
                       const iun = record.dynamodb.Keys.iun.S;
-                      const senderPaId = record.dynamodb.NewImage.senderPaId.S;
+
                       if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/)==null)
                         continue;
+
+                      const senderPaId = record.dynamodb.NewImage.senderPaId.S;
 
                       var message = {
                         DelaySeconds: 0,
