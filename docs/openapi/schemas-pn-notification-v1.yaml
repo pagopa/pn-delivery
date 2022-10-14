@@ -1,6 +1,7 @@
 info:
   version: v1.0
 components:
+
   schemas:
 
     ############################################################################################
@@ -165,6 +166,20 @@ components:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
 
+    NotificationDetail:
+      description: >-
+        Le informazioni riguardanti una notifica
+      allOf:
+        - $ref: '#/components/schemas/SentNotification'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatusProcessed'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistoryProcessed'
 
     ############################################################################################
     ###                                ELEMENTI DI DETTAGLIO                                 ###
@@ -322,6 +337,63 @@ components:
         #f24analogRiDouble:
         #  $ref: "#/components/schemas/NotificationPaymentAttachment"
 
+    NotificationStatusProcessed:
+      description: >-
+        stato di avanzamento del processo di notifica:
+          * `IN_VALIDATION` - notifica depositata in attesa di validazione
+          * `ACCEPTED` - notifica accettata
+          * `REFUSED` - notifica rifiutata
+          * `DELIVERING` - notifica in spedita
+          * `DELIVERED` - notifica ricevuta da tutti i destinatari
+          * `VIEWED` - notifica presa visione per almeno un destinatario
+          * `EFFECTIVE_DATE` - notifica perfezionata per un destinatario
+          * `PAID` - notifica pagata
+          * `UNREACHABLE` - notifica non recapitabile
+          * `CANCELLED` - notifica annullata dal mittente
+          * `VIEWED_AFTER_DEADLINE` - notifica visualizzata da almeno un destinatario, dopo la scadenza per la presa visione
+      type: string
+      enum:
+        - IN_VALIDATION
+        - ACCEPTED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+        - REFUSED
+        - CANCELLED
+        - VIEWED_AFTER_DEADLINE
+
+    TimelineElements:
+      description: Eventi avvenuti nello stato
+      type: array
+      items:
+        allOf:
+          - $ref: "./remote-refs.yaml#/components/schemas/TimelineElement"
+          - type: object
+            properties:
+              stepType:
+                description: Indica se lo step è un'operazione (non utile al front-end) del processo di evoluzione della notifica o se è uno step di worflow (utile al front-end)
+                type: string
+                enum:
+                  - OPERATION
+                  - WORKFLOW
+
+    NotificationStatusHistoryProcessed:
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: array
+      items:
+        type: object
+        properties:
+          activeFrom:
+            type: string
+            description: data e ora di raggiungimento dello stato di avanzamento
+            format: date-time
+          status:
+            $ref: '#/components/schemas/NotificationStatusProcessed'
+          relatedTimelineElements:
+            $ref: '#/components/schemas/TimelineElements'
 
     ############################################################################################
     ###                              INDIRIZZI DIGITALE E FISICO                             ###

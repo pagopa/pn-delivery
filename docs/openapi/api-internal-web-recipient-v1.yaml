@@ -27,7 +27,9 @@ tags:
   - name: RecipientRead
     description: >-
       Invocazioni utilizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.
-
+  - name: RecipientReadProcessed
+    description: >-
+      Invocazioni utilizzate dal presentation layer per i destinatari.
 
 paths:
   "/status":
@@ -191,6 +193,48 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+
+  "/delivery/notifications/received/{iun}/processed":
+    get:
+      summary: 'Lettura dettagli notifica'
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle
+        notifiche ricevute.
+      tags:
+        - RecipientReadProcessed
+      operationId: getReceivedNotificationProcessed
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDetail"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
 components:
   

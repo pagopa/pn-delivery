@@ -1,7 +1,7 @@
 info:
   version: v1.0
 components:
-  
+
   parameters:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
@@ -26,7 +26,6 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c97c343b7f52309c92b01254e7c3abc33cc7902/docs/openapi/api-internal-pn-delivery-push-v1.yaml#/components/parameters/pathLegalFactType'
     pathLegalFactId:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c97c343b7f52309c92b01254e7c3abc33cc7902/docs/openapi/api-internal-pn-delivery-push-v1.yaml#/components/parameters/pathLegalFactId'
-
 
   schemas:
     
