@@ -55,6 +55,10 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing notifications'
 
+  NotificationsDynamoTableStreamArn:
+    Type: String
+    Description: 'ARN of dynamodb table containing notifications streams'
+
   NotificationsCostDynamoTableName:
     Type: String
     Description: 'Notifications Cost Dynamo table name'
@@ -338,7 +342,7 @@ Resources:
                   - "dynamodb:GetShardIterator"
                   - "dynamodb:ListStreams"
                 Resource:
-                  - !GetAtt NotificationsTable.StreamArn
+                  - !Ref NotificationsDynamoTableStreamArn
               - Sid: CanWriteLogs
                 Effect: "Allow"
                 Action:
@@ -350,7 +354,7 @@ Resources:
   PnDeliveryInsertTriggerLambdaEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
-      EventSourceArn: !GetAtt NotificationsTable.StreamArn
+      EventSourceArn: !Ref NotificationsDynamoTableStreamArn
       StartingPosition: LATEST
       BatchSize: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingBatchSize}
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds}
