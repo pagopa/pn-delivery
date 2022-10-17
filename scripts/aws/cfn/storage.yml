@@ -137,6 +137,9 @@ Outputs:
   NotificationsDynamoTableArn:
     Description: ARN of dynamodb table containing notifications
     Value: !Sub '${NotificationsTable.Arn}'
+  NotificationsDynamoTableStreamArn:
+    Description: ARN of dynamodb table containing stream notifications
+    Value: !GetAtt NotificationsTable.StreamArn
 
   NotificationsCostDynamoTableName:
     Description: Name of dynamodb table containing notifications cost
