@@ -76,9 +76,11 @@ components:
         subject:
           type: string
           description: titolo della notifica
+          maxLength: 512
         abstract:
           type: string
           description: descrizione sintetica della notifica
+          maxLength: 1024
         recipients:
           type: array
           description: Informazioni sui destinatari

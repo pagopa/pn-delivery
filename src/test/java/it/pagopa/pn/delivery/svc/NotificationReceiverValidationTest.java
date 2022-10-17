@@ -33,6 +33,8 @@ class NotificationReceiverValidationTest {
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     public static final String VERSION_TOKEN = "version_token";
     public static final String KEY = "key";
+    public static final String INVALID_ABSTRACT = "invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars";
+    public static final String INVALID_SUBJECT = "invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars";
 
 
     private NotificationReceiverValidator validator;
@@ -180,6 +182,40 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByFieldWithExpected( errors, "senderTaxId", 2 );
         assertConstraintViolationPresentByField( errors, "notificationFeePolicy" );
         Assertions.assertEquals( 3, errors.size() );
+    }
+
+    @Test
+    void invalidAbstract() {
+        // GIVEN
+        InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
+                ._abstract( INVALID_ABSTRACT )
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
+                , Collections.emptyMap(), Collections.emptyList() );
+
+        // WHEN
+        Set<ConstraintViolation<InternalNotification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( n );
+
+        // THEN
+        assertConstraintViolationPresentByField( errors, "abstract" );
+        Assertions.assertEquals( 1, errors.size() );
+    }
+
+    @Test
+    void invalidSubject() {
+        // GIVEN
+        InternalNotification n = new InternalNotification( notificationWithPhysicalCommunicationType()
+                .subject( INVALID_SUBJECT )
+                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
+                , Collections.emptyMap(), Collections.emptyList() );
+
+        // WHEN
+        Set<ConstraintViolation<InternalNotification>> errors;
+        errors = validator.checkNewNotificationBeforeInsert( n );
+
+        // THEN
+        assertConstraintViolationPresentByField( errors, "subject" );
+        Assertions.assertEquals( 1, errors.size() );
     }
 
     @Test
