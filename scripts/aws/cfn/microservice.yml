@@ -281,6 +281,7 @@ Resources:
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-web'
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
+        Limit: 6000
 
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
