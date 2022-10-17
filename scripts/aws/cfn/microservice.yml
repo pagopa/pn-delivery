@@ -124,6 +124,35 @@ Parameters:
     Type: String
     Description: 'Kinesis stream that receive logs'
 
+  DeliveryPushInputsQueueARN:
+    Type: String
+    Description: 'Target queue ARN for insert trigger'
+
+  DeliveryPushInputsQueueURL:
+    Type: String
+    Description: 'Target queue URL for insert trigger'
+
+  PnDeliveryInsertTriggerDLQName:
+    Type: String
+    Description: 'DLQ Name for insert trigger'
+
+  PnDeliveryInsertTriggerDLQARN:
+    Type: String
+    Description: 'DLQ ARN for insert trigger'
+
+  PnDeliveryInsertTriggerLambdaEventSourceMappingBatchSize:
+    Type: String
+    Description: 'BatchSize stream mapping'
+
+  PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds:
+    Type: String
+    Description: 'BatchWindow stream mapping'
+
+  PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts:
+    Type: String
+    Description: 'MaxRetry stream mapping'
+
+
 Resources:
 
   # PN-Delivery microservice
@@ -270,4 +299,151 @@ Resources:
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-io'
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
+
+  # Lambda function role
+  PnDeliveryInsertTriggerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-PnDeliveryInsertTriggerLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-PnDeliveryInsertTriggerLambdaRolePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: WriteOnQueue
+                Effect: Allow
+                Action:
+                  - sqs:ChangeMessageVisibility
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:SendMessage
+                Resource:
+                  - !Ref DeliveryPushInputsQueueARN
+                  - !Ref PnDeliveryInsertTriggerDLQARN
+              - Sid: ReceiveDynamoStream
+                Effect: Allow
+                Action:
+                  - "dynamodb:DescribeStream"
+                  - "dynamodb:GetRecords"
+                  - "dynamodb:GetShardIterator"
+                  - "dynamodb:ListStreams"
+                Resource:
+                  - !GetAtt NotificationsTable.StreamArn
+              - Sid: CanWriteLogs
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+
+  PnDeliveryInsertTriggerLambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !GetAtt NotificationsTable.StreamArn
+      StartingPosition: LATEST
+      BatchSize: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingBatchSize}
+      MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds}
+      MaximumRetryAttempts: !Sub ${PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts}
+      FunctionName: !GetAtt PnDeliveryInsertTriggerLambda.Arn
+       # Add an OnFailure destination on the event source mapping
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref PnDeliveryInsertTriggerDLQARN
+
+  PnDeliveryInsertTriggerLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs16.x
+      Description: ''
+      MemorySize: 128
+      Timeout: 10
+      Role: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref DeliveryPushInputsQueueURL
+      Code:
+        ZipFile: |
+              const AWS = require('aws-sdk')
+              const sqs = new AWS.SQS();
+
+              const QUEUE_URL = process.env.QUEUE_URL
+
+              exports.handler = async (event) => {
+                  console.log(JSON.stringify(event, null, 2));
+                  console.log(QUEUE_URL);
+
+                  for(var i = 0;i<event.Records.length;i++)
+                  {
+                      let record = event.Records[i];
+                      if (record.eventName != 'INSERT')
+                        continue;
+
+                      console.log('Processing dynamoDB Record: %j', record.dynamodb);
+                      const iun = record.dynamodb.Keys.iun.S;
+
+                      if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/)==null)
+                        continue;
+
+                      const senderPaId = record.dynamodb.NewImage.senderPaId.S;
+
+                      var message = {
+                        DelaySeconds: 0,
+                        MessageGroupId: 'DELIVERY',
+                        MessageDeduplicationId: iun + "_start",
+                        MessageAttributes: {
+                          "createdAt": {
+                            DataType: "String",
+                            StringValue: new Date().toISOString()
+                          },
+                          "eventId": {
+                            DataType: "String",
+                            StringValue: iun + "_start"
+                          },
+                          "eventType": {
+                            DataType: "String",
+                            StringValue: "NEW_NOTIFICATION"
+                          },
+                          "iun": {
+                            DataType: "String",
+                            StringValue: iun
+                          },
+                          "publisher": {
+                            DataType: "String",
+                            StringValue: "DELIVERY"
+                          }
+                        },
+                        MessageBody: JSON.stringify({paId: senderPaId}),
+                        QueueUrl: QUEUE_URL
+                      };
+
+                      console.log('Sending message: %j', message);
+                      try{
+                          let queueRes = await sqs.sendMessage(message).promise();
+                          console.log("Sent message", queueRes.MessageId);
+                      }catch(exc){
+                          console.log("error sending message", exc)
+                          throw exc;
+                      }
+                  }
+
+                  const response = {
+                      StatusCode: 200
+                  };
+                  return response;
+
+              };
+      #ENDpndeliveryinserttrigger
+      #Non rimuovere o modificare il commento sopra, è usato come placeholder negli script
 

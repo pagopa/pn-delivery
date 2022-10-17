@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.middleware.NewNotificationProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
@@ -30,7 +28,6 @@ public class NotificationReceiverService {
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;
-	private final NewNotificationProducer newNotificationEventProducer;
 	private final NotificationReceiverValidator validator;
 	private final ModelMapperFactory modelMapperFactory;
 
@@ -40,12 +37,10 @@ public class NotificationReceiverService {
 	public NotificationReceiverService(
 			Clock clock,
 			NotificationDao notificationDao,
-			NewNotificationProducer newNotificationEventProducer,
 			NotificationReceiverValidator validator,
 			ModelMapperFactory modelMapperFactory) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
-		this.newNotificationEventProducer = newNotificationEventProducer;
 		this.validator = validator;
 		this.modelMapperFactory = modelMapperFactory;
 	}
@@ -102,7 +97,6 @@ public class NotificationReceiverService {
 	
 
 	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws PnIdConflictException {
-		String paId = internalNotification.getSenderPaId();
 
 		log.debug("Generate tokens for iun={}", iun);
 		// generazione token per ogni destinatario
@@ -114,11 +108,7 @@ public class NotificationReceiverService {
 
 
 		log.info("Store the notification metadata for iun={}", iun);
-		notificationDao.addNotification(internalNotification, () -> {
-			// - Will be delayed from the receiver
-			log.debug("Send \"new notification\" event for iun={}", iun);
-			newNotificationEventProducer.sendNewNotificationEvent( paId, iun, createdAt);
-		});
+		notificationDao.addNotification(internalNotification);
 	}
 
 

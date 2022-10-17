@@ -15,14 +15,18 @@ Parameters:
   TemplateBucketBaseUrl:
     Type: String
     Description: URL da cui caricare i frammenti di template di infrastruttura
-  
+
   Version:
     Type: String
     Description: 'keep track of used projects commitIds'
-  
+
   CdcKinesisSourceStreamArn:
     Type: String
     Description: 'Where to send CDC'
+
+  AlarmSNSTopicName:
+    Type: String
+    Description: 'Topic alarm'
 
 Resources:
 
@@ -40,7 +44,7 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       KinesisStreamSpecification:
         StreamArn: !Ref CdcKinesisSourceStreamArn
-      StreamSpecification: 
+      StreamSpecification:
         StreamViewType: NEW_IMAGE
 
   NotificationsCostTable:
@@ -114,8 +118,18 @@ Resources:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
 
+  ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
+  PnDeliveryInsertTriggerDLQ:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-delivery_insert_trigger_DLQ'
+        DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+
 Outputs:
-  
+
   # Dynamo table
   NotificationsDynamoTableName:
     Description: Name of dynamodb table containing notifications
@@ -144,3 +158,14 @@ Outputs:
   NotificationsMetadataDynamoTableArn:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
+
+  # Delivery Insert Trigger DLQ
+  PnDeliveryInsertTriggerDLQName:
+    Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueName
+    Description: pn-delivery_insert_trigger_DLQ queue name
+  PnDeliveryInsertTriggerDLQURL:
+    Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueURL
+    Description: pn-delivery_insert_trigger_DLQ queue URL
+  PnDeliveryInsertTriggerDLQARN:
+    Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueARN
+    Description: pn-delivery_insert_trigger_DLQ queue ARN

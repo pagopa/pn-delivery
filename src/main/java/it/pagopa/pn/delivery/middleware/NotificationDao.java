@@ -14,11 +14,8 @@ public interface NotificationDao {
 
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-dao";
 
-    default void addNotification(InternalNotification notification) throws PnIdConflictException {
-        this.addNotification( notification, null );
-    }
 
-    void addNotification(InternalNotification notification, Runnable doBeforeSave) throws PnIdConflictException;
+    void addNotification(InternalNotification notification) throws PnIdConflictException;
 
     Optional<InternalNotification> getNotificationByIun(String iun);
 
