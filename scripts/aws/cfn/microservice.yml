@@ -39,10 +39,6 @@ Parameters:
     Type: String
     Description: 'Queue to pull for inputs event'
 
-  DeliveryPushInputsQueueARN:
-    Type: String
-    Description: 'Queue to pull for inputs event'
-
   SandboxSafeStorageBaseUrl:
      Type: String
      Description: 'Url to the SafeStorage microservice'
