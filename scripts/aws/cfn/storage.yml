@@ -119,6 +119,7 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
 
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
+  # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
   PnDeliveryInsertTriggerDLQ:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -126,7 +127,8 @@ Resources:
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_insert_trigger_DLQ'
         DelaySeconds: 1
-        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        IsWithDLQ:  "false"
+        IsWithAlarm:  "true"
 
 Outputs:
 
