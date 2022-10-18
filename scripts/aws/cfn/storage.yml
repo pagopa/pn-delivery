@@ -127,6 +127,7 @@ Resources:
       Parameters:
         QueueName: !Sub '${ProjectName}-delivery_insert_trigger_DLQ'
         DelaySeconds: 1
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
         IsWithDLQ:  "false"
         IsWithAlarm:  "true"
 
