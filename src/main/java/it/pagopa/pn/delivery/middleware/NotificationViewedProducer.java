@@ -2,15 +2,12 @@ package it.pagopa.pn.delivery.middleware;
 
 import java.time.Instant;
 
-import it.pagopa.pn.api.dto.events.EventPublisher;
-import it.pagopa.pn.api.dto.events.EventType;
-import it.pagopa.pn.api.dto.events.PnDeliveryNotificationViewedEvent;
-import it.pagopa.pn.api.dto.events.StandardEventHeader;
-import it.pagopa.pn.commons.abstractions.MomProducer;
+import it.pagopa.pn.api.dto.events.*;
 
 public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotificationViewedEvent> {
 
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-producer";
+
 
     default void sendNotificationViewed( String iun, Instant when, int recipientIndex ) {
     	PnDeliveryNotificationViewedEvent event = buildNotificationViewed( iun, when, recipientIndex );
@@ -18,10 +15,13 @@ public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotifi
     }
 
     private PnDeliveryNotificationViewedEvent buildNotificationViewed( String iun, Instant when, int recipientIndex ) {
+        String eventId = iun + "_notification_viewed_rec" + recipientIndex;
         return PnDeliveryNotificationViewedEvent.builder()
+                .messageDeduplicationId(eventId)
+                .messageGroupId("delivery")
                 .header( StandardEventHeader.builder()
                         .iun( iun )
-                        .eventId( iun + "_notification_viewed_rec" + recipientIndex )
+                        .eventId( eventId)
                         .createdAt( when )
                         .eventType( EventType.NOTIFICATION_VIEWED.name() )
                         .publisher( EventPublisher.DELIVERY.name() )
