@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.config.ParameterStoreConsumer;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -63,8 +64,8 @@ public class NotificationRetrieverService {
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private final ModelMapperFactory modelMapperFactory;
 	private final NotificationSearchFactory notificationSearchFactory;
-	private final PnDeliveryConfigs cfg;
 	private final RefinementLocalDate refinementLocalDateUtils;
+	private final ParameterStoreConsumer parameterStoreConsumer;
 
 
 	@Autowired
@@ -77,8 +78,8 @@ public class NotificationRetrieverService {
 										PnExternalRegistriesClientImpl pnExternalRegistriesClient,
 										ModelMapperFactory modelMapperFactory,
 										NotificationSearchFactory notificationSearchFactory,
-										PnDeliveryConfigs cfg,
-										RefinementLocalDate refinementLocalDateUtils) {
+										RefinementLocalDate refinementLocalDateUtils,
+										ParameterStoreConsumer parameterStoreConsumer) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
@@ -88,8 +89,8 @@ public class NotificationRetrieverService {
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 		this.modelMapperFactory = modelMapperFactory;
 		this.notificationSearchFactory = notificationSearchFactory;
-		this.cfg = cfg;
 		this.refinementLocalDateUtils = refinementLocalDateUtils;
+		this.parameterStoreConsumer = parameterStoreConsumer;
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
@@ -267,7 +268,7 @@ public class NotificationRetrieverService {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 				OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 				checkDocumentsAvailability( notification, refinementDate );
-				if ( cfg.isMVPTrial() && !requestBySender ) {
+				if ( Boolean.TRUE.equals( parameterStoreConsumer.isMVPForPA( notification.getSenderTaxId() )) && !requestBySender ) {
 					computeNoticeCodeToReturn( notification, refinementDate );
 				}
 			}

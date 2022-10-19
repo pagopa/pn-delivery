@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.config.ParameterStoreConsumer;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -65,6 +66,7 @@ class NotificationReceiverTest {
 	private FileStorage fileStorage;
 	private ModelMapperFactory modelMapperFactory;
 	private PnDeliveryConfigs cfg;
+	private ParameterStoreConsumer parameterStoreConsumer;
 
 	@BeforeEach
 	public void setup() {
@@ -74,10 +76,11 @@ class NotificationReceiverTest {
 		fileStorage = Mockito.mock( FileStorage.class );
 		modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
 		cfg = Mockito.mock( PnDeliveryConfigs.class );
+		parameterStoreConsumer = Mockito.mock( ParameterStoreConsumer.class );
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), cfg);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), cfg, parameterStoreConsumer);
 
 		deliveryService = new NotificationReceiverService(
 				clock,
@@ -102,7 +105,7 @@ class NotificationReceiverTest {
 				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
 				.build();
 
-		Mockito.when( cfg.isMVPTrial() ).thenReturn( false );
+		Mockito.when( parameterStoreConsumer.isMVPForPA( Mockito.anyString() ) ).thenReturn( false );
 		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( fileData );
 
@@ -133,7 +136,7 @@ class NotificationReceiverTest {
 
 		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( fileData );
-		Mockito.when( cfg.isMVPTrial() ).thenReturn( false );
+		Mockito.when( parameterStoreConsumer.isMVPForPA( Mockito.anyString() ) ).thenReturn( false );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
@@ -159,7 +162,7 @@ class NotificationReceiverTest {
 
 		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( fileData );
-		Mockito.when( cfg.isMVPTrial() ).thenReturn( false );
+		Mockito.when( parameterStoreConsumer.isMVPForPA( Mockito.anyString() ) ).thenReturn( false );
 
 		// When
 		ModelMapper mapper = new ModelMapper();
@@ -189,7 +192,7 @@ class NotificationReceiverTest {
 		// Given
 		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( fileData );
-		Mockito.when( cfg.isMVPTrial() ).thenReturn( false );
+		Mockito.when( parameterStoreConsumer.isMVPForPA( Mockito.anyString() ) ).thenReturn( false );
 
 		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
@@ -234,7 +237,7 @@ class NotificationReceiverTest {
 		notification.setSenderDenomination( null );
 
 		// When
-		Mockito.when( cfg.isMVPTrial() ).thenReturn( true );
+		Mockito.when( parameterStoreConsumer.isMVPForPA( Mockito.anyString() ) ).thenReturn( false );
 		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification );
 
 		// Then
