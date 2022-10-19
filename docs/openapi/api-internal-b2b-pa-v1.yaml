@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/informativa-privacy/index.html
+  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
   x-api-id: api-internal-b2b-pa # NO EXTERNAL
 #  x-api-id: api-external-b2b-pa # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
@@ -226,10 +226,10 @@ info:
       </details>
       
   contact:
-    email: pn@pagopa.it
+    email: pn-supporto-enti@pagopa.it
   license:
     name: Licenza di PN
-    url: 'https://da-definire/'
+    url: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
 servers:
   - url: https://api.pn.pagopa.it
     description: Ambiente di produzione
