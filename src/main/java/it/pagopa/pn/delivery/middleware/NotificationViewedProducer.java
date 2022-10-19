@@ -8,16 +8,20 @@ public interface NotificationViewedProducer extends MomProducer<PnDeliveryNotifi
 
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-producer";
 
+
     default void sendNotificationViewed( String iun, Instant when, int recipientIndex ) {
     	PnDeliveryNotificationViewedEvent event = buildNotificationViewed( iun, when, recipientIndex );
         this.push( event );
     }
 
     private PnDeliveryNotificationViewedEvent buildNotificationViewed( String iun, Instant when, int recipientIndex ) {
+        String eventId = iun + "_notification_viewed_rec" + recipientIndex;
         return PnDeliveryNotificationViewedEvent.builder()
+                .messageDeduplicationId(eventId)
+                .messageGroupId("delivery")
                 .header( StandardEventHeader.builder()
                         .iun( iun )
-                        .eventId( iun + "_notification_viewed_rec" + recipientIndex )
+                        .eventId( eventId)
                         .createdAt( when )
                         .eventType( EventType.NOTIFICATION_VIEWED.name() )
                         .publisher( EventPublisher.DELIVERY.name() )
