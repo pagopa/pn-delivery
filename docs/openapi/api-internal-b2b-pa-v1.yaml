@@ -116,6 +116,10 @@ info:
       Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
       successiva di richiesta creazione della notifica. Questo garantisce che eventuali utilizzi multipli (anche malevoli) del 
       presignedUrl non vadano a sovrascrivere il file generando disservizi.
+    
+      NOTA: gli allegati caricati saranno disponibili per 3 giorni dopo i quali sono rimossi se non collegato alla 
+      notifica tramite la richiesta successiva [sendNewNotification](#/NewNotification/sendNewNotification) o se la 
+      notifica viene rifiutata a seguito di un fallimento della validazione.
      
       </br>
       </br>
