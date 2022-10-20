@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.abstractions.impl.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.config.ParameterStoreConsumer;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -22,12 +22,12 @@ public class NotificationReceiverValidator {
 
     private final Validator validator;
     private final PnDeliveryConfigs cfg;
-    private final ParameterStoreConsumer parameterStoreConsumer;
+    private final IsMVPParameterConsumer isMVPParameterConsumer;
 
-    public NotificationReceiverValidator(Validator validator, PnDeliveryConfigs cfg, ParameterStoreConsumer parameterStoreConsumer) {
+    public NotificationReceiverValidator(Validator validator, PnDeliveryConfigs cfg, IsMVPParameterConsumer isMVPParameterConsumer) {
         this.validator = validator;
         this.cfg = cfg;
-        this.parameterStoreConsumer = parameterStoreConsumer;
+        this.isMVPParameterConsumer = isMVPParameterConsumer;
     }
 
     public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
@@ -43,7 +43,7 @@ public class NotificationReceiverValidator {
 
     public void checkNewNotificationRequestBeforeInsertAndThrow(NewNotificationRequest newNotificationRequest) {
         Set<ConstraintViolation<NewNotificationRequest>> errors = checkNewNotificationRequestBeforeInsert( newNotificationRequest );
-        if ( Boolean.TRUE.equals(parameterStoreConsumer.isMVPForPA( newNotificationRequest.getSenderTaxId() )) && errors.isEmpty() ) {
+        if ( Boolean.TRUE.equals( isMVPParameterConsumer.isMvp( newNotificationRequest.getSenderTaxId() )) && errors.isEmpty() ) {
             errors = checkNewNotificationRequestForMVP( newNotificationRequest );
         }
         if( ! errors.isEmpty() ) {

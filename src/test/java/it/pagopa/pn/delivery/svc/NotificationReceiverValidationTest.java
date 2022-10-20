@@ -1,9 +1,9 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
+import it.pagopa.pn.commons.abstractions.impl.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.config.ParameterStoreConsumer;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -30,7 +30,7 @@ class NotificationReceiverValidationTest {
     private PnDeliveryConfigs cfg;
 
     @Mock
-    private ParameterStoreConsumer parameterStoreConsumer;
+    private IsMVPParameterConsumer isMVPParameterConsumer;
 
     private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     public static final String ATTACHMENT_BODY_STR = "Body";
@@ -47,7 +47,7 @@ class NotificationReceiverValidationTest {
     void initializeValidator() {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = new NotificationReceiverValidator( factory.getValidator(), cfg, parameterStoreConsumer);
+        validator = new NotificationReceiverValidator( factory.getValidator(), cfg, isMVPParameterConsumer);
     }
 
     @Test
