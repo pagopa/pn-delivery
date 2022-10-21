@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.notification.NotificationRecipientType;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
@@ -83,7 +84,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue( "fakeAARQRCodeValue" )
                 .iun( "iun" )
-                .recipientType( NotificationRecipientType.PF )
+                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 

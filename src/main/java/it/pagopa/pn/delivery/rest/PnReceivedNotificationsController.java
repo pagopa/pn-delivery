@@ -79,7 +79,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         FullReceivedNotification result = null;
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "getReceivedNotification")
+                .before(PnAuditLogEventType.AUD_NT_VIEW_RPC, "getReceivedNotification")
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
                 .iun(iun)
