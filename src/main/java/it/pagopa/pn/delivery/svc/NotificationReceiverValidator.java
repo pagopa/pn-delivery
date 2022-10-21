@@ -58,6 +58,10 @@ public class NotificationReceiverValidator {
                 }
             }
         }
+        if ( cfg.isNotificationCheckAddress() && internalNotification.getRecipients().get( 0 ).getPhysicalAddress() == null ) {
+            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
+            errors.add( constraintViolation );
+        }
         errors.addAll( validator.validate( internalNotification ));
         return errors;
     }
@@ -69,10 +73,7 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max one recipient" );
             errors.add( constraintViolation );
         }
-        if ( cfg.isNotificationCheckAddress() && notificationRequest.getRecipients().get( 0 ).getPhysicalAddress() == null ) {
-            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
-            errors.add( constraintViolation );
-        }
+       
         NotificationPaymentInfo payment = notificationRequest.getRecipients().get(0).getPayment();
         if (Objects.nonNull( payment )) {
             String noticeCode = payment.getNoticeCode();
