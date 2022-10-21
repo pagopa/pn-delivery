@@ -37,8 +37,8 @@ info:
       
       La differenza tra le due modalità è nell'interazione e nell'efficienza.
       
-      Con la modalità _richiesta puntuale_ è necessario l'invocazione per ogni notifica.
-      Mentre con la modalità _"stream"_ è possibile avere gli aggiornamenti
+      Con la modalità _"richiesta puntuale"_ è necessario l'invocazione per ogni notifica,
+      mentre con la modalità _"stream"_ è possibile avere gli aggiornamenti
       di stato di più notifiche con una sola invocazione.
       
       #### 3.1 Richiesta puntuale di verifica accettazione
@@ -49,18 +49,18 @@ info:
       [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
-      \- WAITING: se la validazione è ancora in corso.</br>
-      \- ACCEPTED: se richiesta di notifica accettata, lo _IUN_ è valorizzato.</br>
-      \- REFUSED: se richiesta di notifica rifiutata, è valorizzato il campo _errors_.</br>
+      >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
+      \- <strong>ACCEPTED:</strong> se richiesta di notifica accettata, lo _IUN_ è valorizzato.</br>
+      \- <strong>REFUSED:</strong> se richiesta di notifica rifiutata, è valorizzato il campo _errors_.</br>
       </br>
       </br>
       </br>
 
       #### 3.2 Richiesta avanzamento via "stream" di verifica di accettazione
     
-      Questa modalità è consigliata. Per essere fruita è necessaria una operazione preliminare 
+      Questa modalità è consigliata. Per essere fruita è necessaria un'operazione preliminare 
       tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
-      per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:``
+      per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:</br></br>``
       {
         "title": "NotificationAccepted",
         "eventType": "STATUS",
@@ -68,7 +68,7 @@ info:
           "ACCEPTED"
         ]
       }
-      ``
+      ``</br></br>
       Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
       
       
@@ -86,15 +86,15 @@ info:
     
       ### Ciclo di vita della notifica lato mittente
       
-      #### 1. Caricamento allegati della notifica
+      #### 1. Caricamento dei documenti della notifica
       
-      Prima di invocare la richiesta di notifica è necessario caricare gli allegati (documenti e bollettini di pagamento).
+      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini di pagamento).
       
       #### 1.a. Richiesta presigned Url
       
       Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
       con cui prenotare il caricamento. </br> 
-      In risposta di ottengono le seguenti informazioni:<br/>
+      In risposta si ottengono le seguenti informazioni:<br/>
       \- httpMethod <br/>
       \- secret <br/>
       \- url <br/>
@@ -102,9 +102,9 @@ info:
       
       </br>
 
-      #### 1.b Upload allegati
+      #### 1.b Upload documenti della notifica
       
-      Per ogni allegato utilizzare un richiesta HTTP con metodo _httpMethod_ (POST o PUT) 
+      Per ogni documento utilizzare un richiesta HTTP con metodo _httpMethod_ (POST o PUT) 
       all'url indicato dal campo _url_. <br/>
       In tale richiesta vanno aggiunti i seguenti header: <br/>
       \- _content-type_: valorizzato come il campo "contentType" della richiesta di cui al punto (1.a) <br/>
@@ -116,10 +116,6 @@ info:
       Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
       successiva di richiesta creazione della notifica. Questo garantisce che eventuali utilizzi multipli (anche malevoli) del 
       presignedUrl non vadano a sovrascrivere il file generando disservizi.
-    
-      NOTA: gli allegati caricati saranno disponibili per 3 giorni dopo i quali sono rimossi se non collegato alla 
-      notifica tramite la richiesta successiva [sendNewNotification](#/NewNotification/sendNewNotification) o se la 
-      notifica viene rifiutata a seguito di un fallimento della validazione.
      
       </br>
       </br>
@@ -165,14 +161,12 @@ info:
     
       Questa modalità è consigliata in produzione. Per essere fruita è necessaria una operazione preliminare
       tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/createEventStream)
-      per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload di esempio:``
+      per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload di esempio:</br></br>``
       {
         "title": "NotificationAccepted",
         "eventType": "STATUS"
       }
-      ``che permette di monitorare gli eventi di tipo "STATO"
-      
-      Successivamente si può ottenere il dettaglio della stream appena creata chiamando la 
+      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio della stream appena creata chiamando la 
       API [getEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Streams/getEventStream), mentre si possono ottenere i dati degli eventi richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook-v1.yaml#/Events/consumeEventStream)
   
   
@@ -181,53 +175,84 @@ info:
       
       </br>
       
-      <details>
-        <summary><strong><big><big><big><big>FAQ</big></big></big></big></strong></summary>
-        
-      <strong><strong>Come avviene l’inoltro della notifica ?</strong></strong></br>_L’inoltro della notifica può avvenire in modalità automatica o manuale.
-          _La modalità automatica prevede l’utilizzo della piattaforma PN e consente l’inoltro puntuale di una notifica._ La modalità manuale prevede l’utilizzo dei servizi di PN da parte della PA e consente l’inoltro massivo di notifiche._ </br></br>
-        <strong><strong>Quali sono i passi da seguire per effettuare l’inoltro manuale della notifica ?</strong></strong></br>_I passi necessari per eseguire l’inoltro della notifica sono i seguenti:_</br>
-       >><em><small><strong>1)</strong> Pre inoltro della documentazione (atto di notifica e moduli di pagamento).</small></em></br>
-       >><em><small>Occorre chiamare il servizio <strong>presignedUploadRequest.</strong></small></em></br></br>
-       >><em><small><strong>2)</strong> Upload della documentazione.</small></em></br>
-       >><em><small>PA o PT devono sviluppare un software che sia in grado di inviare la documentazione a Piattaforma Notifiche. Occorre effettuare, per ogni documento, una richiesta HTTP con metodo httpMethod all'url restituita dal servizio <strong>presignedUploadRequest</strong>.</small></em></br></br>
-       >><em><small><strong>3)</strong> Invio della notifica.</em></br>
-       >><em>Occorre chiamare il servizio <strong>sendNewNotification</strong>.</em>
-       
-       <strong><strong>Le chiamate ai servizi esposti da PN sono sicuri ?</strong></strong> </br><em>Si. Le chiamate ai servizi esposti da PN avvengono in modalità https utilizzando API Key. Non sono attualmente previsti meccanismi di crittazione/decrittazione dei documenti e/o accessi basati su mutua autenticazione tramite certificato.</em></br></br>
-       <strong><strong>Quale relazione esiste tra eventi di timeline e stati della notifica ?</strong></strong></br><em>Non esiste una corrispondenza 1:1 tra eventi di timeline e cambiamenti di stato; in particolare, solo alcuni eventi di timeline implicano un cambiamento di stato</em></br></br>
-       
-       <strong><strong>Quando eseguendo l’upload del documento si ottiene il seguente errore:</strong></strong></br>
-        <strong>\<Code\>SignatureDoesNotMatch\</Code\></strong></br>
-        <strong>\<Message\>The request signature we calculated does not match the signature you provided. Check your key and signing method.\</Message\></strong></br>
-        <em>Esistono varie casistiche che generano l’errore descritto; le più frequenti sono:</em></br>
-      >><em><small><strong>1)</strong> In uploadAllegati si è utilizzato uno sha256 diverso da quello utilizzato in presignedUploadRequest.</small></em></br>
-      >><em><small><strong>2)</strong> in uploadAllegati è stato inserito uno sha256 che non corrisponde al documento che si desidera effettivamente inviare.</small></em></br>
-      >><em><small><strong>3)</strong> sha256 corretto in presignedUploadRequest e coincidente con quello caricato in uploadAllegati, ma secret errato.</small></em></br></br>
-       
-       <strong><strong>Quando si invoca il servizio di upload di un documento, passando x-amz-checksum-sha256 del file, si ottiene il seguente errore: `Value for x-amz-checksum-sha256 header is invalid` cosa bisogna fare?</strong></strong></br><em>Assicurarsi di avere eseguito i seguenti passaggi:</em>
-       >><em><small><strong>a)</strong> Applicare al documento l’algoritmo di crittazione, ottenendo una rappresentazione di 64 caratteri in formato esadecimale <strong>^[A-Fa-f0-9]{64}$</strong></small></em></br>
-       >><em><small><strong>b)</strong> Ottenere la relativa rappresentazione binaria</small></em></br>
-       >><em><small><strong>c)</strong> Applicare la codifica Base64</small></em></br>
-       
-       >><em>Esempio di codice:</em>
-       
-       >>     import org.springframework.util.Base64Utils;
-       >>     import java.io.ByteArrayInputStream;
-       >>     import java.io.InputStream;
-       >>     import java.security.MessageDigest;
+    <details>
+      <summary><strong><big><big><big><big>FAQ</big></big></big></big></strong></summary>
 
-       >>     MessageDigest digest = MessageDigest.getInstance("SHA-256");
-       >>     byte[] encodedhash = digest.digest( StreamUtils.copyToByteArray( docInputStream ) );
-       >>     String x-amz-checksum-sha256 = Base64Utils.encodeToString( hash ) 
-       
-       </br><strong><strong>Come si può verificare che lo <em>"x-amz-checksum-sha256"</em> sia corretto ?</strong></strong></br><em>Aprire la shell di Git Bash o un terminal SSH ed eseguire il comando:</em></br>
-       >>     cat <fullPathFile/filename.ext> | openssl dgst -binary -sha256 | openssl base64 –A
-       
-       Il comando restituisce la codifica base64 della rappresentazione binaria di sha256, che può essere confrontato con quella generata dal codice.
-       </br></br>
+    ><details>
+      <summary><strong>Cosa devo fare se ricevo</strong> `{"message": "Unauthorized"}`<strong>?</strong></summary>
+      <em>Il messaggio indica che non sono disponibili le credenziali per utilizzare i servizi di PN. Per intraprendere il processo di accreditamento, occorre contattare il personale preposto su [account@pagopa.it](mailto:account@pagopa.it)</em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Le chiamate ai servizi esposti da PN sono sicuri ?</strong></summary>
+      <em>Si. Le chiamate ai servizi esposti da PN avvengono in modalità https utilizzando API Key. Non sono attualmente previsti meccanismi di crittazione/decrittazione dei documenti e/o accessi basati su mutua autenticazione tramite certificato.</em>
+    </details></br>
+
+    ><details>
+      <summary><strong>Dopo aver fatto l'upload dei documenti della notifica nella fase 1, quanto tempo ho per inviare la notifica?</strong></summary>
+      <em>I documenti memorizzati su bucket S3  durante la fase di caricamento (1.a e 1.b) vengono mantenuti per 3 giorni (in produzione 1 giorno), passati i quali vengono eliminati ed andranno ricaricati di nuovo se si vuole inoltrare la notifica.</em>
+    </details>
+      </br>
+    ><details>
+      <summary><strong>Quali sono i passi da seguire per effettuare l’inoltro manuale della notifica ?</strong></summary>
+      <em>I passi necessari per eseguire l’inoltro della notifica sono i seguenti:</em></br>
+      >><em><medium><strong>1) </strong>Pre inoltro della documentazione (atto di notifica e moduli di pagamento).</br> Occorre chiamare il servizio <strong>presignedUploadRequest.</strong></medium></em></br></br>
+      <em><medium><strong>2) </strong>Upload della documentazione.</br> PA o PT devono sviluppare un software che sia in grado di inviare la documentazione a Piattaforma Notifiche. Occorre effettuare, per ogni documento, una richiesta HTTP con metodo httpMethod all'url restituita dal servizio<strong>presignedUploadRequest.</strong></medium></em></br></br>
+      <em><medium><strong>3) </strong>Invio della notifica.</br> Occorre chiamare il servizio <strong>sendNewNotification.</strong></medium></em></br></br>
+    </details></br>
+
+    ><details>
+      <summary><strong>Come avviene l’inoltro della notifica ?</strong></summary>
+      <em>L’inoltro della notifica può avvenire in modalità automatica o manuale. La modalità automatica prevede l’utilizzo della piattaforma PN e consente l’inoltro puntuale di una notifica. La modalità manuale prevede l’utilizzo dei servizi di PN da parte della PA e consente l’inoltro massivo di notifiche.</em>
+    </details></br>
+
+    ><details>
+      <summary><strong>Come si individua il domicilio del destinatario di una notifica in base alla tipologia del destinatario (PF e PG) ?</strong></summary>
+      <em>Quando si invia una notifica, occorre indicare la tipologia del destinatario:</em>
+        <ul>
+          <li><em>Se il destinatario è PF, l'ordine di individuazione è il seguente:</em></br>
+            >>>><em><strong>1) </strong> Domicilio digitale di piattaforma (se disponibile, quello configurato dal destinatario per l'ente mittente della notifica; in alternativa, quello configurato dal destinatario per la genericità degli enti mittenti)</em></br>
+            <em><strong>2) </strong> Domicilio digitale speciale indicato dall’ente mittente nella creazione della notifica</em></br>
+            <em><strong>3) </strong> Domicilio digitale generale fornito dal registro pubblico <strong>INAD</strong></em>
+          </li>
+          <li><em>se il destinatario è PG, l'ordine di individuazione è il seguente:</em></br>
+            >>>>>><em><strong>1) </strong> Domicilio digitale di piattaforma (se disponibile, quello configurato dal destinatario per l'ente mittente della notifica; in alternativa, quello configurato dal destinatario per la genericità degli enti mittenti)</em></br>
+            <em><strong>2) </strong> Domicilio digitale speciale indicato dall’ente mittente nella creazione della notifica</em></br>
+            <em><strong>3) </strong> Domicilio digitale generale fornito dal registro delle imprese <strong>IniPEC</strong></em>
+          </li>
+        </ul>
+        </br>
+    </details>
+      </br>
+    ><details>
+      <summary><strong>Quale relazione esiste tra eventi di timeline e stati della notifica ?</strong></summary>
+      <em>Non esiste una corrispondenza 1:1 tra eventi di timeline e cambiamenti di stato; in particolare, solo alcuni eventi di timeline implicano un cambiamento di stato</em>
+    </details></br>
+
+    ><details>
+      <summary><strong>Quando eseguendo l’upload del documento si ottiene il seguente errore:</strong></br><font color="red"><strong>\<Code>SignatureDoesNotMatch\</Code></strong></font></br><font color="red"><strong>\<Message>The request signature we calculated does not match the signature you provided. Check your key and signing method.\</Message></strong></font></summary>
+      <em>Esistono varie casistiche che generano l’errore descritto; le più frequenti sono:</em></br>
+      >>>>>>> <em><medium><strong>1) </strong>In uploadAllegati si è utilizzato uno sha256 diverso da quello utilizzato in presignedUploadRequest.</medium></em></br><em><medium><strong>2) </strong>In uploadAllegati è stato inserito uno sha256 che non corrisponde al documento che si desidera effettivamente inviare.</medium></em></br><em><medium><strong>3) </strong>Sha256 corretto in presignedUploadRequest e coincidente con quello caricato in uploadAllegati, ma secret errato.</medium></em></br>
+    </details>
       
-      </details>
+    ><details>
+      <summary><strong>Quando si invoca il servizio di upload di un documento, passando x-amz-checksum-sha256 del file, si ottiene il seguente errore: </br>`Value for x-amz-checksum-sha256 header is invalid`</br> cosa bisogna fare?</strong></summary>
+      <em>Assicurarsi di avere eseguito i seguenti passaggi:</em></br>
+      >>>><em><strong>a) </strong>Applicare al documento l’algoritmo di crittazione, ottenendo una rappresentazione di 64 caratteri in formato esadecimale <strong>^[A-Fa-f0-9]{64}$</strong></em></br>
+      <em><strong>b) </strong>Ottenere la relativa rappresentazione binaria.</em></br>
+      <em><strong>c) </strong>Applicare la codifica Base64.</em></br></br>
+      Esempio di codice:</br></br>
+      `import org.springframework.util.Base64Utils;`</br>`import java.io.ByteArrayInputStream;`</br>`import java.io.InputStream;`</br>`import java.security.MessageDigest;`</br></br>`MessageDigest digest = MessageDigest.getInstance("SHA-256");`</br>`byte[] encodedhash = digest.digest( StreamUtils.copyToByteArray( docInputStream ) );`</br>`String x-amz-checksum-sha256 = Base64Utils.encodeToString( hash )`
+    </details></br>
+
+    ><details>
+      <summary><strong>Come si può verificare che lo "x-amz-checksum-sha256" sia corretto ?</strong></summary>
+      <em>Aprire la shell di Git Bash o un terminal SSH ed eseguire il comando:</em></br></br>
+      `cat <fullPathFile/filename.ext> | openssl dgst -binary -sha256 | openssl base64 –A`</br></br>
+      <em>Il comando restituisce la codifica base64 della rappresentazione binaria di sha256, che può essere confrontato con quella generata dal codice.</em>
+    </details></br>
+
+    </details>
       
   contact:
     email: pn-supporto-enti@pagopa.it
@@ -247,7 +272,7 @@ tags:
       Invocazioni per sapere lo stato del microservizio
   - name: NewNotification
     description: >-
-      Invocazioni per precaricare allegati e inviare notifiche
+      Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
   - name: SenderReadB2B
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
@@ -274,7 +299,7 @@ paths:
   ###########################################################################################
   "/delivery/attachments/preload":
     post:
-      summary: Richiesta di pre-caricamento allegati
+      summary: Richiesta di pre-caricamento dei documenti della notifica
       description: >-
         Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
         a precaricare uno o più file da allegare a una notifica. <br/>
