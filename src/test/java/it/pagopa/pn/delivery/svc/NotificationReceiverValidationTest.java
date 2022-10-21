@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
-import it.pagopa.pn.commons.abstractions.impl.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;

@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.abstractions.FileData;
 import it.pagopa.pn.commons.abstractions.FileStorage;
-import it.pagopa.pn.commons.abstractions.impl.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;

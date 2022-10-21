@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.commons.abstractions.impl.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
@@ -49,8 +48,6 @@ class NotificationEntityDaoDynamoTestIT {
     @Autowired
     private NotificationQREntityDao notificationQREntityDao;
 
-    @Autowired
-    private IsMVPParameterConsumer isMVPParameterConsumer;
 
     @Test
     void putSuccess() throws PnIdConflictException {

@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.springbootcfg;
 
 import it.pagopa.pn.commons.abstractions.impl.AbstractCachedSsmParameterConsumer;
-import it.pagopa.pn.commons.abstractions.impl.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
