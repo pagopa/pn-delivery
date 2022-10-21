@@ -65,10 +65,7 @@ public class NotificationReceiverValidator {
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestForMVP( NewNotificationRequest notificationRequest ) {
         Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
-        if ( !StringUtils.hasText(notificationRequest.getSenderDenomination()) ) {
-            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No sender denomination" );
-            errors.add( constraintViolation );
-        }
+       
         if ( notificationRequest.getRecipients().size() > 1 ) {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max one recipient" );
             errors.add( constraintViolation );
@@ -78,10 +75,7 @@ public class NotificationReceiverValidator {
             errors.add( constraintViolation );
         }
         NotificationPaymentInfo payment = notificationRequest.getRecipients().get(0).getPayment();
-        if (Objects.isNull( payment )) {
-            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient payment" );
-            errors.add( constraintViolation );
-        } else {
+        if (Objects.nonNull( payment )) {
             String noticeCode = payment.getNoticeCode();
             String noticeCodeAlternative = payment.getNoticeCodeAlternative();
             if ( noticeCode.equals(noticeCodeAlternative) ) {
