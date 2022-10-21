@@ -71,4 +71,27 @@ class NotificationQRServiceTest {
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationQRFailureInvalidRecipientId() {
+        RequestCheckAarDto requestCheckAarDto = RequestCheckAarDto.builder()
+                .recipientType( "PF" )
+                .recipientInternalId( "invalidRecipientInternalId" )
+                .aarQrCodeValue( "fakeAARQRCodeValue" )
+                .build();
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue( "fakeAARQRCodeValue" )
+                .iun( "iun" )
+                .recipientType( NotificationRecipientType.PF )
+                .recipientInternalId( "recipientInternalId" )
+                .build();
+
+        Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
+
+        Executable todo = () -> svc.getNotificationByQR( requestCheckAarDto );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+    }
+
 }

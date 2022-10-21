@@ -26,9 +26,15 @@ public class NotificationQRService {
         log.info( "Get notification QR for aarQrCodeValue={} recipientType={} recipientInternalId={}", aarQrCodeValue, recipientType, recipientInternalId);
         Optional<InternalNotificationQR> optionalInternalNotificationQR = notificationQREntityDao.getNotificationByQR( aarQrCodeValue );
         if (optionalInternalNotificationQR.isPresent()) {
-            return ResponseCheckAarDto.builder()
-                    .iun( optionalInternalNotificationQR.get().getIun() )
-                    .build();
+            InternalNotificationQR internalNotificationQR = optionalInternalNotificationQR.get();
+            if ( internalNotificationQR.getRecipientInternalId().equals( recipientInternalId ) ) {
+                return ResponseCheckAarDto.builder()
+                        .iun( internalNotificationQR.getIun() )
+                        .build();
+            } else {
+                log.info( "Invalid recipientInternalId={} for aarQrCodeValue={} recipientType={}", recipientInternalId, aarQrCodeValue, recipientType );
+                throw new PnNotificationNotFoundException( String.format( "Invalid recipientInternalId=%s for aarQrCodeValue=%s recipientType=%s", recipientInternalId, aarQrCodeValue, recipientType) );
+            }
         } else {
             log.info( "No notification by aarQrCodeValue={} recipientType={} recipientInternalId={}", aarQrCodeValue, recipientType, recipientInternalId );
             throw new PnNotificationNotFoundException( String.format( "No notification by aarQrCodeValue=%s recipientType=%s recipientInternalId=%s", aarQrCodeValue, recipientType, recipientInternalId ) );
