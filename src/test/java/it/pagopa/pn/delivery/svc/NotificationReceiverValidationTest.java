@@ -431,7 +431,7 @@ class NotificationReceiverValidationTest {
 
     // WHEN
     Set<ConstraintViolation<NewNotificationRequest>> errors;
-    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+    errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
     Assertions.assertEquals(0, errors.size());
