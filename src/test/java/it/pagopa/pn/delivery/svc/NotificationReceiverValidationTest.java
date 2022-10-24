@@ -236,6 +236,7 @@ class NotificationReceiverValidationTest {
         assertConstraintViolationPresentByMessage( errors, "Duplicated recipient taxId" );
     }
 
+    
     @Test @Disabled
     void invalidNullValuesInCollections() {
 
@@ -382,7 +383,7 @@ class NotificationReceiverValidationTest {
 
     @Test
     // pass all mvp checks
-    void newNotificationRequestForMVPValidCheckAddress() {
+    void newNotificationRequestForValidCheckAddress() {
 
         Mockito.when( cfg.isNotificationCheckAddress() ).thenReturn( true );
 
@@ -399,7 +400,7 @@ class NotificationReceiverValidationTest {
 
     @Test
         // pass all mvp checks
-    void newNotificationRequestForMVPValidDontCheckAddress() {
+    void newNotificationRequestForValidDontCheckAddress() {
 
         Mockito.when( cfg.isNotificationCheckAddress() ).thenReturn( false );
 
@@ -439,10 +440,9 @@ class NotificationReceiverValidationTest {
         errors = validator.checkNewNotificationRequestForMVP( n );
 
         // THEN
-        Assertions.assertEquals( 3, errors.size() );
+        Assertions.assertEquals( 2, errors.size() );
 
         assertConstraintViolationPresentByMessage( errors, "Max one recipient" );
-        assertConstraintViolationPresentByMessage( errors, "No recipient physical address" );
         assertConstraintViolationPresentByMessage( errors, "Alternative notice code equals to notice code" );
     }
 
