@@ -58,9 +58,14 @@ public class NotificationReceiverValidator {
                 }
             }
         }
-        if ( cfg.isNotificationCheckAddress() && internalNotification.getRecipients().get( 0 ).getPhysicalAddress() == null ) {
-            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
-            errors.add( constraintViolation );
+                
+        if ( cfg.isNotificationCheckAddress()) {          
+            for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+              if (Objects.isNull(recipient.getPhysicalAddress())){
+                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
+                  errors.add( constraintViolation );
+              }
+            }                   
         }
         errors.addAll( validator.validate( internalNotification ));
         return errors;
