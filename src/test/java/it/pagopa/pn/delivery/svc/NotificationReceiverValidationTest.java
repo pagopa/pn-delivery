@@ -469,7 +469,7 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
-  // pass mvp checks, without payment
+  // doesn't pass mvp checks
   void newNotificationRequestForMVP() {
     Mockito.when(cfg.isNotificationCheckAddress()).thenReturn(true);
 
@@ -483,7 +483,7 @@ class NotificationReceiverValidationTest {
 
     // THEN
     Assertions.assertNotNull(errors);
-    Assertions.assertEquals(0, errors.size());
+    assertConstraintViolationPresentByMessage(errors, "No recipient payment");
   }
 
   private <T> void assertConstraintViolationPresentByMessage(Set<ConstraintViolation<T>> set,
