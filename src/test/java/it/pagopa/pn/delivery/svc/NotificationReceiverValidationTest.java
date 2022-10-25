@@ -132,6 +132,17 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
+  void checkOk() {
+    InternalNotification n = validDocumentWithoutPayments();
+    n.setNotificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE );
+
+    // WHEN
+    Set<ConstraintViolation<InternalNotification>> errors;
+    errors = validator.checkNewNotificationBeforeInsert(n);
+    Assertions.assertTrue( errors.isEmpty() );
+  }
+
+  @Test
   void invalidRecipient() {
 
     // GIVEN
