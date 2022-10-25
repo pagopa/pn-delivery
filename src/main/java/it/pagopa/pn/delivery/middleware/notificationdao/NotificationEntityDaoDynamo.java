@@ -182,26 +182,33 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
     }
 
     private List<NotificationCostEntity> getNotificationCostEntities(NotificationEntity notificationEntity) {
-        List<NotificationCostEntity> notificationCostEntityList = new ArrayList<>();
+      List<NotificationCostEntity> notificationCostEntityList = new ArrayList<>();
 
-        for (NotificationRecipientEntity rec : notificationEntity.getRecipients() ) {
-            notificationCostEntityList.add( NotificationCostEntity.builder()
-                    .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
-                    .iun( notificationEntity.getIun() )
-                    .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
-                    .build()
-            );
-            if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
-                notificationCostEntityList.add( NotificationCostEntity.builder()
-                        .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
-                        .iun( notificationEntity.getIun() )
-                        .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
-                        .build()
-                );
-            }
-        }
-        return notificationCostEntityList;
-    }
+      for (NotificationRecipientEntity rec : notificationEntity.getRecipients() ) {
+          NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
+          .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
+          .iun( notificationEntity.getIun() )            
+          .build();
+
+          notificationCostEntityList.add(notificationCostEntity);
+          
+          if (Objects.nonNull(rec.getPayment())) {
+              notificationCostEntity.setCreditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() );
+              if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
+                  notificationCostEntityList.add( NotificationCostEntity.builder()
+                  .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
+                 .iun( notificationEntity.getIun() )
+                 .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
+                 .build()
+              );
+          }
+          }
+              
+          
+
+      }
+      return notificationCostEntityList;
+  }
 
     private List<NotificationQREntity> getNotificationQREntities(NotificationEntity notificationEntity) {
         List<NotificationQREntity> notificationQREntityList = new ArrayList<>();
