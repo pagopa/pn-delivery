@@ -48,25 +48,20 @@ public class NotificationReceiverValidator {
     }
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
-        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
-        if ( internalNotification.getRecipients().size() > 1 ) {
-            Set<String> distinctTaxIds = new HashSet<>();
-            for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
-                if ( !distinctTaxIds.add( recipient.getTaxId() )){
-                    ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
-                    errors.add( constraintViolation );
-                }
+        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();          
+          
+        Set<String> distinctTaxIds = new HashSet<>();
+        for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+            if ( !distinctTaxIds.add( recipient.getTaxId() )){
+                ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+                errors.add( constraintViolation );
             }
+            if ( cfg.isNotificationCheckAddress() && Objects.isNull(recipient.getPhysicalAddress())){
+              ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
+              errors.add( constraintViolation );
+          }
         }
                 
-        if ( cfg.isNotificationCheckAddress()) {          
-            for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
-              if (Objects.isNull(recipient.getPhysicalAddress())){
-                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
-                  errors.add( constraintViolation );
-              }
-            }                   
-        }
         errors.addAll( validator.validate( internalNotification ));
         return errors;
     }
