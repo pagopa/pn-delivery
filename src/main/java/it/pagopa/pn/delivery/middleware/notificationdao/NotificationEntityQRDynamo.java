@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -47,6 +48,10 @@ public class NotificationEntityQRDynamo extends AbstractDynamoKeyValueStore<Noti
 
     @Override
     public void putIfAbsent(NotificationQREntity notificationQREntity) throws PnIdConflictException {
-        throw new UnsupportedOperationException();
+        PutItemEnhancedRequest<NotificationQREntity> request = PutItemEnhancedRequest.
+                builder(NotificationQREntity.class)
+                .item( notificationQREntity )
+                .build();
+        table.putItem( request );
     }
 }
