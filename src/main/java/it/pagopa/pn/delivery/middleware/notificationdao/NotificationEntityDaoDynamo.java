@@ -185,20 +185,27 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         List<NotificationCostEntity> notificationCostEntityList = new ArrayList<>();
 
         for (NotificationRecipientEntity rec : notificationEntity.getRecipients() ) {
-            notificationCostEntityList.add( NotificationCostEntity.builder()
+            NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
+            .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
+            .iun( notificationEntity.getIun() )            
+            .build();
+  
+            notificationCostEntityList.add(notificationCostEntity);
+            
+            if (Objects.nonNull(rec.getPayment())) {
+                notificationCostEntity.setCreditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() );
+                if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
+                    notificationCostEntityList.add( NotificationCostEntity.builder()
                     .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
-                    .iun( notificationEntity.getIun() )
-                    .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
-                    .build()
-            );
-            if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
-                notificationCostEntityList.add( NotificationCostEntity.builder()
-                        .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
-                        .iun( notificationEntity.getIun() )
-                        .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
-                        .build()
+                   .iun( notificationEntity.getIun() )
+                   .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
+                   .build()
                 );
             }
+            }
+                
+            
+
         }
         return notificationCostEntityList;
     }
