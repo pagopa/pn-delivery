@@ -185,26 +185,27 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
       List<NotificationCostEntity> notificationCostEntityList = new ArrayList<>();
 
       for (NotificationRecipientEntity rec : notificationEntity.getRecipients() ) {
+        
+        if (Objects.nonNull(rec.getPayment())) {
           NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
-          .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
-          .iun( notificationEntity.getIun() )            
-          .build();
+              .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
+              .iun( notificationEntity.getIun() )            
+              .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
+              .build();
 
-          notificationCostEntityList.add(notificationCostEntity);
-          
-          if (Objects.nonNull(rec.getPayment())) {
-              notificationCostEntity.setCreditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() );
-              if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
-                  notificationCostEntityList.add( NotificationCostEntity.builder()
-                  .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
-                 .iun( notificationEntity.getIun() )
-                 .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
-                 .build()
-              );
-          }
-          }
+              notificationCostEntityList.add(notificationCostEntity);
+      
+                  if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
+                      notificationCostEntityList.add( NotificationCostEntity.builder()
+                      .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
+                     .iun( notificationEntity.getIun() )
+                     .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
+                     .build()
+                  );
               
+              }
           
+        }      
 
       }
       return notificationCostEntityList;
