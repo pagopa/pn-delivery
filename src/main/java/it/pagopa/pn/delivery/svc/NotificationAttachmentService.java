@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MimeTypesUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -54,12 +55,14 @@ public class NotificationAttachmentService {
     private final NotificationDao notificationDao;
     private final CheckAuthComponent checkAuthComponent;
     private final NotificationViewedProducer notificationViewedProducer;
+    private final PnDeliveryConfigs cfg;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer, PnDeliveryConfigs cfg) {
         this.safeStorageClient = safeStorageClient;
         this.notificationDao = notificationDao;
         this.checkAuthComponent = checkAuthComponent;
         this.notificationViewedProducer = notificationViewedProducer;
+        this.cfg = cfg;
     }
 
     public FileDownloadResponse getFile(String fileKey){
@@ -239,7 +242,7 @@ public class NotificationAttachmentService {
         {
             String attachmentName = fileDownloadIdentify.attachmentName;
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
-            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName);
+            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, false);
             if (!StringUtils.hasText( fileKey )) {
                 String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
                 throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);
@@ -262,11 +265,17 @@ public class NotificationAttachmentService {
         }
     }
 
-    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName){
+    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, boolean isMVPTria){
         NotificationPaymentInfo payment = doc.getPayment();
         if ( !Objects.nonNull( payment ) ) {
-            log.error( "Notification without payment attachment - iun={}", iun );
-            throw new PnInternalException("Notification without payment attachment - iun=" + iun, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
+          String exMessage =  String.format("Notification without payment attachment - iun=%s", iun);
+            log.error(exMessage);
+            if(isMVPTria) {
+              throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
+            } else {
+              throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);              
+            }
+           
         }
 
         switch (ATTACHMENT_TYPE.valueOf(attachmentName))
