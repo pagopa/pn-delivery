@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
@@ -63,6 +64,7 @@ class NotificationRetrieverServiceTest {
     private NotificationSearch notificationSearch;
     private RefinementLocalDate refinementLocalDateUtils;
     private IsMVPParameterConsumer isMVPParameterConsumer;
+    private PnDeliveryConfigs cfg;
 
     @BeforeEach
     void setup() {
@@ -78,8 +80,10 @@ class NotificationRetrieverServiceTest {
         this.notificationSearch = Mockito.mock(NotificationSearch.class);
         this.refinementLocalDateUtils = new RefinementLocalDate();
         this.isMVPParameterConsumer = Mockito.mock( IsMVPParameterConsumer.class );
+        this.cfg = Mockito.mock( PnDeliveryConfigs.class );
 
         Mockito.when(notificationSearchFactory.getMultiPageSearch(Mockito.any(), Mockito.any())).thenReturn(notificationSearch);
+        Mockito.when( cfg.getMaxDocumentsAvailableDays() ).thenReturn( "120" );
 
         this.svc = new NotificationRetrieverService(
                 clock,
@@ -92,7 +96,8 @@ class NotificationRetrieverServiceTest {
                 modelMapperFactory,
                 notificationSearchFactory,
                 refinementLocalDateUtils,
-                isMVPParameterConsumer);
+                isMVPParameterConsumer,
+                cfg);
     }
 
     @Test

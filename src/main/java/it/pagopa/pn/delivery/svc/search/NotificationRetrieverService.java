@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -48,7 +49,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NotificationRetrieverService {
 
-	public static final long MAX_DOCUMENTS_AVAILABLE_DAYS = 120L;
 	public static final long MAX_FIRST_NOTICE_CODE_DAYS = 5L;
 	public static final long MAX_SECOND_NOTICE_CODE_DAYS = 60L;
 
@@ -65,6 +65,7 @@ public class NotificationRetrieverService {
 	private final NotificationSearchFactory notificationSearchFactory;
 	private final RefinementLocalDate refinementLocalDateUtils;
 	private final IsMVPParameterConsumer isMVPParameterConsumer;
+	private final PnDeliveryConfigs cfg;
 
 
 	@Autowired
@@ -77,7 +78,9 @@ public class NotificationRetrieverService {
 										PnExternalRegistriesClientImpl pnExternalRegistriesClient,
 										ModelMapperFactory modelMapperFactory,
 										NotificationSearchFactory notificationSearchFactory,
-										RefinementLocalDate refinementLocalDateUtils, IsMVPParameterConsumer isMVPParameterConsumer) {
+										RefinementLocalDate refinementLocalDateUtils,
+										IsMVPParameterConsumer isMVPParameterConsumer,
+										PnDeliveryConfigs cfg) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
@@ -89,6 +92,7 @@ public class NotificationRetrieverService {
 		this.notificationSearchFactory = notificationSearchFactory;
 		this.refinementLocalDateUtils = refinementLocalDateUtils;
 		this.isMVPParameterConsumer = isMVPParameterConsumer;
+		this.cfg = cfg;
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
@@ -479,7 +483,7 @@ public class NotificationRetrieverService {
 			if ( refinementDate != null ) {
 				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo( ChronoUnit.DAYS ),
 						clock.instant().truncatedTo( ChronoUnit.DAYS ) );
-				if ( daysBetween > MAX_DOCUMENTS_AVAILABLE_DAYS ) {
+				if ( daysBetween > Long.parseLong( cfg.getMaxDocumentsAvailableDays() ) ) {
 					log.debug("Documents not more available for iun={} from={}", notification.getIun(), refinementDate);
 					removeDocuments( notification );
 				}

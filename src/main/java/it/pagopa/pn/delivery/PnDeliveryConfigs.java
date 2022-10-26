@@ -50,6 +50,8 @@ public class PnDeliveryConfigs {
 
     private Costs costs;
 
+    private String maxDocumentsAvailableDays;
+
 
     private boolean NotificationCheckAddress;
 
