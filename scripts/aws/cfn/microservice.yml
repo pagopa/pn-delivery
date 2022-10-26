@@ -314,7 +314,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/microservice-cloudwatch-dashboard.yaml"
       Parameters:
         DashboardName: !Sub "${ProjectName}-delivery"
-        DynamoDBArns: !Join
+        DynamoDBTableNames: !Join
           - ','
           - - !Ref NotificationsDynamoTableName
             - !Ref NotificationsCostDynamoTableName
@@ -332,7 +332,7 @@ Resources:
         AlarmArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservice.Outputs.AutoScalingAlarmArn 
-          
+
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
     Type: AWS::IAM::Role
