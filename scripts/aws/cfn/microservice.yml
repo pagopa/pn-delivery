@@ -319,6 +319,7 @@ Resources:
           - - !Ref NotificationsDynamoTableName
             - !Ref NotificationsCostDynamoTableName
             - !Ref NotificationsMetadataDynamoTableName
+            - !Ref NotificationsQRDynamoTableName
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -332,6 +333,7 @@ Resources:
         AlarmArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservice.Outputs.AutoScalingAlarmArn 
+            - !GetAtt DeliveryMicroservice.Outputs.FatalLogsMetricAlarmArn
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
