@@ -119,6 +119,11 @@ Parameters:
     Type: String
     Description: 'enables check on physical address when creating notification'
     AllowedValues: [true, false]
+
+  IsMvpDefaultValue:
+    Type: String
+    Description: 'default value to return if paTaxId not present in parameter store'
+    AllowedValues: [true, false]
   
   LogsKinesisSourceStreamArn:
     Type: String
@@ -190,6 +195,7 @@ Resources:
         ContainerEnvEntry17: !Sub 'PN_DELIVERY_EXTERNALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONCHECKADDRESS=${NotificationCheckAddress}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
+        ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName

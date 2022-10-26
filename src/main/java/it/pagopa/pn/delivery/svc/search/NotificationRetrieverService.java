@@ -1,10 +1,10 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -63,8 +63,8 @@ public class NotificationRetrieverService {
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private final ModelMapperFactory modelMapperFactory;
 	private final NotificationSearchFactory notificationSearchFactory;
-	private final PnDeliveryConfigs cfg;
 	private final RefinementLocalDate refinementLocalDateUtils;
+	private final IsMVPParameterConsumer isMVPParameterConsumer;
 
 
 	@Autowired
@@ -77,8 +77,7 @@ public class NotificationRetrieverService {
 										PnExternalRegistriesClientImpl pnExternalRegistriesClient,
 										ModelMapperFactory modelMapperFactory,
 										NotificationSearchFactory notificationSearchFactory,
-										PnDeliveryConfigs cfg,
-										RefinementLocalDate refinementLocalDateUtils) {
+										RefinementLocalDate refinementLocalDateUtils, IsMVPParameterConsumer isMVPParameterConsumer) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
 		this.notificationDao = notificationDao;
@@ -88,8 +87,8 @@ public class NotificationRetrieverService {
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 		this.modelMapperFactory = modelMapperFactory;
 		this.notificationSearchFactory = notificationSearchFactory;
-		this.cfg = cfg;
 		this.refinementLocalDateUtils = refinementLocalDateUtils;
+		this.isMVPParameterConsumer = isMVPParameterConsumer;
 	}
 
 	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
@@ -267,7 +266,7 @@ public class NotificationRetrieverService {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 				OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 				checkDocumentsAvailability( notification, refinementDate );
-				if ( cfg.isMVPTrial() && !requestBySender ) {
+				if ( Boolean.TRUE.equals( isMVPParameterConsumer.isMvp( notification.getSenderTaxId() ) ) && !requestBySender ) {
 					computeNoticeCodeToReturn( notification, refinementDate );
 				}
 			}

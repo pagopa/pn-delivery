@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
@@ -20,10 +21,12 @@ public class NotificationReceiverValidator {
 
     private final Validator validator;
     private final PnDeliveryConfigs cfg;
+    private final IsMVPParameterConsumer isMVPParameterConsumer;
 
-    public NotificationReceiverValidator(Validator validator, PnDeliveryConfigs cfg) {
+    public NotificationReceiverValidator(Validator validator, PnDeliveryConfigs cfg, IsMVPParameterConsumer isMVPParameterConsumer) {
         this.validator = validator;
         this.cfg = cfg;
+        this.isMVPParameterConsumer = isMVPParameterConsumer;
     }
 
     public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
@@ -39,7 +42,7 @@ public class NotificationReceiverValidator {
 
     public void checkNewNotificationRequestBeforeInsertAndThrow(NewNotificationRequest newNotificationRequest) {
         Set<ConstraintViolation<NewNotificationRequest>> errors = checkNewNotificationRequestBeforeInsert( newNotificationRequest );
-        if ( cfg.isMVPTrial() && errors.isEmpty() ) {
+        if ( Boolean.TRUE.equals( isMVPParameterConsumer.isMvp( newNotificationRequest.getSenderTaxId() )) && errors.isEmpty() ) {
             errors = checkNewNotificationRequestForMVP( newNotificationRequest );
         }
         if( ! errors.isEmpty() ) {
