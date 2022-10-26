@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MimeTypesUtils;
@@ -55,14 +56,14 @@ public class NotificationAttachmentService {
     private final NotificationDao notificationDao;
     private final CheckAuthComponent checkAuthComponent;
     private final NotificationViewedProducer notificationViewedProducer;
-    private final PnDeliveryConfigs cfg;
+    private final IsMVPParameterConsumer isMVPParameterConsumer;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer, PnDeliveryConfigs cfg) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer, IsMVPParameterConsumer isMVPParameterConsumer) {
         this.safeStorageClient = safeStorageClient;
         this.notificationDao = notificationDao;
         this.checkAuthComponent = checkAuthComponent;
         this.notificationViewedProducer = notificationViewedProducer;
-        this.cfg = cfg;
+        this.isMVPParameterConsumer = isMVPParameterConsumer;
     }
 
     public FileDownloadResponse getFile(String fileKey){
@@ -242,7 +243,7 @@ public class NotificationAttachmentService {
         {
             String attachmentName = fileDownloadIdentify.attachmentName;
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
-            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, false);
+            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, isMVPParameterConsumer.isMvp(notification.getSenderTaxId()));
             if (!StringUtils.hasText( fileKey )) {
                 String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
                 throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);

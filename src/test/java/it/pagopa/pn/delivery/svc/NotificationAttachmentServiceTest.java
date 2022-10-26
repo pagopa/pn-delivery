@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -18,9 +19,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -59,7 +60,7 @@ class NotificationAttachmentServiceTest {
   private PnMandateClientImpl pnMandateClient;
   private CheckAuthComponent checkAuthComponent;
   private NotificationViewedProducer notificationViewedProducer;
-  private PnDeliveryConfigs cfg;
+  private IsMVPParameterConsumer isMVPParameterConsumer;
 
   @BeforeEach
   public void setup() {
@@ -70,9 +71,9 @@ class NotificationAttachmentServiceTest {
     pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
     checkAuthComponent = Mockito.mock(CheckAuthComponent.class);
     notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
-    cfg = Mockito.mock(PnDeliveryConfigs.class);
+    isMVPParameterConsumer = Mockito.mock(IsMVPParameterConsumer.class);
     attachmentService = new NotificationAttachmentService(pnSafeStorageClient, notificationDao,
-        checkAuthComponent, notificationViewedProducer, cfg);
+        checkAuthComponent, notificationViewedProducer, isMVPParameterConsumer);
   }
 
   @Test
@@ -662,7 +663,7 @@ class NotificationAttachmentServiceTest {
 
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
-    Assertions.assertThrows(PnInternalException.class, todo);
+    Assertions.assertThrows(PnNotFoundException.class, todo);
   }
 
   @Test
@@ -672,10 +673,11 @@ class NotificationAttachmentServiceTest {
     notification.setRecipients(Collections.singletonList(NotificationRecipient.builder().build()));
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
         NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA);
-    when(cfg.isMVPTrial()).thenReturn(Boolean.TRUE);
+    when(isMVPParameterConsumer.isMvp(any())).thenReturn(Boolean.TRUE);
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
-    Assertions.assertThrows(PnNotFoundException.class, todo);
+
+    Assertions.assertThrows(PnInternalException.class, todo);
   }
 
 
