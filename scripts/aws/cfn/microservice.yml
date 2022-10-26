@@ -239,6 +239,11 @@ Resources:
               - !Sub "${NotificationsCostDynamoTableArn}/*"
               - !Sub "${NotificationsQRDynamoTableArn}"
               - !Sub "${NotificationsQRDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - ssm:GetParameter
+            Resource:
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
