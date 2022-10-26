@@ -121,7 +121,7 @@ Parameters:
     AllowedValues: [true, false]
 
   IsMvpDefaultValue:
-    type: String
+    Type: String
     Description: 'default value to return if paTaxId not present in parameter store'
     AllowedValues: [true, false]
   
