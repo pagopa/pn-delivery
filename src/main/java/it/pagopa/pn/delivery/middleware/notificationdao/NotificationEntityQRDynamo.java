@@ -1,9 +1,9 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.api.dto.notification.NotificationRecipientType;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationQREntity;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -38,7 +39,7 @@ public class NotificationEntityQRDynamo extends AbstractDynamoKeyValueStore<Noti
                             .iun( notificationQREntity.getIun() )
                             .aarQRCodeValue( notificationQREntity.getAarQRCodeValue() )
                             .recipientInternalId( notificationQREntity.getRecipientId() )
-                            .recipientType( NotificationRecipientType.valueOf( notificationQREntity.getRecipientType().getValue() ))
+                            .recipientType( NotificationRecipient.RecipientTypeEnum.valueOf( notificationQREntity.getRecipientType().getValue() ))
                     .build() );
         } else {
             return Optional.empty();
@@ -47,6 +48,10 @@ public class NotificationEntityQRDynamo extends AbstractDynamoKeyValueStore<Noti
 
     @Override
     public void putIfAbsent(NotificationQREntity notificationQREntity) throws PnIdConflictException {
-        throw new UnsupportedOperationException();
+        PutItemEnhancedRequest<NotificationQREntity> request = PutItemEnhancedRequest.
+                builder(NotificationQREntity.class)
+                .item( notificationQREntity )
+                .build();
+        table.putItem( request );
     }
 }

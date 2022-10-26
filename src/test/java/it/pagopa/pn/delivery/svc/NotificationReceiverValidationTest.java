@@ -12,6 +12,8 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +45,9 @@ class NotificationReceiverValidationTest {
   @Mock
   private PnDeliveryConfigs cfg;
 
+  @Mock
+  private IsMVPParameterConsumer isMVPParameterConsumer;
+
   private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
   public static final String ATTACHMENT_BODY_STR = "Body";
   public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
@@ -60,7 +65,7 @@ class NotificationReceiverValidationTest {
   void initializeValidator() {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    validator = new NotificationReceiverValidator(factory.getValidator(), cfg);
+    validator = new NotificationReceiverValidator(factory.getValidator(), cfg, isMVPParameterConsumer);
   }
 
   @Test
@@ -124,6 +129,17 @@ class NotificationReceiverValidationTest {
     assertProblemErrorConstraintViolationPresentByField(errors, "senderDenomination");
     assertProblemErrorConstraintViolationPresentByField(errors, "senderTaxId");
     Assertions.assertEquals(13, errors.size());
+  }
+
+  @Test
+  void checkOk() {
+    InternalNotification n = validDocumentWithoutPayments();
+    n.setNotificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE );
+
+    // WHEN
+    Set<ConstraintViolation<InternalNotification>> errors;
+    errors = validator.checkNewNotificationBeforeInsert(n);
+    Assertions.assertTrue( errors.isEmpty() );
   }
 
   @Test
