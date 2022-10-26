@@ -307,6 +307,32 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-io'
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
 
+  # Dashboard
+  DeliveryMicroserviceCloudWatchDashboard:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/microservice-cloudwatch-dashboard.yaml"
+      Parameters:
+        DashboardName: !Sub "${ProjectName}-delivery"
+        DynamoDBArns: !Join
+          - ','
+          - - !Ref NotificationsDynamoTableName
+            - !Ref NotificationsCostDynamoTableName
+            - !Ref NotificationsMetadataDynamoTableName
+        RestApiStageArns: !Join
+          - ','
+          - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiStageArn
+        RestApiNames: !Join
+          - ','
+          - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiName
+            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiName
+            - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiName
+        AlarmArns: !Join
+          - ','
+          - - !GetAtt DeliveryMicroservice.Outputs.AutoScalingAlarmArn 
+          
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
     Type: AWS::IAM::Role
