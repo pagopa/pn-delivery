@@ -341,34 +341,36 @@ public class NotificationRetrieverService {
 		// - per l'MVP la notifica ha necessariamente un solo destinatario
 		for ( NotificationRecipient recipient : recipientList ) {
 			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
-			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
-			String noticeCode = notificationPaymentInfo.getNoticeCode();
-			if ( notificationPaymentInfo != null && notificationPaymentInfo.getNoticeCodeAlternative() != null ) {
-				switch (noticeCodeToReturn) {
-					case FIRST_NOTICE_CODE: {
-						break;
-					}
-					// - se devo restituire il notice code alternativo...
-					case SECOND_NOTICE_CODE: {
-						// - ...verifico che il primo notice code non è stato già pagato
-						verifyNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
-						break;
-					}
-					case NO_NOTICE_CODE: {
-						notificationPaymentInfo.setNoticeCode( null );
-						break;
-					}
-					default: {
-						throw new UnsupportedOperationException( "Unable to compute notice code to return for iun="+ iun );
-					}
-				}
-				// in ogni caso non restituisco il noticeCode opzionale
-				notificationPaymentInfo.setNoticeCodeAlternative( null );
+			if ( notificationPaymentInfo != null) {
+    			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
+    			String noticeCode = notificationPaymentInfo.getNoticeCode();
+    			if ( notificationPaymentInfo.getNoticeCodeAlternative() != null ) {
+    				switch (noticeCodeToReturn) {
+    					case FIRST_NOTICE_CODE: {
+    						break;
+    					}
+    					// - se devo restituire il notice code alternativo...
+    					case SECOND_NOTICE_CODE: {
+    						// - ...verifico che il primo notice code non è stato già pagato
+    						setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
+    						break;
+    					}
+    					case NO_NOTICE_CODE: {
+    						notificationPaymentInfo.setNoticeCode( null );
+    						break;
+    					}
+    					default: {
+    						throw new UnsupportedOperationException( "Unable to compute notice code to return for iun="+ iun );
+    					}
+    				}
+    				// in ogni caso non restituisco il noticeCode opzionale
+    				notificationPaymentInfo.setNoticeCodeAlternative( null );
+    			}
 			}
 		}
 	}
 
-	private void verifyNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
+	private void setNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
 		log.debug( "Start getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
 		try {
 			PaymentInfo paymentInfo = this.pnExternalRegistriesClient.getPaymentInfo(creditorTaxId, noticeCode);
