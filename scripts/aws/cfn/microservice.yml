@@ -344,10 +344,6 @@ Resources:
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiName
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiName
-        QueueArns: !Join
-          - ','
-          - - !Ref PnDeliveryInsertTriggerDLQARN
-            - !Ref DeliveryPushInputsQueueARN
         AlarmArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservice.Outputs.AutoScalingAlarmArn 
@@ -356,7 +352,6 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
-            - !Ref DeliveryPushInputsQueueAlarmARN
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
