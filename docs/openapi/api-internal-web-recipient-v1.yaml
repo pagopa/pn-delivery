@@ -159,6 +159,13 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'          
+          
 
   "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:
@@ -191,7 +198,12 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'    
 components:
   
   parameters:

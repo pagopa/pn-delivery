@@ -76,9 +76,13 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max one recipient" );
             errors.add( constraintViolation );
         }
-       
+        
+        
         NotificationPaymentInfo payment = notificationRequest.getRecipients().get(0).getPayment();
-        if (Objects.nonNull( payment )) {
+        if (Objects.isNull( payment )) {
+            ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient payment" );
+            errors.add( constraintViolation );
+        } else {
             String noticeCode = payment.getNoticeCode();
             String noticeCodeAlternative = payment.getNoticeCodeAlternative();
             if ( noticeCode.equals(noticeCodeAlternative) ) {

@@ -511,7 +511,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem' 
+                
   "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
       summary: Download allegato per pagamento
@@ -545,7 +551,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem' 
 
     ###########################################################################################
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
