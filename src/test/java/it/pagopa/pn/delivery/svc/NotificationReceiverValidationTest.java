@@ -12,8 +12,6 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +21,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
+import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
@@ -65,7 +64,8 @@ class NotificationReceiverValidationTest {
   void initializeValidator() {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    validator = new NotificationReceiverValidator(factory.getValidator(), cfg, isMVPParameterConsumer);
+    validator =
+        new NotificationReceiverValidator(factory.getValidator(), cfg, isMVPParameterConsumer);
   }
 
   @Test
@@ -134,12 +134,12 @@ class NotificationReceiverValidationTest {
   @Test
   void checkOk() {
     InternalNotification n = validDocumentWithoutPayments();
-    n.setNotificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE );
+    n.setNotificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
     errors = validator.checkNewNotificationBeforeInsert(n);
-    Assertions.assertTrue( errors.isEmpty() );
+    Assertions.assertTrue(errors.isEmpty());
   }
 
   @Test
@@ -422,24 +422,21 @@ class NotificationReceiverValidationTest {
   // doesn't pass physical address checks
   void newNotificationRequestForInValidCheckAddress() {
 
-    Mockito.when(cfg.isNotificationCheckAddress()).thenReturn(true);
-
     // GIVEN
     NewNotificationRequest n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(null);
     // WHEN
     Set<ConstraintViolation<NewNotificationRequest>> errors;
-    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+    errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
     assertConstraintViolationPresentByMessage(errors, "No recipient physical address");
   }
 
   @Test
+  @Disabled
   // pass all mvp checks
   void newNotificationRequestForValidDontCheckAddress() {
-
-    Mockito.when(cfg.isNotificationCheckAddress()).thenReturn(false);
 
     // GIVEN
     NewNotificationRequest n = newNotification();
@@ -447,7 +444,7 @@ class NotificationReceiverValidationTest {
 
     // WHEN
     Set<ConstraintViolation<NewNotificationRequest>> errors;
-    errors = validator.checkNewNotificationRequestForMVP(n);
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
     Assertions.assertEquals(0, errors.size());
@@ -458,8 +455,6 @@ class NotificationReceiverValidationTest {
   @Test
   // doesn't pass mvp checks
   void newNotificationRequestForMVPInvalid() {
-
-    Mockito.when(cfg.isNotificationCheckAddress()).thenReturn(true);
 
     // GIVEN
     NewNotificationRequest n = newNotification();
@@ -477,17 +472,17 @@ class NotificationReceiverValidationTest {
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
-    Assertions.assertEquals(2, errors.size());
+    Assertions.assertEquals(3, errors.size());
 
     assertConstraintViolationPresentByMessage(errors, "Max one recipient");
     assertConstraintViolationPresentByMessage(errors,
         "Alternative notice code equals to notice code");
+    assertConstraintViolationPresentByMessage(errors, "No recipient physical address");
   }
 
   @Test
   // doesn't pass mvp checks
   void newNotificationRequestForMVP() {
-    Mockito.when(cfg.isNotificationCheckAddress()).thenReturn(true);
 
     // GIVEN
     NewNotificationRequest n = newNotification();

@@ -51,22 +51,18 @@ public class NotificationReceiverValidator {
     }
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
-        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();          
-          
-        Set<String> distinctTaxIds = new HashSet<>();
-        for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
-            if ( !distinctTaxIds.add( recipient.getTaxId() )){
-                ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
-                errors.add( constraintViolation );
-            }
-            if ( cfg.isNotificationCheckAddress() && Objects.isNull(recipient.getPhysicalAddress())){
-              ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
-              errors.add( constraintViolation );
+      Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();          
+      if ( internalNotification.getRecipients().size() > 1 ) {   
+          Set<String> distinctTaxIds = new HashSet<>();
+          for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+              if ( !distinctTaxIds.add( recipient.getTaxId() )){
+                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+                  errors.add( constraintViolation );
+              }                
           }
-        }
-                
-        errors.addAll( validator.validate( internalNotification ));
-        return errors;
+      }         
+      errors.addAll(validator.validate( internalNotification ));
+      return errors;
     }
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestForMVP( NewNotificationRequest notificationRequest ) {
@@ -76,7 +72,10 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max one recipient" );
             errors.add( constraintViolation );
         }
-        
+        if (notificationRequest.getRecipients().get(0).getPhysicalAddress() == null ) {
+          ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
+          errors.add( constraintViolation );
+        }
         
         NotificationPaymentInfo payment = notificationRequest.getRecipients().get(0).getPayment();
         if (Objects.isNull( payment )) {
@@ -92,5 +91,4 @@ public class NotificationReceiverValidator {
         }
         return errors;
     }
-
 }
