@@ -133,6 +133,10 @@ Parameters:
     Type: String
     Description: 'Target queue ARN for insert trigger'
 
+  DeliveryPushInputsQueueAlarmARN:
+    Type: String
+    Description: 'Alarm for target queue ARN for insert trigger'
+
   DeliveryPushInputsQueueURL:
     Type: String
     Description: 'Target queue URL for insert trigger'
@@ -343,6 +347,7 @@ Resources:
         QueueArns: !Join
           - ','
           - - !Ref PnDeliveryInsertTriggerDLQARN
+            - !Ref DeliveryPushInputsQueueARN
         AlarmArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservice.Outputs.AutoScalingAlarmArn 
@@ -351,6 +356,7 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
+            - !Ref DeliveryPushInputsQueueAlarmARN
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
