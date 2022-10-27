@@ -52,6 +52,10 @@ public class PnDeliveryConfigs {
 
     private String maxDocumentsAvailableDays;
 
+    private String maxFirstNoticeCodeDays;
+
+    private String maxSecondNoticeCodeDays;
+
 
     private boolean NotificationCheckAddress;
 

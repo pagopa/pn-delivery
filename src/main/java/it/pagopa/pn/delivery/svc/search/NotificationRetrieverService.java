@@ -49,9 +49,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NotificationRetrieverService {
 
-	public static final long MAX_FIRST_NOTICE_CODE_DAYS = 5L;
-	public static final long MAX_SECOND_NOTICE_CODE_DAYS = 60L;
-
 	private static final Instant PN_EPOCH = Instant.ofEpochSecond( 1651399200 ); // 2022-05-01T12:00:00.000 GMT+2:00
 
 	private final Clock clock;
@@ -328,12 +325,14 @@ public class NotificationRetrieverService {
 			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo(ChronoUnit.DAYS),
 					clock.instant().truncatedTo( ChronoUnit.DAYS ) );
 			// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
-			if ( daysBetween > MAX_FIRST_NOTICE_CODE_DAYS && daysBetween <= MAX_SECOND_NOTICE_CODE_DAYS) {
+			long maxFirstNoticeCodeDays = Long.parseLong( cfg.getMaxFirstNoticeCodeDays() );
+			long maxSecondNoticeCodeDays = Long.parseLong( cfg.getMaxSecondNoticeCodeDays() );
+			if ( daysBetween > maxFirstNoticeCodeDays && daysBetween <= maxSecondNoticeCodeDays) {
 				log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
 				noticeCodeToReturn = NoticeCodeToReturn.SECOND_NOTICE_CODE;
 			}
 			// non restituire nessuno notice code se data perfezionamento più di 60 gg da oggi
-			if ( daysBetween > MAX_SECOND_NOTICE_CODE_DAYS) {
+			if ( daysBetween > maxSecondNoticeCodeDays) {
 				log.debug( "Return no notice code for iun={}, days from refinement={}", iun, daysBetween );
 				noticeCodeToReturn = NoticeCodeToReturn.NO_NOTICE_CODE;
 			}

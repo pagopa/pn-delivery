@@ -84,6 +84,8 @@ class NotificationRetrieverServiceTest {
 
         Mockito.when(notificationSearchFactory.getMultiPageSearch(Mockito.any(), Mockito.any())).thenReturn(notificationSearch);
         Mockito.when( cfg.getMaxDocumentsAvailableDays() ).thenReturn( "120" );
+        Mockito.when( cfg.getMaxFirstNoticeCodeDays() ).thenReturn( "5" );
+        Mockito.when( cfg.getMaxSecondNoticeCodeDays() ).thenReturn( "60" );
 
         this.svc = new NotificationRetrieverService(
                 clock,
