@@ -175,3 +175,6 @@ Outputs:
   PnDeliveryInsertTriggerDLQARN:
     Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueARN
     Description: pn-delivery_insert_trigger_DLQ queue ARN
+  PnDeliveryInsertTriggerDLQAlarmARN:
+    Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.SqsDLQAlarmArn
+    Description: pn-delivery_insert_trigger_DLQ alarm ARN

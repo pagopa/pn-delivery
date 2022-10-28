@@ -137,6 +137,10 @@ Parameters:
     Type: String
     Description: 'Target queue ARN for insert trigger'
 
+  DeliveryPushInputsQueueAlarmARN:
+    Type: String
+    Description: 'Alarm for target queue ARN for insert trigger'
+
   DeliveryPushInputsQueueURL:
     Type: String
     Description: 'Target queue URL for insert trigger'
@@ -148,6 +152,10 @@ Parameters:
   PnDeliveryInsertTriggerDLQARN:
     Type: String
     Description: 'DLQ ARN for insert trigger'
+
+  PnDeliveryInsertTriggerDLQAlarmARN:
+    Type: String
+    Description: 'DLQ Alarm ARN for insert trigger'
 
   PnDeliveryInsertTriggerLambdaEventSourceMappingBatchSize:
     Type: String
@@ -317,6 +325,38 @@ Resources:
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-io'
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
+
+  # Dashboard
+  DeliveryMicroserviceCloudWatchDashboard:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/microservice-cloudwatch-dashboard.yaml"
+      Parameters:
+        DashboardName: !Sub "${ProjectName}-delivery"
+        DynamoDBTableNames: !Join
+          - ','
+          - - !Ref NotificationsDynamoTableName
+            - !Ref NotificationsCostDynamoTableName
+            - !Ref NotificationsMetadataDynamoTableName
+            - !Ref NotificationsQRDynamoTableName
+        RestApiStageArns: !Join
+          - ','
+          - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiStageArn
+            - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiStageArn
+        RestApiNames: !Join
+          - ','
+          - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiName
+            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiName
+            - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiName
+        AlarmArns: !Join
+          - ','
+          - - !GetAtt DeliveryMicroservice.Outputs.AutoScalingAlarmArn 
+            - !GetAtt DeliveryMicroservice.Outputs.FatalLogsMetricAlarmArn
+            - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
+            - !Ref PnDeliveryInsertTriggerDLQAlarmARN
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
