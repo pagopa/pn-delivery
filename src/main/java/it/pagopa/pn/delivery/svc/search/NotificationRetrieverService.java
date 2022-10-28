@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
@@ -61,7 +61,7 @@ public class NotificationRetrieverService {
 	private final ModelMapperFactory modelMapperFactory;
 	private final NotificationSearchFactory notificationSearchFactory;
 	private final RefinementLocalDate refinementLocalDateUtils;
-	private final IsMVPParameterConsumer isMVPParameterConsumer;
+	private final MVPParameterConsumer mvpParameterConsumer;
 	private final PnDeliveryConfigs cfg;
 
 
@@ -76,7 +76,7 @@ public class NotificationRetrieverService {
 										ModelMapperFactory modelMapperFactory,
 										NotificationSearchFactory notificationSearchFactory,
 										RefinementLocalDate refinementLocalDateUtils,
-										IsMVPParameterConsumer isMVPParameterConsumer,
+										MVPParameterConsumer mvpParameterConsumer,
 										PnDeliveryConfigs cfg) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
@@ -88,7 +88,7 @@ public class NotificationRetrieverService {
 		this.modelMapperFactory = modelMapperFactory;
 		this.notificationSearchFactory = notificationSearchFactory;
 		this.refinementLocalDateUtils = refinementLocalDateUtils;
-		this.isMVPParameterConsumer = isMVPParameterConsumer;
+		this.mvpParameterConsumer = mvpParameterConsumer;
 		this.cfg = cfg;
 	}
 
@@ -267,7 +267,7 @@ public class NotificationRetrieverService {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 				OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 				checkDocumentsAvailability( notification, refinementDate );
-				if ( Boolean.TRUE.equals( isMVPParameterConsumer.isMvp( notification.getSenderTaxId() ) ) && !requestBySender ) {
+				if ( Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) && !requestBySender ) {
 					computeNoticeCodeToReturn( notification, refinementDate );
 				}
 			}

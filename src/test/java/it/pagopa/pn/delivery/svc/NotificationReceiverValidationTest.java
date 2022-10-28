@@ -12,6 +12,8 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +23,6 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
@@ -45,7 +46,7 @@ class NotificationReceiverValidationTest {
   private PnDeliveryConfigs cfg;
 
   @Mock
-  private IsMVPParameterConsumer isMVPParameterConsumer;
+  private MVPParameterConsumer mvpParameterConsumer;
 
   private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
   public static final String ATTACHMENT_BODY_STR = "Body";
@@ -65,7 +66,7 @@ class NotificationReceiverValidationTest {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     validator =
-        new NotificationReceiverValidator(factory.getValidator(), cfg, isMVPParameterConsumer);
+        new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer);
   }
 
   @Test

@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
@@ -63,7 +63,7 @@ class NotificationRetrieverServiceTest {
     private NotificationSearchFactory notificationSearchFactory;
     private NotificationSearch notificationSearch;
     private RefinementLocalDate refinementLocalDateUtils;
-    private IsMVPParameterConsumer isMVPParameterConsumer;
+    private MVPParameterConsumer mvpParameterConsumer;
     private PnDeliveryConfigs cfg;
 
     @BeforeEach
@@ -79,7 +79,7 @@ class NotificationRetrieverServiceTest {
         this.notificationSearchFactory = Mockito.mock(NotificationSearchFactory.class);
         this.notificationSearch = Mockito.mock(NotificationSearch.class);
         this.refinementLocalDateUtils = new RefinementLocalDate();
-        this.isMVPParameterConsumer = Mockito.mock( IsMVPParameterConsumer.class );
+        this.mvpParameterConsumer = Mockito.mock( MVPParameterConsumer.class );
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
 
         Mockito.when(notificationSearchFactory.getMultiPageSearch(Mockito.any(), Mockito.any())).thenReturn(notificationSearch);
@@ -98,7 +98,7 @@ class NotificationRetrieverServiceTest {
                 modelMapperFactory,
                 notificationSearchFactory,
                 refinementLocalDateUtils,
-                isMVPParameterConsumer,
+                mvpParameterConsumer,
                 cfg);
     }
 
@@ -275,7 +275,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
@@ -312,7 +312,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( notificationDao.getRequestId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( Optional.of( REQUEST_ID ) );
 
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
@@ -363,7 +363,7 @@ class NotificationRetrieverServiceTest {
 
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
 
         InternalNotification result = svc.getNotificationInformation( IUN, true, false );
 
@@ -427,7 +427,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
         Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
@@ -451,7 +451,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
         Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
@@ -685,7 +685,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
@@ -728,7 +728,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-02-11T00:00:00.00Z" ) );
         Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
@@ -772,7 +772,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
@@ -817,7 +817,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
@@ -862,7 +862,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
@@ -902,7 +902,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-05-11T00:00:00.00Z" ) );
 
@@ -941,7 +941,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( isMVPParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-03-11T00:00:00.00Z" ) );
         Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenThrow( PnHttpResponseException.class );
