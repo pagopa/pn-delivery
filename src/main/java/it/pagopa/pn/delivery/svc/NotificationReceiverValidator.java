@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
@@ -20,13 +20,11 @@ import java.util.Set;
 public class NotificationReceiverValidator {
 
     private final Validator validator;
-    private final PnDeliveryConfigs cfg;
-    private final IsMVPParameterConsumer isMVPParameterConsumer;
+    private final MVPParameterConsumer mvpParameterConsumer;
 
-    public NotificationReceiverValidator(Validator validator, PnDeliveryConfigs cfg, IsMVPParameterConsumer isMVPParameterConsumer) {
+    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer) {
         this.validator = validator;
-        this.cfg = cfg;
-        this.isMVPParameterConsumer = isMVPParameterConsumer;
+        this.mvpParameterConsumer = mvpParameterConsumer;
     }
 
     public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
@@ -42,7 +40,7 @@ public class NotificationReceiverValidator {
 
     public void checkNewNotificationRequestBeforeInsertAndThrow(NewNotificationRequest newNotificationRequest) {
         Set<ConstraintViolation<NewNotificationRequest>> errors = checkNewNotificationRequestBeforeInsert( newNotificationRequest );
-        if ( Boolean.TRUE.equals( isMVPParameterConsumer.isMvp( newNotificationRequest.getSenderTaxId() )) && errors.isEmpty() ) {
+        if ( Boolean.TRUE.equals( mvpParameterConsumer.isMvp( newNotificationRequest.getSenderTaxId() )) && errors.isEmpty() ) {
             errors = checkNewNotificationRequestForMVP( newNotificationRequest );
         }
         if( ! errors.isEmpty() ) {
@@ -58,7 +56,8 @@ public class NotificationReceiverValidator {
               if ( !distinctTaxIds.add( recipient.getTaxId() )){
                   ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
                   errors.add( constraintViolation );
-              }                
+              }
+              // TODO issue PN-2509 verificare ed in caso aggiungere obbligatorietà indirizzo fisico per ogni destinatario fuori MVP
           }
       }         
       errors.addAll(validator.validate( internalNotification ));

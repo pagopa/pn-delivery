@@ -1,10 +1,9 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MimeTypesUtils;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -56,14 +55,14 @@ public class NotificationAttachmentService {
     private final NotificationDao notificationDao;
     private final CheckAuthComponent checkAuthComponent;
     private final NotificationViewedProducer notificationViewedProducer;
-    private final IsMVPParameterConsumer isMVPParameterConsumer;
+    private final MVPParameterConsumer mvpParameterConsumer;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer, IsMVPParameterConsumer isMVPParameterConsumer) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer, MVPParameterConsumer mvpParameterConsumer) {
         this.safeStorageClient = safeStorageClient;
         this.notificationDao = notificationDao;
         this.checkAuthComponent = checkAuthComponent;
         this.notificationViewedProducer = notificationViewedProducer;
-        this.isMVPParameterConsumer = isMVPParameterConsumer;
+        this.mvpParameterConsumer = mvpParameterConsumer;
     }
 
     public FileDownloadResponse getFile(String fileKey){
@@ -243,7 +242,7 @@ public class NotificationAttachmentService {
         {
             String attachmentName = fileDownloadIdentify.attachmentName;
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
-            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, isMVPParameterConsumer.isMvp(notification.getSenderTaxId()));
+            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
             if (!StringUtils.hasText( fileKey )) {
                 String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
                 throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);

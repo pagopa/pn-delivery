@@ -13,13 +13,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
-import it.pagopa.pn.commons.configs.IsMVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
@@ -60,7 +61,7 @@ class NotificationAttachmentServiceTest {
   private PnMandateClientImpl pnMandateClient;
   private CheckAuthComponent checkAuthComponent;
   private NotificationViewedProducer notificationViewedProducer;
-  private IsMVPParameterConsumer isMVPParameterConsumer;
+  private MVPParameterConsumer mvpParameterConsumer;
 
   @BeforeEach
   public void setup() {
@@ -71,9 +72,9 @@ class NotificationAttachmentServiceTest {
     pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
     checkAuthComponent = Mockito.mock(CheckAuthComponent.class);
     notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
-    isMVPParameterConsumer = Mockito.mock(IsMVPParameterConsumer.class);
+    mvpParameterConsumer = Mockito.mock(MVPParameterConsumer.class);
     attachmentService = new NotificationAttachmentService(pnSafeStorageClient, notificationDao,
-        checkAuthComponent, notificationViewedProducer, isMVPParameterConsumer);
+        checkAuthComponent, notificationViewedProducer, mvpParameterConsumer);
   }
 
   @Test
@@ -673,7 +674,7 @@ class NotificationAttachmentServiceTest {
     notification.setRecipients(Collections.singletonList(NotificationRecipient.builder().build()));
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
         NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA);
-    when(isMVPParameterConsumer.isMvp(any())).thenReturn(Boolean.TRUE);
+    when(mvpParameterConsumer.isMvp(any())).thenReturn(Boolean.TRUE);
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
 
