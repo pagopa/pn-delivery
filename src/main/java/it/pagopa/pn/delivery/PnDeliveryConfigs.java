@@ -57,8 +57,6 @@ public class PnDeliveryConfigs {
     private String maxSecondNoticeCodeDays;
 
 
-    private boolean NotificationCheckAddress;
-
     @Data
     public static class Topics {
         private String newNotifications;

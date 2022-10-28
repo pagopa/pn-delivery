@@ -115,10 +115,6 @@ Parameters:
     Type: String
     Description: 'keep track of used projects commitIds'
 
-  NotificationCheckAddress:
-    Type: String
-    Description: 'enables check on physical address when creating notification'
-    AllowedValues: [true, false]
 
   IsMvpDefaultValue:
     Type: String
@@ -205,10 +201,9 @@ Resources:
         ContainerEnvEntry15: 'PN_DELIVERY_DATAVAULTBASEURL=http://alb.confidential.pn.internal:8080'
         ContainerEnvEntry16: 'PN_DELIVERY_SAFESTORAGECXID=pn-delivery'
         ContainerEnvEntry17: !Sub 'PN_DELIVERY_EXTERNALREGISTRIESBASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONCHECKADDRESS=${NotificationCheckAddress}'
-        ContainerEnvEntry19: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
-        ContainerEnvEntry20: !Sub 'PN_DELIVERY_MAXDOCUMENTSAVAILABLEDAYS=${MaxDocumentsAvailableDays}'
-        ContainerEnvEntry21: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
+        ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
+        ContainerEnvEntry19: !Sub 'PN_DELIVERY_MAXDOCUMENTSAVAILABLEDAYS=${MaxDocumentsAvailableDays}'
+        ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
