@@ -151,7 +151,8 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'              
+                $ref: '#/components/schemas/Problem'          
+          
 
   "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:

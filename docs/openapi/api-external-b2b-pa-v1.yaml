@@ -279,6 +279,9 @@ tags:
   - name: NotificationPrice
     description: >-
       Invocazioni per determinare il costo della notifica per il destinario.
+  - name: LegalFacts
+    description: >-
+      Invocazioni per effettuare il downalod degli atti opponibili a terzi
 
 paths:
   "/status":
@@ -389,7 +392,7 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: getNotificationRequestStatus
+      operationId: retrieveNotificationRequestStatus                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -434,7 +437,7 @@ paths:
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: getSentNotification
+      operationId: retrieveSentNotification                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
       responses:
@@ -463,10 +466,11 @@ paths:
 
   "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}":
     get:
+      description: Download documento notificato
       summary: Download documento notificato
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationDocument
+      operationId: retrieveSentNotificationDocument                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -494,14 +498,15 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'                 
-
+                $ref: '#/components/schemas/Problem' 
+                
   "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
+      description: Download allegato per pagamento
       summary: Download allegato per pagamento
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationAttachment
+      operationId: retrieveSentNotificationAttachment                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
@@ -525,7 +530,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem' 
 
     ###########################################################################################
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
@@ -536,7 +546,7 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
       tags: # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
-      operationId: getLegalFact                                                     # ONLY EXTERNAL
+      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
       parameters: # ONLY EXTERNAL
         - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
@@ -562,7 +572,7 @@ paths:
                 $ref: '#/components/schemas/Problem'     # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL
     get: # ONLY EXTERNAL
-      operationId: getNotificationPrice                                             # ONLY EXTERNAL
+      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
         Used to retrieve the notification price charged and effective date          # ONLY EXTERNAL
@@ -611,14 +621,6 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
-    cxIdAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'
-    cxGroupsAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
-    uidAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'
 
     ############################################################################################
     ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
