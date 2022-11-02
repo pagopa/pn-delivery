@@ -102,8 +102,6 @@ components:
           - FLAT_RATE
           - DELIVERY_MODE
         cancelledIun:
-          type: string
-          description: IUN della notifica annullata da questa notifica
           $ref: '#/components/schemas/IUN'
         physicalCommunicationType:
           type: string
@@ -112,12 +110,8 @@ components:
           - SIMPLE_REGISTERED_LETTER
           - REGISTERED_LETTER_890
         senderDenomination:
-          description: Denominazione dell'ente mittente
-          type: string
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
-          description: Codice Fiscale dell'ente mittente
-          type: string
           $ref: '#/components/schemas/paTaxId'
         group:
           type: string
@@ -152,16 +146,12 @@ components:
               type: string
               description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
             iun:
-              type: string
-              description: L'Identificativo Univoco Notifica assegnato da PN
               $ref: '#/components/schemas/IUN'
             sentAt:
               type: string
               description: Momento di ricezione della notifica da parte di PN
               format: date-time
             cancelledByIun:
-              type: string
-              description: IUN della notifica che ha annullato questa notifica
               $ref: '#/components/schemas/IUN'
             documentsAvailable:
               type: boolean
@@ -188,15 +178,11 @@ components:
           - PF
           - PG
         taxId:
-          type: string
-          description: Codice Fiscale del destinatario
           $ref: '#/components/schemas/TaxId'
         internalId:
           type: string
           description: id interno anonimizzato
         denomination:
-          type: string
-          description: Nome e cognome / ragione sociale
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
           $ref: "#/components/schemas/NotificationDigitalAddress"

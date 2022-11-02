@@ -244,6 +244,7 @@ paths:
             application/problem+json:                                                     # ONLY EXTERNAL
               schema:                                                                     # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                      # ONLY EXTERNAL
+
 components:
   
   parameters:
