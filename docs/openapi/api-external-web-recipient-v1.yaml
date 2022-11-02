@@ -151,7 +151,8 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'              
+                $ref: '#/components/schemas/Problem'          
+          
 
   "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:
@@ -185,7 +186,43 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'    
+                $ref: '#/components/schemas/Problem'
+
+    ###########################################################################################
+    ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
+    ###########################################################################################
+  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':                       # ONLY EXTERNAL
+    get:                                                                                  # ONLY EXTERNAL
+      summary: Download atto opponibile a terzi                                           # ONLY EXTERNAL
+      description: Permette di scaricare un atto opponibile a terzi                       # ONLY EXTERNAL
+      tags:                                                                               # ONLY EXTERNAL
+        - LegalFacts                                                                      # ONLY EXTERNAL
+      operationId: getLegalFact                                                           # ONLY EXTERNAL
+      security:                                                                           # ONLY EXTERNAL
+        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
+      parameters:                                                                         # ONLY EXTERNAL
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathLegalFactType'                               # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathLegalFactId'                                 # ONLY EXTERNAL
+      responses:                                                                          # ONLY EXTERNAL
+        '200':                                                                            # ONLY EXTERNAL
+          description: OK                                                                 # ONLY EXTERNAL
+          content:                                                                        # ONLY EXTERNAL
+            application/json:                                                             # ONLY EXTERNAL
+              schema:                                                                     # ONLY EXTERNAL
+                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"            # ONLY EXTERNAL
+        '400':                                                                            # ONLY EXTERNAL
+          description: Bad request                                                        # ONLY EXTERNAL
+          content:                                                                        # ONLY EXTERNAL
+            application/problem+json:                                                     # ONLY EXTERNAL
+              schema:                                                                     # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                      # ONLY EXTERNAL
+        '500':                                                                            # ONLY EXTERNAL
+          description: Internal error                                                     # ONLY EXTERNAL
+          content:                                                                        # ONLY EXTERNAL
+            application/problem+json:                                                     # ONLY EXTERNAL
+              schema:                                                                     # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                      # ONLY EXTERNAL
 components:
   
   parameters:
