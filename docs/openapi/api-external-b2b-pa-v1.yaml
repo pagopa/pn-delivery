@@ -281,7 +281,7 @@ tags:
       Invocazioni per determinare il costo della notifica per il destinario.
   - name: LegalFacts
     description: >-
-      Invocazioni per effettuare il download degli atti opponibili a terzi
+      Invocazioni per effettuare il downalod degli atti opponibili a terzi
 
 paths:
   "/status":
