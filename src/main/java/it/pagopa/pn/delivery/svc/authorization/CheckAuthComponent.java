@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipie
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -42,7 +43,7 @@ public class CheckAuthComponent {
         String cxId = action.getCxId();
         log.debug( "Check if cxId={} can access documents iun={}", cxId, notification.getIun() );
         int rIdx = notification.getRecipientIds().indexOf(cxId);
-        Integer recipientIdx = (rIdx >= 0 ? rIdx : null);
+        Integer recipientIdx = getRecipientIdx(rIdx);
 
         // gestione deleghe
         String mandateId = action.getMandateId();
@@ -54,7 +55,7 @@ public class CheckAuthComponent {
             ) {
                 String delegatedCxId = mandates.get(0).getDelegator();
                 rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
-                recipientIdx = (rIdx >= 0 ? rIdx : null);
+                recipientIdx = getRecipientIdx(rIdx);
                 log.info("pfCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
             }
             else
@@ -74,15 +75,13 @@ public class CheckAuthComponent {
                 notification.getRecipients().forEach(x -> log.info("pfCanAccess list of recipient iun={} recipient={}", notification.getIun(), x==null?"NULL!":x.getInternalId()));
             }
         }
+        return Objects.nonNull( effectiveRecipient ) ?
+                AuthorizationOutcome.ok( effectiveRecipient, recipientIdx ) : AuthorizationOutcome.fail();
+    }
 
-        AuthorizationOutcome authorized;
-        if ( effectiveRecipient != null ) {
-            authorized = AuthorizationOutcome.ok( effectiveRecipient, recipientIdx );
-        } else
-        {
-            authorized = AuthorizationOutcome.fail();
-        }
-        return authorized;
+    @Nullable
+    private Integer getRecipientIdx(int rIdx) {
+        return rIdx >= 0 ? rIdx : null;
     }
 
     private AuthorizationOutcome paCanAccess(ReadAccessAuth action, InternalNotification notification) {
