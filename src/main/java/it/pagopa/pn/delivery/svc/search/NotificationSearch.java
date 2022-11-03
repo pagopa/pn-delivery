@@ -28,8 +28,11 @@ public abstract class NotificationSearch {
 
     protected void deanonimizeResults(ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> globalResult){
         // faccio richiesta a data-vault per restituire i CF non opachi al FE
-        if ( globalResult.getResultsPage() != null && !globalResult.getResultsPage().isEmpty() ) {
-            Set<String> opaqueTaxIds = globalResult.getResultsPage().stream().map( NotificationSearchRow::getRecipients ).flatMap( Collection::stream ).collect(Collectors.toSet());
+        if ( !Collections.emptyList().equals( globalResult.getResultsPage() ) ) {
+            Set<String> opaqueTaxIds = globalResult.getResultsPage().stream()
+                    .map( NotificationSearchRow::getRecipients )
+                    .flatMap( Collection::stream )
+                    .collect( Collectors.toSet() );
             if (!opaqueTaxIds.isEmpty()) {
                 log.debug( "Opaque tax ids={}", opaqueTaxIds );
                 List<BaseRecipientDto> dataVaultResults = dataVaultClient.getRecipientDenominationByInternalId(new ArrayList<>(opaqueTaxIds));
@@ -37,7 +40,7 @@ public abstract class NotificationSearch {
                     for (NotificationSearchRow searchRow : globalResult.getResultsPage()) {
                         List<String> realTaxIds = new ArrayList<>();
                         for (String internalId : searchRow.getRecipients() ) {
-                            Optional<BaseRecipientDto> match = dataVaultResults.stream().filter(r -> r.getInternalId().equals( internalId ) ).findFirst();
+                            Optional<BaseRecipientDto> match = dataVaultResults.stream().filter(r -> internalId.equals( r.getInternalId() ) ).findFirst();
                             match.ifPresent(baseRecipientDto -> realTaxIds.add(baseRecipientDto.getTaxId()));
                         }
                         searchRow.setRecipients( realTaxIds );

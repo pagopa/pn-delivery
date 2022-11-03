@@ -50,20 +50,17 @@ public class CheckAuthComponent {
         if (recipientIdx == null && mandateId != null) {
             log.debug( "Check validity mandateId={} cxId={} iun={}", mandateId, cxId, notification.getIun() );
             List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(cxId, mandateId);
-            if(!mandates.isEmpty()
-                    && notification.getSentAt().isAfter( OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ))
+            if(mandates.isEmpty() ||
+                    OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ).isAfter( notification.getSentAt() )
             ) {
-                String delegatedCxId = mandates.get(0).getDelegator();
-                rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
-                recipientIdx = getRecipientIdx(rIdx);
-                log.info("pfCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
-            }
-            else
-            {
                 String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", cxId, mandateId);
                 log.error( message );
                 throw new PnMandateNotFoundException( message );
             }
+            String delegatedCxId = mandates.get(0).getDelegator();
+            rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
+            recipientIdx = getRecipientIdx(rIdx);
+            log.info("pfCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
         }
 
         NotificationRecipient effectiveRecipient = null;
@@ -75,6 +72,7 @@ public class CheckAuthComponent {
                 notification.getRecipients().forEach(x -> log.info("pfCanAccess list of recipient iun={} recipient={}", notification.getIun(), x==null?"NULL!":x.getInternalId()));
             }
         }
+
         return Objects.nonNull( effectiveRecipient ) ?
                 AuthorizationOutcome.ok( effectiveRecipient, recipientIdx ) : AuthorizationOutcome.fail();
     }
