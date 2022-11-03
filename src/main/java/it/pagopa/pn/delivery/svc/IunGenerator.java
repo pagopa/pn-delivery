@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.List;
-import java.util.Random;
 
 public class IunGenerator {
 
@@ -10,7 +10,7 @@ public class IunGenerator {
     private static final List<String> INVALID_PAIRS = List.of("UV", "VU", "HN", "NH");
     private static final String SEPARATOR = "-";
 
-    private Random randomNumberGenerator = new Random();
+    private final SecureRandom randomNumberGenerator = new SecureRandom();
 
     public String generatePredictedIun( Instant creationInstant) {
         String creationDate = creationInstant.toString();
