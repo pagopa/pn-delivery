@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
 
-import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;

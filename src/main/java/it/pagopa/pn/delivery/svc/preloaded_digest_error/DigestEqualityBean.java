@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.svc.preloaded_digest_error;
 
-import it.pagopa.pn.api.dto.notification.NotificationAttachment;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDigests;
 import lombok.*;
 
 @NoArgsConstructor
@@ -12,6 +12,6 @@ import lombok.*;
 public class DigestEqualityBean {
 
     private String key;
-    private NotificationAttachment.Digests expected;
-    private NotificationAttachment.Digests actual;
+    private NotificationAttachmentDigests expected;
+    private NotificationAttachmentDigests actual;
 }
