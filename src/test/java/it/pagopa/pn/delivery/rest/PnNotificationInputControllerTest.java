@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.api.dto.preload.PreloadRequest;
-import it.pagopa.pn.api.rest.PnDeliveryRestConstants;
+import it.pagopa.pn.delivery.utils.PreloadRequest;
+import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;

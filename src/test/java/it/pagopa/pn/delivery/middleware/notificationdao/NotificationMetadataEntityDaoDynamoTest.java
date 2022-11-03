@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 
-import it.pagopa.pn.api.dto.notification.status.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
