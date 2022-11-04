@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipie
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -42,27 +43,24 @@ public class CheckAuthComponent {
         String cxId = action.getCxId();
         log.debug( "Check if cxId={} can access documents iun={}", cxId, notification.getIun() );
         int rIdx = notification.getRecipientIds().indexOf(cxId);
-        Integer recipientIdx = (rIdx >= 0 ? rIdx : null);
+        Integer recipientIdx = getRecipientIdx(rIdx);
 
         // gestione deleghe
         String mandateId = action.getMandateId();
         if (recipientIdx == null && mandateId != null) {
             log.debug( "Check validity mandateId={} cxId={} iun={}", mandateId, cxId, notification.getIun() );
             List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(cxId, mandateId);
-            if(!mandates.isEmpty()
-                    && notification.getSentAt().isAfter( OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ))
+            if(mandates.isEmpty() ||
+                    OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ).isAfter( notification.getSentAt() )
             ) {
-                String delegatedCxId = mandates.get(0).getDelegator();
-                rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
-                recipientIdx = (rIdx >= 0 ? rIdx : null);
-                log.info("pfCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
-            }
-            else
-            {
                 String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", cxId, mandateId);
                 log.error( message );
                 throw new PnMandateNotFoundException( message );
             }
+            String delegatedCxId = mandates.get(0).getDelegator();
+            rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
+            recipientIdx = getRecipientIdx(rIdx);
+            log.info("pfCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
         }
 
         NotificationRecipient effectiveRecipient = null;
@@ -75,14 +73,13 @@ public class CheckAuthComponent {
             }
         }
 
-        AuthorizationOutcome authorized;
-        if ( effectiveRecipient != null ) {
-            authorized = AuthorizationOutcome.ok( effectiveRecipient, recipientIdx );
-        } else
-        {
-            authorized = AuthorizationOutcome.fail();
-        }
-        return authorized;
+        return Objects.nonNull( effectiveRecipient ) ?
+                AuthorizationOutcome.ok( effectiveRecipient, recipientIdx ) : AuthorizationOutcome.fail();
+    }
+
+    @Nullable
+    private Integer getRecipientIdx(int rIdx) {
+        return rIdx >= 0 ? rIdx : null;
     }
 
     private AuthorizationOutcome paCanAccess(ReadAccessAuth action, InternalNotification notification) {
