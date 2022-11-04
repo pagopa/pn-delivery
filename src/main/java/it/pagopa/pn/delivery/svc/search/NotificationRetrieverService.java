@@ -115,14 +115,13 @@ public class NotificationRetrieverService {
 		validateInput(searchDto);
 
 		if ( !searchDto.isBySender() ) {
+			log.debug( "Search from receiver" );
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId);
 			} else {
 				log.debug( "Search from receiver without mandate" );
 			}
-		} else {
-			log.debug( "Search from sender" );
 		}
 
 		PnLastEvaluatedKey lastEvaluatedKey = null;
