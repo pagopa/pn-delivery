@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  termsOfService: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
+  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
   x-api-id: api-external-b2b-pa
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
@@ -10,13 +10,13 @@ info:
     email: pn-supporto-enti@pagopa.it
   license:
     name: Licenza di PN
-    url: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
+    url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
 servers:
-  - url: 'https://api.pn.pagopa.it'
+  - url: https://api.pn.pagopa.it
     description: Ambiente di produzione
-  - url: 'https://api.svil.pn.pagopa.it'
+  - url: https://api.svil.pn.pagopa.it
     description: Ambiente di test
-  - url: 'https://api.dev.pn.pagopa.it'
+  - url: https://api.dev.pn.pagopa.it
     description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
@@ -91,7 +91,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewNotificationRequestStatusResponse/allOf/0'
+              $ref: '#/components/schemas/NewNotificationRequest'
         required: true
       responses:
         '202':
@@ -147,7 +147,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  '/delivery/notifications/sent/{iun}':
+  /delivery/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
@@ -155,12 +155,7 @@ paths:
         - SenderReadB2B
       operationId: retrieveSentNotification
       parameters:
-        - description: Identificativo Univoco Notifica
-          name: iun
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/pathIun'
       responses:
         '200':
           description: OK
@@ -180,7 +175,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  '/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}':
+  /delivery/notifications/sent/{iun}/attachments/documents/{docIdx}:
     get:
       description: Download documento notificato
       summary: Download documento notificato
@@ -188,7 +183,7 @@ paths:
         - SenderReadB2B
       operationId: retrieveSentNotificationDocument
       parameters:
-        - $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/parameters/0'
+        - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
       responses:
         '200':
@@ -196,39 +191,7 @@ paths:
           content:
             application/json:
               schema:
-                title: Url e metadati per il download di un allegato di una notifica
-                description: |-
-                  I due campi più importanti sono __url__ e __retryAfter__. <br/>
-                    - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-                    - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
-                      secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-                type: object
-                required:
-                  - filename
-                  - contentType
-                  - contentLength
-                  - sha256
-                properties:
-                  filename:
-                    type: string
-                  contentType:
-                    type: string
-                    example: application/pdf
-                  contentLength:
-                    type: integer
-                    format: int32
-                    example: 54092
-                    description: 'dmensione, in byte, del contenuto.'
-                  sha256:
-                    type: string
-                    description: SHA256 del contenuto del file.
-                  url:
-                    type: string
-                    description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
-                  retryAfter:
-                    type: integer
-                    format: int32
-                    description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia disponibile per il download.
+                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -247,7 +210,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  '/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}':
+  /delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
     get:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
@@ -255,7 +218,7 @@ paths:
         - SenderReadB2B
       operationId: retrieveSentNotificationAttachment
       parameters:
-        - $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/parameters/0'
+        - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
       responses:
@@ -264,7 +227,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D~1attachments~1documents~1%7BdocIdx%7D/get/responses/200/content/application~1json/schema'
+                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -283,7 +246,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+  /delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}:
     get:
       summary: Download atto opponibile a terzi
       description: Permette di scaricare un atto opponibile a terzi
@@ -291,7 +254,7 @@ paths:
         - LegalFacts
       operationId: retrieveLegalFact
       parameters:
-        - $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/parameters/0'
+        - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
       responses:
@@ -313,7 +276,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  '/delivery/price/{paTaxId}/{noticeCode}':
+  /delivery/price/{paTaxId}/{noticeCode}:
     get:
       operationId: retrieveNotificationPrice
       summary: Retrieve notification price and effective date
@@ -327,24 +290,14 @@ paths:
           required: true
           example: '77777777777'
           schema:
-            description: Payment PA fiscal code
-            example: '77777777777'
-            type: string
-            maxLength: 11
-            minLength: 11
-            pattern: ^\d+$
+            $ref: '#/components/schemas/paTaxId'
         - name: noticeCode
           description: Payment notice number  numero avviso
           in: path
           required: true
           example: '302000100000019421'
           schema:
-            description: Payment notice number  numero avviso
-            example: '302000100000019421'
-            type: string
-            maxLength: 18
-            minLength: 18
-            pattern: ^\d+$
+            $ref: '#/components/schemas/noticeCode'
       responses:
         '200':
           description: OK
@@ -377,7 +330,7 @@ components:
       name: paProtocolNumber
       in: query
       required: false
-      description: 'Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.'
+      description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
       schema:
         type: string
     idempotenceToken:
@@ -417,21 +370,17 @@ components:
       in: path
       required: true
       schema:
-        title: Tipi di atti opponibili a terzi
-        description: |-
-          Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
-            - _SENDER_ACK_: atto di "presa in carico" di una notifica
-            - _DIGITAL_DELIVERY_: ...
-        type: string
-        enum:
-          - SENDER_ACK
-          - DIGITAL_DELIVERY
-          - ANALOG_DELIVERY
-          - RECIPIENT_ACCESS
-          - PEC_RECEIPT
+        $ref: '#/components/schemas/LegalFactCategory'
     pathLegalFactId:
       description: Identificativo dell'atto opponbile a terzi
       name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+    pathIun:
+      description: Identificativo Univoco Notifica
+      name: iun
       in: path
       required: true
       schema:
@@ -454,7 +403,7 @@ components:
           example: application/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
-          description: 'checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato'
+          description: checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
     PreLoadResponse:
@@ -479,7 +428,7 @@ components:
         url:
           description: URL a cui effettuare l'upload del contenuto del documento.
           type: string
-          example: 'https://preloadpn.aws.amazon.......'
+          example: https://preloadpn.aws.amazon.......
         key:
           description: la chiave restituita sarà globalmente unica e andrà utilizzata nella richiesta  di notifica.
           example: PN_NOTIFICATION_ATTACHMENTS-0001-301W-B9CB-9U72-WIKD
@@ -490,11 +439,7 @@ components:
       type: object
       properties:
         iun:
-          description: Identificativo Univoco Notifica
-          type: string
-          minLength: 25
-          maxLength: 25
-          pattern: '^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$'
+          $ref: '#/components/schemas/IUN'
         amount:
           description: amount in euro cents
           example: '1220'
@@ -513,7 +458,7 @@ components:
       properties:
         notificationRequestId:
           type: string
-          description: 'identificativo univoco di una richiesta di invio notifica, non è lo IUN'
+          description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
@@ -522,238 +467,14 @@ components:
           type: string
     NewNotificationRequestStatusResponse:
       allOf:
-        - description: I campi utilizzati per la creazione di una nuova Notifica.
-          type: object
-          required:
-            - paProtocolNumber
-            - subject
-            - recipients
-            - documents
-            - physicalCommunicationType
-            - notificationFeePolicy
-            - senderDenomination
-            - senderTaxId
-          properties:
-            idempotenceToken:
-              description: Identificativo utilizzabile dal chiamante per disambiguare differenti  "richieste di notificazione" effettuate con lo stesso numero di protocollo  (campo _paProtocolNumber_). Questo può essere necessario in caso di  "richiesta di notifica" rifiutata per errori nei codici di verifica degli allegati.
-              type: string
-            paProtocolNumber:
-              description: Numero di protocollo che la PA mittente assegna alla notifica stessa
-              type: string
-            subject:
-              type: string
-              description: titolo della notifica
-              maxLength: 512
-            abstract:
-              type: string
-              description: descrizione sintetica della notifica
-              maxLength: 1024
-            recipients:
-              type: array
-              description: Informazioni sui destinatari
-              items:
-                description: Informazioni sui destinatari
-                required:
-                  - denomination
-                  - recipientType
-                  - taxId
-                type: object
-                properties:
-                  recipientType:
-                    type: string
-                    description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica (PG)'
-                    enum:
-                      - PF
-                      - PG
-                  taxId:
-                    description: C.F. persona fisica o persona giuridica (Partita iva)
-                    type: string
-                    minLength: 11
-                    maxLength: 16
-                    pattern: '^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$'
-                  internalId:
-                    type: string
-                    description: id interno anonimizzato
-                  denomination:
-                    $ref: '#/paths/~1delivery~1requests/post/requestBody/content/application~1json/schema/properties/senderDenomination'
-                  digitalDomicile:
-                    description: Indirizzo di invio della notifica
-                    required:
-                      - address
-                      - type
-                    type: object
-                    properties:
-                      type:
-                        type: string
-                        description: 'tipo di indirizzo PEC, REM, SERCQ, ...'
-                        enum:
-                          - PEC
-                      address:
-                        type: string
-                        example: account@domain
-                        description: Indirizzo PEC o REM che il mittente della notifica intende utilizzare per  raggiungere il destinatario.
-                  physicalAddress:
-                    description: Indirizzo fisico scoperto durante fase di consegna
-                    type: object
-                    required:
-                      - address
-                      - municipality
-                      - zip
-                    properties:
-                      at:
-                        type: string
-                        description: Campo "presso" dell'indirizzo
-                      address:
-                        type: string
-                        description: Indirizzo del domicilio fisico
-                      addressDetails:
-                        type: string
-                        description: Seconda riga dell'indirizzo fisico
-                      zip:
-                        type: string
-                        description: Codice di avviamento postale
-                      municipality:
-                        type: string
-                        description: Comune
-                      municipalityDetails:
-                        type: string
-                        description: Frazione o località
-                      province:
-                        type: string
-                        description: Provincia
-                      foreignState:
-                        type: string
-                        description: Denominazione paese estero
-                  payment:
-                    title: Informazioni per effettuare il pagamento
-                    description: |-
-                      Informazioni utili per effettuare il pagamento di una notifica, sono associate al destinatario perché le spese di notifica possono differire a seconda del canale di notifica utilizzato. <br/>
-                        - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
-                           calcolato puntualmente. <br/>
-                        - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
-                        - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
-                        - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
-                        - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
-                        - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
-                    type: object
-                    required:
-                      - noticeCode
-                      - creditorTaxId
-                    properties:
-                      noticeCode:
-                        $ref: '#/paths/~1delivery~1price~1%7BpaTaxId%7D~1%7BnoticeCode%7D/get/parameters/1/schema'
-                      creditorTaxId:
-                        $ref: '#/paths/~1delivery~1price~1%7BpaTaxId%7D~1%7BnoticeCode%7D/get/parameters/0/schema'
-                      noticeCodeAlternative:
-                        $ref: '#/paths/~1delivery~1price~1%7BpaTaxId%7D~1%7BnoticeCode%7D/get/parameters/1/schema'
-                      pagoPaForm:
-                        description: Un modulo di pagamento allegato alla notifica
-                        allOf:
-                          - $ref: '#/paths/~1delivery~1requests/get/responses/200/content/application~1json/schema/allOf/0/properties/documents/items/allOf/0'
-                      f24flatRate:
-                        $ref: '#/paths/~1delivery~1requests/get/responses/200/content/application~1json/schema/allOf/0/properties/recipients/items/properties/payment/properties/pagoPaForm'
-                      f24standard:
-                        $ref: '#/paths/~1delivery~1requests/get/responses/200/content/application~1json/schema/allOf/0/properties/recipients/items/properties/payment/properties/pagoPaForm'
-            documents:
-              type: array
-              description: Documenti notificati
-              items:
-                description: Un documento da notifcare
-                allOf:
-                  - description: Un allegato della notifica.
-                    type: object
-                    required:
-                      - digests
-                      - contentType
-                      - ref
-                    properties:
-                      digests:
-                        description: Codici per la verifica del corretto caricamento di un allegato
-                        type: object
-                        required:
-                          - sha256
-                        properties:
-                          sha256:
-                            type: string
-                            description: Digest "sha256" della codifica binaria dell'allegato
-                      contentType:
-                        type: string
-                        description: 'tipo di contenuto dell''allegato, supportato application/pdf'
-                      ref:
-                        description: Riferimento all'allegato precaricato
-                        required:
-                          - key
-                          - versionToken
-                        type: object
-                        properties:
-                          key:
-                            type: string
-                            description: Chiave in cui è stato salvato l'allegato
-                          versionToken:
-                            type: string
-                            description: Token per recuperare l'esatta istanza dell'allegato
-                  - type: object
-                    properties:
-                      title:
-                        type: string
-                        description: Titolo del documento allegato
-                      requiresAck:
-                        type: boolean
-                        description: Se presente e valorizzato __true__ il download del documento  diventa necessario al fine del perfezionamento per presa visione.
-                      sendByMail:
-                        type: boolean
-                        description: Se presente e valorizzato __true__ il documento verrà spedito  nelle comunicazioni cartacee. In MVP questo flag sarà attivabile  solo su un documento.
-                      docIdx:
-                        type: string
-                        description: Indice del documento partendo da 0.
-              minItems: 1
-            notificationFeePolicy:
-              type: string
-              description: 'Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in base all''effettivo percorso di notifica. <br/>'
-              enum:
-                - FLAT_RATE
-                - DELIVERY_MODE
-            cancelledIun:
-              $ref: '#/components/schemas/NotificationPriceResponse/properties/iun'
-            physicalCommunicationType:
-              type: string
-              description: Tipologia comunicazione fisica
-              enum:
-                - SIMPLE_REGISTERED_LETTER
-                - REGISTERED_LETTER_890
-            senderDenomination:
-              description: Denominazione ente o persona fisica / ragione sociale
-              type: string
-              minLength: 1
-              maxLength: 80
-              pattern: '^([\x20-\xFF]{1,80})$'
-            senderTaxId:
-              $ref: '#/paths/~1delivery~1price~1%7BpaTaxId%7D~1%7BnoticeCode%7D/get/parameters/0/schema'
-            group:
-              type: string
-              description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-            amount:
-              type: integer
-              format: int32
-              description: Importo della notifica in eurocent
-            paymentExpirationDate:
-              type: string
-              pattern: '^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$'
-              description: Data di scadenza del pagamento nel formato YYYY-MM-DD riferito all'Italia
-            taxonomyCode:
-              type: string
-              minLength: 10
-              maxLength: 10
-              pattern: '^([0-9]{9}[A-Z]{1})$'
-              description: Codice tassonomico della notifica
-              default: 010101101P
+        - $ref: '#/components/schemas/NewNotificationRequest'
         - type: object
           required:
             - notificationRequestId
             - notificationRequestStatus
           properties:
             notificationRequestId:
-              description: 'identificativo univoco di una richiesta di invio notifica, non è lo IUN'
+              description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
               type: string
             notificationRequestStatus:
               description: '- __WAITING__: in attesa di essere valutata - __ACCEPTED__: richiesta di notifica accettata, lo IUN è valorizzato - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_'
@@ -763,7 +484,7 @@ components:
               format: int32
               description: Numero di secondi da attendere prima di effettuare una nuova richiesta per  la stessa entità; valorizzato quando lo status è __WAITING__.
             iun:
-              $ref: '#/components/schemas/NotificationPriceResponse/properties/iun'
+              $ref: '#/components/schemas/IUN'
             errors:
               description: Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
               type: array
@@ -783,16 +504,16 @@ components:
           minimum: 100
           exclusiveMaximum: true
         title:
-          description: 'A short, summary of the problem type. Written in english and readable'
+          description: A short, summary of the problem type. Written in english and readable
           example: Service Unavailable
           maxLength: 64
-          pattern: '^[ -~]{0,64}$'
+          pattern: ^[ -~]{0,64}$
           type: string
         detail:
           description: A human readable explanation of the problem.
           example: Request took too long to complete.
           maxLength: 4096
-          pattern: '^.{0,4096}$'
+          pattern: ^.{0,4096}$
           type: string
         traceId:
           description: Internal support identifier associated to error
@@ -800,26 +521,26 @@ components:
           type: string
         timestamp:
           description: date and time referred to UTC
-          example: 2022-07-27T12:22:33.444Z
+          example: '2022-07-27T12:22:33.444Z'
           type: string
           format: date-time
         errors:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/ProblemError'
+            $ref: '#/components/schemas/schemas-ProblemError'
       required:
         - status
         - errors
     ProblemError:
       properties:
         code:
-          description: 'Internal code of the error, in human-readable format'
+          description: Internal code of the error, in human-readable format
           example: PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...
           type: string
         element:
           description: Parameter or request body field name for validation error
-          example: 'body.order.item[2].quantity'
+          example: body.order.item[2].quantity
           type: string
         detail:
           description: A human readable explanation specific to this occurrence of the problem.
@@ -831,28 +552,7 @@ components:
     FullSentNotification:
       description: Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
-        - description: Le informazioni riguardanti una richiesta di notifica accettata
-          allOf:
-            - $ref: '#/components/schemas/NewNotificationRequestStatusResponse/allOf/0'
-            - type: object
-              required:
-                - iun
-                - sentAt
-              properties:
-                senderPaId:
-                  type: string
-                  description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
-                iun:
-                  $ref: '#/components/schemas/NotificationPriceResponse/properties/iun'
-                sentAt:
-                  type: string
-                  description: Momento di ricezione della notifica da parte di PN
-                  format: date-time
-                cancelledByIun:
-                  $ref: '#/components/schemas/NotificationPriceResponse/properties/iun'
-                documentsAvailable:
-                  type: boolean
-                  description: Indica se i documenti notificati sono ancora disponibili.
+        - $ref: '#/components/schemas/SentNotification'
         - type: object
           required:
             - notificationStatus
@@ -882,539 +582,12 @@ components:
         legalFactsIds:
           type: array
           items:
-            description: Chiavi dei documenti generati durante il processo di consegna cartacea
-            type: object
-            required:
-              - key
-              - category
-            properties:
-              key:
-                description: Chiave dell'atto opponibile a terzi generato durante il processo di consegna
-                type: string
-              category:
-                $ref: '#/components/parameters/pathLegalFactType/schema'
+            $ref: '#/components/schemas/LegalFactsId'
           description: Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline. Questo elemento
         category:
-          type: string
-          description: |
-            stato di avanzamento del processo di notifica:`
-              * `REQUEST_ACCEPTED` - 
-              * `SEND_COURTESY_MESSAGE` - 
-              * `GET_ADDRESS` - 
-              * `PUBLIC_REGISTRY_CALL` - 
-              * `PUBLIC_REGISTRY_RESPONSE` - 
-              * `SCHEDULE_ANALOG_WORKFLOW` - 
-              * `SCHEDULE_DIGITAL_WORKFLOW` - 
-              * `SEND_DIGITAL_DOMICILE` - 
-              * `SEND_DIGITAL_DOMICILE_FEEDBACK` - 
-              * `SEND_DIGITAL_FEEDBACK` - 
-              * `REFINEMENT` - 
-              * `SCHEDULE_REFINEMENT` - 
-              * `DIGITAL_SUCCESS_WORKFLOW` - 
-              * `DIGITAL_FAILURE_WORKFLOW` - 
-              * `ANALOG_SUCCESS_WORKFLOW` - 
-              * `ANALOG_FAILURE_WORKFLOW` - 
-              * `SEND_SIMPLE_REGISTERED_LETTER` - 
-              * `NOTIFICATION_VIEWED` - 
-              * `SEND_ANALOG_DOMICILE` - 
-              * `SEND_PAPER_FEEDBACK` - 
-              * `PAYMENT` - 
-              * `COMPLETELY_UNREACHABLE` - 
-              * `REQUEST_REFUSED` - 
-              * `AAR_GENERATION` - 
-              * `NOT_HANDLED` -
-          enum:
-            - REQUEST_ACCEPTED
-            - SEND_COURTESY_MESSAGE
-            - GET_ADDRESS
-            - PUBLIC_REGISTRY_CALL
-            - PUBLIC_REGISTRY_RESPONSE
-            - SCHEDULE_ANALOG_WORKFLOW
-            - SCHEDULE_DIGITAL_WORKFLOW
-            - SEND_DIGITAL_DOMICILE
-            - SEND_DIGITAL_PROGRESS
-            - SEND_DIGITAL_FEEDBACK
-            - REFINEMENT
-            - SCHEDULE_REFINEMENT
-            - DIGITAL_SUCCESS_WORKFLOW
-            - DIGITAL_FAILURE_WORKFLOW
-            - ANALOG_SUCCESS_WORKFLOW
-            - ANALOG_FAILURE_WORKFLOW
-            - SEND_SIMPLE_REGISTERED_LETTER
-            - NOTIFICATION_VIEWED
-            - SEND_ANALOG_DOMICILE
-            - SEND_PAPER_FEEDBACK
-            - PAYMENT
-            - COMPLETELY_UNREACHABLE
-            - REQUEST_REFUSED
-            - AAR_GENERATION
-            - NOT_HANDLED
+          $ref: '#/components/schemas/TimelineElementCategory'
         details:
-          description: The raw event payload that will be different based on the event.
-          oneOf:
-            - type: object
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - physicalAddress
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                physicalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/20/properties/newAddress'
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - digitalAddress
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                digitalAddress:
-                  description: Indirizzo di invio della notifica
-                  required:
-                    - address
-                    - type
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      description: 'tipo di indirizzo PEC, REM, SERCQ, ...'
-                    address:
-                      type: string
-                      description: account@domain
-            - type: object
-              required:
-                - recIndex
-                - digitalAddressSource
-                - isAvailable
-                - attemptDate
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                digitalAddressSource:
-                  type: string
-                  description: sorgente indirizzo di invio della notifica
-                  enum:
-                    - PLATFORM
-                    - SPECIAL
-                    - GENERAL
-                isAvailable:
-                  type: boolean
-                  description: Disponibilità indirizzo
-                attemptDate:
-                  type: string
-                  description: Data tentativo
-                  format: date-time
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                notificationCost:
-                  description: 'costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini'
-                  example: 1220
-                  type: integer
-                  format: int64
-                raddType:
-                  type: string
-                  description: Tipologia rete radd
-                raddTransactionId:
-                  description: ID della pratica dell'evento proveniente dalla rete radd
-                  type: string
-            - type: object
-              required:
-                - recIndex
-                - deliveryMode
-                - contactPhase
-                - sentAttemptMade
-                - sendDate
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                deliveryMode:
-                  type: string
-                  description: Tipologia Domiciliazione
-                  enum:
-                    - DIGITAL
-                    - ANALOG
-                contactPhase:
-                  type: string
-                  description: Fase in cui è avvenuta la richiesta
-                  enum:
-                    - CHOOSE_DELIVERY
-                    - SEND_ATTEMPT
-                sentAttemptMade:
-                  type: integer
-                  description: Numero di tentativi di notificazione già effettuati
-                  format: int32
-                sendDate:
-                  type: string
-                  description: Data invio richiesta ai public registry
-                  format: date-time
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                digitalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/5/properties/digitalAddress'
-                physicalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/20/properties/newAddress'
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                notificationCost:
-                  description: 'costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per visualizzazione'
-                  example: 1220
-                  type: integer
-                  format: int64
-            - type: object
-              required:
-                - errors
-              properties:
-                errors:
-                  type: array
-                  description: Motivazioni che hanno portato al rifiuto della notifica
-                  items:
-                    type: string
-                    description: Motivazioni che hanno portato al rifiuto della notifica
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - digitalAddress
-                - digitalAddressSource
-                - sentAttemptMade
-                - lastAttemptDate
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                digitalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/5/properties/digitalAddress'
-                digitalAddressSource:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/6/properties/digitalAddressSource'
-                sentAttemptMade:
-                  type: integer
-                  format: int32
-                lastAttemptDate:
-                  type: string
-                  format: date-time
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - digitalAddress
-                - sendDate
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                digitalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/5/properties/digitalAddress'
-                sendDate:
-                  type: string
-                  description: data invio messaggio di cortesia
-                  format: date-time
-            - type: object
-              required:
-                - recIndex
-                - digitalAddress
-                - digitalAddressSource
-                - retryNumber
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                digitalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/5/properties/digitalAddress'
-                digitalAddressSource:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/6/properties/digitalAddressSource'
-                retryNumber:
-                  type: integer
-                  description: numero dei tentativi effettuati
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - digitalAddress
-                - responseStatus
-                - notificationDate
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                digitalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/5/properties/digitalAddress'
-                responseStatus:
-                  type: string
-                  description: stato risposta ricevuta da externalChannel
-                  enum:
-                    - OK
-                    - KO
-                notificationDate:
-                  type: string
-                  description: data notifica
-                  format: date-time
-                errors:
-                  type: array
-                  description: 'Lista errori, vuota in caso di successo'
-                  items:
-                    type: string
-                    description: 'Lista errori, vuota in caso di successo'
-                sendingReceipts:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      system:
-                        type: string
-            - type: object
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                eventCode:
-                  type: string
-                  description: esito tornate da ext-channel
-                shouldRetry:
-                  type: boolean
-                  description: indica se il progress ha dato luogo ad un ritentativo
-                digitalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/5/properties/digitalAddress'
-                digitalAddressSource:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/6/properties/digitalAddressSource'
-                notificationDate:
-                  type: string
-                  description: data notifica
-                  format: date-time
-                sendingReceipts:
-                  type: array
-                  items:
-                    $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/17/properties/sendingReceipts/items'
-                retryNumber:
-                  type: integer
-                  description: numero dei tentativi effettuati
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - physicalAddress
-                - serviceLevel
-                - sentAttemptMade
-                - investigation
-                - numberOfPages
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                physicalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/20/properties/newAddress'
-                serviceLevel:
-                  type: string
-                  description: Livello Servizio
-                  enum:
-                    - SIMPLE_REGISTERED_LETTER
-                    - REGISTERED_LETTER_890
-                sentAttemptMade:
-                  type: integer
-                  description: numero dei tentativi effettuati
-                  format: int32
-                investigation:
-                  type: boolean
-                  description: E' richiesta investigazione indirizzo fisico alternativo
-                numberOfPages:
-                  type: integer
-                  description: numero pagine pdf inviato
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - physicalAddress
-                - serviceLevel
-                - sentAttemptMade
-                - investigation
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                physicalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/20/properties/newAddress'
-                serviceLevel:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/19/properties/serviceLevel'
-                sentAttemptMade:
-                  type: integer
-                  description: numero dei tentativi effettuati
-                  format: int32
-                investigation:
-                  type: boolean
-                  description: E' richiesta investigazione indirizzo fisico alternativo
-                newAddress:
-                  type: object
-                  required:
-                    - address
-                    - municipality
-                    - zip
-                  properties:
-                    at:
-                      type: string
-                      description: Campo "presso" dell'indirizzo
-                    address:
-                      type: string
-                      description: Indirizzo del domicilio fisico
-                    addressDetails:
-                      type: string
-                      description: Seconda riga dell'indirizzo fisico
-                    zip:
-                      type: string
-                      description: Codice di avviamento postale
-                    municipality:
-                      type: string
-                      description: Comune in cui l'indirizzo si trova
-                    municipalityDetails:
-                      type: string
-                      description: Frazione o località
-                    province:
-                      type: string
-                      description: Provincia in cui si trova l'indirizzo
-                    foreignState:
-                      type: string
-                      description: Denominazione paese estero
-                  description: Indirizzo fisico scoperto durante fase di consegna
-                errors:
-                  type: array
-                  description: 'Lista errori, vuota in caso di successo'
-                  items:
-                    type: string
-                    description: 'Lista errori, vuota in caso di successo'
-            - type: object
-              required:
-                - recIndex
-                - physicalAddress
-                - numberOfPages
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                physicalAddress:
-                  $ref: '#/paths/~1delivery~1notifications~1sent~1%7Biun%7D/get/responses/200/content/*~1*/schema/allOf/1/properties/timeline/items/properties/details/oneOf/20/properties/newAddress'
-                numberOfPages:
-                  type: integer
-                  description: numero pagine pdf inviato
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - generatedAarUrl
-                - numberOfPages
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                generatedAarUrl:
-                  type: string
-                  description: Chiave per recupero da safe-storage del documento aar
-                numberOfPages:
-                  type: integer
-                  description: numero di pagine del PDF generato
-                  format: int32
-            - type: object
-              required:
-                - recIndex
-                - reasonCode
-                - reason
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario notifica digitale
-                  format: int32
-                reasonCode:
-                  type: string
-                  description: Codice motivazione casistica non gestita
-                reason:
-                  type: string
-                  description: Motivazione casistica non gestita
-            - type: object
-              required:
-                - recIndex
-              properties:
-                recIndex:
-                  type: integer
-                  description: Index destinatario che ha effettuato il pagamento della notifica
-                  format: int32
+          $ref: '#/components/schemas/TimelineElementDetails'
     NotificationStatus:
       type: string
       description: |
@@ -1444,24 +617,7 @@ components:
       description: elenco degli avanzamenti effettuati dal processo di notifica
       type: array
       items:
-        description: elenco degli avanzamenti effettuati dal processo di notifica
-        type: object
-        required:
-          - status
-          - activeFrom
-          - relatedTimelineElements
-        properties:
-          status:
-            $ref: '#/components/schemas/NotificationStatus'
-          activeFrom:
-            type: string
-            description: data e ora di raggiungimento dello stato di avanzamento
-            format: date-time
-          relatedTimelineElements:
-            type: array
-            description: Eventi avvenuti nello stato
-            items:
-              type: string
+        $ref: '#/components/schemas/NotificationStatusHistoryElement'
     LegalFactDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
@@ -1480,7 +636,7 @@ components:
           type: number
           format: decimal32
           example: 54092
-          description: 'dmensione, in byte, del contenuto.'
+          description: dmensione, in byte, del contenuto.
         url:
           type: string
           description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
@@ -1488,6 +644,981 @@ components:
           type: number
           format: decimal32
           description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia scaricabile.
+    schemas-ProblemError:
+      properties:
+        code:
+          description: Internal code of the error, in human-readable format
+          example: PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...
+          type: string
+        element:
+          description: Parameter or request body field name for validation error
+          example: body.order.item[2].quantity
+          type: string
+        detail:
+          description: A human readable explanation specific to this occurrence of the problem.
+          example: Parameter not valid
+          maxLength: 1024
+          type: string
+      required:
+        - code
+    TaxId:
+      description: C.F. persona fisica o persona giuridica (Partita iva)
+      type: string
+      minLength: 11
+      maxLength: 16
+      pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+    Denomination:
+      description: Denominazione ente o persona fisica / ragione sociale
+      type: string
+      minLength: 1
+      maxLength: 80
+      pattern: ^([\x20-\xFF]{1,80})$
+    NotificationDigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+        - address
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+          enum:
+            - PEC
+        address:
+          type: string
+          example: account@domain
+          description: Indirizzo PEC o REM che il mittente della notifica intende utilizzare per  raggiungere il destinatario.
+    NotificationPhysicalAddress:
+      description: Indirizzo fisico scoperto durante fase di consegna
+      type: object
+      required:
+        - address
+        - municipality
+        - zip
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune
+        municipalityDetails:
+          type: string
+          description: Frazione o località
+        province:
+          type: string
+          description: Provincia
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+    noticeCode:
+      description: Payment notice number  numero avviso
+      example: '302000100000019421'
+      type: string
+      maxLength: 18
+      minLength: 18
+      pattern: ^\d+$
+    paTaxId:
+      description: Payment PA fiscal code
+      example: '77777777777'
+      type: string
+      maxLength: 11
+      minLength: 11
+      pattern: ^\d+$
+    NotificationAttachmentDigests:
+      description: Codici per la verifica del corretto caricamento di un allegato
+      type: object
+      required:
+        - sha256
+      properties:
+        sha256:
+          type: string
+          description: Digest "sha256" della codifica binaria dell'allegato
+    NotificationAttachmentBodyRef:
+      description: Riferimento all'allegato precaricato
+      required:
+        - key
+        - versionToken
+      type: object
+      properties:
+        key:
+          type: string
+          description: Chiave in cui è stato salvato l'allegato
+        versionToken:
+          type: string
+          description: Token per recuperare l'esatta istanza dell'allegato
+    NotificationAttachment:
+      description: Un allegato della notifica.
+      type: object
+      required:
+        - digests
+        - contentType
+        - ref
+      properties:
+        digests:
+          $ref: '#/components/schemas/NotificationAttachmentDigests'
+        contentType:
+          type: string
+          description: tipo di contenuto dell'allegato, supportato application/pdf
+        ref:
+          $ref: '#/components/schemas/NotificationAttachmentBodyRef'
+    NotificationPaymentAttachment:
+      description: Un modulo di pagamento allegato alla notifica
+      allOf:
+        - $ref: '#/components/schemas/NotificationAttachment'
+    NotificationPaymentInfo:
+      title: Informazioni per effettuare il pagamento
+      description: |-
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al destinatario perché le spese di notifica possono differire a seconda del canale di notifica utilizzato. <br/>
+          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
+             calcolato puntualmente. <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
+          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+      properties:
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        noticeCodeAlternative:
+          $ref: '#/components/schemas/noticeCode'
+        pagoPaForm:
+          $ref: '#/components/schemas/NotificationPaymentAttachment'
+        f24flatRate:
+          $ref: '#/components/schemas/NotificationPaymentAttachment'
+        f24standard:
+          $ref: '#/components/schemas/NotificationPaymentAttachment'
+    NotificationRecipient:
+      description: Informazioni sui destinatari
+      required:
+        - denomination
+        - recipientType
+        - taxId
+      type: object
+      properties:
+        recipientType:
+          type: string
+          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica (PG)'
+          enum:
+            - PF
+            - PG
+        taxId:
+          $ref: '#/components/schemas/TaxId'
+        internalId:
+          type: string
+          description: id interno anonimizzato
+        denomination:
+          $ref: '#/components/schemas/Denomination'
+        digitalDomicile:
+          $ref: '#/components/schemas/NotificationDigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/NotificationPhysicalAddress'
+        payment:
+          $ref: '#/components/schemas/NotificationPaymentInfo'
+    NotificationDocument:
+      description: Un documento da notifcare
+      allOf:
+        - $ref: '#/components/schemas/NotificationAttachment'
+        - type: object
+          properties:
+            title:
+              type: string
+              description: Titolo del documento allegato
+            requiresAck:
+              type: boolean
+              description: Se presente e valorizzato __true__ il download del documento  diventa necessario al fine del perfezionamento per presa visione.
+            sendByMail:
+              type: boolean
+              description: Se presente e valorizzato __true__ il documento verrà spedito  nelle comunicazioni cartacee. In MVP questo flag sarà attivabile  solo su un documento.
+            docIdx:
+              type: string
+              description: Indice del documento partendo da 0.
+    IUN:
+      description: Identificativo Univoco Notifica
+      type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    NewNotificationRequest:
+      description: I campi utilizzati per la creazione di una nuova Notifica.
+      type: object
+      required:
+        - paProtocolNumber
+        - subject
+        - recipients
+        - documents
+        - physicalCommunicationType
+        - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
+      properties:
+        idempotenceToken:
+          description: Identificativo utilizzabile dal chiamante per disambiguare differenti  "richieste di notificazione" effettuate con lo stesso numero di protocollo  (campo _paProtocolNumber_). Questo può essere necessario in caso di  "richiesta di notifica" rifiutata per errori nei codici di verifica degli allegati.
+          type: string
+        paProtocolNumber:
+          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+        subject:
+          type: string
+          description: titolo della notifica
+          maxLength: 512
+        abstract:
+          type: string
+          description: descrizione sintetica della notifica
+          maxLength: 1024
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: '#/components/schemas/NotificationRecipient'
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
+          minItems: 1
+        notificationFeePolicy:
+          type: string
+          description: 'Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in base all''effettivo percorso di notifica. <br/>'
+          enum:
+            - FLAT_RATE
+            - DELIVERY_MODE
+        cancelledIun:
+          $ref: '#/components/schemas/IUN'
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+            - SIMPLE_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+        amount:
+          type: integer
+          format: int32
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
+          description: Data di scadenza del pagamento nel formato YYYY-MM-DD riferito all'Italia
+        taxonomyCode:
+          type: string
+          minLength: 10
+          maxLength: 10
+          pattern: ^([0-9]{9}[A-Z]{1})$
+          description: Codice tassonomico della notifica
+          default: 010101101P
+    SentNotification:
+      description: Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              $ref: '#/components/schemas/IUN'
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
+    TimelineElementId:
+      type: string
+    NotificationStatusHistoryElement:
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: object
+      required:
+        - status
+        - activeFrom
+        - relatedTimelineElements
+      properties:
+        status:
+          $ref: '#/components/schemas/NotificationStatus'
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            $ref: '#/components/schemas/TimelineElementId'
+    LegalFactCategory:
+      title: Tipi di atti opponibili a terzi
+      description: |-
+        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
+          - _SENDER_ACK_: atto di "presa in carico" di una notifica
+          - _DIGITAL_DELIVERY_: ...
+      type: string
+      enum:
+        - SENDER_ACK
+        - DIGITAL_DELIVERY
+        - ANALOG_DELIVERY
+        - RECIPIENT_ACCESS
+        - PEC_RECEIPT
+    LegalFactsId:
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+      type: object
+      required:
+        - key
+        - category
+      properties:
+        key:
+          description: Chiave dell'atto opponibile a terzi generato durante il processo di consegna
+          type: string
+        category:
+          $ref: '#/components/schemas/LegalFactCategory'
+    TimelineElementCategory:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:`
+          * `REQUEST_ACCEPTED` - 
+          * `SEND_COURTESY_MESSAGE` - 
+          * `GET_ADDRESS` - 
+          * `PUBLIC_REGISTRY_CALL` - 
+          * `PUBLIC_REGISTRY_RESPONSE` - 
+          * `SCHEDULE_ANALOG_WORKFLOW` - 
+          * `SCHEDULE_DIGITAL_WORKFLOW` - 
+          * `SEND_DIGITAL_DOMICILE` - 
+          * `SEND_DIGITAL_DOMICILE_FEEDBACK` - 
+          * `SEND_DIGITAL_FEEDBACK` - 
+          * `REFINEMENT` - 
+          * `SCHEDULE_REFINEMENT` - 
+          * `DIGITAL_SUCCESS_WORKFLOW` - 
+          * `DIGITAL_FAILURE_WORKFLOW` - 
+          * `ANALOG_SUCCESS_WORKFLOW` - 
+          * `ANALOG_FAILURE_WORKFLOW` - 
+          * `SEND_SIMPLE_REGISTERED_LETTER` - 
+          * `NOTIFICATION_VIEWED` - 
+          * `SEND_ANALOG_DOMICILE` - 
+          * `SEND_PAPER_FEEDBACK` - 
+          * `PAYMENT` - 
+          * `COMPLETELY_UNREACHABLE` - 
+          * `REQUEST_REFUSED` - 
+          * `AAR_GENERATION` - 
+          * `NOT_HANDLED` -
+      enum:
+        - REQUEST_ACCEPTED
+        - SEND_COURTESY_MESSAGE
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SCHEDULE_ANALOG_WORKFLOW
+        - SCHEDULE_DIGITAL_WORKFLOW
+        - SEND_DIGITAL_DOMICILE
+        - SEND_DIGITAL_PROGRESS
+        - SEND_DIGITAL_FEEDBACK
+        - REFINEMENT
+        - SCHEDULE_REFINEMENT
+        - DIGITAL_SUCCESS_WORKFLOW
+        - DIGITAL_FAILURE_WORKFLOW
+        - ANALOG_SUCCESS_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW
+        - SEND_SIMPLE_REGISTERED_LETTER
+        - NOTIFICATION_VIEWED
+        - SEND_ANALOG_DOMICILE
+        - SEND_PAPER_FEEDBACK
+        - PAYMENT
+        - COMPLETELY_UNREACHABLE
+        - REQUEST_REFUSED
+        - AAR_GENERATION
+        - NOT_HANDLED
+    NotificationRequestAcceptedDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    AnalogFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    PhysicalAddress:
+      type: object
+      required:
+        - address
+        - municipality
+        - zip
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune in cui l'indirizzo si trova
+        municipalityDetails:
+          type: string
+          description: Frazione o località
+        province:
+          type: string
+          description: Provincia in cui si trova l'indirizzo
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+      description: Indirizzo fisico scoperto durante fase di consegna
+    AnalogSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+    CompletelyUnreachableDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    DigitalFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    DigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+        - address
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+        address:
+          type: string
+          description: account@domain
+    DigitalSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+    DigitalAddressSource:
+      type: string
+      description: sorgente indirizzo di invio della notifica
+      enum:
+        - PLATFORM
+        - SPECIAL
+        - GENERAL
+    GetAddressInfoDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - isAvailable
+        - attemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        isAvailable:
+          type: boolean
+          description: Disponibilità indirizzo
+        attemptDate:
+          type: string
+          description: Data tentativo
+          format: date-time
+    NotificationViewedDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
+          example: 1220
+          type: integer
+          format: int64
+        raddType:
+          type: string
+          description: Tipologia rete radd
+        raddTransactionId:
+          description: ID della pratica dell'evento proveniente dalla rete radd
+          type: string
+    DeliveryMode:
+      type: string
+      description: Tipologia Domiciliazione
+      enum:
+        - DIGITAL
+        - ANALOG
+    ContactPhase:
+      type: string
+      description: Fase in cui è avvenuta la richiesta
+      enum:
+        - CHOOSE_DELIVERY
+        - SEND_ATTEMPT
+    PublicRegistryCallDetails:
+      type: object
+      required:
+        - recIndex
+        - deliveryMode
+        - contactPhase
+        - sentAttemptMade
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        contactPhase:
+          $ref: '#/components/schemas/ContactPhase'
+        sentAttemptMade:
+          type: integer
+          description: Numero di tentativi di notificazione già effettuati
+          format: int32
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+    PublicRegistryResponseDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+    RefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationCost:
+          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per visualizzazione
+          example: 1220
+          type: integer
+          format: int64
+    RequestRefusedDetails:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            type: string
+            description: Motivazioni che hanno portato al rifiuto della notifica
+    ScheduleAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    ScheduleDigitalWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - sentAttemptMade
+        - lastAttemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        sentAttemptMade:
+          type: integer
+          format: int32
+        lastAttemptDate:
+          type: string
+          format: date-time
+    ScheduleRefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    SendCourtesyMessageDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        sendDate:
+          type: string
+          description: data invio messaggio di cortesia
+          format: date-time
+    SendDigitalDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - retryNumber
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+    ResponseStatus:
+      type: string
+      description: stato risposta ricevuta da externalChannel
+      enum:
+        - OK
+        - KO
+    SendingReceipt:
+      type: object
+      properties:
+        id:
+          type: string
+        system:
+          type: string
+    SendDigitalFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - responseStatus
+        - notificationDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        errors:
+          type: array
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+    SendDigitalProgressDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        eventCode:
+          type: string
+          description: esito tornate da ext-channel
+        shouldRetry:
+          type: boolean
+          description: indica se il progress ha dato luogo ad un ritentativo
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+    ServiceLevel:
+      type: string
+      description: Livello Servizio
+      enum:
+        - SIMPLE_REGISTERED_LETTER
+        - REGISTERED_LETTER_890
+    SendAnalogDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - investigation
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        serviceLevel:
+          $ref: '#/components/schemas/ServiceLevel'
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        investigation:
+          type: boolean
+          description: E' richiesta investigazione indirizzo fisico alternativo
+        numberOfPages:
+          type: integer
+          description: numero pagine pdf inviato
+          format: int32
+    SendAnalogFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - investigation
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        serviceLevel:
+          $ref: '#/components/schemas/ServiceLevel'
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        investigation:
+          type: boolean
+          description: E' richiesta investigazione indirizzo fisico alternativo
+        newAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        errors:
+          type: array
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+    SimpleRegisteredLetterDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        numberOfPages:
+          type: integer
+          description: numero pagine pdf inviato
+          format: int32
+    AarGenerationDetails:
+      type: object
+      required:
+        - recIndex
+        - generatedAarUrl
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
+          format: int32
+    NotHandledDetails:
+      type: object
+      required:
+        - recIndex
+        - reasonCode
+        - reason
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        reasonCode:
+          type: string
+          description: Codice motivazione casistica non gestita
+        reason:
+          type: string
+          description: Motivazione casistica non gestita
+    NotificationPaidDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+    TimelineElementDetails:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
+        - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
+        - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableDetails'
+        - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
+        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/GetAddressInfoDetails'
+        - $ref: '#/components/schemas/NotificationViewedDetails'
+        - $ref: '#/components/schemas/PublicRegistryCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - $ref: '#/components/schemas/RefinementDetails'
+        - $ref: '#/components/schemas/RequestRefusedDetails'
+        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
+        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
+        - $ref: '#/components/schemas/ScheduleRefinementDetails'
+        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/SendDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendAnalogDetails'
+        - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
+        - $ref: '#/components/schemas/AarGenerationDetails'
+        - $ref: '#/components/schemas/NotHandledDetails'
+        - $ref: '#/components/schemas/NotificationPaidDetails'
+    NotificationAttachmentDownloadMetadataResponse:
+      title: Url e metadati per il download di un allegato di una notifica
+      description: |-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentType
+        - contentLength
+        - sha256
+      properties:
+        filename:
+          type: string
+        contentType:
+          type: string
+          example: application/pdf
+        contentLength:
+          type: integer
+          format: int32
+          example: 54092
+          description: dmensione, in byte, del contenuto.
+        sha256:
+          type: string
+          description: SHA256 del contenuto del file.
+        url:
+          type: string
+          description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
+        retryAfter:
+          type: integer
+          format: int32
+          description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia disponibile per il download.
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

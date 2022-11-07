@@ -1,6 +1,6 @@
 ##Istruzioni per l'installazione del tool per la creazione del bundle
 ```
-npm install -g @apidevtools/swagger-cli
+npm install @redocly/cli -g
 ```
 
 ##Istruzioni per l'installazione del tool di analisi AGID

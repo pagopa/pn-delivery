@@ -316,4 +316,3 @@ components:
       bearerFormat: JWT                                 # ONLY EXTERNAL
 security:                                               # ONLY EXTERNAL
  - bearerAuth: []                                       # ONLY EXTERNAL
-              
