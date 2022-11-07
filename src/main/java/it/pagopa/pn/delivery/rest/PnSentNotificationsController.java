@@ -73,7 +73,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .uid(xPagopaPnUid)
                 .build();
         logEvent.log();
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(true)
                 .senderReceiverId(xPagopaPnCxId)
                 .startDate(startDate.toInstant())
