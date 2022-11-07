@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDow
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.models.InputDownloadDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
@@ -135,7 +136,17 @@ public class NotificationAttachmentService {
             String mandateId,
             Integer documentIdx,
             Boolean markNotificationAsViewed) {
-        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, documentIdx, null, null, markNotificationAsViewed);
+        InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
+                .cxType( cxType )
+                .cxId( xPagopaPnCxId )
+                .mandateId( mandateId )
+                .iun( iun )
+                .documentIndex( documentIdx )
+                .recipientIdx( null )
+                .attachmentName( null )
+                .markNotificationAsViewed( markNotificationAsViewed )
+                .build();
+        return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
 
@@ -147,18 +158,28 @@ public class NotificationAttachmentService {
             Integer recipientIdx,
             String attachmentName,
             Boolean markNotificationAsViewed) {
-        return downloadDocumentWithRedirect(cxType, xPagopaPnCxId, mandateId, iun, null, recipientIdx, attachmentName, markNotificationAsViewed);
+        InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
+                .cxType( cxType )
+                .cxId( xPagopaPnCxId )
+                .mandateId( mandateId )
+                .iun( iun )
+                .documentIndex( null )
+                .recipientIdx( recipientIdx )
+                .attachmentName( attachmentName )
+                .markNotificationAsViewed( markNotificationAsViewed )
+                .build();
+        return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
-    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(
-            String cxType,
-            String cxId,
-            String mandateId,
-            String iun,
-            Integer documentIndex,
-            Integer recipientIdx,
-            String attachmentName,
-            Boolean markNotificationAsViewed) {
+    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect( InputDownloadDto inputDownloadDto ) {
+        String cxType = inputDownloadDto.getCxType();
+        String cxId = inputDownloadDto.getCxId();
+        String mandateId = inputDownloadDto.getMandateId();
+        String iun = inputDownloadDto.getIun();
+        Integer recipientIdx = inputDownloadDto.getRecipientIdx();
+        Integer documentIndex = inputDownloadDto.getDocumentIndex();
+        String attachmentName = inputDownloadDto.getAttachmentName();
+        Boolean markNotificationAsViewed = inputDownloadDto.getMarkNotificationAsViewed();
         log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} markNotificationAsViewed={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, markNotificationAsViewed );
 
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, iun, recipientIdx );

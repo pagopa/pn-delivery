@@ -1,9 +1,7 @@
 package it.pagopa.pn.delivery.models;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -14,6 +12,10 @@ import java.util.List;
 @EqualsAndHashCode
 @ToString
 @Getter
+@Setter
+@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class InputSearchNotificationDto {
     @NotEmpty
     private String senderReceiverId;
@@ -30,26 +32,26 @@ public class InputSearchNotificationDto {
     
     private  List<NotificationStatus> statuses;
 
-    private final List<String> groups;
+    private List<String> groups;
     
-    private final String subjectRegExp;
+    private String subjectRegExp;
 
-    private final String iunMatch;
+    private String iunMatch;
 
-    private final boolean receiverIdIsOpaque;
+    private boolean receiverIdIsOpaque;
 
     @Positive
     @NotNull
-    private final Integer size;
+    private Integer size;
     
-    private final String nextPagesKey;
+    private String nextPagesKey;
     
-    private final boolean bySender;
+    private boolean bySender;
 
-    private final Integer maxPageNumber;
+    private Integer maxPageNumber;
 
 
-    public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId, List<NotificationStatus> statuses,
+    /*public InputSearchNotificationDto(String senderReceiverId, Instant startDate, Instant endDate, String mandateId, String filterId, List<NotificationStatus> statuses,
                                       List<String> groups, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey, boolean bySender, boolean receiverIdIsOpaque, Integer maxPageNumber) {
         this.senderReceiverId = senderReceiverId;
         this.startDate = startDate;
@@ -65,9 +67,9 @@ public class InputSearchNotificationDto {
         this.bySender = bySender;
         this.receiverIdIsOpaque = receiverIdIsOpaque;
         this.maxPageNumber = maxPageNumber;
-    }
+    }*/
 
-    public String getSenderReceiverId() {
+    /*public String getSenderReceiverId() {
         return senderReceiverId;
     }
 
@@ -178,13 +180,15 @@ public class InputSearchNotificationDto {
         public Builder maxPageNumber(Integer maxPageNumber) {
             this.maxPageNumber = maxPageNumber;
             return this;
-        }
+        }*/
+
+
         
-        public InputSearchNotificationDto build() {
+        /*public InputSearchNotificationDto build() {
            return new InputSearchNotificationDto(senderReceiverId, startDate, endDate, mandateId, filterId, statuses,
                    groups, subjectRegExp, iunMatch, size, nextPagesKey, bySender, receiverIdIsOpaque, maxPageNumber);
         }
         
-    }
+    }*/
     
 }

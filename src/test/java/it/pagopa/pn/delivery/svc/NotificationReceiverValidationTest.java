@@ -274,7 +274,7 @@ class NotificationReceiverValidationTest {
 
 
   @Test
-  @Disabled
+  @Disabled("Documents field required in NewNotificationRequest")
   void invalidNullValuesInCollections() {
 
     // GIVEN
@@ -435,7 +435,7 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
-  @Disabled
+  @Disabled("Since PN-2401")
   // pass all mvp checks
   void newNotificationRequestForValidDontCheckAddress() {
 

@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputDownloadDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -140,7 +141,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         if (StringUtils.hasText( recipientId ) && StringUtils.hasText( senderId )) {
             throw new IllegalArgumentException( "Please specify alternatively recipientId or senderId search params" );
         }
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( StringUtils.hasText( senderId ) )
                 .senderReceiverId( StringUtils.hasText( recipientId )? recipientId : senderId)
                 .startDate(startDate.toInstant())
