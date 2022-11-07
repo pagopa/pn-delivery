@@ -336,6 +336,8 @@ paths:
               type: array
               items:
                 $ref: "#/components/schemas/PreLoadRequest"
+              minItems: 1
+              maxItems: 15
         required: true
       responses:
         '200':
