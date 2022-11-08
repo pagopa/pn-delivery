@@ -59,7 +59,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataBySender() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -125,7 +125,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataNextPageBySender() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -170,7 +170,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataByRecipient() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -200,7 +200,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataNextPageByRecipient() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -246,7 +246,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataWithRecipientFilter() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -278,7 +278,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataWithNextPageRecipientFilter() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -322,7 +322,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataWithStatusFilter() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -353,7 +353,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     @Test
     void searchNotificationMetadataWithIunFilter() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -387,7 +387,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         groups.add("Group1");
 
 
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )

@@ -105,7 +105,7 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkMachingGroups() {
         //Given
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -157,7 +157,7 @@ class NotificationRetrieverServiceTest {
 
     @Test
     void checkMandateSuccess() {
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .startDate( Instant.parse( "2022-03-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-04-30T00:00:00.00Z" ) )
@@ -189,7 +189,7 @@ class NotificationRetrieverServiceTest {
 
     @Test
     void checkMandateNoValidMandate() {
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
@@ -216,22 +216,12 @@ class NotificationRetrieverServiceTest {
 
     @Test
     void searchValidateInputException() {
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto(
-                null,
-                Instant.now(),
-                Instant.now(),
-                null,
-                null,
-                Collections.emptyList(),
-                Collections.emptyList(),
-                null,
-                null,
-                null,
-                null,
-                true,
-                true,
-                null
-        );
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .startDate( Instant.now() )
+                .endDate( Instant.now() )
+                .groups( Collections.emptyList() )
+                .statuses( Collections.emptyList() )
+                .build();
 
         Executable todo = () -> svc.searchNotification( inputSearch );
 
@@ -240,7 +230,7 @@ class NotificationRetrieverServiceTest {
 
     @Test
     void searchNotificationUnableDeserializeLEK() {
-        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )

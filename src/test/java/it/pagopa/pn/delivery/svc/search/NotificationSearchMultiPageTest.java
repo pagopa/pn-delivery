@@ -41,7 +41,7 @@ class NotificationSearchMultiPageTest {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         this.entityToDtoNotificationMetadataMapper = Mockito.mock(EntityToDtoNotificationMetadataMapper.class);
         this.dataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
-        this.inputSearchNotificationDto = new InputSearchNotificationDto.Builder()
+        this.inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.now().minus(500, ChronoUnit.DAYS) )
                 .endDate( Instant.now() )
@@ -324,7 +324,7 @@ class NotificationSearchMultiPageTest {
         }
         rrr.setLastEvaluatedKey(new HashMap<>());
 
-        this.inputSearchNotificationDto = new InputSearchNotificationDto.Builder()
+        this.inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .startDate( Instant.now().minus(500, ChronoUnit.DAYS) )
                 .endDate( Instant.now() )
@@ -369,7 +369,7 @@ class NotificationSearchMultiPageTest {
         }
         rrr.setLastEvaluatedKey(new HashMap<>());
 
-        this.inputSearchNotificationDto = new InputSearchNotificationDto.Builder()
+        this.inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .startDate( Instant.now().minus(500, ChronoUnit.DAYS) )
                 .endDate( Instant.now() )

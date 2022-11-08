@@ -9,6 +9,7 @@ import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputDownloadDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -71,7 +73,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .uid(xPagopaPnUid)
                 .build();
         logEvent.log();
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(true)
                 .senderReceiverId(xPagopaPnCxId)
                 .startDate(startDate.toInstant())
@@ -131,8 +133,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 
         NotificationStatus lastStatus;
-        if ( internalNotification.getNotificationStatusHistory() != null
-                &&  !internalNotification.getNotificationStatusHistory().isEmpty()  ) {
+        if ( !CollectionUtils.isEmpty( internalNotification.getNotificationStatusHistory() )) {
             lastStatus = internalNotification.getNotificationStatusHistory().get(
                     internalNotification.getNotificationStatusHistory().size() - 1 ).getStatus();
         } else {
