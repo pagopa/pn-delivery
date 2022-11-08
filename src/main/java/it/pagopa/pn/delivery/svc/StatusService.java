@@ -20,6 +20,8 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
+
 @Slf4j
 @Service
 public class StatusService {
@@ -61,7 +63,8 @@ public class StatusService {
             List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
             nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
         } else {
-            throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun());
+            throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun(),
+                    ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
         }
     }
 

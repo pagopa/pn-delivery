@@ -45,6 +45,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
+
 @Service
 @Slf4j
 public class NotificationRetrieverService {
@@ -129,7 +131,9 @@ public class NotificationRetrieverService {
 			try {
 				lastEvaluatedKey = PnLastEvaluatedKey.deserializeInternalLastEvaluatedKey( searchDto.getNextPagesKey() );
 			} catch (JsonProcessingException e) {
-				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey", e );
+				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey",
+						ERROR_CODE_DELIVERY_UNSUPPORTED_LAST_EVALUATED_KEY,
+						e );
 			}
 		} else {
 			log.debug( "First page search" );

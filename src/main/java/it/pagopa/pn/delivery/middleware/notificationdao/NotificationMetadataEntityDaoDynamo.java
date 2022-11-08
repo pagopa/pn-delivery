@@ -19,10 +19,9 @@ import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME;
 
 @Component
 @Slf4j
@@ -185,7 +184,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             default: {
                 String msg = String.format( "Unable to retrieve attributeName by indexName=%s", indexName );
                 log.error( msg );
-                throw new PnInternalException( msg );
+                throw new PnInternalException( msg, ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME );
             }
         }
         return attributeName;

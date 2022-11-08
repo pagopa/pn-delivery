@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME;
+
 @Value
 public class IndexNameAndPartitions {
 
@@ -60,7 +62,8 @@ public class IndexNameAndPartitions {
         SearchIndexEnum indexName = chooseIndex( searchParams );
 
         if( indexName == null ) {
-            throw new PnInternalException("There is a bug in method IndexNameAndPartitions::chooseIndex; result can't be null");
+            throw new PnInternalException("There is a bug in method IndexNameAndPartitions::chooseIndex; result can't be null",
+                    ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME);
         }
 
         List<String> partitions;

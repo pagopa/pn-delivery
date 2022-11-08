@@ -19,10 +19,9 @@ import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.requireNonNull;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA;
 
 @Slf4j
 public class NotificationSearchMultiPage extends NotificationSearch {
@@ -127,7 +126,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
                         return entityToDto.entity2Dto(notificationMetadata);
                     } catch (Exception exc) {
                         String excMessage = String.format("Exception in mapping result for notificationMetadata iun###recipient_id=%s", notificationMetadata.getIun_recipientId());
-                        throw new PnInternalException(excMessage, exc);
+                        throw new PnInternalException(excMessage, ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA, exc);
                     }
                 })
                 .collect(Collectors.toList()));

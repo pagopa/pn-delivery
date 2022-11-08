@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -57,7 +56,7 @@ public class NotificationReceiverValidator {
                   ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
                   errors.add( constraintViolation );
               }
-              // TODO issue PN-2509 verificare ed in caso aggiungere obbligatorietà indirizzo fisico per ogni destinatario fuori MVP
+              // NOTA: issue PN-2509 verificare ed in caso aggiungere obbligatorietà indirizzo fisico per ogni destinatario fuori MVP
           }
       }         
       errors.addAll(validator.validate( internalNotification ));

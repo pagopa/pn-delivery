@@ -16,12 +16,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_PHYSICALCOMMUNICATIONTYPE;
+
 @Component
 public class EntityToDtoNotificationMapper {
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
     	if ( entity.getPhysicalCommunicationType() == null ) {
-            throw new PnInternalException(" Notification entity with iun " + entity.getIun() + " hash invalid physicalCommunicationType value");
+            throw new PnInternalException(" Notification entity with iun "
+                    + entity.getIun()
+                    + " hash invalid physicalCommunicationType value",
+                    ERROR_CODE_DELIVERY_UNSUPPORTED_PHYSICALCOMMUNICATIONTYPE);
         }
 
     	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
