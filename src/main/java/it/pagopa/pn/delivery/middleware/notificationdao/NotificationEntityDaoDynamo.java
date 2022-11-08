@@ -113,7 +113,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         List<NotificationCostEntity> costEntitiesDuplicated = new ArrayList<>();
         for ( NotificationCostEntity notificationCostEntity : notificationCostEntityList) {
             NotificationCostEntity costEntityDuplicated = dynamoDbCostTable.getItem( Key.builder()
-                    .partitionValue( notificationCostEntity.getCreditorTaxId_noticeCode() )
+                    .partitionValue( notificationCostEntity.getCreditorTaxIdNoticeCode() )
                     .build());
             if ( costEntityDuplicated != null ) {
                 costEntitiesDuplicated.add( costEntityDuplicated );
@@ -127,7 +127,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
             duplicatedErrors.put("Duplicated notification for senderPaId##paProtocolNumber##idempotenceToken" , controlIdempotenceToken );
         }
         for ( NotificationCostEntity nce : costEntitiesDuplicated ) {
-            duplicatedErrors.put("Duplicated notification for creditorTaxId##noticeCode", nce.getCreditorTaxId_noticeCode());
+            duplicatedErrors.put("Duplicated notification for creditorTaxId##noticeCode", nce.getCreditorTaxIdNoticeCode());
         }
         return duplicatedErrors;
     }
@@ -190,7 +190,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                 NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
                         .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
                         .iun( notificationEntity.getIun() )
-                        .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
+                        .creditorTaxIdNoticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
                         .build();
                 notificationCostEntityList.add(notificationCostEntity);
 
@@ -198,7 +198,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                     notificationCostEntityList.add( NotificationCostEntity.builder()
                             .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
                             .iun( notificationEntity.getIun() )
-                            .creditorTaxId_noticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
+                            .creditorTaxIdNoticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
                             .build()
                     );
                 }

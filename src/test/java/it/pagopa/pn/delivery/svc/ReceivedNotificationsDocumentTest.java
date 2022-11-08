@@ -159,7 +159,7 @@ class ReceivedNotificationsDocumentTest {
 				.idempotenceToken( IDEMPOTENCE_TOKEN )
 				.sentAt( Instant.now() )
 				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
-				._abstract( ABSTRACT )
+				.notificationAbstract( ABSTRACT )
 				.paNotificationId( PA_PROTOCOL_NUMBER )
 				.paymentExpirationDate( PAYMENT_EXPIRE_DATE )
 				.senderPaId( PA_ID )

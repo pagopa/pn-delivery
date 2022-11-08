@@ -43,7 +43,7 @@ public class NotificationEntity {
     public static final String FIELD_TAXONOMY_CODE = "taxonomyCode";
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String _abstract;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String notificationAbstract;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_IDEMPOTENCE_TOKEN)})) private String idempotenceToken;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_NOTIFICATION_ID)})) private String paNotificationId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SUBJECT)})) private String subject;

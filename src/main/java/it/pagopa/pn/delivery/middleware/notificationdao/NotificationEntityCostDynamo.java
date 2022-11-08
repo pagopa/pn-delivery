@@ -35,7 +35,7 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
         NotificationCostEntity notificationCostEntity = table.getItem( key );
         if ( notificationCostEntity != null ){
             return Optional.of(InternalNotificationCost.builder()
-                    .creditorTaxId_noticeCode( notificationCostEntity.getCreditorTaxId_noticeCode() )
+                    .creditorTaxIdNoticeCode( notificationCostEntity.getCreditorTaxIdNoticeCode() )
                     .iun( notificationCostEntity.getIun() )
                     .recipientIdx( notificationCostEntity.getRecipientIdx() )
                     .build());

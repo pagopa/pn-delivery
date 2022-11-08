@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @ToString
 public class InternalNotificationCost {
-    private String creditorTaxId_noticeCode;
+    private String creditorTaxIdNoticeCode;
     private String iun;
     private int recipientIdx;
 
