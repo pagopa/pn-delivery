@@ -92,7 +92,8 @@ info:
       #### 1.a. Richiesta presigned Url
       
       Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
-      con cui prenotare il caricamento. </br> 
+      con cui prenotare il caricamento. Possono essere effettuate un massimo di 15 prenotazioni di caricamento
+      per ogni richiesta.</br>
       In risposta si ottengono le seguenti informazioni:<br/>
       \- httpMethod <br/>
       \- secret <br/>
