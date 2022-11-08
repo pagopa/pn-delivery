@@ -4,17 +4,21 @@ import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationQREntity;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
-
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -54,4 +58,16 @@ public class NotificationEntityQRDynamo extends AbstractDynamoKeyValueStore<Noti
                 .build();
         table.putItem( request );
     }
+    
+    @Override
+    public Map<String, String> getQR(String iun) {
+      DynamoDbIndex<NotificationQREntity> index =   table.index(NotificationQREntity.INDEX_IUN);
+
+      return index.query(QueryConditional.keyEqualTo( Key.builder()
+          .partitionValue( iun )
+          .build()))
+          .stream()
+          .flatMap(page->page.items().stream())
+          .collect(Collectors.toMap(NotificationQREntity::getRecipientId,NotificationQREntity::getAarQRCodeValue));
+  }
 }
