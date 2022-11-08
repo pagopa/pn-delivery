@@ -15,7 +15,7 @@ class IndexNameAndPartitionsTest {
     @Test
     void searchByIUN() {
         // - GIVEN
-        InputSearchNotificationDto searchParams = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .senderReceiverId( "senderId" )
                 .iunMatch("iun123")
@@ -36,7 +36,7 @@ class IndexNameAndPartitionsTest {
     @Test
     void searchBySenderWithReceiverFilter() {
         // - GIVEN
-        InputSearchNotificationDto searchParams = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .senderReceiverId( "senderId" )
                 .filterId( "recipientId" )
@@ -58,7 +58,7 @@ class IndexNameAndPartitionsTest {
     @Test
     void searchByReceiverWithSenderFilter() {
         // - GIVEN
-        InputSearchNotificationDto searchParams = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .senderReceiverId( "recipientId" )
                 .filterId( "senderId" )
@@ -80,7 +80,7 @@ class IndexNameAndPartitionsTest {
     @Test
     void searchBySender() {
         // - GIVEN
-        InputSearchNotificationDto searchParams = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .senderReceiverId( "senderId" )
                 .startDate(Instant.parse("2020-10-13T10:00:00Z"))
@@ -103,7 +103,7 @@ class IndexNameAndPartitionsTest {
     @Test
     void searchByReceiver() {
         // - GIVEN
-        InputSearchNotificationDto searchParams = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
                 .bySender( false )
                 .senderReceiverId( "receiverId" )
                 .startDate(Instant.parse("2020-10-13T10:00:00Z"))

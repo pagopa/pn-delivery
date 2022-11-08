@@ -13,6 +13,7 @@ import java.util.Optional;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -121,8 +122,9 @@ class ReceivedNotificationsDocumentTest {
 		List<NotificationDocument> documents = results.get().getDocuments();
 		assertEquals(documents.get(DOCUMENT_INDEX).getDocIdx(), DOCUMENT_INDEX+"");			
 	}
-	
+
 	@Test
+	@Disabled("Documents field is required")
 	void getReceivedNotificationNoDocumentIndex() {
 		// When
 		InternalNotification notifications = createNoDocumentsNotification();

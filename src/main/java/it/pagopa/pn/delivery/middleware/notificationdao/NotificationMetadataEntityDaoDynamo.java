@@ -47,7 +47,10 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
 
         GetItemEnhancedRequest.Builder requestBuilder = GetItemEnhancedRequest.builder();
-        requestBuilder.key(Key.builder().partitionValue(partitionValue).sortValue(sentValue).build());
+        requestBuilder.key( k -> k.partitionValue(partitionValue)
+                .sortValue(sentValue)
+                .build()
+        );
 
 
         log.debug( "START query execution" );
