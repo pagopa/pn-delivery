@@ -79,7 +79,7 @@ class NotificationEntityQRDynamoTestIT {
 
         notificationQREntityDao.putIfAbsent( entity );
 
-        Map<String, String> elementFromDb = notificationQREntityDao.getQR( IUN );
+        Map<String, String> elementFromDb = notificationQREntityDao.getQRByIun( IUN );
 
         assertTrue( !elementFromDb.isEmpty() );
         assertTrue( elementFromDb.containsKey(RECIPIENT_ID) );

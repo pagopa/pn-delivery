@@ -43,9 +43,9 @@ public class NotificationQRService {
     
     
     
-    public Map<String, String> getNotificationQR(String iun) {
+    public Map<String, String> getQRByIun(String iun) {
       log.info( "Get notification QR for iun={}", iun);
-      Map<String, String> qrMap = notificationQREntityDao.getQR( iun );  
+      Map<String, String> qrMap = notificationQREntityDao.getQRByIun( iun );  
       if(qrMap.isEmpty()) {
         log.info( "No notification by iun={} ", iun);
         throw new PnNotificationNotFoundException( String.format( "No notification by iun=%s", iun ) );

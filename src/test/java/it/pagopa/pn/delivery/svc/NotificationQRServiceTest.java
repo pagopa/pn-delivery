@@ -98,9 +98,9 @@ class NotificationQRServiceTest {
     @Test
     void getNotificationQRSuccess() {
 
-        Mockito.when( notificationQREntityDao.getQR(IUN) ).thenReturn(Map.of("internalId","qrCode"));
+        Mockito.when( notificationQREntityDao.getQRByIun(IUN) ).thenReturn(Map.of("internalId","qrCode"));
 
-        Map<String, String> response = svc.getNotificationQR( IUN );
+        Map<String, String> response = svc.getQRByIun( IUN );
 
         Assertions.assertNotNull( response );
         Assertions.assertEquals( Set.of("internalId"), response.keySet() );
@@ -110,9 +110,9 @@ class NotificationQRServiceTest {
     @ExtendWith(MockitoExtension.class)
     @Test
     void getNotificationQRFailure() {
-      Mockito.when( notificationQREntityDao.getQR(IUN) ).thenReturn(Map.of());
+      Mockito.when( notificationQREntityDao.getQRByIun(IUN) ).thenReturn(Map.of());
 
-        Executable todo = () -> svc.getNotificationQR( IUN );
+        Executable todo = () -> svc.getQRByIun( IUN );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }

@@ -90,7 +90,7 @@ class NotificationEntityQRDynamoTest {
     Mockito.when(qrStorageIndex.query(Mockito.any(QueryConditional.class)))
         .thenReturn(execListMock(List.of(entityToInsert)));
 
-    Map<String, String> result = qrEntityDao.getQR(IUN);
+    Map<String, String> result = qrEntityDao.getQRByIun(IUN);
 
     Assertions.assertTrue(!result.isEmpty());
 

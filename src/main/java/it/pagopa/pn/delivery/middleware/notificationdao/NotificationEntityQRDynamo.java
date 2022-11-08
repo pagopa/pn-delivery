@@ -59,7 +59,7 @@ public class NotificationEntityQRDynamo extends AbstractDynamoKeyValueStore<Noti
     }
     
     @Override
-    public Map<String, String> getQR(String iun) {
+    public Map<String, String> getQRByIun(String iun) {
       DynamoDbIndex<NotificationQREntity> index =   table.index(NotificationQREntity.INDEX_IUN);
 
       return index.query(QueryConditional.keyEqualTo( Key.builder()

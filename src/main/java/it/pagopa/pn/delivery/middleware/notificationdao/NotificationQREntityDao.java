@@ -11,5 +11,5 @@ public interface NotificationQREntityDao extends KeyValueStore<Key, Notification
 
     Optional<InternalNotificationQR> getNotificationByQR( String aarQRCode );
 
-    Map<String, String> getQR(String iun);
+    Map<String, String> getQRByIun(String iun);
 }

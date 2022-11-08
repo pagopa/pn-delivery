@@ -488,14 +488,14 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( Map.class );
 
-        Mockito.verify( qrService ).getNotificationQR(IUN);
+        Mockito.verify( qrService ).getQRByIun(IUN);
     }
     
     @Test
     void getQuickAccessLinkTokensPrivateFailure() {
         Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( qrService )
-                .getNotificationQR( IUN);
+                .getQRByIun( IUN);
 
         webTestClient.get()
                 .uri( uriBuilder ->

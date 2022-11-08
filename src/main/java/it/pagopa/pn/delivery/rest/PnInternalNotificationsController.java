@@ -224,7 +224,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     @Override
     public ResponseEntity<Map<String, String>> getQuickAccessLinkTokensPrivate(String iun) {
-      return ResponseEntity.ok(qrService.getNotificationQR(iun));
+      return ResponseEntity.ok(qrService.getQRByIun(iun));
     }
 
 }
