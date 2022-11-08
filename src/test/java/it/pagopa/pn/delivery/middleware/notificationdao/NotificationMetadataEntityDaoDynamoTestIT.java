@@ -416,7 +416,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         NotificationMetadataEntity metadataEntityToInsert = newNotificationMetadata();
 
         Key key = Key.builder()
-                .partitionValue(metadataEntityToInsert.getIun_recipientId())
+                .partitionValue(metadataEntityToInsert.getIunRecipientId())
                 .sortValue( metadataEntityToInsert.getSentAt().toString() )
                 .build();
 
@@ -438,15 +438,15 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         tableRowMap.put( "subject", "multa" );
         tableRowMap.put( "acceptedAt", ACCEPTED_DATE );
         return NotificationMetadataEntity.builder()
-                .iun_recipientId( "KSAU-CKOB-OFKR-202205-O-1##"+OPAQUE_TAX_ID_R1 )
+                .iunRecipientId( "KSAU-CKOB-OFKR-202205-O-1##"+OPAQUE_TAX_ID_R1 )
                 .notificationGroup( "NotificationGroup1" )
                 .notificationStatus( NotificationStatus.ACCEPTED.toString() )
                 .recipientIds( List.of( OPAQUE_TAX_ID_R1, OPAQUE_TAX_ID_R2 ) )
                 .recipientOne( false )
                 .senderId( "c_h501" )
-                .recipientId_creationMonth( OPAQUE_TAX_ID_R1+"##202205" )
-                .senderId_creationMonth("c_h501##202205")
-                .senderId_recipientId( "c_h501##"+OPAQUE_TAX_ID_R1 )
+                .recipientIdCreationMonth( OPAQUE_TAX_ID_R1+"##202205" )
+                .senderIdCreationMonth("c_h501##202205")
+                .senderIdRecipientId( "c_h501##"+OPAQUE_TAX_ID_R1 )
                 .sentAt( Instant.parse( "2022-05-20T09:51:00.00Z" ) )
                 .tableRow( tableRowMap )
                 .build();

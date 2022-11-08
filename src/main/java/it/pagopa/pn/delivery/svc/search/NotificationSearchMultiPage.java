@@ -125,7 +125,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
                     try {
                         return entityToDto.entity2Dto(notificationMetadata);
                     } catch (Exception exc) {
-                        String excMessage = String.format("Exception in mapping result for notificationMetadata iun###recipient_id=%s", notificationMetadata.getIun_recipientId());
+                        String excMessage = String.format("Exception in mapping result for notificationMetadata iun###recipient_id=%s", notificationMetadata.getIunRecipientId());
                         throw new PnInternalException(excMessage, ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA, exc);
                     }
                 })
@@ -144,26 +144,26 @@ public class NotificationSearchMultiPage extends NotificationSearch {
                 NotificationMetadataEntity keyelement = cumulativeQueryResult.get(index-1);
                 if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_SENDER))
                 {
-                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderId_creationMonth());
+                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderIdCreationMonth());
                     pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
-                            NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getSenderId_creationMonth()).build(),
+                            NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getSenderIdCreationMonth()).build(),
                             NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
-                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIun_recipientId()).build()));
+                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
                 }
                 else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_RECEIVER))
                 {
-                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getRecipientId_creationMonth());
+                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getRecipientIdCreationMonth());
                     pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
-                            NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getRecipientId_creationMonth()).build(),
+                            NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getRecipientIdCreationMonth()).build(),
                             NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
-                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIun_recipientId()).build()));
+                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
                 }  else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_WITH_BOTH_IDS))
                 {
-                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderId_recipientId());
+                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderIdRecipientId());
                     pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
-                            NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getSenderId_recipientId()).build(),
+                            NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getSenderIdRecipientId()).build(),
                             NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
-                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIun_recipientId()).build()));
+                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
                 }
 
                 globalResult.getNextPagesKey().add(pageLastEvaluatedKey);

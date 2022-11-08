@@ -102,10 +102,10 @@ public class StatusService {
                 .notificationGroup( notification.getGroup() )
                 .recipientIds( recipientsIds )
                 .tableRow( tableRowMap )
-                .senderId_recipientId( createConcatenation( notification.getSenderPaId(), recipientId  ) )
-                .senderId_creationMonth( createConcatenation( notification.getSenderPaId(), creationMonth ) )
-                .recipientId_creationMonth( createConcatenation( recipientId , creationMonth ) )
-                .iun_recipientId( createConcatenation( notification.getIun(), recipientId ) )
+                .senderIdRecipientId( createConcatenation( notification.getSenderPaId(), recipientId  ) )
+                .senderIdCreationMonth( createConcatenation( notification.getSenderPaId(), creationMonth ) )
+                .recipientIdCreationMonth( createConcatenation( recipientId , creationMonth ) )
+                .iunRecipientId( createConcatenation( notification.getIun(), recipientId ) )
                 .recipientOne( recipientIndex <= 0 )
                 .build();
     }

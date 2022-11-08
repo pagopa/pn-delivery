@@ -44,7 +44,7 @@ public class NotificationDaoMock implements NotificationDao {
 
         PageSearchTrunk<NotificationMetadataEntity> result = new PageSearchTrunk<>();
         result.setResults(Collections.singletonList( NotificationMetadataEntity.builder()
-                .iun_recipientId("IUN##internalId1" )
+                .iunRecipientId("IUN##internalId1" )
                 .notificationStatus( NotificationStatus.VIEWED.getValue() )
                 .senderId( "SenderId" )
                 .recipientIds(List.of( "internalId1", "internalId2" ) )
@@ -57,7 +57,7 @@ public class NotificationDaoMock implements NotificationDao {
     public PageSearchTrunk<NotificationMetadataEntity> searchByIUN(InputSearchNotificationDto inputSearchNotificationDto) {
         PageSearchTrunk<NotificationMetadataEntity> result = new PageSearchTrunk<>();
         result.setResults(Collections.singletonList( NotificationMetadataEntity.builder()
-                .iun_recipientId("IUN##internalId1" )
+                .iunRecipientId("IUN##internalId1" )
                 .notificationStatus( NotificationStatus.VIEWED.getValue() )
                 .senderId( "SenderId" )
                 .recipientIds(List.of( "internalId1", "internalId2" ) )

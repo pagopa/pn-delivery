@@ -32,7 +32,7 @@ public class NotificationMetadataEntity {
     public static final String FIELD_SENDER_ID_RECIPIENT_ID = "senderId_recipientId";
 
 
-    private String iun_recipientId;
+    private String iunRecipientId;
     private Instant sentAt;
     private String senderId;
     private String recipientId;
@@ -41,19 +41,19 @@ public class NotificationMetadataEntity {
     private String notificationGroup;
     private String notificationStatus;
     private Map<String,String> tableRow;
-    private String senderId_creationMonth;
-    private String recipientId_creationMonth;
-    private String senderId_recipientId;
+    private String senderIdCreationMonth;
+    private String recipientIdCreationMonth;
+    private String senderIdRecipientId;
 
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute(value = FIELD_IUN_RECIPIENT_ID)
-    public String getIun_recipientId() {
-        return iun_recipientId;
+    public String getIunRecipientId() {
+        return iunRecipientId;
     }
 
-    public void setIun_recipientId(String iun_recipientId) {
-        this.iun_recipientId = iun_recipientId;
+    public void setIunRecipientId(String iunRecipientId) {
+        this.iunRecipientId = iunRecipientId;
     }
 
     @DynamoDbSortKey
@@ -130,31 +130,31 @@ public class NotificationMetadataEntity {
 
     @DynamoDbSecondaryPartitionKey(indexNames = { INDEX_SENDER_ID })
     @DynamoDbAttribute(value = FIELD_SENDER_ID_CREATION_MONTH)
-    public String getSenderId_creationMonth() {
-        return senderId_creationMonth;
+    public String getSenderIdCreationMonth() {
+        return senderIdCreationMonth;
     }
 
-    public void setSenderId_creationMonth(String senderId_creationMonth) {
-        this.senderId_creationMonth = senderId_creationMonth;
+    public void setSenderIdCreationMonth(String senderIdCreationMonth) {
+        this.senderIdCreationMonth = senderIdCreationMonth;
     }
 
     @DynamoDbSecondaryPartitionKey(indexNames = { INDEX_RECIPIENT_ID })
     @DynamoDbAttribute(value = FIELD_RECIPIENT_ID_CREATION_MONTH)
-    public String getRecipientId_creationMonth() {
-        return recipientId_creationMonth;
+    public String getRecipientIdCreationMonth() {
+        return recipientIdCreationMonth;
     }
 
-    public void setRecipientId_creationMonth(String recipientId_creationMonth) {
-        this.recipientId_creationMonth = recipientId_creationMonth;
+    public void setRecipientIdCreationMonth(String recipientIdCreationMonth) {
+        this.recipientIdCreationMonth = recipientIdCreationMonth;
     }
 
     @DynamoDbSecondaryPartitionKey(indexNames = { INDEX_SENDER_ID_RECIPIENT_ID })
     @DynamoDbAttribute(value = FIELD_SENDER_ID_RECIPIENT_ID)
-    public String getSenderId_recipientId() {
-        return senderId_recipientId;
+    public String getSenderIdRecipientId() {
+        return senderIdRecipientId;
     }
 
-    public void setSenderId_recipientId(String senderId_recipientId) {
-        this.senderId_recipientId = senderId_recipientId;
+    public void setSenderIdRecipientId(String senderIdRecipientId) {
+        this.senderIdRecipientId = senderIdRecipientId;
     }
 }
