@@ -152,7 +152,7 @@ class PnInternalNotificationsControllerTest {
                 .expectStatus()
                 .isOk();
 
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(true)
                 .senderReceiverId(SENDER_ID)
                 .startDate(Instant.parse(START_DATE))
@@ -209,7 +209,7 @@ class PnInternalNotificationsControllerTest {
                 .expectStatus()
                 .isOk();
 
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(false)
                 .senderReceiverId(RECIPIENT_INTERNAL_ID)
                 .receiverIdIsOpaque(true)

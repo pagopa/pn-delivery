@@ -54,7 +54,7 @@ class NotificationMetadataEntityDaoDynamoTest {
                 .recipientId( "RecipientId" )
                 .build();
 
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(true)
                 .senderReceiverId("SenderId")
                 .startDate( Instant.parse("2022-04-01T17:48:00Z") )

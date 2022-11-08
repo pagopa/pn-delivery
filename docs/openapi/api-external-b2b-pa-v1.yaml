@@ -92,7 +92,8 @@ info:
       #### 1.a. Richiesta presigned Url
       
       Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
-      con cui prenotare il caricamento. </br> 
+      con cui prenotare il caricamento. Possono essere effettuate un massimo di 15 prenotazioni di caricamento
+      per ogni richiesta.</br>
       In risposta si ottengono le seguenti informazioni:<br/>
       \- httpMethod <br/>
       \- secret <br/>
@@ -250,6 +251,22 @@ info:
       `cat <fullPathFile/filename.ext> | openssl dgst -binary -sha256 | openssl base64 –A`</br></br>
       <em>Il comando restituisce la codifica base64 della rappresentazione binaria di sha256, che può essere confrontato con quella generata dal codice.</em>
     </details></br>
+    
+    ><details>
+      <summary><strong>Come posso simulare l'upload di un documento su S3?</strong></summary>
+      <em>Aprire la shell di Git Bash o un terminal SSH ed eseguire il comando:</em></br></br>
+      >`curl -XPUT \`</br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"Content-type: application/pdf" \`</br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"x-amz-checksum-sha256: <checkSum>" \ `</br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`--upload-file <file>  \ `</br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"x-amz-meta-secret: <secret>" \`</br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<url>" \`
+      </br></br>
+      __\<checksum\>__: è il checksum sha256, codificato in base 64, del contenuto binario del file da caricare</br>
+      __\<file\>__: è il path del file da caricare</br>
+      __\<secret\>__: è il secret ottenuto nella response della preload</br>
+      __\<url\>__: è l'url del bucket S3 ottenuto nella response della preload, sul quale effettuare l'upload del documento</br>
+    </details></br>
 
     </details>
       
@@ -315,6 +332,8 @@ paths:
               type: array
               items:
                 $ref: "#/components/schemas/PreLoadRequest"
+              minItems: 1
+              maxItems: 15
         required: true
       responses:
         '200':

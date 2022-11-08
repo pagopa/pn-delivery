@@ -36,7 +36,7 @@ class NotificationSearchFactoryTest {
 
     @Test
     void getMultiPageSearch() {
-        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.now() )
                 .endDate( Instant.now() )
@@ -53,7 +53,7 @@ class NotificationSearchFactoryTest {
 
     @Test
     void getMultiPageSearchExact() {
-        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.now() )
                 .endDate( Instant.now() )

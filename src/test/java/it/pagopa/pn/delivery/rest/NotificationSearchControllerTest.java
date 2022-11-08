@@ -106,7 +106,7 @@ class NotificationSearchControllerTest {
                 .expectStatus()
                 .isOk();
 
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(true)
                 .senderReceiverId(SENDER_ID)
                 .startDate(Instant.parse(START_DATE))
@@ -169,7 +169,7 @@ class NotificationSearchControllerTest {
                 .isOk();
 
         //Then
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(true)
                 .senderReceiverId(SENDER_ID)
                 .startDate(Instant.parse(START_DATE))
@@ -231,7 +231,7 @@ class NotificationSearchControllerTest {
                 .expectStatus()
                 .isOk();
 
-        InputSearchNotificationDto searchDto = new InputSearchNotificationDto.Builder()
+        InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender(false)
                 .senderReceiverId(RECIPIENT_ID)
                 .mandateId( MANDATE_ID )

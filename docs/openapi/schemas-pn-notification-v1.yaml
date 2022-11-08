@@ -127,11 +127,11 @@ components:
           # gestito come stringa e pattern perchè con format: date open-api-generator non lo gestiva correttamente
         taxonomyCode:
           type: string
-          minLength: 10
-          maxLength: 10
-          pattern: "^([0-9]{9}[A-Z]{1})$"
+          minLength: 7
+          maxLength: 7
+          pattern: "^([0-9]{6}[A-Z]{1})$"
           description: Codice tassonomico della notifica
-          default: "010101101P"
+          default: "010101P"
     SentNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
