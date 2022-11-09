@@ -66,6 +66,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "aarQRCodeValue"
           AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "aarQRCodeValue"
           KeyType: "HASH"
