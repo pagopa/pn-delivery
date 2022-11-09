@@ -20,6 +20,8 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
+
 @Slf4j
 @Service
 public class StatusService {
@@ -61,7 +63,8 @@ public class StatusService {
             List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
             nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
         } else {
-            throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun());
+            throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun(),
+                    ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
         }
     }
 
@@ -99,10 +102,10 @@ public class StatusService {
                 .notificationGroup( notification.getGroup() )
                 .recipientIds( recipientsIds )
                 .tableRow( tableRowMap )
-                .senderId_recipientId( createConcatenation( notification.getSenderPaId(), recipientId  ) )
-                .senderId_creationMonth( createConcatenation( notification.getSenderPaId(), creationMonth ) )
-                .recipientId_creationMonth( createConcatenation( recipientId , creationMonth ) )
-                .iun_recipientId( createConcatenation( notification.getIun(), recipientId ) )
+                .senderIdRecipientId( createConcatenation( notification.getSenderPaId(), recipientId  ) )
+                .senderIdCreationMonth( createConcatenation( notification.getSenderPaId(), creationMonth ) )
+                .recipientIdCreationMonth( createConcatenation( recipientId , creationMonth ) )
+                .iunRecipientId( createConcatenation( notification.getIun(), recipientId ) )
                 .recipientOne( recipientIndex <= 0 )
                 .build();
     }

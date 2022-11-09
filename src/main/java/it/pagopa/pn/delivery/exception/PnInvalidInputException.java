@@ -22,4 +22,8 @@ public class PnInvalidInputException extends PnValidationException {
                 .build()), null );
     }
 
+    public PnInvalidInputException(String message, List<ProblemError> problemErrorList) {
+        super( message, problemErrorList );
+    }
+
 }

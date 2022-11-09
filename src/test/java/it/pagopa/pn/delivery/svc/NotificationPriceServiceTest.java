@@ -65,7 +65,7 @@ class NotificationPriceServiceTest {
         InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
                 .recipientIdx( 0 )
                 .iun( "iun" )
-                .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
                 .build();
 
         //When
@@ -100,7 +100,7 @@ class NotificationPriceServiceTest {
         InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
                 .recipientIdx( 0 )
                 .iun( "iun" )
-                .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
                 .build();
 
         //When
@@ -144,7 +144,7 @@ class NotificationPriceServiceTest {
         InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
                 .recipientIdx( 0 )
                 .iun( "iun" )
-                .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
                 .build();
 
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
@@ -167,7 +167,7 @@ class NotificationPriceServiceTest {
         InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
                 .recipientIdx( 0 )
                 .iun( "iun" )
-                .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
                 .build();
 
         //When
@@ -197,7 +197,7 @@ class NotificationPriceServiceTest {
         InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
                 .recipientIdx( 0 )
                 .iun( "iun" )
-                .creditorTaxId_noticeCode( "creditorTaxId##noticeCode" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
                 .build();
 
         // When

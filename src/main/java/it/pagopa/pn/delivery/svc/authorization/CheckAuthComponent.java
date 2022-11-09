@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc.authorization;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -14,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_CX_TYPE;
 
 @Component
 @Slf4j
@@ -34,7 +35,7 @@ public class CheckAuthComponent {
         switch ( cxType ) {
             case PA: authorized = paCanAccess( action, notification ); break;
             case PF: authorized = pfCanAccess( action, notification ); break;
-            default: throw new PnInternalException( "Unsupported cxType="+ cxType );
+            default: throw new PnInternalException( "Unsupported cxType="+ cxType, ERROR_CODE_DELIVERY_UNSUPPORTED_CX_TYPE );
         }
         return authorized;
     }

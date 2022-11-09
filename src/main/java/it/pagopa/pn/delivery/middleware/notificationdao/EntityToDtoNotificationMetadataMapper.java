@@ -23,7 +23,7 @@ public class EntityToDtoNotificationMetadataMapper {
         }
         
         return NotificationSearchRow.builder()
-                .iun( entity.getIun_recipientId().substring(0 ,entity.getIun_recipientId().indexOf("##")) )
+                .iun( entity.getIunRecipientId().substring(0 ,entity.getIunRecipientId().indexOf("##")) )
                 .sender( tableRow.get( "senderDenomination" ) )
                 .recipients( entity.getRecipientIds() )
                 .sentAt( entity.getSentAt().atOffset( ZoneOffset.UTC ))

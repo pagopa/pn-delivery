@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
         NotificationCostEntity notificationCostEntity = table.getItem( key );
         if ( notificationCostEntity != null ){
             return Optional.of(InternalNotificationCost.builder()
-                    .creditorTaxId_noticeCode( notificationCostEntity.getCreditorTaxId_noticeCode() )
+                    .creditorTaxIdNoticeCode( notificationCostEntity.getCreditorTaxIdNoticeCode() )
                     .iun( notificationCostEntity.getIun() )
                     .recipientIdx( notificationCostEntity.getRecipientIdx() )
                     .build());
@@ -46,6 +47,10 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
 
     @Override
     public void putIfAbsent(NotificationCostEntity notificationCostEntity) throws PnIdConflictException {
-        throw new UnsupportedOperationException();
+        PutItemEnhancedRequest<NotificationCostEntity> request = PutItemEnhancedRequest.
+                builder(NotificationCostEntity.class)
+                .item( notificationCostEntity )
+                .build();
+        table.putItem( request );
     }
 }

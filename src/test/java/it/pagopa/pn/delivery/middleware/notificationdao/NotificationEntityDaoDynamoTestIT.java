@@ -189,7 +189,7 @@ class NotificationEntityDaoDynamoTestIT {
         tokensMap.put( notificationRecipientEntity1.getRecipientId(), "fakeToken1" );
         return NotificationEntity.builder()
                 .iun("IUN_01")
-                ._abstract( "Abstract" )
+                .notificationAbstract( "Abstract" )
                 .idempotenceToken( "idempotenceToken" )
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")

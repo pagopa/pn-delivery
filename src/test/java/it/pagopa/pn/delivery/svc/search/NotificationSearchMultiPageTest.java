@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc.search;
 
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
@@ -15,6 +16,7 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 
 import java.time.Instant;
@@ -65,10 +67,31 @@ class NotificationSearchMultiPageTest {
     }
 
     @Test
+    void mapperException() {
+        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
+        rrr.setResults(Collections.singletonList( NotificationMetadataEntity.builder()
+                .iunRecipientId("IUN##internalId1" )
+                .notificationStatus( NotificationStatus.VIEWED.getValue() )
+                .senderId( "SenderId" )
+                .sentAt(Instant.now())
+                .recipientIds(List.of( "internalId1", "internalId2" ) )
+                .build() ));
+        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
+                .thenReturn(rrr).thenReturn(new PageSearchTrunk<>());
+
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
+
+        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto(Mockito.any())).thenThrow(PnInternalException.class);
+
+        Executable todo = () -> this.notificationSearchMultiPage.searchNotificationMetadata();
+        Assertions.assertThrows( PnInternalException.class, todo);
+    }
+
+    @Test
     void searchNotificationMetadata() {
         PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
         rrr.setResults(Collections.singletonList( NotificationMetadataEntity.builder()
-                .iun_recipientId("IUN##internalId1" )
+                .iunRecipientId("IUN##internalId1" )
                 .notificationStatus( NotificationStatus.VIEWED.getValue() )
                 .senderId( "SenderId" )
                 .sentAt(Instant.now())
@@ -95,7 +118,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<1000;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())
@@ -126,7 +149,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<PAGE_SIZE;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())
@@ -156,7 +179,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<PAGE_SIZE*3;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())
@@ -186,7 +209,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<PAGE_SIZE*3+1;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())
@@ -217,7 +240,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<25;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())
@@ -247,7 +270,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<1;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())
@@ -279,7 +302,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<1;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())
@@ -315,7 +338,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<1;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())
@@ -360,7 +383,7 @@ class NotificationSearchMultiPageTest {
         for(int i = 0;i<1;i++)
         {
             rrr.getResults().add( NotificationMetadataEntity.builder()
-                    .iun_recipientId("IUN##internalId"+i )
+                    .iunRecipientId("IUN##internalId"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "SenderId" )
                     .sentAt(Instant.now())

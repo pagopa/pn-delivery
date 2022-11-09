@@ -2,13 +2,10 @@ package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.exceptions.*;
+import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
@@ -44,6 +41,8 @@ import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 
 @Service
 @Slf4j
@@ -129,7 +128,9 @@ public class NotificationRetrieverService {
 			try {
 				lastEvaluatedKey = PnLastEvaluatedKey.deserializeInternalLastEvaluatedKey( searchDto.getNextPagesKey() );
 			} catch (JsonProcessingException e) {
-				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey", e );
+				throw new PnInternalException( "Unable to deserialize lastEvaluatedKey",
+						ERROR_CODE_DELIVERY_UNSUPPORTED_LAST_EVALUATED_KEY,
+						e );
 			}
 		} else {
 			log.debug( "First page search" );
@@ -239,7 +240,8 @@ public class NotificationRetrieverService {
 		Set<ConstraintViolation<InputSearchNotificationDto>> errors = validator.validate(searchDto);
 		if( ! errors.isEmpty() ) {
 			log.error("Validation search input ERROR {} - senderReceiverId {}",errors, searchDto.getSenderReceiverId());
-			throw new PnValidationException(searchDto.getSenderReceiverId(), errors);
+			List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
+			throw new PnInvalidInputException(searchDto.getSenderReceiverId(), errorList);
 		}
 
 		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());
@@ -423,7 +425,7 @@ public class NotificationRetrieverService {
 		Optional<String> optionalRequestId = notificationDao.getRequestId( senderId, paProtocolNumber, idempotenceToken );
 		if (optionalRequestId.isEmpty()) {
 			String msg = String.format( "Unable to find requestId for senderId=%s paProtocolNumber=%s idempotenceToken=%s", senderId, paProtocolNumber, idempotenceToken );
-			throw new PnInternalException( msg );
+			throw new PnBadRequestException( "RequestId not found", msg, ERROR_CODE_DELIVERY_REQUEST_ID_NOT_FOUND );
 		}
 		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
 		return getNotificationInformation( iun, true, true );
@@ -445,7 +447,7 @@ public class NotificationRetrieverService {
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);
-		handleNotificationViewedEvent(iun, delegatorId != null? delegatorId : userId, notification);
+		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : userId);
 		return notification;
 	}
 
@@ -507,15 +509,6 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
-		if (StringUtils.hasText(userId)) {
-			notifyNotificationViewedEvent(notification, userId);
-		} else {
-			log.error("UserId is not present, can't create notification view event for iun={}", iun);
-			throw new PnInternalException("UserId is not present, can't create notification view event for iun=" + iun);
-		}
-	}
-
 	public InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
@@ -572,7 +565,8 @@ public class NotificationRetrieverService {
 
 		if( recipientIndex == -1 ) {
 			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
-			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient/delegator=" + userId );
+			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient/delegator=" + userId,
+					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
 		}
 
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);

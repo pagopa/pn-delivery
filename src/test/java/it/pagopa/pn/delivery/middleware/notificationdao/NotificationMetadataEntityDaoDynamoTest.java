@@ -36,13 +36,13 @@ class NotificationMetadataEntityDaoDynamoTest {
         NotificationMetadataEntity entityToInsert = NotificationMetadataEntity.builder()
                 .notificationGroup("Notification_Group")
                 .notificationStatus( NotificationStatus.ACCEPTED.toString() )
-                .iun_recipientId( "IUN##RecipientId" )
-                .recipientId_creationMonth( "RecipientId##creationMonth" )
+                .iunRecipientId( "IUN##RecipientId" )
+                .recipientIdCreationMonth( "RecipientId##creationMonth" )
                 .recipientIds( Collections.singletonList( "RecipientId" ))
                 .recipientOne( true )
                 .senderId( "SenderId" )
-                .senderId_creationMonth( "SenderId##CreationMonth" )
-                .senderId_recipientId( "SenderId##RecipientId" )
+                .senderIdCreationMonth( "SenderId##CreationMonth" )
+                .senderIdRecipientId( "SenderId##RecipientId" )
                 .sentAt( Instant.parse( "2022-04-06T17:48:00Z" ) )
                 .tableRow( Map.ofEntries(
                         Map.entry( "iun", "IUN" ),
@@ -92,7 +92,7 @@ class NotificationMetadataEntityDaoDynamoTest {
         @Override
         public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) throws PnIdConflictException {
             Key key = Key.builder()
-                    .partitionValue( notificationMetadataEntity.getIun_recipientId() )
+                    .partitionValue( notificationMetadataEntity.getIunRecipientId() )
                     .sortValue( notificationMetadataEntity.getSentAt().toString() )
                     .build();
             storage.put( key, notificationMetadataEntity );

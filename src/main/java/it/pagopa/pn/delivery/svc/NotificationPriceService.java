@@ -112,7 +112,7 @@ public class NotificationPriceService {
         if (foreignState == null || foreignState.equals( "Italia" )) {
             simpleRegisteredLetterCost = Long.parseLong( cfg.getCosts().getRaccomandataIta() );
         } else {
-            // TODO nella PN-1567 recupero della zona in base al codice foreignState
+            // NOTA: nella PN-1567 recupero della zona in base al codice foreignState
             simpleRegisteredLetterCost = Long.parseLong( cfg.getCosts().getRaccomandataEstZona1() );
         }
         return simpleRegisteredLetterCost;
