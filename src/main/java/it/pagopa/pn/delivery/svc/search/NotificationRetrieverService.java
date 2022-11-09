@@ -5,10 +5,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.*;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnInvalidInputException;
-import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
@@ -428,7 +425,7 @@ public class NotificationRetrieverService {
 		Optional<String> optionalRequestId = notificationDao.getRequestId( senderId, paProtocolNumber, idempotenceToken );
 		if (optionalRequestId.isEmpty()) {
 			String msg = String.format( "Unable to find requestId for senderId=%s paProtocolNumber=%s idempotenceToken=%s", senderId, paProtocolNumber, idempotenceToken );
-			throw new PnInternalException( msg );
+			throw new PnBadRequestException( "RequestId not found", msg, ERROR_CODE_DELIVERY_REQUEST_ID_NOT_FOUND );
 		}
 		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
 		return getNotificationInformation( iun, true, true );

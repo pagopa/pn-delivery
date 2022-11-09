@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
@@ -326,7 +327,7 @@ class NotificationRetrieverServiceTest {
         Executable todo = () -> svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
 
         // Then
-        Assertions.assertThrows(PnInternalException.class, todo);
+        Assertions.assertThrows(PnBadRequestException.class, todo);
     }
 
     @Test
