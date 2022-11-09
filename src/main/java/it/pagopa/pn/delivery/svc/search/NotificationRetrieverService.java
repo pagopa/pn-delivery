@@ -2,10 +2,10 @@ package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.exceptions.*;
+import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -243,7 +243,8 @@ public class NotificationRetrieverService {
 		Set<ConstraintViolation<InputSearchNotificationDto>> errors = validator.validate(searchDto);
 		if( ! errors.isEmpty() ) {
 			log.error("Validation search input ERROR {} - senderReceiverId {}",errors, searchDto.getSenderReceiverId());
-			throw new PnValidationException(searchDto.getSenderReceiverId(), errors);
+			List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
+			throw new PnInvalidInputException(searchDto.getSenderReceiverId(), errorList);
 		}
 
 		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());

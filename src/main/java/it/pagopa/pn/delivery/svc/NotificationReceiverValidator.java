@@ -1,7 +1,9 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.exceptions.ExceptionHelper;
+import it.pagopa.pn.commons.exceptions.dto.ProblemError;
+import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
@@ -11,9 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class NotificationReceiverValidator {
@@ -29,7 +29,8 @@ public class NotificationReceiverValidator {
     public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
         Set<ConstraintViolation<InternalNotification>> errors = checkNewNotificationBeforeInsert(internalNotification);
         if( ! errors.isEmpty() ) {
-            throw new PnValidationException(internalNotification.getPaProtocolNumber(), errors);
+            List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
+            throw new PnInvalidInputException(internalNotification.getPaProtocolNumber(), errorList);
         }
     }
 
@@ -43,7 +44,8 @@ public class NotificationReceiverValidator {
             errors = checkNewNotificationRequestForMVP( newNotificationRequest );
         }
         if( ! errors.isEmpty() ) {
-            throw new PnValidationException(newNotificationRequest.getPaProtocolNumber(), errors);
+            List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
+            throw new PnInvalidInputException(newNotificationRequest.getPaProtocolNumber(), errorList);
         }
     }
 
