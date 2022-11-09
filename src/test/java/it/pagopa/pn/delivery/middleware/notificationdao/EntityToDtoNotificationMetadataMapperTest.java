@@ -18,6 +18,8 @@ class EntityToDtoNotificationMetadataMapperTest {
     public static final String NOTIFICATION_STATUS = "DELIVERING";
     public static final String IUN_RECIPIENT_ID = "TGWR-ZJQN-JMAR-202209-A-1##PF-4fc75df3-0913-407e-bdaa-e50329708b7d";
     public static final String RECIPIENT_ID_CREATION_MONTH = "PF-4fc75df3-0913-407e-bdaa-e50329708b7d##202209";
+    public static final String SENDER_ID_CREATION_MONTH = "026e8c72-7944-4dcd-8668-f596447fec6d##202209";
+    public static final String SENDER_ID = "026e8c72-7944-4dcd-8668-f596447fec6d";
     public static final String SENDER_ID_RECIPIENT_ID = "026e8c72-7944-4dcd-8668-f596447fec6d##PF-4fc75df3-0913-407e-bdaa-e50329708b7d";
     public static final String IUN = "TGWR-ZJQN-JMAR-202209-A-1";
     public static final String PA_PROTOCOL_NUMBER = "1662403658809";
@@ -50,6 +52,8 @@ class EntityToDtoNotificationMetadataMapperTest {
         metadataEntity.setNotificationStatus( NOTIFICATION_STATUS );
         metadataEntity.setIunRecipientId( IUN_RECIPIENT_ID );
         metadataEntity.setRecipientIdCreationMonth( RECIPIENT_ID_CREATION_MONTH );
+        metadataEntity.setSenderId( SENDER_ID );
+        metadataEntity.setSenderIdCreationMonth( SENDER_ID_CREATION_MONTH );
         metadataEntity.setSenderIdRecipientId( SENDER_ID_RECIPIENT_ID );
         metadataEntity.setRecipientOne( true );
         metadataEntity.setSentAt( Instant.parse(SENT_AT) );
