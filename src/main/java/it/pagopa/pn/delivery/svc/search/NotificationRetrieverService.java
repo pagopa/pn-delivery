@@ -565,7 +565,7 @@ public class NotificationRetrieverService {
 
 		if( recipientIndex == -1 ) {
 			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
-			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient/delegator=" + userId,
+			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" + iun + " do not have recipient/delegator=" + userId,
 					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
 		}
 
