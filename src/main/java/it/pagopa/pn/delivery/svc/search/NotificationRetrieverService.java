@@ -447,7 +447,7 @@ public class NotificationRetrieverService {
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);
-		handleNotificationViewedEvent(iun, delegatorId != null? delegatorId : userId, notification);
+		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : userId);
 		return notification;
 	}
 
@@ -509,15 +509,6 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private void handleNotificationViewedEvent(String iun, String userId, InternalNotification notification) {
-		if (StringUtils.hasText(userId)) {
-			notifyNotificationViewedEvent(notification, userId);
-		} else {
-			log.error("UserId is not present, can't create notification view event for iun={}", iun);
-			throw new PnInternalException("UserId is not present, can't create notification view event for iun=" + iun);
-		}
-	}
-
 	public InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {
 		log.debug( "Retrieve timeline for iun={}", iun );
 		int numberOfRecipients = notification.getRecipients().size();
@@ -574,7 +565,8 @@ public class NotificationRetrieverService {
 
 		if( recipientIndex == -1 ) {
 			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
-			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient/delegator=" + userId );
+			throw new PnInternalException( "Notification with iun=" + iun + " do not have recipient/delegator=" + userId,
+					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
 		}
 
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
