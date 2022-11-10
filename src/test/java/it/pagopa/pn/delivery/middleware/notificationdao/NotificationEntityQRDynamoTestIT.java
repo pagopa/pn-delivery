@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
+import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationQREntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Map;
@@ -18,15 +20,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         NotificationEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
-        "aws.region-code=us-east-1",
-        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
-        "aws.endpoint-url=http://localhost:4566",
         "pn.delivery.notification-dao.table-name=Notifications",
         "pn.delivery.notification-cost-dao.table-name=NotificationsCost",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata",
         "pn.delivery.notification-qr-dao.table-name=NotificationsQR"
 })
 @SpringBootTest
+@Import(LocalStackTestConfig.class)
 class NotificationEntityQRDynamoTestIT {
 
     private static final String IUN = "UHQX-NMVP-ZKDQ-202210-H-1";
