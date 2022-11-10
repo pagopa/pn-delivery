@@ -64,6 +64,4 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUEST_ID)})) private String requestId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_TAXONOMY_CODE)})) private String taxonomyCode;
 
-    private Map<String, String> tokens;
-
 }

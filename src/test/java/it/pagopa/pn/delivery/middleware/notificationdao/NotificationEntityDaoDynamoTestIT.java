@@ -5,6 +5,7 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import org.junit.jupiter.api.Assertions;
@@ -14,13 +15,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.Base64Utils;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
@@ -48,6 +52,7 @@ class NotificationEntityDaoDynamoTestIT {
     @Autowired
     private NotificationQREntityDao notificationQREntityDao;
 
+    private  NotificationEntity notificationToInsert;
 
     @Test
     void putSuccess() throws PnIdConflictException {
@@ -116,12 +121,14 @@ class NotificationEntityDaoDynamoTestIT {
 
     @Test
     void getNotificationByQR() {
-        Optional<InternalNotificationQR> result = notificationQREntityDao.getNotificationByQR( "fakeToken" );
+        String token = notificationQREntityDao.getQRByIun("IUN_01").get("recipientTaxId");
+        Optional<InternalNotificationQR> result = notificationQREntityDao.getNotificationByQR( token );
 
         Assertions.assertNotNull( result );
-        Assertions.assertEquals( "fakeToken", result.get().getAarQRCodeValue() );
+        Assertions.assertEquals( token, result.get().getAarQRCodeValue() );
     }
 
+    
     @Test
     void getRequestIdByPaProtocolNumberAndIdempotenceToken() {
         Optional<String> requestId = notificationDao.getRequestId( "pa_02", "protocol_01", "idempotenceToken" );
@@ -184,9 +191,6 @@ class NotificationEntityDaoDynamoTestIT {
                         .build())
                 .recipientId( "fakeRecipientId" )
                 .build();
-        Map<String, String> tokensMap = new HashMap<>();
-        tokensMap.put( notificationRecipientEntity.getRecipientId(), "fakeToken" );
-        tokensMap.put( notificationRecipientEntity1.getRecipientId(), "fakeToken1" );
         return NotificationEntity.builder()
                 .iun("IUN_01")
                 .notificationAbstract( "Abstract" )
@@ -201,7 +205,6 @@ class NotificationEntityDaoDynamoTestIT {
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
-                .tokens( tokensMap )
                 //.recipientsJson(Collections.emptyMap())
                 .build();
     }

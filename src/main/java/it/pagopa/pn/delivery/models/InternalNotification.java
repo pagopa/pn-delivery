@@ -47,15 +47,7 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getNotificationStatusHistory(),
                 fsn.getTimeline()
             );
-        this.tokens = tokens;
         this.recipientIds = recipientIds;
-    }
-
-    @Schema( description = "Lista dei token generati per ogni destinatario")
-    private Map<NotificationRecipient,String> tokens;
-
-    public String getToken( NotificationRecipient recipient ){
-        return tokens.get( recipient );
     }
 
     @Schema( description = "Lista degli id dei destinatari")
