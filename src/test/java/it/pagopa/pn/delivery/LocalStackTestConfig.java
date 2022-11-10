@@ -23,7 +23,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 public class LocalStackTestConfig {
 
     static LocalStackContainer localStack =
-            new LocalStackContainer(DockerImageName.parse(getImageName()).asCompatibleSubstituteFor("localstack/localstack"))
+            new LocalStackContainer(DockerImageName.parse("localstack/localstack:1.0.4").asCompatibleSubstituteFor("localstack/localstack"))
                     .withServices(DYNAMODB)
                     .withClasspathResourceMapping("testcontainers/init.sh",
                             "/docker-entrypoint-initaws.d/make-storages.sh", BindMode.READ_ONLY)
@@ -44,7 +44,4 @@ public class LocalStackTestConfig {
 
     }
 
-    private static String getImageName() {
-        return System.getProperty("localstack_image_name", "public.ecr.aws/localstack/localstack:1.0.4");
-    }
 }
