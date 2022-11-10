@@ -67,20 +67,14 @@ class NotificationEntityDaoDynamoTestIT {
         Key costKey3 = Key.builder()
                 .partitionValue("creditorTaxId##noticeCode_opt")
                 .build();
-        Key QRkey = Key.builder()
-                .partitionValue( "fakeToken" )
-                .build();
-        Key QRkey1 = Key.builder()
-                .partitionValue( "fakeToken1" )
-                .build();
+
 
         removeItemFromDb( key );
         removeItemFromDb( controlIdempotenceKey );
         removeFromNotificationCostDb( costKey1 );
         removeFromNotificationCostDb( costKey2 );
         removeFromNotificationCostDb( costKey3 );
-        removeFromNotificationQRDb( QRkey );
-        removeFromNotificationQRDb( QRkey1 );
+        removeFromNotificationQRDb( notificationToInsert.getIun() );
 
         //When
         notificationEntityDao.putIfAbsent( notificationToInsert );
@@ -224,7 +218,16 @@ class NotificationEntityDaoDynamoTestIT {
         notificationCostEntityDao.delete( key );
     }
 
-    private void removeFromNotificationQRDb( Key key ) {
-        notificationQREntityDao.delete( key );
+    private void removeFromNotificationQRDb(String iun) {
+      
+      notificationQREntityDao.getQRByIun("IUN_01").values().forEach(token ->{
+        Key QRkey = Key.builder()
+            .partitionValue( "fakeToken" )
+            .build();
+        
+          notificationQREntityDao.delete( QRkey );
+      });
+      
+ 
     }
 }
