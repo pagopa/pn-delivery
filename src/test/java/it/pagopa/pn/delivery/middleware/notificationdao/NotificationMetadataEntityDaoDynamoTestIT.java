@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
@@ -19,6 +20,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -30,13 +32,11 @@ import java.util.*;
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         NotificationMetadataEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
-        "aws.region-code=us-east-1",
-        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
-        "aws.endpoint-url=http://localhost:4566",
         "pn.delivery.notification-dao.table-name=Notifications",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata"
 })
 @SpringBootTest
+@Import(LocalStackTestConfig.class)
 class NotificationMetadataEntityDaoDynamoTestIT {
 
     private static final String IUN = "KSAU-CKOB-OFKR-202205-O-1";
