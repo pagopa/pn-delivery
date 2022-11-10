@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,5 +64,25 @@ class NotificationEntityQRDynamoTestIT {
         assertEquals( AAR_QR_CODE_VALUE, elementFromDb.get().getAarQRCodeValue() );
         assertEquals( IUN, elementFromDb.get().getIun() );
         assertEquals( RECIPIENT_ID, elementFromDb.get().getRecipientInternalId() );
+    }
+    
+    
+    @Test
+    void getNotificationQR() {
+
+        NotificationQREntity entity = NotificationQREntity.builder()
+                .aarQRCodeValue( AAR_QR_CODE_VALUE )
+                .iun( IUN )
+                .recipientType( RecipientTypeEntity.PF )
+                .recipientId( RECIPIENT_ID )
+                .build();
+
+        notificationQREntityDao.putIfAbsent( entity );
+
+        Map<String, String> elementFromDb = notificationQREntityDao.getQRByIun( IUN );
+
+        assertTrue( !elementFromDb.isEmpty() );
+        assertTrue( elementFromDb.containsKey(RECIPIENT_ID) );
+        assertEquals( AAR_QR_CODE_VALUE, elementFromDb.get(RECIPIENT_ID) );
     }
 }

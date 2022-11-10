@@ -14,11 +14,12 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 class NotificationQRServiceTest {
-
+    private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     @Mock
     private NotificationQREntityDao notificationQREntityDao;
     private NotificationQRService svc;
@@ -30,7 +31,7 @@ class NotificationQRServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void getNotificationQRSuccess() {
+    void getNotificationByQRSuccess() {
 
         RequestCheckAarDto requestCheckAarDto = RequestCheckAarDto.builder()
                 .recipientType( "PF" )
@@ -55,7 +56,7 @@ class NotificationQRServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    void getNotificationQRFailure() {
+    void getNotificationByQRFailure() {
         RequestCheckAarDto requestCheckAarDto = RequestCheckAarDto.builder()
                 .recipientType( "PF" )
                 .recipientInternalId( "recipientInternalId" )
@@ -91,5 +92,30 @@ class NotificationQRServiceTest {
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
+    
+    
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationQRSuccess() {
+
+        Mockito.when( notificationQREntityDao.getQRByIun(IUN) ).thenReturn(Map.of("internalId","qrCode"));
+
+        Map<String, String> response = svc.getQRByIun( IUN );
+
+        Assertions.assertNotNull( response );
+        Assertions.assertEquals( Set.of("internalId"), response.keySet() );
+        Assertions.assertTrue(response.containsValue("qrCode") );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationQRFailure() {
+      Mockito.when( notificationQREntityDao.getQRByIun(IUN) ).thenReturn(Map.of());
+
+        Executable todo = () -> svc.getQRByIun( IUN );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+    }
+
 
 }
