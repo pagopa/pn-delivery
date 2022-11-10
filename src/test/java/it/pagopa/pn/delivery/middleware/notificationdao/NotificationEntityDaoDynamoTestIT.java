@@ -222,7 +222,7 @@ class NotificationEntityDaoDynamoTestIT {
       
       notificationQREntityDao.getQRByIun("IUN_01").values().forEach(token ->{
         Key QRkey = Key.builder()
-            .partitionValue( "fakeToken" )
+            .partitionValue(token)
             .build();
         
           notificationQREntityDao.delete( QRkey );
