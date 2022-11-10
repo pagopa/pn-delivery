@@ -122,7 +122,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
         '404':
-          description: Not Found
+          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR
           content:
             application/problem+json:
               schema:
