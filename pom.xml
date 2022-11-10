@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>it.pagopa.pn</groupId>
         <artifactId>pn-parent</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <relativePath/>
+        <version>1.0.0</version>
+        <relativePath>../pn-parent</relativePath>
     </parent>
     <groupId>it.pagopa.pn.delivery</groupId>
     <artifactId>pn-delivery</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>pn-delivery</name>
     <description>Receive new notifications and show internalNotification history</description>
+    <scm>
+        <connection>${git.conn}</connection>
+        <developerConnection>${git.devConn}</developerConnection>
+        <url>${git.url}</url>
+      <tag>v1.0.0</tag>
+  </scm>
 
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
@@ -31,12 +35,12 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-model</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -141,9 +145,9 @@
                         <id>default-cli</id>
                         <configuration>
                             <target>
-                                <property name="windows_bash_exe" value="${ant.windows_bash_exe}"/>
+                                <property name="windows_bash_exe" value="${ant.windows_bash_exe}" />
                                 <ant antfile="${basedir}/scripts/aws/lambda/build.xml">
-                                    <target name="default"/>
+                                    <target name="default" />
                                 </ant>
                             </target>
                         </configuration>
@@ -156,7 +160,7 @@
                         <phase>compile</phase>
                         <configuration>
                             <target>
-                                <echo  level="info" message="NB: Per lo sviluppo in localstack, ricordarsi di lanciare il goal maven di deploy della lambda: mvn antrun:run"/>
+                                <echo level="info" message="NB: Per lo sviluppo in localstack, ricordarsi di lanciare il goal maven di deploy della lambda: mvn antrun:run" />
                             </target>
                         </configuration>
                         <goals>
@@ -179,7 +183,7 @@
                             <inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-pa-v1.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
-                            <modelNameSuffix></modelNameSuffix>
+                            <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
                             <configOptions>
@@ -209,7 +213,7 @@
                             <inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
-                            <modelNameSuffix></modelNameSuffix>
+                            <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
                             <configOptions>
@@ -239,7 +243,7 @@
                             <inputSpec>${project.basedir}/docs/openapi/api-internal-web-pa-v1.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
-                            <modelNameSuffix></modelNameSuffix>
+                            <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
                             <configOptions>
@@ -269,7 +273,7 @@
                             <inputSpec>${project.basedir}/docs/openapi/api-internal-web-recipient-v1.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
-                            <modelNameSuffix></modelNameSuffix>
+                            <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
                             <configOptions>
