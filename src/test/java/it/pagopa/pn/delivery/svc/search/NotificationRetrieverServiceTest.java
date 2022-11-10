@@ -651,7 +651,7 @@ class NotificationRetrieverServiceTest {
         Executable todo = () -> svc.getNotificationAndNotifyViewedEvent( IUN, "", null );
 
         //Then
-        Assertions.assertThrows(PnInternalException.class, todo);
+        Assertions.assertThrows(PnNotFoundException.class, todo);
     }
 
     @Test
