@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
@@ -12,28 +13,24 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         NotificationEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
-        "aws.region-code=us-east-1",
-        "aws.profile-name=${PN_AWS_PROFILE_NAME:default}",
-        "aws.endpoint-url=http://localhost:4566",
         "pn.delivery.notification-dao.table-name=Notifications",
         "pn.delivery.notification-cost-dao.table-name=NotificationsCost",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata",
         "pn.delivery.notification-qr-dao.table-name=NotificationsQR"
     })
 @SpringBootTest
+@Import(LocalStackTestConfig.class)
 class NotificationEntityDaoDynamoTestIT {
 
     @Autowired
@@ -47,7 +44,6 @@ class NotificationEntityDaoDynamoTestIT {
 
     @Autowired
     private NotificationQREntityDao notificationQREntityDao;
-
 
     @Test
     void putSuccess() throws PnIdConflictException {
@@ -71,20 +67,14 @@ class NotificationEntityDaoDynamoTestIT {
         Key costKey3 = Key.builder()
                 .partitionValue("creditorTaxId##noticeCode_opt")
                 .build();
-        Key QRkey = Key.builder()
-                .partitionValue( "fakeToken" )
-                .build();
-        Key QRkey1 = Key.builder()
-                .partitionValue( "fakeToken1" )
-                .build();
+
 
         removeItemFromDb( key );
         removeItemFromDb( controlIdempotenceKey );
         removeFromNotificationCostDb( costKey1 );
         removeFromNotificationCostDb( costKey2 );
         removeFromNotificationCostDb( costKey3 );
-        removeFromNotificationQRDb( QRkey );
-        removeFromNotificationQRDb( QRkey1 );
+        removeFromNotificationQRDb( notificationToInsert.getIun() );
 
         //When
         notificationEntityDao.putIfAbsent( notificationToInsert );
@@ -108,24 +98,42 @@ class NotificationEntityDaoDynamoTestIT {
 
     @Test
     void getNotificationByPayment() {
+        //GIVEN
+        putSuccess();
+
+        //WHEN
         Optional<InternalNotificationCost> result = notificationCostEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode" );
 
+        //THEN
         Assertions.assertNotNull( result );
         Assertions.assertEquals( "IUN_01" , result.get().getIun() );
     }
 
     @Test
     void getNotificationByQR() {
-        Optional<InternalNotificationQR> result = notificationQREntityDao.getNotificationByQR( "fakeToken" );
+        //GIVEN
+        putSuccess();
 
+        //WHEN
+        String token = notificationQREntityDao.getQRByIun("IUN_01").get("recipientTaxId");
+        Optional<InternalNotificationQR> result = notificationQREntityDao.getNotificationByQR( token );
+
+
+        //THEN
         Assertions.assertNotNull( result );
-        Assertions.assertEquals( "fakeToken", result.get().getAarQRCodeValue() );
+        Assertions.assertEquals( token, result.get().getAarQRCodeValue() );
     }
 
+    
     @Test
     void getRequestIdByPaProtocolNumberAndIdempotenceToken() {
+        //GIVEN
+        putSuccess();
+
+        //WHEN
         Optional<String> requestId = notificationDao.getRequestId( "pa_02", "protocol_01", "idempotenceToken" );
 
+        //THEN
         Assertions.assertNotNull( requestId );
         Assertions.assertEquals( "SVVOXzAx", requestId.get() );
     }
@@ -184,9 +192,6 @@ class NotificationEntityDaoDynamoTestIT {
                         .build())
                 .recipientId( "fakeRecipientId" )
                 .build();
-        Map<String, String> tokensMap = new HashMap<>();
-        tokensMap.put( notificationRecipientEntity.getRecipientId(), "fakeToken" );
-        tokensMap.put( notificationRecipientEntity1.getRecipientId(), "fakeToken1" );
         return NotificationEntity.builder()
                 .iun("IUN_01")
                 .notificationAbstract( "Abstract" )
@@ -201,7 +206,6 @@ class NotificationEntityDaoDynamoTestIT {
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
-                .tokens( tokensMap )
                 //.recipientsJson(Collections.emptyMap())
                 .build();
     }
@@ -214,7 +218,16 @@ class NotificationEntityDaoDynamoTestIT {
         notificationCostEntityDao.delete( key );
     }
 
-    private void removeFromNotificationQRDb( Key key ) {
-        notificationQREntityDao.delete( key );
+    private void removeFromNotificationQRDb(String iun) {
+      
+      notificationQREntityDao.getQRByIun("IUN_01").values().forEach(token ->{
+        Key QRkey = Key.builder()
+            .partitionValue(token)
+            .build();
+        
+          notificationQREntityDao.delete( QRkey );
+      });
+      
+ 
     }
 }

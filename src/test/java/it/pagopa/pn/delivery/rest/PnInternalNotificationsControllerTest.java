@@ -28,7 +28,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Map;
 import static org.mockito.Mockito.doThrow;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
@@ -473,6 +473,40 @@ class PnInternalNotificationsControllerTest {
                 .expectStatus()
                 .isNotFound();
     }
+    
+    @Test
+    void getQuickAccessLinkTokensPrivateSuccess() {
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/"+ IUN +"/quick-access-link-tokens")
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( Map.class );
+
+        Mockito.verify( qrService ).getQRByIun(IUN);
+    }
+    
+    @Test
+    void getQuickAccessLinkTokensPrivateFailure() {
+        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+                .when( qrService )
+                .getQRByIun( IUN);
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/"+ IUN +"/quick-access-link-tokens")
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
 
     private InternalNotification newNotification() {
         return new InternalNotification(FullSentNotification.builder()
@@ -521,6 +555,6 @@ class PnInternalNotificationsControllerTest {
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))
-                .build(), Collections.emptyMap(), Collections.singletonList("recipientId"));
+                .build(), Collections.singletonList("recipientId"));
     }
 }

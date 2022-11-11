@@ -11,7 +11,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEn
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -25,7 +24,6 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -346,7 +344,7 @@ class NotificationDaoDynamoTest {
                                 .contentType( "application/pdf" )
                                 .build()
                 ))
-                .build(), Collections.emptyMap(), Collections.singletonList("Codice Fiscale 01"));
+                .build(), Collections.singletonList("Codice Fiscale 01"));
     }
 
     /*private Notification newNotificationWithPaymentsDeliveryMode( boolean withIuv ) {

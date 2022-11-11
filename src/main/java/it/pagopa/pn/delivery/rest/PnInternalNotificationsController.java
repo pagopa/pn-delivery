@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -219,6 +220,11 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             throw exc;
         }
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<Map<String, String>> getQuickAccessLinkTokensPrivate(String iun) {
+      return ResponseEntity.ok(qrService.getQRByIun(iun));
     }
 
 }

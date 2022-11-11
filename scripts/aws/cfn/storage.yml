@@ -66,9 +66,18 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "aarQRCodeValue"
           AttributeType: "S"
+        - AttributeName: "iun"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "aarQRCodeValue"
           KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: "iun-index"
+          KeySchema:
+            - AttributeName: "iun"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"              
       BillingMode: "PAY_PER_REQUEST"
 
   NotificationsMetadataTable:

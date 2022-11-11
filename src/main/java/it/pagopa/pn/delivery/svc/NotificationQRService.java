@@ -7,7 +7,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -40,4 +40,16 @@ public class NotificationQRService {
             throw new PnNotificationNotFoundException( String.format( "No notification by aarQrCodeValue=%s recipientType=%s recipientInternalId=%s", aarQrCodeValue, recipientType, recipientInternalId ) );
         }
     }
+    
+    
+    
+    public Map<String, String> getQRByIun(String iun) {
+      log.info( "Get notification QR for iun={}", iun);
+      Map<String, String> qrMap = notificationQREntityDao.getQRByIun( iun );  
+      if(qrMap.isEmpty()) {
+        log.info( "No notification by iun={} ", iun);
+        throw new PnNotificationNotFoundException( String.format( "No notification by iun=%s", iun ) );
+      }
+      return qrMap;
+  }
 }

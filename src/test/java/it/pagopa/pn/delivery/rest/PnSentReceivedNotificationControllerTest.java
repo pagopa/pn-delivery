@@ -800,7 +800,7 @@ class PnSentReceivedNotificationControllerTest {
 				.notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 								.status( NotificationStatus.ACCEPTED )
 						.build() ) )
-                .build(), Collections.emptyMap(), Collections.emptyList());
+                .build(), Collections.emptyList());
     }
 	
 }

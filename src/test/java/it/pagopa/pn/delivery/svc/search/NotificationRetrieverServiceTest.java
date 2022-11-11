@@ -377,7 +377,7 @@ class NotificationRetrieverServiceTest {
                                 .noticeCodeAlternative( NOTICE_CODE_ALTERNATIVE )
                                 .build() )
                         .build())
-                ).build(), Collections.emptyMap(), Collections.singletonList( "userId" ) );
+                ).build(), Collections.singletonList( "userId" ) );
     }
 
     @NotNull
@@ -651,7 +651,7 @@ class NotificationRetrieverServiceTest {
         Executable todo = () -> svc.getNotificationAndNotifyViewedEvent( IUN, "", null );
 
         //Then
-        Assertions.assertThrows(PnInternalException.class, todo);
+        Assertions.assertThrows(PnNotFoundException.class, todo);
     }
 
     @Test

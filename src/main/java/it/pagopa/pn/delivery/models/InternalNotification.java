@@ -7,7 +7,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +20,7 @@ import java.util.Map;
 public class InternalNotification extends FullSentNotification {
 
 
-    public InternalNotification(FullSentNotification fsn, Map<NotificationRecipient, String> tokens, List<String> recipientIds) {
+    public InternalNotification(FullSentNotification fsn, List<String> recipientIds) {
         super(
                 fsn.getIdempotenceToken(),
                 fsn.getPaProtocolNumber(),
@@ -47,15 +46,7 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getNotificationStatusHistory(),
                 fsn.getTimeline()
             );
-        this.tokens = tokens;
         this.recipientIds = recipientIds;
-    }
-
-    @Schema( description = "Lista dei token generati per ogni destinatario")
-    private Map<NotificationRecipient,String> tokens;
-
-    public String getToken( NotificationRecipient recipient ){
-        return tokens.get( recipient );
     }
 
     @Schema( description = "Lista degli id dei destinatari")
