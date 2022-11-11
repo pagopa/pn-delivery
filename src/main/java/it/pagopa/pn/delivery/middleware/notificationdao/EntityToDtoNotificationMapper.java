@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +52,7 @@ public class EntityToDtoNotificationMapper {
                 .paymentExpirationDate(entity.getPaymentExpirationDate())
                 .taxonomyCode( entity.getTaxonomyCode() )
                 .build()
-        , Collections.emptyMap(), recipientIds );
+        , recipientIds );
     }
 
     private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
