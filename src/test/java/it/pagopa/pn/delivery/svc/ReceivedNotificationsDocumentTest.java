@@ -223,7 +223,7 @@ class ReceivedNotificationsDocumentTest {
 								)
 						.build()
 						))
-				.build(), Collections.emptyMap(), Collections.emptyList());
+				.build(), Collections.emptyList());
 	}
 
 	private InternalNotification createNoDocumentsNotification() {
@@ -242,7 +242,7 @@ class ReceivedNotificationsDocumentTest {
 								.build())
 						.build()
 						))
-				.build(), Collections.emptyMap(), Collections.emptyList());
+				.build(), Collections.emptyList());
 	}
 
 }
