@@ -62,7 +62,7 @@ class StatusServiceTest {
                         .taxId( "CodiceFiscale" )
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .build()) )
-                .build(), Collections.emptyMap(), List.of( "recipientId" )));
+                .build(), List.of( "recipientId" )));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         Mockito.when( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, "CodiceFiscale" ) )
                 .thenReturn( "CodiceFiscale" );

@@ -12,8 +12,6 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +21,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
@@ -65,16 +64,15 @@ class NotificationReceiverValidationTest {
   void initializeValidator() {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    validator =
-        new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer);
+    validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer);
   }
 
   @Test
   void invalidEmptyNotification() {
 
     // GIVEN
-    InternalNotification n = new InternalNotification(FullSentNotification.builder().build(),
-        Collections.emptyMap(), Collections.emptyList());
+    InternalNotification n =
+        new InternalNotification(FullSentNotification.builder().build(), Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -102,8 +100,8 @@ class NotificationReceiverValidationTest {
   void checkThrowMechanism() {
 
     // GIVEN
-    InternalNotification n = new InternalNotification(FullSentNotification.builder().build(),
-        Collections.emptyMap(), Collections.emptyList());
+    InternalNotification n =
+        new InternalNotification(FullSentNotification.builder().build(), Collections.emptyList());
 
     // WHEN
     Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(n);
@@ -150,7 +148,7 @@ class NotificationReceiverValidationTest {
     InternalNotification n = new InternalNotification(
         notificationWithPhysicalCommunicationType().senderTaxId("01199250158")
             .recipients(Collections.singletonList(NotificationRecipient.builder().build())),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -173,7 +171,7 @@ class NotificationReceiverValidationTest {
                 .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
                 // C.F. Omocodice 0=L 1=M 2=N 3=P 4=Q 5=R 6=S 7=T 8=U 9=V
                 .taxId("MRNLCU00A01H50MJ").denomination("valid Denomination").build())),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -192,7 +190,7 @@ class NotificationReceiverValidationTest {
             .recipients(Collections.singletonList(NotificationRecipient.builder()
                 .recipientType(NotificationRecipient.RecipientTypeEnum.PF).taxId("invalidTaxId")
                 .denomination("valid Denomination").build())),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -207,10 +205,9 @@ class NotificationReceiverValidationTest {
   @Test
   void invalidSenderTaxId() {
     // GIVEN
-    InternalNotification n = new InternalNotification(
-        notificationWithPhysicalCommunicationType().senderTaxId("invalidSenderTaxId")
-            .senderDenomination("Valid Sender Denomination"),
-        Collections.emptyMap(), Collections.emptyList());
+    InternalNotification n = new InternalNotification(notificationWithPhysicalCommunicationType()
+        .senderTaxId("invalidSenderTaxId").senderDenomination("Valid Sender Denomination"),
+        Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -228,7 +225,7 @@ class NotificationReceiverValidationTest {
     InternalNotification n = new InternalNotification(
         notificationWithPhysicalCommunicationType()._abstract(INVALID_ABSTRACT)
             .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -242,10 +239,11 @@ class NotificationReceiverValidationTest {
   @Test
   void invalidSubject() {
     // GIVEN
-    InternalNotification n = new InternalNotification(
-        notificationWithPhysicalCommunicationType().subject(INVALID_SUBJECT)
-            .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE),
-        Collections.emptyMap(), Collections.emptyList());
+    InternalNotification n =
+        new InternalNotification(
+            notificationWithPhysicalCommunicationType().subject(INVALID_SUBJECT)
+                .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE),
+            Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -278,10 +276,9 @@ class NotificationReceiverValidationTest {
   void invalidNullValuesInCollections() {
 
     // GIVEN
-    InternalNotification n = new InternalNotification(
-        notificationWithPhysicalCommunicationType().recipients(Collections.singletonList(null))
-            .documents(Collections.singletonList(null)),
-        Collections.emptyMap(), Collections.emptyList());
+    InternalNotification n = new InternalNotification(notificationWithPhysicalCommunicationType()
+        .recipients(Collections.singletonList(null)).documents(Collections.singletonList(null)),
+        Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -301,7 +298,7 @@ class NotificationReceiverValidationTest {
         notificationWithPhysicalCommunicationType()
             .recipients(Collections.singletonList(NotificationRecipient.builder().build()))
             .documents(Collections.singletonList(NotificationDocument.builder().build())),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
     n.notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE);
 
     // WHEN
@@ -332,7 +329,7 @@ class NotificationReceiverValidationTest {
                     // .body( BASE64_BODY )
                     .contentType("Content/Type")
                     .digests(NotificationAttachmentDigests.builder().build()).build())),
-            Collections.emptyMap(), Collections.emptyList());
+            Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -386,7 +383,7 @@ class NotificationReceiverValidationTest {
     InternalNotification wrongEmail = new InternalNotification(
         n.recipients(Collections.singletonList(n.getRecipients().get(0)
             .digitalDomicile(n.getRecipients().get(0).getDigitalDomicile().address(null)))),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -404,7 +401,7 @@ class NotificationReceiverValidationTest {
     InternalNotification notification = new InternalNotification(
         validDocumentWithoutPayments()
             .documents(Collections.singletonList(NotificationDocument.builder().build())),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
     notification
         .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE);
 
@@ -573,15 +570,14 @@ class NotificationReceiverValidationTest {
   }
 
   private InternalNotification newInternalNotification() {
-    return new InternalNotification(newFullSentNotification(), Collections.emptyMap(),
-        Collections.emptyList());
+    return new InternalNotification(newFullSentNotification(), Collections.emptyList());
   }
 
   private InternalNotification notificationWithPhysicalCommunicationType() {
     return new InternalNotification(
         newFullSentNotification().physicalCommunicationType(
             FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
   }
 
   private InternalNotification validDocumentWithoutPayments() {
@@ -591,7 +587,7 @@ class NotificationReceiverValidationTest {
             .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
                 .build())
             .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build())),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
   }
 
   private InternalNotification validDocumentWithPayments() {
@@ -620,7 +616,7 @@ class NotificationReceiverValidationTest {
                             .versionToken(VERSION_TOKEN).build()))
                     .build())
                 .build())),
-        Collections.emptyMap(), Collections.emptyList());
+        Collections.emptyList());
   }
 
 }

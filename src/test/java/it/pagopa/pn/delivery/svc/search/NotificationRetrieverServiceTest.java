@@ -377,7 +377,7 @@ class NotificationRetrieverServiceTest {
                                 .noticeCodeAlternative( NOTICE_CODE_ALTERNATIVE )
                                 .build() )
                         .build())
-                ).build(), Collections.emptyMap(), Collections.singletonList( "userId" ) );
+                ).build(), Collections.singletonList( "userId" ) );
     }
 
     @NotNull

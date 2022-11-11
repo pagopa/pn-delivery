@@ -249,7 +249,7 @@ class NotificationPriceServiceTest {
                                                 .build() )
                                         .build() )
                                 .build()) )
-                .build(), Collections.emptyMap(), Collections.emptyList() );
+                .build(), Collections.emptyList() );
     }
 
     @NotNull
@@ -276,7 +276,7 @@ class NotificationPriceServiceTest {
                                                 .build() )
                                         .build() )
                                 .build()) )
-                .build(), Collections.emptyMap(), Collections.emptyList() );
+                .build(), Collections.emptyList() );
     }
 
 

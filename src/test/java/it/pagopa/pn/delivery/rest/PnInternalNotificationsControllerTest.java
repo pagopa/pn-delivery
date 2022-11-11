@@ -555,6 +555,6 @@ class PnInternalNotificationsControllerTest {
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))
-                .build(), Collections.emptyMap(), Collections.singletonList("recipientId"));
+                .build(), Collections.singletonList("recipientId"));
     }
 }
