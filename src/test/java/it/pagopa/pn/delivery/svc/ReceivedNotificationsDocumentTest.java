@@ -59,6 +59,9 @@ class ReceivedNotificationsDocumentTest {
 	private NotificationAttachmentService attachmentService;
 
 	@MockBean
+	private NotificationQRService qrService;
+
+	@MockBean
 	private PnDeliveryConfigs cfg;
 
 	@MockBean

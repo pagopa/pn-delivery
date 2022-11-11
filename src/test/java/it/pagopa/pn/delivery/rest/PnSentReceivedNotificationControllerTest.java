@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
@@ -60,6 +61,9 @@ class PnSentReceivedNotificationControllerTest {
 
 	@MockBean
 	private NotificationAttachmentService attachmentService;
+
+	@MockBean
+	private NotificationQRService qrService;
 
 	@MockBean
 	private PnDeliveryConfigs cfg;

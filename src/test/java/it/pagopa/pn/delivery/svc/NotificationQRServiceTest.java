@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarDto;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,11 +23,13 @@ class NotificationQRServiceTest {
     private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     @Mock
     private NotificationQREntityDao notificationQREntityDao;
+    @Mock
+    private PnMandateClientImpl mandateClient;
     private NotificationQRService svc;
 
     @BeforeEach
     void setup() {
-        svc = new NotificationQRService( notificationQREntityDao );
+        svc = new NotificationQRService( notificationQREntityDao, mandateClient);
     }
 
     @ExtendWith(MockitoExtension.class)
