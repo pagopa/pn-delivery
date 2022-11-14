@@ -24,7 +24,7 @@
         <ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
 
         <awspring.version>2.3.2</awspring.version>
-        <testcontainers.version>1.16.2</testcontainers.version>
+        <testcontainers.version>1.17.5</testcontainers.version>
     </properties>
 
     <dependencyManagement>
