@@ -165,7 +165,28 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     @Override
     public ResponseEntity<ResponseCheckAarMandateDto> checkAarQrCode(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, RequestCheckAarMandateDto requestCheckAarMandateDto, List<String> xPagopaPnCxGroups) {
-        ResponseCheckAarMandateDto response = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId );
-        return ResponseEntity.ok( response );
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        String aarQrCodeValue = requestCheckAarMandateDto.getAarQrCodeValue();
+        String recipientType = xPagopaPnCxType.getValue();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before( PnAuditLogEventType.AUD_NT_REQQR, "getNotificationQr aarQrCodeValue={} recipientType={} customerId={}",
+                        aarQrCodeValue,
+                        recipientType,
+                        xPagopaPnCxId)
+                .mdcEntry( "aarQrCodeValue", aarQrCodeValue )
+                .cxType( recipientType )
+                .uid( xPagopaPnUid )
+                .cxId( xPagopaPnCxId )
+                .build();
+        logEvent.log();
+        ResponseCheckAarMandateDto responseCheckAarMandateDto;
+        try {
+            responseCheckAarMandateDto = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId );
+        } catch ( Exception exc ) {
+            logEvent.generateFailure( "Exception on get notification by qr= " + exc.getMessage()).log();
+            throw exc;
+        }
+
+        return ResponseEntity.ok( responseCheckAarMandateDto );
     }
 }

@@ -45,20 +45,20 @@ public class NotificationQRService {
         }
     }
 
-    public ResponseCheckAarMandateDto getNotificationByQRWithMandate( RequestCheckAarMandateDto request, String recipientType, String cxId ) {
+    public ResponseCheckAarMandateDto getNotificationByQRWithMandate( RequestCheckAarMandateDto request, String recipientType, String userId ) {
         String aarQrCodeValue = request.getAarQrCodeValue();
-        log.info( "Get notification QR with mandate for aarQrCodeValue={} recipientType={} cxId={}", aarQrCodeValue, recipientType, cxId);
+        log.info( "Get notification QR with mandate for aarQrCodeValue={} recipientType={} userId={}", aarQrCodeValue, recipientType, userId);
         InternalNotificationQR internalNotificationQR = getInternalNotificationQR( aarQrCodeValue );
-        if ( !isRecipientInNotification( internalNotificationQR, cxId ) ){
-            String mandateId = getMandateId( internalNotificationQR, cxId );
+        if ( !isRecipientInNotification( internalNotificationQR, userId ) ){
+            String mandateId = getMandateId( internalNotificationQR, userId );
             if ( StringUtils.hasText( mandateId ) ) {
                 return ResponseCheckAarMandateDto.builder()
                         .iun( internalNotificationQR.getIun() )
                         .mandateId( mandateId )
                         .build();
             } else {
-                log.info( "Invalid cxId={} without mandate for aarQrCodeValue={}", cxId, aarQrCodeValue );
-                throw new PnNotificationNotFoundException( String.format("Invalid cxId=%s without mandate for aarQrCodeValue=%s", cxId, aarQrCodeValue) );
+                log.info( "Invalid userId={} without mandate for aarQrCodeValue={}", userId, aarQrCodeValue );
+                throw new PnNotificationNotFoundException( String.format("Invalid userId=%s without mandate for aarQrCodeValue=%s", userId, aarQrCodeValue) );
             }
         } else {
             return ResponseCheckAarMandateDto.builder()
@@ -91,12 +91,12 @@ public class NotificationQRService {
         return internalNotificationQR.getRecipientInternalId().equals( recipientInternalId );
     }
 
-    private String getMandateId( InternalNotificationQR internalNotificationQR, String cxId ) {
+    private String getMandateId( InternalNotificationQR internalNotificationQR, String userId ) {
         String mandateId = null;
-        List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(cxId, null);
+        List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null);
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
-                    .filter(mandate -> cxId.equals(mandate.getDelegate()))
+                    .filter(mandate -> userId.equals(mandate.getDelegate()))
                     .findFirst();
             if (optMandate.isPresent() && isRecipientInNotification(internalNotificationQR, optMandate.get().getDelegator())) {
                 mandateId = optMandate.get().getMandateId();
