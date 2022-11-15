@@ -38,7 +38,7 @@ public class NotificationQRService {
         if ( request.getAarQrCodeValue().matches("^(https)://.*$") ) {
             try {
                 aarQrCodeValue = getAarQrCodeValue(request.getAarQrCodeValue());
-            } catch (URISyntaxException ex) {
+            } catch (URISyntaxException | NullPointerException ex ) {
                 throw new PnNotificationNotFoundException( "Notification not found",
                         String.format("Unable to parse aarQrCodeValue=%s",request.getAarQrCodeValue()),
                         ERROR_CODE_DELIVERY_UNSUPPORTED_AAR_QR_CODE,
