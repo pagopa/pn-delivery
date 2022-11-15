@@ -223,7 +223,7 @@ paths:
       operationId: checkAarQrCode
 #      security:                                      # ONLY EXTERNAL
 #        - bearerAuth: [ ]                            # ONLY EXTERNAL
-      parameters:
+      parameters:                                                   # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
