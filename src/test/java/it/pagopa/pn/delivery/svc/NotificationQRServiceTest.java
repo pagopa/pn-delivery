@@ -64,6 +64,31 @@ class NotificationQRServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    void getNotificationByUrlQRSuccess() {
+
+        RequestCheckAarDto requestCheckAarDto = RequestCheckAarDto.builder()
+                .recipientType(RECIPIENT_TYPE)
+                .recipientInternalId( "recipientInternalId" )
+                .aarQrCodeValue(URL_AAR_QR_VALUE)
+                .build();
+
+        InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
+                .aarQRCodeValue(AAR_QR_CODE_VALUE)
+                .iun( "iun" )
+                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientInternalId( "recipientInternalId" )
+                .build();
+
+        Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
+
+        ResponseCheckAarDto response = svc.getNotificationByQR( requestCheckAarDto );
+
+        Assertions.assertNotNull( response );
+        Assertions.assertEquals( "iun", response.getIun() );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
     void getNotificationByQRFailure() {
         RequestCheckAarDto requestCheckAarDto = RequestCheckAarDto.builder()
                 .recipientType(RECIPIENT_TYPE)
