@@ -206,7 +206,6 @@ paths:
       operationId: checkAarQrCode
       security:                                      # ONLY EXTERNAL
         - bearerAuth: [ ]                            # ONLY EXTERNAL
-      parameters:
       requestBody:
         content:
           application/json:
