@@ -35,7 +35,7 @@ public class NotificationQRService {
 
     public ResponseCheckAarDto getNotificationByQR( RequestCheckAarDto request ) {
         String aarQrCodeValue;
-        if ( request.getAarQrCodeValue().matches("^(https?)://.*$") ) {
+        if ( request.getAarQrCodeValue().matches("^(https)://.*$") ) {
             try {
                 aarQrCodeValue = getAarQrCodeValue(request.getAarQrCodeValue());
             } catch (URISyntaxException ex) {
