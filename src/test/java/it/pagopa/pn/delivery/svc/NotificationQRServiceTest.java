@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -21,6 +22,8 @@ import java.util.*;
 class NotificationQRServiceTest {
     private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
     public static final String AAR_QR_CODE_VALUE = "fakeAARQRCodeValue";
+    public static final String URL_AAR_QR_VALUE = "https://fake.domain.com/notifica?aar=fakeAARQRCodeValue";
+    public static final String INVALID_URL_AAR_QR_VALUE = "https://<invalid.domain.com>/notifica?aar=fakeAARQRCodeValue";
     public static final String RECIPIENT_TYPE = "PF";
 
     @Mock
@@ -69,6 +72,20 @@ class NotificationQRServiceTest {
                 .build();
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.empty() );
+
+        Executable todo = () -> svc.getNotificationByQR( requestCheckAarDto );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationByQRInvalidURIFailure() {
+        RequestCheckAarDto requestCheckAarDto = RequestCheckAarDto.builder()
+                .recipientType(RECIPIENT_TYPE)
+                .recipientInternalId( "recipientInternalId" )
+                .aarQrCodeValue( INVALID_URL_AAR_QR_VALUE )
+                .build();
 
         Executable todo = () -> svc.getNotificationByQR( requestCheckAarDto );
 

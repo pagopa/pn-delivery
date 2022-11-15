@@ -376,9 +376,8 @@ components:
         aarQrCodeValue:
           type: string
           description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
-          pattern: ^[A-Za-z0-9_-]*$
-          minLength: 106
-          maxLength: 106
+          minLength: 1
+          maxLength: 2048
           
     ResponseCheckAarDto:
       type: object
