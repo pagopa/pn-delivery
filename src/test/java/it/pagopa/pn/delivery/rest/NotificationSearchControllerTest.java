@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
 
+import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchResponse;
@@ -50,6 +51,9 @@ class NotificationSearchControllerTest {
 
     @MockBean
     private NotificationAttachmentService attachmentService;
+
+    @MockBean
+    private NotificationQRService qrService;
 
 
     @MockBean

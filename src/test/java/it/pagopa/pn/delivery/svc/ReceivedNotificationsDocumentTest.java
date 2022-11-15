@@ -59,6 +59,9 @@ class ReceivedNotificationsDocumentTest {
 	private NotificationAttachmentService attachmentService;
 
 	@MockBean
+	private NotificationQRService qrService;
+
+	@MockBean
 	private PnDeliveryConfigs cfg;
 
 	@MockBean
@@ -220,7 +223,7 @@ class ReceivedNotificationsDocumentTest {
 								)
 						.build()
 						))
-				.build(), Collections.emptyMap(), Collections.emptyList());
+				.build(), Collections.emptyList());
 	}
 
 	private InternalNotification createNoDocumentsNotification() {
@@ -239,7 +242,7 @@ class ReceivedNotificationsDocumentTest {
 								.build())
 						.build()
 						))
-				.build(), Collections.emptyMap(), Collections.emptyList());
+				.build(), Collections.emptyList());
 	}
 
 }

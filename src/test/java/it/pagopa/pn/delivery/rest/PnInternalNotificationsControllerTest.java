@@ -28,7 +28,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Map;
 import static org.mockito.Mockito.doThrow;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
@@ -51,6 +51,7 @@ class PnInternalNotificationsControllerTest {
     private static final String ATTACHMENT_NAME = "PAGOPA";
     private static final int DOCUMENT_IDX = 0;
     public static final String AAR_QR_CODE_VALUE = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
+    public static final String URL_AAR_QR_VALUE = "https://fake.domain.com/notifica?aar=WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
 
 
     @Autowired
@@ -379,6 +380,38 @@ class PnInternalNotificationsControllerTest {
         Mockito.verify( qrService ).getNotificationByQR( dto );
     }
 
+
+    @Test
+    void getNotificationUrlQRSuccess(){
+
+        //Given
+        ResponseCheckAarDto QrResponse = ResponseCheckAarDto.builder()
+                .iun( "iun" )
+                .build();
+
+        RequestCheckAarDto dto = RequestCheckAarDto.builder()
+                .aarQrCodeValue(URL_AAR_QR_VALUE)
+                .recipientInternalId( "recipientInternalId" )
+                .recipientType( "PF" )
+                .build();
+
+        //When
+        Mockito.when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) )).thenReturn( QrResponse );
+
+        webTestClient.post()
+                .uri( "/delivery-private/check-aar-qr-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(dto), RequestCheckAarDto.class)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ResponseCheckAarDto.class );
+
+        //Then
+        Mockito.verify( qrService ).getNotificationByQR( dto );
+    }
+
     @Test
     void getNotificationQRFailure() {
         RequestCheckAarDto dto = RequestCheckAarDto.builder()
@@ -473,6 +506,40 @@ class PnInternalNotificationsControllerTest {
                 .expectStatus()
                 .isNotFound();
     }
+    
+    @Test
+    void getQuickAccessLinkTokensPrivateSuccess() {
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/"+ IUN +"/quick-access-link-tokens")
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( Map.class );
+
+        Mockito.verify( qrService ).getQRByIun(IUN);
+    }
+    
+    @Test
+    void getQuickAccessLinkTokensPrivateFailure() {
+        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+                .when( qrService )
+                .getQRByIun( IUN);
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/"+ IUN +"/quick-access-link-tokens")
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
 
     private InternalNotification newNotification() {
         return new InternalNotification(FullSentNotification.builder()
@@ -521,6 +588,6 @@ class PnInternalNotificationsControllerTest {
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))
-                .build(), Collections.emptyMap(), Collections.singletonList("recipientId"));
+                .build(), Collections.singletonList("recipientId"));
     }
 }

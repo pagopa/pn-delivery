@@ -215,12 +215,15 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                     .recipientType( rec.getRecipientType() )
                     .iun( notificationEntity.getIun() )
                     .recipientId( rec.getRecipientId() )
-                    .aarQRCodeValue( notificationEntity.getTokens().get( rec.getRecipientId() ) )
+                    .aarQRCodeValue( generateToken( notificationEntity.getIun(), rec.getRecipientId()) )
                     .build());
         }
-
         return notificationQREntityList;
     }
 
+    private String generateToken(String iun, String taxId) {
+      byte[] bytes = (iun + "_" + taxId + "_" + UUID.randomUUID()).getBytes(StandardCharsets.UTF_8);
+      return Base64Utils.encodeToUrlSafeString( bytes ).replace("=","");
+    }
 
 }

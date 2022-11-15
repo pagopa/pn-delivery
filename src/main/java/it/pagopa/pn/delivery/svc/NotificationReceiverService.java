@@ -98,31 +98,11 @@ public class NotificationReceiverService {
 
 	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws PnIdConflictException {
 
-		log.debug("Generate tokens for iun={}", iun);
-		// generazione token per ogni destinatario
-		Map<NotificationRecipient,String> tokens = generateToken( internalNotification.getRecipients(), iun );
-
 		internalNotification.iun( iun );
 		internalNotification.sentAt( createdAt.atOffset( ZoneOffset.UTC ) );
-		internalNotification.setTokens( tokens );
-
-
+		
 		log.info("Store the notification metadata for iun={}", iun);
 		notificationDao.addNotification(internalNotification);
-	}
-
-
-	private Map<NotificationRecipient,String> generateToken(List<NotificationRecipient> recipientList, String iun) {
-		Map<NotificationRecipient,String> tokens = new HashMap<>();
-		for (NotificationRecipient recipient : recipientList) {
-			tokens.put(recipient, generateToken(iun, recipient.getTaxId()));
-		}
-		return tokens;
-	}
-
-	public String generateToken(String iun, String taxId) {
-		byte[] bytes = (iun + "_" + taxId + "_" + UUID.randomUUID()).getBytes(StandardCharsets.UTF_8);
-		return Base64Utils.encodeToUrlSafeString( bytes ).replace("=","");
 	}
 
 }
