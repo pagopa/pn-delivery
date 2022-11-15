@@ -38,7 +38,7 @@ public class NotificationQRService {
         if ( request.getAarQrCodeValue().matches("^(https)://.*$") ) {
             try {
                 aarQrCodeValue = getAarQrCodeValue(request.getAarQrCodeValue());
-            } catch (URISyntaxException ex) {
+            } catch (URISyntaxException | NullPointerException ex ) {
                 throw new PnNotificationNotFoundException( "Notification not found",
                         String.format("Unable to parse aarQrCodeValue=%s",request.getAarQrCodeValue()),
                         ERROR_CODE_DELIVERY_UNSUPPORTED_AAR_QR_CODE,
@@ -117,9 +117,10 @@ public class NotificationQRService {
         List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null);
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
-                    .filter(mandate -> userId.equals(mandate.getDelegate()))
+                    .filter(mandate -> userId.equals(mandate.getDelegate()) &&
+                            internalNotificationQR.getRecipientInternalId().equals( mandate.getDelegator() ))
                     .findFirst();
-            if (optMandate.isPresent() && isRecipientInNotification(internalNotificationQR, optMandate.get().getDelegator())) {
+            if ( optMandate.isPresent() ) {
                 mandateId = optMandate.get().getMandateId();
             }
         }
