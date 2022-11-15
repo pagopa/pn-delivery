@@ -130,7 +130,8 @@ components:
           minLength: 7
           maxLength: 7
           pattern: "^([0-9]{6}[A-Z]{1})$"
-          description: Codice tassonomico della notifica
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
           default: "010101P"
     SentNotification:
       description: >-
