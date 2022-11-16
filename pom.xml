@@ -98,7 +98,6 @@
             <type>maven-plugin</type>
             <scope>test</scope>
         </dependency>
-
         <!--LOCALSTACK/TESTCONTAINERS-->
         <dependency>
             <groupId>org.testcontainers</groupId>

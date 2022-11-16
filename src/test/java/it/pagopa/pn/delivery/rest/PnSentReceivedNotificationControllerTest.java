@@ -53,7 +53,8 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
 	private static final String IDEMPOTENCE_TOKEN = "idempotenceToken";
 	private static final String PAGOPA = "PAGOPA";
-	public static final String AAR_QR_CODE_VALUE = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
+	public static final String AAR_QR_CODE_VALUE_V1 = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
+	public static final String AAR_QR_CODE_VALUE_V2 = "VVFNWi1LTERHLUtEWVQtMjAyMjExLUwtMV9QRi00ZmM3NWRmMy0wOTEzLTQwN2UtYmRhYS1lNTAzMjk3MDhiN2RfZDA2ZjdhNDctNDJkMC00NDQxLWFkN2ItMTE4YmQ4NzlkOTJj";
 
 
 	@Autowired
@@ -753,7 +754,7 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
-	void getNotificationQRSuccess(){
+	void getNotificationQRV1Success(){
 
 		//Given
 		ResponseCheckAarMandateDto QrMandateResponse = ResponseCheckAarMandateDto.builder()
@@ -761,7 +762,7 @@ class PnSentReceivedNotificationControllerTest {
 				.build();
 
 		RequestCheckAarMandateDto dto = RequestCheckAarMandateDto.builder()
-				.aarQrCodeValue(AAR_QR_CODE_VALUE)
+				.aarQrCodeValue(AAR_QR_CODE_VALUE_V1)
 				.build();
 
 		//When
@@ -789,9 +790,45 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
+	void getNotificationQRV2Success(){
+
+		//Given
+		ResponseCheckAarMandateDto QrMandateResponse = ResponseCheckAarMandateDto.builder()
+				.iun( "iun" )
+				.build();
+
+		RequestCheckAarMandateDto dto = RequestCheckAarMandateDto.builder()
+				.aarQrCodeValue(AAR_QR_CODE_VALUE_V2)
+				.build();
+
+		//When
+		Mockito.when( qrService.getNotificationByQRWithMandate(
+						Mockito.any( RequestCheckAarMandateDto.class ),
+						Mockito.anyString(),
+						Mockito.anyString()))
+				.thenReturn( QrMandateResponse );
+
+		webTestClient.post()
+				.uri( "/delivery/notifications/received/check-aar-qr-code")
+				.contentType(MediaType.APPLICATION_JSON)
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(dto), RequestCheckAarMandateDto.class)
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody(ResponseCheckAarMandateDto.class );
+
+		//Then
+		Mockito.verify( qrService ).getNotificationByQRWithMandate( dto, CX_TYPE_PF, USER_ID );
+	}
+
+	@Test
 	void getNotificationQRFailure() {
 		RequestCheckAarMandateDto dto = RequestCheckAarMandateDto.builder()
-				.aarQrCodeValue(AAR_QR_CODE_VALUE)
+				.aarQrCodeValue(AAR_QR_CODE_VALUE_V1)
 				.build();
 
 		//When
