@@ -1,22 +1,20 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarMandateDto;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_AAR_QR_CODE;
 
 @Service
 @Slf4j
@@ -30,7 +28,19 @@ public class NotificationQRService {
     }
 
     public ResponseCheckAarDto getNotificationByQR( RequestCheckAarDto request ) {
-        String aarQrCodeValue = request.getAarQrCodeValue();
+        String aarQrCodeValue;
+        if ( request.getAarQrCodeValue().matches("^(https)://.*$") ) {
+            try {
+                aarQrCodeValue = getAarQrCodeValue(request.getAarQrCodeValue());
+            } catch (URISyntaxException | NullPointerException ex ) {
+                throw new PnNotificationNotFoundException( "Notification not found",
+                        String.format("Unable to parse aarQrCodeValue=%s",request.getAarQrCodeValue()),
+                        ERROR_CODE_DELIVERY_UNSUPPORTED_AAR_QR_CODE,
+                        ex);
+            }
+        } else {
+            aarQrCodeValue = request.getAarQrCodeValue();
+        }
         String recipientType = request.getRecipientType();
         String recipientInternalId = request.getRecipientInternalId();
         log.info( "Get notification QR for aarQrCodeValue={} recipientType={} recipientInternalId={}", aarQrCodeValue, recipientType, recipientInternalId);
@@ -43,6 +53,11 @@ public class NotificationQRService {
             log.info( "Invalid recipientInternalId={} for aarQrCodeValue={} recipientType={}", recipientInternalId, aarQrCodeValue, recipientType );
             throw new PnNotificationNotFoundException( String.format( "Invalid recipientInternalId=%s for aarQrCodeValue=%s recipientType=%s", recipientInternalId, aarQrCodeValue, recipientType) );
         }
+    }
+
+    private String getAarQrCodeValue(String stringURI) throws URISyntaxException {
+        URI uri = new URI(stringURI);
+        return uri.getQuery().split("=")[1];
     }
 
     public ResponseCheckAarMandateDto getNotificationByQRWithMandate( RequestCheckAarMandateDto request, String recipientType, String userId ) {
@@ -96,9 +111,10 @@ public class NotificationQRService {
         List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null);
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
-                    .filter(mandate -> userId.equals(mandate.getDelegate()))
+                    .filter(mandate -> userId.equals(mandate.getDelegate()) &&
+                            internalNotificationQR.getRecipientInternalId().equals( mandate.getDelegator() ))
                     .findFirst();
-            if (optMandate.isPresent() && isRecipientInNotification(internalNotificationQR, optMandate.get().getDelegator())) {
+            if ( optMandate.isPresent() ) {
                 mandateId = optMandate.get().getMandateId();
             }
         }
