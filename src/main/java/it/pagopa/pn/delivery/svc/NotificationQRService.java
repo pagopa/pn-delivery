@@ -1,12 +1,18 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarMandateDto;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
