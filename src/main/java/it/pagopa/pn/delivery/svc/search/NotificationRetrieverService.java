@@ -264,6 +264,9 @@ public class NotificationRetrieverService {
 
 		if (optNotification.isPresent()) {
 			InternalNotification notification = optNotification.get();
+			if ( requestBySender && StringUtils.hasText( senderId ) ) {
+				checkSenderId( iun, notification.getSenderPaId(), senderId );
+			}
 			if (withTimeline) {
 				notification = enrichWithTimelineAndStatusHistory(iun, notification);
 				OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
@@ -279,6 +282,13 @@ public class NotificationRetrieverService {
 			log.debug( msg );
 			throw new PnNotificationNotFoundException(  msg );
 		}
+	}
+
+	private void checkSenderId(String iun, String notificationSenderPaId, String senderId) {
+		if ( !notificationSenderPaId.equals( senderId ) )
+			throw new PnNotificationNotFoundException(
+					String.format("Unable to find notification with iun=%s for senderId=%s", iun, senderId  )
+			);
 	}
 
 	/**

@@ -9,6 +9,7 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
@@ -43,6 +44,7 @@ class NotificationRetrieverServiceTest {
     private static final String REQUEST_ID = "aXVu";
     private static final String USER_ID = "userId";
     private static final String SENDER_ID = "senderId";
+    private static final String WRONG_SENDER_ID = "wrongSenderId";
     private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
     private static final String IDEMPOTENCE_TOKEN = "idempotenceToken";
     private static final String MANDATE_ID = "mandateId";
@@ -331,6 +333,16 @@ class NotificationRetrieverServiceTest {
     }
 
     @Test
+    void getNotificationInformationByWrongSenderIdFailure() {
+        InternalNotification notification = getNewInternalNotification();
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+
+        Executable todo = () ->  svc.getNotificationInformation( IUN, true, true, WRONG_SENDER_ID );
+        Assertions.assertThrows( PnNotificationNotFoundException.class, todo );
+    }
+
+    @Test
     void getNotificationInfoReturnFirstNoticeCode() {
         InternalNotification notification = getNewInternalNotification();
 
@@ -369,6 +381,7 @@ class NotificationRetrieverServiceTest {
                 .paProtocolNumber( PA_PROTOCOL_NUMBER )
                 .sentAt( OffsetDateTime.now() )
                 .senderTaxId( SENDER_TAXID )
+                .senderPaId( SENDER_ID )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .payment( NotificationPaymentInfo.builder()
@@ -425,7 +438,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification result = svc.getNotificationInformation( IUN, false, true, "SENDER_ID");
+        InternalNotification result = svc.getNotificationInformation( IUN, false, true, SENDER_ID);
 
         //Then
         Assertions.assertNotNull( result );
@@ -449,7 +462,7 @@ class NotificationRetrieverServiceTest {
         Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification result = svc.getNotificationInformation( IUN, false, true, "SENDER_ID");
+        InternalNotification result = svc.getNotificationInformation( IUN, false, true, SENDER_ID);
 
         //Then
         Assertions.assertNotNull( result );
