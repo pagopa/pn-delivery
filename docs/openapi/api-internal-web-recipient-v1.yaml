@@ -212,6 +212,43 @@ paths:
                 $ref: '#/components/schemas/Problem'
 
     ###########################################################################################
+    ###                          VERIFICA AAR_QR_CODE_VALUE                                 ###
+    ###########################################################################################
+
+  "/delivery/notifications/received/check-aar-qr-code":
+    post:
+      summary: servizio per la verifica del aar-qr-code
+      tags:
+      - RecipientRead
+      operationId: checkAarQrCode
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestCheckAarMandateDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseCheckAarMandateDto"
+        '404':
+          description: QrCode reference Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+    ###########################################################################################
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
     ###########################################################################################
   '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':                       # ONLY EXTERNAL
@@ -343,6 +380,33 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+
+    RequestCheckAarMandateDto:
+      description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
+      type: object
+      required:
+        - aarQrCodeValue
+      properties:
+        aarQrCodeValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[A-Za-z0-9_-]*$
+          minLength: 106
+          maxLength: 106
+
+    ResponseCheckAarMandateDto:
+      description: >-
+        Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue con possibile identificativo della delega attiva
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/IUN'
+        mandateId:
+          description: identificativo della delega
+          type: string
+
 
 #  securitySchemes:                                      # ONLY EXTERNAL
 #    bearerAuth:                                         # ONLY EXTERNAL
