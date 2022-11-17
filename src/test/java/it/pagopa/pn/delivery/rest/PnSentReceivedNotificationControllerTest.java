@@ -851,6 +851,61 @@ class PnSentReceivedNotificationControllerTest {
 				.isNotFound();
 	}
 
+	@Test
+	void getReceivedNotificationV2Success() {
+		// Given
+		InternalNotification notification = newNotification();
+
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, FullReceivedNotificationV2.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotificationV2.class ) ).thenReturn( mapper );
+
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+				.thenReturn( notification );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/v2/received/" + IUN  )
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody(FullReceivedNotificationV2.class);
+
+		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, null);
+	}
+
+	@Test
+	void getReceivedNotificationV2Failure() {
+
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
+
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+				.thenThrow(new PnNotificationNotFoundException("test"));
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/v2/received/" + IUN  )
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+	}
+
 	private HttpHeaders headers() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add( "Cache-Control", "no-cache, no-store, must-revalidate" );

@@ -34,6 +34,7 @@ paths:
   "/delivery/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
+      deprecated: true
       description: >-
         Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
         notifiche ricevute.
@@ -50,6 +51,32 @@ paths:
             "*/*":
               schema:
                 $ref: "#/components/schemas/FullReceivedNotification"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/notifications/v2/received/{iun}":
+    get:
+      summary: Accesso notifiche ricevute
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
+        notifiche ricevute.
+      tags:
+        - AppIO-PN-Notification
+      operationId: getReceivedNotificationV2
+      parameters:
+        - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/FullReceivedNotificationV2"
         '400':
           description: Bad request
           content:
@@ -172,6 +199,32 @@ components:
       $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+
+    FullReceivedNotificationV2:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
+        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
+      type: object
+      properties:
+        subject:
+          type: string
+        iun:
+          type: string
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationRecipient'
+        notificationStatusHistory:
+          $ref: '#/components/schemas/NotificationStatusHistory'
+        abstract:
+          type: string
+        senderDenomination:
+          type: string
+      required:
+        - subject
+        - iun
+        - recipients
+        - notificationStatusHistory
 
     Problem:
       $ref: '../remote-refs.yaml#/components/schemas/Problem'
