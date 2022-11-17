@@ -279,6 +279,31 @@ info:
       <summary><strong>Dopo aver lanciato il servizio [sendNewNotification](#/NewNotification/sendNewNotification) ottengo un messaggio di errore su: <em>"Max one recipient", "No recipient physical address", "No recipient payment", "Alternative notice code equals to notice code"</em>.</br>Cosa devo fare?</strong></summary>
       <em>Contatta il [supporto enti](mailto:pn-supporto-enti@pagopa.it) segnalando questa situazione. </em>
     </details></br>
+    
+    ><details>
+      <summary><strong>Come gestisce un Ente le spese di notifica verso il destinatario?</strong></summary>
+      <em>L’Ente ha la possibilità di applicare un costo forfettario (FLAT\_RATE) o di applicare in maniera puntuale i costi della notifica in base alla modalità di consegna (DELIVERY\_MODE).</br> Nello specifico, quando l’Ente effettua una richiesta di notifica tramite <strong>POST /delivery/requests</strong> deve obbligatoriamente utilizzare l’elemento <strong>notificationFeePolicy</strong> per indicare la politica di addebitamento dei costi di notifica.
+      </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>In quale modo l’Ente comunica a Piattaforma Notifiche (PN) il costo forfettario?</strong></summary>
+      <em>L’Ente può gestire il costo forfettario, considerandolo alla creazione della posizione debitoria, poiché PN non gestisce il costo forfettario di notifica.</br> Il costo forfettario si applica solamente nei casi nei quali esista una legge che impone all’Ente l'utilizzo di costi di notifica diversi da quelli previsti dal DPCM Costi di Piattaforma Notifiche, oppure nel caso in cui l'Ente voglia assumersi completamente i costi di notifica. </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Se l’Ente invia una richiesta di notifica in modalità FLAT_RATE e chiama il servizio GET/delivery/price/{paTaxId}/{noticeCode}, quale sarà il costo (amount) notificato da PN?</strong></summary>
+      <em>Sarà notificato comunque il costo della notifica sostenuto da PagoPA, perché tale valore potrebbe essere utilizzato ai fini della verifica della fatturazione.</em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Qual è il costo della notifica per il destinatario in modalità DELIVERY_MODE?</strong></summary>
+        <table 
+        background-color="red"
+        border="1px solid black">
+          <tr><th>Modalità</th><th>Tipo di notifica</th><th>Esito Notifica</th><th>Tipo di canale analogico</th><th>Spese postali</th><th>Importo fornito all’Ente tramite il servizio GET delivery/price</th></tr><tr><td>DELIVERY\_MODE</td><td>Notifica digitale</td><td>Destinatario raggiunto sul canale digitale</td><td>N/A</td><td>N/A</td><td>€ 2.00 (costo base)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica digitale</td><td>Destinatario non raggiungibile sul canale digitale</td><td>N/A</td><td>Costo raccomandata semplice</td><td>€ 2.00 (costo base) + Costo raccomandata semplice</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al primo indirizzo</td><td>Raccomandata A/R</td><td>Costo raccomandata A/R</td><td>€ 2.00 (costo base)  + Costo A/R (primo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al primo indirizzo</td><td>890</td><td>Costo 890</td><td>€ 2.00 (costo base)  + Costo 890 (primo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al secondo indirizzo</td><td>Raccomandata A/R</td><td>Costo raccomandata A/R</td><td>€ 2.00 (costo base)  + Costo A/R (primo indirizzo) + Costo A/R (secondo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al secondo indirizzo</td><td>890</td><td>Costo 890</td><td>€ 2.00 (costo base)  + Costo 890 (primo indirizzo) + Costo 890 (secondo indirizzo)</td></tr>
+        </table>
+    </details></br>
 
     </details></br>
     
