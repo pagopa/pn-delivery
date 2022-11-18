@@ -15,7 +15,7 @@ info:
   license:
     name: Licenza di PN
     url: https://da-definire/
-  version: '1.0.0'
+  version: '1.1.0'
 servers:
   - url: https://api-io.pn.pagopa.it
     description: Ambiente di produzione
@@ -76,7 +76,7 @@ paths:
           content:
             "*/*":
               schema:
-                $ref: "#/components/schemas/FullReceivedNotificationV2"
+                $ref: "#/components/schemas/IOReceivedNotification"
         '400':
           description: Bad request
           content:
@@ -200,7 +200,7 @@ components:
     LegalFactDownloadMetadataResponse:
       $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
-    FullReceivedNotificationV2:
+    IOReceivedNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).

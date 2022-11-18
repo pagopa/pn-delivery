@@ -858,8 +858,8 @@ class PnSentReceivedNotificationControllerTest {
 
 		// When
 		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, FullReceivedNotificationV2.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotificationV2.class ) ).thenReturn( mapper );
+		mapper.createTypeMap( InternalNotification.class, IOReceivedNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, IOReceivedNotification.class ) ).thenReturn( mapper );
 
 		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
 				.thenReturn( notification );
@@ -876,7 +876,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV2.class);
+				.expectBody(IOReceivedNotification.class);
 
 		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, null);
 	}
@@ -886,8 +886,8 @@ class PnSentReceivedNotificationControllerTest {
 
 		// When
 		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
+		mapper.createTypeMap( InternalNotification.class, IOReceivedNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, IOReceivedNotification.class ) ).thenReturn( mapper );
 
 		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
 				.thenThrow(new PnNotificationNotFoundException("test"));
