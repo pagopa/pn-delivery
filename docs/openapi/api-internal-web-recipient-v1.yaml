@@ -136,7 +136,7 @@ paths:
       description: >-                                                                                         # NO EXTERNAL
         Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle                     # NO EXTERNAL
         notifiche ricevute.                                                                                   # NO EXTERNAL
-        Le informazioni in risposta sono limitate a quelle di interesse per l'app IO.                                     # NO EXTERNAL
+        Le informazioni in risposta sono limitate a quelle di interesse per l'app IO.                         # NO EXTERNAL
       tags:                                                                                                   # NO EXTERNAL
         - RecipientRead                                                                                       # NO EXTERNAL
       operationId: getReceivedNotificationV2                                                                  # NO EXTERNAL
