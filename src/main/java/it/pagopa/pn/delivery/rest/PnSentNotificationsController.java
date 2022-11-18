@@ -108,7 +108,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         InternalNotification internalNotification;
         if (StringUtils.hasText( notificationRequestId )) {
             String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
-            internalNotification = retrieveSvc.getNotificationInformation( iun, true, true );
+            internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId );
         } else {
             if ( !StringUtils.hasText( paProtocolNumber ) ) {
                 throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "paProtocolNumber" );

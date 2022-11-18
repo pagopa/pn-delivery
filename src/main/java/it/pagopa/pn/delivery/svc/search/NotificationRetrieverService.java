@@ -461,7 +461,7 @@ public class NotificationRetrieverService {
 			throw new PnBadRequestException( "RequestId not found", msg, ERROR_CODE_DELIVERY_REQUEST_ID_NOT_FOUND );
 		}
 		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
-		return getNotificationInformation( iun, true, true );
+		return getNotificationInformationWithSenderIdCheck( iun, senderId );
 	}
 
 	/**

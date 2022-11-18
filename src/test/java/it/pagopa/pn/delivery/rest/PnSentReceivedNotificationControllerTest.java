@@ -139,7 +139,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalNotification notification = newNotification();
 		notification.setNotificationStatusHistory( null );
 
-		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
@@ -160,7 +160,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true, true );
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID );
 	}
 
 	@Test
@@ -177,7 +177,7 @@ class PnSentReceivedNotificationControllerTest {
 								.build() )
 				.build() ) );
 
-		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
@@ -198,7 +198,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true, true );
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID );
 	}
 
 	@Test
@@ -206,7 +206,7 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 		InternalNotification notification = newNotification();
 
-		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
@@ -227,7 +227,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformation( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), true, true );
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID );
 	}
 
 	@Test
