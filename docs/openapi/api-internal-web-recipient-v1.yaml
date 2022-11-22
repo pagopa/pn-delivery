@@ -129,45 +129,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-
-  "/delivery/notifications/v2/received/{iun}":                                                                # NO EXTERNAL
-    get:                                                                                                      # NO EXTERNAL
-      summary: Accesso notifiche ricevute                                                                     # NO EXTERNAL
-      description: >-                                                                                         # NO EXTERNAL
-        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle                     # NO EXTERNAL
-        notifiche ricevute.                                                                                   # NO EXTERNAL
-        Le informazioni in risposta sono limitate a quelle di interesse per l'app IO.                         # NO EXTERNAL
-      tags:                                                                                                   # NO EXTERNAL
-        - RecipientRead                                                                                       # NO EXTERNAL
-      operationId: getReceivedNotificationV2                                                                  # NO EXTERNAL
-      parameters:                                                                                             # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'                                                        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'                                                     # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'                                                       # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'                                                   # NO EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'                     # NO EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchMandateId' # NO EXTERNAL
-      responses:                                                                                              # NO EXTERNAL
-        '200':                                                                                                # NO EXTERNAL
-          description: OK                                                                                     # NO EXTERNAL
-          content:                                                                                            # NO EXTERNAL
-            "*/*":                                                                                            # NO EXTERNAL
-              schema:                                                                                         # NO EXTERNAL
-                $ref: "#/components/schemas/IOReceivedNotification"                                           # NO EXTERNAL
-        '400':                                                                                                # NO EXTERNAL
-          description: Bad request                                                                            # NO EXTERNAL
-          content:                                                                                            # NO EXTERNAL
-            application/problem+json:                                                                         # NO EXTERNAL
-              schema:                                                                                         # NO EXTERNAL
-                $ref: '#/components/schemas/Problem'                                                          # NO EXTERNAL
-        '404':                                                                                                # NO EXTERNAL
-          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR                             # NO EXTERNAL
-          content:                                                                                            # NO EXTERNAL
-            application/problem+json:                                                                         # NO EXTERNAL
-              schema:                                                                                         # NO EXTERNAL
-                $ref: '#/components/schemas/Problem'                                                          # NO EXTERNAL
-        '401':                                                                                                # NO EXTERNAL
-          $ref: '#/components/responses/UnauthorizedError'                                                    # NO EXTERNAL
     
     ###########################################################################################
     ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
@@ -445,33 +406,6 @@ components:
         mandateId:
           description: identificativo della delega
           type: string
-
-    IOReceivedNotification:                                                               # NO EXTERNAL
-      description: >-                                                                     # NO EXTERNAL
-        Le informazioni riguardanti una richiesta di notifica accettata e il processo di  # NO EXTERNAL
-        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).        # NO EXTERNAL
-        Le informazioni sono limitate a quelle di interesse per l'app IO.                 # NO EXTERNAL
-      type: object                                                                        # NO EXTERNAL
-      properties:                                                                         # NO EXTERNAL
-        subject:                                                                          # NO EXTERNAL
-          type: string                                                                    # NO EXTERNAL
-        iun:                                                                              # NO EXTERNAL
-          type: string                                                                    # NO EXTERNAL
-        recipients:                                                                       # NO EXTERNAL
-          type: array                                                                     # NO EXTERNAL
-          items:                                                                          # NO EXTERNAL
-            $ref: '#/components/schemas/NotificationRecipient'                            # NO EXTERNAL
-        notificationStatusHistory:                                                        # NO EXTERNAL
-          $ref: '#/components/schemas/NotificationStatusHistory'                          # NO EXTERNAL
-        abstract:                                                                         # NO EXTERNAL
-          type: string                                                                    # NO EXTERNAL
-        senderDenomination:                                                               # NO EXTERNAL
-          type: string                                                                    # NO EXTERNAL
-      required:                                                                           # NO EXTERNAL
-        - subject                                                                         # NO EXTERNAL
-        - iun                                                                             # NO EXTERNAL
-        - recipients                                                                      # NO EXTERNAL
-        - notificationStatusHistory                                                       # NO EXTERNAL
 
 
 #  securitySchemes:                                      # ONLY EXTERNAL

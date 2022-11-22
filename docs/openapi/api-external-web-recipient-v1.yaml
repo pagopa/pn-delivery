@@ -120,7 +120,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-
     
     ###########################################################################################
     ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
@@ -373,7 +372,6 @@ components:
         mandateId:
           description: identificativo della delega
           type: string
-
 
 
   securitySchemes:                                      # ONLY EXTERNAL

@@ -34,7 +34,6 @@ paths:
   "/delivery/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
-      deprecated: true
       description: >-
         Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
         notifiche ricevute.
@@ -48,33 +47,7 @@ paths:
         '200':
           description: OK
           content:
-            "*/*":
-              schema:
-                $ref: "#/components/schemas/FullReceivedNotification"
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-
-  "/delivery/notifications/v2/received/{iun}":
-    get:
-      summary: Accesso notifiche ricevute
-      description: >-
-        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
-        notifiche ricevute.
-      tags:
-        - AppIO-PN-Notification
-      operationId: getReceivedNotificationV2
-      parameters:
-        - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/cxTaxIdAuthFleet'
-      responses:
-        '200':
-          description: OK
-          content:
-            "*/*":
+            application/io+json:
               schema:
                 $ref: "#/components/schemas/IOReceivedNotification"
         '400':
@@ -171,35 +144,6 @@ components:
       schema:
         type: string
   schemas:
-    FullReceivedNotification:
-      description: >-
-        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
-        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
-      allOf:
-        - $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
-        - type: object
-          required:
-            - notificationStatus
-            - notificationStatusHistory
-            - timeline
-          properties:
-            notificationStatus:
-              $ref: '#/components/schemas/NotificationStatus'
-            notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistory'
-            timeline:
-              description: >-
-                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
-              type: array
-              items:
-                $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/TimelineElement'
-    NotificationStatus:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatus'
-    NotificationStatusHistory:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatusHistory'
-    LegalFactDownloadMetadataResponse:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
-
     IOReceivedNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
@@ -220,11 +164,27 @@ components:
           type: string
         senderDenomination:
           type: string
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
       required:
         - subject
         - iun
         - recipients
         - notificationStatusHistory
+        - documents
+    NotificationStatus:
+      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatus'
+    NotificationStatusHistory:
+      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatusHistory'
+    LegalFactDownloadMetadataResponse:
+      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+    NotificationRecipient:
+      $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/NotificationRecipient'
+    NotificationDocument:
+      $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/NotificationDocument'
 
     Problem:
       $ref: '../remote-refs.yaml#/components/schemas/Problem'
