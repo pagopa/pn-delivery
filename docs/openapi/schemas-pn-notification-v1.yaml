@@ -107,7 +107,7 @@ components:
           type: string
           description: Tipologia comunicazione fisica
           enum:
-          - SIMPLE_REGISTERED_LETTER
+          - AR_REGISTERED_LETTER
           - REGISTERED_LETTER_890
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
