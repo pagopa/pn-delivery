@@ -291,7 +291,7 @@ class NotificationDaoDynamoTest {
                 .paProtocolNumber( "protocol_01" )
                 .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
                 .subject("Subject 01")
-                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
+                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .group( "Group_1" )

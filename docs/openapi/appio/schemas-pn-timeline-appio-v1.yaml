@@ -622,39 +622,39 @@ components:
           
     DigitalAddressSource:
       type: string
-      description: sorgente indirizzo di invio della notifica
-      enum:
-        - PLATFORM
-        - SPECIAL
-        - GENERAL
+      description: >-
+        Tipologia sorgente indirizzo di invio della notifica.
+          - PLATFORM
+          - SPECIAL
+          - GENERAL
 
     ServiceLevel:
       type: string
-      description: Livello Servizio
-      enum:
-        - SIMPLE_REGISTERED_LETTER
-        - REGISTERED_LETTER_890
+      description: >-
+        Tipologia del livello di servizio.
+          - AR_REGISTERED_LETTER
+          - REGISTERED_LETTER_890
           
     ResponseStatus:
       type: string
-      description: stato risposta ricevuta da externalChannel
-      enum:
-        - OK
-        - KO
+      description: >- 
+        Stato risposta ricevuta da externalChannel.
+          - OK
+          - KO
     
     ContactPhase:
       type: string
-      description: Fase in cui è avvenuta la richiesta
-      enum:
-        - CHOOSE_DELIVERY
-        - SEND_ATTEMPT
+      description: >-
+        Fase in cui è avvenuta la richiesta
+          - CHOOSE_DELIVERY
+          - SEND_ATTEMPT
 
     DeliveryMode:
       type: string
-      description: Tipologia Domiciliazione
-      enum:
-        - DIGITAL
-        - ANALOG
+      description: >-
+        Tipologia Domiciliazione
+          - DIGITAL
+          - ANALOG
 
     SendingReceipt:
       type: object
