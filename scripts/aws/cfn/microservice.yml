@@ -165,7 +165,10 @@ Parameters:
     Type: String
     Description: 'MaxRetry stream mapping'
 
-
+  LogsKinesisFilterPattern:
+    Type: String
+    Default: ""
+    Description: 'Log kinesis filter pattern'
 Resources:
 
   # PN-Delivery microservice
@@ -416,6 +419,47 @@ Resources:
       DestinationConfig:
         OnFailure:
           Destination: !Ref PnDeliveryInsertTriggerDLQARN
+
+  ### Subscription filters with Kinesis  https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationKinesisExample
+  SubscriptionFilter:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+          - "SubscriptionFilterServiceRole"
+          - "Arn"
+      LogGroupName: !Sub "/aws/lambda/${PnDeliveryInsertTriggerLambda}"
+      FilterPattern: !Ref LogsKinesisFilterPattern
+      DestinationArn: !Ref LogsKinesisSourceStreamArn
+
+  ### IAM Role used by Subscription filters to allow read logs from Cloudwatch and send logs to Kinesis Firehose
+  SubscriptionFilterServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: logs.amazonaws.com
+        Version: "2012-10-17"
+      Path: /
+      Policies:
+        -
+          PolicyName: !Sub '${ProjectName}-delivery-lambda-logs-subscription-role'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - kinesis:PutRecord
+                Effect: Allow
+                Resource: "*"
+              - Action:
+                - "kms:Encrypt"
+                - "kms:GenerateDataKey"
+                - "kms:Decrypt"
+                Effect: Allow
+                Resource: "*"
 
   PnDeliveryInsertTriggerLambda:
     Type: 'AWS::Lambda::Function'
