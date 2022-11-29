@@ -1,17 +1,18 @@
 package it.pagopa.pn.delivery.rest.io;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.IOReceivedNotification;
+import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -33,21 +34,26 @@ class PnReceivedIONotificationsControllerTest {
     @MockBean
     private NotificationRetrieverService svc;
 
-    @MockBean
-    private ModelMapperFactory modelMapperFactory;
+    @SpyBean
+    private IOMapper ioMapper;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @SpyBean
+    ModelMapperFactory modelMapperFactory;
 
     @Test
     void getReceivedNotificationSuccess() {
         // Given
         InternalNotification notification = newNotification();
+        String expectedValueJson = newThirdPartyMessage(notification);
+        System.out.println(expectedValueJson);
 
         // When
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap( InternalNotification.class, IOReceivedNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, IOReceivedNotification.class ) ).thenReturn( mapper );
-
         Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
                 .thenReturn( notification );
+
 
         // Then
         webTestClient.get()
@@ -57,7 +63,8 @@ class PnReceivedIONotificationsControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk()
-                .expectBody(IOReceivedNotification.class);
+                .expectBody()
+                .json(expectedValueJson);
 
         Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, null);
     }
@@ -66,10 +73,6 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationFailure() {
 
         // When
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap( InternalNotification.class, IOReceivedNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, IOReceivedNotification.class ) ).thenReturn( mapper );
-
         Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
@@ -91,6 +94,7 @@ class PnReceivedIONotificationsControllerTest {
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId( PA_ID )
+                ._abstract("Abstract")
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(
                         NotificationRecipient.builder()
@@ -131,5 +135,15 @@ class PnReceivedIONotificationsControllerTest {
                         .status( NotificationStatus.ACCEPTED )
                         .build() ) )
                 .build(), Collections.emptyList());
+    }
+
+    private String newThirdPartyMessage(InternalNotification notification) {
+        try {
+            ThirdPartyMessage thirdPartMessage = ioMapper.mapToThirdPartMessage(notification);
+            return objectMapper.writeValueAsString(thirdPartMessage);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

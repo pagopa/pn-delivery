@@ -49,7 +49,7 @@ paths:
           content:
             application/io+json:
               schema:
-                $ref: "#/components/schemas/IOReceivedNotification"
+                $ref: "#/components/schemas/ThirdPartyMessage"
         '400':
           description: Bad request
           content:
@@ -144,47 +144,10 @@ components:
       schema:
         type: string
   schemas:
-    IOReceivedNotification:
-      description: >-
-        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
-        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
-      type: object
-      properties:
-        subject:
-          type: string
-        iun:
-          type: string
-        recipients:
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationRecipient'
-        notificationStatusHistory:
-          $ref: '#/components/schemas/NotificationStatusHistory'
-        abstract:
-          type: string
-        senderDenomination:
-          type: string
-        documents:
-          type: array
-          description: Documenti notificati
-          items:
-            $ref: '#/components/schemas/NotificationDocument'
-      required:
-        - subject
-        - iun
-        - recipients
-        - notificationStatusHistory
-        - documents
-    NotificationStatus:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatus'
-    NotificationStatusHistory:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
-    NotificationRecipient:
-      $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/NotificationRecipient'
-    NotificationDocument:
-      $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/NotificationDocument'
+    ThirdPartyMessage:
+      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/ThirdPartyMessage'
 
     Problem:
       $ref: '../remote-refs.yaml#/components/schemas/Problem'
