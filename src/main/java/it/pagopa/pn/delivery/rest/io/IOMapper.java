@@ -40,6 +40,8 @@ public class IOMapper {
     }
 
     public IOReceivedNotification mapToDetails(InternalNotification internalNotification) {
+        if(internalNotification == null) return null;
+
         ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
         return mapper.map( internalNotification, IOReceivedNotification.class );
     }
