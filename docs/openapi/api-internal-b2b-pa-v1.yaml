@@ -114,9 +114,6 @@ info:
       \- _x-amz-checksum-sha256_: valorizzato con il checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato. (__N.B.__ questo è un trailer HTTP non un header).
         Vedi [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
   
-      Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
-      successiva di richiesta creazione della notifica. Questo garantisce che eventuali utilizzi multipli (anche malevoli) del 
-      presignedUrl non vadano a sovrascrivere il file generando disservizi.
      
       </br>
       </br>
@@ -335,7 +332,7 @@ servers:
 tags:
   - name: HealthCheck
     description: >-
-      Invocazioni per sapere lo stato del microservizio
+      Invocazioni per sapere lo stato di Piattaforma Notifiche
   - name: NewNotification
     description: >-
       Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
@@ -351,18 +348,44 @@ tags:
       Invocazioni per effettuare il downalod degli atti opponibili a terzi
 
 paths:
+  ###########################################################################################
+  ###                          STATUS PIATTAFORMA NOTIFICHE                               ###
+  ###########################################################################################
   "/status":
     get:
-      summary: healthCheck path
-      description: healtCheck path per verificare lo stato del microservizio
+      summary: status path
+      description: status path per verificare lo stato di Piattaforma Notifiche
       tags:
         - HealthCheck
       operationId: status
       responses:
         '200':
           description: Ok
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/PnStatusResponse"
+              example:
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
+                openIncidents: []
         '500':
           description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/PnStatusResponse"
+              example:
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
+                openIncidents:
+                  - functionality: NOTIFICATION_CREATE
+                    status: KO
+                    startDate: "2019-08-24T14:15:22Z"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   ###########################################################################################
   ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
   ###########################################################################################
@@ -806,6 +829,11 @@ components:
 
 
   schemas:
+    ###########################################################################################
+    ###                             DTO STATUS PN                                           ###
+    ###########################################################################################
+    PnStatusResponse:
+      $ref: './remote-refs.yaml#/components/schemas/PnStatusResponse'
     
     ###########################################################################################
     ###                             DTO PRECARICAMENTO ALLEGATI                             ###
