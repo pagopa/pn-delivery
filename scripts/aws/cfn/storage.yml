@@ -42,6 +42,8 @@ Resources:
         - AttributeName: "iun"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+         PointInTimeRecoveryEnabled: true
       KinesisStreamSpecification:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification:
@@ -58,6 +60,9 @@ Resources:
         - AttributeName: "creditorTaxId_noticeCode"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
 
   NotificationsQRTable:
     Type: AWS::DynamoDB::Table
@@ -79,6 +84,8 @@ Resources:
           Projection:
             ProjectionType: "ALL"              
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+         PointInTimeRecoveryEnabled: true
 
   NotificationsMetadataTable:
     Type: AWS::DynamoDB::Table
@@ -126,6 +133,8 @@ Resources:
           Projection:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+         PointInTimeRecoveryEnabled: true
 
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
