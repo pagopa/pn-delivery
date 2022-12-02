@@ -107,7 +107,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     @Override
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         InternalNotification internalNotification;
-        if (StringUtils.hasText( notificationRequestId ) && !notificationRequestId.isBlank()) {
+        if (StringUtils.hasText( notificationRequestId )) {
             String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
             internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId );
         } else {
