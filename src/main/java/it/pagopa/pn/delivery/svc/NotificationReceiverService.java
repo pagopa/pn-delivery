@@ -61,9 +61,10 @@ public class NotificationReceiverService {
 	 * @return A model with the generated IUN and the paNotificationId sent by the
 	 *         Public Administration
 	 */
-	public NewNotificationResponse receiveNotification(String xPagopaPnCxId,
-													   NewNotificationRequest newNotificationRequest,
-													   List<String> xPagopaPnCxGroups
+	public NewNotificationResponse receiveNotification(
+			String xPagopaPnCxId,
+			NewNotificationRequest newNotificationRequest,
+			List<String> xPagopaPnCxGroups
 	) throws PnIdConflictException {
 		log.info("New notification storing START");
 		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
