@@ -42,11 +42,13 @@ public class PnNotificationInputController implements NewNotificationApi {
                 .uid(xPagopaPnUid)
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
+                // todo: modificare PnAuditLogBuilder in pn-commons
+                .mdcEntry( "cx_groups", xPagopaPnCxGroups.toString() )
                 .build();
         logEvent.log();
         NewNotificationResponse svcRes;
         try {
-            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
+            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnCxGroups);
         } catch (Exception ex) {
             logEvent.generateFailure(ex.getMessage()).log();
             throw ex;
@@ -89,7 +91,7 @@ public class PnNotificationInputController implements NewNotificationApi {
             return ResponseEntity.ok(res);
         } catch (Exception e) {
             log.error("catched exception", e);
-            logEvent.generateFailure("catched exception on preload", e).log();
+            logEvent.generateFailure("catched exception on preload " + e.getMessage(), e).log();
             throw e;
         }
     }
