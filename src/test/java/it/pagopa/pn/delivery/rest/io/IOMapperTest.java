@@ -52,7 +52,7 @@ class IOMapperTest {
                                         .internalId("INTERNALID")
                                         .denomination("DENOMINATION")
                                         .taxId("TAXID")
-                                        .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+                                        .recipientType("PF")
                                         .physicalAddress(NotificationPhysicalAddress.builder().address("ADDRESS").build())
                                 .build()))
                         .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
