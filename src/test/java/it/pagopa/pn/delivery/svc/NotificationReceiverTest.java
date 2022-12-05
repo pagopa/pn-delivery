@@ -377,7 +377,7 @@ class NotificationReceiverTest {
 		return NewNotificationRequest.builder()
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")
-				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
+				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
 				.cancelledIun(IUN)
 				.recipients( Collections.singletonList(
 						NotificationRecipient.builder()
@@ -458,7 +458,7 @@ class NotificationReceiverTest {
 		return NewNotificationRequest.builder()
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")
-				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.SIMPLE_REGISTERED_LETTER )
+				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
 				.cancelledIun(IUN)
 				.recipients( Collections.singletonList( recipient ) )
 				.documents(List.of(
