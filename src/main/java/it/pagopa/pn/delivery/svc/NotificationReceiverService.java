@@ -22,12 +22,12 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
+
 @Service
 @Slf4j
 public class NotificationReceiverService {
 
-	// todo: da spostare in pn-commons
-	private static final String ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_GROUP = "PN_GENERIC_INVALIDPARAMETER_GROUP";
 	private final Clock clock;
 	private final NotificationDao notificationDao;
 	private final NotificationReceiverValidator validator;
@@ -91,17 +91,17 @@ public class NotificationReceiverService {
 		if ( StringUtils.hasText( notificationGroup ) ) {
 			if( !xPagopaPnCxGroups.isEmpty() && !xPagopaPnCxGroups.contains( notificationGroup ) ) {
 				String logMessage = String.format("Group=%s not present in cx_groups=%s", notificationGroup, xPagopaPnCxGroups);
-				throw new PnInvalidInputException( ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
+				throw new PnInvalidInputException( ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
 			}
 		} else {
 			if ( !xPagopaPnCxGroups.isEmpty() ) {
 				String logMessage = String.format( "Specify a group in cx_groups=%s", xPagopaPnCxGroups );
-				throw new PnInvalidInputException( ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
+				throw new PnInvalidInputException( ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
 			} else {
 				List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId );
 				if ( !paGroups.isEmpty() ){
-					String logMessage = String.format( "Specify a group in cx_groups=%s", paGroups );
-					throw new PnInvalidInputException( ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
+					String logMessage = String.format( "Specify a group in paGroups=%s", paGroups );
+					throw new PnInvalidInputException( ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
 				}
 			}
 		}

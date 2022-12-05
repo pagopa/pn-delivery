@@ -42,8 +42,6 @@ public class PnNotificationInputController implements NewNotificationApi {
                 .uid(xPagopaPnUid)
                 .cxId(xPagopaPnCxId)
                 .cxType(xPagopaPnCxType.toString())
-                // todo: modificare PnAuditLogBuilder in pn-commons
-                .mdcEntry( "cx_groups", xPagopaPnCxGroups.toString() )
                 .build();
         logEvent.log();
         NewNotificationResponse svcRes;

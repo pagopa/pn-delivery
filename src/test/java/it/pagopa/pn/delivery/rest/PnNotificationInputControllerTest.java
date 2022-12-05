@@ -156,7 +156,7 @@ class PnNotificationInputControllerTest {
 		Mockito.when( deliveryService.receiveNotification(
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
-						Mockito.anyList())
+						Mockito.isNull())
 				).thenThrow( exception );
 
 		//Then
@@ -168,7 +168,6 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) + "," + GROUPS.get(1) )
 				.exchange()
 				.expectStatus()
 				.isEqualTo(HttpStatus.CONFLICT);
