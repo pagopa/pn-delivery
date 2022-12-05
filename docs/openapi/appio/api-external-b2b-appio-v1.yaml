@@ -121,15 +121,11 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:
-      $ref: '../remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
-    cxIdAuthFleet:
-      $ref: '../remote-refs.yaml#/components/parameters/cxIdAuthFleet'
     cxTaxIdAuthFleet:
       $ref: '../remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
     pathLegalFactType:
       description: >-
-        Categoria dell'atto opponbile a terzi
+        Categoria dell'atto opponibile a terzi
       name: legalFactType
       in: path
       required: true
@@ -137,7 +133,7 @@ components:
         $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactCategory'
     pathLegalFactId:
       description: >-
-        Identificativo dell'atto opponbile a terzi
+        Identificativo dell'atto opponibile a terzi
       name: legalFactId
       in: path
       required: true

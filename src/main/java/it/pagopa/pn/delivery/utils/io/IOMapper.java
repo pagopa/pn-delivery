@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.rest.io;
+package it.pagopa.pn.delivery.utils.io;
 
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.IOReceivedNotification;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyAttachment;

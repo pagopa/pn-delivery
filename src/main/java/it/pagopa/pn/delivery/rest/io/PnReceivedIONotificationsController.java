@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.generated.openapi.appio.v1.api.AppIoPnNotificationA
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.io.IOMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
