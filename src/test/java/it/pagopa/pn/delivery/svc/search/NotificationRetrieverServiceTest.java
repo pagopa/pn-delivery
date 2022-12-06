@@ -329,7 +329,7 @@ class NotificationRetrieverServiceTest {
         Executable todo = () -> svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
 
         // Then
-        Assertions.assertThrows(PnBadRequestException.class, todo);
+        Assertions.assertThrows(PnNotificationNotFoundException.class, todo);
     }
 
     @Test
