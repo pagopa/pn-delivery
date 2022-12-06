@@ -458,7 +458,7 @@ public class NotificationRetrieverService {
 		Optional<String> optionalRequestId = notificationDao.getRequestId( senderId, paProtocolNumber, idempotenceToken );
 		if (optionalRequestId.isEmpty()) {
 			String msg = String.format( "Unable to find requestId for senderId=%s paProtocolNumber=%s idempotenceToken=%s", senderId, paProtocolNumber, idempotenceToken );
-			throw new PnBadRequestException( "RequestId not found", msg, ERROR_CODE_DELIVERY_REQUEST_ID_NOT_FOUND );
+			throw new PnNotificationNotFoundException(msg);
 		}
 		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
 		return getNotificationInformationWithSenderIdCheck( iun, senderId );
