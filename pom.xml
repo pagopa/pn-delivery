@@ -312,6 +312,36 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>io-app-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/docs/openapi/appio/api-external-b2b-appio-v1.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <modelNameSuffix />
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <configOptions>
+                                <basePackage>it.pagopa.pn.delivery.generated.openapi.appio.v1</basePackage>
+                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.dto</modelPackage>
+                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.api</apiPackage>
+                                <configPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.config</configPackage>
+                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <dateLibrary>java8</dateLibrary>
+                                <delegatePattern>true</delegatePattern>
+                                <interfaceOnly>true</interfaceOnly>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>false</reactive>
+                                <skipDefaultInterface>false</skipDefaultInterface>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>generate-client-external-registries</id>
                         <goals>
                             <goal>generate</goal>

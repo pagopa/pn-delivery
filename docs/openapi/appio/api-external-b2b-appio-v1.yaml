@@ -15,7 +15,7 @@ info:
   license:
     name: Licenza di PN
     url: https://da-definire/
-  version: '1.0.0'
+  version: '1.1.0'
 servers:
   - url: https://api-io.pn.pagopa.it
     description: Ambiente di produzione
@@ -47,9 +47,9 @@ paths:
         '200':
           description: OK
           content:
-            "*/*":
+            application/io+json:
               schema:
-                $ref: "#/components/schemas/FullReceivedNotification"
+                $ref: "#/components/schemas/ThirdPartyMessage"
         '400':
           description: Bad request
           content:
@@ -121,15 +121,11 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:
-      $ref: '../remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
-    cxIdAuthFleet:
-      $ref: '../remote-refs.yaml#/components/parameters/cxIdAuthFleet'
     cxTaxIdAuthFleet:
       $ref: '../remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
     pathLegalFactType:
       description: >-
-        Categoria dell'atto opponbile a terzi
+        Categoria dell'atto opponibile a terzi
       name: legalFactType
       in: path
       required: true
@@ -137,41 +133,17 @@ components:
         $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactCategory'
     pathLegalFactId:
       description: >-
-        Identificativo dell'atto opponbile a terzi
+        Identificativo dell'atto opponibile a terzi
       name: legalFactId
       in: path
       required: true
       schema:
         type: string
   schemas:
-    FullReceivedNotification:
-      description: >-
-        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
-        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
-      allOf:
-        - $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
-        - type: object
-          required:
-            - notificationStatus
-            - notificationStatusHistory
-            - timeline
-          properties:
-            notificationStatus:
-              $ref: '#/components/schemas/NotificationStatus'
-            notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistory'
-            timeline:
-              description: >-
-                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
-              type: array
-              items:
-                $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/TimelineElement'
-    NotificationStatus:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatus'
-    NotificationStatusHistory:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+    ThirdPartyMessage:
+      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/ThirdPartyMessage'
 
     Problem:
       $ref: '../remote-refs.yaml#/components/schemas/Problem'
