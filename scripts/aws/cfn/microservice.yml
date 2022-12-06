@@ -276,6 +276,7 @@ Resources:
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-b2b'
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
+        ExcludedRule0: CrossSiteScripting_BODY
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
   DeliveryMicroservicePublicWebAPI:
