@@ -14,12 +14,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.List;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
@@ -90,12 +92,12 @@ public class NotificationReceiverService {
 
 	private void checkGroup(String senderId, String notificationGroup, List<String> xPagopaPnCxGroups) {
 		if ( StringUtils.hasText( notificationGroup ) ) {
-			if( !xPagopaPnCxGroups.isEmpty() && !xPagopaPnCxGroups.contains( notificationGroup ) ) {
+			if( !CollectionUtils.isEmpty( xPagopaPnCxGroups ) && !xPagopaPnCxGroups.contains( notificationGroup ) ) {
 				String logMessage = String.format("Group=%s not present in cx_groups=%s", notificationGroup, xPagopaPnCxGroups);
 				throw new PnInvalidInputException( ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
 			}
 		} else {
-			if ( !xPagopaPnCxGroups.isEmpty() ) {
+			if ( !CollectionUtils.isEmpty( xPagopaPnCxGroups ) ) {
 				String logMessage = String.format( "Specify a group in cx_groups=%s", xPagopaPnCxGroups );
 				throw new PnInvalidInputException( ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
 			} else {
