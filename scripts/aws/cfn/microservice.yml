@@ -213,7 +213,7 @@ Resources:
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
-        TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskPolicy
+        TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskManagedPolicy
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
