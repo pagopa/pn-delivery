@@ -216,7 +216,7 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskPolicy
 
   # Grant operational rights to PN-Delivery microservice
-  DeliveryMicroserviceTaskPolicy:
+  DeliveryMicroserviceTaskManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       #PolicyName: !Sub '${ProjectName}-delivery-CustomTaskPolicy'
