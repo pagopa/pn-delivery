@@ -36,7 +36,6 @@ class PnNotificationInputControllerTest {
 	private static final String SECRET = "secret";
 	private static final String METHOD = "PUT";
 	private static final String URL = "url";
-	public static final List<String> GROUPS = List.of("Group1", "Group2");
 
 	@Autowired
     WebTestClient webTestClient;
@@ -63,11 +62,8 @@ class PnNotificationInputControllerTest {
 						.paProtocolNumber("protocol_number").build();
 				
 		// When
-		Mockito.when(deliveryService.receiveNotification(
-						Mockito.anyString(),
-						Mockito.any( NewNotificationRequest.class ),
-						Mockito.anyList())
-				).thenReturn( savedNotification );
+		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
+				.thenReturn( savedNotification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
@@ -83,14 +79,11 @@ class PnNotificationInputControllerTest {
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) +","+GROUPS.get(1) )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
                 .exchange()
                 .expectStatus().isAccepted();
 		
-		Mockito.verify( deliveryService ).receiveNotification(
-						PA_ID,
-						notificationRequest,
-						GROUPS);
+		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
 
 	private NewNotificationRequest newNotificationRequest() {
@@ -140,7 +133,6 @@ class PnNotificationInputControllerTest {
 						.build() ) )
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				.subject( "subject" )
-				.taxonomyCode( "010101P" )
 				.build();
 	}
 
@@ -154,10 +146,7 @@ class PnNotificationInputControllerTest {
 
 		// When
 		Mockito.when( deliveryService.receiveNotification(
-						Mockito.anyString(),
-						Mockito.any( NewNotificationRequest.class ),
-						Mockito.isNull())
-				).thenThrow( exception );
+				Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) ) ).thenThrow( exception );
 
 		//Then
 		webTestClient.post()
@@ -197,7 +186,7 @@ class PnNotificationInputControllerTest {
 		// Given
 		NewNotificationRequest request = newNotificationRequest();
 
-		Mockito.when( deliveryService.receiveNotification( PA_ID, request, Collections.emptyList() ) ).thenThrow( RuntimeException.class );
+		Mockito.when( deliveryService.receiveNotification( PA_ID, request ) ).thenThrow( RuntimeException.class );
 
 		webTestClient.post()
 				.uri("/delivery/requests")
@@ -270,11 +259,8 @@ class PnNotificationInputControllerTest {
 				.paProtocolNumber( "protocol_number" ).build();
 
 		// When
-		Mockito.when(deliveryService.receiveNotification(
-						Mockito.anyString(),
-						Mockito.any( NewNotificationRequest.class ),
-						Mockito.anyList())
-				).thenReturn( savedNotification );
+		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
+				.thenReturn( savedNotification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
@@ -294,10 +280,7 @@ class PnNotificationInputControllerTest {
 				.exchange()
 				.expectStatus().isAccepted();
 
-		Mockito.verify( deliveryService ).receiveNotification(
-						Mockito.anyString(),
-						Mockito.any( NewNotificationRequest.class ),
-						Mockito.anyList());
+		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
 	}
 
 	@Test
