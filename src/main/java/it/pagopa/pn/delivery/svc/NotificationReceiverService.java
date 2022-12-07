@@ -73,8 +73,10 @@ public class NotificationReceiverService {
 		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
 		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
 
+		/* PN-2740: l'implementazione del controllo non conforme
 		String notificationGroup = newNotificationRequest.getGroup();
 		checkGroup(xPagopaPnCxId, notificationGroup, xPagopaPnCxGroups);
+		*/
 
 		ModelMapper modelMapper = modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class );
 		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
@@ -89,7 +91,7 @@ public class NotificationReceiverService {
 		return response;
 	}
 
-	private void checkGroup(String senderId, String notificationGroup, List<String> xPagopaPnCxGroups) {
+/*	private void checkGroup(String senderId, String notificationGroup, List<String> xPagopaPnCxGroups) {
 		if ( StringUtils.hasText( notificationGroup ) ) {
 			if( !CollectionUtils.isEmpty( xPagopaPnCxGroups ) && !xPagopaPnCxGroups.contains( notificationGroup ) ) {
 				String logMessage = String.format("Group=%s not present in cx_groups=%s", notificationGroup, xPagopaPnCxGroups);
@@ -107,7 +109,7 @@ public class NotificationReceiverService {
 				}
 			}
 		}
-	}
+	}*/
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
 		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
