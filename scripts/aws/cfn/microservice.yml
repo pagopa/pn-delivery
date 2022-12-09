@@ -169,6 +169,10 @@ Parameters:
     Type: String
     Default: ""
     Description: 'Log kinesis filter pattern'
+
+Conditions:
+    SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
+
 Resources:
 
   # PN-Delivery microservice
@@ -423,6 +427,7 @@ Resources:
   ### Subscription filters with Kinesis  https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationKinesisExample
   SubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
+    Condition: SendLogToKinesis
     Properties:
       RoleArn:
         Fn::GetAtt:
@@ -435,6 +440,7 @@ Resources:
   ### IAM Role used by Subscription filters to allow read logs from Cloudwatch and send logs to Kinesis Firehose
   SubscriptionFilterServiceRole:
     Type: AWS::IAM::Role
+    Condition: SendLogToKinesis
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -466,7 +472,7 @@ Resources:
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
-      Description: ''
+      Description: 'It triggers notification workflow at notification insertion'
       MemorySize: 128
       Timeout: 10
       Role: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
