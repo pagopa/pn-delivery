@@ -344,6 +344,9 @@ Resources:
             - !Ref NotificationsCostDynamoTableName
             - !Ref NotificationsMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
+        LambdaArns: !Join 
+          - ','
+          - - !GetAtt PnDeliveryInsertTriggerLambda.Arn
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
