@@ -143,6 +143,13 @@ components:
             - iun
             - sentAt
           properties:
+            physicalCommunicationType:
+              type: string
+              description: Tipologia comunicazione fisica
+              enum:
+                - AR_REGISTERED_LETTER
+                - REGISTERED_LETTER_890
+                - SIMPLE_REGISTERED_LETTER
             senderPaId:
               type: string
               description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
