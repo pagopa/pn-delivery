@@ -196,3 +196,6 @@ Outputs:
   PnDeliveryInsertTriggerDLQAlarmARN:
     Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.SqsDLQAlarmArn
     Description: pn-delivery_insert_trigger_DLQ alarm ARN
+  PnDeliveryInsertTriggerAgeAlarmARN:
+    Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.SqsAgeAlarmArn
+    Description: pn-delivery_insert_trigger_DLQ age alarm ARN    
