@@ -220,14 +220,15 @@ Resources:
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskManagedPolicy
 
   # Grant operational rights to PN-Delivery microservice
-  DeliveryMicroserviceTaskPolicy:
-    Type: AWS::IAM::Policy
+  DeliveryMicroserviceTaskManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
     Properties:
-      PolicyName: !Sub '${ProjectName}-delivery-CustomTaskPolicy'
-      Roles:
-        - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
+      #PolicyName: !Sub '${ProjectName}-delivery-CustomTaskPolicy'
+      #Roles:
+      #  - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -283,6 +284,7 @@ Resources:
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-b2b'
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
+        ExcludedRule0: CrossSiteScripting_BODY
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
   DeliveryMicroservicePublicWebAPI:
