@@ -363,6 +363,10 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiLatencyAlarmArn
+            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
+            - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
+
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
 
   # Lambda function role
