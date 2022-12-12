@@ -115,7 +115,6 @@ Parameters:
     Type: String
     Description: 'keep track of used projects commitIds'
 
-
   IsMvpDefaultValue:
     Type: String
     Description: 'default value to return if paTaxId not present in parameter store'
@@ -133,17 +132,9 @@ Parameters:
     Type: String
     Description: 'Target queue ARN for insert trigger'
 
-  DeliveryPushInputsQueueAlarmARN:
-    Type: String
-    Description: 'Alarm for target queue ARN for insert trigger'
-
   DeliveryPushInputsQueueURL:
     Type: String
     Description: 'Target queue URL for insert trigger'
-
-  PnDeliveryInsertTriggerDLQName:
-    Type: String
-    Description: 'DLQ Name for insert trigger'
 
   PnDeliveryInsertTriggerDLQARN:
     Type: String
