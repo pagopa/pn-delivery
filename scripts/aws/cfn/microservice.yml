@@ -144,10 +144,6 @@ Parameters:
     Type: String
     Description: 'DLQ Alarm ARN for insert trigger'
 
-  PnDeliveryInsertTriggerAgeAlarmARN:
-    Type: String
-    Description: 'Age Alarm ARN for insert trigger'
-
   PnDeliveryInsertTriggerLambdaEventSourceMappingBatchSize:
     Type: String
     Description: 'BatchSize stream mapping'
@@ -359,7 +355,6 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
-            - !Ref PnDeliveryInsertTriggerAgeAlarmARN
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
