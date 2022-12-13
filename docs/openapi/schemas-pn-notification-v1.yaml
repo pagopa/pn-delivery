@@ -339,7 +339,7 @@ components:
  
 
     NotificationPhysicalAddress:
-      description: Indirizzo fisico scoperto durante fase di consegna
+      description: Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in fase di Sperimentazione)
       type: object
       required:
         - address

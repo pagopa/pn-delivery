@@ -208,7 +208,17 @@ info:
     </details></br>
 
     ><details>
-      <summary><strong>Cos'è il codice di tassonomia(taxonomyCode) ?</strong></summary>
+      <summary><strong>Quali controlli vengono effettuati in seguito all'inserimento della notifica?</strong></summary>
+      <em>I controlli effettuati da PN sono i seguenti:</em><ul><li><em>verifica che le informazioni inserite siano sintatticamente corrette</em></li><li><em>verifica che le combinazioni di <strong>creditorTaxId/noticeCode</strong> e <strong>creditorTaxId/alternativeNoticeCode</strong> siano univoche</em></li><li><em>verifica che la combinazione dei campi <strong>senderPaId, paProtocolNumber, idempotenceToken</strong> siano univoci</em></li></ul>
+    </details></br>
+    
+    ><details>
+      <summary><strong> Cosa rappresentano i campi requiresAck e sendByMail? <font color="red">queste funzioni non sono ancora implementate </font> </strong></summary>
+      <em>Il campo booleano requiresAck permette di definire il momento esatto nel quale scatterà il perfezionamento per presa visione dell'atto: se falso basterà che il destinatario prenda visione del documento da notificare; se vero, oltre alla visualizzazione dovrà anche scaricare il documento da notificare.</br> Il campo boolean sendByMail permette di indicare se il documento avente questo parametro sarà spedito nelle comunicazioni cartacee o meno </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Cos'è il codice di tassonomia \(taxonomyCode\)?</strong></summary>
       <em>Il codice di tassonomia(taxonomyCode) viene utilizzato per definire la tipolgia di atto e può essere recuperato nell'allegato 2 capitolo C del bando: 
       [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)</em>
     </details></br>
@@ -282,6 +292,21 @@ info:
     </details></br>
     
     ><details>
+      <summary><strong>Come si possono testare più Enti?</strong></summary>
+      <em>In ambiente di collaudo COLL si prevede di creare una User per ogni Ente che permette di accedere alla piattafora di Back-Office ed una key ad esso associata. Se si sta testando l'integrazione per più Enti  bisognerà richiedere, per ogni Ente, una user ed una key ad essa associata, contattando il [supporto enti](mailto:pn-supporto-enti@pagopa.it)</em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Come si possono testare i Codici Fiscali?</strong></summary>
+      <em>E' possible inserire le notifiche utilizzando un qualsiasi codice fiscale che rispetti il regex:</br><code>^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$</code></br>mentre i Codici Fiscali per testare l'invio all'appIO, utilizzabili SOLO in ambiente di collaudo COLL sono i seguenti: <strong>AAAAAA00A00A000C</strong> e <strong>AAAAAA00A00A000D</strong></em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>E' possibile cancellare una notifica?</strong></summary>
+      <em>Si, è possibile al momento cancellare una qualsiasi notifica, inserendo al suo posto una nuova notifica che abbia il campo <strong>"cancelledIun"</strong>  uguale a quello della notifica da cancellare. Se la nuova notifica utilizza gli stessi documenti, questi dovranno essere caricati di nuovo.</br> La funzione di cancellazione notifica potrà subire variazioni in futuro.</em>
+    </details></br>
+    
+    ><details>
       <summary><strong>Come gestisce un Ente le spese di notifica verso il destinatario?</strong></summary>
       <em>L’Ente ha la possibilità di applicare un costo forfettario (FLAT\_RATE) o di applicare in maniera puntuale i costi della notifica in base alla modalità di consegna (DELIVERY\_MODE).</br> Nello specifico, quando l’Ente effettua una richiesta di notifica tramite <strong>POST /delivery/requests</strong> deve obbligatoriamente utilizzare l’elemento <strong>notificationFeePolicy</strong> per indicare la politica di addebitamento dei costi di notifica.
       </em>
@@ -290,6 +315,11 @@ info:
     ><details>
       <summary><strong>In quale modo l’Ente comunica a Piattaforma Notifiche (PN) il costo forfettario?</strong></summary>
       <em>L’Ente può gestire il costo forfettario, considerandolo alla creazione della posizione debitoria, poiché PN non gestisce il costo forfettario di notifica.</br> Il costo forfettario si applica solamente nei casi nei quali esista una legge che impone all’Ente l'utilizzo di costi di notifica diversi da quelli previsti dal DPCM Costi di Piattaforma Notifiche, oppure nel caso in cui l'Ente voglia assumersi completamente i costi di notifica. </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong> Come è possibile recuperare le informazioni relative alle spese di notifica?</strong></summary>
+      <em>Si può utilizzare il servizio [NotificazionPrice](#/NotificationPrice/getNotificationPrice) passando come parametri il <strong>paTaxId</strong> dell'Ente e il <strong>noticeCode</strong> dell'atto che si vuole verificare</em>
     </details></br>
     
     ><details>
