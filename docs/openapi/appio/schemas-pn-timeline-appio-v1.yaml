@@ -735,36 +735,44 @@ components:
             * `PG`
         taxId:
           $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/Denomination'
-        digitalDomicile:
-          $ref: "#/components/schemas/NotificationDigitalAddress"
-        physicalAddress:
-          $ref: "../schemas-pn-notification-v1.yaml#/components/schemas/NotificationPhysicalAddress"
         payment:
-          $ref: "../schemas-pn-notification-v1.yaml#/components/schemas/NotificationPaymentInfo"
+          $ref: '#/components/schemas/NotificationPaymentInfo'
 
-    NotificationDigitalAddress:
-      description: Indirizzo di invio della notifica
-      required:
-        - address
-        - type
+    NotificationPaymentInfo:
+      title: Informazioni per effettuare il pagamento
+      description: >-
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+        destinatario perché le spese di notifica possono differire a seconda del canale di
+        notifica utilizzato. <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
       type: object
+      required:
+        - noticeCode
+        - creditorTaxId
       properties:
-        type:
-          type: string
-          description: >
-            Tipo di indirizzo PEC, REM, SERCQ, ...
-            * `PEC`
-        address:
-          type: string
-          example: account@domain
-          description: >-
-            Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
-            raggiungere il destinatario.
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+
+    noticeCode:
+      description: Payment notice number  numero avviso
+      example: '302000100000019421'
+      type: string
+      maxLength: 18
+      minLength: 18
+      pattern: '^\d+$'
+
+    paTaxId:
+      description: Payment PA fiscal code
+      example: '77777777777'
+      type: string
+      maxLength: 11
+      minLength: 11
+      pattern: '^\d+$'
 
   ###########################################################
   ###  link a  schemas-addresses-v1.yaml     ################

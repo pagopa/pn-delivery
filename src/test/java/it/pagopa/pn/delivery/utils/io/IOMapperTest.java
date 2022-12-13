@@ -4,7 +4,6 @@ import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.IOReceivedNotificati
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
-import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -50,11 +49,9 @@ class IOMapperTest {
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
                         .recipients(List.of(NotificationRecipient.builder()
-                                        .internalId("INTERNALID")
                                         .denomination("DENOMINATION")
                                         .taxId("TAXID")
                                         .recipientType("PF")
-                                        .physicalAddress(NotificationPhysicalAddress.builder().address("ADDRESS").build())
                                 .build()))
                         .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
                         .build())
