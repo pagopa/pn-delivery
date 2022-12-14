@@ -173,6 +173,12 @@ info:
   
       __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
       dello stream.
+
+      </br>
+
+      ### 5. Download dei Legal Facts
+
+      E' possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [dowload Legal Fact](#/SenderReadB2B/getSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/getSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
       
       </br>
       
@@ -284,6 +290,11 @@ info:
       __\<file\>__: è il path del file da caricare</br>
       __\<secret\>__: è il secret ottenuto nella response della preload</br>
       __\<url\>__: è l'url del bucket S3 ottenuto nella response della preload, sul quale effettuare l'upload del documento</br>
+    </details></br>
+
+    ><details>
+      <summary><strong>Quanto tempo ho per scaricare le Attestazioni Opponibili a Terzi?</strong></summary>
+      <em>Gli atti opponibili ai terzi e i documenti relativi alla notificazione analogica e digitale (forniti dall'operatore postale e dal PEC provider) vengono archiviati da PN. Su entrambe le tipologie di documento vengono posti legal hold e retention a 10 anni; pertanto possono essere scaricati anche successivamente alla loro generazione. </em>
     </details></br>
     
     ><details>
