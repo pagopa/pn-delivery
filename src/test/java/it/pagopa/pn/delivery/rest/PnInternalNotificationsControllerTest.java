@@ -51,6 +51,7 @@ class PnInternalNotificationsControllerTest {
     private static final String ATTACHMENT_NAME = "PAGOPA";
     private static final int DOCUMENT_IDX = 0;
     public static final String AAR_QR_CODE_VALUE = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
+    public static final String URL_AAR_QR_VALUE = "https://fake.domain.com/notifica?aar=WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
 
 
     @Autowired
@@ -358,6 +359,38 @@ class PnInternalNotificationsControllerTest {
 
         RequestCheckAarDto dto = RequestCheckAarDto.builder()
                 .aarQrCodeValue(AAR_QR_CODE_VALUE)
+                .recipientInternalId( "recipientInternalId" )
+                .recipientType( "PF" )
+                .build();
+
+        //When
+        Mockito.when( qrService.getNotificationByQR( Mockito.any( RequestCheckAarDto.class ) )).thenReturn( QrResponse );
+
+        webTestClient.post()
+                .uri( "/delivery-private/check-aar-qr-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(dto), RequestCheckAarDto.class)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(ResponseCheckAarDto.class );
+
+        //Then
+        Mockito.verify( qrService ).getNotificationByQR( dto );
+    }
+
+
+    @Test
+    void getNotificationUrlQRSuccess(){
+
+        //Given
+        ResponseCheckAarDto QrResponse = ResponseCheckAarDto.builder()
+                .iun( "iun" )
+                .build();
+
+        RequestCheckAarDto dto = RequestCheckAarDto.builder()
+                .aarQrCodeValue(URL_AAR_QR_VALUE)
                 .recipientInternalId( "recipientInternalId" )
                 .recipientType( "PF" )
                 .build();

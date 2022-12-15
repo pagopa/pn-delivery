@@ -11,4 +11,8 @@ public class PnNotificationNotFoundException extends PnNotFoundException {
         super("Notification not found", description, ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
     }
 
+    public PnNotificationNotFoundException(String message, String description, String errorcode, Exception cause) {
+        super(message, description, errorcode, cause);
+    }
+
 }
