@@ -337,6 +337,9 @@ Resources:
             - !Ref NotificationsCostDynamoTableName
             - !Ref NotificationsMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
+        LambdaArns: !Join 
+          - ','
+          - - !GetAtt PnDeliveryInsertTriggerLambda.Arn
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -473,6 +476,8 @@ Resources:
       MemorySize: 128
       Timeout: 10
       Role: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"          
       Environment:
         Variables:
           QUEUE_URL: !Ref DeliveryPushInputsQueueURL
