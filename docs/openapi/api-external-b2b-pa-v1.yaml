@@ -1,5 +1,5 @@
 # di seguito le variabili che possono subire variazioni in caso di modifiche all'applicazione, da ricercare in base all'ID
-# <span id="pnTemporaryDocument">1 giorno</span> configurazione per file temporanei caricati prima dell'inserimento notifica, definito in storageConfigurations name: PN_TEMPORARY_DOCUMENT in pn-safestorage-v1-api.yaml
+# <span id="pnTemporaryDocument">7 giorni</span> configurazione per file temporanei caricati prima dell'inserimento notifica, definito in storageConfigurations name: PN_TEMPORARY_DOCUMENT in pn-safestorage-v1-api.yaml
 # <span id="numberOfPresignedRequest">15</span> pn.delivery.number-of-presigned-request=15 numero di maxItems della preloadRequest
 openapi: 3.0.3
 info:
@@ -199,7 +199,7 @@ info:
     
     ><details>
       <summary><strong>Dopo aver fatto l'upload dei documenti della notifica nella fase 1, quanto tempo ho per inviare la notifica?</strong></summary>
-      <em>I documenti memorizzati su bucket S3  durante la fase di caricamento (1.a e 1.b) vengono mantenuti per <span id="pnTemporaryDocument">1 giorno</span>, passati i quali vengono eliminati ed andranno ricaricati di nuovo se si vuole inoltrare la notifica.</em>
+      <em>I documenti memorizzati su bucket S3  durante la fase di caricamento (1.a e 1.b) vengono mantenuti per <span id="pnTemporaryDocument">7 giorni</span>, passati i quali vengono eliminati ed andranno ricaricati di nuovo se si vuole inoltrare la notifica.</em>
     </details></br>
 
     ><details>
