@@ -1,3 +1,6 @@
+# di seguito le variabili che possono subire variazioni in caso di modifiche all'applicazione, da ricercare in base all'ID
+# <span id="pnTemporaryDocument">7 giorni</span> configurazione per file temporanei caricati prima dell'inserimento notifica, definito in storageConfigurations name: PN_TEMPORARY_DOCUMENT in pn-safestorage-v1-api.yaml
+# <span id="numberOfPresignedRequest">15</span> pn.delivery.number-of-presigned-request=15 numero di maxItems della preloadRequest
 openapi: 3.0.3
 info:
   termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
@@ -93,7 +96,7 @@ info:
       #### 1.a. Richiesta presigned Url
       
       Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
-      con cui prenotare il caricamento. Possono essere effettuate un massimo di 15 prenotazioni di caricamento
+      con cui prenotare il caricamento. Possono essere effettuate un massimo di <span id="numberOfPresignedRequest">15</span> prenotazioni di caricamento
       per ogni richiesta.</br>
       In risposta si ottengono le seguenti informazioni:<br/>
       \- httpMethod <br/>
@@ -194,16 +197,16 @@ info:
       <summary><strong>Le chiamate ai servizi esposti da PN sono sicuri ?</strong></summary>
       <em>Si. Le chiamate ai servizi esposti da PN avvengono in modalità https utilizzando API Key. Non sono attualmente previsti meccanismi di crittazione/decrittazione dei documenti e/o accessi basati su mutua autenticazione tramite certificato.</em>
     </details></br>
-
+    
     ><details>
       <summary><strong>Dopo aver fatto l'upload dei documenti della notifica nella fase 1, quanto tempo ho per inviare la notifica?</strong></summary>
-      <em>I documenti memorizzati su bucket S3  durante la fase di caricamento (1.a e 1.b) vengono mantenuti per 3 giorni (in produzione 1 giorno), passati i quali vengono eliminati ed andranno ricaricati di nuovo se si vuole inoltrare la notifica.</em>
-    </details>
-      </br>
+      <em>I documenti memorizzati su bucket S3  durante la fase di caricamento (1.a e 1.b) vengono mantenuti per <span id="pnTemporaryDocument">7 giorni</span>, passati i quali vengono eliminati ed andranno ricaricati di nuovo se si vuole inoltrare la notifica.</em>
+    </details></br>
+
     ><details>
       <summary><strong>Quali sono i passi da seguire per effettuare l’inoltro manuale della notifica ?</strong></summary>
       <em>I passi necessari per eseguire l’inoltro della notifica sono i seguenti:</em></br>
-      >><em><medium><strong>1) </strong>Pre inoltro della documentazione (atto di notifica e moduli di pagamento).</br> Occorre chiamare il servizio <strong>presignedUploadRequest.</strong></medium></em></br></br>
+      >> <em><medium><strong>1) </strong>Pre inoltro della documentazione (atto di notifica e moduli di pagamento).</br> Occorre chiamare il servizio <strong>presignedUploadRequest.</strong></medium></em></br></br>
       <em><medium><strong>2) </strong>Upload della documentazione.</br> PA o PT devono sviluppare un software che sia in grado di inviare la documentazione a Piattaforma Notifiche. Occorre effettuare, per ogni documento, una richiesta HTTP con metodo httpMethod all'url restituita dal servizio<strong>presignedUploadRequest.</strong></medium></em></br></br>
       <em><medium><strong>3) </strong>Invio della notifica.</br> Occorre chiamare il servizio <strong>sendNewNotification.</strong></medium></em></br></br>
     </details></br>
