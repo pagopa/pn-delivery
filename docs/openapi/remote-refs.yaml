@@ -56,4 +56,4 @@ components:
     ############################################################################################
 
     PnStatusResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-downtime-logs/752da830c0725d4c49eb2408be4cba1d9a4466e0/docs/openapi/schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-downtime-logs/6e086075d1b7294e5b0dcbc59a226de321a7a1d3/docs/openapi/schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse'

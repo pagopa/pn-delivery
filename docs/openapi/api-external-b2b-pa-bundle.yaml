@@ -427,6 +427,26 @@ components:
         - functionalities
         - openIncidents
       properties:
+        status:
+          description: Bad Request
+          example: 400
+          exclusiveMaximum: true
+          format: int32
+          maximum: 600
+          minimum: 100
+          type: integer
+        title:
+          description: The server cannot process the request
+          example: Bad Request
+          maxLength: 64
+          pattern: ^[ -~]{0,64}$
+          type: string
+        detail:
+          description: The server cannot process the request
+          example: Bad Request
+          maxLength: 4096
+          pattern: ^.{0,4096}$
+          type: string
         functionalities:
           title: elenco funzionalità di PN
           description: Un array che comprende tutti i possibili valori dell'enum _PnFunctionality_
