@@ -38,6 +38,20 @@ paths:
           description: Internal Server Error
   "/delivery-private/notifications/update-status":
     post:
+      description: |-
+        Servizio per l'aggiornamento dello stato di invio della notifica
+        
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | Altri ms           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | No                 |
+        | __Read/Write intensive__ | Write              |
+        | __Cachable__             | No                 |
+        </details>
       summary: servizio per l'aggiornamento dello stato di invio della notifica
       tags:
       - internal-only
