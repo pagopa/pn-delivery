@@ -200,6 +200,9 @@ paths:
 
   "/delivery/notifications/received/check-aar-qr-code":
     post:
+      description: |-
+        Servizio per la verifica accesso rapido
+
       summary: servizio per la verifica del aar-qr-code
       tags:
       - RecipientRead
