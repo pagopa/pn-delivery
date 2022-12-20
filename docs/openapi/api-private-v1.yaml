@@ -48,7 +48,7 @@ paths:
         | __Intended usage__       | Altri ms           |
         | __Modalità interazione__ | Sincrona           |
         | __TPS (stimato)__        |                    |
-        | __Idempotenza__          | No                 |
+        | __Idempotenza__          | Si                 |
         | __Read/Write intensive__ | Write              |
         | __Cachable__             | No                 |
         </details>

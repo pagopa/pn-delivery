@@ -224,7 +224,7 @@ paths:
         <summary><b> Attributi progettazione di alto livello </b></summary>
         | Proprietà                | Valore             |
         | -----------------------: | :----------------- |
-        | __Intended usage__       | B2B, WEB, altri ms |
+        | __Intended usage__       | WEB                |
         | __Modalità interazione__ | Sincrona           |
         | __TPS (stimato)__        |                    |
         | __Idempotenza__          | Si                 |
