@@ -206,7 +206,6 @@ paths:
       operationId: checkAarQrCode
       security:                                      # ONLY EXTERNAL
         - bearerAuth: [ ]                            # ONLY EXTERNAL
-      parameters:
       requestBody:
         content:
           application/json:
@@ -359,7 +358,7 @@ components:
           description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
           pattern: ^[A-Za-z0-9_-]*$
           minLength: 106
-          maxLength: 106
+          maxLength: 136
 
     ResponseCheckAarMandateDto:
       description: >-

@@ -217,12 +217,17 @@ class NotificationQRServiceTest {
                 .build();
 
         InternalMandateDto internalMandateDto = new InternalMandateDto()
+                .mandateId( "wrongMandateId" )
+                .delegator( "otherRecipientInternalId" )
+                .delegate( userId );
+
+        InternalMandateDto internalMandateDto1 = new InternalMandateDto()
                 .mandateId( "mandateId" )
                 .delegator( "recipientInternalId" )
                 .delegate( userId );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null ) ).thenReturn( List.of( internalMandateDto ) );
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null ) ).thenReturn( List.of( internalMandateDto, internalMandateDto1 ) );
 
         // When
         ResponseCheckAarMandateDto result = svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );

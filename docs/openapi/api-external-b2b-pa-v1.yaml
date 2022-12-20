@@ -1,3 +1,6 @@
+# di seguito le variabili che possono subire variazioni in caso di modifiche all'applicazione, da ricercare in base all'ID
+# <span id="pnTemporaryDocument">7 giorni</span> configurazione per file temporanei caricati prima dell'inserimento notifica, definito in storageConfigurations name: PN_TEMPORARY_DOCUMENT in pn-safestorage-v1-api.yaml
+# <span id="numberOfPresignedRequest">15</span> pn.delivery.number-of-presigned-request=15 numero di maxItems della preloadRequest
 openapi: 3.0.3
 info:
   termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
@@ -92,7 +95,7 @@ info:
       #### 1.a. Richiesta presigned Url
       
       Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
-      con cui prenotare il caricamento. Possono essere effettuate un massimo di 15 prenotazioni di caricamento
+      con cui prenotare il caricamento. Possono essere effettuate un massimo di <span id="numberOfPresignedRequest">15</span> prenotazioni di caricamento
       per ogni richiesta.</br>
       In risposta si ottengono le seguenti informazioni:<br/>
       \- httpMethod <br/>
@@ -113,9 +116,6 @@ info:
       \- _x-amz-checksum-sha256_: valorizzato con il checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato. (__N.B.__ questo è un trailer HTTP non un header).
         Vedi [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
   
-      Dalla risposta va letto l'header _x-amz-version-id_ che verrà usato nell'invocazione 
-      successiva di richiesta creazione della notifica. Questo garantisce che eventuali utilizzi multipli (anche malevoli) del 
-      presignedUrl non vadano a sovrascrivere il file generando disservizi.
      
       </br>
       </br>
@@ -172,6 +172,12 @@ info:
   
       __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
       dello stream.
+
+      </br>
+
+      ### 5. Download dei Legal Facts
+
+      E' possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [dowload Legal Fact](#/SenderReadB2B/getSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/getSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
       
       </br>
       
@@ -187,16 +193,16 @@ info:
       <summary><strong>Le chiamate ai servizi esposti da PN sono sicuri ?</strong></summary>
       <em>Si. Le chiamate ai servizi esposti da PN avvengono in modalità https utilizzando API Key. Non sono attualmente previsti meccanismi di crittazione/decrittazione dei documenti e/o accessi basati su mutua autenticazione tramite certificato.</em>
     </details></br>
-
+    
     ><details>
       <summary><strong>Dopo aver fatto l'upload dei documenti della notifica nella fase 1, quanto tempo ho per inviare la notifica?</strong></summary>
-      <em>I documenti memorizzati su bucket S3  durante la fase di caricamento (1.a e 1.b) vengono mantenuti per 3 giorni (in produzione 1 giorno), passati i quali vengono eliminati ed andranno ricaricati di nuovo se si vuole inoltrare la notifica.</em>
-    </details>
-      </br>
+      <em>I documenti memorizzati su bucket S3  durante la fase di caricamento (1.a e 1.b) vengono mantenuti per <span id="pnTemporaryDocument">7 giorni</span>, passati i quali vengono eliminati ed andranno ricaricati di nuovo se si vuole inoltrare la notifica.</em>
+    </details></br>
+
     ><details>
       <summary><strong>Quali sono i passi da seguire per effettuare l’inoltro manuale della notifica ?</strong></summary>
       <em>I passi necessari per eseguire l’inoltro della notifica sono i seguenti:</em></br>
-      >><em><medium><strong>1) </strong>Pre inoltro della documentazione (atto di notifica e moduli di pagamento).</br> Occorre chiamare il servizio <strong>presignedUploadRequest.</strong></medium></em></br></br>
+      >> <em><medium><strong>1) </strong>Pre inoltro della documentazione (atto di notifica e moduli di pagamento).</br> Occorre chiamare il servizio <strong>presignedUploadRequest.</strong></medium></em></br></br>
       <em><medium><strong>2) </strong>Upload della documentazione.</br> PA o PT devono sviluppare un software che sia in grado di inviare la documentazione a Piattaforma Notifiche. Occorre effettuare, per ogni documento, una richiesta HTTP con metodo httpMethod all'url restituita dal servizio<strong>presignedUploadRequest.</strong></medium></em></br></br>
       <em><medium><strong>3) </strong>Invio della notifica.</br> Occorre chiamare il servizio <strong>sendNewNotification.</strong></medium></em></br></br>
     </details></br>
@@ -204,6 +210,22 @@ info:
     ><details>
       <summary><strong>Come avviene l’inoltro della notifica ?</strong></summary>
       <em>L’inoltro della notifica può avvenire in modalità automatica o manuale. La modalità automatica prevede l’utilizzo della piattaforma PN e consente l’inoltro puntuale di una notifica. La modalità manuale prevede l’utilizzo dei servizi di PN da parte della PA e consente l’inoltro massivo di notifiche.</em>
+    </details></br>
+
+    ><details>
+      <summary><strong>Quali controlli vengono effettuati in seguito all'inserimento della notifica?</strong></summary>
+      <em>I controlli effettuati da PN sono i seguenti:</em><ul><li><em>verifica che le informazioni inserite siano sintatticamente corrette</em></li><li><em>verifica che le combinazioni di <strong>creditorTaxId/noticeCode</strong> e <strong>creditorTaxId/alternativeNoticeCode</strong> siano univoche</em></li><li><em>verifica che la combinazione dei campi <strong>senderPaId, paProtocolNumber, idempotenceToken</strong> siano univoci</em></li></ul>
+    </details></br>
+    
+    ><details>
+      <summary><strong> Cosa rappresentano i campi requiresAck e sendByMail? <font color="red">queste funzioni non sono ancora implementate </font> </strong></summary>
+      <em>Il campo booleano requiresAck permette di definire il momento esatto nel quale scatterà il perfezionamento per presa visione dell'atto: se falso basterà che il destinatario prenda visione del documento da notificare; se vero, oltre alla visualizzazione dovrà anche scaricare il documento da notificare.</br> Il campo boolean sendByMail permette di indicare se il documento avente questo parametro sarà spedito nelle comunicazioni cartacee o meno </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Cos'è il codice di tassonomia \(taxonomyCode\)?</strong></summary>
+      <em>Il codice di tassonomia(taxonomyCode) viene utilizzato per definire la tipolgia di atto e può essere recuperato nell'allegato 2 capitolo C del bando: 
+      [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)</em>
     </details></br>
 
     ><details>
@@ -268,10 +290,60 @@ info:
       __\<secret\>__: è il secret ottenuto nella response della preload</br>
       __\<url\>__: è l'url del bucket S3 ottenuto nella response della preload, sul quale effettuare l'upload del documento</br>
     </details></br>
+
+    ><details>
+      <summary><strong>Quanto tempo ho per scaricare le Attestazioni Opponibili a Terzi?</strong></summary>
+      <em>Gli atti opponibili ai terzi e i documenti relativi alla notificazione analogica e digitale (forniti dall'operatore postale e dal PEC provider) vengono archiviati da PN. Su entrambe le tipologie di documento vengono posti legal hold e retention a 10 anni; pertanto possono essere scaricati anche successivamente alla loro generazione. </em>
+    </details></br>
     
     ><details>
       <summary><strong>Dopo aver lanciato il servizio [sendNewNotification](#/NewNotification/sendNewNotification) ottengo un messaggio di errore su: <em>"Max one recipient", "No recipient physical address", "No recipient payment", "Alternative notice code equals to notice code"</em>.</br>Cosa devo fare?</strong></summary>
       <em>Contatta il [supporto enti](mailto:pn-supporto-enti@pagopa.it) segnalando questa situazione. </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Come si possono testare più Enti?</strong></summary>
+      <em>In ambiente di collaudo COLL si prevede di creare una User per ogni Ente che permette di accedere alla piattafora di Back-Office ed una key ad esso associata. Se si sta testando l'integrazione per più Enti  bisognerà richiedere, per ogni Ente, una user ed una key ad essa associata, contattando il [supporto enti](mailto:pn-supporto-enti@pagopa.it)</em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Come si possono testare i Codici Fiscali?</strong></summary>
+      <em>E' possible inserire le notifiche utilizzando un qualsiasi codice fiscale che rispetti il regex:</br><code>^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$</code></br>mentre i Codici Fiscali per testare l'invio all'appIO, utilizzabili SOLO in ambiente di collaudo COLL sono i seguenti: <strong>AAAAAA00A00A000C</strong> e <strong>AAAAAA00A00A000D</strong></em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>E' possibile cancellare una notifica?</strong></summary>
+      <em>Si, è possibile al momento cancellare una qualsiasi notifica, inserendo al suo posto una nuova notifica che abbia il campo <strong>"cancelledIun"</strong>  uguale a quello della notifica da cancellare. Se la nuova notifica utilizza gli stessi documenti, questi dovranno essere caricati di nuovo.</br> La funzione di cancellazione notifica potrà subire variazioni in futuro.</em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Come gestisce un Ente le spese di notifica verso il destinatario?</strong></summary>
+      <em>L’Ente ha la possibilità di applicare un costo forfettario (FLAT\_RATE) o di applicare in maniera puntuale i costi della notifica in base alla modalità di consegna (DELIVERY\_MODE).</br> Nello specifico, quando l’Ente effettua una richiesta di notifica tramite <strong>POST /delivery/requests</strong> deve obbligatoriamente utilizzare l’elemento <strong>notificationFeePolicy</strong> per indicare la politica di addebitamento dei costi di notifica.
+      </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>In quale modo l’Ente comunica a Piattaforma Notifiche (PN) il costo forfettario?</strong></summary>
+      <em>L’Ente può gestire il costo forfettario, considerandolo alla creazione della posizione debitoria, poiché PN non gestisce il costo forfettario di notifica.</br> Il costo forfettario si applica solamente nei casi nei quali esista una legge che impone all’Ente l'utilizzo di costi di notifica diversi da quelli previsti dal DPCM Costi di Piattaforma Notifiche, oppure nel caso in cui l'Ente voglia assumersi completamente i costi di notifica. </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong> Come è possibile recuperare le informazioni relative alle spese di notifica?</strong></summary>
+      <em>Si può utilizzare il servizio [NotificazionPrice](#/NotificationPrice/getNotificationPrice) passando come parametri il <strong>paTaxId</strong> dell'Ente e il <strong>noticeCode</strong> dell'atto che si vuole verificare</em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Se l’Ente invia una richiesta di notifica in modalità FLAT_RATE e chiama il servizio GET/delivery/price/{paTaxId}/{noticeCode}, quale sarà il costo (amount) notificato da PN?</strong></summary>
+      <em>Sarà notificato comunque il costo della notifica sostenuto da PagoPA, perché tale valore potrebbe essere utilizzato ai fini della verifica della fatturazione.</em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Qual è il costo della notifica per il destinatario in modalità DELIVERY_MODE?</strong></summary>
+        <table 
+        background-color="red"
+        border="1px solid black">
+          <tr><th>Modalità</th><th>Tipo di notifica</th><th>Esito Notifica</th><th>Tipo di canale analogico</th><th>Spese postali</th><th>Importo fornito all’Ente tramite il servizio GET delivery/price</th></tr><tr><td>DELIVERY\_MODE</td><td>Notifica digitale</td><td>Destinatario raggiunto sul canale digitale</td><td>N/A</td><td>N/A</td><td>€ 2.00 (costo base)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica digitale</td><td>Destinatario non raggiungibile sul canale digitale</td><td>N/A</td><td>Costo raccomandata semplice</td><td>€ 2.00 (costo base) + Costo raccomandata semplice</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al primo indirizzo</td><td>Raccomandata A/R</td><td>Costo raccomandata A/R</td><td>€ 2.00 (costo base)  + Costo A/R (primo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al primo indirizzo</td><td>890</td><td>Costo 890</td><td>€ 2.00 (costo base)  + Costo 890 (primo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al secondo indirizzo</td><td>Raccomandata A/R</td><td>Costo raccomandata A/R</td><td>€ 2.00 (costo base)  + Costo A/R (primo indirizzo) + Costo A/R (secondo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al secondo indirizzo</td><td>890</td><td>Costo 890</td><td>€ 2.00 (costo base)  + Costo 890 (primo indirizzo) + Costo 890 (secondo indirizzo)</td></tr>
+        </table>
     </details></br>
 
     </details></br>
@@ -303,7 +375,7 @@ servers:
 tags:
   - name: HealthCheck
     description: >-
-      Invocazioni per sapere lo stato del microservizio
+      Invocazioni per sapere lo stato di Piattaforma Notifiche
   - name: NewNotification
     description: >-
       Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
@@ -319,18 +391,44 @@ tags:
       Invocazioni per effettuare il downalod degli atti opponibili a terzi
 
 paths:
+  ###########################################################################################
+  ###                          STATUS PIATTAFORMA NOTIFICHE                               ###
+  ###########################################################################################
   "/status":
     get:
-      summary: healthCheck path
-      description: healtCheck path per verificare lo stato del microservizio
+      summary: status path
+      description: status path per verificare lo stato di Piattaforma Notifiche
       tags:
         - HealthCheck
       operationId: status
       responses:
         '200':
           description: Ok
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/PnStatusResponse"
+              example:
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
+                openIncidents: []
         '500':
           description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/PnStatusResponse"
+              example:
+                functionalities: [NOTIFICATION_CREATE,NOTIFICATION_VISUALIZATION,NOTIFICATION_WORKFLOW]
+                openIncidents:
+                  - functionality: NOTIFICATION_CREATE
+                    status: KO
+                    startDate: "2019-08-24T14:15:22Z"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   ###########################################################################################
   ###                          GESTIONE PRECARICAMENTO ALLEGATI                           ###
   ###########################################################################################
@@ -741,6 +839,11 @@ components:
 
 
   schemas:
+    ###########################################################################################
+    ###                             DTO STATUS PN                                           ###
+    ###########################################################################################
+    PnStatusResponse:
+      $ref: './remote-refs.yaml#/components/schemas/PnStatusResponse'
     
     ###########################################################################################
     ###                             DTO PRECARICAMENTO ALLEGATI                             ###

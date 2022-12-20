@@ -41,8 +41,12 @@ paths:
         - AppIO-PN-Notification
       operationId: getReceivedNotification
       parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'                                             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'                                          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'                                            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'                                        # NO EXTERNAL
         - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                       # ONLY EXTERNAL
+#        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -64,6 +68,10 @@ paths:
         - AppIO-PN-Documents
       operationId: getSentNotificationDocument
       parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'                                         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'                                      # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'                                        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'                                    # NO EXTERNAL
         - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
         - $ref: '../api-external-b2b-pa-v1.yaml#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
@@ -121,6 +129,14 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
+    cxTypeAuthFleet: # NO EXTERNAL
+      $ref: '../remote-refs.yaml#/components/parameters/cxTypeAuthFleet'            # NO EXTERNAL
+    cxIdAuthFleet: # NO EXTERNAL
+      $ref: '../remote-refs.yaml#/components/parameters/cxIdAuthFleet'              # NO EXTERNAL
+    cxGroupsAuthFleet: # NO EXTERNAL
+      $ref: '../remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'          # NO EXTERNAL
+    uidAuthFleet: # NO EXTERNAL
+      $ref: '../remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
     cxTaxIdAuthFleet:
       $ref: '../remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
     pathLegalFactType:

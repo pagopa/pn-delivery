@@ -247,6 +247,17 @@ public class NotificationRetrieverService {
 		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());
 	}
 
+	private InternalNotification getInternalNotification(String iun) {
+		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
+		if (optNotification.isPresent()) {
+			return optNotification.get();
+		} else {
+			String msg = String.format( "Error retrieving Internal Notification with iun=%s", iun );
+			log.debug( msg );
+			throw new PnNotificationNotFoundException(  msg );
+		}
+	}
+
 	/**
 	 * Get the full detail of a notification by IUN
 	 *
@@ -260,25 +271,47 @@ public class NotificationRetrieverService {
 	 */
 	public InternalNotification getNotificationInformation(String iun, boolean withTimeline, boolean requestBySender, String senderId) {
 		log.debug( "Retrieve notification by iun={} withTimeline={} requestBySender={} START", iun, withTimeline, requestBySender );
-		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
-
-		if (optNotification.isPresent()) {
-			InternalNotification notification = optNotification.get();
-			if (withTimeline) {
-				notification = enrichWithTimelineAndStatusHistory(iun, notification);
-				OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
-				checkDocumentsAvailability( notification, refinementDate );
-				if ( Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) && !requestBySender ) {
-					computeNoticeCodeToReturn( notification, refinementDate );
-				}
-			}
-			labelizeGroup(notification, senderId);
-			return notification;
-		} else {
-			String msg = String.format( "Error retrieving Notification with iun=%s withTimeline=%b", iun, withTimeline );
-			log.debug( msg );
-			throw new PnNotificationNotFoundException(  msg );
+		InternalNotification notification = getInternalNotification( iun );
+		if (withTimeline) {
+			completeInternalNotificationWithTimeline(iun, requestBySender, notification);
 		}
+		labelizeGroup(notification, senderId);
+		return notification;
+	}
+
+	private void completeInternalNotificationWithTimeline(String iun, boolean requestBySender, InternalNotification notification) {
+		notification = enrichWithTimelineAndStatusHistory(iun, notification);
+		OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
+		checkDocumentsAvailability(notification, refinementDate );
+		if ( !requestBySender && Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) ) {
+			computeNoticeCodeToReturn(notification, refinementDate );
+		}
+	}
+
+	/**
+	 * Get the full detail of a notification by IUN with senderId check
+	 *
+	 * @param iun unique identifier of a Notification
+	 * @param senderId unique identifier of the sender
+	 * @throws PnNotificationNotFoundException if sender is not notification sender
+	 *
+	 * @return Notification DTO
+	 *
+	 */
+	public InternalNotification getNotificationInformationWithSenderIdCheck(String iun, String senderId) {
+		log.debug( "Retrieve complete notification with sender check by iun={} senderId={} START", iun, senderId );
+		InternalNotification notification = getInternalNotification( iun );
+		checkSenderId( iun, notification.getSenderPaId(), senderId );
+		completeInternalNotificationWithTimeline(iun, true, notification);
+		labelizeGroup(notification, senderId);
+		return notification;
+	}
+
+	private void checkSenderId(String iun, String notificationSenderPaId, String senderId) {
+		if ( !notificationSenderPaId.equals( senderId ) )
+			throw new PnNotificationNotFoundException(
+					String.format("Unable to find notification with iun=%s for senderId=%s", iun, senderId  )
+			);
 	}
 
 	/**
@@ -428,7 +461,7 @@ public class NotificationRetrieverService {
 			throw new PnNotificationNotFoundException(msg);
 		}
 		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
-		return getNotificationInformation( iun, true, true );
+		return getNotificationInformationWithSenderIdCheck( iun, senderId );
 	}
 
 	/**

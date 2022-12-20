@@ -117,9 +117,10 @@ public class NotificationQRService {
         List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null);
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
-                    .filter(mandate -> userId.equals(mandate.getDelegate()))
+                    .filter(mandate -> userId.equals(mandate.getDelegate()) &&
+                            internalNotificationQR.getRecipientInternalId().equals( mandate.getDelegator() ))
                     .findFirst();
-            if (optMandate.isPresent() && isRecipientInNotification(internalNotificationQR, optMandate.get().getDelegator())) {
+            if ( optMandate.isPresent() ) {
                 mandateId = optMandate.get().getMandateId();
             }
         }

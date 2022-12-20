@@ -4,7 +4,7 @@
     <parent>
         <groupId>it.pagopa.pn</groupId>
         <artifactId>pn-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>../pn-parent</relativePath>
     </parent>
     <groupId>it.pagopa.pn.delivery</groupId>
@@ -22,29 +22,7 @@
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
         <ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
-
-        <awspring.version>2.3.2</awspring.version>
-        <testcontainers.version>1.16.2</testcontainers.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.awspring.cloud</groupId>
-                <artifactId>spring-cloud-aws-dependencies</artifactId>
-                <version>${awspring.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers-bom</artifactId>
-                <version>${testcontainers.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -58,12 +36,12 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-model</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.logstash.logback</groupId>
@@ -120,7 +98,6 @@
             <type>maven-plugin</type>
             <scope>test</scope>
         </dependency>
-
         <!--LOCALSTACK/TESTCONTAINERS-->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -321,6 +298,36 @@
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
                                 <apiPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.api</apiPackage>
                                 <configPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.config</configPackage>
+                                <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+                                <dateLibrary>java8</dateLibrary>
+                                <delegatePattern>true</delegatePattern>
+                                <interfaceOnly>true</interfaceOnly>
+                                <annotationLibrary>none</annotationLibrary>
+                                <documentationProvider>source</documentationProvider>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>false</reactive>
+                                <skipDefaultInterface>false</skipDefaultInterface>
+                                <useTags>true</useTags>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>io-app-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/docs/openapi/appio/api-internal-b2b-appio-v1.yaml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <modelNameSuffix />
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <configOptions>
+                                <basePackage>it.pagopa.pn.delivery.generated.openapi.appio.v1</basePackage>
+                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.dto</modelPackage>
+                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.api</apiPackage>
+                                <configPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.config</configPackage>
                                 <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>

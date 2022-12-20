@@ -16,7 +16,6 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationEntityCostDynamoTest {

@@ -115,7 +115,6 @@ Parameters:
     Type: String
     Description: 'keep track of used projects commitIds'
 
-
   IsMvpDefaultValue:
     Type: String
     Description: 'default value to return if paTaxId not present in parameter store'
@@ -133,17 +132,9 @@ Parameters:
     Type: String
     Description: 'Target queue ARN for insert trigger'
 
-  DeliveryPushInputsQueueAlarmARN:
-    Type: String
-    Description: 'Alarm for target queue ARN for insert trigger'
-
   DeliveryPushInputsQueueURL:
     Type: String
     Description: 'Target queue URL for insert trigger'
-
-  PnDeliveryInsertTriggerDLQName:
-    Type: String
-    Description: 'DLQ Name for insert trigger'
 
   PnDeliveryInsertTriggerDLQARN:
     Type: String
@@ -165,6 +156,13 @@ Parameters:
     Type: String
     Description: 'MaxRetry stream mapping'
 
+  LogsKinesisFilterPattern:
+    Type: String
+    Default: ""
+    Description: 'Log kinesis filter pattern'
+
+Conditions:
+    SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
 Resources:
 
@@ -339,6 +337,9 @@ Resources:
             - !Ref NotificationsCostDynamoTableName
             - !Ref NotificationsMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
+        LambdaArns: !Join 
+          - ','
+          - - !GetAtt PnDeliveryInsertTriggerLambda.Arn
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -356,6 +357,10 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiLatencyAlarmArn
+            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
+            - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
+
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
 
   # Lambda function role
@@ -419,15 +424,60 @@ Resources:
         OnFailure:
           Destination: !Ref PnDeliveryInsertTriggerDLQARN
 
+  ### Subscription filters with Kinesis  https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationKinesisExample
+  SubscriptionFilter:
+    Type: AWS::Logs::SubscriptionFilter
+    Condition: SendLogToKinesis
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+          - "SubscriptionFilterServiceRole"
+          - "Arn"
+      LogGroupName: !Sub "/aws/lambda/${PnDeliveryInsertTriggerLambda}"
+      FilterPattern: !Ref LogsKinesisFilterPattern
+      DestinationArn: !Ref LogsKinesisSourceStreamArn
+
+  ### IAM Role used by Subscription filters to allow read logs from Cloudwatch and send logs to Kinesis Firehose
+  SubscriptionFilterServiceRole:
+    Type: AWS::IAM::Role
+    Condition: SendLogToKinesis
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: logs.amazonaws.com
+        Version: "2012-10-17"
+      Path: /
+      Policies:
+        -
+          PolicyName: !Sub '${ProjectName}-delivery-lambda-logs-subscription-role'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - kinesis:PutRecord
+                Effect: Allow
+                Resource: "*"
+              - Action:
+                - "kms:Encrypt"
+                - "kms:GenerateDataKey"
+                - "kms:Decrypt"
+                Effect: Allow
+                Resource: "*"
+
   PnDeliveryInsertTriggerLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
-      Description: ''
+      Description: 'It triggers notification workflow at notification insertion'
       MemorySize: 128
       Timeout: 10
       Role: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"          
       Environment:
         Variables:
           QUEUE_URL: !Ref DeliveryPushInputsQueueURL
