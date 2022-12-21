@@ -100,6 +100,7 @@ components:
       schema:
         type: integer
         format: int32
+        maximum: 50
     notificationSearchNextPagesKey:
       name: nextPagesKey
       description: >-
