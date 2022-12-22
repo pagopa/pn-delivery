@@ -217,9 +217,6 @@ Resources:
   DeliveryMicroserviceTaskManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      #PolicyName: !Sub '${ProjectName}-delivery-CustomTaskPolicy'
-      #Roles:
-      #  - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
