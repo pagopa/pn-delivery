@@ -52,7 +52,7 @@ public class IOMapper {
         return IntStream
                 .range(0, documents.size())
                 .mapToObj(index -> mapToThirdPartyAttachment(documents.get(index), index, iun))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ThirdPartyAttachment mapToThirdPartyAttachment(NotificationDocument document, int indexDocument, String iun) {
