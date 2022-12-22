@@ -217,6 +217,20 @@ paths:
 
   "/delivery/notifications/received/check-aar-qr-code":
     post:
+      description: |-
+        Servizio per la verifica accesso rapido
+
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | WEB                |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Read               |
+        | __Cachable__             | No                 |
+        </details>
       summary: servizio per la verifica del aar-qr-code
       tags:
       - RecipientRead

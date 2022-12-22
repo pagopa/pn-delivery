@@ -480,13 +480,14 @@ paths:
   "/delivery/requests":
     post:
       summary: Richiesta invio notifica
-      description: >-
+      description: |-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
 
         La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
         valida, non che la richiesta sia stata validata ed accettata. <br/>
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
         _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
+        
       tags:
         - NewNotification
       operationId: sendNewNotification
@@ -574,8 +575,9 @@ paths:
   "/delivery/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica'
-      description: >-
+      description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotification                                # ONLY EXTERNAL
@@ -607,7 +609,9 @@ paths:
 
   "/delivery/notifications/sent/{iun}/attachments/documents/{docIdx}":
     get:
-      description: Download documento notificato
+      description: |-
+        Download documento notificato
+
       summary: Download documento notificato
       tags:
         - SenderReadB2B

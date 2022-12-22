@@ -161,6 +161,10 @@ Parameters:
     Default: ""
     Description: 'Log kinesis filter pattern'
 
+  AlbSecurityGroup:
+    Type: String
+    Description: 'Application load balancer security group'
+    
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -212,14 +216,12 @@ Resources:
         LoadbalancerRulePriority: !Ref MicroserviceNumber
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskManagedPolicy
+        AlbSecurityGroup: !Ref AlbSecurityGroup
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      #PolicyName: !Sub '${ProjectName}-delivery-CustomTaskPolicy'
-      #Roles:
-      #  - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
