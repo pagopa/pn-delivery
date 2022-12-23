@@ -182,6 +182,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         ResponseCheckAarMandateDto responseCheckAarMandateDto;
         try {
             responseCheckAarMandateDto = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId );
+            logEvent.generateSuccess().log();
         } catch ( Exception exc ) {
             logEvent.generateFailure( "Exception on get notification by qr= " + exc.getMessage()).log();
             throw exc;

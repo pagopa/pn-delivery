@@ -84,6 +84,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ResponseCheckAarDto responseCheckAarDto;
         try {
             responseCheckAarDto = qrService.getNotificationByQR( requestCheckAarDto );
+            logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure("Exception on get notification qr private= " + exc.getMessage()).log();
             throw exc;
