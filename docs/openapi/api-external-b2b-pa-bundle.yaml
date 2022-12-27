@@ -676,25 +676,25 @@ components:
       description: |
         stato di avanzamento del processo di notifica:
           * `IN_VALIDATION` - notifica depositata in attesa di validazione
-          * `ACCEPTED` - notifica accettata 
-          * `REFUSED` - notifica rifiutata
-          * `DELIVERING` - notifica in spedita
-          * `DELIVERED` - notifica ricevuta da tutti i destinatari
-          * `VIEWED` - notifica presa visione per almeno un destinatario
-          * `EFFECTIVE_DATE` - notifica perfezionata per un destinatario
-          * `PAID` - notifica pagata
-          * `UNREACHABLE` - notifica non recapitabile
-          * `CANCELLED` - notifica annullata dal mittente
+          * `ACCEPTED` - L'ente ha depositato la notifica con successo
+          * `REFUSED` - Notifica rifiutata a seguito della validazione
+          * `DELIVERING` - L'invio della notifica è in corso
+          * `DELIVERED` - La notifica è stata consegnata a tutti i destinatari
+          * `VIEWED` - Il destinatario ha letto la notifica entro il termine stabilito
+          * `EFFECTIVE_DATE` - Il destinatario non ha letto la notifica entro il termine stabilito
+          * `PAID` - Uno dei destinatari ha pagato la notifica
+          * `UNREACHABLE` - Il destinatario non è reperibile
+          * `CANCELLED` - L'ente ha annullato l'invio della notifica
       enum:
         - IN_VALIDATION
         - ACCEPTED
+        - REFUSED
         - DELIVERING
         - DELIVERED
         - VIEWED
         - EFFECTIVE_DATE
         - PAID
         - UNREACHABLE
-        - REFUSED
         - CANCELLED
     NotificationStatusHistory:
       description: elenco degli avanzamenti effettuati dal processo di notifica
@@ -1132,31 +1132,34 @@ components:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
-          * `REQUEST_ACCEPTED` - 
-          * `SEND_COURTESY_MESSAGE` - 
-          * `GET_ADDRESS` - 
-          * `PUBLIC_REGISTRY_CALL` - 
-          * `PUBLIC_REGISTRY_RESPONSE` - 
-          * `SCHEDULE_ANALOG_WORKFLOW` - 
-          * `SCHEDULE_DIGITAL_WORKFLOW` - 
-          * `SEND_DIGITAL_DOMICILE` - 
-          * `SEND_DIGITAL_DOMICILE_FEEDBACK` - 
-          * `SEND_DIGITAL_FEEDBACK` - 
-          * `REFINEMENT` - 
-          * `SCHEDULE_REFINEMENT` - 
-          * `DIGITAL_SUCCESS_WORKFLOW` - 
-          * `DIGITAL_FAILURE_WORKFLOW` - 
-          * `ANALOG_SUCCESS_WORKFLOW` - 
-          * `ANALOG_FAILURE_WORKFLOW` - 
-          * `SEND_SIMPLE_REGISTERED_LETTER` - 
-          * `NOTIFICATION_VIEWED` - 
-          * `SEND_ANALOG_DOMICILE` - 
-          * `SEND_PAPER_FEEDBACK` - 
-          * `PAYMENT` - 
-          * `COMPLETELY_UNREACHABLE` - 
-          * `REQUEST_REFUSED` - 
-          * `AAR_GENERATION` - 
-          * `NOT_HANDLED` -
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
+          * `PUBLIC_REGISTRY_CALL` - Effettuata la richiesta ai registri pubblici per ottenere l'indirizzo generale
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
+          * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
+          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
+          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
+          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
+          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
+          * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
+          * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Ricezione pagamento della notifica
+          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
@@ -1174,10 +1177,13 @@ components:
         - DIGITAL_FAILURE_WORKFLOW
         - ANALOG_SUCCESS_WORKFLOW
         - ANALOG_FAILURE_WORKFLOW
+        - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
         - NOTIFICATION_VIEWED
+        - PREPARE_ANALOG_DOMICILE
         - SEND_ANALOG_DOMICILE
-        - SEND_PAPER_FEEDBACK
+        - SEND_ANALOG_PROGRESS
+        - SEND_ANALOG_FEEDBACK
         - PAYMENT
         - COMPLETELY_UNREACHABLE
         - REQUEST_REFUSED
@@ -1314,6 +1320,14 @@ components:
           type: string
           description: Data tentativo
           format: date-time
+    RaddType:
+      type: string
+      description: |
+        tipo di Rete Anti Digital Divide <br/>
+        __FSU__: Fornitore Servizio Universale <br/>
+    RaddTransactionId:
+      type: string
+      description: Identificativo della pratica all'interno della rete RADD
     NotificationViewedDetails:
       type: object
       required:
@@ -1329,11 +1343,9 @@ components:
           type: integer
           format: int64
         raddType:
-          type: string
-          description: Tipologia rete radd
+          $ref: '#/components/schemas/RaddType'
         raddTransactionId:
-          description: ID della pratica dell'evento proveniente dalla rete radd
-          type: string
+          $ref: '#/components/schemas/RaddTransactionId'
     DeliveryMode:
       type: string
       description: Tipologia Domiciliazione
@@ -1563,7 +1575,7 @@ components:
       type: string
       description: Livello Servizio
       enum:
-        - SIMPLE_REGISTERED_LETTER
+        - AR_REGISTERED_LETTER
         - REGISTERED_LETTER_890
     SendAnalogDetails:
       type: object
@@ -1572,8 +1584,6 @@ components:
         - physicalAddress
         - serviceLevel
         - sentAttemptMade
-        - investigation
-        - numberOfPages
       properties:
         recIndex:
           type: integer
@@ -1587,12 +1597,15 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-        investigation:
-          type: boolean
-          description: E' richiesta investigazione indirizzo fisico alternativo
-        numberOfPages:
+        relatedRequestId:
+          type: string
+          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+        productType:
+          type: string
+          description: Tipo di invio cartaceo effettivamente inviato
+        analogCost:
           type: integer
-          description: numero pagine pdf inviato
+          description: costo in eurocent dell'invio
           format: int32
     SendAnalogFeedbackDetails:
       type: object
@@ -1631,7 +1644,6 @@ components:
       required:
         - recIndex
         - physicalAddress
-        - numberOfPages
       properties:
         recIndex:
           type: integer
@@ -1639,9 +1651,12 @@ components:
           format: int32
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-        numberOfPages:
+        productType:
+          type: string
+          description: Tipo di invio cartaceo effettivamente inviato
+        analogCost:
           type: integer
-          description: numero pagine pdf inviato
+          description: costo in eurocent dell'invio
           format: int32
     AarGenerationDetails:
       type: object
