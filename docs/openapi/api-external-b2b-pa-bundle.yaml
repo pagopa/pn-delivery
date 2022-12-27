@@ -732,7 +732,7 @@ components:
       description: |-
         - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
         - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
-        - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
+        - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica.
       type: string
       enum:
         - NOTIFICATION_CREATE
