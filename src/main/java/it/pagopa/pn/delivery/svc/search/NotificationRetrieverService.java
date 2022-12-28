@@ -163,7 +163,7 @@ public class NotificationRetrieverService {
 		if ( !CollectionUtils.isEmpty(searchResult.getNextPagesKey()) ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
-					.collect(Collectors.toList()) );
+					.toList() );
 		}
 		else
 			builder.nextPagesKey(new ArrayList<>());
@@ -553,7 +553,7 @@ public class NotificationRetrieverService {
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()
 				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp))
-				.collect(Collectors.toList());
+				.toList();
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
@@ -574,10 +574,10 @@ public class NotificationRetrieverService {
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream()
 						.map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) )
-						.collect(Collectors.toList())  )
+						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
-						.collect(Collectors.toList())
+						.toList()
 				)
 				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 

@@ -164,7 +164,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     error -> ProblemError.builder()
                     .detail( error )
                     .build()
-            ).collect(Collectors.toList());
+            ).toList();
             response.setErrors( problemErrorList );
         }
     }
