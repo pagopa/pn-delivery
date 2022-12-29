@@ -87,7 +87,7 @@ public class NotificationAttachmentService {
                     .secret(resp.getSecret())
                     .preloadIdx(req.getPreloadIdx())
                     .build();
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public static class FileDownloadIdentify {
@@ -279,8 +279,8 @@ public class NotificationAttachmentService {
             log.info("downloadDocumentWithRedirect with fileKey={} filename:{} - iun={}", fileKey, fileName, iun);
             return new FileInfos( fileName, r );
         } catch (Exception exc) {
-            if (exc instanceof PnHttpResponseException && ((PnHttpResponseException) exc).getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                throw new PnBadRequestException("File info not found", exc.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, exc);
+            if (exc instanceof PnHttpResponseException pnHttpResponseException && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                throw new PnBadRequestException("File info not found", pnHttpResponseException.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, pnHttpResponseException);
             }
             throw exc;
         }

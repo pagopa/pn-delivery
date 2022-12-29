@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_PHYSICALCOMMUNICATIONTYPE;
 
@@ -29,7 +28,7 @@ public class EntityToDtoNotificationMapper {
         }
 
     	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
-                .collect(Collectors.toList());
+                .toList();
 
         return new InternalNotification(FullSentNotification.builder()
                 .senderDenomination( entity.getSenderDenomination() )
@@ -63,7 +62,7 @@ public class EntityToDtoNotificationMapper {
 
         return recipients.stream()
                 .map( r -> mapper.map(r, NotificationRecipient.class))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -74,7 +73,7 @@ public class EntityToDtoNotificationMapper {
         if( entity != null && entity.getDocuments() != null) {
             result = entity.getDocuments().stream()
                     .map( this::mapOneDocument )
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return result;

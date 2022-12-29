@@ -129,7 +129,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
                         throw new PnInternalException(excMessage, ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA, exc);
                     }
                 })
-                .collect(Collectors.toList()));
+                .toList());
 
         // dato che requiredSize era maggiore di 1, devo tornare che ci sono ancora elementi se la size è >= di required
         globalResult.setMoreResult(cumulativeQueryResult.size() >= requiredSize);

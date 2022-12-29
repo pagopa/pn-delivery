@@ -79,7 +79,7 @@ public class StatusService {
 
         return opaqueTaxIds.stream()
                     .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt))
-                    .collect(Collectors.toList());
+                    .toList();
     }
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(

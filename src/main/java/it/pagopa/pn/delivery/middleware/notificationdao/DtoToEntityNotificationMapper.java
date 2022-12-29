@@ -10,7 +10,6 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class DtoToEntityNotificationMapper {
@@ -50,13 +49,13 @@ public class DtoToEntityNotificationMapper {
 
         return recipients.stream()
                .map( r -> mapper.map( r, NotificationRecipientEntity.class ))
-               .collect(Collectors.toList());
+               .toList();
     }
 
     private List<DocumentAttachmentEntity> convertDocuments(List<NotificationDocument> dtoList) {
         List<DocumentAttachmentEntity> entityList = null;
         if( dtoList != null ) {
-            entityList = dtoList.stream().map(this::convertDocument).collect(Collectors.toList());
+            entityList = dtoList.stream().map(this::convertDocument).toList();
         }
         return entityList;
     }
