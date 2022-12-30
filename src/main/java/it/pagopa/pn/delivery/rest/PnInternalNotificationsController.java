@@ -174,8 +174,6 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachmentPrivate={}", attachmentName)
                 .iun(iun)
-                .cxId(recipientInternalId)
-                .cxType("PF")
                 .build();
         logEvent.log();
         try {
@@ -203,7 +201,6 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate {}", docIdx)
                 .iun(iun)
-                .cxId(recipientInternalId)
                 .build();
         logEvent.log();
         try {
