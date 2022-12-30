@@ -1,8 +1,6 @@
 package it.pagopa.pn.delivery.models;
 
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import lombok.*;
 
@@ -14,9 +12,6 @@ import java.util.List;
 @Setter
 @Builder(toBuilder = true, builderMethodName = "fullSentNotificationBuilder")
 @ToString
-@Schema(
-        description = "Le notifiche di Piattaforma Notifiche",
-        externalDocs = @ExternalDocumentation( description = "MarkDown", url = "http://google.it/"))
 public class InternalNotification extends FullSentNotification {
 
 
@@ -49,7 +44,7 @@ public class InternalNotification extends FullSentNotification {
         this.recipientIds = recipientIds;
     }
 
-    @Schema( description = "Lista degli id dei destinatari")
+    //@Schema( description = "Lista degli id dei destinatari")
     private List<String> recipientIds;
 
     public List<String> getRecipientIds() { return this.recipientIds; }
