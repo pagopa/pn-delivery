@@ -31,8 +31,6 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
         ThirdPartyMessage result;
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "getReceivedNotification")
-                .cxId(xPagopaPnCxId)
-                .uid(xPagopaPnUid)
                 .iun(iun)
                 .build();
         logEvent.log();

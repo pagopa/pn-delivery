@@ -39,9 +39,6 @@ public class PnNotificationInputController implements NewNotificationApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}", paProtocolNumber)
-                .uid(xPagopaPnUid)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .build();
         logEvent.log();
         NewNotificationResponse svcRes;
@@ -63,9 +60,6 @@ public class PnNotificationInputController implements NewNotificationApi {
             String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, "presignedUploadRequest")
-                .uid(xPagopaPnUid)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .build();
 
         try {
