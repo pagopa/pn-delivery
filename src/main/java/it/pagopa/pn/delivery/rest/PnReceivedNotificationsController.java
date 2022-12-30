@@ -41,10 +41,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_SEARCH_RCP, "searchReceivedNotification")
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .iun(iunMatch)
-                .uid(xPagopaPnUid)
                 .build();
         logEvent.log();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
@@ -82,10 +79,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         FullReceivedNotification result = null;
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "getReceivedNotification")
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .iun(iun)
-                .uid(xPagopaPnUid)
                 .build();
         logEvent.log();
         try {
@@ -109,10 +103,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocument {}", docIdx)
-                .uid(xPagopaPnUid)
                 .iun(iun)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .build();
         logEvent.log();
         try {
@@ -140,9 +131,6 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachment={}", attachmentName)
                 .iun(iun)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
-                .uid(xPagopaPnUid)
                 .build();
         logEvent.log();
         try {
@@ -174,9 +162,6 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                         recipientType,
                         xPagopaPnCxId)
                 .mdcEntry( "aarQrCodeValue", aarQrCodeValue )
-                .cxType( recipientType )
-                .uid( xPagopaPnUid )
-                .cxId( xPagopaPnCxId )
                 .build();
         logEvent.log();
         ResponseCheckAarMandateDto responseCheckAarMandateDto;

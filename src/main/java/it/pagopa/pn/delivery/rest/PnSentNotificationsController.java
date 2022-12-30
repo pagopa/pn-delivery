@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED;
 
@@ -64,10 +63,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_SEARCH_SND, "searchSentNotification")
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .iun(iunMatch)
-                .uid(xPagopaPnUid)
                 .build();
         logEvent.log();
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
@@ -175,10 +171,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment={}", attachmentName)
-                .uid(xPagopaPnUid)
                 .iun(iun)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .build();
         logEvent.log();
         try {
@@ -205,10 +198,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}", docIdx)
-                .uid(xPagopaPnUid)
                 .iun(iun)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .build();
         logEvent.log();
         try {
