@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
+import it.pagopa.pn.delivery.utils.LogUtils;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
@@ -74,6 +75,9 @@ class PnSentReceivedNotificationControllerTest {
 
 	@MockBean
 	private ModelMapperFactory modelMapperFactory;
+
+	@MockBean
+	private LogUtils logUtils;
 
 	@Test
 	void getSentNotificationSuccess() {
@@ -439,6 +443,46 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				//.is3xxRedirection()
 		        .isOk();
+
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null, DOCUMENT_INDEX, true );
+	}
+
+	@Test
+	void getReceivedNotificationDocumentsWithRetryAfterSuccess() {
+
+		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( null )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.retryAfter( 3600 )
+				.build();
+
+		// When
+		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
+		Mockito.when( attachmentService.downloadDocumentWithRedirect(
+				Mockito.anyString(),
+				Mockito.anyString(),
+				Mockito.anyString(),
+				Mockito.isNull(),
+				Mockito.anyInt(),
+				Mockito.anyBoolean()
+		)).thenReturn( response );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/received/" + IUN + "/attachments/documents/" + DOCUMENT_INDEX)
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				//.header( "location" , REDIRECT_URL )
+				.exchange()
+				.expectStatus()
+				//.is3xxRedirection()
+				.isOk();
 
 		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null, DOCUMENT_INDEX, true );
 	}

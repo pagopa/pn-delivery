@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.LogUtils;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -20,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -37,13 +37,16 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     private final ModelMapperFactory modelMapperFactory;
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
+    private final LogUtils logUtils;
+
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory, LogUtils logUtils) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapperFactory = modelMapperFactory;
+        this.logUtils = logUtils;
     }
 
     @Override
@@ -213,10 +216,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     docIdx,
                     false
             );
-            @NotNull String filename = response.getFilename();
-            String responseUrl = response.getUrl();
-            String safeUrl = StringUtils.hasText( responseUrl )? responseUrl.split("\\?")[0] : null;
-            logEvent.generateSuccess("getReceivedNotificationDocumentPrivate filename={}, url={}", filename, safeUrl).log();
+            String message = logUtils.getLogMessageForDownloadDocument(response);
+            logEvent.generateSuccess("getReceivedNotificationDocumentPrivate {}", message).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;

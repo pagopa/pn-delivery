@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.utils.LogUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -66,6 +67,9 @@ class ReceivedNotificationsDocumentTest {
 
 	@MockBean
 	private ModelMapperFactory modelMapperFactory;
+
+	@MockBean
+	private LogUtils logUtils;
 
 	private NotificationEntityDao entityDao;
 

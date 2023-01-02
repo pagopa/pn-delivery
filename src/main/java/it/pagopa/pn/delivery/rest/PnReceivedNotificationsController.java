@@ -11,14 +11,13 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.LogUtils;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -31,11 +30,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     private final ModelMapperFactory modelMapperFactory;
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, NotificationQRService notificationQRService, ModelMapperFactory modelMapperFactory) {
+    private final LogUtils logUtils;
+
+    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, NotificationQRService notificationQRService, ModelMapperFactory modelMapperFactory, LogUtils logUtils) {
         this.retrieveSvc = retrieveSvc;
         this.notificationAttachmentService = notificationAttachmentService;
         this.notificationQRService = notificationQRService;
         this.modelMapperFactory = modelMapperFactory;
+        this.logUtils = logUtils;
     }
 
     @Override
@@ -117,10 +119,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     docIdx,
                     true
             );
-            @NotNull String filename = response.getFilename();
-            String responseUrl = response.getUrl();
-            String safeUrl = StringUtils.hasText( responseUrl )? responseUrl.split("\\?")[0] : null;
-            logEvent.generateSuccess("getReceivedNotificationDocument filename={}, url={}", filename, safeUrl).log();
+            String message = logUtils.getLogMessageForDownloadDocument(response);
+            logEvent.generateSuccess("getReceivedNotificationDocument {}", message).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;

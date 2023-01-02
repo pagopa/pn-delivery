@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.LogUtils;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,9 @@ class PnInternalNotificationsControllerTest {
 
     @MockBean
     private ModelMapperFactory modelMapperFactory;
+
+    @MockBean
+    private LogUtils logUtils;
 
 
 
