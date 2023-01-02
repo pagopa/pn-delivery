@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
@@ -117,7 +118,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     true
             );
             @NotNull String filename = response.getFilename();
-            @NotNull String safeUrl = response.getUrl().split("\\?")[0];
+            String responseUrl = response.getUrl();
+            String safeUrl = StringUtils.hasText( responseUrl )? responseUrl.split("\\?")[0] : null;
             logEvent.generateSuccess("getReceivedNotificationDocument filename={}, url={}", filename, safeUrl).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();

@@ -511,6 +511,41 @@ class PnInternalNotificationsControllerTest {
     }
 
     @Test
+    void getNotificationDocumentPrivateWithRetrySuccess() {
+
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( null )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .retryAfter( 1000 )
+                .build();
+
+        Mockito.when( attachmentService.downloadDocumentWithRedirect(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/"+ IUN +"/attachments/documents/"+DOCUMENT_IDX)
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
+
+        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX, false );
+    }
+
+    @Test
     void getNotificationDocumentPrivateFailure() {
         Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( attachmentService )

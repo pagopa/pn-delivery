@@ -214,9 +214,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     false
             );
             @NotNull String filename = response.getFilename();
-            @NotNull String safeUrl = response.getUrl().split("\\?")[0];
+            String responseUrl = response.getUrl();
+            String safeUrl = StringUtils.hasText( responseUrl )? responseUrl.split("\\?")[0] : null;
             logEvent.generateSuccess("getReceivedNotificationDocumentPrivate filename={}, url={}", filename, safeUrl).log();
-            logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
