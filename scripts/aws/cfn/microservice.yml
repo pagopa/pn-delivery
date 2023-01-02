@@ -361,7 +361,6 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
-
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
 
   # Lambda function role
