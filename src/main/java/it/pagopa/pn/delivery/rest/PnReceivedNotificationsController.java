@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -102,7 +103,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocument {}", docIdx)
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocument from documents array with index={}", docIdx)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -115,7 +116,9 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     docIdx,
                     true
             );
-            logEvent.generateSuccess().log();
+            @NotNull String filename = response.getFilename();
+            @NotNull String safeUrl = response.getUrl().split("\\?")[0];
+            logEvent.generateSuccess("getReceivedNotificationDocument filename={}, url={}", filename, safeUrl).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;

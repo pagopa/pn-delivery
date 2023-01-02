@@ -42,7 +42,7 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String USER_ID = "USER_ID";
 	private static final String PA_ID = "PA_ID";
 	private static final int DOCUMENT_INDEX = 0;
-	private static final String REDIRECT_URL = "http://redirectUrl";
+	private static final String REDIRECT_URL = "http://redirectUrl?token=fakeToken";
 	public static final String ATTACHMENT_BODY_STR = "Body";
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
 	private static final String FILENAME = "filename.pdf";
@@ -420,7 +420,7 @@ class PnSentReceivedNotificationControllerTest {
 						Mockito.anyString(),
 						Mockito.anyString(),
 						Mockito.anyString(),
-						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.anyInt(),
 						Mockito.anyBoolean()
 				)).thenReturn( response );
@@ -466,23 +466,23 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/notifications/received/" + IUN + "/attachments/documents/" + DOCUMENT_INDEX)
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/notifications/received/" + IUN + "/attachments/documents/" + DOCUMENT_INDEX )
+								.queryParam("mandateId", MANDATE_ID)
+								.build())
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, USER_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
-				//.header( "location" , REDIRECT_URL )
 				.exchange()
 				.expectStatus()
-				//.is3xxRedirection()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, USER_ID, null, DOCUMENT_INDEX, true );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, USER_ID, MANDATE_ID, DOCUMENT_INDEX, true );
 	}
-
-	// TODO inserire il test con il mandateID valorizzato
 
 	@Test
 	void getSentNotificationAttachmentSuccess() {

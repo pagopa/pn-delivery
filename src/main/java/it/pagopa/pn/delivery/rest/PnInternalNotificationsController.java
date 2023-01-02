@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -199,7 +200,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate {}", docIdx)
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate from documents array with index={}", docIdx)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -212,6 +213,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     docIdx,
                     false
             );
+            @NotNull String filename = response.getFilename();
+            @NotNull String safeUrl = response.getUrl().split("\\?")[0];
+            logEvent.generateSuccess("getReceivedNotificationDocumentPrivate filename={}, url={}", filename, safeUrl).log();
             logEvent.generateSuccess().log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
