@@ -134,7 +134,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachment={}", attachmentName)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachment attachment name={}", attachmentName)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -148,7 +148,9 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     attachmentName,
                     true
             );
-            logEvent.generateSuccess().log();
+            String message = logUtils.getLogMessageForDownloadDocument(response);
+            logEvent.generateSuccess("getReceivedNotificationAttachment attachment name={}, {}",
+                    attachmentName, message).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;

@@ -176,7 +176,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachmentPrivate(String iun, String attachmentName, String recipientInternalId, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachmentPrivate={}", attachmentName)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachmentPrivate attachment name={}", attachmentName)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -190,7 +190,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     attachmentName,
                     false
             );
-            logEvent.generateSuccess().log();
+            String message = logUtils.getLogMessageForDownloadDocument(response);
+            logEvent.generateSuccess("getReceivedNotificationAttachmentPrivate attachment name={}, {}",
+                    attachmentName, message).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
