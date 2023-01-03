@@ -189,8 +189,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     false
             );
             String fileName = response.getFilename();
-            String url = StringUtils.hasText( response.getUrl() ) ? response.getUrl() : null;
-            String retryAfter = response.getRetryAfter() != null ? response.getRetryAfter().toString(): null;
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationAttachmentPrivate attachment name={}, {}",
                     attachmentName, message).log();
