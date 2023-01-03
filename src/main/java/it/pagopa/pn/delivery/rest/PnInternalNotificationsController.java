@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -58,7 +59,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         try {
             response = priceService.getNotificationCost( paTaxId, noticeCode );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("Exception on get notification private= " + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure("Exception on get notification cost private= " + exc.getMessage()).log();
             throw exc;
         }
@@ -85,7 +91,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         try {
             responseCheckAarDto = qrService.getNotificationByQR( requestCheckAarDto );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("Exception on get notification qr private= " + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure("Exception on get notification qr private= " + exc.getMessage()).log();
             throw exc;
         }
@@ -121,7 +132,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         try {
             statusService.updateStatus(requestUpdateStatusDto);
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(logMessage).log();
             throw exc;
         }
@@ -160,7 +176,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
             response = mapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }
@@ -187,7 +208,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     false
             );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }
@@ -213,7 +239,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     false
             );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }

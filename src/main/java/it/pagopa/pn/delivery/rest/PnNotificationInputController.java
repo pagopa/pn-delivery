@@ -1,10 +1,10 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -12,9 +12,11 @@ import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_SIZE;
@@ -44,13 +46,20 @@ public class PnNotificationInputController implements NewNotificationApi {
         NewNotificationResponse svcRes;
         try {
             svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnCxGroups);
-        } catch (Exception ex) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + e.getProblem(),
+                    newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken()).log();
+            throw e;
+        }
+        catch (Exception ex) {
             logEvent.generateFailure(ex.getMessage()).log();
             throw ex;
         }
         @NotNull String requestId = svcRes.getNotificationRequestId();
         @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
-        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}", requestId, protocolNumber).log();
+        String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
+        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, iun={}", requestId, protocolNumber, iun).log();
         return ResponseEntity.accepted().body( svcRes );
     }
 
@@ -81,9 +90,14 @@ public class PnNotificationInputController implements NewNotificationApi {
             logEvent.generateSuccess(successMessage).log();
 
             return ResponseEntity.ok(res);
-        } catch (Exception e) {
-            log.error("catched exception", e);
-            logEvent.generateFailure("catched exception on preload " + e.getMessage(), e).log();
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception e) {
+            log.error("caught exception", e);
+            logEvent.generateFailure("caught exception on preload " + e.getMessage(), e).log();
             throw e;
         }
     }

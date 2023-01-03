@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -27,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED;
 
@@ -88,7 +88,12 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
             response = mapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }
@@ -185,7 +190,12 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     false
             );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }
@@ -212,7 +222,12 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     false
             );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }

@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -66,7 +67,12 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
             response = mapper.map(serviceResult, NotificationSearchResponse.class);
             logEvent.generateSuccess().log();
-        } catch (Exception exc ){
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc ){
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }
@@ -90,7 +96,12 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             result = mapper.map(internalNotification, FullReceivedNotification.class);
 
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }
@@ -116,7 +127,12 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     true
             );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }
@@ -144,7 +160,12 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     true
             );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw e;
+        }
+        catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
         }
@@ -168,7 +189,12 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         try {
             responseCheckAarMandateDto = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId );
             logEvent.generateSuccess().log();
-        } catch ( Exception exc ) {
+        }
+        catch (PnRuntimeException e) {
+            logEvent.generateFailure("Exception on get notification by qr= " + e.getProblem()).log();
+            throw e;
+        }
+        catch ( Exception exc ) {
             logEvent.generateFailure( "Exception on get notification by qr= " + exc.getMessage()).log();
             throw exc;
         }
