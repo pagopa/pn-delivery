@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -35,6 +36,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     private final NotificationAttachmentService notificationAttachmentService;
 
     private final ModelMapperFactory modelMapperFactory;
+
 
     public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
@@ -172,7 +174,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachmentPrivate(String iun, String attachmentName, String recipientInternalId, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachmentPrivate={}", attachmentName)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachmentPrivate attachment name={}", attachmentName)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -186,7 +188,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     attachmentName,
                     false
             );
-            logEvent.generateSuccess().log();
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
+            logEvent.generateSuccess("getReceivedNotificationAttachmentPrivate attachment name={}, {}",
+                    attachmentName, message).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
@@ -199,7 +206,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate {}", docIdx)
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate from documents array with index={}", docIdx)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -212,7 +219,11 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     docIdx,
                     false
             );
-            logEvent.generateSuccess().log();
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
+            logEvent.generateSuccess("getReceivedNotificationDocumentPrivate {}", message).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
             throw exc;
