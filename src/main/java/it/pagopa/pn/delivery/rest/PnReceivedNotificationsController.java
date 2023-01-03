@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -11,11 +12,11 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.LogUtils;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
@@ -30,14 +31,12 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
     private final ModelMapperFactory modelMapperFactory;
 
-    private final LogUtils logUtils;
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, NotificationQRService notificationQRService, ModelMapperFactory modelMapperFactory, LogUtils logUtils) {
+    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, NotificationQRService notificationQRService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.notificationAttachmentService = notificationAttachmentService;
         this.notificationQRService = notificationQRService;
         this.modelMapperFactory = modelMapperFactory;
-        this.logUtils = logUtils;
     }
 
     @Override
@@ -119,7 +118,10 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     docIdx,
                     true
             );
-            String message = logUtils.getLogMessageForDownloadDocument(response);
+            String fileName = response.getFilename();
+            String url = StringUtils.hasText( response.getUrl() ) ? response.getUrl() : null;
+            String retryAfter = response.getRetryAfter() != null ? response.getRetryAfter().toString(): null;
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationDocument {}", message).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
@@ -148,7 +150,10 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     attachmentName,
                     true
             );
-            String message = logUtils.getLogMessageForDownloadDocument(response);
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationAttachment attachment name={}, {}",
                     attachmentName, message).log();
         } catch (Exception exc) {

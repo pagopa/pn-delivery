@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.utils.LogUtils;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
@@ -75,9 +74,6 @@ class PnSentReceivedNotificationControllerTest {
 
 	@MockBean
 	private ModelMapperFactory modelMapperFactory;
-
-	@MockBean
-	private LogUtils logUtils;
 
 	@Test
 	void getSentNotificationSuccess() {
@@ -688,7 +684,7 @@ class PnSentReceivedNotificationControllerTest {
 						Mockito.anyString(),
 						Mockito.anyString(),
 						Mockito.anyString(),
-						Mockito.anyInt(),
+						Mockito.isNull(),
 						Mockito.anyString(),
 						Mockito.anyBoolean()
 				)).thenReturn( response );

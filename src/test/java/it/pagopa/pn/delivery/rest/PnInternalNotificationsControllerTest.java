@@ -12,7 +12,6 @@ import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.LogUtils;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
@@ -83,9 +82,6 @@ class PnInternalNotificationsControllerTest {
 
     @MockBean
     private ModelMapperFactory modelMapperFactory;
-
-    @MockBean
-    private LogUtils logUtils;
 
 
 
@@ -444,6 +440,22 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void getNotificationAttachmentPrivateSuccess() {
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( REDIRECT_URL )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .build();
+
+        Mockito.when( attachmentService.downloadAttachmentWithRedirect(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.isNull(),
+                Mockito.isNull(),
+                Mockito.anyString(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
 
         webTestClient.get()
                 .uri( uriBuilder ->

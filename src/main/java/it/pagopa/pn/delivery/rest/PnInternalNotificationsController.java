@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -13,7 +14,6 @@ import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.LogUtils;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -37,16 +37,14 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
     private final ModelMapperFactory modelMapperFactory;
 
-    private final LogUtils logUtils;
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory, LogUtils logUtils) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
         this.modelMapperFactory = modelMapperFactory;
-        this.logUtils = logUtils;
     }
 
     @Override
@@ -190,7 +188,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     attachmentName,
                     false
             );
-            String message = logUtils.getLogMessageForDownloadDocument(response);
+            String fileName = response.getFilename();
+            String url = StringUtils.hasText( response.getUrl() ) ? response.getUrl() : null;
+            String retryAfter = response.getRetryAfter() != null ? response.getRetryAfter().toString(): null;
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationAttachmentPrivate attachment name={}, {}",
                     attachmentName, message).log();
         } catch (Exception exc) {
@@ -218,7 +219,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     docIdx,
                     false
             );
-            String message = logUtils.getLogMessageForDownloadDocument(response);
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationDocumentPrivate {}", message).log();
         } catch (Exception exc) {
             logEvent.generateFailure(exc.getMessage()).log();
