@@ -248,6 +248,22 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
+	void getNotificationRequestStatusWithoutProtocol() {
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/delivery/requests" )
+								.build())
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isBadRequest();
+	}
+
+	@Test
 	void getNotificationRequestStatusByProtocolAndIdempotenceSuccess() {
 		// Given
 		InternalNotification notification = newNotification();
