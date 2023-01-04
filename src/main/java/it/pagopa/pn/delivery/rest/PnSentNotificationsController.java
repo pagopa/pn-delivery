@@ -88,13 +88,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
             response = mapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( response );
@@ -108,15 +103,28 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     @Override
     public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         InternalNotification internalNotification;
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before( PnAuditLogEventType.AUD_NT_CHECK, "getNotificationRequestStatus notificationRequestId={} paProtocolNumber={} idempotenceToken={}",
+                        notificationRequestId,
+                        paProtocolNumber,
+                        idempotenceToken)
+                .build();
+        logEvent.log();
         if (StringUtils.hasText( notificationRequestId )) {
             String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
+            logEvent.getMdc().put("iun", iun);
             internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId );
         } else {
             if ( !StringUtils.hasText( paProtocolNumber ) ) {
-                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "paProtocolNumber" );
+                PnInvalidInputException e = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "paProtocolNumber");
+                logEvent.generateFailure("[notificationRequestId={} idempotenceToken={}]" + e.getProblem(), notificationRequestId, idempotenceToken);
+                throw e;
             }
             if (!StringUtils.hasText( idempotenceToken ) ) {
-                throw new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "idempotenceToken" );
+                PnInvalidInputException e = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "idempotenceToken");
+                logEvent.generateFailure("[notificationRequestId={} paProtocolNumber={}]" + e.getProblem(), notificationRequestId, paProtocolNumber);
+                throw e;
             }
             internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken);
         }
@@ -156,6 +164,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 break; }
             default: response.setNotificationRequestStatus( "ACCEPTED" );
         }
+
+        logEvent.generateSuccess().log();
         return ResponseEntity.ok( response );
     }
 
@@ -190,13 +200,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     false
             );
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
      
@@ -222,13 +227,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     false
             );
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( response );

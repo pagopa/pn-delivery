@@ -46,20 +46,16 @@ public class PnNotificationInputController implements NewNotificationApi {
         NewNotificationResponse svcRes;
         try {
             svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnCxGroups);
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + e.getProblem(),
+        } catch (PnRuntimeException ex) {
+            logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + ex.getProblem(),
                     newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken()).log();
-            throw e;
-        }
-        catch (Exception ex) {
-            logEvent.generateFailure(ex.getMessage()).log();
             throw ex;
         }
         @NotNull String requestId = svcRes.getNotificationRequestId();
         @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
         String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
-        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, iun={}", requestId, protocolNumber, iun).log();
+        logEvent.getMdc().put("iun", iun);
+        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}", requestId, protocolNumber).log();
         return ResponseEntity.accepted().body( svcRes );
     }
 
@@ -90,14 +86,8 @@ public class PnNotificationInputController implements NewNotificationApi {
             logEvent.generateSuccess(successMessage).log();
 
             return ResponseEntity.ok(res);
-        }
-        catch (PnRuntimeException e) {
+        } catch (PnRuntimeException e) {
             logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception e) {
-            log.error("caught exception", e);
-            logEvent.generateFailure("caught exception on preload " + e.getMessage(), e).log();
             throw e;
         }
     }

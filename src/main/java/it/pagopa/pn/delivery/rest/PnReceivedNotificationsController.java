@@ -17,7 +17,6 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
@@ -70,13 +69,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
             response = mapper.map(serviceResult, NotificationSearchResponse.class);
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc ){
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok(response);
@@ -99,13 +93,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             result = mapper.map(internalNotification, FullReceivedNotification.class);
 
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok(result);
@@ -134,13 +123,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             String retryAfter = String.valueOf( response.getRetryAfter() );
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationDocument {}", message).log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
 
@@ -172,12 +156,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationAttachment attachment name={}, {}",
                     attachmentName, message).log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;    
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok(response);
@@ -200,13 +180,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         try {
             responseCheckAarMandateDto = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId );
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("Exception on get notification by qr= " + e.getProblem()).log();
-            throw e;
-        }
-        catch ( Exception exc ) {
-            logEvent.generateFailure( "Exception on get notification by qr= " + exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("Exception on get notification by qr= " + exc.getProblem()).log();
             throw exc;
         }
 

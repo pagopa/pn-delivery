@@ -61,13 +61,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         try {
             response = priceService.getNotificationCost( paTaxId, noticeCode );
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("Exception on get notification private= " + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure("Exception on get notification cost private= " + exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("Exception on get notification cost private= " + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( response );
@@ -93,13 +88,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         try {
             responseCheckAarDto = qrService.getNotificationByQR( requestCheckAarDto );
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("Exception on get notification qr private= " + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure("Exception on get notification qr private= " + exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("Exception on get notification qr private= " + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( responseCheckAarDto );
@@ -134,13 +124,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         try {
             statusService.updateStatus(requestUpdateStatusDto);
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(logMessage).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok().build();
@@ -178,13 +163,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
             response = mapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( response );
@@ -215,13 +195,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationAttachmentPrivate attachment name={}, {}",
                     attachmentName, message).log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok(response);
@@ -250,13 +225,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
             String retryAfter = String.valueOf( response.getRetryAfter() );
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationDocumentPrivate {}", message).log();
-        }
-        catch (PnRuntimeException e) {
-            logEvent.generateFailure("" + e.getProblem()).log();
-            throw e;
-        }
-        catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok(response);
