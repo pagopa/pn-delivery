@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.StatusService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -46,6 +47,10 @@ class PnInternalNotificationsControllerTest {
     private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
     private static final String DELEGATOR_ID = "DelegatorId";
     private static final String MANDATE_ID = "mandateId";
+    private static final String REDIRECT_URL = "http://redirectUrl";
+    public static final String ATTACHMENT_BODY_STR = "Body";
+    public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
+    private static final String FILENAME = "filename.pdf";
     private static final String PA_TAX_ID = "77777777777";
     private static final String NOTICE_CODE = "302000100000019421";
     private static final String ATTACHMENT_NAME = "PAGOPA";
@@ -435,6 +440,22 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void getNotificationAttachmentPrivateSuccess() {
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( REDIRECT_URL )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .build();
+
+        Mockito.when( attachmentService.downloadAttachmentWithRedirect(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.isNull(),
+                Mockito.isNull(),
+                Mockito.anyString(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
 
         webTestClient.get()
                 .uri( uriBuilder ->
@@ -473,6 +494,57 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void getNotificationDocumentPrivateSuccess() {
+
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( REDIRECT_URL )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .build();
+
+        Mockito.when( attachmentService.downloadDocumentWithRedirect(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/"+ IUN +"/attachments/documents/"+DOCUMENT_IDX)
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
+
+        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX, false );
+    }
+
+    @Test
+    void getNotificationDocumentPrivateWithRetrySuccess() {
+
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( null )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .retryAfter( 1000 )
+                .build();
+
+        Mockito.when( attachmentService.downloadDocumentWithRedirect(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
 
         webTestClient.get()
                 .uri( uriBuilder ->
