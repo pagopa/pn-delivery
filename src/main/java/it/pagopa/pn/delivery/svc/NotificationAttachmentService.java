@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -28,7 +29,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT;
@@ -133,12 +133,14 @@ public class NotificationAttachmentService {
             String iun,
             String cxType,
             String xPagopaPnCxId,
+            String xPagopaPnUid,
             String mandateId,
             Integer documentIdx,
             Boolean markNotificationAsViewed) {
         InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
                 .cxType( cxType )
                 .cxId( xPagopaPnCxId )
+                .uid( xPagopaPnUid )
                 .mandateId( mandateId )
                 .iun( iun )
                 .documentIndex( documentIdx )
@@ -154,6 +156,7 @@ public class NotificationAttachmentService {
             String iun,
             String cxType,
             String xPagopaPnCxId,
+            String xPagopaPnUid,
             String mandateId,
             Integer recipientIdx,
             String attachmentName,
@@ -161,6 +164,7 @@ public class NotificationAttachmentService {
         InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
                 .cxType( cxType )
                 .cxId( xPagopaPnCxId )
+                .uid( xPagopaPnUid )
                 .mandateId( mandateId )
                 .iun( iun )
                 .documentIndex( null )
@@ -174,6 +178,7 @@ public class NotificationAttachmentService {
     private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect( InputDownloadDto inputDownloadDto ) {
         String cxType = inputDownloadDto.getCxType();
         String cxId = inputDownloadDto.getCxId();
+        String uid = inputDownloadDto.getUid();
         String mandateId = inputDownloadDto.getMandateId();
         String iun = inputDownloadDto.getIun();
         Integer recipientIdx = inputDownloadDto.getRecipientIdx();
@@ -205,7 +210,16 @@ public class NotificationAttachmentService {
             // controlli per essere certi che la richiesta è stata fatta da un destinatario o da un delegato
             // ma non da rete RADD e non da mittente
             if( !cxType.equals( CxTypeAuthFleet.PA.getValue() ) && Boolean.TRUE.equals(markNotificationAsViewed) ) {
-                notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx() );
+                NotificationViewDelegateInfo delegateInfo = null;
+                if (StringUtils.hasText( mandateId ) ) {
+                    delegateInfo = NotificationViewDelegateInfo.builder()
+                            .delegateType( NotificationViewDelegateInfo.DelegateType.valueOf( cxType ) )
+                            .mandateId( mandateId )
+                            .internalId( cxId )
+                            .operatorUuid( uid )
+                            .build();
+                }
+                notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo );
             }
 
             return NotificationAttachmentDownloadMetadataResponse.builder()

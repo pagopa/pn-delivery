@@ -52,7 +52,7 @@ class PnReceivedIONotificationsControllerTest {
         System.out.println(expectedValueJson);
 
         // When
-        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
                 .thenReturn( notification );
 
 
@@ -60,32 +60,32 @@ class PnReceivedIONotificationsControllerTest {
         webTestClient.get()
                 .uri( "/delivery/notifications/received/" + IUN  )
                 .header(HttpHeaders.ACCEPT, "application/io+json")
-                .header("x-pagopa-pn-cx-id", USER_ID )
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
                 .header("x-pagopa-pn-cx-type", "PF" )
-                .header("x-pagopa-pn-uid", "IO-" +USER_ID )
+                .header("x-pagopa-pn-uid", USER_ID )
                 .exchange()
                 .expectStatus()
                 .isOk()
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, null);
+        Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, "PF", USER_ID, null);
     }
 
     @Test
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
         // Then
         webTestClient.get()
                 .uri( "/delivery/notifications/received/" + IUN  )
                 .header(HttpHeaders.ACCEPT, "application/io+json")
-                .header("x-pagopa-pn-cx-id", USER_ID )
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
                 .header("x-pagopa-pn-cx-type", "PF" )
-                .header("x-pagopa-pn-uid", "IO-" +USER_ID )
+                .header("x-pagopa-pn-uid", USER_ID )
                 .exchange()
                 .expectStatus()
                 .isNotFound();

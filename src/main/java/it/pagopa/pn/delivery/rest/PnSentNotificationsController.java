@@ -194,6 +194,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             response = notificationAttachmentService.downloadAttachmentWithRedirect( iun,
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
+                    xPagopaPnUid,
                     null,
                     recipientIdx,
                     attachmentName,
@@ -222,6 +223,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     iun,
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
+                    xPagopaPnUid,
                     null,
                     docIdx,
                     false

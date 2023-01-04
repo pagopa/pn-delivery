@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.*;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
@@ -468,19 +469,26 @@ public class NotificationRetrieverService {
 	 * Get the full detail of a notification by IUN and notify viewed event
 	 *
 	 * @param iun    unique identifier of a Notification
-	 * @param userId identifier of a user
+	 * @param cxId identifier of a user
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId, String mandateId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String cxId, String cxType, String xPagopaPnUid, String mandateId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
 		String delegatorId = null;
-		if (mandateId != null) {
-			delegatorId = checkMandateForNotificationDetail(userId, mandateId);
+		NotificationViewDelegateInfo delegateInfo = null;
+		if ( StringUtils.hasText( mandateId ) ) {
+			delegatorId = checkMandateForNotificationDetail(cxId, mandateId);
+			delegateInfo = NotificationViewDelegateInfo.builder()
+					.mandateId( mandateId )
+					.internalId( cxId )
+					.operatorUuid( xPagopaPnUid )
+					.delegateType( NotificationViewDelegateInfo.DelegateType.valueOf( cxType ) )
+					.build();
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);
-		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : userId);
+		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : cxId, delegateInfo);
 		return notification;
 	}
 
@@ -585,26 +593,26 @@ public class NotificationRetrieverService {
 	}
 
 
-	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, String recipientId, NotificationViewDelegateInfo delegateInfo) {
 		String iun = notification.getIun();
 
 		int recipientIndex = -1;
 		for( int idx = 0 ; idx < notification.getRecipientIds().size(); idx++) {
-			String recipientId = notification.getRecipientIds().get( idx );
-			if( userId.equals( recipientId ) ) {
+			String notificationRecipientId = notification.getRecipientIds().get( idx );
+			if( recipientId.equals( notificationRecipientId ) ) {
 				recipientIndex = idx;
 			}
 		}
 
 		if( recipientIndex == -1 ) {
-			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
-			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" + iun + " do not have recipient/delegator=" + userId,
+			log.debug("Recipient not found for iun={} and recipientId={} ", iun, recipientId );
+			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" + iun + " do not have recipient/delegator=" + recipientId,
 					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
 		}
 
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
-		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex );
+		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo );
 	}
 
 	private void labelizeGroup(InternalNotification notification, String senderId) {

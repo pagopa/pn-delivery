@@ -86,7 +86,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, mandateId);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, xPagopaPnCxType.getValue(), xPagopaPnUid, mandateId);
 
             ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, FullReceivedNotification.class);
 
@@ -114,6 +114,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     iun,
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
+                    xPagopaPnUid,
                     mandateId,
                     docIdx,
                     true
@@ -145,6 +146,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     iun,
                     xPagopaPnCxType.toString(),
                     xPagopaPnCxId,
+                    xPagopaPnUid,
                     mandateId,
                     null,
                     attachmentName,

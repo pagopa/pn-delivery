@@ -36,7 +36,7 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
                 .build();
         logEvent.log();
         try {
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, null);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, xPagopaPnCxType.getValue(), xPagopaPnUid, null);
             result = ioMapper.mapToThirdPartMessage(internalNotification);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {

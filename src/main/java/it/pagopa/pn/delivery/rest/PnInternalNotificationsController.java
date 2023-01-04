@@ -184,6 +184,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     iun,
                     "PF",
                     recipientInternalId,
+                    null,
                     mandateId,
                     null,
                     attachmentName,
@@ -216,6 +217,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     iun,
                     "PF",
                     recipientInternalId,
+                    null,
                     mandateId,
                     docIdx,
                     false
