@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest.io;
 
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -38,8 +39,8 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, null);
             result = ioMapper.mapToThirdPartMessage(internalNotification);
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok(result);
