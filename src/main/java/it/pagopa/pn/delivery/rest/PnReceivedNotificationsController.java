@@ -87,7 +87,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, xPagopaPnCxType.getValue(), xPagopaPnUid, mandateId);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId);
 
             ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, FullReceivedNotification.class);
 
@@ -110,8 +111,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .iun(iun)
                 .build();
         logEvent.log();
-        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.toString(), xPagopaPnCxId, xPagopaPnUid);
         try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.toString(), xPagopaPnCxId, xPagopaPnUid);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -141,8 +142,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .iun(iun)
                 .build();
         logEvent.log();
-        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.toString(), xPagopaPnCxId, xPagopaPnUid);
         try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.toString(), xPagopaPnCxId, xPagopaPnUid);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,

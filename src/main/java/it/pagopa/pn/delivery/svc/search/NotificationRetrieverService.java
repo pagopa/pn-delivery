@@ -17,6 +17,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
@@ -41,7 +42,6 @@ import javax.validation.ValidatorFactory;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 
@@ -468,27 +468,27 @@ public class NotificationRetrieverService {
 	/**
 	 * Get the full detail of a notification by IUN and notify viewed event
 	 *
-	 * @param iun    unique identifier of a Notification
-	 * @param cxId identifier of a user
+	 * @param iun                unique identifier of a Notification
+	 * @param internalAuthHeader
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String cxId, String cxType, String xPagopaPnUid, String mandateId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, InternalAuthHeader internalAuthHeader, String mandateId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
 		String delegatorId = null;
 		NotificationViewDelegateInfo delegateInfo = null;
 		if ( StringUtils.hasText( mandateId ) ) {
-			delegatorId = checkMandateForNotificationDetail(cxId, mandateId);
+			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId);
 			delegateInfo = NotificationViewDelegateInfo.builder()
 					.mandateId( mandateId )
-					.internalId( cxId )
-					.operatorUuid( xPagopaPnUid )
-					.delegateType( NotificationViewDelegateInfo.DelegateType.valueOf( cxType ) )
+					.internalId(internalAuthHeader.xPagopaPnCxId())
+					.operatorUuid(internalAuthHeader.xPagopaPnUid())
+					.delegateType( NotificationViewDelegateInfo.DelegateType.valueOf(internalAuthHeader.cxType()) )
 					.build();
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);
-		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : cxId, delegateInfo);
+		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : internalAuthHeader.xPagopaPnCxId(), delegateInfo);
 		return notification;
 	}
 

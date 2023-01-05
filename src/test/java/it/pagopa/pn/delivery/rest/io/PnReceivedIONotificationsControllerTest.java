@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
@@ -52,7 +53,7 @@ class PnReceivedIONotificationsControllerTest {
         System.out.println(expectedValueJson);
 
         // When
-        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null ) ) )
                 .thenReturn( notification );
 
 
@@ -69,14 +70,14 @@ class PnReceivedIONotificationsControllerTest {
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, "IO-" +USER_ID, "PF", USER_ID, null);
+        Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("IO-" + USER_ID, "PF", USER_ID), null);
     }
 
     @Test
     void getReceivedNotificationFailure() {
 
         // When
-        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null ) ) )
                 .thenThrow(new PnNotificationNotFoundException("test"));
 
         // Then

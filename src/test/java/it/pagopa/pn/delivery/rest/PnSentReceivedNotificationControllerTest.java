@@ -300,13 +300,14 @@ class PnSentReceivedNotificationControllerTest {
 	void getReceivedNotificationSuccess() {
 		// Given
 		InternalNotification notification = newNotification();
+		InternalAuthHeader internalAuthHeader = new InternalAuthHeader( CX_TYPE_PF, CX_ID, UID );
 
 		// When
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),eq( null ) ) )
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null ) ) )
 				.thenReturn( notification );
 
 		// Then
@@ -323,7 +324,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody(FullReceivedNotification.class);
 
-		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, CX_ID, CX_TYPE_PF, UID, null);
+		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, null);
 	}
 
 	@Test
@@ -334,7 +335,7 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null ) ) )
 				.thenThrow(new PnNotificationNotFoundException("test"));
 
 		// Then
@@ -355,13 +356,14 @@ class PnSentReceivedNotificationControllerTest {
 	void getReceivedNotificationByDelegateSuccess() {
 		// Given
 		InternalNotification notification = newNotification();
+		InternalAuthHeader internalAuthHeader = new InternalAuthHeader( CX_TYPE_PF, CX_ID, UID );
 
 		// When
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) )
+		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), Mockito.anyString() ) )
 				.thenReturn( notification );
 
 		// Then
@@ -382,7 +384,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody(FullReceivedNotification.class);
 
-		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, CX_ID, CX_TYPE_PF, UID, MANDATE_ID);
+		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, MANDATE_ID);
 	}
 
 	@Test
