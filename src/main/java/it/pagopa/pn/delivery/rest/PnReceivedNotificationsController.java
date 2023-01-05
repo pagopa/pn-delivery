@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
@@ -109,12 +110,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .iun(iun)
                 .build();
         logEvent.log();
+        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.toString(), xPagopaPnCxId, xPagopaPnUid);
         try {
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
-                    xPagopaPnCxType.toString(),
-                    xPagopaPnCxId,
-                    xPagopaPnUid,
+                    internalAuthHeader,
                     mandateId,
                     docIdx,
                     true
@@ -141,12 +141,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .iun(iun)
                 .build();
         logEvent.log();
+        InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.toString(), xPagopaPnCxId, xPagopaPnUid);
         try {
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
-                    xPagopaPnCxType.toString(),
-                    xPagopaPnCxId,
-                    xPagopaPnUid,
+                    internalAuthHeader,
                     mandateId,
                     null,
                     attachmentName,

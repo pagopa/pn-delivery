@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -50,6 +51,7 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String REQUEST_ID = "VkdLVi1VS0hOLVZJQ0otMjAyMjA1LVAtMQ==";
 	private static final String MANDATE_ID = "mandateId";
 	public static final String CX_TYPE_PF = "PF";
+	public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID);
 	private static final String CX_TYPE_PA = "PA";
 	private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
 	private static final String IDEMPOTENCE_TOKEN = "idempotenceToken";
@@ -392,13 +394,13 @@ class PnSentReceivedNotificationControllerTest {
 				.filename( FILENAME )
 				.build();
 
+		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, PA_ID, UID);
+
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( attachmentService.downloadDocumentWithRedirect(
 						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
+						Mockito.any( InternalAuthHeader.class ),
 						Mockito.isNull(),
 						Mockito.anyInt(),
 						Mockito.anyBoolean()
@@ -419,7 +421,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PA, PA_ID, UID, null, DOCUMENT_INDEX, false );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, internalAuthHeader, null, DOCUMENT_INDEX, false );
 	}
 
 	@Test
@@ -436,10 +438,8 @@ class PnSentReceivedNotificationControllerTest {
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( attachmentService.downloadDocumentWithRedirect(
 						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.isNull(),
+						Mockito.any( InternalAuthHeader.class ),
+				 		Mockito.isNull(),
 						Mockito.anyInt(),
 						Mockito.anyBoolean()
 				)).thenReturn( response );
@@ -459,7 +459,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, CX_ID, UID, null, DOCUMENT_INDEX, true );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_INDEX, true );
 	}
 
 	@Test
@@ -477,9 +477,7 @@ class PnSentReceivedNotificationControllerTest {
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( attachmentService.downloadDocumentWithRedirect(
 				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
+				Mockito.any( InternalAuthHeader.class ),
 				Mockito.isNull(),
 				Mockito.anyInt(),
 				Mockito.anyBoolean()
@@ -500,7 +498,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, CX_ID, UID, null, DOCUMENT_INDEX, true );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_INDEX, true );
 	}
 
 	@Test
@@ -517,9 +515,7 @@ class PnSentReceivedNotificationControllerTest {
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( attachmentService.downloadDocumentWithRedirect(
 				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
+				Mockito.any( InternalAuthHeader.class ),
 				Mockito.anyString(),
 				Mockito.anyInt(),
 				Mockito.anyBoolean()
@@ -542,7 +538,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, CX_TYPE_PF, CX_ID, UID, MANDATE_ID, DOCUMENT_INDEX, true );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, DOCUMENT_INDEX, true );
 	}
 
 	@Test
@@ -555,14 +551,14 @@ class PnSentReceivedNotificationControllerTest {
 				.filename( FILENAME )
 				.build();
 
+		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID);
+
 		// When
 		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
 		Mockito.when( attachmentService.downloadAttachmentWithRedirect(
 						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
+						Mockito.any( InternalAuthHeader.class ),
+						Mockito.isNull(),
 						Mockito.anyInt(),
 						Mockito.anyString(),
 						Mockito.anyBoolean()
@@ -581,7 +577,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PA, CX_ID, UID, null,  0, PAGOPA, false);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, internalAuthHeader, null,  0, PAGOPA, false);
 	}
 
 	@Test
@@ -589,7 +585,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, PA_ID, UID, null, 0, PAGOPA, false );
+				.downloadAttachmentWithRedirect( IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID), null, 0, PAGOPA, false );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
@@ -605,7 +601,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getSentNotificationDocumentFailure() {
 		// When
-		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, CX_TYPE_PF, PA_ID, UID, null, 0, false ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID), null, 0, false ))
 				.thenThrow( new PnNotificationNotFoundException("Simulated Error") );
 
 		webTestClient.get()
@@ -622,7 +618,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getReceivedNotificationDocumentFailure() {
 		// When
-		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, CX_TYPE_PF, PA_ID, UID, null, 0, true ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID), null, 0, true ))
 				.thenThrow( new PnNotificationNotFoundException("Simulated Error") );
 
 		webTestClient.get()
@@ -641,7 +637,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, CX_ID, UID, null,null, PAGOPA, true );
+				.downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null,null, PAGOPA, true );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -658,7 +654,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnBadRequestException("Request took too long to complete.", "test", ERROR_CODE_DELIVERY_FILEINFONOTFOUND))
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, CX_ID, UID, null,null, PAGOPA, true );
+				.downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null,null, PAGOPA, true );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -676,7 +672,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnInternalException("Simulated Error", "test") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, CX_ID, UID, null,null, PAGOPA, true );
+				.downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null,null, PAGOPA, true );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -703,9 +699,7 @@ class PnSentReceivedNotificationControllerTest {
 		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
 		Mockito.when( attachmentService.downloadAttachmentWithRedirect(
 						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
+						Mockito.any( InternalAuthHeader.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyString(),
@@ -729,7 +723,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, CX_TYPE_PF, CX_ID, UID, MANDATE_ID, null, pagopa, true);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, pagopa, true);
 	}
 
 	@Test

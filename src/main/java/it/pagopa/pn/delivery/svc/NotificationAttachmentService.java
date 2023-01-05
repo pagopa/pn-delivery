@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputDownloadDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
@@ -131,16 +132,14 @@ public class NotificationAttachmentService {
 
     public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(
             String iun,
-            String cxType,
-            String xPagopaPnCxId,
-            String xPagopaPnUid,
+            InternalAuthHeader internalAuthHeader,
             String mandateId,
             Integer documentIdx,
             Boolean markNotificationAsViewed) {
         InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
-                .cxType( cxType )
-                .cxId( xPagopaPnCxId )
-                .uid( xPagopaPnUid )
+                .cxType(internalAuthHeader.cxType())
+                .cxId(internalAuthHeader.xPagopaPnCxId())
+                .uid(internalAuthHeader.xPagopaPnUid())
                 .mandateId( mandateId )
                 .iun( iun )
                 .documentIndex( documentIdx )
@@ -154,17 +153,15 @@ public class NotificationAttachmentService {
 
     public NotificationAttachmentDownloadMetadataResponse downloadAttachmentWithRedirect(
             String iun,
-            String cxType,
-            String xPagopaPnCxId,
-            String xPagopaPnUid,
+            InternalAuthHeader internalAuthHeader,
             String mandateId,
             Integer recipientIdx,
             String attachmentName,
             Boolean markNotificationAsViewed) {
         InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
-                .cxType( cxType )
-                .cxId( xPagopaPnCxId )
-                .uid( xPagopaPnUid )
+                .cxType(internalAuthHeader.cxType())
+                .cxId(internalAuthHeader.xPagopaPnCxId())
+                .uid(internalAuthHeader.xPagopaPnUid())
                 .mandateId( mandateId )
                 .iun( iun )
                 .documentIndex( null )
