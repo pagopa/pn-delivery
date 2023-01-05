@@ -69,7 +69,7 @@ class PnReceivedIONotificationsControllerTest {
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, "PF", USER_ID, null);
+        Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, "IO-" +USER_ID, "PF", USER_ID, null);
     }
 
     @Test

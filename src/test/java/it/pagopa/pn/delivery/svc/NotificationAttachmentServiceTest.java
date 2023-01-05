@@ -456,7 +456,7 @@ class NotificationAttachmentServiceTest {
     assertNotNull(result.getUrl());
 
     Mockito.verify(notificationViewedProducer, Mockito.times(1))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.isNull());
   }
 
   @Test
@@ -559,7 +559,7 @@ class NotificationAttachmentServiceTest {
     assertNotNull(result.getUrl());
 
     Mockito.verify(notificationViewedProducer, Mockito.times(1))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.isNull());
   }
 
   @Test
