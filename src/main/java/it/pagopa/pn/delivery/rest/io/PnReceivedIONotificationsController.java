@@ -37,7 +37,7 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxId, xPagopaPnCxType.getValue(), xPagopaPnUid);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null);
             result = ioMapper.mapToThirdPartMessage(internalNotification);
             logEvent.generateSuccess().log();

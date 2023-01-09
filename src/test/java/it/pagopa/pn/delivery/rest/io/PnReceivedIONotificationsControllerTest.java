@@ -70,7 +70,7 @@ class PnReceivedIONotificationsControllerTest {
                 .expectBody()
                 .json(expectedValueJson);
 
-        Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("IO-" + USER_ID, "PF", USER_ID), null);
+        Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID), null);
     }
 
     @Test

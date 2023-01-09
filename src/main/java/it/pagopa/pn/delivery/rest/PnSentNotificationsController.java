@@ -192,8 +192,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .build();
         logEvent.log();
         try {
-            response = notificationAttachmentService.downloadAttachmentWithRedirect( iun,
-                    new InternalAuthHeader(xPagopaPnCxType.toString(), xPagopaPnCxId, xPagopaPnUid), null,
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            response = notificationAttachmentService.downloadAttachmentWithRedirect(
+                    iun,
+                    internalAuthHeader,
+                    null,
                     recipientIdx,
                     attachmentName,
                     false
@@ -217,7 +220,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.toString(), xPagopaPnCxId, xPagopaPnUid);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
