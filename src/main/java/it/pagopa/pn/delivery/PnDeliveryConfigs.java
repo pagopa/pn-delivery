@@ -42,6 +42,8 @@ public class PnDeliveryConfigs {
 
     private NotificationMetadataDao notificationMetadataDao;
 
+    private NotificationDelegationMetadataDao notificationDelegationMetadataDao;
+
     private NotificationCostDao notificationCostDao;
 
     private NotificationQRDao notificationQRDao;
@@ -68,6 +70,11 @@ public class PnDeliveryConfigs {
 
     @Data
     public static class NotificationMetadataDao {
+        private String tableName;
+    }
+
+    @Data
+    public static class NotificationDelegationMetadataDao {
         private String tableName;
     }
 
