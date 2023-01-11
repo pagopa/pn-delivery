@@ -40,7 +40,6 @@ import javax.validation.ValidatorFactory;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 
@@ -182,7 +181,7 @@ public class NotificationRetrieverService {
 	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
 		log.info( "START check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
-		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId);
+		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId, null, null); // FIXME cxType cxGroups
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {
@@ -487,7 +486,7 @@ public class NotificationRetrieverService {
 	private String checkMandateForNotificationDetail(String userId, String mandateId) {
 		String delegatorId = null;
 
-		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(userId, mandateId);
+		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(userId, mandateId, null, null); // FIXME cxType cxGroups
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {

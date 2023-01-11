@@ -79,7 +79,7 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId ) )
+        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, null, null ) ) // FIXME
                 .thenReturn( Collections.singletonList(new InternalMandateDto()
                         .datefrom( "2022-01-01T00:00Z" )
                         .mandateId( mandateId )
@@ -104,7 +104,7 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId ) )
+        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, null, null ) ) // FIXME
                 .thenReturn( Collections.emptyList());
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 

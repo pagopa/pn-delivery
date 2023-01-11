@@ -227,7 +227,8 @@ class NotificationQRServiceTest {
                 .delegate( userId );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null ) ).thenReturn( List.of( internalMandateDto, internalMandateDto1 ) );
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, null , null ) ) // FIXME
+                .thenReturn( List.of( internalMandateDto, internalMandateDto1 ) );
 
         // When
         ResponseCheckAarMandateDto result = svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );
@@ -259,7 +260,8 @@ class NotificationQRServiceTest {
                 .delegate( "wrongDelegateInternalId" );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null ) ).thenReturn( List.of( internalMandateDto ) );
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, null, null ) ) // FIXME
+                .thenReturn( List.of( internalMandateDto ) );
 
         // When
         Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );
@@ -283,7 +285,8 @@ class NotificationQRServiceTest {
                 .build();
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null ) ).thenReturn( Collections.emptyList() );
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, null, null ) ) // FIXME
+                .thenReturn( Collections.emptyList() );
 
         // When
         Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );
@@ -312,7 +315,8 @@ class NotificationQRServiceTest {
                 .delegate( userId );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null ) ).thenReturn( List.of( internalMandateDto ) );
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, null, null ) ) // FIXME
+                .thenReturn( List.of( internalMandateDto ) );
 
         // When
         Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );

@@ -586,7 +586,7 @@ class NotificationAttachmentServiceTest {
     when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
         .thenReturn(buildFileDownloadResponse());
-    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString()))
+    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
         .thenReturn(List.of(internalMandateDto));
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
         Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
@@ -622,7 +622,7 @@ class NotificationAttachmentServiceTest {
     when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
         .thenReturn(buildFileDownloadResponse());
-    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString()))
+    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
         .thenReturn(List.of());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
         Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);

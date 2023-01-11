@@ -26,18 +26,16 @@ public class CheckAuthComponent {
     }
 
     public AuthorizationOutcome canAccess(ReadAccessAuth action, InternalNotification notification) {
-        if ( !Objects.equals( action.getIun() , notification.getIun()) ) {
-            throw new IllegalArgumentException( "" );
+        if (!Objects.equals(action.getIun(), notification.getIun())) {
+            throw new IllegalArgumentException("");
         }
         CxType cxType = action.getCxType();
 
-        AuthorizationOutcome authorized;
-        switch ( cxType ) {
-            case PA: authorized = paCanAccess( action, notification ); break;
-            case PF: authorized = pfCanAccess( action, notification ); break;
-            default: throw new PnInternalException( "Unsupported cxType="+ cxType, ERROR_CODE_DELIVERY_UNSUPPORTED_CX_TYPE );
-        }
-        return authorized;
+        return switch (cxType) {
+            case PA -> paCanAccess(action, notification);
+            case PF -> pfCanAccess(action, notification);
+            default -> throw new PnInternalException("Unsupported cxType=" + cxType, ERROR_CODE_DELIVERY_UNSUPPORTED_CX_TYPE);
+        };
     }
 
     private AuthorizationOutcome pfCanAccess(ReadAccessAuth action, InternalNotification notification) {
@@ -50,7 +48,7 @@ public class CheckAuthComponent {
         String mandateId = action.getMandateId();
         if (recipientIdx == null && mandateId != null) {
             log.debug( "Check validity mandateId={} cxId={} iun={}", mandateId, cxId, notification.getIun() );
-            List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(cxId, mandateId);
+            List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(cxId, mandateId, null, null); // FIXME cxType cxGroups
             if(mandates.isEmpty() ||
                     OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ).isAfter( notification.getSentAt() )
             ) {

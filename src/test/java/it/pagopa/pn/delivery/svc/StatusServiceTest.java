@@ -6,11 +6,13 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificatio
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,12 +28,15 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class StatusServiceTest {
+
     @Mock
     private NotificationDao notificationDao;
-
     @Mock
     private NotificationMetadataEntityDao notificationMetadataEntityDao;
-
+    @Mock
+    private NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
+    @Mock
+    private PnMandateClientImpl mandateClient;
     @Mock
     private PnDataVaultClientImpl dataVaultClient;
     
@@ -39,9 +44,8 @@ class StatusServiceTest {
 
     @BeforeEach
     public void setup() {
-        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, dataVaultClient);
+        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, notificationDelegationMetadataEntityDao, mandateClient, dataVaultClient);
     }
-
 
     @ExtendWith(MockitoExtension.class)
     @Test

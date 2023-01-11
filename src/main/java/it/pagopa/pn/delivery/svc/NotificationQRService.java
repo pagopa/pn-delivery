@@ -114,7 +114,7 @@ public class NotificationQRService {
 
     private String getMandateId( InternalNotificationQR internalNotificationQR, String userId ) {
         String mandateId = null;
-        List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null);
+        List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null, null, null); // FIXME cxType cxGroups
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
                     .filter(mandate -> userId.equals(mandate.getDelegate()) &&

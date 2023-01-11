@@ -53,7 +53,7 @@ class PnMandateClientImplTestIT {
         //When
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn( response );
-        List<InternalMandateDto> result = mandateClient.listMandatesByDelegate( DELEGATE, MANDATE_ID );
+        List<InternalMandateDto> result = mandateClient.listMandatesByDelegate( DELEGATE, MANDATE_ID, null, null ); // FIXME
 
         //Then
         Assertions.assertNotNull( result );
@@ -67,7 +67,7 @@ class PnMandateClientImplTestIT {
 
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn( response );
-        List<InternalMandateDto> result = mandateClient.listMandatesByDelegate( DELEGATE, MANDATE_ID );
+        List<InternalMandateDto> result = mandateClient.listMandatesByDelegate( DELEGATE, MANDATE_ID, null, null ); // FIXME
 
         Assertions.assertNotNull( result );
     }

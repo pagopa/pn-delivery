@@ -1,38 +1,50 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
 
 @Slf4j
 @Service
 public class StatusService {
+
     private final NotificationDao notificationDao;
     private final NotificationMetadataEntityDao notificationMetadataEntityDao;
+    private final NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
+    private final PnMandateClientImpl mandateClient;
     private final PnDataVaultClientImpl dataVaultClient;
 
     public StatusService(NotificationDao notificationDao,
-                         NotificationMetadataEntityDao notificationMetadataEntityDao, PnDataVaultClientImpl dataVaultClient) {
+                         NotificationMetadataEntityDao notificationMetadataEntityDao,
+                         NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao,
+                         PnMandateClientImpl mandateClient,
+                         PnDataVaultClientImpl dataVaultClient) {
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
+        this.notificationDelegationMetadataEntityDao = notificationDelegationMetadataEntityDao;
+        this.mandateClient = mandateClient;
         this.dataVaultClient = dataVaultClient;
     }
     
@@ -61,7 +73,11 @@ public class StatusService {
             }
 
             List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
-            nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
+            nextMetadataEntry.forEach(metadata -> {
+                notificationMetadataEntityDao.put(metadata);
+                List<NotificationDelegationMetadataEntity> delegationMetadata = computeDelegationMetadataEntry(metadata);
+                delegationMetadata.forEach(notificationDelegationMetadataEntityDao::put);
+            });
         } else {
             throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun(),
                     ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
@@ -80,6 +96,23 @@ public class StatusService {
         return opaqueTaxIds.stream()
                     .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt))
                     .toList();
+    }
+
+    private List<NotificationDelegationMetadataEntity> computeDelegationMetadataEntry(NotificationMetadataEntity metadata) {
+        // TODO valutare se ha senso portarsi il recipientType dalla notification
+        List<InternalMandateDto> mandates = mandateClient.listMandatesByDelegator(metadata.getRecipientId(), null, null, null, null);
+        List<NotificationDelegationMetadataEntity> result = new ArrayList<>();
+        String creationMonth = extractCreationMonth(metadata.getSentAt());
+        for (InternalMandateDto mandate : mandates) {
+            if (CollectionUtils.isEmpty(mandate.getGroups())) {
+                result.add(buildOneSearchDelegationMetadataEntry(metadata, mandate, null, creationMonth));
+            } else {
+                result.addAll(mandate.getGroups().stream()
+                        .map(g -> buildOneSearchDelegationMetadataEntry(metadata, mandate, g, creationMonth))
+                        .toList());
+            }
+        }
+        return result;
     }
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(
@@ -110,6 +143,37 @@ public class StatusService {
                 .build();
     }
 
+    private NotificationDelegationMetadataEntity buildOneSearchDelegationMetadataEntry(
+            NotificationMetadataEntity metadata,
+            InternalMandateDto mandate,
+            String group,
+            String creationMonth
+    ) {
+        String pk;
+        String delegateIdGroupIdCreationMonth = null;
+        if (StringUtils.hasText(group)) {
+            pk = createConcatenation(metadata.getIunRecipientId(), mandate.getDelegate(), group);
+            delegateIdGroupIdCreationMonth = createConcatenation(mandate.getDelegate(), group, creationMonth);
+        } else {
+            pk = createConcatenation(metadata.getIunRecipientId(), mandate.getDelegate());
+        }
+        return NotificationDelegationMetadataEntity.builder()
+                .iunRecipientIdDelegateIdGroupId(pk)
+                .sentAt(metadata.getSentAt())
+                .delegateIdCreationMonth(createConcatenation(mandate.getDelegate(), creationMonth))
+                .delegateIdGroupIdCreationMonth(delegateIdGroupIdCreationMonth)
+                .mandateId(mandate.getMandateId())
+                .senderId(metadata.getSenderId())
+                .recipientId(metadata.getRecipientId())
+                .recipientIds(metadata.getRecipientIds())
+                .notificationStatus(metadata.getNotificationStatus())
+                .senderIdCreationMonth(metadata.getSenderIdCreationMonth())
+                .recipientIdCreationMonth(metadata.getRecipientIdCreationMonth())
+                .senderIdRecipientId(metadata.getSenderIdRecipientId())
+                .tableRow(metadata.getTableRow())
+                .build();
+    }
+
     @NotNull
     private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatus lastStatus, List<String> recipientsIds, OffsetDateTime acceptedAt) {
         Map<String,String> tableRowMap = new HashMap<>();
@@ -126,6 +190,10 @@ public class StatusService {
 
     private String createConcatenation(String s1, String s2) {
         return s1 + "##" + s2;
+    }
+
+    private String createConcatenation(String s1, String s2, String s3) {
+        return createConcatenation(createConcatenation(s1, s2), s3);
     }
 
     private String extractCreationMonth(Instant sentAt) {
