@@ -26,7 +26,6 @@ paths:
         - name: x-pagopa-pn-cx-type
           in: query
           description: cx-type (PF, PG, PA)
-          required: true
           schema:
             $ref: '#/components/schemas/cxTypeAuthFleet'
         - name: internaluserId
@@ -69,7 +68,6 @@ paths:
         - name: x-pagopa-pn-cx-type
           in: query
           description: cx-type (PF, PG, PA)
-          required: true
           schema:
             $ref: '#/components/schemas/cxTypeAuthFleet'
         - name: internaluserId

@@ -99,7 +99,6 @@ public class StatusService {
     }
 
     private List<NotificationDelegationMetadataEntity> computeDelegationMetadataEntry(NotificationMetadataEntity metadata) {
-        // TODO valutare se ha senso portarsi il recipientType dalla notification
         List<InternalMandateDto> mandates = mandateClient.listMandatesByDelegator(metadata.getRecipientId(), null, null, null, null);
         List<NotificationDelegationMetadataEntity> result = new ArrayList<>();
         String creationMonth = extractCreationMonth(metadata.getSentAt());

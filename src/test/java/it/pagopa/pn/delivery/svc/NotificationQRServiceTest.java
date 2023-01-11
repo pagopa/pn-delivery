@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationQREntityDao;
@@ -195,7 +196,7 @@ class NotificationQRServiceTest {
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
 
         // When
-        ResponseCheckAarMandateDto result = svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );
+        ResponseCheckAarMandateDto result = svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null );
 
         // Then
         Assertions.assertNotNull( result );
@@ -227,11 +228,11 @@ class NotificationQRServiceTest {
                 .delegate( userId );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, null , null ) ) // FIXME
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF , null ) )
                 .thenReturn( List.of( internalMandateDto, internalMandateDto1 ) );
 
         // When
-        ResponseCheckAarMandateDto result = svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );
+        ResponseCheckAarMandateDto result = svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null );
 
         // Then
         Assertions.assertNotNull( result );
@@ -260,11 +261,11 @@ class NotificationQRServiceTest {
                 .delegate( "wrongDelegateInternalId" );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, null, null ) ) // FIXME
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( List.of( internalMandateDto ) );
 
         // When
-        Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );
+        Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null );
 
         // Then
         Assertions.assertThrows(PnNotificationNotFoundException.class, todo);
@@ -285,11 +286,11 @@ class NotificationQRServiceTest {
                 .build();
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, null, null ) ) // FIXME
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( Collections.emptyList() );
 
         // When
-        Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );
+        Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null );
 
         // Then
         Assertions.assertThrows(PnNotificationNotFoundException.class, todo);
@@ -315,11 +316,11 @@ class NotificationQRServiceTest {
                 .delegate( userId );
 
         Mockito.when( notificationQREntityDao.getNotificationByQR( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotificationQR ) );
-        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, null, null ) ) // FIXME
+        Mockito.when( mandateClient.listMandatesByDelegate( userId, null, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( List.of( internalMandateDto ) );
 
         // When
-        Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId );
+        Executable todo = () -> svc.getNotificationByQRWithMandate( request, RECIPIENT_TYPE, userId, null );
 
         // Then
         Assertions.assertThrows(PnNotificationNotFoundException.class, todo);

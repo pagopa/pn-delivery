@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc.authorization;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -79,7 +80,7 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, null, null ) ) // FIXME
+        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( Collections.singletonList(new InternalMandateDto()
                         .datefrom( "2022-01-01T00:00Z" )
                         .mandateId( mandateId )
@@ -104,7 +105,7 @@ class CheckAuthComponentTest {
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, iun, recipientIdx);
 
         // When
-        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, null, null ) ) // FIXME
+        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
                 .thenReturn( Collections.emptyList());
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 

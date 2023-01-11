@@ -11,6 +11,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.Notifi
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
@@ -90,7 +92,9 @@ public class NotificationRetrieverService {
 		this.cfg = cfg;
 	}
 
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
+	public ResultPaginationDto<NotificationSearchRow, String> searchNotification(InputSearchNotificationDto searchDto,
+																				 @Nullable String recipientType,
+																				 @Nullable List<String> cxGroups) {
 
 		Instant startDate = searchDto.getStartDate();
 		if( PN_EPOCH.isAfter(startDate) ) {
@@ -116,7 +120,7 @@ public class NotificationRetrieverService {
 			log.debug( "Search from receiver" );
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
-				checkMandate(searchDto, mandateId);
+				checkMandate(searchDto, mandateId, recipientType, cxGroups);
 			} else {
 				log.debug( "Search from receiver without mandate" );
 			}
@@ -178,10 +182,10 @@ public class NotificationRetrieverService {
 	 *
 	 *
 	 */
-	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId) {
+	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId, String recipientType, List<String> cxGroups) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
 		log.info( "START check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
-		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId, null, null); // FIXME cxType cxGroups
+		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId, CxTypeAuthFleet.valueOf(recipientType), cxGroups);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {
@@ -437,7 +441,7 @@ public class NotificationRetrieverService {
 		SECOND_NOTICE_CODE("SECOND_NOTICE_CODE"),
 		NO_NOTICE_CODE("NO_NOTICE_CODE");
 
-		private String value;
+		private final String value;
 
 		NoticeCodeToReturn(String value) {
 			this.value = value;
@@ -468,14 +472,16 @@ public class NotificationRetrieverService {
 	 *
 	 * @param iun    unique identifier of a Notification
 	 * @param userId identifier of a user
+	 * @param recipientType type of user (PF, PG)
+	 * @param cxGroups user groups
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId, String mandateId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId, String mandateId, String recipientType, List<String> cxGroups) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
 		String delegatorId = null;
 		if (mandateId != null) {
-			delegatorId = checkMandateForNotificationDetail(userId, mandateId);
+			delegatorId = checkMandateForNotificationDetail(userId, mandateId, recipientType, cxGroups);
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);
@@ -483,10 +489,10 @@ public class NotificationRetrieverService {
 		return notification;
 	}
 
-	private String checkMandateForNotificationDetail(String userId, String mandateId) {
+	private String checkMandateForNotificationDetail(String userId, String mandateId, String recipientType, List<String> cxGroups) {
 		String delegatorId = null;
 
-		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(userId, mandateId, null, null); // FIXME cxType cxGroups
+		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, CxTypeAuthFleet.valueOf(recipientType), cxGroups);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {

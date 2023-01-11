@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.svc.authorization;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -48,7 +49,7 @@ public class CheckAuthComponent {
         String mandateId = action.getMandateId();
         if (recipientIdx == null && mandateId != null) {
             log.debug( "Check validity mandateId={} cxId={} iun={}", mandateId, cxId, notification.getIun() );
-            List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(cxId, mandateId, null, null); // FIXME cxType cxGroups
+            List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(cxId, mandateId, CxTypeAuthFleet.PF, null);
             if(mandates.isEmpty() ||
                     OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ).isAfter( notification.getSentAt() )
             ) {

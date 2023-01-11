@@ -65,7 +65,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         ResultPaginationDto<NotificationSearchRow, String> serviceResult;
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
-            serviceResult = retrieveSvc.searchNotification(searchDto);
+            serviceResult = retrieveSvc.searchNotification(searchDto, xPagopaPnCxType.getValue(), xPagopaPnCxGroups);
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
             response = mapper.map(serviceResult, NotificationSearchResponse.class);
             logEvent.generateSuccess().log();
@@ -86,7 +86,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, mandateId);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, mandateId, xPagopaPnCxType.getValue(), xPagopaPnCxGroups);
 
             ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, FullReceivedNotification.class);
 
@@ -178,7 +178,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         logEvent.log();
         ResponseCheckAarMandateDto responseCheckAarMandateDto;
         try {
-            responseCheckAarMandateDto = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId );
+            responseCheckAarMandateDto = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnCxGroups );
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("Exception on get notification by qr= " + exc.getProblem()).log();

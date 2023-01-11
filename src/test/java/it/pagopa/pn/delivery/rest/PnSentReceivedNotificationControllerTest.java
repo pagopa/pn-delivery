@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class PnSentReceivedNotificationControllerTest {
@@ -85,7 +85,7 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 				
 		// Then		
 		webTestClient.get()
@@ -115,7 +115,7 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 
 		// Then
 		webTestClient.get()
@@ -139,7 +139,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalNotification notification = newNotification();
 		notification.setNotificationStatusHistory( null );
 
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
@@ -177,7 +177,7 @@ class PnSentReceivedNotificationControllerTest {
 								.build() )
 				.build() ) );
 
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
@@ -206,7 +206,7 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 		InternalNotification notification = newNotification();
 
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
@@ -268,7 +268,7 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 		InternalNotification notification = newNotification();
 
-		Mockito.when( svc.getNotificationInformation( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformation( anyString(), anyString(), anyString() ) ).thenReturn( notification );
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
@@ -303,8 +303,8 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
-				.thenReturn( notification );
+		Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), anyString(), eq( null ), eq("PF"), any()))
+				.thenReturn(notification);
 
 		// Then
 		webTestClient.get()
@@ -320,7 +320,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody(FullReceivedNotification.class);
 
-		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, null);
+		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(eq(IUN), eq(USER_ID), eq(null), eq("PF"), any());
 	}
 
 	@Test
@@ -331,7 +331,7 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), eq( null ) ) )
+		Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), anyString(), eq(null ), any(), any()))
 				.thenThrow(new PnNotificationNotFoundException("test"));
 
 		// Then
@@ -358,8 +358,8 @@ class PnSentReceivedNotificationControllerTest {
 		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
 
-		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) )
-				.thenReturn( notification );
+		Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), anyString(), anyString(), eq("PF"), any()))
+				.thenReturn(notification);
 
 		// Then
 		webTestClient.get()
@@ -379,7 +379,7 @@ class PnSentReceivedNotificationControllerTest {
 				.isOk()
 				.expectBody(FullReceivedNotification.class);
 
-		Mockito.verify( svc ).getNotificationAndNotifyViewedEvent(IUN, USER_ID, MANDATE_ID);
+		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(eq(IUN), eq(USER_ID), eq(MANDATE_ID), eq("PF"), anyList());
 	}
 
 	@Test
@@ -394,10 +394,10 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( attachmentService.downloadDocumentWithRedirect(
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
+						anyString(),
+						anyString(),
+						anyString(),
+						anyString(),
 						Mockito.anyInt(),
 						Mockito.anyBoolean()
 				)).thenReturn( response );
@@ -433,9 +433,9 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( attachmentService.downloadDocumentWithRedirect(
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
+						anyString(),
+						anyString(),
+						anyString(),
 						Mockito.isNull(),
 						Mockito.anyInt(),
 						Mockito.anyBoolean()
@@ -473,9 +473,9 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( attachmentService.downloadDocumentWithRedirect(
-				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
+				anyString(),
+				anyString(),
+				anyString(),
 				Mockito.isNull(),
 				Mockito.anyInt(),
 				Mockito.anyBoolean()
@@ -512,10 +512,10 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
 		Mockito.when( attachmentService.downloadDocumentWithRedirect(
-				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
-				Mockito.anyString(),
+				anyString(),
+				anyString(),
+				anyString(),
+				anyString(),
 				Mockito.anyInt(),
 				Mockito.anyBoolean()
 		)).thenReturn( response );
@@ -553,12 +553,12 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
 		Mockito.when( attachmentService.downloadAttachmentWithRedirect(
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
+						anyString(),
+						anyString(),
+						anyString(),
+						anyString(),
 						Mockito.anyInt(),
-						Mockito.anyString(),
+						anyString(),
 						Mockito.anyBoolean()
 				)).thenReturn( response );
 
@@ -696,12 +696,12 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
 		Mockito.when( attachmentService.downloadAttachmentWithRedirect(
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
-						Mockito.anyString(),
+						anyString(),
+						anyString(),
+						anyString(),
+						anyString(),
 						Mockito.isNull(),
-						Mockito.anyString(),
+						anyString(),
 						Mockito.anyBoolean()
 				)).thenReturn( response );
 
@@ -728,9 +728,9 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void searchSentNotificationFailure() {
 		// When
-		Mockito.doThrow( new PnInternalException("Simulated Error") )
-				.when( svc )
-				.searchNotification( Mockito.any( InputSearchNotificationDto.class) );
+		Mockito.doThrow(new PnInternalException("Simulated Error"))
+				.when(svc)
+				.searchNotification(any(InputSearchNotificationDto.class), any(), any());
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
@@ -756,9 +756,9 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void searchSentNotificationValidationFailure() {
 		// When
-		Mockito.doThrow( new PnValidationException("Simulated Error", Collections.emptySet()) )
-				.when( svc )
-				.searchNotification( Mockito.any( InputSearchNotificationDto.class) );
+		Mockito.doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
+				.when(svc)
+				.searchNotification(any(InputSearchNotificationDto.class), any(), any());
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
@@ -784,9 +784,9 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void searchReceivedNotificationValidationFailure() {
 		// When
-		Mockito.doThrow( new PnValidationException("Simulated Error", Collections.emptySet()) )
-				.when( svc )
-				.searchNotification( Mockito.any( InputSearchNotificationDto.class) );
+		Mockito.doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
+				.when(svc)
+				.searchNotification(any(InputSearchNotificationDto.class), any(), any());
 
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
@@ -822,10 +822,7 @@ class PnSentReceivedNotificationControllerTest {
 				.build();
 
 		//When
-		Mockito.when( qrService.getNotificationByQRWithMandate(
-				Mockito.any( RequestCheckAarMandateDto.class ),
-				Mockito.anyString(),
-				Mockito.anyString()))
+		Mockito.when( qrService.getNotificationByQRWithMandate(Mockito.any( RequestCheckAarMandateDto.class ), anyString(), anyString(), any()))
 				.thenReturn( QrMandateResponse );
 
 		webTestClient.post()
@@ -842,7 +839,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectBody(ResponseCheckAarMandateDto.class );
 
 		//Then
-		Mockito.verify( qrService ).getNotificationByQRWithMandate( dto, CX_TYPE_PF, USER_ID );
+		Mockito.verify( qrService ).getNotificationByQRWithMandate( dto, CX_TYPE_PF, USER_ID, null );
 	}
 
 	@Test
@@ -858,10 +855,7 @@ class PnSentReceivedNotificationControllerTest {
 				.build();
 
 		//When
-		Mockito.when( qrService.getNotificationByQRWithMandate(
-						Mockito.any( RequestCheckAarMandateDto.class ),
-						Mockito.anyString(),
-						Mockito.anyString()))
+		Mockito.when( qrService.getNotificationByQRWithMandate(Mockito.any( RequestCheckAarMandateDto.class ), anyString(), anyString(), any()))
 				.thenReturn( QrMandateResponse );
 
 		webTestClient.post()
@@ -878,7 +872,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectBody(ResponseCheckAarMandateDto.class );
 
 		//Then
-		Mockito.verify( qrService ).getNotificationByQRWithMandate( dto, CX_TYPE_PF, USER_ID );
+		Mockito.verify( qrService ).getNotificationByQRWithMandate( dto, CX_TYPE_PF, USER_ID, null );
 	}
 
 	@Test
@@ -888,10 +882,7 @@ class PnSentReceivedNotificationControllerTest {
 				.build();
 
 		//When
-		Mockito.when(qrService.getNotificationByQRWithMandate(
-				Mockito.any(RequestCheckAarMandateDto.class),
-				Mockito.anyString(),
-				Mockito.anyString()))
+		Mockito.when(qrService.getNotificationByQRWithMandate(Mockito.any(RequestCheckAarMandateDto.class), anyString(), anyString(), any()))
 				.thenThrow(new PnNotFoundException("test", "test", "test"));
 
 		webTestClient.post()

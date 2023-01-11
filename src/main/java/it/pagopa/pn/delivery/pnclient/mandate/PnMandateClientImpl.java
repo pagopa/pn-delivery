@@ -26,13 +26,13 @@ public class PnMandateClientImpl {
 
     public List<InternalMandateDto> listMandatesByDelegate(String delegated, String mandateId, CxTypeAuthFleet cxType, List<String> cxGroups) {
         log.debug("Start get mandates for delegated={} and mandateId={}", delegated, mandateId);
-        return mandatesApi.listMandatesByDelegate(cxType, delegated, mandateId, cxGroups);
+        return mandatesApi.listMandatesByDelegate(delegated, cxType, mandateId, cxGroups);
     }
 
     public List<InternalMandateDto> listMandatesByDelegator(String delegator, String mandateId,
                                                             CxTypeAuthFleet cxType, List<String> cxGroups, String cxRole) {
         log.debug("Start get mandates for delegator={} and mandateId={}", delegator, mandateId);
-        return mandatesApi.listMandatesByDelegator(cxType, delegator, mandateId, cxGroups, cxRole);
+        return mandatesApi.listMandatesByDelegator(delegator, cxType, mandateId, cxGroups, cxRole);
     }
 
 }
