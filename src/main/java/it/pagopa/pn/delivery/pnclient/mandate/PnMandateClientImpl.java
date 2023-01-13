@@ -4,6 +4,7 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.api.MandatePrivateServiceApi;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.DelegateType;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,9 +31,10 @@ public class PnMandateClientImpl {
     }
 
     public List<InternalMandateDto> listMandatesByDelegator(String delegator, String mandateId,
-                                                            CxTypeAuthFleet cxType, List<String> cxGroups, String cxRole) {
+                                                            CxTypeAuthFleet cxType, List<String> cxGroups, String cxRole,
+                                                            DelegateType delegateType) {
         log.debug("Start get mandates for delegator={} and mandateId={}", delegator, mandateId);
-        return mandatesApi.listMandatesByDelegator(delegator, cxType, mandateId, cxGroups, cxRole);
+        return mandatesApi.listMandatesByDelegator(delegator, cxType, mandateId, cxGroups, cxRole, delegateType);
     }
 
 }

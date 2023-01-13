@@ -89,6 +89,11 @@ paths:
           in: query
           schema:
             type: string
+        - name: delegateType
+          in: query
+          description: delegate type (PF, PG)
+          schema:
+            $ref: '#/components/schemas/delegateType'
       responses:
         '200':
           description: OK
@@ -315,6 +320,11 @@ components:
         - PG
         - PF
         - PA
+    delegateType:
+      type: string
+      enum:
+        - PG
+        - PF
     InternalMandateDto:
       type: object
       properties:
