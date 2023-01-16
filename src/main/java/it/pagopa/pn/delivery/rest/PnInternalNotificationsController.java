@@ -178,10 +178,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         String logMsg = "getReceivedNotificationAttachmentPrivate attachment name={}";
         if (StringUtils.hasText( mandateId )) {
             eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
-            logMsg = "getReceivedAndDelegatedNotificationAttachmentPrivate attachment name={}";
+            logMsg = "getReceivedAndDelegatedNotificationAttachmentPrivate attachment name={} and mandateId={}";
         }
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
