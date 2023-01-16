@@ -32,7 +32,7 @@ public class PnPaymentEventsController implements PaymentEventsApi {
                 .build();
         logEvent.log();
         try {
-            paymentEventsService.handlePaymentEvents(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, paymentEventsRequest);
+            paymentEventsService.handlePaymentEvents(xPagopaPnCxType.getValue(), xPagopaPnCxId, paymentEventsRequest);
         } catch (PnRuntimeException exc){
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
