@@ -50,9 +50,10 @@ class NotificationSearchMultiPageTest {
                 .size( PAGE_SIZE )
                 .build();
 
-        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto(Mockito.any())).thenReturn(NotificationSearchRow.builder()
+        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto((NotificationMetadataEntity) Mockito.any()))
+                .thenReturn(NotificationSearchRow.builder()
                         .recipients(List.of("recipientId1"))
-                .build());
+                        .build());
 
         BaseRecipientDto baseRecipientDto = new BaseRecipientDto();
         baseRecipientDto.setInternalId("recipientId1");
@@ -81,7 +82,8 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto(Mockito.any())).thenThrow(PnInternalException.class);
+        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto((NotificationMetadataEntity) Mockito.any()))
+                .thenThrow(PnInternalException.class);
 
         Executable todo = () -> this.notificationSearchMultiPage.searchNotificationMetadata();
         Assertions.assertThrows( PnInternalException.class, todo);

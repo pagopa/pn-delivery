@@ -8,8 +8,10 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocumen
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
@@ -30,16 +32,20 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 	private final NotificationEntityDao entityDao;
 	private final NotificationMetadataEntityDao metadataEntityDao;
+	private final NotificationDelegationMetadataEntityDao delegationMetadataEntityDao;
 	private final DtoToEntityNotificationMapper dto2entityMapper;
 	private final EntityToDtoNotificationMapper entity2DtoMapper;
 	private final PnDataVaultClientImpl pnDataVaultClient;
 
-	public NotificationDaoDynamo(
-			NotificationEntityDao entityDao,
-			NotificationMetadataEntityDao metadataEntityDao, DtoToEntityNotificationMapper dto2entityMapper,
-			EntityToDtoNotificationMapper entity2DtoMapper, PnDataVaultClientImpl pnDataVaultClient) {
+	public NotificationDaoDynamo(NotificationEntityDao entityDao,
+								 NotificationMetadataEntityDao metadataEntityDao,
+								 NotificationDelegationMetadataEntityDao delegationMetadataEntityDao,
+								 DtoToEntityNotificationMapper dto2entityMapper,
+								 EntityToDtoNotificationMapper entity2DtoMapper,
+								 PnDataVaultClientImpl pnDataVaultClient) {
 		this.entityDao = entityDao;
 		this.metadataEntityDao = metadataEntityDao;
+		this.delegationMetadataEntityDao = delegationMetadataEntityDao;
 		this.dto2entityMapper = dto2entityMapper;
 		this.entity2DtoMapper = entity2DtoMapper;
 		this.pnDataVaultClient = pnDataVaultClient;
@@ -196,6 +202,15 @@ public class NotificationDaoDynamo implements NotificationDao {
 	@Override
 	public PageSearchTrunk<NotificationMetadataEntity> searchForOneMonth(InputSearchNotificationDto inputSearchNotificationDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
 		return this.metadataEntityDao.searchForOneMonth( inputSearchNotificationDto, indexName, partitionValue, size, lastEvaluatedKey );
+	}
+
+	@Override
+	public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedForOneMonth(InputSearchNotificationDelegatedDto searchDto,
+																							String indexName,
+																							String partitionValue,
+																							int size,
+																							PnLastEvaluatedKey lastEvaluatedKey) {
+		return delegationMetadataEntityDao.searchForOneMonth(searchDto, indexName, partitionValue, size, lastEvaluatedKey);
 	}
 
 	@Override

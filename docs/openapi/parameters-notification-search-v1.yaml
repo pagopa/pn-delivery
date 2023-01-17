@@ -117,4 +117,11 @@ components:
       description: identificativo del mittente
       schema:
         type: string
+    notificationSearchGroup:
+      name: group
+      in: query
+      required: false
+      description: Gruppo da utilizzare nella query come filtro
+      schema:
+        type: string
     

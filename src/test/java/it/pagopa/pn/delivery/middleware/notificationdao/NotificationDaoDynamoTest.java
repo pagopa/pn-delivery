@@ -4,10 +4,8 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
@@ -57,8 +55,9 @@ class NotificationDaoDynamoTest {
         entity2dto = new EntityToDtoNotificationMapper();
         NotificationEntityDao entityDao = new EntityDaoMock();
         NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
+        NotificationDelegationMetadataEntityDao delegationMetadataEntityDao = new DelegationMetadataEntityDaoMock();
         pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
-        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
+        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, delegationMetadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
     }
 
     @Test
@@ -281,6 +280,38 @@ class NotificationDaoDynamoTest {
 
         @Override
         public PageSearchTrunk<NotificationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String partitionValue, String sentAt) {
+            return null;
+        }
+    }
+
+    private static class DelegationMetadataEntityDaoMock implements NotificationDelegationMetadataEntityDao {
+        @Override
+        public void put(NotificationDelegationMetadataEntity value) {
+
+        }
+
+        @Override
+        public void putIfAbsent(NotificationDelegationMetadataEntity value) throws PnIdConflictException {
+
+        }
+
+        @Override
+        public Optional<NotificationDelegationMetadataEntity> get(Key key) {
+            return Optional.empty();
+        }
+
+        @Override
+        public void delete(Key key) {
+
+        }
+
+        @Override
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+            return null;
+        }
+
+        @Override
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String pk, String sk) {
             return null;
         }
     }

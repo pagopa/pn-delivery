@@ -1,8 +1,7 @@
 package it.pagopa.pn.delivery.svc.search;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import lombok.Value;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +24,11 @@ public class IndexNameAndPartitions {
 
         INDEX_BY_RECEIVER("recipientId"),
 
-        INDEX_BY_IUN("iun_recipientId");
+        INDEX_BY_IUN("iun_recipientId"),
+
+        INDEX_BY_DELEGATE("delegateId"),
+
+        INDEX_BY_DELEGATE_GROUP("delegateId_groupId");
 
         private final String value;
 
@@ -55,8 +58,8 @@ public class IndexNameAndPartitions {
     */
 
     SearchIndexEnum indexName;
-    List<String> partitions;
 
+    List<String> partitions;
 
     public static IndexNameAndPartitions selectIndexAndPartitions(InputSearchNotificationDto searchParams) {
         SearchIndexEnum indexName = chooseIndex( searchParams );
@@ -81,21 +84,40 @@ public class IndexNameAndPartitions {
         return new IndexNameAndPartitions( indexName, partitions );
     }
 
+    public static IndexNameAndPartitions selectDelegatedIndexAndPartitions(InputSearchNotificationDelegatedDto searchParams) {
+        SearchIndexEnum index = chooseDelegatedIndex(searchParams);
+        if (index == null) {
+            throw new PnInternalException("There is a bug in method IndexNameAndPartitions::chooseDelegatedIndex; result can't be null", ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME);
+        }
+        List<String> partitions;
+        if (SearchIndexEnum.INDEX_BY_DELEGATE_GROUP.equals(index)) {
+            partitions = idAndGroupAndMonthsPartitionsListBuilder(searchParams);
+        } else {
+            partitions = idAndMonthsPartitionsListBuilder(searchParams);
+        }
+        return new IndexNameAndPartitions(index, partitions);
+    }
 
     private static List<String> idAndMonthsPartitionsListBuilder(InputSearchNotificationDto searchParam) {
         String prefix = searchParam.getSenderReceiverId() + PARTITION_KEY_SEPARATOR;
-
-        Instant startDate = searchParam.getStartDate();
-        YearAndMonth start = YearAndMonth.fromInstant( startDate );
-
-        Instant endDate = searchParam.getEndDate();
-        YearAndMonth end = YearAndMonth.fromInstant( endDate );
-
-        return start.generateStringFromThisMonthUntil( end, prefix );
+        return prefixAndMonthsPartitionsListBuilder(prefix, searchParam.getStartDate(), searchParam.getEndDate());
     }
 
+    private static List<String> idAndMonthsPartitionsListBuilder(InputSearchNotificationDelegatedDto searchParam) {
+        String prefix = searchParam.getDelegateId() + PARTITION_KEY_SEPARATOR;
+        return prefixAndMonthsPartitionsListBuilder(prefix, searchParam.getStartDate(), searchParam.getEndDate());
+    }
 
+    private static List<String> idAndGroupAndMonthsPartitionsListBuilder(InputSearchNotificationDelegatedDto searchParam) {
+        String prefix = searchParam.getDelegateId() + PARTITION_KEY_SEPARATOR + searchParam.getGroup() + PARTITION_KEY_SEPARATOR;
+        return prefixAndMonthsPartitionsListBuilder(prefix, searchParam.getStartDate(), searchParam.getEndDate());
+    }
 
+    private static List<String> prefixAndMonthsPartitionsListBuilder(String prefix, Instant startDate, Instant endDate) {
+        YearAndMonth start = YearAndMonth.fromInstant(startDate);
+        YearAndMonth end = YearAndMonth.fromInstant(endDate);
+        return start.generateStringFromThisMonthUntil(end, prefix);
+    }
 
     @NotNull
     private static String getPartitionValueWhenSenderAndReceiverIdsAreSpecified(InputSearchNotificationDto searchParams) {
@@ -112,7 +134,6 @@ public class IndexNameAndPartitions {
         }
         return partitionValue;
     }
-
 
     private static SearchIndexEnum chooseIndex( InputSearchNotificationDto searchParams ) {
         SearchIndexEnum indexName;
@@ -138,6 +159,14 @@ public class IndexNameAndPartitions {
             }
         }
         return indexName;
+    }
+
+    private static SearchIndexEnum chooseDelegatedIndex(InputSearchNotificationDelegatedDto searchParams) {
+        if (StringUtils.hasText(searchParams.getGroup())) {
+            return SearchIndexEnum.INDEX_BY_DELEGATE_GROUP;
+        } else {
+            return SearchIndexEnum.INDEX_BY_DELEGATE;
+        }
     }
 
 }

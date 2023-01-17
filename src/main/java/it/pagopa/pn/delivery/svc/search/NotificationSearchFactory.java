@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc.search;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.springframework.stereotype.Component;
@@ -31,5 +32,11 @@ public class NotificationSearchFactory {
             return new NotificationSearchExact(notificationDao, entityToDto, inputSearchNotificationDto, dataVaultClient);
         else
             return new NotificationSearchMultiPage(notificationDao, entityToDto, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+    }
+
+    public NotificationSearch getMultiPageDelegatedSearch(InputSearchNotificationDelegatedDto searchDto,
+                                                          PnLastEvaluatedKey lastEvaluatedKey) {
+        IndexNameAndPartitions indexNameAndPartitions = IndexNameAndPartitions.selectDelegatedIndexAndPartitions(searchDto);
+        return new NotificationDelegatedSearchMultiPage(notificationDao, entityToDto, searchDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
     }
 }

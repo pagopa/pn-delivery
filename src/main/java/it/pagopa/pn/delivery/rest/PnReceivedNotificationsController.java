@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -72,6 +74,52 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<NotificationSearchResponse> searchReceivedDelegatedNotification(String xPagopaPnUid,
+                                                                                          CxTypeAuthFleet xPagopaPnCxType,
+                                                                                          String xPagopaPnCxId,
+                                                                                          OffsetDateTime startDate,
+                                                                                          OffsetDateTime endDate,
+                                                                                          List<String> xPagopaPnCxGroups,
+                                                                                          String senderId,
+                                                                                          String recipientId,
+                                                                                          String group,
+                                                                                          NotificationStatus status,
+                                                                                          Integer size,
+                                                                                          String nextPagesKey) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_SEARCH_RCP, "searchReceivedDelegatedNotification")
+                .build();
+        logEvent.log();
+        InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId(xPagopaPnCxId)
+                .startDate(startDate.toInstant())
+                .endDate(endDate.toInstant())
+                .group(group)
+                .senderId(senderId)
+                .receiverId(recipientId)
+                .statuses(status != null ? List.of(status) : Collections.emptyList())
+                .size(size)
+                .nextPageKey(nextPagesKey)
+                .cxGroups(xPagopaPnCxGroups)
+                .build();
+        log.info("Search received delegated notification to {} with filter senderId={} recipientId={}", xPagopaPnCxId, senderId, recipientId);
+        ResultPaginationDto<NotificationSearchRow, String> result;
+        NotificationSearchResponse response;
+        try {
+            result = retrieveSvc.searchNotificationDelegated(searchDto);
+            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
+            response = mapper.map(result, NotificationSearchResponse.class);
+            logEvent.generateSuccess().log();
+        } catch (PnRuntimeException e) {
+            log.error("can not search received delegated notification", e);
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw  e;
         }
         return ResponseEntity.ok(response);
     }

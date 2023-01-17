@@ -16,6 +16,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMan
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
@@ -173,6 +174,57 @@ public class NotificationRetrieverService {
 		return builder.build();
 	}
 
+	public ResultPaginationDto<NotificationSearchRow, String> searchNotificationDelegated(InputSearchNotificationDelegatedDto searchDto) {
+		Instant startDate = searchDto.getStartDate();
+		if (PN_EPOCH.isAfter(startDate)) {
+			log.info("start date {} but PN exists since {}", startDate, PN_EPOCH);
+			searchDto.setStartDate(PN_EPOCH);
+		}
+		Instant endDate = searchDto.getEndDate();
+		if (PN_EPOCH.isAfter(endDate)) {
+			log.info("end date {} but PN exists since {}", endDate, PN_EPOCH);
+			return ResultPaginationDto.<NotificationSearchRow, String>builder()
+					.resultsPage(Collections.emptyList())
+					.nextPagesKey(Collections.emptyList())
+					.moreResult(false)
+					.build();
+		}
+
+		log.info("start search delegated notification - delegateId={}", searchDto.getDelegateId());
+
+		validateInput(searchDto);
+
+		PnLastEvaluatedKey lastEvaluatedKey = null;
+
+		if (searchDto.getNextPageKey() != null) {
+			try {
+				lastEvaluatedKey = PnLastEvaluatedKey.deserializeInternalLastEvaluatedKey(searchDto.getNextPageKey());
+			} catch (JsonProcessingException e) {
+				throw new PnInternalException("Unable to deserialize lastEvaluatedKey", ERROR_CODE_DELIVERY_UNSUPPORTED_LAST_EVALUATED_KEY, e);
+			}
+		} else {
+			log.debug("first page search");
+		}
+
+		NotificationSearch page = notificationSearchFactory.getMultiPageDelegatedSearch(searchDto, lastEvaluatedKey);
+		log.debug("START search notification delegation metadata");
+		ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = page.searchNotificationMetadata();
+		log.debug("END search notification delegation metadata");
+
+		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow, String> builder = ResultPaginationDto.builder();
+		builder.moreResult(result.isMoreResult())
+				.resultsPage(result.getResultsPage());
+		if (!CollectionUtils.isEmpty(result.getNextPagesKey())) {
+			builder.nextPagesKey(result.getNextPagesKey().stream()
+							.map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
+							.toList())
+					.build();
+		} else {
+			builder.nextPagesKey(new ArrayList<>());
+		}
+		return builder.build();
+	}
+
 	/**
 	 * Check mandates for uid and cx-id
 	 *
@@ -248,6 +300,19 @@ public class NotificationRetrieverService {
 		}
 
 		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());
+	}
+
+	private void validateInput(InputSearchNotificationDelegatedDto searchDto) {
+		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+			Validator validator = factory.getValidator();
+			Set<ConstraintViolation<InputSearchNotificationDelegatedDto>> errors = validator.validate(searchDto);
+			if (!errors.isEmpty()) {
+				log.error("validation search input failed - delegateId {} - errors: {}", searchDto.getDelegateId(), errors);
+				List<ProblemError> errorList = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
+				throw new PnInvalidInputException(searchDto.getDelegateId(), errorList);
+			}
+		}
+		log.debug("validation search input succeeded - delegateId {}", searchDto.getDelegateId());
 	}
 
 	private InternalNotification getInternalNotification(String iun) {

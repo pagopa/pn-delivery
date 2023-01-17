@@ -437,6 +437,9 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+        mandateId:
+          type: String
+          description: Id delega (per notifiche delegate)
     
     #NotificationStatus:
       #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
