@@ -362,10 +362,10 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/events/payment:
+  /delivery/events/payment/pagopa:
     post:
-      operationId: paymentEventsRequest
-      description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie. <br/>
+      operationId: paymentEventsRequestPagoPa
+      description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo PagoPA. <br/>
       tags:
         - PaymentEvents
       requestBody:
@@ -373,12 +373,51 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PaymentEventsRequest'
+              $ref: '#/components/schemas/PaymentEventsRequestPagoPa'
       responses:
         '204':
           description: OK
         '400':
           description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery/events/payment/f24:
+    post:
+      operationId: paymentEventsRequestF24
+      description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo F24. <br/>
+      tags:
+        - PaymentEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentEventsRequestF24'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
           content:
             application/problem+json:
               schema:
@@ -680,9 +719,9 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
-    PaymentEventsRequest:
+    PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da P.A. a P.N.
-      description: Richiesta contenente un array di eventi di pagamento di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
+      description: Richiesta contenente un array di eventi di pagamento di tipo PagoPA di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
       type: object
       required:
         - events
@@ -691,12 +730,19 @@ components:
           description: Elenco degli eventi di pagamento
           type: array
           items:
-            $ref: '#/components/schemas/PaymentEvents'
-    PaymentEvents:
+            $ref: '#/components/schemas/PaymentEventPagoPa'
+    PaymentEventsRequestF24:
+      title: Invio eventi di pagamento da P.A. a P.N.
+      description: Richiesta contenente un array di eventi di pagamento di tipo F24 di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
       type: object
-      oneOf:
-        - $ref: '#/components/schemas/PaymentEventPagoPa'
-        - $ref: '#/components/schemas/PaymentEventF24'
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi di pagamento
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentEventF24'
     PaymentEventPagoPa:
       title: Evento di pagamento PagoPa
       description: |-

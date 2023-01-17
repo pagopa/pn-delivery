@@ -13,6 +13,7 @@ import java.time.Instant;
 @Setter
 @Builder
 @ToString
+@EqualsAndHashCode
 public class InternalPaymentEvent {
     @NotNull
     private String iun;
