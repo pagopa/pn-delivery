@@ -91,7 +91,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         String logMsg = "getReceivedNotification";
         if (StringUtils.hasText( mandateId )) {
             eventType = PnAuditLogEventType.AUD_NT_VIEW_DEL;
-            logMsg = "getReceivedNotification with mandateId={}";
+            logMsg = "getReceivedNotificationDelegate with mandateId={}";
         }
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(eventType, logMsg, mandateId)
