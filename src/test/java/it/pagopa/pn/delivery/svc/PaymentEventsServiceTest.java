@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -13,9 +14,11 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -105,6 +108,104 @@ class PaymentEventsServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    void handlePaymentEventsPagoPaNoNotificationsCost() {
+        // Given
+        PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
+                .events( List.of( PaymentEventPagoPa.builder()
+                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .creditorTaxId( CREDITOR_TAX_ID )
+                        .noticeCode( NOTICE_CODE )
+                        .build()
+                ) )
+                .build();
+
+        // When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(), Mockito.anyString() ) )
+                .thenReturn( Optional.empty() );
+
+
+        // Then
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handlePaymentEventsPagoPaNoInternalNotification() {
+        // Given
+        PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
+                .events( List.of( PaymentEventPagoPa.builder()
+                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .creditorTaxId( CREDITOR_TAX_ID )
+                        .noticeCode( NOTICE_CODE )
+                        .build()
+                ) )
+                .build();
+
+        // When
+        InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
+                .iun(IUN)
+                .recipientIdx(0)
+                .recipientType(RECIPIENT_TYPE_PF)
+                .creditorTaxIdNoticeCode(CREDITOR_TAX_ID + "##" + NOTICE_CODE)
+                .build();
+
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(), Mockito.anyString() ) )
+                .thenReturn( Optional.of(internalNotificationCost));
+
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.empty() );
+
+        // Then
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handlePaymentEventsPagoPaNoAuth() {
+        // Given
+        PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
+                .events( List.of( PaymentEventPagoPa.builder()
+                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .creditorTaxId( CREDITOR_TAX_ID )
+                        .noticeCode( NOTICE_CODE )
+                        .build()
+                ) )
+                .build();
+
+        // When
+        InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
+                .iun(IUN)
+                .recipientIdx(0)
+                .recipientType(RECIPIENT_TYPE_PF)
+                .creditorTaxIdNoticeCode(CREDITOR_TAX_ID + "##" + NOTICE_CODE)
+                .build();
+
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(), Mockito.anyString() ) )
+                .thenReturn( Optional.of(internalNotificationCost));
+
+        InternalNotification internalNotification = createInternalNotification();
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( internalNotification ) );
+
+        Mockito.when( checkAuthComponent.canAccess( Mockito.any( ReadAccessAuth.class ), Mockito.any( InternalNotification.class ) ) )
+                .thenReturn( AuthorizationOutcome.fail() );
+
+
+        // Then
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
     void handlePaymentEventsF24() {
         // Given
         PaymentEventsRequestF24 paymentEventsRequestF24 = PaymentEventsRequestF24.builder()
@@ -141,6 +242,87 @@ class PaymentEventsServiceTest {
                 .build();
 
         Mockito.verify( paymentEventsProducer ).sendPaymentEvents( List.of( internalPaymentEvent ) );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handlePaymentEventsF24NoInternalNotification() {
+        // Given
+        PaymentEventsRequestF24 paymentEventsRequestF24 = PaymentEventsRequestF24.builder()
+                .events( List.of( PaymentEventF24.builder()
+                        .iun( IUN )
+                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .recipientTaxId( RECIPIENT_TAX_ID )
+                        .recipientType( RECIPIENT_TYPE_PF )
+                        .build() ) )
+                .build();
+
+        // When
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.empty() );
+
+        // Then
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handlePaymentEventsF24NoRecipientId() {
+        // Given
+        PaymentEventsRequestF24 paymentEventsRequestF24 = PaymentEventsRequestF24.builder()
+                .events( List.of( PaymentEventF24.builder()
+                        .iun( IUN )
+                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .recipientTaxId( RECIPIENT_TAX_ID )
+                        .recipientType( RECIPIENT_TYPE_PF )
+                        .build() ) )
+                .build();
+
+        // When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( Optional.of( createInternalNotification() ) );
+
+        Mockito.when( dataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) )
+                .thenReturn( null );
+
+        // Then
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handlePaymentEventsF24NoAuth() {
+        // Given
+        PaymentEventsRequestF24 paymentEventsRequestF24 = PaymentEventsRequestF24.builder()
+                .events( List.of( PaymentEventF24.builder()
+                        .iun( IUN )
+                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .recipientTaxId( RECIPIENT_TAX_ID )
+                        .recipientType( RECIPIENT_TYPE_PF )
+                        .build() ) )
+                .build();
+
+        // When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( Optional.of( createInternalNotification() ) );
+
+        Mockito.when( dataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) )
+                .thenReturn( RECIPIENT_INTERNAL_ID );
+
+        Mockito.when( checkAuthComponent.canAccess( Mockito.any( ReadAccessAuth.class ), Mockito.any( InternalNotification.class ) ) )
+                .thenReturn( AuthorizationOutcome.fail() );
+
+        // Then
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+
     }
 
 
