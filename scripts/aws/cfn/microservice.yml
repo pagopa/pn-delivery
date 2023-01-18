@@ -164,6 +164,13 @@ Parameters:
   AlbSecurityGroup:
     Type: String
     Description: 'Application load balancer security group'
+  DeliverySqsQueueFromMandateName:
+    Type: String
+    Description: 'The name of the SQS queue used to communicate with pn-mandate module.'
+
+  DeliverySqsQueueFromMandateARN:
+    Type: String
+    Description: 'Identify the resource that the policy applies to.'
     
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
@@ -206,6 +213,7 @@ Resources:
         ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERY_MAXDOCUMENTSAVAILABLEDAYS=${MaxDocumentsAvailableDays}'
         ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
+        ContainerEnvEntry21: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${DeliverySqsQueueFromMandatePolicy}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -555,3 +563,18 @@ Resources:
       #ENDpndeliveryinserttrigger
       #Non rimuovere o modificare il commento sopra, è usato come placeholder negli script
 
+  DeliverySqsQueueFromMandatePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub '${ProjectName}-DeliverySqsQueueFromMandatePolicy'
+      Roles:
+        - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sqs:ReceiveMessage
+              - sqs:GetQueueUrl
+            Resource:
+              - !Ref DeliverySqsQueueFromMandateARN

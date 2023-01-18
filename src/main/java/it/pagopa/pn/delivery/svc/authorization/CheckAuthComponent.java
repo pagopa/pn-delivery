@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.svc.authorization;
 
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
@@ -10,12 +9,11 @@ import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
-
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_CX_TYPE;
 
 @Component
 @Slf4j
@@ -35,8 +33,46 @@ public class CheckAuthComponent {
         return switch (cxType) {
             case PA -> paCanAccess(action, notification);
             case PF -> pfCanAccess(action, notification);
-            default -> throw new PnInternalException("Unsupported cxType=" + cxType, ERROR_CODE_DELIVERY_UNSUPPORTED_CX_TYPE);
+            case PG -> pgCanAccess(action, notification);
         };
+    }
+
+    private AuthorizationOutcome pgCanAccess(ReadAccessAuth action, InternalNotification notification) {
+        String cxId = action.getCxId();
+        log.debug( "Check if cxId={} can access documents iun={}", cxId, notification.getIun() );
+        int rIdx = notification.getRecipientIds().indexOf(cxId);
+        Integer recipientIdx = getRecipientIdx(rIdx);
+
+        // gestione deleghe
+        String mandateId = action.getMandateId();
+        if (recipientIdx == null && mandateId != null) {
+            log.debug( "Check validity mandateId={} cxId={} iun={}", mandateId, cxId, notification.getIun() );
+            List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(cxId, mandateId, CxTypeAuthFleet.PG, null);
+            if(mandates.isEmpty() ||
+                    OffsetDateTime.parse( Objects.requireNonNull(mandates.get(0).getDatefrom()) ).isAfter( notification.getSentAt() )
+            ) {
+                String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", cxId, mandateId);
+                log.error( message );
+                throw new PnMandateNotFoundException( message );
+            }
+            String delegatedCxId = mandates.get(0).getDelegator();
+            rIdx = notification.getRecipientIds().indexOf( delegatedCxId );
+            recipientIdx = getRecipientIdx(rIdx);
+            log.info("pgCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
+        }
+
+        NotificationRecipient effectiveRecipient = null;
+        if (recipientIdx != null && (mandateId != null || CollectionUtils.isEmpty(action.getCxGroups()))) {
+            effectiveRecipient = notification.getRecipients().get( recipientIdx );
+            log.info("pgCanAccess iun={} effectiveRecipient={} recipient_size={}", notification.getIun(), effectiveRecipient==null?"NULL effective recipient":effectiveRecipient.getInternalId(), notification.getRecipients().size());
+            if (effectiveRecipient == null)
+            {
+                notification.getRecipients().forEach(x -> log.info("pgCanAccess list of recipient iun={} recipient={}", notification.getIun(), x==null?"NULL!":x.getInternalId()));
+            }
+        }
+
+        return Objects.nonNull( effectiveRecipient ) ?
+                AuthorizationOutcome.ok( effectiveRecipient, recipientIdx ) : AuthorizationOutcome.fail();
     }
 
     private AuthorizationOutcome pfCanAccess(ReadAccessAuth action, InternalNotification notification) {

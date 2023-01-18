@@ -28,7 +28,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT;
@@ -177,12 +176,13 @@ public class NotificationAttachmentService {
         String mandateId = inputDownloadDto.getMandateId();
         String iun = inputDownloadDto.getIun();
         Integer recipientIdx = inputDownloadDto.getRecipientIdx();
+        List<String> cxGroups = inputDownloadDto.getCxGroups();
         Integer documentIndex = inputDownloadDto.getDocumentIndex();
         String attachmentName = inputDownloadDto.getAttachmentName();
         Boolean markNotificationAsViewed = inputDownloadDto.getMarkNotificationAsViewed();
         log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} markNotificationAsViewed={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, markNotificationAsViewed );
 
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, iun, recipientIdx );
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, cxGroups, iun, recipientIdx );
 
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
         if (optNotification.isPresent()) {

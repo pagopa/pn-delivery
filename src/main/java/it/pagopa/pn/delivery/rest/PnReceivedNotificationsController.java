@@ -18,6 +18,7 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
@@ -157,6 +158,9 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .iun(iun)
                 .build();
         logEvent.log();
+
+
+
         try {
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
@@ -188,6 +192,10 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .iun(iun)
                 .build();
         logEvent.log();
+
+        if(xPagopaPnCxType == CxTypeAuthFleet.PG && !(CollectionUtils.isEmpty(xPagopaPnCxGroups)))
+            log.info("Calling pn-mandate to check if this specific notification has some mandate");
+
         try {
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,

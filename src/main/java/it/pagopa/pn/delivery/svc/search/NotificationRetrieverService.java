@@ -45,6 +45,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
+import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPGAndValuedGroups;
 
 @Service
 @Slf4j
@@ -122,8 +123,10 @@ public class NotificationRetrieverService {
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId, recipientType, cxGroups);
-			} else {
-				log.debug( "Search from receiver without mandate" );
+			}
+			else if(checkAuthorizationPGAndValuedGroups(recipientType, cxGroups)) {
+				log.error( "only a PG admin can access this resource" );
+				throw new PnForbiddenException();
 			}
 		}
 
@@ -547,6 +550,9 @@ public class NotificationRetrieverService {
 		String delegatorId = null;
 		if (mandateId != null) {
 			delegatorId = checkMandateForNotificationDetail(userId, mandateId, recipientType, cxGroups);
+		} else if (checkAuthorizationPGAndValuedGroups(recipientType, cxGroups)) {
+			log.error( "only a PG admin can access this resource" );
+			throw new PnForbiddenException();
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);

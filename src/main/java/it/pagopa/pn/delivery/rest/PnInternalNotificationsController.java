@@ -211,6 +211,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .iun(iun)
                 .build();
         logEvent.log();
+
+
         try {
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
