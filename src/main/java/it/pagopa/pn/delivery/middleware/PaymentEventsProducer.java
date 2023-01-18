@@ -8,14 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface PaymentEventsProducer extends MomProducer<PnDeliveryPaymentEvent> {
-    String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.payment-producer";
 
     default void sendPaymentEvents( List<InternalPaymentEvent> internalPaymentEvents ) {
         List<PnDeliveryPaymentEvent> events = buildPaymentEvents( internalPaymentEvents );
         this.push( events );
     }
 
-    private List<PnDeliveryPaymentEvent> buildPaymentEvents(List<InternalPaymentEvent> internalPaymentEvents) {
+    default List<PnDeliveryPaymentEvent> buildPaymentEvents(List<InternalPaymentEvent> internalPaymentEvents) {
         List<PnDeliveryPaymentEvent> paymentEvents = new ArrayList<>(internalPaymentEvents.size());
         for ( InternalPaymentEvent internalPaymentEvent : internalPaymentEvents ) {
             String eventId = internalPaymentEvent.getIun() + "_notification_paid_" + internalPaymentEvent.getRecipientIdx();
