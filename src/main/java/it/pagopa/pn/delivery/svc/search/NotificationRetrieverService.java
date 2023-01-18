@@ -193,6 +193,12 @@ public class NotificationRetrieverService {
 					.build();
 		}
 
+		if (!CollectionUtils.isEmpty(searchDto.getCxGroups())
+				&& (!StringUtils.hasText(searchDto.getGroup()) || !searchDto.getCxGroups().contains(searchDto.getGroup()))) {
+			log.warn("user with cx-groups {} can not access notification delegated to group {}", searchDto.getCxGroups(), searchDto.getGroup());
+			throw new PnForbiddenException();
+		}
+
 		log.info("start search delegated notification - delegateId={}", searchDto.getDelegateId());
 
 		validateInput(searchDto);

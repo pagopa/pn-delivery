@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
@@ -56,7 +57,7 @@ public class NotificationDaoMock implements NotificationDao {
     }
 
     @Override
-    public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedForOneMonth(InputSearchNotificationDelegatedDto searchDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+    public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedForOneMonth(InputSearchNotificationDelegatedDto searchDto, IndexNameAndPartitions.SearchIndexEnum indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
         PageSearchTrunk<NotificationDelegationMetadataEntity> result = new PageSearchTrunk<>();
         result.setResults(Collections.singletonList(NotificationDelegationMetadataEntity.builder()
                 .iunRecipientIdDelegateIdGroupId("IUN##recipientId##delegateId")

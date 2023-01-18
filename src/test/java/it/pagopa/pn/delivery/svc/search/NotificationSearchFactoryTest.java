@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,8 @@ class NotificationSearchFactoryTest {
 
     private PnDataVaultClientImpl dataVaultClient;
 
+    private PnMandateClientImpl mandateClient;
+
     NotificationSearchFactory notificationSearchFactory;
 
     @BeforeEach
@@ -31,7 +34,8 @@ class NotificationSearchFactoryTest {
         entityToDto = Mockito.mock(EntityToDtoNotificationMetadataMapper.class);
         cfg = Mockito.mock(PnDeliveryConfigs.class);
         dataVaultClient = Mockito.mock(PnDataVaultClientImpl.class);
-        notificationSearchFactory = new NotificationSearchFactory(notificationDao, entityToDto, cfg, dataVaultClient);
+        mandateClient = Mockito.mock(PnMandateClientImpl.class);
+        notificationSearchFactory = new NotificationSearchFactory(notificationDao, entityToDto, cfg, dataVaultClient, mandateClient);
     }
 
     @Test

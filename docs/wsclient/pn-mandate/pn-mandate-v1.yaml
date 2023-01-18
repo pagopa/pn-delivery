@@ -109,6 +109,47 @@ paths:
             application/json:
               schema:
                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+  /mandate-private/api/v1/mandates-by-internaldelegators:
+    post:
+      tags:
+        - mandate-private-service
+      summary: Return only active mandates for delegators, filtered by multiple mandateId
+      operationId: listMandatesByDelegators
+      parameters:
+        - name: delegateType
+          in: query
+          description: delegate type (PF, PG)
+          schema:
+            $ref: '#/components/schemas/delegateType'
+        - name: delegateGroups
+          in: query
+          description: delegate groups
+          schema:
+            type: array
+            items:
+              type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/MandateByDelegatorRequestDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InternalMandateDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
   /mandate/api/v1/count-by-delegate:
     get:
       tags:
@@ -426,3 +467,13 @@ components:
           type: array
           items:
             type: string
+    MandateByDelegatorRequestDto:
+      type: object
+      required:
+        - mandateId
+        - delegatorId
+      properties:
+        mandateId:
+          type: string
+        delegatorId:
+          type: string

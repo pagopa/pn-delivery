@@ -76,7 +76,7 @@ public class NotificationDelegationMetadataEntity {
     @Getter(onMethod = @__({
             @DynamoDbAttribute(value = FIELD_RECIPIENT_IDS)
     }))
-    private List<String> recipientIds; // TODO valutare se serve
+    private List<String> recipientIds;
 
     @Getter(onMethod = @__({
             @DynamoDbAttribute(value = FIELD_NOTIFICATION_STATUS)
@@ -86,17 +86,17 @@ public class NotificationDelegationMetadataEntity {
     @Getter(onMethod = @__({
             @DynamoDbAttribute(value = FIELD_SENDER_ID_CREATION_MONTH)
     }))
-    private String senderIdCreationMonth; // TODO valutare se serve
+    private String senderIdCreationMonth;
 
     @Getter(onMethod = @__({
             @DynamoDbAttribute(value = FIELD_RECIPIENT_ID_CREATION_MONTH)
     }))
-    private String recipientIdCreationMonth; // TODO valutare se serve
+    private String recipientIdCreationMonth;
 
     @Getter(onMethod = @__({
             @DynamoDbAttribute(value = FIELD_SENDER_ID_RECIPIENT_ID)
     }))
-    private String senderIdRecipientId; // TODO valutare se serve
+    private String senderIdRecipientId;
 
     @Getter(onMethod = @__({
             @DynamoDbAttribute(value = FIELD_TABLE_ROW)

@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -306,12 +307,7 @@ class NotificationDaoDynamoTest {
         }
 
         @Override
-        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto, String indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
-            return null;
-        }
-
-        @Override
-        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String pk, String sk) {
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto, IndexNameAndPartitions.SearchIndexEnum indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
             return null;
         }
     }

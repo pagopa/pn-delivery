@@ -16,6 +16,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -206,7 +207,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 	@Override
 	public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedForOneMonth(InputSearchNotificationDelegatedDto searchDto,
-																							String indexName,
+																							IndexNameAndPartitions.SearchIndexEnum indexName,
 																							String partitionValue,
 																							int size,
 																							PnLastEvaluatedKey lastEvaluatedKey) {

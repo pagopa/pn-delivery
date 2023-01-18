@@ -2,6 +2,9 @@ package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.DelegateType;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.MandateByDelegatorRequestDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
@@ -10,14 +13,16 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA;
 
@@ -32,6 +37,7 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
     private final InputSearchNotificationDelegatedDto searchDto;
     private final PnDeliveryConfigs cfg;
     private final IndexNameAndPartitions indexNameAndPartitions;
+    private final PnMandateClientImpl mandateClient;
 
     public NotificationDelegatedSearchMultiPage(NotificationDao notificationDao,
                                                 EntityToDtoNotificationMetadataMapper entityToDto,
@@ -39,12 +45,14 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
                                                 PnLastEvaluatedKey lastEvaluatedKey,
                                                 PnDeliveryConfigs cfg,
                                                 PnDataVaultClientImpl dataVaultClient,
+                                                PnMandateClientImpl mandateClient,
                                                 IndexNameAndPartitions indexNameAndPartitions) {
         super(dataVaultClient, entityToDto);
         this.notificationDao = notificationDao;
         this.searchDto = searchDto;
         this.lastEvaluatedKey = lastEvaluatedKey;
         this.cfg = cfg;
+        this.mandateClient = mandateClient;
         this.indexNameAndPartitions = indexNameAndPartitions;
     }
 
@@ -84,7 +92,10 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
         }
 
         log.info("search request completed, totalDbQueryCount={} totalRowRead={}", logItemCount, dataRead.size());
-        return prepareGlobalResult(dataRead, requiredSize);
+        // necessario controllare le deleghe per pulire eventuali dati sporchi
+        List<NotificationDelegationMetadataEntity> filtered = checkMandates(dataRead);
+        log.info("post filter mandates completed, preCheckCount={} postCheckCount={}", dataRead.size(), filtered.size());
+        return prepareGlobalResult(filtered, dataRead.size(), requiredSize);
     }
 
     private int readDataFromPartition(int currentRequest, String partition, List<NotificationDelegationMetadataEntity> cumulativeQueryResult,
@@ -95,7 +106,7 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
 
         PageSearchTrunk<NotificationDelegationMetadataEntity> oneQueryResult =
                 notificationDao.searchDelegatedForOneMonth(searchDto,
-                        indexNameAndPartitions.getIndexName().getValue(),
+                        indexNameAndPartitions.getIndexName(),
                         partition,
                         dynamoDbPageSize,
                         lastEvaluatedKey);
@@ -130,6 +141,7 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
     }
 
     private ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> prepareGlobalResult(List<NotificationDelegationMetadataEntity> queryResult,
+                                                                                               int preFilterSize,
                                                                                                int requiredSize) {
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> globalResult = new ResultPaginationDto<>();
         globalResult.setNextPagesKey(new ArrayList<>());
@@ -146,7 +158,7 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
                 })
                 .toList());
 
-        globalResult.setMoreResult(queryResult.size() >= requiredSize);
+        globalResult.setMoreResult(preFilterSize >= requiredSize);
 
         for (int i = 1; i <= cfg.getMaxPageSize(); i++) {
             int index = searchDto.getSize() * i;
@@ -176,6 +188,48 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
         deanonimizeResults(globalResult);
 
         return globalResult;
+    }
+
+    private List<NotificationDelegationMetadataEntity> checkMandates(List<NotificationDelegationMetadataEntity> queryResult) {
+        if (CollectionUtils.isEmpty(queryResult)) {
+            log.debug("skip check mandates - query result is empty");
+            return queryResult;
+        }
+        List<InternalMandateDto> mandates = getMandates(queryResult);
+        if (mandates.isEmpty()) {
+            log.info("no valid mandate found");
+            return Collections.emptyList();
+        }
+        Map<String, InternalMandateDto> mapMandates = mandates.stream()
+                .collect(Collectors.toMap(InternalMandateDto::getMandateId, Function.identity()));
+        return queryResult.stream()
+                .filter(row -> isMandateValid(mapMandates.get(row.getMandateId()), row))
+                .toList();
+    }
+
+    private boolean isMandateValid(InternalMandateDto mandate, NotificationDelegationMetadataEntity entity) {
+        if (mandate == null) {
+            return false;
+        }
+        Instant mandateStartDate = mandate.getDatefrom() != null ? Instant.parse(mandate.getDatefrom()) : null;
+        Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
+        return entity.getRecipientId().equals(mandate.getDelegator())
+                && (mandateStartDate == null || entity.getSentAt().compareTo(mandateStartDate) >= 0) // sent after start mandate
+                && (mandateEndDate == null || entity.getSentAt().compareTo(mandateEndDate) <= 0) // sent before end mandate
+                && (CollectionUtils.isEmpty(mandate.getVisibilityIds()) || mandate.getVisibilityIds().contains(entity.getSenderId()));
+    }
+
+    private List<InternalMandateDto> getMandates(List<NotificationDelegationMetadataEntity> queryResult) {
+        List<MandateByDelegatorRequestDto> requestBody = queryResult.stream()
+                .map(row -> {
+                    MandateByDelegatorRequestDto requestDto = new MandateByDelegatorRequestDto();
+                    requestDto.setMandateId(row.getMandateId());
+                    requestDto.setDelegatorId(row.getRecipientId());
+                    return requestDto;
+                })
+                .distinct()
+                .toList();
+        return mandateClient.listMandatesByDelegators(DelegateType.PG, searchDto.getCxGroups(), requestBody);
     }
 
 }

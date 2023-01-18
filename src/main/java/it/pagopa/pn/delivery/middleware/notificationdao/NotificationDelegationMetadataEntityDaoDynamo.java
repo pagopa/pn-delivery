@@ -2,12 +2,13 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
 import java.util.List;
+
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME;
 
 @Slf4j
 @Component
@@ -47,7 +50,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
     @Override
     public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto,
-                                                                                   String indexName,
+                                                                                   IndexNameAndPartitions.SearchIndexEnum indexName,
                                                                                    String partitionValue,
                                                                                    int size,
                                                                                    PnLastEvaluatedKey lastEvaluatedKey) {
@@ -62,7 +65,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
         QueryConditional betweenConditional = QueryConditional.sortBetween(key1, key2);
 
-        DynamoDbIndex<NotificationDelegationMetadataEntity> index = table.index(indexName);
+        DynamoDbIndex<NotificationDelegationMetadataEntity> index = table.index(indexName.getValue());
 
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder();
 
@@ -71,6 +74,13 @@ public class NotificationDelegationMetadataEntityDaoDynamo
                 .scanIndexForward(false);
 
         addFilterExpression(searchDto, requestBuilder);
+
+        if (lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
+            String attributeName = retrieveAttributeName(indexName);
+            if (lastEvaluatedKey.getInternalLastEvaluatedKey().get(attributeName).s().equals(partitionValue)) {
+                requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
+            }
+        }
 
         log.debug("START query execution");
         SdkIterable<Page<NotificationDelegationMetadataEntity>> pages = index.query(requestBuilder.build());
@@ -83,27 +93,6 @@ public class NotificationDelegationMetadataEntityDaoDynamo
         response.setLastEvaluatedKey(page.lastEvaluatedKey());
         log.debug("END search for one month");
         return response;
-    }
-
-    @Override
-    public PageSearchTrunk<NotificationDelegationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto,
-                                                                             String pk,
-                                                                             String sk) {
-        log.debug("START search notification delegation for single IUN - {} {}", pk, sk);
-
-        GetItemEnhancedRequest request = GetItemEnhancedRequest.builder()
-                .key(k -> k.partitionValue(pk).sortValue(sk).build())
-                .build();
-
-        log.debug("START query execution");
-        NotificationDelegationMetadataEntity entity = table.getItem(request);
-
-        // TODO capire se ha senso applicare i filtri
-
-        PageSearchTrunk<NotificationDelegationMetadataEntity> result = new PageSearchTrunk<>();
-        result.setResults(List.of(entity));
-        log.debug("END query execution");
-        return result;
     }
 
     private void addFilterExpression(InputSearchNotificationDelegatedDto searchDto,
@@ -167,5 +156,17 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
     private void addEventuallyAnd(StringBuilder expressionBuilder) {
         expressionBuilder.append(expressionBuilder.length() > 0 ? " AND (" : " (");
+    }
+
+    private String retrieveAttributeName(IndexNameAndPartitions.SearchIndexEnum indexName) {
+        return switch (indexName) {
+            case INDEX_BY_DELEGATE -> NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_CREATION_MONTH;
+            case INDEX_BY_DELEGATE_GROUP -> NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_GROUP_ID_CREATION_MONTH;
+            default -> {
+                String msg = String.format("Unable to retrieve attributeName by indexName=%s", indexName);
+                log.error(msg);
+                throw new PnInternalException(msg, ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME);
+            }
+        };
     }
 }
