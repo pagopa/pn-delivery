@@ -720,7 +720,7 @@ components:
               items:
                 $ref: '#/components/schemas/TimelineElement'
     PaymentEventsRequestPagoPa:
-      title: Invio eventi di pagamento da P.A. a P.N.
+      title: Invio eventi di pagamento da PA a PN
       description: Richiesta contenente un array di eventi di pagamento di tipo PagoPA di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
       type: object
       required:
@@ -732,7 +732,7 @@ components:
           items:
             $ref: '#/components/schemas/PaymentEventPagoPa'
     PaymentEventsRequestF24:
-      title: Invio eventi di pagamento da P.A. a P.N.
+      title: Invio eventi di pagamento da PA a PN
       description: Richiesta contenente un array di eventi di pagamento di tipo F24 di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
       type: object
       required:
@@ -750,13 +750,11 @@ components:
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - data e ora del pagamento. <br/>
-          - la tipologia del destinatario pagatore (PF / PG). <br/> nota: se lo aggiungo qui posso evitare di aggiungerlo alla tabella NotificationsCost
       type: object
       required:
         - noticeCode
         - creditorTaxId
         - paymentDate
-        - recipientType
       properties:
         noticeCode:
           $ref: '#/components/schemas/noticeCode'
@@ -765,9 +763,6 @@ components:
         paymentDate:
           type: string
           format: date-time
-        recipientType:
-          type: string
-          pattern: PF|PG
     PaymentEventF24:
       title: Evento di pagamento F24
       description: |-
@@ -1470,6 +1465,26 @@ components:
     RaddTransactionId:
       type: string
       description: Identificativo della pratica all'interno della rete RADD
+    RecipientType:
+      type: string
+      enum:
+        - PF
+        - PG
+    DelegateInfo:
+      type: object
+      properties:
+        internalId:
+          type: string
+        taxId:
+          type: string
+        operatorUuid:
+          type: string
+        mandateId:
+          type: string
+        denomination:
+          type: string
+        delegateType:
+          $ref: '#/components/schemas/RecipientType'
     NotificationViewedDetails:
       type: object
       required:
@@ -1488,6 +1503,8 @@ components:
           $ref: '#/components/schemas/RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
     DeliveryMode:
       type: string
       description: Tipologia Domiciliazione
