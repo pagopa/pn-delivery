@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadB2BApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.SenderReadWebApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
@@ -198,9 +199,10 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .build();
         logEvent.log();
         try {
-            response = notificationAttachmentService.downloadAttachmentWithRedirect( iun,
-                    xPagopaPnCxType.toString(),
-                    xPagopaPnCxId,
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            response = notificationAttachmentService.downloadAttachmentWithRedirect(
+                    iun,
+                    internalAuthHeader,
                     null,
                     recipientIdx,
                     attachmentName,
@@ -225,10 +227,10 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .build();
         logEvent.log();
         try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
-                    xPagopaPnCxType.toString(),
-                    xPagopaPnCxId,
+                    internalAuthHeader,
                     null,
                     docIdx,
                     false

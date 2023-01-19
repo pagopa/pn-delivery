@@ -13,6 +13,7 @@ public class InputDownloadDto {
     private String iun;
     private String cxType;
     private String cxId;
+    private String uid;
     private String mandateId;
     private Integer documentIndex;
     private Integer recipientIdx;

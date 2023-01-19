@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.api.AppIoPnNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
@@ -36,7 +37,8 @@ public class PnReceivedIONotificationsController implements AppIoPnNotificationA
                 .build();
         logEvent.log();
         try {
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, xPagopaPnCxId, null);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, null);
             result = ioMapper.mapToThirdPartMessage(internalNotification);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
