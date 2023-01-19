@@ -48,12 +48,19 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     @Override
     public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId );
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_VIEW_SND, "getSenderNotification")
+                .iun(iun)
+                .build();
+        logEvent.log();
         if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() ) ) {
-            log.info( "Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus() );
+            logEvent.generateFailure("Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus()).log();
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
         FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
+        logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
 
