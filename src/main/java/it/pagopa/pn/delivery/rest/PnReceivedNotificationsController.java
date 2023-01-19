@@ -18,6 +18,7 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
@@ -43,8 +44,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     @Override
     public ResponseEntity<NotificationSearchResponse> searchReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, OffsetDateTime startDate, OffsetDateTime endDate, List<String> xPagopaPnCxGroups, String mandateId, String senderId, NotificationStatus status, String subjectRegExp, String iunMatch, Integer size, String nextPagesKey) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_SEARCH_RCP;
+        String logMsg = "searchReceivedNotification";
+        if (StringUtils.hasText( mandateId )) {
+            eventType = PnAuditLogEventType.AUD_NT_SEARCH_DEL;
+            logMsg = "searchDelegatedNotification with mandateId={}";
+        }
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_SEARCH_RCP, "searchReceivedNotification")
+                .before(eventType, logMsg, mandateId)
                 .iun(iunMatch)
                 .build();
         logEvent.log();
@@ -81,8 +88,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         FullReceivedNotification result = null;
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_VIEW_RCP;
+        String logMsg = "getReceivedNotification";
+        if (StringUtils.hasText( mandateId )) {
+            eventType = PnAuditLogEventType.AUD_NT_VIEW_DEL;
+            logMsg = "getReceivedNotificationDelegate with mandateId={}";
+        }
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_VIEW_RCP, "getReceivedNotification")
+                .before(eventType, logMsg, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -105,9 +118,15 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_RCP;
+        String logMsg = "getReceivedNotificationDocument from documents array with index={}";
+        if (StringUtils.hasText( mandateId )) {
+            eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_DEL;
+            logMsg = "getDelegateNotificationDocument from documents array with index={} with mandateId={}";
+        }
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocument from documents array with index={}", docIdx)
+                .before(eventType, logMsg, docIdx, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
