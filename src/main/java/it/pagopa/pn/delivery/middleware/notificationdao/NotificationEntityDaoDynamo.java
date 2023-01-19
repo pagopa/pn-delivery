@@ -188,6 +188,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
             if (Objects.nonNull(rec.getPayment())) {
                 NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
+                        .recipientType ( rec.getRecipientType().getValue() )
                         .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
                         .iun( notificationEntity.getIun() )
                         .creditorTaxIdNoticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
@@ -196,6 +197,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
                 if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
                     notificationCostEntityList.add( NotificationCostEntity.builder()
+                            .recipientType ( rec.getRecipientType().getValue() )
                             .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
                             .iun( notificationEntity.getIun() )
                             .creditorTaxIdNoticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )

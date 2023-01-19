@@ -31,6 +31,8 @@ tags:
     description: Invocazioni per determinare il costo della notifica per il destinario.
   - name: LegalFacts
     description: Invocazioni per effettuare il downalod degli atti opponibili a terzi
+  - name: PaymentEvents
+    description: Invocazioni per comunicare eventi di pagamento dalla PA
 paths:
   /status:
     get:
@@ -360,6 +362,72 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery/events/payment/pagopa:
+    post:
+      operationId: paymentEventsRequestPagoPa
+      description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo PagoPA. <br/>
+      tags:
+        - PaymentEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentEventsRequestPagoPa'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery/events/payment/f24:
+    post:
+      operationId: paymentEventsRequestF24
+      description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo F24. <br/>
+      tags:
+        - PaymentEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentEventsRequestF24'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     notificationRequestId:
@@ -651,6 +719,75 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
+    PaymentEventsRequestPagoPa:
+      title: Invio eventi di pagamento da PA a PN
+      description: Richiesta contenente un array di eventi di pagamento di tipo PagoPA di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi di pagamento
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentEventPagoPa'
+    PaymentEventsRequestF24:
+      title: Invio eventi di pagamento da PA a PN
+      description: Richiesta contenente un array di eventi di pagamento di tipo F24 di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi di pagamento
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentEventF24'
+    PaymentEventPagoPa:
+      title: Evento di pagamento PagoPa
+      description: |-
+        Comprende: <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - data e ora del pagamento. <br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+        - paymentDate
+      properties:
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        paymentDate:
+          type: string
+          format: date-time
+    PaymentEventF24:
+      title: Evento di pagamento F24
+      description: |-
+        Comprende: <br/>
+          - lo _IUN_ della notifica pagata, <br/>
+          - data e ora del pagamento, <br/>
+          - il codice fiscale del destinatario pagatore, <br/>
+          - e la tipologia del destinatario pagatore (PF / PG). <br/>
+      type: object
+      required:
+        - iun
+        - paymentDate
+        - recipientTaxId
+        - recipientType
+      properties:
+        iun:
+          type: string
+        paymentDate:
+          type: string
+          format: date-time
+        recipientTaxId:
+          $ref: '#/components/schemas/TaxId'
+        recipientType:
+          type: string
+          pattern: PF|PG
     TimelineElement:
       type: object
       additionalProperties: false
@@ -1328,6 +1465,26 @@ components:
     RaddTransactionId:
       type: string
       description: Identificativo della pratica all'interno della rete RADD
+    RecipientType:
+      type: string
+      enum:
+        - PF
+        - PG
+    DelegateInfo:
+      type: object
+      properties:
+        internalId:
+          type: string
+        taxId:
+          type: string
+        operatorUuid:
+          type: string
+        mandateId:
+          type: string
+        denomination:
+          type: string
+        delegateType:
+          $ref: '#/components/schemas/RecipientType'
     NotificationViewedDetails:
       type: object
       required:
@@ -1346,6 +1503,8 @@ components:
           $ref: '#/components/schemas/RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
     DeliveryMode:
       type: string
       description: Tipologia Domiciliazione
