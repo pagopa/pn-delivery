@@ -10,13 +10,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-
 
 class CheckAuthComponentTest {
 
@@ -40,7 +41,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, iun, recipientIdx);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx);
 
         // When
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
@@ -49,16 +50,17 @@ class CheckAuthComponentTest {
         Assertions.assertThrows( IllegalArgumentException.class, todo );
     }
 
-    @Test
-    void canAccessPFUnauthorized() {
-        String cxType = "PF";
+
+    @ParameterizedTest
+    @ValueSource(strings = {"PG", "PF", "PA"})
+    void canAccessPFPGPAUnauthorized(String cxType) {
         String cxId = "CX_ID";
         String iun = "IUN_01";
         Integer recipientIdx = 0;
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, iun, recipientIdx);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx);
 
         // When
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
@@ -66,6 +68,7 @@ class CheckAuthComponentTest {
         // Then
         Assertions.assertFalse( authorizationOutcome.isAuthorized() );
     }
+
 
     @Test
     void canAccessPFWithMandateIdSuccess() {
@@ -77,10 +80,34 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, iun, recipientIdx);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
         // When
         Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
+                .thenReturn( Collections.singletonList(new InternalMandateDto()
+                        .datefrom( "2022-01-01T00:00Z" )
+                        .mandateId( mandateId )
+                        .delegator( "recipientId" ))
+                );
+        AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
+
+        // Then
+        Assertions.assertTrue( authorizationOutcome.isAuthorized() );
+    }
+    @Test
+    void canAccessPGWithMandateIdSuccess() {
+        String cxType = "PG";
+        String cxId = "CX_ID";
+        String iun = "IUN_01";
+        String mandateId = "mandateId";
+        Integer recipientIdx = 0;
+
+        InternalNotification notification = newNotification();
+        // Given
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
+
+        // When
+        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PG, null ) )
                 .thenReturn( Collections.singletonList(new InternalMandateDto()
                         .datefrom( "2022-01-01T00:00Z" )
                         .mandateId( mandateId )
@@ -102,7 +129,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, iun, recipientIdx);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
         // When
         Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
@@ -112,24 +139,27 @@ class CheckAuthComponentTest {
         // Then
         Assertions.assertThrows( PnNotFoundException.class, todo);
     }
-
     @Test
-    void canAccessPAUnauthorized() {
-        String cxType = "PA";
+    void canAccessPGWithMandateIdNotFoundExc() {
+        String cxType = "PG";
         String cxId = "CX_ID";
         String iun = "IUN_01";
+        String mandateId = "mandateId";
         Integer recipientIdx = 0;
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, iun, recipientIdx);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
         // When
-        AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
+        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PG, null ) )
+                .thenReturn( Collections.emptyList());
+        Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertFalse( authorizationOutcome.isAuthorized() );
+        Assertions.assertThrows( PnNotFoundException.class, todo);
     }
+
 
     @Test
     void canAccessPASuccess() {
@@ -140,7 +170,7 @@ class CheckAuthComponentTest {
 
         InternalNotification notification = newNotification();
         // Given
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, iun, recipientIdx);
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, null, null, iun, recipientIdx);
 
         // When
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
@@ -148,8 +178,6 @@ class CheckAuthComponentTest {
         // Then
         Assertions.assertTrue( authorizationOutcome.isAuthorized() );
     }
-
-
 
     private InternalNotification newNotification() {
         return new InternalNotification(FullSentNotification.builder()

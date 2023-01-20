@@ -30,4 +30,6 @@ public class PnDeliveryRestConstants {
 
     public static final String DIRECT_ACCESS_PATH = DELIVERY_PATH + "/direct_access";
 
+    public static final String NOTIFICATION_RECEIVED_DELEGATED_PATH = DELIVERY_PATH + "/notifications/received/delegated";
+
 }

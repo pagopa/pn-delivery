@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -31,6 +32,7 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
 import static org.mockito.ArgumentMatchers.*;
@@ -55,7 +57,13 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String PAGOPA = "PAGOPA";
 	public static final String AAR_QR_CODE_VALUE_V1 = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
 	public static final String AAR_QR_CODE_VALUE_V2 = "VVFNWi1LTERHLUtEWVQtMjAyMjExLUwtMV9QRi00ZmM3NWRmMy0wOTEzLTQwN2UtYmRhYS1lNTAzMjk3MDhiN2RfZDA2ZjdhNDctNDJkMC00NDQxLWFkN2ItMTE4YmQ4NzlkOTJj";
-
+	private static final String SENDER_ID = "test";
+	private static final String START_DATE = "2021-09-17T00:00:00.000Z";
+	private static final String END_DATE = "2021-09-18T00:00:00.000Z";
+	private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
+	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
+	public static final List<String> GROUPS = List.of("Group1", "Group2");
+	public static final String UID = "Uid";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -955,5 +963,64 @@ class PnSentReceivedNotificationControllerTest {
 						.build() ) )
                 .build(), Collections.emptyList());
     }
-	
+	@Test
+	void searchNotificationDelegatedFailure() {
+		// When
+		Mockito.doThrow(new PnInternalException("Simulated Error"))
+				.when(svc)
+				.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class));
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/" + PnDeliveryRestConstants.NOTIFICATION_RECEIVED_DELEGATED_PATH )
+								.queryParam("startDate", START_DATE)
+								.queryParam("endDate", END_DATE)
+								.queryParam("recipientId", RECIPIENT_ID)
+								.queryParam("status", STATUS)
+								.build())
+				.accept(MediaType.APPLICATION_JSON)
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, UID)
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0)+","+GROUPS.get(1))
+				.exchange()
+				.expectStatus()
+				.is5xxServerError();
+
+	}
+	@Test
+	void searchNotificationDelegatedValidationFailure() {
+		// When
+		Mockito.doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
+				.when(svc)
+				.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class));
+
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
+		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+
+		webTestClient.get()
+				.uri(uriBuilder ->
+						uriBuilder
+								.path( "/" + PnDeliveryRestConstants.NOTIFICATION_RECEIVED_DELEGATED_PATH )
+								.queryParam("startDate", START_DATE)
+								.queryParam("endDate", END_DATE)
+								.queryParam("recipientId", RECIPIENT_ID)
+								.queryParam("status", STATUS)
+								.build())
+				.accept(MediaType.APPLICATION_JSON)
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, SENDER_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, UID)
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0)+","+GROUPS.get(1))
+				.exchange()
+				.expectStatus()
+				.isBadRequest();
+
+	}
 }

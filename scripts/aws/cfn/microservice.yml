@@ -164,11 +164,12 @@ Parameters:
   AlbSecurityGroup:
     Type: String
     Description: 'Application load balancer security group'
-  DeliverySqsQueueFromMandateName:
+
+  Mandate2DeliveryQueueName:
     Type: String
     Description: 'The name of the SQS queue used to communicate with pn-mandate module.'
 
-  DeliverySqsQueueFromMandateARN:
+  Mandate2DeliveryQueueARN:
     Type: String
     Description: 'Identify the resource that the policy applies to.'
     
@@ -213,7 +214,7 @@ Resources:
         ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERY_MAXDOCUMENTSAVAILABLEDAYS=${MaxDocumentsAvailableDays}'
         ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
-        ContainerEnvEntry21: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${DeliverySqsQueueFromMandatePolicy}'
+        ContainerEnvEntry21: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -563,10 +564,10 @@ Resources:
       #ENDpndeliveryinserttrigger
       #Non rimuovere o modificare il commento sopra, è usato come placeholder negli script
 
-  DeliverySqsQueueFromMandatePolicy:
+  Mandate2DeliveryQueuePolicy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: !Sub '${ProjectName}-DeliverySqsQueueFromMandatePolicy'
+      PolicyName: !Sub '${ProjectName}-Mandate2DeliveryQueuePolicy'
       Roles:
         - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
       PolicyDocument:
@@ -577,4 +578,4 @@ Resources:
               - sqs:ReceiveMessage
               - sqs:GetQueueUrl
             Resource:
-              - !Ref DeliverySqsQueueFromMandateARN
+              - !Ref Mandate2DeliveryQueueARN

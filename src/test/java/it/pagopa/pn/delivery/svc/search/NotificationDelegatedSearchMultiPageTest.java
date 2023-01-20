@@ -97,7 +97,10 @@ class NotificationDelegatedSearchMultiPageTest {
         mandate1.setVisibilityIds(List.of("s1"));
         when(mandateClient.listMandatesByDelegators(eq(DelegateType.PG), any(), anyList()))
                 .thenReturn(List.of(mandate1));
-
+        NotificationSearchRow notificationSearchRow = new NotificationSearchRow();
+        notificationSearchRow.setRecipients(List.of("r1"));
+        when(entityToDtoMapper.entity2Dto((NotificationDelegationMetadataEntity) any()))
+                .thenReturn(notificationSearchRow);
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = searchMultiPage.searchNotificationMetadata();
         assertNotNull(result);
         assertEquals(1, result.getResultsPage().size());
