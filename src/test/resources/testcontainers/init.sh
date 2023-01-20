@@ -77,6 +77,46 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         }
     ]"
 
+aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
+    dynamodb create-table \
+    --table-name NotificationDelegationMetadata \
+    --attribute-definitions \
+        AttributeName=iun_recipientId_delegateId_groupId,AttributeType=S \
+        AttributeName=sentAt,AttributeType=S \
+        AttributeName=delegateId_creationMonth,AttributeType=S \
+        AttributeName=delegateId_groupId_creationMonth,AttributeType=S \
+    --key-schema \
+        AttributeName=iun_recipientId_delegateId_groupId,KeyType=HASH \
+        AttributeName=sentAt,KeyType=RANGE \
+    --provisioned-throughput \
+        ReadCapacityUnits=10,WriteCapacityUnits=5 \
+    --global-secondary-indexes \
+    "[
+        {
+            \"IndexName\": \"delegateId\",
+            \"KeySchema\": [{\"AttributeName\":\"delegateId_creationMonth\",\"KeyType\":\"HASH\"},
+                            {\"AttributeName\":\"sentAt\",\"KeyType\":\"RANGE\"}],
+            \"Projection\":{
+                \"ProjectionType\":\"ALL\"
+            },
+            \"ProvisionedThroughput\": {
+                \"ReadCapacityUnits\": 10,
+                \"WriteCapacityUnits\": 5
+            }
+        },
+        {
+            \"IndexName\": \"delegateId_groupId\",
+            \"KeySchema\": [{\"AttributeName\":\"delegateId_groupId_creationMonth\",\"KeyType\":\"HASH\"},
+                            {\"AttributeName\":\"sentAt\",\"KeyType\":\"RANGE\"}],
+            \"Projection\":{
+                \"ProjectionType\":\"ALL\"
+            },
+            \"ProvisionedThroughput\": {
+                \"ReadCapacityUnits\": 10,
+                \"WriteCapacityUnits\": 5
+            }
+        }
+    ]"
 
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
     dynamodb create-table \

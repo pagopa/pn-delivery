@@ -70,32 +70,64 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
             dynamoDbPageSize = dynamoDbPageSize * FILTER_EXPRESSION_APPLIED_MULTIPLIER;
         }
 
+        PnLastEvaluatedKey startEvaluatedKey = null;
+        if (lastEvaluatedKey != null) {
+            startEvaluatedKey = lastEvaluatedKey;
+        }
+
+        List<NotificationDelegationMetadataEntity> cumulativeQueryResult = new ArrayList<>();
+
+        int iterations = 0;
+        ResultPaginationDto<NotificationDelegationMetadataEntity, PnLastEvaluatedKey> queryResult;
+        while (cumulativeQueryResult.size() < requiredSize) {
+            queryResult = search(requiredSize, dynamoDbPageSize, startEvaluatedKey);
+            List<NotificationDelegationMetadataEntity> filtered = checkMandates(queryResult.getResultsPage());
+            log.info("check mandates completed, preCheckCount={} postCheckCount={}", queryResult.getResultsPage().size(), filtered.size());
+            cumulativeQueryResult.addAll(filtered);
+
+            iterations++;
+
+            // preparo una nuova iterazione, ma se non ho più pagine mi fermo
+            if (CollectionUtils.isEmpty(queryResult.getNextPagesKey())) {
+                break;
+            }
+            startEvaluatedKey = queryResult.getNextPagesKey().get(0);
+        }
+
+        log.info("search request completed, totalIterationCount={}, totalRowRead={}", iterations, cumulativeQueryResult.size());
+        return prepareGlobalResult(cumulativeQueryResult, requiredSize);
+    }
+
+    private ResultPaginationDto<NotificationDelegationMetadataEntity, PnLastEvaluatedKey> search(int requiredSize, int dynamoDbPageSize, PnLastEvaluatedKey startEvaluatedKey) {
         int logItemCount = 0;
 
         List<NotificationDelegationMetadataEntity> dataRead = new ArrayList<>();
         int startIndex = 0;
-        PnLastEvaluatedKey startEvaluedKey = null;
-        if (lastEvaluatedKey != null) {
-            startEvaluedKey = lastEvaluatedKey;
-            startIndex = indexNameAndPartitions.getPartitions().indexOf(lastEvaluatedKey.getExternalLastEvaluatedKey());
-            log.debug("lastEvaluatedKey is not null, starting search from index={}", startIndex);
+        PnLastEvaluatedKey searchLastEvaluateKey = null;
+
+        if (startEvaluatedKey != null) {
+            startIndex = indexNameAndPartitions.getPartitions().indexOf(startEvaluatedKey.getExternalLastEvaluatedKey());
+            log.debug("startEvaluatedKey is not null, starting search from index={}", startIndex);
         }
 
         for (int pIdx = startIndex; pIdx < indexNameAndPartitions.getPartitions().size(); pIdx++) {
             String currentPartition = indexNameAndPartitions.getPartitions().get(pIdx);
-            logItemCount += readDataFromPartition(1, currentPartition, dataRead, startEvaluedKey, requiredSize, dynamoDbPageSize);
-            startEvaluedKey = null;
+            logItemCount += readDataFromPartition(1, currentPartition, dataRead, startEvaluatedKey, requiredSize, dynamoDbPageSize);
+            startEvaluatedKey = null;
             if (dataRead.size() >= requiredSize) {
                 log.debug("reached required size, ending search");
+                searchLastEvaluateKey = computeLastEvaluatedKey(dataRead.get(dataRead.size() - 1));
+                searchLastEvaluateKey.setExternalLastEvaluatedKey(currentPartition);
                 break;
             }
         }
 
-        log.info("search request completed, totalDbQueryCount={} totalRowRead={}", logItemCount, dataRead.size());
-        // necessario controllare le deleghe per pulire eventuali dati sporchi
-        List<NotificationDelegationMetadataEntity> filtered = checkMandates(dataRead);
-        log.info("post filter mandates completed, preCheckCount={} postCheckCount={}", dataRead.size(), filtered.size());
-        return prepareGlobalResult(filtered, dataRead.size(), requiredSize);
+        log.info("search request completed, totalDbQueryCount={}, totalRowRead={}", logItemCount, dataRead.size());
+
+        ResultPaginationDto<NotificationDelegationMetadataEntity, PnLastEvaluatedKey> result = new ResultPaginationDto<>();
+        result.setResultsPage(dataRead);
+        result.setNextPagesKey(searchLastEvaluateKey != null ? List.of(searchLastEvaluateKey) : null);
+        return result;
     }
 
     private int readDataFromPartition(int currentRequest, String partition, List<NotificationDelegationMetadataEntity> cumulativeQueryResult,
@@ -141,7 +173,6 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
     }
 
     private ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> prepareGlobalResult(List<NotificationDelegationMetadataEntity> queryResult,
-                                                                                               int preFilterSize,
                                                                                                int requiredSize) {
         ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> globalResult = new ResultPaginationDto<>();
         globalResult.setNextPagesKey(new ArrayList<>());
@@ -158,36 +189,41 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
                 })
                 .toList());
 
-        globalResult.setMoreResult(preFilterSize >= requiredSize);
+        globalResult.setMoreResult(queryResult.size() >= requiredSize);
 
         for (int i = 1; i <= cfg.getMaxPageSize(); i++) {
             int index = searchDto.getSize() * i;
             if (queryResult.size() <= index) {
                 break;
             }
-            PnLastEvaluatedKey pageLastEvaluatedKey = new PnLastEvaluatedKey();
-            NotificationDelegationMetadataEntity keyElement = queryResult.get(index - 1);
-            if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE_GROUP)) {
-                pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyElement.getDelegateIdGroupIdCreationMonth());
-                pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
-                        NotificationDelegationMetadataEntity.FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID, AttributeValue.builder().s(keyElement.getIunRecipientIdDelegateIdGroupId()).build(),
-                        NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_GROUP_ID_CREATION_MONTH, AttributeValue.builder().s(keyElement.getDelegateIdGroupIdCreationMonth()).build(),
-                        NotificationDelegationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyElement.getSentAt().toString()).build()
-                ));
-            } else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE)) {
-                pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyElement.getDelegateIdCreationMonth());
-                pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
-                        NotificationDelegationMetadataEntity.FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID, AttributeValue.builder().s(keyElement.getIunRecipientIdDelegateIdGroupId()).build(),
-                        NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_CREATION_MONTH, AttributeValue.builder().s(keyElement.getDelegateIdCreationMonth()).build(),
-                        NotificationDelegationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyElement.getSentAt().toString()).build()
-                ));
-            }
+            NotificationDelegationMetadataEntity keyEntity = queryResult.get(index - 1);
+            PnLastEvaluatedKey pageLastEvaluatedKey = computeLastEvaluatedKey(keyEntity);
             globalResult.getNextPagesKey().add(pageLastEvaluatedKey);
         }
 
         deanonimizeResults(globalResult);
 
         return globalResult;
+    }
+
+    private PnLastEvaluatedKey computeLastEvaluatedKey(NotificationDelegationMetadataEntity keyEntity) {
+        PnLastEvaluatedKey pageLastEvaluatedKey = new PnLastEvaluatedKey();
+        if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE_GROUP)) {
+            pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyEntity.getDelegateIdGroupIdCreationMonth());
+            pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
+                    NotificationDelegationMetadataEntity.FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID, AttributeValue.builder().s(keyEntity.getIunRecipientIdDelegateIdGroupId()).build(),
+                    NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_GROUP_ID_CREATION_MONTH, AttributeValue.builder().s(keyEntity.getDelegateIdGroupIdCreationMonth()).build(),
+                    NotificationDelegationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyEntity.getSentAt().toString()).build()
+            ));
+        } else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE)) {
+            pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyEntity.getDelegateIdCreationMonth());
+            pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
+                    NotificationDelegationMetadataEntity.FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID, AttributeValue.builder().s(keyEntity.getIunRecipientIdDelegateIdGroupId()).build(),
+                    NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_CREATION_MONTH, AttributeValue.builder().s(keyEntity.getDelegateIdCreationMonth()).build(),
+                    NotificationDelegationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyEntity.getSentAt().toString()).build()
+            ));
+        }
+        return pageLastEvaluatedKey;
     }
 
     private List<NotificationDelegationMetadataEntity> checkMandates(List<NotificationDelegationMetadataEntity> queryResult) {
