@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PaymentEventPagoPa;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PaymentEventsRequestF24;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PaymentEventsRequestPagoPa;
 import it.pagopa.pn.delivery.svc.PaymentEventsService;
+import it.pagopa.pn.delivery.utils.PaymentEventsLogUtil;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,6 +28,9 @@ class PnPaymentEventsControllerTest {
 
     @Autowired
     WebTestClient webTestClient;
+
+    @MockBean
+    PaymentEventsLogUtil paymentEventsLogUtil;
 
     @MockBean
     PaymentEventsService paymentEventsService;

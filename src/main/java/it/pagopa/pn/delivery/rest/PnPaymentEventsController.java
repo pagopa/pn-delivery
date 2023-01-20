@@ -9,6 +9,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PaymentEventsRequestF24;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PaymentEventsRequestPagoPa;
 import it.pagopa.pn.delivery.svc.PaymentEventsService;
+import it.pagopa.pn.delivery.utils.PaymentEventsLogUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +22,11 @@ import java.util.List;
 public class PnPaymentEventsController implements PaymentEventsApi {
 
     private final PaymentEventsService paymentEventsService;
+    private final PaymentEventsLogUtil paymentEventsLogUtil;
 
-    public PnPaymentEventsController(PaymentEventsService paymentEventsService) {
+    public PnPaymentEventsController(PaymentEventsService paymentEventsService, PaymentEventsLogUtil paymentEventsLogUtil) {
         this.paymentEventsService = paymentEventsService;
+        this.paymentEventsLogUtil = paymentEventsLogUtil;
     }
 
     @Override
@@ -46,8 +49,7 @@ public class PnPaymentEventsController implements PaymentEventsApi {
     public ResponseEntity<Void> paymentEventsRequestF24(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, PaymentEventsRequestF24 paymentEventsRequestF24, List<String> xPagopaPnCxGroups) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
-                // nota: i recipientTaxId devono essere mascherati
-                .before(PnAuditLogEventType.AUD_NT_PAYMENT, "payment events request {}", paymentEventsRequestF24)
+                .before(PnAuditLogEventType.AUD_NT_PAYMENT, "payment events request {}", paymentEventsLogUtil.maskRecipientTaxIdForLog( paymentEventsRequestF24) )
                 .build();
         logEvent.log();
         try {
