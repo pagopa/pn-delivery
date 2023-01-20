@@ -1,11 +1,14 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +29,13 @@ class EntityToDtoNotificationMetadataMapperTest {
     public static final String SENDER_DENOMINATION = "comune di milano";
     public static final String SUBJECT = "invio notifica con cucumber 05-09-2022 18:47:38";
     public static final String SENT_AT = "2022-09-05T18:47:39.267123Z";
+    public static final String ACCEPTED_AT = "2022-09-05T18:47:39.267123Z";
+
+    private static final String TABLE_ROW_SENDER_DENOMINATION = "senderDenomination";
+    private static final String TABLE_ROW_SUBJECT = "subject";
+    private static final String TABLE_ROW_PA_PROTOCOL_NUMBER = "paProtocolNumber";
+    private static final String TABLE_ROW_ACCEPTED_AT = "acceptedAt";
+
     public static final Map<String,String> TABLE_ROW = Map.of(
             "acceptedAt", SENT_AT,
             "iun", IUN,
@@ -72,5 +82,40 @@ class EntityToDtoNotificationMetadataMapperTest {
         assertEquals( NOTIFICATION_STATUS, result.getNotificationStatus().getValue() );
         assertEquals( NOTIFICATION_GROUP, result.getGroup() );
     }
+    @Test
+    void entity2DtoTest() {
+
+        Map<String, String> tableRow = Map.of(TABLE_ROW_SENDER_DENOMINATION, "senderId",
+                TABLE_ROW_SUBJECT, "subjectTest",
+                TABLE_ROW_PA_PROTOCOL_NUMBER, "protocolNumberTest",
+        TABLE_ROW_ACCEPTED_AT, ACCEPTED_AT);
+
+        NotificationSearchRow notificationSearchRow = NotificationSearchRow.builder()
+                .iun("test")
+                .sender("senderId")
+                .recipients(List.of("recipientId1"))
+                .sentAt(OffsetDateTime.parse(SENT_AT))
+                .subject("subjectTest")
+                .paProtocolNumber("protocolNumberTest")
+                .requestAcceptedAt(OffsetDateTime.parse(ACCEPTED_AT))
+                .notificationStatus(NotificationStatus.ACCEPTED)
+                .mandateId("mandateId")
+                .build();
+
+        NotificationDelegationMetadataEntity notificationDelegationMetadataEntity =
+                NotificationDelegationMetadataEntity.builder()
+                        .iunRecipientIdDelegateIdGroupId("test##")
+                        .senderId("senderId")
+                        .recipientIds(List.of("recipientId1"))
+                        .sentAt(OffsetDateTime.parse(SENT_AT).toInstant())
+                        .notificationStatus(NotificationStatus.ACCEPTED.toString())
+                        .mandateId("mandateId")
+                        .tableRow(tableRow)
+                        .build();
+
+        assertEquals(notificationSearchRow, mapper.entity2Dto(notificationDelegationMetadataEntity));
+
+    }
+
 
 }

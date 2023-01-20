@@ -61,5 +61,4 @@ public class EntityToDtoNotificationMetadataMapper {
                 .mandateId(entity.getMandateId())
                 .build();
     }
-
 }
