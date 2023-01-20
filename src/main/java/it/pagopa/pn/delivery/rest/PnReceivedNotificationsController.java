@@ -154,8 +154,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP;
+        String logMsg = "getReceivedNotificationAttachment attachment name={}";
+        if (StringUtils.hasText( mandateId )) {
+            eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
+            logMsg = "getReceivedAndDelegatedNotificationAttachment attachment name={} and mandateId={}";
+        }
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachment attachment name={}", attachmentName)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
