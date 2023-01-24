@@ -70,10 +70,7 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
             dynamoDbPageSize = dynamoDbPageSize * FILTER_EXPRESSION_APPLIED_MULTIPLIER;
         }
 
-        PnLastEvaluatedKey startEvaluatedKey = null;
-        if (lastEvaluatedKey != null) {
-            startEvaluatedKey = lastEvaluatedKey;
-        }
+        PnLastEvaluatedKey startEvaluatedKey = lastEvaluatedKey;
 
         List<NotificationDelegationMetadataEntity> cumulativeQueryResult = new ArrayList<>();
 

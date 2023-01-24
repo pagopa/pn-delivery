@@ -6,7 +6,7 @@ components:
     ############################################################################################
     ###                           IDENTIFICATIVI DELLE NOTIFICHE                             ###
     ############################################################################################
-    
+
     IUN:
       description: Identificativo Univoco Notifica
       type: string
@@ -47,7 +47,7 @@ components:
     ############################################################################################
     ###                                 DTO DELLE NOTIFICHE                                  ###
     ############################################################################################
-    
+
     NewNotificationRequest:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
@@ -99,16 +99,16 @@ components:
             - _FLAT_RATE_: costo forfettario fisso. <br/>
             - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
           enum:
-          - FLAT_RATE
-          - DELIVERY_MODE
+            - FLAT_RATE
+            - DELIVERY_MODE
         cancelledIun:
           $ref: '#/components/schemas/IUN'
         physicalCommunicationType:
           type: string
           description: Tipologia comunicazione fisica
           enum:
-          - AR_REGISTERED_LETTER
-          - REGISTERED_LETTER_890
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
@@ -131,7 +131,7 @@ components:
           maxLength: 7
           pattern: "^([0-9]{6}[A-Z]{1})$"
           description: >-
-            Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
+            Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
           default: "010101P"
     SentNotification:
       description: >-
@@ -162,13 +162,13 @@ components:
     ############################################################################################
     ###                                ELEMENTI DI DETTAGLIO                                 ###
     ############################################################################################
-    
+
     NotificationRecipient:
       description: Informazioni sui destinatari
       required:
-      - denomination
-      - recipientType
-      - taxId
+        - denomination
+        - recipientType
+        - taxId
       type: object
       properties:
         recipientType:
@@ -176,8 +176,8 @@ components:
           description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
             (PG)'
           enum:
-          - PF
-          - PG
+            - PF
+            - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
         internalId:
@@ -212,13 +212,13 @@ components:
     NotificationPaymentAttachment:
       description: >-
         Un modulo di pagamento allegato alla notifica
-      allOf: 
+      allOf:
         - $ref: "#/components/schemas/NotificationAttachment"
-    
+
     NotificationDocument:
       description: >-
         Un documento da notifcare
-      allOf: 
+      allOf:
         - $ref: "#/components/schemas/NotificationAttachment"
         - type: object
           properties:
@@ -232,13 +232,13 @@ components:
                 diventa necessario al fine del perfezionamento per presa visione.
             sendByMail:
               type: boolean
-              description: >- 
+              description: >-
                 Se presente e valorizzato __true__ il documento verrà spedito 
                 nelle comunicazioni cartacee. In MVP questo flag sarà attivabile 
                 solo su un documento.
             docIdx:
               type: string
-              description: >- 
+              description: >-
                 Indice del documento partendo da 0.
 
 
@@ -251,7 +251,7 @@ components:
         sha256:
           type: string
           description: Digest "sha256" della codifica binaria dell'allegato
-    
+
     NotificationAttachmentBodyRef:
       description: Riferimento all'allegato precaricato
       required:
@@ -269,16 +269,16 @@ components:
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
       description: >-
-       Informazioni utili per effettuare il pagamento di una notifica, sono associate al
-       destinatario perché le spese di notifica possono differire a seconda del canale di
-       notifica utilizzato. <br/>
-         - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
-            calcolato puntualmente. <br/>
-         - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
-         - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
-         - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
-         - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
-         - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
+        Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+        destinatario perché le spese di notifica possono differire a seconda del canale di
+        notifica utilizzato. <br/>
+          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
+             calcolato puntualmente. <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
+          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
       type: object
       required:
         - noticeCode
@@ -317,26 +317,26 @@ components:
     ### Ripetuti per non accoppiare i microservizi e avere più facilità di evoluzione, anche ###
     ### se questo implica un po' di duplicazione.                                            ###
     ############################################################################################
-    
+
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
-      - address
-      - type
+        - address
+        - type
       type: object
       properties:
         type:
           type: string
           description: tipo di indirizzo PEC, REM, SERCQ, ...
           enum:
-          - PEC
+            - PEC
         address:
           type: string
           example: account@domain
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
             raggiungere il destinatario.
- 
+    
 
     NotificationPhysicalAddress:
       description: Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in fase di Sperimentazione)
@@ -370,14 +370,14 @@ components:
         foreignState:
           type: string
           description: Denominazione paese estero
-    
-    
+
+
     ############################################################################################
     ###                             RISULTATO RICERCA NOTIFICHE                              ###
     ############################################################################################
-    
+
     NotificationSearchResponse:
-      title: Elenco di notifiche 
+      title: Elenco di notifiche
       description: >-
         Dto contenente i risultati di una ricerca di notifiche. Ogni risposta conterrà solo 
         una pagina di risultati relativi a una ricerca e le indicazioni per raggiungere alcune
@@ -437,8 +437,11 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-    
-    #NotificationStatus:
+        mandateId:
+          type: String
+          description: Id delega (per notifiche delegate)
+
+      #NotificationStatus:
       #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
       #type: string
 
@@ -446,7 +449,7 @@ components:
     ############################################################################################
     ###                                  DOWNLOAD ALLEGATI                                   ###
     ############################################################################################
-    
+
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: >-
@@ -473,7 +476,7 @@ components:
           description: dmensione, in byte, del contenuto.
         sha256:
           type: string
-          description: >- 
+          description: >-
             SHA256 del contenuto del file.
         url:
           type: string
@@ -486,11 +489,10 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
+    
 
-            
     NotificationQuickAccessLinkTokens:
       description: Dizionario recipientId/quickAccessLinkToken
-      type: object 
+      type: object
       additionalProperties:
         type: string
-        
