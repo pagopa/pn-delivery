@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions.SearchIndexEnum.*;
 
@@ -34,12 +35,13 @@ class IndexNameAndPartitionsTest {
     }
 
     @Test
-    void searchBySenderWithReceiverFilter() {
+    void searchBySenderWithReceiverFilterPIva() {
         // - GIVEN
         InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .senderReceiverId( "senderId" )
                 .filterId( "recipientId" )
+                .opaqueFilterIdPIva( "recipientId" )
                 .build();
 
         // - WHEN
@@ -52,6 +54,29 @@ class IndexNameAndPartitionsTest {
                 Collections.singletonList("senderId##recipientId"),
                 indexAndPartitions.getPartitions()
             );
+    }
+
+    @Test
+    void searchBySenderWithReceiverFilterCF() {
+        // - GIVEN
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .senderReceiverId( "senderId" )
+                .filterId( "recipientId" )
+                .opaqueFilterIdCF( "recipientIdCF" )
+                .opaqueFilterIdPIva( "recipientIdPIva" )
+                .build();
+
+        // - WHEN
+        IndexNameAndPartitions indexAndPartitions;
+        indexAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions( searchParams );
+
+        // - THAN
+        Assertions.assertEquals( INDEX_WITH_BOTH_IDS, indexAndPartitions.getIndexName() );
+        Assertions.assertEquals(
+                List.of( "senderId##recipientIdCF" , "senderId##recipientIdPIva"),
+                indexAndPartitions.getPartitions()
+        );
     }
 
 
