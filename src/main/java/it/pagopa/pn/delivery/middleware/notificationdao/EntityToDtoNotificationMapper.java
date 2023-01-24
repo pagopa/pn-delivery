@@ -81,8 +81,6 @@ public class EntityToDtoNotificationMapper {
 
     private NotificationDocument mapOneDocument(DocumentAttachmentEntity entity ) {
         return entity == null ? null : NotificationDocument.builder()
-                .requiresAck( entity.getRequiresAck() )
-                .sendByMail( entity.getSendByMail() )
                 .title( entity.getTitle() )
                 .ref(NotificationAttachmentBodyRef.builder()
                         .versionToken( entity.getRef().getVersionToken() )

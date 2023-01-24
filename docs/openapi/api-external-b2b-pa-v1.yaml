@@ -218,11 +218,6 @@ info:
     </details></br>
     
     ><details>
-      <summary><strong> Cosa rappresentano i campi requiresAck e sendByMail? <font color="red">queste funzioni non sono ancora implementate </font> </strong></summary>
-      <em>Il campo booleano requiresAck permette di definire il momento esatto nel quale scatterà il perfezionamento per presa visione dell'atto: se falso basterà che il destinatario prenda visione del documento da notificare; se vero, oltre alla visualizzazione dovrà anche scaricare il documento da notificare.</br> Il campo boolean sendByMail permette di indicare se il documento avente questo parametro sarà spedito nelle comunicazioni cartacee o meno </em>
-    </details></br>
-    
-    ><details>
       <summary><strong>Cos'è il codice di tassonomia \(taxonomyCode\)?</strong></summary>
       <em>Il codice di tassonomia(taxonomyCode) viene utilizzato per definire la tipolgia di atto e può essere recuperato nell'allegato 2 capitolo C del bando: 
       [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)</em>
