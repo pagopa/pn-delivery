@@ -182,6 +182,30 @@ class NotificationRetrieverServiceTest {
         Assertions.assertNotNull( result );
     }
 
+    @Test
+    void checkFilterIdBySenderPrivate() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .receiverIdIsOpaque( true )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "SENDER_ID" )
+                .filterId( "opaqueFilterId" )
+                .size( 10 )
+                .nextPagesKey( null )
+                .build();
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+
+        // Then
+        Assertions.assertNotNull( result );
+    }
+
     @NotNull
     private ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> getPaginatedNotifications() {
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = new ResultPaginationDto<>();
