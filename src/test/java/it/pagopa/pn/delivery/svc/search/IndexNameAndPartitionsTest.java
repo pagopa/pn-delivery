@@ -41,7 +41,7 @@ class IndexNameAndPartitionsTest {
                 .bySender( true )
                 .senderReceiverId( "senderId" )
                 .filterId( "recipientId" )
-                .opaqueFilterIdPIva( "recipientId" )
+                .opaqueFilterIdPG( "recipientId" )
                 .build();
 
         // - WHEN
@@ -57,14 +57,14 @@ class IndexNameAndPartitionsTest {
     }
 
     @Test
-    void searchBySenderWithReceiverFilterCF() {
+    void searchBySenderWithReceiverFilterCFPG() {
         // - GIVEN
         InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .senderReceiverId( "senderId" )
                 .filterId( "recipientId" )
-                .opaqueFilterIdCF( "recipientIdCF" )
-                .opaqueFilterIdPIva( "recipientIdPIva" )
+                .opaqueFilterIdPF( "recipientIdCF" )
+                .opaqueFilterIdPG( "recipientIdPIva" )
                 .build();
 
         // - WHEN
@@ -75,6 +75,28 @@ class IndexNameAndPartitionsTest {
         Assertions.assertEquals( INDEX_WITH_BOTH_IDS, indexAndPartitions.getIndexName() );
         Assertions.assertEquals(
                 List.of( "senderId##recipientIdCF" , "senderId##recipientIdPIva"),
+                indexAndPartitions.getPartitions()
+        );
+    }
+
+    @Test
+    void searchBySenderWithReceiverFilterCFPF() {
+        // - GIVEN
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .senderReceiverId( "senderId" )
+                .filterId( "recipientId" )
+                .opaqueFilterIdPF( "recipientIdCF" )
+                .build();
+
+        // - WHEN
+        IndexNameAndPartitions indexAndPartitions;
+        indexAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions( searchParams );
+
+        // - THAN
+        Assertions.assertEquals( INDEX_WITH_BOTH_IDS, indexAndPartitions.getIndexName() );
+        Assertions.assertEquals(
+                List.of( "senderId##recipientIdCF"),
                 indexAndPartitions.getPartitions()
         );
     }

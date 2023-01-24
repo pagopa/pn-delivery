@@ -30,9 +30,9 @@ public class InputSearchNotificationDto {
     
     private String filterId;
 
-    private String opaqueFilterIdCF;
+    private String opaqueFilterIdPF;
 
-    private String opaqueFilterIdPIva;
+    private String opaqueFilterIdPG;
     
     private  List<NotificationStatus> statuses;
 

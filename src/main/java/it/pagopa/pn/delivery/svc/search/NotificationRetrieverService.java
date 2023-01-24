@@ -169,12 +169,12 @@ public class NotificationRetrieverService {
 		if ( searchDtoFilterId != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
 			if ( searchDtoFilterId.length() == 11 ) {
 				log.info( "[start] Send request to data-vault for P.IVA" );
-				 searchDto.setOpaqueFilterIdPIva( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
+				 searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
 			}
 			if ( searchDtoFilterId.length() == 16 ) {
 				log.info( "[start] Send requests to data-vault for CF" );
-				searchDto.setOpaqueFilterIdPIva( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
-				searchDto.setOpaqueFilterIdCF( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDtoFilterId) );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
+				searchDto.setOpaqueFilterIdPF( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDtoFilterId) );
 			}
 			log.info( "[end] Ensured recipient for search" );
 			searchDto.setFilterId(searchDtoFilterId);

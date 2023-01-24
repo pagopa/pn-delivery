@@ -99,13 +99,13 @@ public class IndexNameAndPartitions {
 
         boolean searchBySender = searchParams.isBySender();
         if(searchBySender) {
-            if ( StringUtils.hasText( searchParams.getOpaqueFilterIdCF() ) ) {
+            if ( StringUtils.hasText( searchParams.getOpaqueFilterIdPF() ) ) {
                 partitionValues.add( searchParams.getSenderReceiverId()
-                        + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdCF() );
+                        + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdPF() );
             }
-            if ( StringUtils.hasText( searchParams.getOpaqueFilterIdPIva() ) ) {
+            if ( StringUtils.hasText( searchParams.getOpaqueFilterIdPG() ) ) {
                 partitionValues.add( searchParams.getSenderReceiverId()
-                        + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdPIva() );
+                        + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdPG() );
             }
         }
         else {
