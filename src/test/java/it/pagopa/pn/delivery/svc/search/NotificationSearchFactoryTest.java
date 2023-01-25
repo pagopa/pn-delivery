@@ -48,7 +48,7 @@ class NotificationSearchFactoryTest {
         NotificationSearch result = notificationSearchFactory.getMultiPageSearch(inputSearchNotificationDto, null);
 
         Assertions.assertNotNull( result );
-        Assertions.assertEquals(NotificationSearchMultiPage.class, result.getClass());
+        Assertions.assertEquals(NotificationSearchMultiPageByPFOrPG.class, result.getClass());
     }
 
     @Test

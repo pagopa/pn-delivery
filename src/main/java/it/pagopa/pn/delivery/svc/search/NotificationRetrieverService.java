@@ -138,14 +138,7 @@ public class NotificationRetrieverService {
 		}
 
 		//devo opacizzare i campi di ricerca
-		if (searchDto.getFilterId() != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
-			log.info( "[start] Send request to data-vault" );
-			String opaqueTaxId = dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDto.getFilterId() );
-			log.info( "[end] Ensured recipient for search" );
-			searchDto.setFilterId( opaqueTaxId );
-		} else {
-			log.debug( "No filterId or search is by receiver" );
-		}
+		opaqueFilterId(searchDto);
 
 		NotificationSearch pageSearch = notificationSearchFactory.getMultiPageSearch(
 				searchDto,
@@ -169,6 +162,25 @@ public class NotificationRetrieverService {
 		else
 			builder.nextPagesKey(new ArrayList<>());
 		return builder.build();
+	}
+
+	private void opaqueFilterId(InputSearchNotificationDto searchDto) {
+		String searchDtoFilterId = searchDto.getFilterId();
+		if ( searchDtoFilterId != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
+			if ( searchDtoFilterId.length() == 11 ) {
+				log.info( "[start] Send request P.Iva to data-vault" );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
+			}
+			if ( searchDtoFilterId.length() == 16 ) {
+				log.info( "[start] Send request CF to data-vault" );
+				searchDto.setOpaqueFilterIdPF( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDtoFilterId) );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
+			}
+			log.info( "[end] Ensured recipient for search" );
+			searchDto.setFilterId( searchDtoFilterId );
+		} else {
+			log.debug( "No filterId or search is by receiver" );
+		}
 	}
 
 	/**

@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-class NotificationSearchMultiPageTest {
+class NotificationSearchMultiPageByPFOrPGTest {
 
     private static final int PAGE_SIZE = 10;
 
@@ -34,7 +34,7 @@ class NotificationSearchMultiPageTest {
     private InputSearchNotificationDto inputSearchNotificationDto;
     private PnDeliveryConfigs cfg;
     private PnDataVaultClientImpl dataVaultClient;
-    private NotificationSearchMultiPage notificationSearchMultiPage;
+    private NotificationSearchMultiPageByPFOrPG notificationSearchMultiPageByPFOrPG;
     private EntityToDtoNotificationMetadataMapper entityToDtoNotificationMetadataMapper;
 
     @BeforeEach
@@ -63,7 +63,7 @@ class NotificationSearchMultiPageTest {
 
         IndexNameAndPartitions indexNameAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions(inputSearchNotificationDto);
 
-        this.notificationSearchMultiPage = new NotificationSearchMultiPage(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, null, cfg, dataVaultClient, indexNameAndPartitions);
+        this.notificationSearchMultiPageByPFOrPG = new NotificationSearchMultiPageByPFOrPG(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, null, cfg, dataVaultClient, indexNameAndPartitions);
     }
 
     @Test
@@ -83,7 +83,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto(Mockito.any())).thenThrow(PnInternalException.class);
 
-        Executable todo = () -> this.notificationSearchMultiPage.searchNotificationMetadata();
+        Executable todo = () -> this.notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
         Assertions.assertThrows( PnInternalException.class, todo);
     }
 
@@ -102,7 +102,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(1, result.getResultsPage().size());
@@ -133,7 +133,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
@@ -164,7 +164,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
@@ -194,7 +194,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
@@ -224,7 +224,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
@@ -255,7 +255,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
@@ -286,7 +286,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
@@ -313,7 +313,7 @@ class NotificationSearchMultiPageTest {
         IndexNameAndPartitions indexNameAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions(inputSearchNotificationDto);
         PnLastEvaluatedKey lastEvaluatedKey = new PnLastEvaluatedKey();
         lastEvaluatedKey.setExternalLastEvaluatedKey(indexNameAndPartitions.getPartitions().get(1));
-        this.notificationSearchMultiPage = new NotificationSearchMultiPage(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+        this.notificationSearchMultiPageByPFOrPG = new NotificationSearchMultiPageByPFOrPG(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
 
 
         Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
@@ -322,7 +322,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
@@ -358,7 +358,7 @@ class NotificationSearchMultiPageTest {
         IndexNameAndPartitions indexNameAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions(inputSearchNotificationDto);
         PnLastEvaluatedKey lastEvaluatedKey = new PnLastEvaluatedKey();
         lastEvaluatedKey.setExternalLastEvaluatedKey(indexNameAndPartitions.getPartitions().get(1));
-        this.notificationSearchMultiPage = new NotificationSearchMultiPage(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+        this.notificationSearchMultiPageByPFOrPG = new NotificationSearchMultiPageByPFOrPG(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
 
 
         Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
@@ -367,7 +367,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
@@ -404,7 +404,7 @@ class NotificationSearchMultiPageTest {
         IndexNameAndPartitions indexNameAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions(inputSearchNotificationDto);
         PnLastEvaluatedKey lastEvaluatedKey = new PnLastEvaluatedKey();
         lastEvaluatedKey.setExternalLastEvaluatedKey(indexNameAndPartitions.getPartitions().get(0));
-        this.notificationSearchMultiPage = new NotificationSearchMultiPage(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+        this.notificationSearchMultiPageByPFOrPG = new NotificationSearchMultiPageByPFOrPG(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
 
 
         Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
@@ -413,7 +413,7 @@ class NotificationSearchMultiPageTest {
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
-        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPage.searchNotificationMetadata();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFOrPG.searchNotificationMetadata();
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());

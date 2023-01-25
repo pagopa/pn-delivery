@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationM
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 public class NotificationSearchFactory {
@@ -29,7 +30,11 @@ public class NotificationSearchFactory {
 
         if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_IUN))
             return new NotificationSearchExact(notificationDao, entityToDto, inputSearchNotificationDto, dataVaultClient);
-        else
-            return new NotificationSearchMultiPage(notificationDao, entityToDto, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+        else if ( StringUtils.hasText( inputSearchNotificationDto.getOpaqueFilterIdPF() ) &&
+                StringUtils.hasText( inputSearchNotificationDto.getOpaqueFilterIdPG() ) ) {
+            return new NotificationSearchMultiPageByPFAndPGOnly(notificationDao, entityToDto, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+        } else {
+            return new NotificationSearchMultiPageByPFOrPG(notificationDao, entityToDto, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+        }
     }
 }
