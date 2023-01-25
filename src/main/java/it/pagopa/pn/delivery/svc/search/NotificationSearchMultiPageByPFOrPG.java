@@ -30,7 +30,7 @@ public class NotificationSearchMultiPageByPFOrPG extends NotificationSearchMulti
 
     public List<NotificationMetadataEntity> getDataRead( int requiredSize, int dynamoDbPageSize ) {
 
-        log.info( "notification paged search mono type indexName={}", indexNameAndPartitions.getIndexName() );
+        log.info( "notification paged search by PF or PG indexName={}", indexNameAndPartitions.getIndexName() );
 
         int logItemCount = 0;
 
