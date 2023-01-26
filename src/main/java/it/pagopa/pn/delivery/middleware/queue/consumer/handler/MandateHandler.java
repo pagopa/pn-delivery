@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.api.dto.events.PnMandateEvent;
 import it.pagopa.pn.delivery.middleware.queue.consumer.handler.utils.HandleEventUtils;
+import it.pagopa.pn.delivery.svc.NotificationDelegatedService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,11 @@ import java.util.function.Consumer;
 @Configuration
 public class MandateHandler {
 
+    NotificationDelegatedService notificationDelegatedService;
+
+    public MandateHandler(NotificationDelegatedService notificationDelegatedService) {
+        this.notificationDelegatedService = notificationDelegatedService;
+    }
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryAcceptedMandateConsumer() {
         return message -> {
@@ -27,23 +33,20 @@ public class MandateHandler {
 
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryRejectedMandateConsumer() {
-        return message -> {
-
-        };
+        return message -> this.notificationDelegatedService
+                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId());
     }
 
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryRevokedMandateConsumer() {
-        return message -> {
-
-        };
+        return message -> this.notificationDelegatedService
+                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId());
     }
 
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryExpiredMandateConsumer() {
-        return message -> {
-
-        };
+        return message -> this.notificationDelegatedService
+                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId());
     }
 
 }

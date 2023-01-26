@@ -17,5 +17,7 @@ public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<K
                                                                             String partitionValue,
                                                                             int size,
                                                                             PnLastEvaluatedKey lastEvaluatedKey);
-
+    PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                     int size,
+                                                                                     PnLastEvaluatedKey lastEvaluatedKey);
 }

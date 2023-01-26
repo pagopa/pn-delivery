@@ -311,6 +311,13 @@ class NotificationDaoDynamoTest {
         public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto, IndexNameAndPartitions.SearchIndexEnum indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
             return null;
         }
+
+        @Override
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                                int size,
+                                                                                                PnLastEvaluatedKey lastEvaluatedKey) {
+            return null;
+        }
     }
 
     private InternalNotification newNotificationWithoutPayments() {

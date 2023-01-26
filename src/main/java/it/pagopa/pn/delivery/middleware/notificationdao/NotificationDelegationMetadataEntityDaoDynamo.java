@@ -30,9 +30,11 @@ public class NotificationDelegationMetadataEntityDaoDynamo
         extends AbstractDynamoKeyValueStore<NotificationDelegationMetadataEntity>
         implements NotificationDelegationMetadataEntityDao {
 
+    private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
     protected NotificationDelegationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient,
                                                             PnDeliveryConfigs cfg) {
         super(dynamoDbEnhancedClient.table(tableName(cfg), TableSchema.fromClass(NotificationDelegationMetadataEntity.class)));
+        this.dynamoDbEnhancedClient = dynamoDbEnhancedClient;
     }
 
     private static String tableName(PnDeliveryConfigs cfg) {
@@ -47,6 +49,43 @@ public class NotificationDelegationMetadataEntityDaoDynamo
                 .build();
         table.putItem(request);
     }
+
+    @Override
+    public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                            int size,
+                                                                                            PnLastEvaluatedKey lastEvaluatedKey) {
+        log.debug("START search by mandateId");
+
+        Key key = Key.builder().partitionValue(mandateId).build();
+        log.debug("key building done pk={}", key.partitionKeyValue());
+
+        QueryConditional equalToConditional = QueryConditional.keyEqualTo(key);
+
+        DynamoDbIndex<NotificationDelegationMetadataEntity> index = table.index(NotificationDelegationMetadataEntity.FIELD_MANDATE_ID);
+
+        QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder();
+
+        requestBuilder.queryConditional(equalToConditional)
+                .limit(size);
+
+        if (lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
+            requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
+        }
+
+        log.debug("START query execution");
+        SdkIterable<Page<NotificationDelegationMetadataEntity>> pages = index.query(requestBuilder.build());
+        log.debug("END query execution");
+
+        Page<NotificationDelegationMetadataEntity> page = pages.iterator().next();
+
+        PageSearchTrunk<NotificationDelegationMetadataEntity> response = new PageSearchTrunk<>();
+        response.setResults(page.items());
+        response.setLastEvaluatedKey(page.lastEvaluatedKey());
+        log.debug("END search by mandateId");
+
+        return response;
+    }
+
 
     @Override
     public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto,
@@ -168,5 +207,23 @@ public class NotificationDelegationMetadataEntityDaoDynamo
                 throw new PnInternalException(msg, ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME);
             }
         };
+    }
+
+    public void batchDeleteNotificationDelegated(List<NotificationDelegationMetadataEntity> deleteBatchItems) {
+
+        WriteBatch.Builder<NotificationDelegationMetadataEntity> requestBuilder = WriteBatch
+                .builder(NotificationDelegationMetadataEntity.class)
+                .mappedTableResource(table);
+
+        deleteBatchItems.forEach(item -> {
+                    Key key = Key.builder().partitionValue(item.getIunRecipientIdDelegateIdGroupId())
+                            .sortValue(item.getSentAt().toString()).build();
+                    requestBuilder.addDeleteItem(key);
+                }
+        );
+
+        dynamoDbEnhancedClient.batchWriteItem(BatchWriteItemEnhancedRequest.builder()
+                .addWriteBatch(requestBuilder.build())
+                .build());
     }
 }
