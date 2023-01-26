@@ -159,7 +159,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
      * @param lastEvaluatedKey ultimo elemento letto nella partizione
      * @param requiredSize dimensione totale richiesta
      * @param dynamoDbPageSize dimensione della pagina da leggere in dynamo
-     * @return numero di elementi letti
+     * @return numero di query eseguite
      */
     protected int readDataFromPartition(int currentRequest, String partition, List<NotificationMetadataEntity> cumulativeQueryResult,
                                       PnLastEvaluatedKey lastEvaluatedKey,
