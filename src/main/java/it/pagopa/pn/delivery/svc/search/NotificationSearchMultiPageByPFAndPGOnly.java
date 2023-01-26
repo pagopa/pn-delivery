@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Slf4j
 public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearchMultiPage {
@@ -38,19 +39,22 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
      * @param dynamoDbPageSize dimensione elementi pagina dynamoDB
      * @return lista delle entità di ricerca
      */
-    public List<NotificationMetadataEntity> getDataRead( Integer requiredSize, int dynamoDbPageSize ) {
+    public List<NotificationMetadataEntity> getDataRead( int requiredSize, int dynamoDbPageSize ) {
 
         log.info( "notification paged search by PF and PG indexName={}", indexNameAndPartitions.getIndexName() );
 
         int logItemCountPF = 0;
         int logItemCountPG = 0;
 
-        List<NotificationMetadataEntity> dataRead = new ArrayList<>();
+        List<NotificationMetadataEntity> dataReadPF = new ArrayList<>();
+        List<NotificationMetadataEntity> dataReadPG = new ArrayList<>();
 
         // leggo TUTTE le righe di PF ( nella partizione 0 PF )
-        logItemCountPF += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 0 ), dataRead, null, requiredSize, dynamoDbPageSize );
+        logItemCountPF += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 0 ), dataReadPF, null, null, dynamoDbPageSize );
         // leggo TUTTE le righe di PG ( nella partizione 1 PG )
-        logItemCountPG += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 1 ), dataRead, null, requiredSize, dynamoDbPageSize );
+        logItemCountPG += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 1 ), dataReadPG, null, null, dynamoDbPageSize );
+
+        List<NotificationMetadataEntity> dataRead = Stream.concat(dataReadPF.stream(), dataReadPG.stream()).toList();
 
         Instant lastEvalutatedSentAt;
         if (lastEvaluatedKey != null)
@@ -70,7 +74,7 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
                 .limit(requiredSize)
                 .toList();
 
-        log.info("search request completed, totalDbQueryCount={} totalDbQueryCountPF={} totalDbQueryCountPG={} totalRowRead={}", logItemCountPF + logItemCountPG, logItemCountPF, logItemCountPG, dataRead.size());
+        log.info("search request completed, totalDbQueryCount={} totalDbQueryCountPF={} totalDbQueryCountPG={} totalRowRead={} totalRowReadPF={} totalRowReadPG={}", logItemCountPF + logItemCountPG, logItemCountPF, logItemCountPG, dataRead.size(), dataReadPF.size(), dataReadPG.size());
         return sortedNotificationMetadataEntities;
 
     }

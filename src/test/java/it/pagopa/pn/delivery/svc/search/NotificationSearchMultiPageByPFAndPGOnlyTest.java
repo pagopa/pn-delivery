@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 class NotificationSearchMultiPageByPFAndPGOnlyTest {
@@ -68,12 +67,14 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
 
     @Test
     void searchNotificationMetadataIndexSenderIdRecipientId() {
-        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
-        rrr.setResults(new ArrayList<>());
+        PageSearchTrunk<NotificationMetadataEntity> entityResultPF = new PageSearchTrunk<>();
+        entityResultPF.setResults(new ArrayList<>());
+        PageSearchTrunk<NotificationMetadataEntity> entityResultPG = new PageSearchTrunk<>();
+        entityResultPG.setResults(new ArrayList<>());
         Instant now = Instant.now();
         for(int i = 0;i<5;i++)
         {
-            rrr.getResults().add( NotificationMetadataEntity.builder()
+            entityResultPF.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPF"+i )
                     .iunRecipientId("IUN##internalIdPF"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
@@ -85,7 +86,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
 
         for(int i = 0;i<5;i++)
         {
-            rrr.getResults().add( NotificationMetadataEntity.builder()
+            entityResultPG.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPG"+i )
                     .iunRecipientId("IUN##internalIdPG"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
@@ -94,7 +95,8 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
                     .recipientIds(List.of( "internalIdPG"+i ) )
                     .build() );
         }
-        rrr.setLastEvaluatedKey(new HashMap<>());
+        entityResultPF.setLastEvaluatedKey(null);
+        entityResultPG.setLastEvaluatedKey(null);
 
         this.inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
@@ -112,8 +114,10 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
         this.notificationSearchMultiPageByPFAndPGOnly = new NotificationSearchMultiPageByPFAndPGOnly(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, null, cfg, dataVaultClient, indexNameAndPartitions);
 
 
-        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
-                .thenReturn(rrr);
+        Mockito.when(notificationDao.searchForOneMonth(inputSearchNotificationDto, indexNameAndPartitions.getIndexName().getValue(), indexNameAndPartitions.getPartitions().get(0), 124, null))
+                .thenReturn(entityResultPF);
+        Mockito.when(notificationDao.searchForOneMonth(inputSearchNotificationDto, indexNameAndPartitions.getIndexName().getValue(), indexNameAndPartitions.getPartitions().get(1), 124, null))
+                .thenReturn(entityResultPG);
 
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
@@ -122,19 +126,21 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(3, result.getNextPagesKey().size());
-        Assertions.assertTrue(result.isMoreResult());
+        Assertions.assertEquals(0, result.getNextPagesKey().size());
+        Assertions.assertFalse(result.isMoreResult());
     }
 
     @Test
     void searchNotificationMetadataPGthenPF() {
-        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
-        rrr.setResults(new ArrayList<>());
+        PageSearchTrunk<NotificationMetadataEntity> entityResultPF = new PageSearchTrunk<>();
+        entityResultPF.setResults(new ArrayList<>());
+        PageSearchTrunk<NotificationMetadataEntity> entityResultPG = new PageSearchTrunk<>();
+        entityResultPG.setResults(new ArrayList<>());
         Instant now = Instant.now();
 
         for(int i = 0;i<5;i++)
         {
-            rrr.getResults().add( NotificationMetadataEntity.builder()
+            entityResultPG.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPG"+i )
                     .iunRecipientId("IUN##internalIdPG"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
@@ -145,7 +151,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
         }
         for(int i = 0;i<5;i++)
         {
-            rrr.getResults().add( NotificationMetadataEntity.builder()
+            entityResultPF.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPF"+i )
                     .iunRecipientId("IUN##internalIdPF"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
@@ -156,7 +162,8 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
         }
 
 
-        rrr.setLastEvaluatedKey(new HashMap<>());
+        entityResultPG.setLastEvaluatedKey(null);
+        entityResultPF.setLastEvaluatedKey(null);
 
         this.inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
@@ -174,8 +181,10 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
         this.notificationSearchMultiPageByPFAndPGOnly = new NotificationSearchMultiPageByPFAndPGOnly(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, null, cfg, dataVaultClient, indexNameAndPartitions);
 
 
-        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
-                .thenReturn(rrr);
+        Mockito.when(notificationDao.searchForOneMonth(inputSearchNotificationDto, indexNameAndPartitions.getIndexName().getValue(), indexNameAndPartitions.getPartitions().get(0), 124, null))
+                .thenReturn(entityResultPF);
+        Mockito.when(notificationDao.searchForOneMonth(inputSearchNotificationDto, indexNameAndPartitions.getIndexName().getValue(), indexNameAndPartitions.getPartitions().get(1), 124, null))
+                .thenReturn(entityResultPG);
 
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
@@ -184,18 +193,20 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(3, result.getNextPagesKey().size());
-        Assertions.assertTrue(result.isMoreResult());
+        Assertions.assertEquals(0, result.getNextPagesKey().size());
+        Assertions.assertFalse(result.isMoreResult());
     }
 
     @Test
-    void searchNotificationMetadataIndexSenderIdRecipientIdWithLek() {
-        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
-        rrr.setResults(new ArrayList<>());
+    void searchNotificationMetadataIndexSenderIdRecipientIdMoreResult() {
+        PageSearchTrunk<NotificationMetadataEntity> entityResultPF = new PageSearchTrunk<>();
+        entityResultPF.setResults(new ArrayList<>());
+        PageSearchTrunk<NotificationMetadataEntity> entityResultPG = new PageSearchTrunk<>();
+        entityResultPG.setResults(new ArrayList<>());
         Instant now = Instant.now();
-        for(int i = 0;i<5;i++)
+        for(int i = 0;i<15;i++)
         {
-            rrr.getResults().add( NotificationMetadataEntity.builder()
+            entityResultPF.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPF"+i )
                     .iunRecipientId("IUN##internalIdPF"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
@@ -207,7 +218,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
 
         for(int i = 0;i<5;i++)
         {
-            rrr.getResults().add( NotificationMetadataEntity.builder()
+            entityResultPG.getResults().add( NotificationMetadataEntity.builder()
                     .senderIdRecipientId( "senderId##internalIdPG"+i )
                     .iunRecipientId("IUN##internalIdPG"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
@@ -216,7 +227,8 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
                     .recipientIds(List.of( "internalIdPG"+i ) )
                     .build() );
         }
-        rrr.setLastEvaluatedKey(new HashMap<>());
+        entityResultPF.setLastEvaluatedKey(null);
+        entityResultPG.setLastEvaluatedKey(null);
 
         this.inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
@@ -231,14 +243,13 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
 
         IndexNameAndPartitions indexNameAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions(inputSearchNotificationDto);
 
-        PnLastEvaluatedKey lastEvaluatedKey = new PnLastEvaluatedKey();
-        lastEvaluatedKey.setExternalLastEvaluatedKey( indexNameAndPartitions.getPartitions().get(0) );
-        this.notificationSearchMultiPageByPFAndPGOnly = new NotificationSearchMultiPageByPFAndPGOnly(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+        this.notificationSearchMultiPageByPFAndPGOnly = new NotificationSearchMultiPageByPFAndPGOnly(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, null, cfg, dataVaultClient, indexNameAndPartitions);
 
 
-        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
-                .thenReturn(rrr);
-
+        Mockito.when(notificationDao.searchForOneMonth(inputSearchNotificationDto, indexNameAndPartitions.getIndexName().getValue(), indexNameAndPartitions.getPartitions().get(0), 124, null))
+                .thenReturn(entityResultPF);
+        Mockito.when(notificationDao.searchForOneMonth(inputSearchNotificationDto, indexNameAndPartitions.getIndexName().getValue(), indexNameAndPartitions.getPartitions().get(1), 124, null))
+                .thenReturn(entityResultPG);
 
         Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
 
@@ -246,8 +257,8 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
-        Assertions.assertEquals(3, result.getNextPagesKey().size());
-        Assertions.assertTrue(result.isMoreResult());
+        Assertions.assertEquals(1, result.getNextPagesKey().size());
+        Assertions.assertFalse(result.isMoreResult());
     }
 
 }
