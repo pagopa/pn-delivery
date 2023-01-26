@@ -12,6 +12,7 @@ import java.time.Instant;
 import static it.pagopa.pn.api.dto.events.GenericEventHeader.*;
 import static it.pagopa.pn.api.dto.events.GenericEventHeader.PN_EVENT_HEADER_PUBLISHER;
 import static it.pagopa.pn.api.dto.events.StandardEventHeader.PN_EVENT_HEADER_IUN;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_HANDLEEVENTFAILED;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -38,7 +39,7 @@ public class HandleEventUtils {
         } else {
             String msg = "Headers cannot be null in mapStandardEventHeader";
             log.error(msg);
-            throw new PnInternalException(msg, ""); // TODO error code
+            throw new PnInternalException(msg, ERROR_CODE_DELIVERY_HANDLEEVENTFAILED);
         }
     }
 

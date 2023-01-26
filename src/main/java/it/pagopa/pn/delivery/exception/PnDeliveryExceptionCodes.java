@@ -22,4 +22,6 @@ public class PnDeliveryExceptionCodes extends PnExceptionsCodes {
     public static final String ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA = "PN_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA";
     public static final String ERROR_CODE_FORBIDDEN = "PN_MANDATE_FORBIDDEN";
 
+    public static final String ERROR_CODE_DELIVERY_HANDLEEVENTFAILED = "PN_DELIVERY_HANDLEEVENTFAILED";
+
 }

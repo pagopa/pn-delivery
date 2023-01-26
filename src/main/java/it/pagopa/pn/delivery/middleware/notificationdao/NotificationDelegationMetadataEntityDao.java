@@ -8,6 +8,8 @@ import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.util.List;
+
 public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<Key, NotificationDelegationMetadataEntity> {
 
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-dao";
@@ -20,4 +22,8 @@ public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<K
     PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
                                                                                      int size,
                                                                                      PnLastEvaluatedKey lastEvaluatedKey);
+
+    void batchDeleteNotificationDelegated(List<NotificationDelegationMetadataEntity> deleteBatchItems);
+
+    List<NotificationDelegationMetadataEntity> batchPutItems(List<NotificationDelegationMetadataEntity> items);
 }

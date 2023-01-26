@@ -32,8 +32,7 @@ public class NotificationDelegationMetadataEntity {
 
     public static final String INDEX_DELEGATE_ID = "delegateId";
     public static final String INDEX_DELEGATE_ID_GROUP_ID = "delegateId_groupId";
-    public static final String INDEX_MANDATE_ID_GROUP_ID = "mandateId";
-
+    public static final String INDEX_MANDATE_ID = "mandateId";
 
     @Getter(onMethod = @__({
             @DynamoDbPartitionKey,
@@ -61,7 +60,7 @@ public class NotificationDelegationMetadataEntity {
     private String delegateIdGroupIdCreationMonth;
 
     @Getter(onMethod = @__({
-            @DynamoDbSecondaryPartitionKey(indexNames = {}),
+            @DynamoDbSecondaryPartitionKey(indexNames = {INDEX_MANDATE_ID}),
             @DynamoDbAttribute(value = FIELD_MANDATE_ID)
     }))
     private String mandateId;

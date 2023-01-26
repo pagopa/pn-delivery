@@ -14,16 +14,18 @@ import java.util.function.Consumer;
 @Configuration
 public class MandateHandler {
 
-    NotificationDelegatedService notificationDelegatedService;
+    private final NotificationDelegatedService notificationDelegatedService;
 
     public MandateHandler(NotificationDelegatedService notificationDelegatedService) {
         this.notificationDelegatedService = notificationDelegatedService;
     }
+
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryAcceptedMandateConsumer() {
         return message -> {
             try {
                 log.debug("pnDeliveryAcceptMandateConsumer - message: {}", message);
+                notificationDelegatedService.handleAcceptedMandate(message.getPayload());
             } catch (Exception e) {
                 HandleEventUtils.handleException(message.getHeaders(), e);
                 throw e;

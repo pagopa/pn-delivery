@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
@@ -13,7 +12,6 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +35,7 @@ class StatusServiceTest {
     @Mock
     private NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
     @Mock
-    private PnMandateClientImpl mandateClient;
+    private NotificationDelegatedService notificationDelegatedService;
     @Mock
     private PnDataVaultClientImpl dataVaultClient;
     
@@ -45,7 +43,7 @@ class StatusServiceTest {
 
     @BeforeEach
     public void setup() {
-        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, notificationDelegationMetadataEntityDao, mandateClient, dataVaultClient);
+        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, notificationDelegationMetadataEntityDao, notificationDelegatedService, dataVaultClient);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -69,11 +67,6 @@ class StatusServiceTest {
                         .build()) )
                 .build(), List.of( "recipientId" )));
 
-        InternalMandateDto internalMandateDto = new InternalMandateDto();
-        internalMandateDto.setDelegate("delegateTest");
-
-        Mockito.when(mandateClient.listMandatesByDelegator(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(List.of(internalMandateDto));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         Mockito.when( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, "CodiceFiscale" ) )
                 .thenReturn( "CodiceFiscale" );

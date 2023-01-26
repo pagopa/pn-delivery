@@ -240,6 +240,7 @@ class NotificationRetrieverServiceTest {
     @Test
     void searchValidateInputException() {
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .senderReceiverId(RECIPIENT_ID)
                 .startDate( Instant.now() )
                 .endDate( Instant.now() )
                 .groups( Collections.emptyList() )
@@ -1169,7 +1170,7 @@ class NotificationRetrieverServiceTest {
     @Test
     void searchNotificationDelegatedValidateInputException() {
         InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
-                .delegateId(null)
+                .delegateId(DELEGATE_ID)
                 .startDate(OffsetDateTime.now().toInstant())
                 .endDate(OffsetDateTime.MAX.toInstant())
                 .group(null)

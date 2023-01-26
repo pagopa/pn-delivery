@@ -318,6 +318,16 @@ class NotificationDaoDynamoTest {
                                                                                                 PnLastEvaluatedKey lastEvaluatedKey) {
             return null;
         }
+
+        @Override
+        public void batchDeleteNotificationDelegated(List<NotificationDelegationMetadataEntity> deleteBatchItems) {
+
+        }
+
+        @Override
+        public List<NotificationDelegationMetadataEntity> batchPutItems(List<NotificationDelegationMetadataEntity> items) {
+            return null;
+        }
     }
 
     private InternalNotification newNotificationWithoutPayments() {
