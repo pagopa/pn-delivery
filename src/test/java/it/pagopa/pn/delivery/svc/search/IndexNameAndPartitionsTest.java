@@ -79,6 +79,28 @@ class IndexNameAndPartitionsTest {
         );
     }
 
+    @Test
+    void searchBySenderWithReceiverFilterCFPF() {
+        // - GIVEN
+        InputSearchNotificationDto searchParams = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .senderReceiverId( "senderId" )
+                .filterId( "recipientId" )
+                .opaqueFilterIdPF( "opaqueRecipientIdPF" )
+                .build();
+
+        // - WHEN
+        IndexNameAndPartitions indexAndPartitions;
+        indexAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions( searchParams );
+
+        // - THAN
+        Assertions.assertEquals( INDEX_WITH_BOTH_IDS, indexAndPartitions.getIndexName() );
+        Assertions.assertEquals(
+                List.of("senderId##opaqueRecipientIdPF"),
+                indexAndPartitions.getPartitions()
+        );
+    }
+
 
     @Test
     void searchByReceiverWithSenderFilter() {

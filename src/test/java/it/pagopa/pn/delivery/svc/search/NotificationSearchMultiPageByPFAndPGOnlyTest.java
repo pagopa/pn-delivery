@@ -188,5 +188,66 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
         Assertions.assertTrue(result.isMoreResult());
     }
 
+    @Test
+    void searchNotificationMetadataIndexSenderIdRecipientIdWithLek() {
+        PageSearchTrunk<NotificationMetadataEntity> rrr = new PageSearchTrunk<>();
+        rrr.setResults(new ArrayList<>());
+        Instant now = Instant.now();
+        for(int i = 0;i<5;i++)
+        {
+            rrr.getResults().add( NotificationMetadataEntity.builder()
+                    .senderIdRecipientId( "senderId##internalIdPF"+i )
+                    .iunRecipientId("IUN##internalIdPF"+i )
+                    .notificationStatus( NotificationStatus.VIEWED.getValue() )
+                    .senderId( "senderId" )
+                    .sentAt(now.plus(Duration.ofDays( i )))
+                    .recipientIds(List.of( "internalIdPF"+i ) )
+                    .build() );
+        }
+
+        for(int i = 0;i<5;i++)
+        {
+            rrr.getResults().add( NotificationMetadataEntity.builder()
+                    .senderIdRecipientId( "senderId##internalIdPG"+i )
+                    .iunRecipientId("IUN##internalIdPG"+i )
+                    .notificationStatus( NotificationStatus.VIEWED.getValue() )
+                    .senderId( "senderId" )
+                    .sentAt(now.plus( Duration.ofDays( i ) ).plusSeconds( i ))
+                    .recipientIds(List.of( "internalIdPG"+i ) )
+                    .build() );
+        }
+        rrr.setLastEvaluatedKey(new HashMap<>());
+
+        this.inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .senderReceiverId( "senderId" )
+                .startDate( Instant.now().minus(500, ChronoUnit.DAYS) )
+                .endDate( Instant.now() )
+                .filterId("externalId")
+                .opaqueFilterIdPF( "internalIdPF123" )
+                .opaqueFilterIdPG( "internalIdPG123" )
+                .size( PAGE_SIZE )
+                .build();
+
+        IndexNameAndPartitions indexNameAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions(inputSearchNotificationDto);
+
+        PnLastEvaluatedKey lastEvaluatedKey = new PnLastEvaluatedKey();
+        lastEvaluatedKey.setExternalLastEvaluatedKey( indexNameAndPartitions.getPartitions().get(0) );
+        this.notificationSearchMultiPageByPFAndPGOnly = new NotificationSearchMultiPageByPFAndPGOnly(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
+
+
+        Mockito.when(notificationDao.searchForOneMonth(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
+                .thenReturn(rrr);
+
+
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 3 );
+
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = notificationSearchMultiPageByPFAndPGOnly.searchNotificationMetadata();
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals(PAGE_SIZE, result.getResultsPage().size());
+        Assertions.assertEquals(3, result.getNextPagesKey().size());
+        Assertions.assertTrue(result.isMoreResult());
+    }
 
 }

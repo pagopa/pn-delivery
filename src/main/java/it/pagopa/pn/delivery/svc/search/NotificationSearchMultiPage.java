@@ -49,7 +49,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
         this.indexNameAndPartitions = indexNameAndPartitions;
     }
 
-    abstract List<NotificationMetadataEntity> getDataRead( int requiredSize, int dynamoDbPageSize );
+    abstract List<NotificationMetadataEntity> getDataRead( Integer requiredSize, int dynamoDbPageSize );
 
     public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchNotificationMetadata() {
 

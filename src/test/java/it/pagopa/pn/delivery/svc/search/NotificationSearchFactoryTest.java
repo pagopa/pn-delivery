@@ -91,6 +91,25 @@ class NotificationSearchFactoryTest {
     }
 
     @Test
+    void getMultiPageSearchPF() {
+        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .startDate( Instant.now() )
+                .endDate( Instant.now() )
+                .filterId( "EEEEEEEEEEEEEEEE" )
+                .opaqueFilterIdPG( "opaqueFilterIdPF" )
+                .size( 10 )
+                .build();
+
+        Mockito.when( cfg.getMaxPageSize() ).thenReturn( 4 );
+
+        NotificationSearch result = notificationSearchFactory.getMultiPageSearch(inputSearchNotificationDto, null);
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals(NotificationSearchMultiPageByPFOrPG.class, result.getClass());
+    }
+
+    @Test
     void getMultiPageSearchExact() {
         InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )

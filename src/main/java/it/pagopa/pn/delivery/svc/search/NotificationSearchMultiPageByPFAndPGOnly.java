@@ -38,7 +38,7 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
      * @param dynamoDbPageSize dimensione elementi pagina dynamoDB
      * @return lista delle entità di ricerca
      */
-    public List<NotificationMetadataEntity> getDataRead( int requiredSize, int dynamoDbPageSize ) {
+    public List<NotificationMetadataEntity> getDataRead( Integer requiredSize, int dynamoDbPageSize ) {
 
         log.info( "notification paged search by PF and PG indexName={}", indexNameAndPartitions.getIndexName() );
 
