@@ -85,6 +85,7 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
         AttributeName=sentAt,AttributeType=S \
         AttributeName=delegateId_creationMonth,AttributeType=S \
         AttributeName=delegateId_groupId_creationMonth,AttributeType=S \
+        AttributeName=mandateId,AttributeType=S \
     --key-schema \
         AttributeName=iun_recipientId_delegateId_groupId,KeyType=HASH \
         AttributeName=sentAt,KeyType=RANGE \
@@ -108,6 +109,17 @@ aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \
             \"IndexName\": \"delegateId_groupId\",
             \"KeySchema\": [{\"AttributeName\":\"delegateId_groupId_creationMonth\",\"KeyType\":\"HASH\"},
                             {\"AttributeName\":\"sentAt\",\"KeyType\":\"RANGE\"}],
+            \"Projection\":{
+                \"ProjectionType\":\"ALL\"
+            },
+            \"ProvisionedThroughput\": {
+                \"ReadCapacityUnits\": 10,
+                \"WriteCapacityUnits\": 5
+            }
+        },
+        {
+            \"IndexName\": \"mandateId\",
+            \"KeySchema\": [{\"AttributeName\":\"mandateId\",\"KeyType\":\"HASH\"}],
             \"Projection\":{
                 \"ProjectionType\":\"ALL\"
             },

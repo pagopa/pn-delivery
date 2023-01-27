@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.middleware.queue.consumer.handler;
 
+import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnMandateEvent;
 import it.pagopa.pn.delivery.middleware.queue.consumer.handler.utils.HandleEventUtils;
 import it.pagopa.pn.delivery.svc.NotificationDelegatedService;
@@ -13,9 +14,6 @@ import java.util.function.Consumer;
 @Slf4j
 @Configuration
 public class MandateHandler {
-    private static final String  MANDATE_REJECTED = "reject";
-    private static final String  MANDATE_REVOKED = "revoke";
-    private static final String  MANDATE_EXPIRED = "expired";
 
     private final NotificationDelegatedService notificationDelegatedService;
 
@@ -28,7 +26,7 @@ public class MandateHandler {
         return message -> {
             try {
                 log.debug("pnDeliveryAcceptMandateConsumer - message: {}", message);
-                notificationDelegatedService.handleAcceptedMandate(message.getPayload());
+                notificationDelegatedService.handleAcceptedMandate(message.getPayload(), EventType.MANDATE_ACCEPTED);
             } catch (Exception e) {
                 HandleEventUtils.handleException(message.getHeaders(), e);
                 throw e;
@@ -38,20 +36,41 @@ public class MandateHandler {
 
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryRejectedMandateConsumer() {
-        return message -> this.notificationDelegatedService
-                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), MANDATE_REJECTED);
+        return message ->  {
+            try {
+                log.debug("pnDeliveryRejectedMandateConsumer - message: {}", message);
+                notificationDelegatedService.deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), EventType.MANDATE_REJECTED);
+            } catch (Exception e) {
+                HandleEventUtils.handleException(message.getHeaders(), e);
+                throw e;
+            }
+        };
     }
 
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryRevokedMandateConsumer() {
-        return message -> this.notificationDelegatedService
-                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), MANDATE_REVOKED);
+        return message -> {
+            try {
+                log.debug("pnDeliveryRevokedMandateConsumer - message: {}", message);
+                notificationDelegatedService.deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), EventType.MANDATE_REVOKED);
+            } catch (Exception e) {
+                HandleEventUtils.handleException(message.getHeaders(), e);
+                throw e;
+            }
+        };
     }
 
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryExpiredMandateConsumer() {
-        return message -> this.notificationDelegatedService
-                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), MANDATE_EXPIRED);
+        return message -> {
+            try {
+                log.debug("pnDeliveryExpiredMandateConsumer - message: {}", message);
+                notificationDelegatedService.deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), EventType.MANDATE_EXPIRED);
+            } catch (Exception e) {
+                HandleEventUtils.handleException(message.getHeaders(), e);
+                throw e;
+            }
+        };
     }
 
 }

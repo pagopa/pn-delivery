@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.util.Base64Utils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -19,9 +20,13 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 
 
 public class PnLastEvaluatedKey {
+
     private static final ObjectWriter objectWriter = new ObjectMapper().writerFor( KeyPair.class );
     private static final ObjectReader objectReader = new ObjectMapper().readerFor( KeyPair.class );
+
+    @ToString.Include
     private String externalLastEvaluatedKey;
+    @ToString.Include
     private Map<String, AttributeValue> internalLastEvaluatedKey;
 
 

@@ -66,14 +66,14 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
         QueryConditional equalToConditional = QueryConditional.keyEqualTo(key);
 
-        DynamoDbIndex<NotificationDelegationMetadataEntity> index = table.index(NotificationDelegationMetadataEntity.FIELD_MANDATE_ID);
+        DynamoDbIndex<NotificationDelegationMetadataEntity> index = table.index(NotificationDelegationMetadataEntity.INDEX_MANDATE_ID);
 
         QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder();
 
         requestBuilder.queryConditional(equalToConditional)
                 .limit(size);
 
-        if (lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
+        if (lastEvaluatedKey != null && lastEvaluatedKey.getInternalLastEvaluatedKey() != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
             requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
         }
 
@@ -90,7 +90,6 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
         return response;
     }
-
 
     @Override
     public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto,
@@ -216,10 +215,10 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
     @Override
     public List<NotificationDelegationMetadataEntity> batchDeleteItems(List<NotificationDelegationMetadataEntity> items) {
-        log.debug("batch put items of {} elements", items.size());
+        log.debug("batch delete items of {} elements", items.size());
         List<NotificationDelegationMetadataEntity> unprocessed = new ArrayList<>();
         if (items.isEmpty()) {
-            log.debug("items is empty in batch put items");
+            log.debug("items is empty in batch delete items");
             return unprocessed;
         }
         for (int start = 0; start < items.size(); start = start + DYNAMODB_MAX_BATCH_WRITE_ITEMS) {
@@ -233,7 +232,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
             }
         }
         if (!unprocessed.isEmpty()) {
-            log.warn("batchPutItems has {} unprocessed items", unprocessed.size());
+            log.warn("batchDeleteItems has {} unprocessed items", unprocessed.size());
         }
         return unprocessed;
     }
