@@ -19,7 +19,6 @@ import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -149,8 +148,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
-            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId, xPagopaPnCxType.getValue(), xPagopaPnCxGroups);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId);
 
             ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, FullReceivedNotification.class);
 
@@ -180,7 +179,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -217,7 +216,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,

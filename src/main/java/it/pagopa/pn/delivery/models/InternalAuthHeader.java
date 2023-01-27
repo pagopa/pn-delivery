@@ -1,4 +1,6 @@
 package it.pagopa.pn.delivery.models;
 
-public record InternalAuthHeader(String cxType, String xPagopaPnCxId, String xPagopaPnUid) {
+import java.util.List;
+
+public record InternalAuthHeader(String cxType, String xPagopaPnCxId, String xPagopaPnUid, List<String> xPagopaPnCxGroups) {
 }

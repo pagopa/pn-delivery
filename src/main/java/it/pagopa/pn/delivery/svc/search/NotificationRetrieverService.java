@@ -557,29 +557,27 @@ public class NotificationRetrieverService {
 	/**
 	 * Get the full detail of a notification by IUN and notify viewed event
 	 *
-	 * @param iun                unique identifier of a Notification
-	 * @param internalAuthHeader
-	 * @param recipientType 	 type of user (PF, PG)
-	 * @param cxGroups 			 user groups
+	 * @param iun                	unique identifier of a Notification
+	 * @param internalAuthHeader	header cx-*
+	 * @param mandateId 	 		id delega (opzionale)
 	 * @return Notification
 	 */
 	public InternalNotification getNotificationAndNotifyViewedEvent(String iun,
 																	InternalAuthHeader internalAuthHeader,
-																	String mandateId, String recipientType,
-																	List<String> cxGroups) {
+																	String mandateId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
 		String delegatorId = null;
 		NotificationViewDelegateInfo delegateInfo = null;
 		if ( StringUtils.hasText( mandateId ) ) {
-			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, recipientType, cxGroups);
+			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups());
 			delegateInfo = NotificationViewDelegateInfo.builder()
 					.mandateId( mandateId )
 					.internalId(internalAuthHeader.xPagopaPnCxId())
 					.operatorUuid(internalAuthHeader.xPagopaPnUid())
 					.delegateType( NotificationViewDelegateInfo.DelegateType.valueOf(internalAuthHeader.cxType()) )
 					.build();
-		} else if (checkAuthorizationPGAndValuedGroups(recipientType, cxGroups)) {
+		} else if (checkAuthorizationPGAndValuedGroups(internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups())) {
 			log.error( "only a PG admin can access this resource" );
 			throw new PnForbiddenException();
 		}

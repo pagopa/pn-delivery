@@ -187,7 +187,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null, null);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -221,7 +221,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
 
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null, null);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,

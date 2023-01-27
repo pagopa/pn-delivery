@@ -11,8 +11,9 @@ import java.util.List;
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.NONE)
 public class PgUtils {
+
     public static boolean checkAuthorizationPGAndValuedGroups(String recipientType, List<String> cxGroups) {
-        if((CxTypeAuthFleet.valueOf(recipientType) == CxTypeAuthFleet.PG && !(CollectionUtils.isEmpty(cxGroups)))) {
+        if (CxTypeAuthFleet.valueOf(recipientType) == CxTypeAuthFleet.PG && !(CollectionUtils.isEmpty(cxGroups))) {
             log.warn("only a PG admin can access this resource");
             return true;
         }

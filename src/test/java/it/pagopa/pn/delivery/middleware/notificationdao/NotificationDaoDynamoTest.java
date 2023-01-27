@@ -320,8 +320,8 @@ class NotificationDaoDynamoTest {
         }
 
         @Override
-        public void batchDeleteNotificationDelegated(List<NotificationDelegationMetadataEntity> deleteBatchItems) {
-
+        public List<NotificationDelegationMetadataEntity> batchDeleteItems(List<NotificationDelegationMetadataEntity> deleteBatchItems) {
+            return null;
         }
 
         @Override
