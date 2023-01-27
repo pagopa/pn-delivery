@@ -66,7 +66,6 @@ class PnSentReceivedNotificationControllerTest {
 	private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
 	private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
-	public static final String UID = "Uid";
 
 	@Autowired
     WebTestClient webTestClient;

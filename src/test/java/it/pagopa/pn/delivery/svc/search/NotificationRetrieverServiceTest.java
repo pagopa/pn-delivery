@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc.search;
 
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -170,7 +171,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch, "PA", null);
 
         // Then
         Assertions.assertNotNull( result );
@@ -194,7 +195,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch, "PA", null );
 
         // Then
         Assertions.assertNotNull( result );
