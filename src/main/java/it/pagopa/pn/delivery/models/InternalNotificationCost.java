@@ -12,5 +12,6 @@ public class InternalNotificationCost {
     private String creditorTaxIdNoticeCode;
     private String iun;
     private int recipientIdx;
+    private String recipientType;
 
 }

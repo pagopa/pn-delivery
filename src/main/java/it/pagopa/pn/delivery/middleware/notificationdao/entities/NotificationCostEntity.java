@@ -18,7 +18,10 @@ public class NotificationCostEntity {
     private static final String FIELD_IUN = "iun";
     private static final String FIELD_RECIPIENT_IDX = "recipientIdx";
 
+    private static final String FIELD_RECIPIENT_TYPE = "recipientType";
+
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_CREDITOR_TAX_ID_NOTICE_CODE)})) private String creditorTaxIdNoticeCode;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENT_IDX)})) private int recipientIdx;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENT_TYPE)})) private String recipientType;
 }

@@ -9,7 +9,6 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME;
@@ -75,8 +74,7 @@ public class IndexNameAndPartitions {
             partitions = new ArrayList<>();
         }
         else if( SearchIndexEnum.INDEX_WITH_BOTH_IDS.equals( indexName ) ) {
-            String partitionValue = getPartitionValueWhenSenderAndReceiverIdsAreSpecified(searchParams);
-             partitions = Collections.singletonList( partitionValue );
+            partitions = getPartitionValueWhenSenderAndReceiverIdsAreSpecified(searchParams);
         }
         else {
             partitions = idAndMonthsPartitionsListBuilder( searchParams );
@@ -120,19 +118,26 @@ public class IndexNameAndPartitions {
     }
 
     @NotNull
-    private static String getPartitionValueWhenSenderAndReceiverIdsAreSpecified(InputSearchNotificationDto searchParams) {
-        String partitionValue;
+    private static List<String> getPartitionValueWhenSenderAndReceiverIdsAreSpecified(InputSearchNotificationDto searchParams) {
+        List<String> partitionValues = new ArrayList<>();
 
         boolean searchBySender = searchParams.isBySender();
         if(searchBySender) {
-            partitionValue = searchParams.getSenderReceiverId()
-                                        + PARTITION_KEY_SEPARATOR + searchParams.getFilterId();
+            if ( StringUtils.hasText( searchParams.getOpaqueFilterIdPF() ) ) {
+                partitionValues.add(searchParams.getSenderReceiverId()
+                        + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdPF());
+            }
+            if ( StringUtils.hasText( searchParams.getOpaqueFilterIdPG() ) ) {
+                partitionValues.add(searchParams.getSenderReceiverId()
+                        + PARTITION_KEY_SEPARATOR + searchParams.getOpaqueFilterIdPG());
+            }
         }
         else {
-            partitionValue = searchParams.getFilterId()
-                    + PARTITION_KEY_SEPARATOR + searchParams.getSenderReceiverId();
+            partitionValues.add( searchParams.getFilterId()
+                    + PARTITION_KEY_SEPARATOR + searchParams.getSenderReceiverId()
+            );
         }
-        return partitionValue;
+        return partitionValues;
     }
 
     private static SearchIndexEnum chooseIndex( InputSearchNotificationDto searchParams ) {

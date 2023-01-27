@@ -44,15 +44,15 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
     @Override
     public void putIfAbsent(NotificationEntity notificationEntity) throws PnIdConflictException {
-        List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList = createNotificationPutItemRequests( notificationEntity );
+        List<TransactPutItemEnhancedRequest<NotificationEntity>> notificationRequestList = createNotificationPutItemRequests( notificationEntity );
 
         List<NotificationCostEntity> notificationCostEntityList = getNotificationCostEntities( notificationEntity );
 
         List<NotificationQREntity> notificationQREntityList = getNotificationQREntities( notificationEntity );
 
-        List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList = createCostPutItemRequests( notificationCostEntityList );
+        List<TransactPutItemEnhancedRequest<NotificationCostEntity>> costRequestList = createCostPutItemRequests( notificationCostEntityList );
 
-        List<PutItemEnhancedRequest<NotificationQREntity>> qrRequestList = createQRPutItemRequests( notificationQREntityList );
+        List<TransactPutItemEnhancedRequest<NotificationQREntity>> qrRequestList = createQRPutItemRequests( notificationQREntityList );
 
         TransactWriteItemsEnhancedRequest enhancedRequest = createTransactWriteItems( notificationRequestList, costRequestList, qrRequestList );
 
@@ -64,14 +64,14 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         }
     }
 
-    private List<PutItemEnhancedRequest<NotificationEntity>> createNotificationPutItemRequests(NotificationEntity notificationEntity) {
-        List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList = new ArrayList<>();
+    private List<TransactPutItemEnhancedRequest<NotificationEntity>> createNotificationPutItemRequests(NotificationEntity notificationEntity) {
+        List<TransactPutItemEnhancedRequest<NotificationEntity>> notificationRequestList = new ArrayList<>();
 
         Expression conditionExpressionPut = Expression.builder()
                 .expression("attribute_not_exists(iun)")
                 .build();
 
-        notificationRequestList.add( PutItemEnhancedRequest.builder( NotificationEntity.class )
+        notificationRequestList.add( TransactPutItemEnhancedRequest.builder( NotificationEntity.class )
                 .item( notificationEntity )
                 .conditionExpression( conditionExpressionPut )
                 .build()
@@ -83,7 +83,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                 .requestId( Base64Utils.encodeToString( notificationEntity.getIun().getBytes(StandardCharsets.UTF_8) ) )
                 .build();
 
-        notificationRequestList.add( PutItemEnhancedRequest.builder( NotificationEntity.class )
+        notificationRequestList.add( TransactPutItemEnhancedRequest.builder( NotificationEntity.class )
                 .item( controlIdempotenceToken )
                 .conditionExpression( conditionExpressionPut )
                 .build()
@@ -133,31 +133,31 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
     }
 
     private TransactWriteItemsEnhancedRequest createTransactWriteItems(
-            List<PutItemEnhancedRequest<NotificationEntity>> notificationRequestList,
-            List<PutItemEnhancedRequest<NotificationCostEntity>> costRequestList,
-            List<PutItemEnhancedRequest<NotificationQREntity>> qrRequestList
+            List<TransactPutItemEnhancedRequest<NotificationEntity>> notificationRequestList,
+            List<TransactPutItemEnhancedRequest<NotificationCostEntity>> costRequestList,
+            List<TransactPutItemEnhancedRequest<NotificationQREntity>> qrRequestList
     ) {
         TransactWriteItemsEnhancedRequest.Builder requestBuilder = TransactWriteItemsEnhancedRequest.builder();
 
-        for ( PutItemEnhancedRequest<NotificationEntity> putItemNotification: notificationRequestList ) {
+        for ( TransactPutItemEnhancedRequest<NotificationEntity> putItemNotification: notificationRequestList ) {
             requestBuilder.addPutItem( dynamoDbTable, putItemNotification);
         }
-        for (PutItemEnhancedRequest<NotificationCostEntity> putItemCost : costRequestList  ) {
+        for ( TransactPutItemEnhancedRequest<NotificationCostEntity> putItemCost : costRequestList  ) {
             requestBuilder.addPutItem( dynamoDbCostTable, putItemCost );
         }
-        for ( PutItemEnhancedRequest<NotificationQREntity> putItemQR : qrRequestList ) {
+        for ( TransactPutItemEnhancedRequest<NotificationQREntity> putItemQR : qrRequestList ) {
             requestBuilder.addPutItem( dynamoDbQRTable, putItemQR );
         }
         return requestBuilder.build();
     }
 
-    private List<PutItemEnhancedRequest<NotificationCostEntity>> createCostPutItemRequests(List<NotificationCostEntity> notificationCostEntityList) {
-        List<PutItemEnhancedRequest<NotificationCostEntity>> putItemEnhancedRequestList = new ArrayList<>();
+    private List<TransactPutItemEnhancedRequest<NotificationCostEntity>> createCostPutItemRequests(List<NotificationCostEntity> notificationCostEntityList) {
+        List<TransactPutItemEnhancedRequest<NotificationCostEntity>> putItemEnhancedRequestList = new ArrayList<>();
         Expression conditionExpressionPut = Expression.builder()
                 .expression("attribute_not_exists(creditorTaxId_noticeCode)")
                 .build();
         for ( NotificationCostEntity costEntity : notificationCostEntityList ) {
-            putItemEnhancedRequestList.add( PutItemEnhancedRequest.builder( NotificationCostEntity.class )
+            putItemEnhancedRequestList.add( TransactPutItemEnhancedRequest.builder( NotificationCostEntity.class )
                     .item( costEntity )
                     .conditionExpression( conditionExpressionPut )
                     .build()
@@ -166,13 +166,13 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         return putItemEnhancedRequestList;
     }
 
-    private List<PutItemEnhancedRequest<NotificationQREntity>> createQRPutItemRequests(List<NotificationQREntity> notificationQREntityList) {
-        List<PutItemEnhancedRequest<NotificationQREntity>> putItemEnhancedRequestList = new ArrayList<>();
+    private List<TransactPutItemEnhancedRequest<NotificationQREntity>> createQRPutItemRequests(List<NotificationQREntity> notificationQREntityList) {
+        List<TransactPutItemEnhancedRequest<NotificationQREntity>> putItemEnhancedRequestList = new ArrayList<>();
         Expression conditionExpressionPut = Expression.builder()
                 .expression( "attribute_not_exists(aarQRCodeValue)" )
                 .build();
         for ( NotificationQREntity qrEntity : notificationQREntityList ) {
-            putItemEnhancedRequestList.add( PutItemEnhancedRequest.builder( NotificationQREntity.class )
+            putItemEnhancedRequestList.add( TransactPutItemEnhancedRequest.builder( NotificationQREntity.class )
                     .item( qrEntity )
                     .conditionExpression( conditionExpressionPut )
                     .build()
@@ -188,6 +188,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
             if (Objects.nonNull(rec.getPayment())) {
                 NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
+                        .recipientType ( rec.getRecipientType().getValue() )
                         .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
                         .iun( notificationEntity.getIun() )
                         .creditorTaxIdNoticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
@@ -196,6 +197,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
 
                 if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
                     notificationCostEntityList.add( NotificationCostEntity.builder()
+                            .recipientType ( rec.getRecipientType().getValue() )
                             .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
                             .iun( notificationEntity.getIun() )
                             .creditorTaxIdNoticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )

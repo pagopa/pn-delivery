@@ -219,11 +219,6 @@ info:
     </details></br>
     
     ><details>
-      <summary><strong> Cosa rappresentano i campi requiresAck e sendByMail? <font color="red">queste funzioni non sono ancora implementate </font> </strong></summary>
-      <em>Il campo booleano requiresAck permette di definire il momento esatto nel quale scatterà il perfezionamento per presa visione dell'atto: se falso basterà che il destinatario prenda visione del documento da notificare; se vero, oltre alla visualizzazione dovrà anche scaricare il documento da notificare.</br> Il campo boolean sendByMail permette di indicare se il documento avente questo parametro sarà spedito nelle comunicazioni cartacee o meno </em>
-    </details></br>
-    
-    ><details>
       <summary><strong>Cos'è il codice di tassonomia \(taxonomyCode\)?</strong></summary>
       <em>Il codice di tassonomia(taxonomyCode) viene utilizzato per definire la tipolgia di atto e può essere recuperato nell'allegato 2 capitolo C del bando: 
       [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)</em>
@@ -390,6 +385,9 @@ tags:
   - name: LegalFacts
     description: >-
       Invocazioni per effettuare il downalod degli atti opponibili a terzi
+  - name: PaymentEvents
+    description: >-
+      Invocazioni per comunicare eventi di pagamento dalla PA
 
 paths:
   ###########################################################################################
@@ -825,6 +823,92 @@ paths:
             application/problem+json: # ONLY EXTERNAL
               schema: # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+
+    ###########################################################################################
+    ###                     RICEZIONE DATI AVVENUTO PAGAMENTO DALLA PA                      ###
+    ###########################################################################################
+  '/delivery/events/payment/pagopa':
+    post:
+      operationId: paymentEventsRequestPagoPa
+      parameters:                                                  # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
+      description: >-
+        Questa API è a disposizione della Pubblica Amministrazione per inviare eventi
+        di chiusura di una o più posizioni debitorie di tipo PagoPA. <br/>
+      tags:
+        - PaymentEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentEventsRequestPagoPa"
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  '/delivery/events/payment/f24':
+    post:
+      operationId: paymentEventsRequestF24
+      parameters:                                                  # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
+      description: >-
+        Questa API è a disposizione della Pubblica Amministrazione per inviare eventi
+        di chiusura di una o più posizioni debitorie di tipo F24. <br/>
+      tags:
+        - PaymentEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentEventsRequestF24"
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
 components:
   
   parameters:
@@ -1094,6 +1178,94 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
+
+
+    ###########################################################################################
+    ###                              DTO EVENTO DI PAGAMENTO                                ###
+    ###########################################################################################
+    
+    PaymentEventsRequestPagoPa:
+      title: Invio eventi di pagamento da PA a PN
+      description: >- 
+        Richiesta contenente un array di eventi di pagamento di tipo PagoPA di cui una Pubblica Amministrazione
+        deve avvisare Piattaforma Notifiche.
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi di pagamento
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentEventPagoPa'
+
+    PaymentEventsRequestF24:
+      title: Invio eventi di pagamento da PA a PN
+      description: >- 
+        Richiesta contenente un array di eventi di pagamento di tipo F24 di cui una Pubblica Amministrazione
+        deve avvisare Piattaforma Notifiche.
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi di pagamento
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentEventF24'
+
+    #PaymentEvents:
+    #  type: object
+    #  oneOf:
+    #    - $ref: '#/components/schemas/PaymentEventPagoPa'
+    #    - $ref: '#/components/schemas/PaymentEventF24'
+
+    PaymentEventPagoPa:
+      title: Evento di pagamento PagoPa
+      description: >-
+        Comprende: <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - data e ora del pagamento. <br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+        - paymentDate
+      properties:
+        noticeCode:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
+        paymentDate:
+          type: string
+          format: date-time
+
+    PaymentEventF24:
+      title: Evento di pagamento F24
+      description: >-
+        Comprende: <br/>
+          - lo _IUN_ della notifica pagata, <br/>
+          - data e ora del pagamento, <br/>
+          - il codice fiscale del destinatario pagatore, <br/>
+          - e la tipologia del destinatario pagatore (PF / PG). <br/>
+      type: object
+      required:
+        - iun
+        - paymentDate
+        - recipientTaxId
+        - recipientType
+      properties:
+        iun:
+          type: string
+        paymentDate:
+          type: string
+          format: date-time
+        recipientTaxId:
+          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/TaxId'
+        recipientType:
+          type: string
+          pattern: "PF|PG"
     
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'

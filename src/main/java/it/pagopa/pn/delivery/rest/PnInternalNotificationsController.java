@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
@@ -186,10 +187,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .build();
         logEvent.log();
         try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
-                    "PF",
-                    recipientInternalId,
+                    internalAuthHeader,
                     mandateId,
                     null,
                     attachmentName,
@@ -220,10 +221,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
 
 
         try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
-                    "PF",
-                    recipientInternalId,
+                    internalAuthHeader,
                     mandateId,
                     docIdx,
                     false

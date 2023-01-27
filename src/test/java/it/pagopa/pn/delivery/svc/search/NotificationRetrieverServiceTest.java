@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.svc.search;
 
-
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
@@ -20,6 +19,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
@@ -53,7 +53,10 @@ class NotificationRetrieverServiceTest {
 
     private static final String IUN = "iun";
     private static final String REQUEST_ID = "aXVu";
-    private static final String USER_ID = "userId";
+    private static final String CX_ID = "cxId";
+    private static final String CX_TYPE = "PF";
+    private static final String UID = "uid";
+    public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader(CX_TYPE, CX_ID, UID);
     private static final String SENDER_ID = "senderId";
     private static final String WRONG_SENDER_ID = "wrongSenderId";
     private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
@@ -85,7 +88,6 @@ class NotificationRetrieverServiceTest {
     private RefinementLocalDate refinementLocalDateUtils;
     private MVPParameterConsumer mvpParameterConsumer;
     private PnDeliveryConfigs cfg;
-
 
     @BeforeEach
     void setup() {
@@ -148,6 +150,54 @@ class NotificationRetrieverServiceTest {
         Assertions.assertEquals( "Group", results.getResultsPage().get(0).getGroup());
         Assertions.assertEquals( "Group no match", results.getResultsPage().get(1).getGroup());
         Assertions.assertEquals( "group-code-fake", results.getResultsPage().get(2).getGroup());
+    }
+
+    @Test
+    void checkOpaqueFilterIdPIva() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "SENDER_ID" )
+                .filterId( "12345678901" )
+                .size( 10 )
+                .nextPagesKey( null )
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+
+        // Then
+        Assertions.assertNotNull( result );
+    }
+
+    @Test
+    void checkOpaqueFilterIdCF() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "SENDER_ID" )
+                .filterId( "EEEEEEEEEEEEEEEE" )
+                .size( 10 )
+                .nextPagesKey( null )
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+
+        // Then
+        Assertions.assertNotNull( result );
     }
 
     @NotNull
@@ -443,7 +493,7 @@ class NotificationRetrieverServiceTest {
                                 .noticeCodeAlternative( NOTICE_CODE_ALTERNATIVE )
                                 .build() )
                         .build())
-                ).build(), Collections.singletonList( "userId" ) );
+                ).build(), Collections.singletonList( CX_ID ) );
     }
 
     @NotNull
@@ -594,10 +644,10 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
     }
 
@@ -624,11 +674,18 @@ class NotificationRetrieverServiceTest {
         //When
         InternalMandateDto internalMandateDto = new InternalMandateDto();
         internalMandateDto.setMandateId( MANDATE_ID );
-        internalMandateDto.setDelegate( "senderId" );
-        internalMandateDto.setDelegator( "userId" );
+        internalMandateDto.setDelegate( UID );
+        internalMandateDto.setDelegator( CX_ID );
         internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
 
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+        NotificationViewDelegateInfo delegateInfo = NotificationViewDelegateInfo.builder()
+                .mandateId( MANDATE_ID )
+                .delegateType( NotificationViewDelegateInfo.DelegateType.PF )
+                .operatorUuid( UID )
+                .internalId( CX_ID )
+                .build();
 
         //When
         when( pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), eq(CxTypeAuthFleet.PF), any()))
@@ -642,10 +699,10 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, MANDATE_ID, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, delegateInfo );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
     }
 
@@ -679,10 +736,10 @@ class NotificationRetrieverServiceTest {
                 .thenReturn( mapperNotification );
 
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
     }
 
@@ -715,7 +772,7 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        Executable todo = () -> svc.getNotificationAndNotifyViewedEvent(IUN, "", null, "PF", null);
+        Executable todo = () -> svc.getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("", CX_TYPE, UID), null, "PF", null);
 
         //Then
         Assertions.assertThrows(PnNotFoundException.class, todo);
@@ -752,10 +809,10 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
         Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
 
@@ -796,10 +853,10 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-02-11T00:00:00.00Z" ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-02-11T00:00:00.00Z" ), 0, null );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
         Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
     }
@@ -840,10 +897,10 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
         Assertions.assertEquals( NOTICE_CODE_ALTERNATIVE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
     }
@@ -885,10 +942,10 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
         Assertions.assertEquals( NOTICE_CODE ,internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
     }
@@ -930,10 +987,10 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
     }
@@ -969,10 +1026,10 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-05-11T00:00:00.00Z" ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-05-11T00:00:00.00Z" ), 0, null );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
     }
@@ -1009,9 +1066,9 @@ class NotificationRetrieverServiceTest {
         when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
         //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-03-11T00:00:00.00Z" ), 0 );
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-03-11T00:00:00.00Z" ), 0, null );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
     }
@@ -1043,7 +1100,7 @@ class NotificationRetrieverServiceTest {
                 .thenReturn( mapperNotification );
 
         // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
@@ -1081,7 +1138,7 @@ class NotificationRetrieverServiceTest {
                 .thenReturn( mapperNotification );
 
         // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
     }
@@ -1115,7 +1172,7 @@ class NotificationRetrieverServiceTest {
                 .thenReturn( mapperNotification );
 
         // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, USER_ID, null, "PF", null);
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null, "PF", null);
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );

@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.*;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
@@ -18,6 +19,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
@@ -123,9 +125,8 @@ public class NotificationRetrieverService {
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId, recipientType, cxGroups);
-			}
-			else if(checkAuthorizationPGAndValuedGroups(recipientType, cxGroups)) {
-				log.error( "only a PG admin can access this resource" );
+			} else if (checkAuthorizationPGAndValuedGroups(recipientType, cxGroups)) {
+				log.error("only a PG admin can access this resource");
 				throw new PnForbiddenException();
 			}
 		}
@@ -144,14 +145,7 @@ public class NotificationRetrieverService {
 		}
 
 		//devo opacizzare i campi di ricerca
-		if (searchDto.getFilterId() != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
-			log.info( "[start] Send request to data-vault" );
-			String opaqueTaxId = dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDto.getFilterId() );
-			log.info( "[end] Ensured recipient for search" );
-			searchDto.setFilterId( opaqueTaxId );
-		} else {
-			log.debug( "No filterId or search is by receiver" );
-		}
+		opaqueFilterId(searchDto);
 
 		NotificationSearch pageSearch = notificationSearchFactory.getMultiPageSearch(
 				searchDto,
@@ -232,6 +226,25 @@ public class NotificationRetrieverService {
 			builder.nextPagesKey(new ArrayList<>());
 		}
 		return builder.build();
+	}
+
+	private void opaqueFilterId(InputSearchNotificationDto searchDto) {
+		String searchDtoFilterId = searchDto.getFilterId();
+		if ( searchDtoFilterId != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
+			if ( searchDtoFilterId.length() == 11 ) {
+				log.info( "[start] Send request P.Iva to data-vault" );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
+			}
+			if ( searchDtoFilterId.length() == 16 ) {
+				log.info( "[start] Send request CF to data-vault" );
+				searchDto.setOpaqueFilterIdPF( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDtoFilterId) );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
+			}
+			log.info( "[end] Ensured recipient for search" );
+			searchDto.setFilterId( searchDtoFilterId );
+		} else {
+			log.debug( "No filterId or search is by receiver" );
+		}
 	}
 
 	/**
@@ -544,25 +557,35 @@ public class NotificationRetrieverService {
 	/**
 	 * Get the full detail of a notification by IUN and notify viewed event
 	 *
-	 * @param iun    unique identifier of a Notification
-	 * @param userId identifier of a user
-	 * @param recipientType type of user (PF, PG)
-	 * @param cxGroups user groups
+	 * @param iun                unique identifier of a Notification
+	 * @param internalAuthHeader
+	 * @param recipientType 	 type of user (PF, PG)
+	 * @param cxGroups 			 user groups
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId, String mandateId, String recipientType, List<String> cxGroups) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun,
+																	InternalAuthHeader internalAuthHeader,
+																	String mandateId, String recipientType,
+																	List<String> cxGroups) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
 		String delegatorId = null;
-		if (mandateId != null) {
-			delegatorId = checkMandateForNotificationDetail(userId, mandateId, recipientType, cxGroups);
+		NotificationViewDelegateInfo delegateInfo = null;
+		if ( StringUtils.hasText( mandateId ) ) {
+			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, recipientType, cxGroups);
+			delegateInfo = NotificationViewDelegateInfo.builder()
+					.mandateId( mandateId )
+					.internalId(internalAuthHeader.xPagopaPnCxId())
+					.operatorUuid(internalAuthHeader.xPagopaPnUid())
+					.delegateType( NotificationViewDelegateInfo.DelegateType.valueOf(internalAuthHeader.cxType()) )
+					.build();
 		} else if (checkAuthorizationPGAndValuedGroups(recipientType, cxGroups)) {
 			log.error( "only a PG admin can access this resource" );
 			throw new PnForbiddenException();
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);
-		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : userId);
+		notifyNotificationViewedEvent(notification, delegatorId != null ? delegatorId : internalAuthHeader.xPagopaPnCxId(), delegateInfo);
 		return notification;
 	}
 
@@ -667,26 +690,26 @@ public class NotificationRetrieverService {
 	}
 
 
-	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, String recipientId, NotificationViewDelegateInfo delegateInfo) {
 		String iun = notification.getIun();
 
 		int recipientIndex = -1;
 		for( int idx = 0 ; idx < notification.getRecipientIds().size(); idx++) {
-			String recipientId = notification.getRecipientIds().get( idx );
-			if( userId.equals( recipientId ) ) {
+			String notificationRecipientId = notification.getRecipientIds().get( idx );
+			if( recipientId.equals( notificationRecipientId ) ) {
 				recipientIndex = idx;
 			}
 		}
 
 		if( recipientIndex == -1 ) {
-			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
-			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" + iun + " do not have recipient/delegator=" + userId,
+			log.debug("Recipient not found for iun={} and recipientId={} ", iun, recipientId );
+			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" + iun + " do not have recipient/delegator=" + recipientId,
 					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
 		}
 
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
-		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex );
+		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo );
 	}
 
 	private void labelizeGroup(InternalNotification notification, String senderId) {

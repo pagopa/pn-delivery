@@ -225,17 +225,6 @@ components:
             title:
               type: string
               description: Titolo del documento allegato
-            requiresAck:
-              type: boolean
-              description: >-
-                Se presente e valorizzato __true__ il download del documento 
-                diventa necessario al fine del perfezionamento per presa visione.
-            sendByMail:
-              type: boolean
-              description: >- 
-                Se presente e valorizzato __true__ il documento verrà spedito 
-                nelle comunicazioni cartacee. In MVP questo flag sarà attivabile 
-                solo su un documento.
             docIdx:
               type: string
               description: >- 

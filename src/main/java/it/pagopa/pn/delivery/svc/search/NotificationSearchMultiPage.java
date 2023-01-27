@@ -1,8 +1,6 @@
 package it.pagopa.pn.delivery.svc.search;
 
 
-
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
@@ -14,28 +12,30 @@ import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA;
 
 @Slf4j
-public class NotificationSearchMultiPage extends NotificationSearch {
+public abstract class NotificationSearchMultiPage extends NotificationSearch {
 
     public static final int FILTER_EXPRESSION_APPLIED_MULTIPLIER = 4;
     public static final int MAX_DYNAMO_SIZE = 2000;
 
-    private final NotificationDao notificationDao;
-    private final PnLastEvaluatedKey lastEvaluatedKey;
-    private final InputSearchNotificationDto inputSearchNotificationDto;
-    private final PnDeliveryConfigs cfg;
-    private final IndexNameAndPartitions indexNameAndPartitions;
+    protected final NotificationDao notificationDao;
+    protected final PnLastEvaluatedKey lastEvaluatedKey;
+    protected final InputSearchNotificationDto inputSearchNotificationDto;
+    protected final PnDeliveryConfigs cfg;
+    protected final IndexNameAndPartitions indexNameAndPartitions;
 
-    public NotificationSearchMultiPage(NotificationDao notificationDao,
+    protected NotificationSearchMultiPage(NotificationDao notificationDao,
                                        EntityToDtoNotificationMetadataMapper entityToDto,
                                        InputSearchNotificationDto inputSearchNotificationDto,
                                        PnLastEvaluatedKey lastEvaluatedKey,
@@ -48,6 +48,8 @@ public class NotificationSearchMultiPage extends NotificationSearch {
         this.cfg = cfg;
         this.indexNameAndPartitions = indexNameAndPartitions;
     }
+
+    abstract List<NotificationMetadataEntity> getDataRead( int requiredSize, int dynamoDbPageSize );
 
     public ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> searchNotificationMetadata() {
 
@@ -66,43 +68,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
             || (inputSearchNotificationDto.isBySender() && StringUtils.hasText(inputSearchNotificationDto.getFilterId())))
             dynamoDbPageSize = dynamoDbPageSize * FILTER_EXPRESSION_APPLIED_MULTIPLIER;
 
-        int logItemCount = 0;
-
-
-        // mappa contenente le notifiche grezze, già filtrate per distinct, in modo che la size di questa mappa è congruente con il totale di elementi desiderati
-        // la mappa viene popolata man mano che vengono eseguite le query verso dynamo
-        List<NotificationMetadataEntity> dataRead = new ArrayList<>();
-        int startIndex = 0;
-        PnLastEvaluatedKey startEvaluatedKey = null;
-        if (lastEvaluatedKey != null)
-        {
-            startEvaluatedKey = lastEvaluatedKey;
-            startIndex = indexNameAndPartitions.getPartitions().indexOf(lastEvaluatedKey.getExternalLastEvaluatedKey());
-            log.debug("lastEvaluatedKey is not null, starting search from index={}", startIndex);
-        }
-
-
-
-        // ciclo per ogni partizione, eventualmente scartando quelle non interessate in base alla lastEvaluatedKey
-        for (int pIdx = startIndex;pIdx< indexNameAndPartitions.getPartitions().size();pIdx++ ) {
-
-            String currentpartition = indexNameAndPartitions.getPartitions().get( pIdx );
-
-            // legge tutti i dati dalla partizione
-            logItemCount += readDataFromPartition(0, currentpartition, dataRead, startEvaluatedKey, requiredSize,  dynamoDbPageSize);
-
-            // l'eventuale partizione iniziale ha senso SOLO per la prima partizione
-            startEvaluatedKey = null;
-
-            // se i dati letti sono più di quelli richiesti, posso concludere qui la ricerca
-            if (dataRead.size() >= requiredSize)
-            {
-                log.debug("reached required size, ending search");
-                break;
-            }
-        }
-
-        log.info("search request completed, totalDbQueryCount={} totalRowRead={}", logItemCount, dataRead.size());
+        List<NotificationMetadataEntity> dataRead = getDataRead( requiredSize, dynamoDbPageSize );
 
         return prepareGlobalResult(dataRead, requiredSize);
     }
@@ -140,31 +106,8 @@ public class NotificationSearchMultiPage extends NotificationSearch {
             int index = inputSearchNotificationDto.getSize()*i;
             if (cumulativeQueryResult.size() > index)
             {
-                PnLastEvaluatedKey pageLastEvaluatedKey = new PnLastEvaluatedKey();
                 NotificationMetadataEntity keyelement = cumulativeQueryResult.get(index-1);
-                if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_SENDER))
-                {
-                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderIdCreationMonth());
-                    pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
-                            NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getSenderIdCreationMonth()).build(),
-                            NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
-                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
-                }
-                else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_RECEIVER))
-                {
-                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getRecipientIdCreationMonth());
-                    pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
-                            NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getRecipientIdCreationMonth()).build(),
-                            NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
-                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
-                }  else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_WITH_BOTH_IDS))
-                {
-                    pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderIdRecipientId());
-                    pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
-                            NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getSenderIdRecipientId()).build(),
-                            NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
-                            NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
-                }
+                PnLastEvaluatedKey pageLastEvaluatedKey = getPnLastEvaluatedKey(keyelement);
 
                 globalResult.getNextPagesKey().add(pageLastEvaluatedKey);
             }
@@ -178,18 +121,49 @@ public class NotificationSearchMultiPage extends NotificationSearch {
         return globalResult;
     }
 
+    @NotNull
+    protected PnLastEvaluatedKey getPnLastEvaluatedKey(NotificationMetadataEntity keyelement) {
+        PnLastEvaluatedKey pageLastEvaluatedKey = new PnLastEvaluatedKey();
+
+        if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_SENDER))
+        {
+            pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderIdCreationMonth());
+            pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
+                    NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getSenderIdCreationMonth()).build(),
+                    NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
+                    NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
+        }
+        else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_RECEIVER))
+        {
+            pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getRecipientIdCreationMonth());
+            pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
+                    NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH, AttributeValue.builder().s(keyelement.getRecipientIdCreationMonth()).build(),
+                    NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
+                    NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
+        }  else if (indexNameAndPartitions.getIndexName().equals(IndexNameAndPartitions.SearchIndexEnum.INDEX_WITH_BOTH_IDS))
+        {
+            pageLastEvaluatedKey.setExternalLastEvaluatedKey(keyelement.getSenderIdRecipientId());
+            pageLastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(
+                    NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getSenderIdRecipientId()).build(),
+                    NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(keyelement.getSentAt().toString()).build(),
+                    NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID, AttributeValue.builder().s(keyelement.getIunRecipientId()).build()));
+        }
+        return pageLastEvaluatedKey;
+    }
+
     /**
      * Recupero tutti i dati da una partizione (ricorsivamente)
+     * @param currentRequest indice inizio scansione partizione
      * @param partition partizione di ricerca
      * @param cumulativeQueryResult risultati cumulativi da aggiornare
      * @param lastEvaluatedKey ultimo elemento letto nella partizione
      * @param requiredSize dimensione totale richiesta
      * @param dynamoDbPageSize dimensione della pagina da leggere in dynamo
-     * @return true se ci sono altri dati da cercare, false altrimenti
+     * @return numero di query eseguite
      */
-    private int readDataFromPartition(int currentRequest, String partition, List<NotificationMetadataEntity> cumulativeQueryResult,
-                                       PnLastEvaluatedKey lastEvaluatedKey,
-                                       int requiredSize, int dynamoDbPageSize) {
+    protected int readDataFromPartition(int currentRequest, String partition, List<NotificationMetadataEntity> cumulativeQueryResult,
+                                      PnLastEvaluatedKey lastEvaluatedKey,
+                                      Integer requiredSize, int dynamoDbPageSize) {
         log.debug( "START compute partition read trunk partition={} indexName={} currentRequest={} dynamoDbPageSize={}", partition,  indexNameAndPartitions.getIndexName(), currentRequest++, dynamoDbPageSize );
 
         PageSearchTrunk<NotificationMetadataEntity> oneQueryResult;
@@ -206,7 +180,7 @@ public class NotificationSearchMultiPage extends NotificationSearch {
         if (!CollectionUtils.isEmpty(oneQueryResult.getResults()))
             cumulativeQueryResult.addAll(oneQueryResult.getResults());
 
-        if (cumulativeQueryResult.size() >= requiredSize)
+        if (requiredSize != null && cumulativeQueryResult.size() >= requiredSize)
         {
             log.debug("ending search, requiredSize reached  partition={} currentRequest={}", partition, currentRequest);
             return currentRequest;
@@ -222,7 +196,9 @@ public class NotificationSearchMultiPage extends NotificationSearch {
             // mi adatto in base a quanti dati ho letto, se non leggo niente, di fatto raddoppio la size fino al MAX configurato
             // se ho letto "abbastanza", di fatto leggo al più altrettanto
 
-            float multiplier = 2 - Math.min(((float)oneQueryResult.getResults().size() / (float)requiredSize), 1);
+            float multiplier = 2;
+            if ( requiredSize != null )
+                multiplier = 2 - Math.min(((float)oneQueryResult.getResults().size() / (float)requiredSize), 1);
             dynamoDbPageSize = Math.round(dynamoDbPageSize * multiplier);
             dynamoDbPageSize = Math.min(dynamoDbPageSize, MAX_DYNAMO_SIZE);
 

@@ -172,7 +172,7 @@ Parameters:
   Mandate2DeliveryQueueARN:
     Type: String
     Description: 'Identify the resource that the policy applies to.'
-    
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -214,7 +214,8 @@ Resources:
         ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERY_MAXDOCUMENTSAVAILABLEDAYS=${MaxDocumentsAvailableDays}'
         ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
-        ContainerEnvEntry21: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
+        ContainerEnvEntry21: !Sub 'PN_DELIVERY_TOPICS_PAYMENTEVENTS=${DeliveryPushInputsQueueName}'
+        ContainerEnvEntry22: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
