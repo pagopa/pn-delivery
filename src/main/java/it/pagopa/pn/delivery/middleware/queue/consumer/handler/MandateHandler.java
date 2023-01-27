@@ -13,6 +13,9 @@ import java.util.function.Consumer;
 @Slf4j
 @Configuration
 public class MandateHandler {
+    private static final String  MANDATE_REJECTED = "reject";
+    private static final String  MANDATE_REVOKED = "revoke";
+    private static final String  MANDATE_EXPIRED = "expired";
 
     private final NotificationDelegatedService notificationDelegatedService;
 
@@ -36,19 +39,19 @@ public class MandateHandler {
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryRejectedMandateConsumer() {
         return message -> this.notificationDelegatedService
-                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId());
+                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), MANDATE_REJECTED);
     }
 
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryRevokedMandateConsumer() {
         return message -> this.notificationDelegatedService
-                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId());
+                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), MANDATE_REVOKED);
     }
 
     @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryExpiredMandateConsumer() {
         return message -> this.notificationDelegatedService
-                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId());
+                .deleteNotificationDelegatedByMandateId(message.getPayload().getMandateId(), MANDATE_EXPIRED);
     }
 
 }

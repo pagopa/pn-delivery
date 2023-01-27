@@ -33,6 +33,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
     private final DynamoDbEnhancedClient dynamoDbEnhancedClient;
 
+
     private static final int DYNAMODB_MAX_BATCH_WRITE_ITEMS = 25;
 
     protected NotificationDelegationMetadataEntityDaoDynamo(DynamoDbEnhancedClient dynamoDbEnhancedClient,
@@ -214,22 +215,42 @@ public class NotificationDelegationMetadataEntityDaoDynamo
     }
 
     @Override
-    public void batchDeleteNotificationDelegated(List<NotificationDelegationMetadataEntity> deleteBatchItems) {
-
+    public List<NotificationDelegationMetadataEntity> batchDeleteItems(List<NotificationDelegationMetadataEntity> items) {
+        log.debug("batch put items of {} elements", items.size());
+        List<NotificationDelegationMetadataEntity> unprocessed = new ArrayList<>();
+        if (items.isEmpty()) {
+            log.debug("items is empty in batch put items");
+            return unprocessed;
+        }
+        for (int start = 0; start < items.size(); start = start + DYNAMODB_MAX_BATCH_WRITE_ITEMS) {
+            int end = Math.min(start + DYNAMODB_MAX_BATCH_WRITE_ITEMS, items.size());
+            log.trace("chunk start={} end={}", start, end);
+            List<NotificationDelegationMetadataEntity> chunk = items.subList(start, end);
+            List<NotificationDelegationMetadataEntity> chunkUnprocessed = execBatchDeleteItems(chunk);
+            if (!chunkUnprocessed.isEmpty()) {
+                log.debug("chunk {} to {} unprocessed: {}", start, end, chunkUnprocessed.size());
+                unprocessed.addAll(chunkUnprocessed);
+            }
+        }
+        if (!unprocessed.isEmpty()) {
+            log.warn("batchPutItems has {} unprocessed items", unprocessed.size());
+        }
+        return unprocessed;
+    }
+    private List<NotificationDelegationMetadataEntity> execBatchDeleteItems(List<NotificationDelegationMetadataEntity> chunk) {
         WriteBatch.Builder<NotificationDelegationMetadataEntity> requestBuilder = WriteBatch
                 .builder(NotificationDelegationMetadataEntity.class)
                 .mappedTableResource(table);
-
-        deleteBatchItems.forEach(item -> {
+        chunk.forEach(item -> {
                     Key key = Key.builder().partitionValue(item.getIunRecipientIdDelegateIdGroupId())
                             .sortValue(item.getSentAt().toString()).build();
                     requestBuilder.addDeleteItem(key);
                 }
         );
-
-        dynamoDbEnhancedClient.batchWriteItem(BatchWriteItemEnhancedRequest.builder()
+        BatchWriteResult batchWriteResult = dynamoDbEnhancedClient.batchWriteItem(BatchWriteItemEnhancedRequest.builder()
                 .addWriteBatch(requestBuilder.build())
                 .build());
+        return batchWriteResult.unprocessedPutItemsForTable(table);
     }
 
     @Override

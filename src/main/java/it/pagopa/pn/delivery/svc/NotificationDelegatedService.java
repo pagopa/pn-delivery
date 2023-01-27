@@ -29,13 +29,13 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 @Slf4j
 @Service
 public class NotificationDelegatedService {
+    private static final int QUERY_RESULTS_SIZE = 1000;
 
     private final NotificationMetadataEntityDao notificationMetadataEntityDao;
     private final NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
     private final PnMandateClientImpl mandateClient;
 
     private static final int DEFAULT_DYNAMO_QUERY_SIZE = 1000;
-    private static final int MAX_DYNAMODB_BATCH_SIZE = 100;
 
     public NotificationDelegatedService(NotificationMetadataEntityDao notificationMetadataEntityDao,
                                         NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao,
@@ -99,21 +99,23 @@ public class NotificationDelegatedService {
         log.info("mandateId={} duplicationCounter={} globalIterations={}", event.getMandateId(), duplicationCounter, globalIterations);
     }
 
-    public void deleteNotificationDelegatedByMandateId(String mandateId) {
+    public void deleteNotificationDelegatedByMandateId(String mandateId, String eventType) {
+        log.info("handling {} mandate: {}", eventType, mandateId);
+
         PnLastEvaluatedKey startEvaluatedKey = new PnLastEvaluatedKey();
         PageSearchTrunk<NotificationDelegationMetadataEntity> oneQueryResult;
 
         do {
+            log.info("querying delegated notification by mandateId: {}, {} results at a time", mandateId, QUERY_RESULTS_SIZE);
             oneQueryResult = notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(mandateId,
                     DEFAULT_DYNAMO_QUERY_SIZE,
                     startEvaluatedKey);
-            List<NotificationDelegationMetadataEntity> oneQueryResultList = oneQueryResult.getResults();
 
-            for (int i = 0; i < oneQueryResult.getResults().size(); i = i + MAX_DYNAMODB_BATCH_SIZE) {
-                List<NotificationDelegationMetadataEntity> deleteBatchItems = oneQueryResultList
-                        .subList(i, Math.min(oneQueryResultList.size(), i + MAX_DYNAMODB_BATCH_SIZE));
-                notificationDelegationMetadataEntityDao.batchDeleteNotificationDelegated(deleteBatchItems);
-            }
+            List<NotificationDelegationMetadataEntity> oneQueryResultList = oneQueryResult.getResults();
+            log.info("batch deleting queried delegated notification");
+
+            notificationDelegationMetadataEntityDao.batchDeleteItems(oneQueryResultList);
+
         } while(oneQueryResult.getLastEvaluatedKey() != null);
     }
 
