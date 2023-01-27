@@ -23,7 +23,7 @@ public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<K
                                                                                      int size,
                                                                                      PnLastEvaluatedKey lastEvaluatedKey);
 
-    void batchDeleteNotificationDelegated(List<NotificationDelegationMetadataEntity> deleteBatchItems);
+    List<NotificationDelegationMetadataEntity> batchDeleteItems(List<NotificationDelegationMetadataEntity> deleteBatchItems);
 
     List<NotificationDelegationMetadataEntity> batchPutItems(List<NotificationDelegationMetadataEntity> items);
 }
