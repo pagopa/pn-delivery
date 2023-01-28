@@ -428,6 +428,8 @@ Resources:
   ### Subscription filters with Kinesis  https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationKinesisExample
   SubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
+    DependsOn:
+      - PnDeliveryInsertTriggerLambda
     Condition: SendLogToKinesis
     Properties:
       RoleArn:
