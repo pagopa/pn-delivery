@@ -429,7 +429,7 @@ Resources:
   SubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
     DependsOn:
-      - PnDeliveryInsertTriggerLambda
+      - PnDeliveryInsertTriggerLambdaLogGroup
     Condition: SendLogToKinesis
     Properties:
       RoleArn:
@@ -439,6 +439,12 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${PnDeliveryInsertTriggerLambda}"
       FilterPattern: !Ref LogsKinesisFilterPattern
       DestinationArn: !Ref LogsKinesisSourceStreamArn
+  
+  PnDeliveryInsertTriggerLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${PnDeliveryInsertTriggerLambda}"
+      RetentionInDays: 14
 
   ### IAM Role used by Subscription filters to allow read logs from Cloudwatch and send logs to Kinesis Firehose
   SubscriptionFilterServiceRole:
@@ -472,6 +478,8 @@ Resources:
 
   PnDeliveryInsertTriggerLambda:
     Type: 'AWS::Lambda::Function'
+    DependsOn:
+      - PnDeliveryInsertTriggerLambdaLogGroup
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
