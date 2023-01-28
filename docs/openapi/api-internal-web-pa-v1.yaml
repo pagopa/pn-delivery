@@ -27,7 +27,9 @@ tags:
   - name: SenderReadWeb
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle notifiche inviate
-
+  - name: SenderReadWebProcessed
+    description: >-
+      Invocazioni utilizzate dal presentation layer per i mittenti.
 
 paths:
   "/status":
@@ -86,8 +88,48 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  
-  
+  ###########################################################################################
+  ###                                  DETTAGLIO NOTIFICA                                 ###
+  ###########################################################################################
+  "/delivery/notifications/sent/{iun}/processed":
+    get:
+      summary: 'Lettura dettagli notifica'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+      tags:
+        - SenderReadWebProcessed
+      operationId: getSentNotificationProcessed
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "*/*":
+              schema:
+                $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NotificationDetail"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
 components:
   parameters:
