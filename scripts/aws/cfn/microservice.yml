@@ -478,8 +478,6 @@ Resources:
 
   PnDeliveryInsertTriggerLambda:
     Type: 'AWS::Lambda::Function'
-    DependsOn:
-      - PnDeliveryInsertTriggerLambdaLogGroup
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
