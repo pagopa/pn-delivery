@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -30,11 +29,13 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
 
 
     /**
-     * algoritmo: ricerca tutte le notifiche nella partizione senderId##recipientPF
-     * ricerca tutte le notifiche nella partizione senderId##recipientPG
+     * algoritmo: ricerca tutte le notifiche nella partizione senderId##recipientPF (più vecchie di eventuale lastEventKey passata)
+     * ricerca tutte le notifiche nella partizione senderId##recipientPG (più vecchie di eventuale lastEventKey passata)
      * mergio risultati ordinandoli dal punto di vista temporale (sentAt)
      * in caso partendo dall'ultimo elemento ritornato dall'iterazione precedente (lastEvaluatedKey)
      * filtrando la size massima richiesta (requiredSize)
+     *
+     *
      * @param requiredSize dimensione elementi pagina FE
      * @param dynamoDbPageSize dimensione elementi pagina dynamoDB
      * @return lista delle entità di ricerca
@@ -49,23 +50,32 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
         List<NotificationMetadataEntity> dataReadPF = new ArrayList<>();
         List<NotificationMetadataEntity> dataReadPG = new ArrayList<>();
 
-        // leggo TUTTE le righe di PF ( nella partizione 0 PF )
-        logItemCountPF += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 0 ), dataReadPF, null, null, dynamoDbPageSize );
-        // leggo TUTTE le righe di PG ( nella partizione 1 PG )
-        logItemCountPG += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 1 ), dataReadPG, null, null, dynamoDbPageSize );
-
-        List<NotificationMetadataEntity> dataRead = Stream.concat(dataReadPF.stream(), dataReadPG.stream()).toList();
-
         Instant lastEvalutatedSentAt;
+        PnLastEvaluatedKey lastEvaluatedKeyPF = null;
+        PnLastEvaluatedKey lastEvaluatedKeyPG = null;
         if (lastEvaluatedKey != null)
         {
-            lastEvalutatedSentAt = lastEvaluatedKey.getInternalLastEvaluatedKey().get()
-            Optional<NotificationMetadataEntity> optionalNotificationMetadataEntity = dataRead.stream()
-                    .filter(x -> getPnLastEvaluatedKey(x).getExternalLastEvaluatedKey().equals(lastEvaluatedKey.getExternalLastEvaluatedKey())).findFirst();
-            lastEvalutatedSentAt = optionalNotificationMetadataEntity.map(NotificationMetadataEntity::getSentAt).orElse(null);
+            // nel caso in cui sia arrivata una chiave, so per certo che posso iniziare a leggere i dati per quella partizione dalla chiave passata.
+            // non so nulla dell'altra partizione, che pertanto vien letta tutta.
+            if (indexNameAndPartitions.getPartitions().get( 0 ).equals(lastEvaluatedKey.getExternalLastEvaluatedKey()))
+                lastEvaluatedKeyPF = lastEvaluatedKey;
+            else
+                lastEvaluatedKeyPG = lastEvaluatedKey;
+
+            // nel campo sentAt, trovo il timestamp dell'ultimo record letto, mi interessano quelli "più vecchi" (l'ordinamento è decrescente)
+            lastEvalutatedSentAt = Instant.parse(lastEvaluatedKey.getInternalLastEvaluatedKey().get(NotificationMetadataEntity.FIELD_SENT_AT).s());
         }
         else
             lastEvalutatedSentAt = null;
+
+
+        // leggo TUTTE le righe di PF ( nella partizione 0 PF )
+        logItemCountPF += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 0 ), dataReadPF, lastEvaluatedKeyPF, null, dynamoDbPageSize );
+        // leggo TUTTE le righe di PG ( nella partizione 1 PG )
+        logItemCountPG += readDataFromPartition( 0, indexNameAndPartitions.getPartitions().get( 1 ), dataReadPG, lastEvaluatedKeyPG, null, dynamoDbPageSize );
+
+        List<NotificationMetadataEntity> dataRead = Stream.concat(dataReadPF.stream(), dataReadPG.stream()).toList();
+
 
         // faccio il merge in modo che dal punto di vista temporale siano ordinate
         // ritornando solo quelle con data più recente rispetto all'eventuale paginazione richiesta
