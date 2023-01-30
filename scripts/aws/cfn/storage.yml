@@ -179,6 +179,9 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: "ALL"
+      BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
