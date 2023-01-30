@@ -82,7 +82,7 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
         List<NotificationMetadataEntity> sortedNotificationMetadataEntities = dataRead.stream().sorted(
                 Comparator.comparing( NotificationMetadataEntity::getSentAt ).reversed()
                 )
-                .filter(notif -> lastEvalutatedSentAt == null || notif.getSentAt().isAfter(lastEvalutatedSentAt))
+                .filter(notif -> lastEvalutatedSentAt == null || notif.getSentAt().isBefore(lastEvalutatedSentAt))
                 .limit(requiredSize)
                 .toList();
 

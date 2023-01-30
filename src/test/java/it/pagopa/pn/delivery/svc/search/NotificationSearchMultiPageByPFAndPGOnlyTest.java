@@ -281,7 +281,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
                     .iunRecipientId("IUN##internalIdPF"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "senderId" )
-                    .sentAt(now.plus(Duration.ofDays( i )))
+                    .sentAt(now.plus(Duration.ofDays( -i )))
                     .recipientIds(List.of( "internalIdPF"+i ) )
                     .build() );
         }
@@ -317,7 +317,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
         lastEvaluatedKey.setExternalLastEvaluatedKey(indexNameAndPartitions.getPartitions().get(0));
         lastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID, AttributeValue.builder().s(indexNameAndPartitions.getPartitions().get(0)).build() ,
                 NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID,  AttributeValue.builder().s("IUN##internalIdPF"+PAGE_SIZE).build() ,
-                NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(now.plus(Duration.ofDays( PAGE_SIZE)).toString()).build()));
+                NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(now.plus(Duration.ofDays( -PAGE_SIZE)).toString()).build()));
         this.notificationSearchMultiPageByPFAndPGOnly = new NotificationSearchMultiPageByPFAndPGOnly(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
 
 
@@ -354,7 +354,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
                     .iunRecipientId("IUN##internalIdPF"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "senderId" )
-                    .sentAt(now.plus(Duration.ofDays( i )))
+                    .sentAt(now.plus(Duration.ofDays( -i )))
                     .recipientIds(List.of( "internalIdPF"+i ) )
                     .build() );
         }
@@ -366,7 +366,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
                     .iunRecipientId("IUN##internalIdPG"+i )
                     .notificationStatus( NotificationStatus.VIEWED.getValue() )
                     .senderId( "senderId" )
-                    .sentAt(now.plus( Duration.ofDays( i ) ).plusSeconds( i ))
+                    .sentAt(now.plus( Duration.ofDays( -i ) ).plusSeconds( -i ))
                     .recipientIds(List.of( "internalIdPG"+i ) )
                     .build() );
         }
@@ -391,7 +391,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
         lastEvaluatedKey.setExternalLastEvaluatedKey(indexNameAndPartitions.getPartitions().get(1));
         lastEvaluatedKey.setInternalLastEvaluatedKey(Map.of(NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID, AttributeValue.builder().s(indexNameAndPartitions.getPartitions().get(1)).build() ,
                 NotificationMetadataEntity.FIELD_IUN_RECIPIENT_ID,  AttributeValue.builder().s("IUN##internalIdPF"+PAGE_SIZE).build() ,
-                NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(now.plus(Duration.ofDays( PAGE_SIZE)).toString()).build()));
+                NotificationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s(now.plus(Duration.ofDays( -PAGE_SIZE)).toString()).build()));
         this.notificationSearchMultiPageByPFAndPGOnly = new NotificationSearchMultiPageByPFAndPGOnly(notificationDao, entityToDtoNotificationMetadataMapper, inputSearchNotificationDto, lastEvaluatedKey, cfg, dataVaultClient, indexNameAndPartitions);
 
 
