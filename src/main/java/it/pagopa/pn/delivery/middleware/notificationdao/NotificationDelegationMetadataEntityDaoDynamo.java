@@ -18,10 +18,12 @@ import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME;
 
@@ -236,6 +238,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
         }
         return unprocessed;
     }
+
     private List<NotificationDelegationMetadataEntity> execBatchDeleteItems(List<NotificationDelegationMetadataEntity> chunk) {
         WriteBatch.Builder<NotificationDelegationMetadataEntity> requestBuilder = WriteBatch
                 .builder(NotificationDelegationMetadataEntity.class)
@@ -288,5 +291,26 @@ public class NotificationDelegationMetadataEntityDaoDynamo
                 .addWriteBatch(builder.build())
                 .build());
         return writeResult.unprocessedPutItemsForTable(table);
+    }
+
+    @Override
+    public Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity) {
+        Expression expression = Expression.builder()
+                .expression(NotificationDelegationMetadataEntity.FIELD_MANDATE_ID + " = :mId")
+                .putExpressionValue(":mId", AttributeValue.builder().s(entity.getMandateId()).build())
+                .build();
+        DeleteItemEnhancedRequest request = DeleteItemEnhancedRequest.builder()
+                .key(k -> k
+                        .partitionValue(entity.getIunRecipientIdDelegateIdGroupId())
+                        .sortValue(entity.getSentAt().toString())
+                        .build())
+                .conditionExpression(expression)
+                .build();
+        try {
+            return Optional.of(table.deleteItem(request));
+        } catch (ConditionalCheckFailedException e) {
+            log.warn("can not delete {} - conditional check failed", entity.getIunRecipientIdDelegateIdGroupId(), e);
+            return Optional.empty();
+        }
     }
 }

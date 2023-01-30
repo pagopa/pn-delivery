@@ -174,31 +174,6 @@ class NotificationDelegatedServiceTest {
     }
 
     @Test
-    void deleteNotificationDelegatedUnprocessedItemsTest() {
-        NotificationDelegationMetadataEntity entity = NotificationDelegationMetadataEntity
-                .builder()
-            .mandateId(MANDATE_ID)
-                .sentAt(OffsetDateTime.MAX.toInstant())
-                .iunRecipientIdDelegateIdGroupId("partitionValueTest")
-                .build();
-
-        List<NotificationDelegationMetadataEntity> resultsList = List.of(entity);
-        PageSearchTrunk<NotificationDelegationMetadataEntity> results = new PageSearchTrunk<>();
-        results.setResults(resultsList);
-        results.setLastEvaluatedKey(null);
-        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
-                .thenReturn(results);
-
-        when(notificationDelegationMetadataEntityDao.batchDeleteItems(anyList()))
-                .thenReturn(List.of(new NotificationDelegationMetadataEntity()));
-
-        assertThrows(PnInternalException.class, () -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
-
-        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), anyInt(), any());
-        verify(notificationDelegationMetadataEntityDao).batchDeleteItems(anyList());
-    }
-
-    @Test
     void deleteNotificationDelegatedSuccessTest() {
         NotificationDelegationMetadataEntity entity = NotificationDelegationMetadataEntity
                 .builder()
@@ -214,13 +189,10 @@ class NotificationDelegatedServiceTest {
         when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
                 .thenReturn(results);
 
-        when(notificationDelegationMetadataEntityDao.batchDeleteItems(anyList()))
-                .thenReturn(Collections.emptyList());
-
         assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
 
         verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), anyInt(), any());
-        verify(notificationDelegationMetadataEntityDao).batchDeleteItems(anyList());
+        verify(notificationDelegationMetadataEntityDao).deleteWithConditions(any());
     }
 
     @Test
@@ -235,7 +207,7 @@ class NotificationDelegatedServiceTest {
         List<NotificationDelegationMetadataEntity> resultsList = List.of(entity);
         PageSearchTrunk<NotificationDelegationMetadataEntity> results1 = new PageSearchTrunk<>();
         results1.setResults(resultsList);
-        results1.setLastEvaluatedKey(null);
+        results1.setLastEvaluatedKey(Collections.emptyMap());
         PageSearchTrunk<NotificationDelegationMetadataEntity> results2 = new PageSearchTrunk<>();
         results2.setResults(resultsList);
         results2.setLastEvaluatedKey(null);
@@ -243,12 +215,9 @@ class NotificationDelegatedServiceTest {
                 .thenReturn(results1)
                 .thenReturn(results2);
 
-        when(notificationDelegationMetadataEntityDao.batchDeleteItems(anyList()))
-                .thenReturn(Collections.emptyList());
-
         assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
 
-        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), anyInt(), any());
-        verify(notificationDelegationMetadataEntityDao).batchDeleteItems(anyList());
+        verify(notificationDelegationMetadataEntityDao, times(2)).searchDelegatedByMandateId(anyString(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao, times(2)).deleteWithConditions(any());
     }
 }

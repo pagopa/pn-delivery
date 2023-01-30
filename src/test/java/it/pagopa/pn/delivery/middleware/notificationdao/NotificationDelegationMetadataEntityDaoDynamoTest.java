@@ -91,5 +91,10 @@ class NotificationDelegationMetadataEntityDaoDynamoTest {
         public List<NotificationDelegationMetadataEntity> batchDeleteItems(List<NotificationDelegationMetadataEntity> deleteBatchItems) {
             return null;
         }
+
+        @Override
+        public Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity) {
+            return Optional.empty();
+        }
     }
 }

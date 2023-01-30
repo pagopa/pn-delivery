@@ -9,6 +9,7 @@ import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<Key, NotificationDelegationMetadataEntity> {
 
@@ -26,4 +27,6 @@ public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<K
     List<NotificationDelegationMetadataEntity> batchDeleteItems(List<NotificationDelegationMetadataEntity> deleteBatchItems);
 
     List<NotificationDelegationMetadataEntity> batchPutItems(List<NotificationDelegationMetadataEntity> items);
+
+    Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity);
 }

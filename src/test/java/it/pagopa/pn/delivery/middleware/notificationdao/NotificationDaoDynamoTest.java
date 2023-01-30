@@ -328,6 +328,11 @@ class NotificationDaoDynamoTest {
         public List<NotificationDelegationMetadataEntity> batchPutItems(List<NotificationDelegationMetadataEntity> items) {
             return null;
         }
+
+        @Override
+        public Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity) {
+            return Optional.empty();
+        }
     }
 
     private InternalNotification newNotificationWithoutPayments() {

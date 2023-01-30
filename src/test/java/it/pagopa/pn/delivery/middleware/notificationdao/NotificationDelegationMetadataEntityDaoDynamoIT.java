@@ -167,6 +167,28 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
         assertTrue(unprocessed.isEmpty());
     }
 
+    @Test
+    void testDeleteWithConditions() {
+        NotificationDelegationMetadataEntity entity = newEntity("iun");
+        entity.setMandateId("mandateId");
+        entityDao.putIfAbsent(entity);
+
+        Key key = Key.builder()
+                .partitionValue(entity.getIunRecipientIdDelegateIdGroupId())
+                .sortValue(entity.getSentAt().toString())
+                .build();
+
+        entity.setMandateId("X");
+        assertFalse(entityDao.deleteWithConditions(entity).isPresent());
+        assertTrue(entityDao.get(key).isPresent());
+
+        entity.setMandateId("mandateId");
+        assertTrue(entityDao.deleteWithConditions(entity).isPresent());
+        assertFalse(entityDao.get(key).isPresent());
+
+        assertFalse(entityDao.deleteWithConditions(entity).isPresent());
+    }
+
     private NotificationDelegationMetadataEntity newEntity(String iun) {
         return NotificationDelegationMetadataEntity.builder()
                 .iunRecipientIdDelegateIdGroupId(iun)

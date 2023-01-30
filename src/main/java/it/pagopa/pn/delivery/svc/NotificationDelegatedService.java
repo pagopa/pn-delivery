@@ -148,11 +148,7 @@ public class NotificationDelegatedService {
             log.info("batch deleting queried delegated notification: {}", oneQueryResult.getResults().size());
             deleteCount += oneQueryResult.getResults().size();
 
-            List<NotificationDelegationMetadataEntity> unprocessed = notificationDelegationMetadataEntityDao.batchDeleteItems(oneQueryResultList);
-            if (!unprocessed.isEmpty()) {
-                log.error("can not delete all delegation metadata entities - unprocessed entries = {}", unprocessed.size());
-                throw new PnInternalException("Can not delete all delegation metadata entities", ERROR_CODE_DELIVERY_HANDLEEVENTFAILED);
-            }
+            oneQueryResultList.forEach(notificationDelegationMetadataEntityDao::deleteWithConditions);
 
             iterations++;
             log.debug("last evaluated key: {}", oneQueryResult.getLastEvaluatedKey());
