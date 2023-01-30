@@ -59,7 +59,9 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
         Instant lastEvalutatedSentAt;
         if (lastEvaluatedKey != null)
         {
-            Optional<NotificationMetadataEntity> optionalNotificationMetadataEntity = dataRead.stream().filter(x -> getPnLastEvaluatedKey(x).getExternalLastEvaluatedKey().equals(lastEvaluatedKey.getExternalLastEvaluatedKey())).findFirst();
+            lastEvalutatedSentAt = lastEvaluatedKey.getInternalLastEvaluatedKey().get()
+            Optional<NotificationMetadataEntity> optionalNotificationMetadataEntity = dataRead.stream()
+                    .filter(x -> getPnLastEvaluatedKey(x).getExternalLastEvaluatedKey().equals(lastEvaluatedKey.getExternalLastEvaluatedKey())).findFirst();
             lastEvalutatedSentAt = optionalNotificationMetadataEntity.map(NotificationMetadataEntity::getSentAt).orElse(null);
         }
         else
@@ -74,7 +76,8 @@ public class NotificationSearchMultiPageByPFAndPGOnly extends NotificationSearch
                 .limit(requiredSize)
                 .toList();
 
-        log.info("search request completed, totalDbQueryCount={} totalDbQueryCountPF={} totalDbQueryCountPG={} totalRowRead={} totalRowReadPF={} totalRowReadPG={}", logItemCountPF + logItemCountPG, logItemCountPF, logItemCountPG, dataRead.size(), dataReadPF.size(), dataReadPG.size());
+        log.info("search request completed, totalDbQueryCount={} totalDbQueryCountPF={} totalDbQueryCountPG={} totalRowRead={} totalRowReadPF={} totalRowReadPG={} filteredRows={}",
+                logItemCountPF + logItemCountPG, logItemCountPF, logItemCountPG, dataRead.size(), dataReadPF.size(), dataReadPG.size(), sortedNotificationMetadataEntities.size());
         return sortedNotificationMetadataEntities;
 
     }
