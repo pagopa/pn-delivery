@@ -1,0 +1,13 @@
+info:
+  version: v1.0
+components:
+  
+
+
+  schemas:
+    
+    ############################################################################################
+    ###                 STRUTTURE DATI EXTERNAL DI PN-DELIVERY_PUSH                          ###
+    ############################################################################################
+    TimelineElement:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/4b987411f5fa2c9062f71fe37ad1a422ead79c23/docs/openapi/schemas-pn-timeline-external-v1.yaml#/components/schemas/TimelineElement'

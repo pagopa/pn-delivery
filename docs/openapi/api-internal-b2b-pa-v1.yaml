@@ -1270,7 +1270,8 @@ components:
           pattern: "PF|PG"
     
     TimelineElement:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'                        # NO EXTERNAL
+#      $ref: './remote-refs-external.yaml#/components/schemas/TimelineElement'                       # ONLY EXTERNAL
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
