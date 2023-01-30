@@ -79,6 +79,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing notifications metadata'
 
+  NotificationDelegationMetadataDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing delegated notifications metadata
+
+  NotificationDelegationMetadataDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing delegated notifications metadata
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -216,6 +224,7 @@ Resources:
         ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         ContainerEnvEntry21: !Sub 'PN_DELIVERY_TOPICS_PAYMENTEVENTS=${DeliveryPushInputsQueueName}'
         ContainerEnvEntry22: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
+        ContainerEnvEntry23: !Sub 'PN_DELIVERY_NOTIFICATIONDELEGATIONMETADATADAO_TABLENAME=${NotificationDelegationMetadataDynamoTableName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -254,6 +263,8 @@ Resources:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
               - !Sub "${NotificationsCostDynamoTableArn}"
               - !Sub "${NotificationsCostDynamoTableArn}/*"
               - !Sub "${NotificationsQRDynamoTableArn}"
