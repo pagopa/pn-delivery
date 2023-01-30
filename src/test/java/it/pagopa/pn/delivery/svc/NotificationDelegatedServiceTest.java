@@ -19,6 +19,7 @@ import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 
 import java.time.Instant;
 
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -170,5 +171,84 @@ class NotificationDelegatedServiceTest {
         verify(pnMandateClientImpl).listMandatesByDelegator(any(), any(), any(), any(), any(), any());
         verify(notificationMetadataEntityDao, times(2)).searchForOneMonth(any(), any(), any(), anyInt(), any());
         verify(notificationDelegationMetadataEntityDao, times(2)).batchPutItems(anyList());
+    }
+
+    @Test
+    void deleteNotificationDelegatedUnprocessedItemsTest() {
+        NotificationDelegationMetadataEntity entity = NotificationDelegationMetadataEntity
+                .builder()
+            .mandateId(MANDATE_ID)
+                .sentAt(OffsetDateTime.MAX.toInstant())
+                .iunRecipientIdDelegateIdGroupId("partitionValueTest")
+                .build();
+
+        List<NotificationDelegationMetadataEntity> resultsList = List.of(entity);
+        PageSearchTrunk<NotificationDelegationMetadataEntity> results = new PageSearchTrunk<>();
+        results.setResults(resultsList);
+        results.setLastEvaluatedKey(null);
+        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
+                .thenReturn(results);
+
+        when(notificationDelegationMetadataEntityDao.batchDeleteItems(anyList()))
+                .thenReturn(List.of(new NotificationDelegationMetadataEntity()));
+
+        assertThrows(PnInternalException.class, () -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
+
+        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao).batchDeleteItems(anyList());
+    }
+
+    @Test
+    void deleteNotificationDelegatedSuccessTest() {
+        NotificationDelegationMetadataEntity entity = NotificationDelegationMetadataEntity
+                .builder()
+                .mandateId(MANDATE_ID)
+                .sentAt(OffsetDateTime.MAX.toInstant())
+                .iunRecipientIdDelegateIdGroupId("partitionValueTest")
+                .build();
+
+        List<NotificationDelegationMetadataEntity> resultsList = List.of(entity);
+        PageSearchTrunk<NotificationDelegationMetadataEntity> results = new PageSearchTrunk<>();
+        results.setResults(resultsList);
+        results.setLastEvaluatedKey(null);
+        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
+                .thenReturn(results);
+
+        when(notificationDelegationMetadataEntityDao.batchDeleteItems(anyList()))
+                .thenReturn(Collections.emptyList());
+
+        assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
+
+        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao).batchDeleteItems(anyList());
+    }
+
+    @Test
+    void deleteNotificationDelegatedPaginationSuccessTest() {
+        NotificationDelegationMetadataEntity entity = NotificationDelegationMetadataEntity
+                .builder()
+                .mandateId(MANDATE_ID)
+                .sentAt(OffsetDateTime.MAX.toInstant())
+                .iunRecipientIdDelegateIdGroupId("partitionValueTest")
+                .build();
+
+        List<NotificationDelegationMetadataEntity> resultsList = List.of(entity);
+        PageSearchTrunk<NotificationDelegationMetadataEntity> results1 = new PageSearchTrunk<>();
+        results1.setResults(resultsList);
+        results1.setLastEvaluatedKey(null);
+        PageSearchTrunk<NotificationDelegationMetadataEntity> results2 = new PageSearchTrunk<>();
+        results2.setResults(resultsList);
+        results2.setLastEvaluatedKey(null);
+        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
+                .thenReturn(results1)
+                .thenReturn(results2);
+
+        when(notificationDelegationMetadataEntityDao.batchDeleteItems(anyList()))
+                .thenReturn(Collections.emptyList());
+
+        assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
+
+        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao).batchDeleteItems(anyList());
     }
 }

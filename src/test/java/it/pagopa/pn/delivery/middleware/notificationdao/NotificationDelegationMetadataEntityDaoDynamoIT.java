@@ -157,13 +157,13 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
         List<NotificationDelegationMetadataEntity> entities = IntStream.range(0, 28)
                 .mapToObj(i -> newEntity("iun" + i))
                 .toList();
-        List<NotificationDelegationMetadataEntity> unprocessed = entityDao.batchPutItems(entities);
+        List<NotificationDelegationMetadataEntity> unprocessed = entityDao.batchDeleteItems(entities);
         assertTrue(unprocessed.isEmpty());
     }
 
     @Test
     void testEmptyBatchDeleteItems() {
-        List<NotificationDelegationMetadataEntity> unprocessed = entityDao.batchPutItems(Collections.emptyList());
+        List<NotificationDelegationMetadataEntity> unprocessed = entityDao.batchDeleteItems(Collections.emptyList());
         assertTrue(unprocessed.isEmpty());
     }
 

@@ -56,5 +56,80 @@ class MandateHandlerTest {
         Message<PnMandateEvent.Payload> message = new GenericMessage<>(payload);
         assertThrows(PnInternalException.class, () -> consumer.accept(message));
     }
+
+    /**
+     * Method under test: {@link MandateHandler#pnDeliveryAcceptedMandateConsumer()}
+     */
+    @Test
+    void testPnDeliveryRejectedMandateConsumer() {
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        doNothing().when(notificationDelegatedService).handleAcceptedMandate(same(payload), eq(EventType.MANDATE_REJECTED));
+
+        Consumer<Message<PnMandateEvent.Payload>> consumer = mandateHandler.pnDeliveryRejectedMandateConsumer();
+        assertDoesNotThrow(() -> consumer.accept(new GenericMessage<>(payload)));
+    }
+
+    /**
+     * Method under test: {@link MandateHandler#pnDeliveryAcceptedMandateConsumer()}
+     */
+    @Test
+    void testPnDeliveryRejectedMandateConsumerException() {
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        doThrow(PnInternalException.class).when(notificationDelegatedService).deleteNotificationDelegatedByMandateId(any(), any());
+
+        Consumer<Message<PnMandateEvent.Payload>> consumer = mandateHandler.pnDeliveryRejectedMandateConsumer();
+        Message<PnMandateEvent.Payload> message = new GenericMessage<>(payload);
+        assertThrows(PnInternalException.class, () -> consumer.accept(message));
+    }
+
+    /**
+     * Method under test: {@link MandateHandler#pnDeliveryAcceptedMandateConsumer()}
+     */
+    @Test
+    void testPnDeliveryRevokedMandateConsumer() {
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        doNothing().when(notificationDelegatedService).deleteNotificationDelegatedByMandateId(same(payload.getMandateId()), eq(EventType.MANDATE_REVOKED));
+
+        Consumer<Message<PnMandateEvent.Payload>> consumer = mandateHandler.pnDeliveryRevokedMandateConsumer();
+        assertDoesNotThrow(() -> consumer.accept(new GenericMessage<>(payload)));
+    }
+
+    /**
+     * Method under test: {@link MandateHandler#pnDeliveryAcceptedMandateConsumer()}
+     */
+    @Test
+    void testPnDeliveryRevokedMandateConsumerException() {
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        doThrow(PnInternalException.class).when(notificationDelegatedService).deleteNotificationDelegatedByMandateId(any(), any());
+
+        Consumer<Message<PnMandateEvent.Payload>> consumer = mandateHandler.pnDeliveryRevokedMandateConsumer();
+        Message<PnMandateEvent.Payload> message = new GenericMessage<>(payload);
+        assertThrows(PnInternalException.class, () -> consumer.accept(message));
+    }
+
+    /**
+     * Method under test: {@link MandateHandler#pnDeliveryAcceptedMandateConsumer()}
+     */
+    @Test
+    void testPnDeliveryExpiredMandateConsumer() {
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        doNothing().when(notificationDelegatedService).deleteNotificationDelegatedByMandateId(same(payload.getMandateId()), eq(EventType.MANDATE_EXPIRED));
+
+        Consumer<Message<PnMandateEvent.Payload>> consumer = mandateHandler.pnDeliveryExpiredMandateConsumer();
+        assertDoesNotThrow(() -> consumer.accept(new GenericMessage<>(payload)));
+    }
+
+    /**
+     * Method under test: {@link MandateHandler#pnDeliveryAcceptedMandateConsumer()}
+     */
+    @Test
+    void testPnDeliveryExpiredMandateConsumerException() {
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        doThrow(PnInternalException.class).when(notificationDelegatedService).deleteNotificationDelegatedByMandateId(any(), any());
+
+        Consumer<Message<PnMandateEvent.Payload>> consumer = mandateHandler.pnDeliveryExpiredMandateConsumer();
+        Message<PnMandateEvent.Payload> message = new GenericMessage<>(payload);
+        assertThrows(PnInternalException.class, () -> consumer.accept(message));
+    }
 }
 
