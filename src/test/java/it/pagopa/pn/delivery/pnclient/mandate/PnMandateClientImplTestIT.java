@@ -2,7 +2,9 @@ package it.pagopa.pn.delivery.pnclient.mandate;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.DelegateType;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.MandateByDelegatorRequestDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,6 +73,49 @@ class PnMandateClientImplTestIT {
                 .thenReturn(response);
         List<InternalMandateDto> result = mandateClient.listMandatesByDelegate(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null);
 
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void getMandatesByDelegatorSuccess() {
+        //Given
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setDelegate(DELEGATE);
+        internalMandateDto.setDelegator(DELEGATOR);
+        internalMandateDto.mandateId(MANDATE_ID);
+        internalMandateDto.setDatefrom(MANDATE_DATE_FROM);
+        ResponseEntity<List<InternalMandateDto>> response = ResponseEntity.ok(List.of(internalMandateDto));
+
+        //When
+        when(restTemplate.exchange(any(RequestEntity.class), any(ParameterizedTypeReference.class)))
+                .thenReturn(response);
+        List<InternalMandateDto> result = mandateClient.listMandatesByDelegator(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null, null, null);
+
+        //Then
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    void getMandatesByDelegatorsSuccess() {
+        //Given
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setDelegate(DELEGATE);
+        internalMandateDto.setDelegator(DELEGATOR);
+        internalMandateDto.mandateId(MANDATE_ID);
+        internalMandateDto.setDatefrom(MANDATE_DATE_FROM);
+        ResponseEntity<List<InternalMandateDto>> response = ResponseEntity.ok(List.of(internalMandateDto));
+
+        MandateByDelegatorRequestDto requestDto = new MandateByDelegatorRequestDto();
+        requestDto.setMandateId(MANDATE_ID);
+        requestDto.setDelegatorId(DELEGATOR);
+        List<MandateByDelegatorRequestDto> requestBody = List.of(requestDto);
+
+        //When
+        when(restTemplate.exchange(any(RequestEntity.class), any(ParameterizedTypeReference.class)))
+                .thenReturn(response);
+        List<InternalMandateDto> result = mandateClient.listMandatesByDelegators(DelegateType.PG, null, requestBody);
+
+        //Then
         Assertions.assertNotNull(result);
     }
 
