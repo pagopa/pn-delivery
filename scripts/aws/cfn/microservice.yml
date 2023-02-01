@@ -359,6 +359,7 @@ Resources:
           - - !Ref NotificationsDynamoTableName
             - !Ref NotificationsCostDynamoTableName
             - !Ref NotificationsMetadataDynamoTableName
+            - !Ref NotificationDelegationMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
         LambdaArns: !Join 
           - ','
@@ -383,6 +384,9 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
+        QueueArns: !Join
+          - ','
+          - - !Ref Mandate2DeliveryQueueARN
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
