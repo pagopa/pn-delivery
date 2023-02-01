@@ -228,6 +228,9 @@ info:
       [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)</em>
     </details></br>
     
+    ><details>
+      <summary><strong>Come si individua il domicilio del destinatario di una notifica in base alla tipologia del destinatario (PF e PG) ?</strong></summary>
+      <em>Quando si invia una notifica, occorre indicare la tipologia del destinatario:</em>
         <ul>
           <li><em>Se il destinatario è PF, l'ordine di individuazione è il seguente:</em></br>
             >>>><em><strong>1) </strong> Domicilio digitale di piattaforma (se disponibile, quello configurato dal destinatario per l'ente mittente della notifica; in alternativa, quello configurato dal destinatario per la genericità degli enti mittenti)</em></br>

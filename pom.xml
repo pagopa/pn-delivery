@@ -203,6 +203,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.basedir}/scripts/openapi/templates</templateDirectory>
                             <configOptions>
                                 <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -293,6 +294,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.basedir}/scripts/openapi/templates</templateDirectory>
                             <configOptions>
                                 <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
