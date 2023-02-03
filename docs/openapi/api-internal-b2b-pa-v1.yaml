@@ -212,18 +212,23 @@ info:
       <summary><strong>Come avviene l’inoltro della notifica ?</strong></summary>
       <em>L’inoltro della notifica può avvenire in modalità automatica o manuale. La modalità automatica prevede l’utilizzo della piattaforma PN e consente l’inoltro puntuale di una notifica. La modalità manuale prevede l’utilizzo dei servizi di PN da parte della PA e consente l’inoltro massivo di notifiche.</em>
     </details></br>
-
+    
     ><details>
-      <summary><strong>Quali controlli vengono effettuati in seguito all'inserimento della notifica?</strong></summary>
-      <em>I controlli effettuati da PN sono i seguenti:</em><ul><li><em>verifica che le informazioni inserite siano sintatticamente corrette</em></li><li><em>verifica che le combinazioni di <strong>creditorTaxId/noticeCode</strong> e <strong>creditorTaxId/alternativeNoticeCode</strong> siano univoche</em></li><li><em>verifica che la combinazione dei campi <strong>senderPaId, paProtocolNumber, idempotenceToken</strong> siano univoci</em></li></ul>
+      <summary><strong>Quali controlli vengono effettuati subito dopo l'inserimento della notifica (controlli sincroni)?</strong></summary>
+      <em>I controlli sincroni vengono effettuati nel momento stesso in cui si invia la request al servizio di invio notifica.</br>I controlli effettuati da PN sono i seguenti:</em><ul><li><em>verifica che le informazioni inserite siano sintatticamente corrette</em></li><li><em>verifica che le combinazioni di <strong>creditorTaxId/noticeCode</strong> e <strong>creditorTaxId/alternativeNoticeCode</strong> siano univoche</em></li><li><em>verifica che la combinazione dei campi <strong>senderPaId, paProtocolNumber, idempotenceToken</strong> siano univoci</em></li></ul>
     </details></br>
     
     ><details>
-      <summary><strong>Cos'è il codice di tassonomia \(taxonomyCode\)?</strong></summary>
+      <summary><strong>Quali controlli vengono effettuati a seguito dell'inserimento della notifica (controlli asincroni)?</strong></summary>
+      <em>I controlli asincroni sulla notifica partono dal momento successivo all'OK ottenuto in risposta all'inserimento della notifica e producono sempre un esito entro 24H da questo momento. L'esito dei controlli asincroni può essere verificato con l'apposito servizio [Verifica accettazione richiesta notifica]() o consumando il relativo evento di Timeline.</br> I controlli effettuati da PN sono i seguenti:</em><ul><li><em>verifica che lo sha256 inserito nella notifica corrisponda a quello del documento associato ad essa</em></li><li><em>verifica che ciascun CF fornito esista veramente</em></li><li><em>verifica che esista un indirizzo fisico noto per ciascun destinatario</em></li> </ul>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Cos'è il codice di tassonomia\(taxonomyCode\)?</strong></summary>
       <em>Il codice di tassonomia(taxonomyCode) viene utilizzato per definire la tipolgia di atto e può essere recuperato nell'allegato 2 capitolo C del bando: 
       [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)</em>
     </details></br>
-
+    
     ><details>
       <summary><strong>Come si individua il domicilio del destinatario di una notifica in base alla tipologia del destinatario (PF e PG) ?</strong></summary>
       <em>Quando si invia una notifica, occorre indicare la tipologia del destinatario:</em>

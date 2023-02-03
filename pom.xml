@@ -212,6 +212,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.basedir}/scripts/openapi/templates</templateDirectory>
                             <configOptions>
                                 <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -302,6 +303,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.basedir}/scripts/openapi/templates</templateDirectory>
                             <configOptions>
                                 <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -461,7 +463,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/1005c95adb238463c3edba4bed34fda5582b1a2c/docs/openapi/api-private-v1.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/b4c255cdee2ea65b75ff3a92046f4e8f0edee48f/docs/openapi/api-private-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
