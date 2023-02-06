@@ -476,6 +476,14 @@ Resources:
                 Effect: Allow
                 Resource: "*"
 
+  PnDeliveryInsertTriggerLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref PnDeliveryInsertTriggerLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
   PnDeliveryInsertTriggerLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
