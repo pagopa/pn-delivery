@@ -158,8 +158,9 @@ class NotificationReceiverValidationTest {
     assertConstraintViolationPresentByField(errors, "recipients[0].recipientType");
     assertConstraintViolationPresentByField(errors, "recipients[0].taxId");
     assertConstraintViolationPresentByField(errors, "recipients[0].denomination");
+    assertConstraintViolationPresentByField(errors, "recipients[0].physicalAddress");
     assertConstraintViolationPresentByField(errors, "notificationFeePolicy");
-    Assertions.assertEquals(4, errors.size());
+    Assertions.assertEquals(5, errors.size());
   }
 
   @Test
@@ -170,7 +171,10 @@ class NotificationReceiverValidationTest {
             .recipients(Collections.singletonList(NotificationRecipient.builder()
                 .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
                 // C.F. Omocodice 0=L 1=M 2=N 3=P 4=Q 5=R 6=S 7=T 8=U 9=V
-                .taxId("MRNLCU00A01H50MJ").denomination("valid Denomination").build())),
+                .taxId("MRNLCU00A01H50MJ")
+                    .denomination("valid Denomination")
+                    .physicalAddress( createPhysicalAddress() )
+                    .build())),
         Collections.emptyList());
 
     // WHEN
@@ -181,6 +185,14 @@ class NotificationReceiverValidationTest {
     Assertions.assertEquals(0, errors.size());
   }
 
+  private static NotificationPhysicalAddress createPhysicalAddress() {
+    return NotificationPhysicalAddress.builder()
+            .address("address")
+            .zip("zipCode")
+            .municipality("municipality")
+            .build();
+  }
+
   @Test
   void invalidRecipientTaxId() {
 
@@ -189,7 +201,10 @@ class NotificationReceiverValidationTest {
         notificationWithPhysicalCommunicationType().senderTaxId("01199250158")
             .recipients(Collections.singletonList(NotificationRecipient.builder()
                 .recipientType(NotificationRecipient.RecipientTypeEnum.PF).taxId("invalidTaxId")
-                .denomination("valid Denomination").build())),
+                .denomination("valid Denomination")
+                    .physicalAddress( createPhysicalAddress() )
+                    .build()
+            )),
         Collections.emptyList());
 
     // WHEN
@@ -312,7 +327,8 @@ class NotificationReceiverValidationTest {
     assertConstraintViolationPresentByField(errors, "recipients[0].recipientType");
     assertConstraintViolationPresentByField(errors, "recipients[0].taxId");
     assertConstraintViolationPresentByField(errors, "recipients[0].denomination");
-    Assertions.assertEquals(6, errors.size());
+    assertConstraintViolationPresentByField(errors, "recipients[0].physicalAddress");
+    Assertions.assertEquals(7, errors.size());
   }
 
   @Test
@@ -324,7 +340,9 @@ class NotificationReceiverValidationTest {
             notificationWithPhysicalCommunicationType()
                 .recipients(Collections.singletonList(NotificationRecipient
                     .builder().taxId("LVLDAA85T50G702B").denomination("Ada Lovelace")
-                    .digitalDomicile(NotificationDigitalAddress.builder().build()).build()))
+                    .digitalDomicile(NotificationDigitalAddress.builder().build())
+                        .physicalAddress( createPhysicalAddress() )
+                        .build()))
                 .documents(Collections.singletonList(NotificationDocument.builder()
                     // .body( BASE64_BODY )
                     .contentType("Content/Type")
@@ -417,21 +435,6 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
-  // doesn't pass physical address checks
-  void newNotificationRequestForInValidCheckAddress() {
-
-    // GIVEN
-    NewNotificationRequest n = newNotification();
-    n.getRecipients().get(0).setPhysicalAddress(null);
-    // WHEN
-    Set<ConstraintViolation<NewNotificationRequest>> errors;
-    errors = validator.checkNewNotificationRequestForMVP(n);
-
-    // THEN
-    assertConstraintViolationPresentByMessage(errors, "No recipient physical address");
-  }
-
-  @Test
   @Disabled("Since PN-2401")
   // pass all mvp checks
   void newNotificationRequestForValidDontCheckAddress() {
@@ -461,7 +464,6 @@ class NotificationReceiverValidationTest {
         NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
             .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
             .digitalDomicile(NotificationDigitalAddress.builder().build()).build());
-    n.getRecipients().get(0).setPhysicalAddress(null);
     String noticeCode = n.getRecipients().get(0).getPayment().getNoticeCode();
     n.getRecipients().get(0).getPayment().setNoticeCodeAlternative(noticeCode);
 
@@ -470,12 +472,11 @@ class NotificationReceiverValidationTest {
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
-    Assertions.assertEquals(3, errors.size());
+    Assertions.assertEquals(2, errors.size());
 
     assertConstraintViolationPresentByMessage(errors, "Max one recipient");
     assertConstraintViolationPresentByMessage(errors,
         "Alternative notice code equals to notice code");
-    assertConstraintViolationPresentByMessage(errors, "No recipient physical address");
   }
 
   @Test
@@ -559,7 +560,9 @@ class NotificationReceiverValidationTest {
             .denomination("Ada Lovelace")
             .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
                 .type(NotificationDigitalAddress.TypeEnum.PEC).build())
-            .build()))
+                .physicalAddress( createPhysicalAddress() )
+                .build())
+        )
         .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement
             .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatus.ACCEPTED)
             .relatedTimelineElements(Collections.emptyList()).build()))
@@ -615,6 +618,7 @@ class NotificationReceiverValidationTest {
                         .ref(NotificationAttachmentBodyRef.builder().key(KEY)
                             .versionToken(VERSION_TOKEN).build()))
                     .build())
+                .physicalAddress( createPhysicalAddress() )
                 .build())),
         Collections.emptyList());
   }

@@ -58,7 +58,6 @@ public class NotificationReceiverValidator {
                   ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
                   errors.add( constraintViolation );
               }
-              // NOTA: issue PN-2509 verificare ed in caso aggiungere obbligatorietà indirizzo fisico per ogni destinatario fuori MVP
           }
       }         
       errors.addAll(validator.validate( internalNotification ));
@@ -71,10 +70,6 @@ public class NotificationReceiverValidator {
         if ( notificationRequest.getRecipients().size() > 1 ) {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max one recipient" );
             errors.add( constraintViolation );
-        }
-        if (notificationRequest.getRecipients().get(0).getPhysicalAddress() == null ) {
-          ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
-          errors.add( constraintViolation );
         }
         
         NotificationPaymentInfo payment = notificationRequest.getRecipients().get(0).getPayment();
