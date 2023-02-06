@@ -1077,6 +1077,7 @@ components:
         - denomination
         - recipientType
         - taxId
+        - physicalAddress
       type: object
       properties:
         recipientType:

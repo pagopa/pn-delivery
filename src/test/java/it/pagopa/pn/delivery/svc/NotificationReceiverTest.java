@@ -481,6 +481,13 @@ class NotificationReceiverTest {
 										.type(NotificationDigitalAddress.TypeEnum.PEC)
 										.address("account@dominio.it")
 										.build())
+								.physicalAddress( NotificationPhysicalAddress.builder()
+										.address( "address" )
+										.at( "presso" )
+										.zip( "zipCode" )
+										.municipality( "municipality" )
+										.build()
+								)
 								.build()
 				))
 				.documents(List.of(
