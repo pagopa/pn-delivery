@@ -8,7 +8,6 @@ import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.NotificationStatusHi
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
-import it.pagopa.pn.delivery.utils.io.IOMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class IOMapperTest {
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 
     @Spy
     private ModelMapperFactory modelMapperFactory;
@@ -124,6 +124,6 @@ class IOMapperTest {
                 .documents(List.of(notificationDocument()))
                 .build();
 
-        return new InternalNotification(fullSentNotification, List.of());
+        return new InternalNotification(fullSentNotification, List.of(), X_PAGOPA_PN_SRC_CH);
     }
 }
