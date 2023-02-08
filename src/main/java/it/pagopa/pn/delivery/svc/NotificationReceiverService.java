@@ -65,6 +65,7 @@ public class NotificationReceiverService {
 	public NewNotificationResponse receiveNotification(
 			String xPagopaPnCxId,
 			NewNotificationRequest newNotificationRequest,
+			String xPagopaPnSrcCh,
 			List<String> xPagopaPnCxGroups
 	) throws PnIdConflictException {
 		log.info("New notification storing START");
@@ -80,6 +81,7 @@ public class NotificationReceiverService {
 		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
 
 		internalNotification.setSenderPaId( xPagopaPnCxId );
+		internalNotification.setSourceChannel( xPagopaPnSrcCh );
 
 		String iun = doSaveWithRethrow(internalNotification);
 

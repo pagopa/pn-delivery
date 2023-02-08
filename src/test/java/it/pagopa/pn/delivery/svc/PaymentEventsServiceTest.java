@@ -31,6 +31,7 @@ class PaymentEventsServiceTest {
     public static final String CREDITOR_TAX_ID = "77777777777";
     public static final String SENDER_PA_ID = "sender_pa_id";
     public static final String CX_TYPE_PA = "PA";
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     public static final String NOTICE_CODE = "123456789012345678";
     public static final String IUN = "fake_IUN";
     public static final String RECIPIENT_TYPE_PF = "PF";
@@ -335,7 +336,8 @@ class PaymentEventsServiceTest {
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(notificationRecipient))
                 .build(),
-                List.of(RECIPIENT_INTERNAL_ID)
+                List.of(RECIPIENT_INTERNAL_ID),
+                X_PAGOPA_PN_SRC_CH
         );
     }
 

@@ -48,6 +48,8 @@ class NotificationReceiverValidationTest {
   private MVPParameterConsumer mvpParameterConsumer;
 
   private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
+
+  private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
   public static final String ATTACHMENT_BODY_STR = "Body";
   public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
   public static final String VERSION_TOKEN = "version_token";
@@ -72,7 +74,7 @@ class NotificationReceiverValidationTest {
 
     // GIVEN
     InternalNotification n =
-        new InternalNotification(FullSentNotification.builder().build(), Collections.emptyList());
+        new InternalNotification(FullSentNotification.builder().build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -101,7 +103,7 @@ class NotificationReceiverValidationTest {
 
     // GIVEN
     InternalNotification n =
-        new InternalNotification(FullSentNotification.builder().build(), Collections.emptyList());
+        new InternalNotification(FullSentNotification.builder().build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(n);
@@ -148,7 +150,7 @@ class NotificationReceiverValidationTest {
     InternalNotification n = new InternalNotification(
         notificationWithPhysicalCommunicationType().senderTaxId("01199250158")
             .recipients(Collections.singletonList(NotificationRecipient.builder().build())),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -175,7 +177,7 @@ class NotificationReceiverValidationTest {
                     .denomination("valid Denomination")
                     .physicalAddress( createPhysicalAddress() )
                     .build())),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -205,7 +207,7 @@ class NotificationReceiverValidationTest {
                     .physicalAddress( createPhysicalAddress() )
                     .build()
             )),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -222,7 +224,7 @@ class NotificationReceiverValidationTest {
     // GIVEN
     InternalNotification n = new InternalNotification(notificationWithPhysicalCommunicationType()
         .senderTaxId("invalidSenderTaxId").senderDenomination("Valid Sender Denomination"),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -240,7 +242,7 @@ class NotificationReceiverValidationTest {
     InternalNotification n = new InternalNotification(
         notificationWithPhysicalCommunicationType()._abstract(INVALID_ABSTRACT)
             .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -258,7 +260,7 @@ class NotificationReceiverValidationTest {
         new InternalNotification(
             notificationWithPhysicalCommunicationType().subject(INVALID_SUBJECT)
                 .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE),
-            Collections.emptyList());
+            Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -293,7 +295,7 @@ class NotificationReceiverValidationTest {
     // GIVEN
     InternalNotification n = new InternalNotification(notificationWithPhysicalCommunicationType()
         .recipients(Collections.singletonList(null)).documents(Collections.singletonList(null)),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -313,7 +315,7 @@ class NotificationReceiverValidationTest {
         notificationWithPhysicalCommunicationType()
             .recipients(Collections.singletonList(NotificationRecipient.builder().build()))
             .documents(Collections.singletonList(NotificationDocument.builder().build())),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
     n.notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE);
 
     // WHEN
@@ -347,7 +349,7 @@ class NotificationReceiverValidationTest {
                     // .body( BASE64_BODY )
                     .contentType("Content/Type")
                     .digests(NotificationAttachmentDigests.builder().build()).build())),
-            Collections.emptyList());
+            Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -401,7 +403,7 @@ class NotificationReceiverValidationTest {
     InternalNotification wrongEmail = new InternalNotification(
         n.recipients(Collections.singletonList(n.getRecipients().get(0)
             .digitalDomicile(n.getRecipients().get(0).getDigitalDomicile().address(null)))),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -419,7 +421,7 @@ class NotificationReceiverValidationTest {
     InternalNotification notification = new InternalNotification(
         validDocumentWithoutPayments()
             .documents(Collections.singletonList(NotificationDocument.builder().build())),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
     notification
         .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE);
 
@@ -573,14 +575,14 @@ class NotificationReceiverValidationTest {
   }
 
   private InternalNotification newInternalNotification() {
-    return new InternalNotification(newFullSentNotification(), Collections.emptyList());
+    return new InternalNotification(newFullSentNotification(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
   }
 
   private InternalNotification notificationWithPhysicalCommunicationType() {
     return new InternalNotification(
         newFullSentNotification().physicalCommunicationType(
             FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
   }
 
   private InternalNotification validDocumentWithoutPayments() {
@@ -590,7 +592,7 @@ class NotificationReceiverValidationTest {
             .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
                 .build())
             .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build())),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
   }
 
   private InternalNotification validDocumentWithPayments() {
@@ -620,7 +622,7 @@ class NotificationReceiverValidationTest {
                     .build())
                 .physicalAddress( createPhysicalAddress() )
                 .build())),
-        Collections.emptyList());
+        Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
   }
 
 }

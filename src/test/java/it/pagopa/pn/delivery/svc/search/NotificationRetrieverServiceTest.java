@@ -47,6 +47,7 @@ class NotificationRetrieverServiceTest {
     private static final String CX_TYPE = "PF";
     private static final String UID = "uid";
     public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader(CX_TYPE, CX_ID, UID);
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     private static final String SENDER_ID = "senderId";
     private static final String WRONG_SENDER_ID = "wrongSenderId";
     private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
@@ -474,7 +475,7 @@ class NotificationRetrieverServiceTest {
                                 .noticeCodeAlternative( NOTICE_CODE_ALTERNATIVE )
                                 .build() )
                         .build())
-                ).build(), Collections.singletonList( CX_ID ) );
+                ).build(), Collections.singletonList( CX_ID ), X_PAGOPA_PN_SRC_CH );
     }
 
     @NotNull

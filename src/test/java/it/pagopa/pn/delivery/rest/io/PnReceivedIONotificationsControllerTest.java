@@ -29,6 +29,7 @@ class PnReceivedIONotificationsControllerTest {
     private static final String IUN = "IUN";
     private static final String USER_ID = "USER_ID";
     private static final String PA_ID = "PA_ID";
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 
     @Autowired
     WebTestClient webTestClient;
@@ -140,7 +141,7 @@ class PnReceivedIONotificationsControllerTest {
                 .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
                         .status( NotificationStatus.ACCEPTED )
                         .build() ) )
-                .build(), Collections.emptyList());
+                .build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH );
     }
 
     private String newThirdPartyMessage(InternalNotification notification) {

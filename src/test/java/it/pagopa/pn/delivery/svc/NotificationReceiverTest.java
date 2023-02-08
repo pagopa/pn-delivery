@@ -62,6 +62,8 @@ class NotificationReceiverTest {
 				.build();
 	}
 	public static final String X_PAGOPA_PN_CX_ID = "paId";
+
+	public static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 	public static final List<String> X_PAGOPA_PN_CX_GROUPS_EMPTY = Collections.emptyList();
 	public static final List<String> X_PAGOPA_PN_CX_GROUPS = List.of( "group1" );
 
@@ -114,7 +116,7 @@ class NotificationReceiverTest {
 		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( fileData );
 
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture()  );
@@ -147,7 +149,7 @@ class NotificationReceiverTest {
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture()  );
@@ -174,7 +176,7 @@ class NotificationReceiverTest {
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
@@ -207,7 +209,7 @@ class NotificationReceiverTest {
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
@@ -227,7 +229,7 @@ class NotificationReceiverTest {
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_CX_GROUPS );
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS );
 
 		// Then
 		Assertions.assertNotNull( response );
@@ -244,7 +246,7 @@ class NotificationReceiverTest {
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
 		// Then
 		Assertions.assertNotNull( response );
@@ -260,7 +262,7 @@ class NotificationReceiverTest {
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, List.of( "fake_Group" ) );
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, List.of( "fake_Group" ) );
 
 		// Then
 		Assertions.assertThrows(PnInvalidInputException.class, todo);
@@ -277,7 +279,7 @@ class NotificationReceiverTest {
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
-		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_CX_GROUPS );
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS );
 
 		// Then
 		Assertions.assertThrows( PnInvalidInputException.class, todo );
@@ -297,7 +299,7 @@ class NotificationReceiverTest {
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
 				.thenReturn( List.of(new PaGroup().id("group_1")));
 
-		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
 		// Then
 		Assertions.assertThrows( PnInvalidInputException.class, todo );
@@ -314,7 +316,7 @@ class NotificationReceiverTest {
 				.build();
 
 		// When
-		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Assertions.assertThrows( PnValidationException.class, todo );
@@ -329,7 +331,7 @@ class NotificationReceiverTest {
 
 		// When
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
-		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Assertions.assertThrows( PnValidationException.class, todo );
@@ -359,7 +361,7 @@ class NotificationReceiverTest {
 		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( fileData );
 
-		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		PnIdConflictException exc = Assertions.assertThrows( PnIdConflictException.class, todo );
@@ -391,10 +393,10 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 
 		Assertions.assertThrows( PnInternalException.class, () ->
-				deliveryService.receiveNotification( "paId", notification, X_PAGOPA_PN_CX_GROUPS_EMPTY)
+				deliveryService.receiveNotification( "paId", notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY)
 		);
 
-		deliveryService.receiveNotification( "paId", notification, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		deliveryService.receiveNotification( "paId", notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao, Mockito.times( 2 ) )

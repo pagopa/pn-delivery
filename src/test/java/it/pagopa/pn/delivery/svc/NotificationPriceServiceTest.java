@@ -28,6 +28,7 @@ class NotificationPriceServiceTest {
     private static final String NOTICE_CODE = "noticeCode";
     public static final String REFINEMENT_DATE = "2022-10-07T11:01:25.122312Z";
     public static final String EXPECTED_REFINEMENT_DATE = "2022-10-07T23:59:59.999999999+02:00";
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 
     @Mock
     private NotificationDao notificationDao;
@@ -249,7 +250,7 @@ class NotificationPriceServiceTest {
                                                 .build() )
                                         .build() )
                                 .build()) )
-                .build(), Collections.emptyList() );
+                .build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH );
     }
 
     @NotNull
@@ -276,7 +277,7 @@ class NotificationPriceServiceTest {
                                                 .build() )
                                         .build() )
                                 .build()) )
-                .build(), Collections.emptyList() );
+                .build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH );
     }
 
 

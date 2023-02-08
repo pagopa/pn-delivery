@@ -37,6 +37,7 @@ class NotificationDaoDynamoTest {
     private ModelMapperFactory modelMapperFactory;
     private PnDataVaultClientImpl pnDataVaultClient;
 
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     public static final String ATTACHMENT_BODY_STR = "Body";
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     private static final String VERSION_TOKEN = "VERSION_TOKEN";
@@ -345,7 +346,7 @@ class NotificationDaoDynamoTest {
                                 .contentType( "application/pdf" )
                                 .build()
                 ))
-                .build(), Collections.singletonList("Codice Fiscale 01"));
+                .build(), Collections.singletonList("Codice Fiscale 01"), X_PAGOPA_PN_SRC_CH);
     }
 
     /*private Notification newNotificationWithPaymentsDeliveryMode( boolean withIuv ) {

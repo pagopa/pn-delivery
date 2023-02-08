@@ -40,6 +40,7 @@ class ReceivedNotificationsDocumentTest {
 
 	private static final String IUN = "IUN";
 	private static final String PA_ID = "PA_ID";
+	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 	private static final int DOCUMENT_INDEX = 0;
 	private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
 	private static final String REDIRECT_URL = "http://redirectUrl";
@@ -223,7 +224,7 @@ class ReceivedNotificationsDocumentTest {
 								)
 						.build()
 						))
-				.build(), Collections.emptyList());
+				.build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 	}
 
 	private InternalNotification createNoDocumentsNotification() {
@@ -242,7 +243,7 @@ class ReceivedNotificationsDocumentTest {
 								.build())
 						.build()
 						))
-				.build(), Collections.emptyList());
+				.build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 	}
 
 }
