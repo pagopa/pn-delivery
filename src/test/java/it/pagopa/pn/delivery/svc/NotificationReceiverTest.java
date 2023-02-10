@@ -9,6 +9,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -103,6 +104,9 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
+
 		// When
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
@@ -136,6 +140,9 @@ class NotificationReceiverTest {
 		//InternalNotification notification = newNotificationWithPaymentsFlat( );
 		NewNotificationRequest notificationRequest = newNotificationRequest();
 
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
 		// When
 		FileData fileData = FileData.builder()
 				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
@@ -162,6 +169,9 @@ class NotificationReceiverTest {
 		// Given
 		//InternalNotification notification = newNotificationWithoutPayments( );
 		NewNotificationRequest notificationRequest = newNotificationRequest();
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		FileData fileData = FileData.builder()
 				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
@@ -201,6 +211,9 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
 		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 
@@ -223,6 +236,10 @@ class NotificationReceiverTest {
 	void successWriteNotificationWithGroupCheck() {
 		// Given
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setGroup("group1");
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
 		ModelMapper mapper = new ModelMapper();
@@ -234,6 +251,27 @@ class NotificationReceiverTest {
 		// Then
 		Assertions.assertNotNull( response );
 	}
+
+	@Test
+	void successWriteNotificationWithGroupCheckNoGroup() {
+		// Given
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setGroup(null);
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
+
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+
+		// Then
+		Assertions.assertNotNull( response );
+	}
+
 
 	@Test
 	void successNewNotificationGroupCheckNoNotificationGroupNoSelfCareGroups() {
@@ -286,10 +324,10 @@ class NotificationReceiverTest {
 	}
 
 	@Test
-	void failureNewNotificationCauseGroupCheckNoNotificationGroupButSelfCareGroups() {
+	void failureNewNotificationCauseGroupCheckNotificationGroupButSelfCareGroupsSuspendend() {
 		// Given
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
-		newNotificationRequest.setGroup( null );
+		newNotificationRequest.setGroup( "group_1" );
 
 		// When
 		ModelMapper mapper = new ModelMapper();
@@ -297,7 +335,7 @@ class NotificationReceiverTest {
 		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
-				.thenReturn( List.of(new PaGroup().id("group_1")));
+				.thenReturn( List.of(new PaGroup().id("group_1").status(PaGroupStatus.SUSPENDED)));
 
 		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
@@ -348,6 +386,9 @@ class NotificationReceiverTest {
 
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
+
 		// When
 		ModelMapper mapper = new ModelMapper();
 		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
@@ -378,6 +419,9 @@ class NotificationReceiverTest {
 				.addNotification( Mockito.any( InternalNotification.class) );
 
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
 		ModelMapper mapper = new ModelMapper();
