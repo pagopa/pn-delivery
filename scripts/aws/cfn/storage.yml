@@ -48,6 +48,11 @@ Resources:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification:
         StreamViewType: NEW_IMAGE
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-Notifications'
 
   NotificationsCostTable:
     Type: AWS::DynamoDB::Table
@@ -62,6 +67,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-NotificationsCost'
 
 
   NotificationsQRTable:
@@ -86,6 +96,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-NotificationsQR'
 
   NotificationsMetadataTable:
     Type: AWS::DynamoDB::Table
@@ -135,6 +150,11 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: pnInfraFeature
+          Value: pnStorage
+        - Key: pnMicroservice
+          Value: !Sub '${ProjectName}-NotificationsMetadata'
 
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
