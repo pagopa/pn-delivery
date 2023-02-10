@@ -12,6 +12,7 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import it.pagopa.pn.commons.utils.ValidateUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,9 @@ class NotificationReceiverValidationTest {
   @Mock
   private MVPParameterConsumer mvpParameterConsumer;
 
+  @Mock
+  private ValidateUtils validateUtils;
+
   private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
 
   private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
@@ -65,8 +69,9 @@ class NotificationReceiverValidationTest {
   @BeforeEach
   void initializeValidator() {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
+    this.validateUtils = Mockito.mock( ValidateUtils.class );
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer);
+    validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils);
   }
 
   @Test

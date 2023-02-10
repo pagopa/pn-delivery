@@ -255,6 +255,7 @@ Resources:
               - ssm:GetParameters
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdWhiteList'
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:

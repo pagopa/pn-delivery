@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.springbootcfg;
 
+import it.pagopa.pn.commons.abstractions.ParameterConsumer;
 import it.pagopa.pn.commons.abstractions.impl.AbstractCachedSsmParameterConsumer;
 import it.pagopa.pn.commons.configs.aws.AwsConfigs;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
@@ -18,6 +19,8 @@ class ActivatorTest {
     private SsmClient ssmClient;
     @Mock
     private ExceptionHelper exceptionHelper;
+    @Mock
+    private ParameterConsumer parameterConsumer;
 
     @Test
     void activatorTest(){
@@ -28,6 +31,7 @@ class ActivatorTest {
             new ClockConfigActivation();
             new MVPParameterConsumerActivation(abstractCachedSsmParameterConsumer);
             new PnResponseEntityExceptionHandlerActivation(exceptionHelper);
+            new ValidateUtilsActivation( new TaxIdInWhiteListActivation(parameterConsumer) );
         });
     }
 }
