@@ -31,7 +31,7 @@ class ActivatorTest {
             new ClockConfigActivation();
             new MVPParameterConsumerActivation(abstractCachedSsmParameterConsumer);
             new PnResponseEntityExceptionHandlerActivation(exceptionHelper);
-            new ValidateUtilsActivation( new TaxIdInWhiteListActivation(parameterConsumer) );
+            new ValidateUtilsActivation( parameterConsumer );
         });
     }
 }
