@@ -504,7 +504,7 @@ Resources:
         - Key: pnInfraFeature
           Value: pnLambdas
         - Key: pnMicroservice
-          Value: DeliveryInsertTriggerLambda
+          Value: PnDeliveryInsertTriggerLambda
       Code:
         ZipFile: |
               const AWS = require('aws-sdk')
