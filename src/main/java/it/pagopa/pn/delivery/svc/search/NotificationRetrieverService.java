@@ -24,6 +24,7 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
+import it.pagopa.pn.delivery.svc.authorization.CxType;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ import javax.validation.ValidatorFactory;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 
@@ -500,8 +502,28 @@ public class NotificationRetrieverService {
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);
-		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : internalAuthHeader.xPagopaPnCxId(), delegateInfo);
+		String recipientId = delegatorId != null ? delegatorId : internalAuthHeader.xPagopaPnCxId();
+		int recipientIndex = getRecipientIndexFromRecipientId(notification, recipientId);
+		filterTimelinesByRecipient(notification, internalAuthHeader, recipientIndex);
+		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo);
 		return notification;
+	}
+
+	private void filterTimelinesByRecipient(InternalNotification internalNotification, InternalAuthHeader internalAuthHeader, int recipientIndex) {
+		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
+			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
+			//filtro superfluo poiché attualmente il servizio è invocato solo lato destinatario
+			List<TimelineElement> timeline = internalNotification.getTimeline();
+			log.debug("Timelines size before filter: {}", timeline.size());
+
+			List<TimelineElement> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
+							timelineElement.getDetails().getRecIndex() == null ||
+							timelineElement.getDetails().getRecIndex() == recipientIndex)
+					.toList();
+
+			log.debug("Timelines size after filter: {}", filteredTimelineElements.size());
+			internalNotification.setTimeline(filteredTimelineElements);
+		}
 	}
 
 	private String checkMandateForNotificationDetail(String userId, String mandateId) {
@@ -605,23 +627,8 @@ public class NotificationRetrieverService {
 	}
 
 
-	private void notifyNotificationViewedEvent(InternalNotification notification, String recipientId, NotificationViewDelegateInfo delegateInfo) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, NotificationViewDelegateInfo delegateInfo) {
 		String iun = notification.getIun();
-
-		int recipientIndex = -1;
-		for( int idx = 0 ; idx < notification.getRecipientIds().size(); idx++) {
-			String notificationRecipientId = notification.getRecipientIds().get( idx );
-			if( recipientId.equals( notificationRecipientId ) ) {
-				recipientIndex = idx;
-			}
-		}
-
-		if( recipientIndex == -1 ) {
-			log.debug("Recipient not found for iun={} and recipientId={} ", iun, recipientId );
-			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" + iun + " do not have recipient/delegator=" + recipientId,
-					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
-		}
-
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
 		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo );
@@ -669,4 +676,20 @@ public class NotificationRetrieverService {
 			}
 		}
 	}
+
+	private int getRecipientIndexFromRecipientId(InternalNotification internalNotification, String recipientId) {
+		int recIndex = IntStream.range(0, internalNotification.getRecipientIds().size())
+				.filter(i -> internalNotification.getRecipientIds().get(i).equals(recipientId))
+				.findFirst().orElse(-1);
+
+		if( recIndex == -1 ) {
+			log.debug("Recipient not found for iun={} and recipientId={} ", internalNotification.getIun(), recipientId );
+			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" +
+					internalNotification.getIun() + " do not have recipient/delegator=" + recipientId,
+					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
+		}
+
+		return recIndex;
+	}
+
 }
