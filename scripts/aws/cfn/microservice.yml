@@ -278,6 +278,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-b2b'
+        IntendedUsage: B2B
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
         ExcludedRule0: CrossSiteScripting_BODY
 
@@ -302,6 +303,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-web'
+        IntendedUsage: WEB
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
         Limit: 6000
 
@@ -326,6 +328,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-io'
+        IntendedUsage: IO
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
 
   # Dashboard
