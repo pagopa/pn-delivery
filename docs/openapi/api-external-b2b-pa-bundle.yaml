@@ -1139,7 +1139,7 @@ components:
         subject:
           type: string
           description: titolo della notifica
-          maxLength: 512
+          maxLength: 134
         abstract:
           type: string
           description: descrizione sintetica della notifica
@@ -1832,6 +1832,7 @@ components:
         - physicalAddress
         - serviceLevel
         - sentAttemptMade
+        - responseStatus
         - investigation
       properties:
         recIndex:
@@ -1851,6 +1852,8 @@ components:
           description: E' richiesta investigazione indirizzo fisico alternativo
         newAddress:
           $ref: '#/components/schemas/PhysicalAddress'
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
         errors:
           type: array
           x-pn-fieldannotations: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
