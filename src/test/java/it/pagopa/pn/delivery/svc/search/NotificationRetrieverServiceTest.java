@@ -1163,4 +1163,104 @@ class NotificationRetrieverServiceTest {
 
     }
 
+    @Test
+    void getNotificationFilteredByRecIndex() {
+        InternalNotification internalNotification = getNewInternalNotification();
+        enrichInternalNotificationWithAnotherRecipient(internalNotification, "another-recipient");
+
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                        .elementId( "elementId" )
+                        .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
+                new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                        .elementId( "elementId_1" )
+                        .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) )
+                        .details(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementDetails().recIndex(1)));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+        //When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+
+        //Then
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
+        //mi aspetto che il destinatario che invoca il servizio (cxid, con indice 0), non "veda" la timeline di VIEWD poiché "appartiene" al destinatario another-recipient con indice 1
+        Assertions.assertEquals(1, internalNotificationResult.getTimeline().size());
+        Assertions.assertEquals(TimelineElementCategory.REFINEMENT, internalNotification.getTimeline().get(0).getCategory());
+    }
+
+    @Test
+    void getNotificationNotFilteredByRecIndex() {
+        InternalNotification internalNotification = getNewInternalNotification();
+        enrichInternalNotificationWithAnotherRecipient(internalNotification, "another-recipient");
+
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                        .elementId( "elementId" )
+                        .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
+                new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                        .elementId( "elementId_1" )
+                        .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) )
+                        .details(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementDetails().recIndex(0)));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+        //When
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+
+        //Then
+        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
+        //mi aspetto che il destinatario che invoca il servizio (cxid, con indice 0), "veda" anche la timeline di VIEWD poiché "appartiene" a lui
+        Assertions.assertEquals(2, internalNotificationResult.getTimeline().size());
+    }
+
+    private void enrichInternalNotificationWithAnotherRecipient(InternalNotification internalNotification, String recipient) {
+        ArrayList<NotificationRecipient> notificationRecipients = new ArrayList<>(internalNotification.getRecipients());
+        notificationRecipients.add(NotificationRecipient.builder()
+                .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+                .payment(NotificationPaymentInfo.builder()
+                        .creditorTaxId("88888888")
+                        .noticeCode(NOTICE_CODE + 1)
+                        .noticeCodeAlternative(NOTICE_CODE_ALTERNATIVE + 1)
+                        .build())
+                .build());
+
+        internalNotification.setRecipients(notificationRecipients);
+        ArrayList<String> recipientIds = new ArrayList<>(internalNotification.getRecipientIds());
+        recipientIds.add(recipient);
+        internalNotification.setRecipientIds(recipientIds);
+    }
+
 }
