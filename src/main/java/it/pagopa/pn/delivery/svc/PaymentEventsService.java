@@ -42,19 +42,21 @@ public class PaymentEventsService {
         this.checkAuthComponent = checkAuthComponent;
     }
 
-    public void handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, PaymentEventsRequestPagoPa paymentEventsRequest) {
+    public String handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, PaymentEventsRequestPagoPa paymentEventsRequest) {
         List<PaymentEventPagoPa> paymentRequests = paymentEventsRequest.getEvents();
         List<InternalPaymentEvent> paymentEvents = new ArrayList<>( paymentRequests.size() );
 
+        String iun = null;
+        String creditorTaxId;
+        String noticeCode;
+        int recipientIdx;
+        String recipientType;
+        PnDeliveryPaymentEvent.PaymentType paymentType = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
+
         // per ogni evento di pagamento nella lista di eventi
         for ( PaymentEventPagoPa paymentRequest : paymentRequests ) {
-
-            String creditorTaxId = paymentRequest.getCreditorTaxId();
-            String noticeCode = paymentRequest.getNoticeCode();
-            String iun;
-            int recipientIdx;
-            String recipientType;
-            PnDeliveryPaymentEvent.PaymentType paymentType = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
+            creditorTaxId = paymentRequest.getCreditorTaxId();
+            noticeCode = paymentRequest.getNoticeCode();
 
             InternalNotification internalNotification;
 
@@ -102,6 +104,7 @@ public class PaymentEventsService {
         }
         // pubblico eventi sulla coda di delivery-push
         paymentEventsProducer.sendPaymentEvents( paymentEvents );
+        return iun;
     }
 
     public void handlePaymentEventsF24(String cxTypePa, String cxIdPaId, PaymentEventsRequestF24 paymentEventsRequestF24) {
