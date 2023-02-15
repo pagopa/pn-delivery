@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
+import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroupStatus;
@@ -73,6 +74,7 @@ class NotificationReceiverTest {
 	private FileStorage fileStorage;
 	private ModelMapperFactory modelMapperFactory;
 	private MVPParameterConsumer mvpParameterConsumer;
+	private ValidateUtils validateUtils;
 	private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 
 	@BeforeEach
@@ -84,10 +86,13 @@ class NotificationReceiverTest {
 		modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
 		mvpParameterConsumer = Mockito.mock( MVPParameterConsumer.class );
 		pnExternalRegistriesClient = Mockito.mock( PnExternalRegistriesClientImpl.class );
+		validateUtils = Mockito.mock( ValidateUtils.class );
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils);
+
+		Mockito.when( validateUtils.validate( Mockito.anyString() ) ).thenReturn( true );
 
 		deliveryService = new NotificationReceiverService(
 				clock,

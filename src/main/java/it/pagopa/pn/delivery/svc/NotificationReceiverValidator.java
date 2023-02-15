@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
+import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
@@ -20,10 +21,12 @@ public class NotificationReceiverValidator {
 
     private final Validator validator;
     private final MVPParameterConsumer mvpParameterConsumer;
+    private final ValidateUtils validateUtils;
 
-    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer) {
+    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils) {
         this.validator = validator;
         this.mvpParameterConsumer = mvpParameterConsumer;
+        this.validateUtils = validateUtils;
     }
 
     public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
@@ -50,16 +53,21 @@ public class NotificationReceiverValidator {
     }
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
-      Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();          
-      if ( internalNotification.getRecipients().size() > 1 ) {   
-          Set<String> distinctTaxIds = new HashSet<>();
-          for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
-              if ( !distinctTaxIds.add( recipient.getTaxId() )){
-                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
-                  errors.add( constraintViolation );
-              }
+      Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+
+      int recIdx = 0;
+      Set<String> distinctTaxIds = new HashSet<>();
+      for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+          if( !validateUtils.validate( recipient.getTaxId() ) ) {
+              ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
+              errors.add( constraintViolation );
           }
-      }         
+          if ( !distinctTaxIds.add( recipient.getTaxId() )){
+              ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+              errors.add( constraintViolation );
+          }
+          recIdx++;
+      }
       errors.addAll(validator.validate( internalNotification ));
       return errors;
     }
