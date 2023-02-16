@@ -28,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class StatusServiceTest {
 
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+
     @Mock
     private NotificationDao notificationDao;
     @Mock
@@ -65,8 +67,7 @@ class StatusServiceTest {
                         .taxId( "CodiceFiscale" )
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .build()) )
-                .build(), List.of( "recipientId" )));
-
+                .build(), List.of( "recipientId" ), X_PAGOPA_PN_SRC_CH));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         Mockito.when( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, "CodiceFiscale" ) )
                 .thenReturn( "CodiceFiscale" );

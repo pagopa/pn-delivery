@@ -61,6 +61,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         NotificationCostResponse response;
         try {
             response = priceService.getNotificationCost( paTaxId, noticeCode );
+            logEvent.getMdc().put("iun", response.getIun());
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("Exception on get notification cost private= " + exc.getProblem()).log();
@@ -88,6 +89,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ResponseCheckAarDto responseCheckAarDto;
         try {
             responseCheckAarDto = qrService.getNotificationByQR( requestCheckAarDto );
+            logEvent.getMdc().put("iun", responseCheckAarDto.getIun());
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("Exception on get notification qr private= " + exc.getProblem()).log();

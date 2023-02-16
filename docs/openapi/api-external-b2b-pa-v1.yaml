@@ -375,7 +375,7 @@ servers:
 tags:
   - name: HealthCheck
     description: >-
-      Invocazioni per sapere lo stato di Piattaforma Notifiche
+      Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è ancora in fase di sviluppo
   - name: NewNotification
     description: >-
       Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
@@ -842,6 +842,10 @@ paths:
 components:
   
   parameters:
+    ############################################################################################
+    ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
+    ############################################################################################
+     
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################

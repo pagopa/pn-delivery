@@ -10,7 +10,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -41,6 +40,7 @@ public class NotificationEntity {
     public static final String FIELD_PAYMENT_EXPIRATION_DATE = "paymentExpirationDate";
     public static final String FIELD_REQUEST_ID = "requestId";
     public static final String FIELD_TAXONOMY_CODE = "taxonomyCode";
+    public static final String FIELD_SOURCE_CHANNEL = "sourceChannel";
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String notificationAbstract;
@@ -63,5 +63,6 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENT_EXPIRATION_DATE)})) private String paymentExpirationDate;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUEST_ID)})) private String requestId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_TAXONOMY_CODE)})) private String taxonomyCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL)})) private String sourceChannel;
 
 }

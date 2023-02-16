@@ -63,6 +63,7 @@ class PnInternalNotificationsControllerTest {
     private static final int DOCUMENT_IDX = 0;
     public static final String AAR_QR_CODE_VALUE = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
     public static final String URL_AAR_QR_VALUE = "https://fake.domain.com/notifica?aar=WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 
 
     @Autowired
@@ -667,6 +668,6 @@ class PnInternalNotificationsControllerTest {
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))
-                .build(), Collections.singletonList("recipientId"));
+                .build(), Collections.singletonList("recipientId"), X_PAGOPA_PN_SRC_CH);
     }
 }

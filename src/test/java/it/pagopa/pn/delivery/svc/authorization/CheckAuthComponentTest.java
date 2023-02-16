@@ -21,6 +21,7 @@ import java.util.Collections;
 
 class CheckAuthComponentTest {
 
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     @Mock
     private PnMandateClientImpl mandateClient;
 
@@ -227,6 +228,6 @@ class CheckAuthComponentTest {
                 .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
                         .status( NotificationStatus.ACCEPTED )
                         .build() ) )
-                .build(), Collections.singletonList( "recipientId" ));
+                .build(), Collections.singletonList( "recipientId" ), X_PAGOPA_PN_SRC_CH);
     }
 }

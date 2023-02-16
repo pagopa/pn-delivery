@@ -9,6 +9,8 @@ public class PnDeliveryRestConstants {
     public static final String CX_TYPE_HEADER = "x-pagopa-pn-cx-type";
     public static final String CX_GROUPS_HEADER = "x-pagopa-pn-cx-groups";
 
+    public static final String SOURCE_CHANNEL_HEADER = "x-pagopa-pn-src-ch";
+
 
     private static final String DELIVERY_PATH = "delivery";
     private static final String DELIVERY_PATH_PRIVATE = "delivery-private";

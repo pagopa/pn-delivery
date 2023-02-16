@@ -37,7 +37,7 @@ public class PnNotificationInputController implements NewNotificationApi {
     }
 
     @Override
-    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}", paProtocolNumber)
@@ -45,7 +45,7 @@ public class PnNotificationInputController implements NewNotificationApi {
         logEvent.log();
         NewNotificationResponse svcRes;
         try {
-            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnCxGroups);
+            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnSrcCh, xPagopaPnCxGroups);
         } catch (PnRuntimeException ex) {
             logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + ex.getProblem(),
                     newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken()).log();
@@ -58,7 +58,6 @@ public class PnNotificationInputController implements NewNotificationApi {
         logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}", requestId, protocolNumber).log();
         return ResponseEntity.accepted().body( svcRes );
     }
-
 
     @Override
     public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(

@@ -37,7 +37,9 @@ public class PnPaymentEventsController implements PaymentEventsApi {
                 .build();
         logEvent.log();
         try {
-            paymentEventsService.handlePaymentEventsPagoPa(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnCxGroups, paymentEventsRequestPagoPa);
+            String iun = paymentEventsService.handlePaymentEventsPagoPa(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnCxGroups, paymentEventsRequestPagoPa);
+            logEvent.getMdc().put("iun", iun);
+            logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
@@ -54,6 +56,9 @@ public class PnPaymentEventsController implements PaymentEventsApi {
         logEvent.log();
         try {
             paymentEventsService.handlePaymentEventsF24(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnCxGroups, paymentEventsRequestF24);
+            logEvent.getMdc().put("iun", paymentEventsRequestF24.getEvents().get(0).getIun());
+            logEvent.generateSuccess().log();
+
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;

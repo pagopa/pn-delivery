@@ -97,4 +97,5 @@ public class PnDeliveryConfigs {
         private String raccomandataEstZona2;
         private String raccomandataEstZona3;
     }
+
 }
