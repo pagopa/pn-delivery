@@ -520,7 +520,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
         required: true
       responses:
         '202':
@@ -628,7 +628,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
         '200':
           description: OK
@@ -679,7 +679,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
       responses:
         '200':
@@ -687,7 +687,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -720,7 +720,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
       responses:
@@ -729,7 +729,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -761,7 +761,7 @@ paths:
       operationId: getLegalFact                                                     # NO EXTERNAL
 #      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
       parameters: # ONLY EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
       responses: # ONLY EXTERNAL
@@ -802,14 +802,14 @@ paths:
           required: true                                                            # ONLY EXTERNAL
           example: '77777777777'                                                    # ONLY EXTERNAL
           schema: # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'     # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'     # ONLY EXTERNAL
         - name: noticeCode                                                          # ONLY EXTERNAL
           description: Payment notice number  numero avviso                         # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
           example: '302000100000019421'                                             # ONLY EXTERNAL
           schema: # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'  # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'  # ONLY EXTERNAL
       responses: # ONLY EXTERNAL
         '200': # ONLY EXTERNAL
           description: OK                                                           # ONLY EXTERNAL
@@ -1092,7 +1092,7 @@ components:
       type: object
       properties:
         iun:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/IUN'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
         amount:
           description: amount in euro cents
           example: '1220'
@@ -1132,7 +1132,7 @@ components:
     
     NewNotificationRequestStatusResponse:
       allOf:
-        - $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
         - type: object
           required:
             - notificationRequestId
@@ -1155,7 +1155,7 @@ components:
                 Numero di secondi da attendere prima di effettuare una nuova richiesta per 
                 la stessa entità; valorizzato quando lo status è __WAITING__.
             iun:
-              $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/IUN"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/IUN"
             errors:
               description: >-
                 Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
@@ -1178,7 +1178,7 @@ components:
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
         - type: object
           required:
             - notificationStatus
@@ -1251,9 +1251,9 @@ components:
         - paymentDate
       properties:
         noticeCode:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         creditorTaxId:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
         paymentDate:
           type: string
           format: date-time
@@ -1279,7 +1279,7 @@ components:
           type: string
           format: date-time
         recipientTaxId:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/TaxId'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/TaxId'
         recipientType:
           type: string
           pattern: "PF|PG"

@@ -275,11 +275,11 @@ components:
         - creditorTaxId
       properties:
         noticeCode:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         creditorTaxId:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
         noticeCodeAlternative:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         pagoPaForm:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24flatRate:

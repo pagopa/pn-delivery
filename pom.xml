@@ -206,7 +206,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-pa-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-pa.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
@@ -237,7 +237,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-private.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
@@ -267,7 +267,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-pa-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-pa.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
@@ -297,7 +297,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-recipient-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-recipient.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
@@ -328,7 +328,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/appio/api-internal-b2b-appio-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/appio/api-internal-b2b-appio.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />

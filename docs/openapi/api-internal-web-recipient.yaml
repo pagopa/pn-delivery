@@ -1,11 +1,12 @@
 openapi: 3.0.3
 info:
   termsOfService: https://notifichedigitali.pagopa.it/cittadini/informativa-privacy/index.html
-  x-api-id: api-external-web-recipient # ONLY EXTERNAL
+  x-api-id: api-internal-web-recipient # NO EXTERNAL
+  #  x-api-id: api-external-web-recipient # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API web per i destinatari'
   x-summary: 'Piattaforma Notifiche: API web per i destinatari'
   version: '1.0.0'
-  description: >- 
+  description: >-
     API per il destinatario delle notifiche
   contact:
     email: pn@pagopa.it
@@ -13,12 +14,12 @@ info:
     name: Licenza di PN
     url: 'https://da-definire/'
 servers:
-- url: https://api.pn.pagopa.it
-  description: Ambiente di produzione
-- url: https://api.svil.pn.pagopa.it
-  description: Ambiente di test
-- url: https://api.dev.pn.pagopa.it
-  description: Ambiente di sviluppo
+  - url: https://api.pn.pagopa.it
+    description: Ambiente di produzione
+  - url: https://api.svil.pn.pagopa.it
+    description: Ambiente di test
+  - url: https://api.dev.pn.pagopa.it
+    description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
     description: >-
@@ -45,7 +46,7 @@ paths:
     ###                             RICERCA NOTIFICHE RICEVUTE                             ###
     ###########################################################################################
   "/delivery/notifications/received":
-    get:    
+    get:
       summary: Ricerca notifiche inviate
       description: >-
         servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
@@ -53,27 +54,31 @@ paths:
       tags:
         - RecipientRead
       operationId: searchReceivedNotification
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStartDate'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchEndDate'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchMandateId'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchSenderId'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStatus'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchSubject'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchIun'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchPageSize'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchNextPagesKey'
+        - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatus'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSubject'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationSearchResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
         '400':
-          description: Bad request       
+          description: Bad request
           content:
             application/problem+json:
               schema:
@@ -93,24 +98,26 @@ paths:
       tags:
         - RecipientRead
       operationId: searchReceivedDelegatedNotification
-      security:                                   # ONLY EXTERNAL
-        - bearerAuth: [ ]                         # ONLY EXTERNAL
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStartDate'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchEndDate'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchSenderId'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchRecipientId'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchGroup'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchStatus'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchPageSize'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchNextPagesKey'
+        - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchGroup'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatus'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationSearchResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
         '400':
           description: Bad request
           content:
@@ -123,7 +130,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  
+
   "/delivery/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
@@ -133,11 +140,15 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotification
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/notificationSearchMandateId'
+        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
       responses:
         '200':
           description: OK
@@ -159,7 +170,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-    
+
     ###########################################################################################
     ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
     ###########################################################################################
@@ -170,10 +181,14 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationDocument
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryMandateId'
       responses:
@@ -182,7 +197,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -196,8 +211,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'          
-          
+                $ref: '#/components/schemas/Problem'
 
   "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:
@@ -205,10 +219,14 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
       responses:
@@ -217,7 +235,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -242,12 +260,28 @@ paths:
       description: |-
         Servizio per la verifica accesso rapido
 
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | WEB                |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Read               |
+        | __Cachable__             | No                 |
+        </details>
       summary: servizio per la verifica del aar-qr-code
       tags:
-      - RecipientRead
+        - RecipientRead
       operationId: checkAarQrCode
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      parameters:                                                   # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
       requestBody:
         content:
           application/json:
@@ -278,10 +312,14 @@ paths:
       tags:                                                                               # ONLY EXTERNAL
         - LegalFacts                                                                      # ONLY EXTERNAL
       operationId: getLegalFact                                                           # ONLY EXTERNAL
-      security:                                                                           # ONLY EXTERNAL
-        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
+#      security:                                                                           # ONLY EXTERNAL
+#        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
       parameters:                                                                         # ONLY EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                                    # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'                                 # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'                                   # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'                               # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                               # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                                 # ONLY EXTERNAL
       responses:                                                                          # ONLY EXTERNAL
@@ -305,13 +343,21 @@ paths:
                 $ref: '#/components/schemas/Problem'                                      # ONLY EXTERNAL
 
 components:
-  
+
   parameters:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
+    cxTypeAuthFleet:                                                               # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'            # NO EXTERNAL
+    cxIdAuthFleet:                                                                 # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'              # NO EXTERNAL
+    cxGroupsAuthFleet:                                                             # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'          # NO EXTERNAL
+    uidAuthFleet:                                                                  # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
 
-    
+
     ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
     ############################################################################################
@@ -342,7 +388,7 @@ components:
       required: false
       schema:
         type: string
-    
+
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
     ############################################################################################
@@ -358,14 +404,14 @@ components:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
-      allOf: 
-        - $ref: './schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
+      allOf:
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
         - type: object
-          required: 
+          required:
             - notificationStatus
             - notificationStatusHistory
             - timeline
-          properties:  
+          properties:
             notificationStatus:
               $ref: '#/components/schemas/NotificationStatus'
             notificationStatusHistory:
@@ -379,7 +425,7 @@ components:
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
-    
+
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
@@ -410,16 +456,16 @@ components:
         - iun
       properties:
         iun:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/IUN'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
         mandateId:
           description: identificativo della delega
           type: string
 
 
-  securitySchemes:                                      # ONLY EXTERNAL
-    bearerAuth:                                         # ONLY EXTERNAL
-      type: http                                        # ONLY EXTERNAL
-      scheme: bearer                                    # ONLY EXTERNAL
-      bearerFormat: JWT                                 # ONLY EXTERNAL
-security:                                               # ONLY EXTERNAL
- - bearerAuth: []                                       # ONLY EXTERNAL
+#  securitySchemes:                                      # ONLY EXTERNAL
+#    bearerAuth:                                         # ONLY EXTERNAL
+#      type: http                                        # ONLY EXTERNAL
+#      scheme: bearer                                    # ONLY EXTERNAL
+#      bearerFormat: JWT                                 # ONLY EXTERNAL
+#security:                                               # ONLY EXTERNAL
+# - bearerAuth: []                                       # ONLY EXTERNAL
