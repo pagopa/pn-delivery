@@ -12,9 +12,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.NONE)
 public class PgUtils {
 
-    public static boolean checkAuthorizationPGAndValuedGroups(String recipientType, List<String> cxGroups) {
-        if (CxTypeAuthFleet.valueOf(recipientType) == CxTypeAuthFleet.PG && !(CollectionUtils.isEmpty(cxGroups))) {
-            log.warn("only a PG admin can access this resource");
+    public static boolean checkAuthorizationPG(String recipientType, List<String> cxGroups) {
+        if (CxTypeAuthFleet.valueOf(recipientType) == CxTypeAuthFleet.PG && !CollectionUtils.isEmpty(cxGroups)) {
+            log.warn("only a PG admin/operator without groups can access this resource");
             return true;
         }
         log.debug("access granted for {}, groups: {}", recipientType, cxGroups);

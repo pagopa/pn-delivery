@@ -49,7 +49,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
-import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPGAndValuedGroups;
+import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPG;
 
 @Service
 @Slf4j
@@ -127,9 +127,9 @@ public class NotificationRetrieverService {
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
 				checkMandate(searchDto, mandateId, recipientType, cxGroups);
-			} else if (checkAuthorizationPGAndValuedGroups(recipientType, cxGroups)) {
-				log.error("only a PG admin can access this resource");
-				throw new PnForbiddenException();
+			} else if (checkAuthorizationPG(recipientType, cxGroups)) {
+				log.error("PG {} can not access this resource", searchDto.getSenderReceiverId());
+				throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
 			}
 		}
 
@@ -192,7 +192,7 @@ public class NotificationRetrieverService {
 		if (!CollectionUtils.isEmpty(searchDto.getCxGroups())
 				&& (!StringUtils.hasText(searchDto.getGroup()) || !searchDto.getCxGroups().contains(searchDto.getGroup()))) {
 			log.warn("user with cx-groups {} can not access notification delegated to group {}", searchDto.getCxGroups(), searchDto.getGroup());
-			throw new PnForbiddenException();
+			throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
 		}
 
 		log.info("start search delegated notification - delegateId={}", searchDto.getDelegateId());
@@ -579,9 +579,9 @@ public class NotificationRetrieverService {
 					.operatorUuid(internalAuthHeader.xPagopaPnUid())
 					.delegateType( NotificationViewDelegateInfo.DelegateType.valueOf(internalAuthHeader.cxType()) )
 					.build();
-		} else if (checkAuthorizationPGAndValuedGroups(internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups())) {
+		} else if (checkAuthorizationPG(internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups())) {
 			log.error( "only a PG admin can access this resource" );
-			throw new PnForbiddenException();
+			throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
 		}
 
 		InternalNotification notification = getNotificationInformation(iun);
