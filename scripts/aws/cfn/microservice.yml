@@ -337,6 +337,7 @@ Resources:
               - sqs:SendMessage
             Resource:
               - !Ref DeliveryPushInputsQueueARN
+              - !Ref Mandate2DeliveryQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -586,22 +587,6 @@ Resources:
                 - "kms:Decrypt"
                 Effect: Allow
                 Resource: "*"
-
-  Mandate2DeliveryQueuePolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: !Sub '${ProjectName}-Mandate2DeliveryQueuePolicy'
-      Roles:
-        - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - sqs:ReceiveMessage
-              - sqs:GetQueueUrl
-            Resource:
-              - !Ref Mandate2DeliveryQueueARN
 
   PnDeliveryInsertTriggerLambdaAlarms:
     Type: AWS::CloudFormation::Stack
