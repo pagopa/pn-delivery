@@ -22,7 +22,7 @@ servers:
     description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
-    description: Invocazioni per sapere lo stato di Piattaforma Notifiche
+    description: 'Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è ancora in fase di sviluppo'
   - name: NewNotification
     description: Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
   - name: SenderReadB2B
@@ -540,6 +540,8 @@ components:
     PreLoadRequest:
       title: Richiesta di precaricamento di un File
       type: object
+      required:
+        - sha256
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
@@ -552,6 +554,7 @@ components:
               - application/pdf
           type: string
           example: application/pdf
+          default: application/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato

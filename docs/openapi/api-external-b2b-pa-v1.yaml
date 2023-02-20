@@ -938,6 +938,8 @@ components:
     PreLoadRequest:
       title: Richiesta di precaricamento di un File
       type: object
+      required:
+        - sha256
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
@@ -951,6 +953,7 @@ components:
               - application/pdf
           type: string
           example: application/pdf
+          default: "application/pdf"
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
