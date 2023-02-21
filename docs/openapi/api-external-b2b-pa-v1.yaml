@@ -938,6 +938,8 @@ components:
     PreLoadRequest:
       title: Richiesta di precaricamento di un File
       type: object
+      required:
+        - sha256
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
