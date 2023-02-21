@@ -33,6 +33,7 @@ public class PnNotificationPriceController implements NotificationPriceApi {
         NotificationPriceResponse response;
         try {
             response = service.getNotificationPrice( paTaxId, noticeCode );
+            logEvent.getMdc().put("iun", response.getIun());
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("Exception on get notification price= " + exc.getProblem()).log();
