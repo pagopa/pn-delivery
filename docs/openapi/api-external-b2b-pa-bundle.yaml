@@ -554,7 +554,6 @@ components:
               - application/pdf
           type: string
           example: application/pdf
-          default: application/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato
