@@ -29,12 +29,8 @@ class PnNotificationInputControllerTest {
 
 	private static final String PA_ID = "paId";
 	private static final String IUN = "IUN";
-	private static final String PA_NOTIFICATION_ID = "paNotificationId";
-	private static final String SUBJECT = "subject";
-	public static final String DOCUMENT_KEY = "doc_1";
 	public static final Integer MAX_NUMBER_REQUESTS = 1;
 	private static final String SECRET = "secret";
-	private static final String METHOD = "PUT";
 	private static final String URL = "url";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
 	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
@@ -316,12 +312,10 @@ class PnNotificationInputControllerTest {
 		// Given
 		List<PreLoadRequest> requests = new ArrayList<>();
 		requests.add( PreLoadRequest.builder()
-				.preloadIdx( DOCUMENT_KEY )
 				.sha256( FILE_SHA_256 )
 				.build());
 		List<PreLoadResponse> responses = new ArrayList<>();
 		responses.add( PreLoadResponse.builder()
-				.key( DOCUMENT_KEY )
 				.secret( SECRET )
 				.httpMethod( PreLoadResponse.HttpMethodEnum.PUT )
 				.url( URL )
@@ -354,13 +348,10 @@ class PnNotificationInputControllerTest {
 		//GIven
 		List<PreloadRequest> requests = new ArrayList<>();
 		requests.add( PreloadRequest.builder()
-				.key( DOCUMENT_KEY )
 				.build());
 		requests.add( PreloadRequest.builder()
-				.key( DOCUMENT_KEY )
 				.build());
 		requests.add( PreloadRequest.builder()
-				.key( DOCUMENT_KEY )
 				.build());
 
 		Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn( MAX_NUMBER_REQUESTS );
