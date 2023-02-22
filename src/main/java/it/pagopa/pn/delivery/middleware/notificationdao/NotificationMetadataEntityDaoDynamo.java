@@ -283,7 +283,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             // devo restituire solo le righe con PaId mittente permessa nelle deleghe
             log.debug( "Add paIds filter expression" );
             if ( expressionBuilder.length() > 0 )
-                expressionBuilder.append( " AND ( " );
+                expressionBuilder.append( " AND  ( " );
             else {
                 expressionBuilder.append( " ( " );
             }
