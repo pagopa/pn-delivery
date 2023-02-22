@@ -174,17 +174,14 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
     private String retrieveAttributeName(String indexName) {
         String attributeName;
-        switch ( indexName ) {
-            case NotificationMetadataEntity.FIELD_SENDER_ID:
-                attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH; break;
-            case NotificationMetadataEntity.FIELD_RECIPIENT_ID:
-                attributeName = NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH; break;
-            case NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID:
-                attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID; break;
-            default: {
-                String msg = String.format( "Unable to retrieve attributeName by indexName=%s", indexName );
-                log.error( msg );
-                throw new PnInternalException( msg, ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME );
+        switch (indexName) {
+            case NotificationMetadataEntity.FIELD_SENDER_ID -> attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH;
+            case NotificationMetadataEntity.FIELD_RECIPIENT_ID -> attributeName = NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH;
+            case NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID -> attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID;
+            default -> {
+                String msg = String.format("Unable to retrieve attributeName by indexName=%s", indexName);
+                log.error(msg);
+                throw new PnInternalException(msg, ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME);
             }
         }
         return attributeName;
@@ -198,6 +195,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         addRecipientOneFilterExpression( inputSearchNotificationDto, filterExpressionBuilder, expressionBuilder );
         addStatusFilterExpression( inputSearchNotificationDto.getStatuses(), filterExpressionBuilder, expressionBuilder);
         addGroupFilterExpression( inputSearchNotificationDto.getGroups(), filterExpressionBuilder, expressionBuilder);
+        addPaIdsFilterExpression( inputSearchNotificationDto.getMandateAllowedPaIds(), filterExpressionBuilder, expressionBuilder);
 
         requestBuilder.filterExpression(filterExpressionBuilder
                 .expression(expressionBuilder.length() > 0 ? expressionBuilder.toString() : null)
@@ -276,6 +274,30 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             expressionBuilder.append(" OR attribute_not_exists(notificationGroup) )");
         }
     }
+
+
+    private void addPaIdsFilterExpression(List<String> mandateAllowedPaIds,
+                                          Expression.Builder filterExpressionBuilder,
+                                          StringBuilder expressionBuilder) {
+        if ( !CollectionUtils.isEmpty( mandateAllowedPaIds )) {
+            // devo restituire solo le righe con PaId mittente permessa nelle deleghe
+            log.debug( "Add paIds filter expression" );
+            if ( expressionBuilder.length() > 0 )
+                expressionBuilder.append( " AND ( " );
+            else {
+                expressionBuilder.append( " ( " );
+            }
+
+            expressionBuilder.append( " contains(senderId, :mandateAllowedPaIds ) ) " );
+
+            filterExpressionBuilder.putExpressionValue(":mandateAllowedPaIds",
+                    AttributeValue.builder()
+                            .ss(mandateAllowedPaIds)
+                            .build());
+        }
+    }
+
+
 
     @Override
     public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) {

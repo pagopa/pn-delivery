@@ -410,6 +410,37 @@ class NotificationMetadataEntityDaoDynamoTestIT {
         Assertions.assertNotNull( result );
     }
 
+
+    @Test
+    void searchNotificationMetadataWithPAIDsFilter() {
+        //Given
+        List<String> paids = new ArrayList<>();
+        paids.add("paid1");
+
+
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "c_h501" )
+                .size( 10 )
+                .mandateAllowedPaIds( paids )
+                .build();
+
+        String indexName = "senderId";
+        String partitionValue = "c_h501##202205";
+
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
+                inputSearch,
+                indexName,
+                partitionValue,
+                inputSearch.getSize(),
+                null
+        );
+
+        Assertions.assertNotNull( result );
+    }
+
     @Test
     void putIfAbsent() throws PnIdConflictException {
         //Given
