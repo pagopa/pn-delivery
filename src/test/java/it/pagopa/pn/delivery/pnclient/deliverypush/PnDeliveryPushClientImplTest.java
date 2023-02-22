@@ -18,8 +18,6 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @ExtendWith(MockitoExtension.class)
 class PnDeliveryPushClientImplTest {
 
@@ -62,7 +60,7 @@ class PnDeliveryPushClientImplTest {
         // When
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
-        NotificationHistoryResponse notificationHistoryResponse = deliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.eq(OffsetDateTime.now()) );
+        NotificationHistoryResponse notificationHistoryResponse = deliveryPushClient.getTimelineAndStatusHistory( "iun", 1, OffsetDateTime.now() );
 
         // Then
         Assertions.assertNotNull( notificationHistoryResponse );
