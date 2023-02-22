@@ -40,7 +40,7 @@ class PnExternalRegistriesClientImplTest {
     void setup() {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         Mockito.when( cfg.getExternalRegistriesBaseUrl() ).thenReturn( "http://localhost:8080" );
-        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         this.externalRegistriesClient = new PnExternalRegistriesClientImpl( restTemplate, cfg );
     }
 

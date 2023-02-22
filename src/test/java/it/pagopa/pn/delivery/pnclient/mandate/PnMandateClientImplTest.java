@@ -37,7 +37,7 @@ class PnMandateClientImplTest {
     void setup() {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         Mockito.when( cfg.getMandateBaseUrl() ).thenReturn( "http://localhost:8080" );
-        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         this.mandateClient = new PnMandateClientImpl( restTemplate, cfg );
     }
 
