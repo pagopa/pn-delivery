@@ -186,6 +186,106 @@ class NotificationRetrieverServiceTest {
         Assertions.assertNotNull( result );
     }
 
+
+    @Test
+    void checkMandate_notfound() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( false )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "SENDER_ID" )
+                .filterId( "EEEEEEEEEEEEEEEE" )
+                .size( 10 )
+                .mandateId(MANDATE_ID)
+                .nextPagesKey( null )
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch ) );
+
+    }
+
+
+    @Test
+    void checkMandate_ok() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( false )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( UID )
+                .filterId( "EEEEEEEEEEEEEEEE" )
+                .size( 10 )
+                .mandateId(MANDATE_ID)
+                .nextPagesKey( null )
+                .build();
+
+
+        //When
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId( MANDATE_ID );
+        internalMandateDto.setDelegate( UID );
+        internalMandateDto.setDelegator( CX_ID  );
+        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
+
+        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(mandateResult);
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+
+        // Then
+        Assertions.assertNotNull( result );
+    }
+
+
+
+    @Test
+    void checkMandate_invalidPAId() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( false )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( UID )
+                .filterId( "EEEEEEEEEEEEEEEE" )
+                .size( 10 )
+                .mandateId(MANDATE_ID)
+                .nextPagesKey( null )
+                .build();
+
+
+        //When
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId( MANDATE_ID );
+        internalMandateDto.setDelegate( UID );
+        internalMandateDto.setDelegator( CX_ID  );
+        internalMandateDto.setVisibilityIds(List.of(SENDER_ID + "OTHER"));
+        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
+
+        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(mandateResult);
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch ) );
+
+    }
+
     @NotNull
     private ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> getPaginatedNotifications() {
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = new ResultPaginationDto<>();
