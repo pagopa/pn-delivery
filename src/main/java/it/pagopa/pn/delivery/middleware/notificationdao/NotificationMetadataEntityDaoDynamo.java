@@ -177,7 +177,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         res.setResults( page.items() );
         res.setLastEvaluatedKey(page.lastEvaluatedKey());
 
-        log.debug( "END search for one month readRows={} lastEvaluatedKey={}", (page.items()==null?0:page.items().size()), page.lastEvaluatedKey());
+        log.trace( "END search for one month readRows={} lastEvaluatedKey={}", (page.items()==null?0:page.items().size()), page.lastEvaluatedKey());
         return res;
     }
 

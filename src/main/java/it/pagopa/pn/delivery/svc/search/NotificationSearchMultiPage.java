@@ -164,7 +164,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
     protected int readDataFromPartition(int currentRequest, String partition, List<NotificationMetadataEntity> cumulativeQueryResult,
                                       PnLastEvaluatedKey lastEvaluatedKey,
                                       Integer requiredSize, int dynamoDbPageSize) {
-        log.debug( "START compute partition read trunk partition={} indexName={} currentRequest={} dynamoDbPageSize={}", partition,  indexNameAndPartitions.getIndexName(), currentRequest++, dynamoDbPageSize );
+        log.debug( "START compute partition read trunk indexName={}  partition={} currentRequest={} dynamoDbPageSize={}",  indexNameAndPartitions.getIndexName(), partition, currentRequest++, dynamoDbPageSize );
 
         PageSearchTrunk<NotificationMetadataEntity> oneQueryResult;
         oneQueryResult = notificationDao.searchForOneMonth(
@@ -173,7 +173,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
                 partition,
                 dynamoDbPageSize,
                 lastEvaluatedKey);
-        log.debug( "END search for one month indexName={} partitionValue={} dynamoDbPageSize={}", indexNameAndPartitions.getIndexName(), partition, dynamoDbPageSize);
+        log.debug( "END search for one month indexName={} partitionValue={} dynamoDbPageSize={} rowsRead={}", indexNameAndPartitions.getIndexName(), partition, dynamoDbPageSize, (oneQueryResult.getResults()==null?0:oneQueryResult.getResults().size()) );
 
         // inserisco i risultati della query ad una singola partizione nei risultati cumulativi di ricerca
         // viene eseguito il "distinct" per IUN
