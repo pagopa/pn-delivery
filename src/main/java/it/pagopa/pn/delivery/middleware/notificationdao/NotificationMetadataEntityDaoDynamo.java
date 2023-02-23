@@ -288,12 +288,21 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 expressionBuilder.append( " ( " );
             }
 
-            expressionBuilder.append( " contains(senderId, :mandateAllowedPaIds ) ) " );
+            for (int i = 0; i < mandateAllowedPaIds.size(); i++) {
+                String paid = mandateAllowedPaIds.get( i );
+                expressionBuilder.append( "senderId = :mandateAllowedPaId" );
+                expressionBuilder.append(i).append(" ");
+                if ( i < mandateAllowedPaIds.size() -1 )
+                    expressionBuilder.append( " OR " );
 
-            filterExpressionBuilder.putExpressionValue(":mandateAllowedPaIds",
-                    AttributeValue.builder()
-                            .ss(mandateAllowedPaIds)
-                            .build());
+                filterExpressionBuilder.putExpressionValue(":mandateAllowedPaId"+i,
+                        AttributeValue.builder()
+                                .s( paid )
+                                .build());
+            }
+
+
+            expressionBuilder.append(" )");
         }
     }
 
