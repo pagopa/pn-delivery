@@ -131,7 +131,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID), null, recipientidx,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, recipientidx,
             attachmentName, false);
 
     // Then
@@ -167,7 +167,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID), null, recipientidx,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, recipientidx,
             attachmentName, false);
 
     // Then
@@ -204,7 +204,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID), null, recipientidx,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, recipientidx,
             attachmentName, false);
 
     // Then
@@ -245,7 +245,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID), null, recipientidx,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, recipientidx,
             attachmentName, false);
 
     // Then
@@ -287,7 +287,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID), null, recipientidx,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, recipientidx,
             attachmentName, false);
 
     // Then
@@ -324,7 +324,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID), null, recipientidx,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, recipientidx,
             attachmentName, false);
 
     // Then
@@ -343,7 +343,7 @@ class NotificationAttachmentServiceTest {
     String cxId = "paId";
     int recipientidx = 10;
     String attachmentName = F_24;
-    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID);
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID + "-bad", attachmentName));
@@ -373,7 +373,7 @@ class NotificationAttachmentServiceTest {
     String cxId = "paId";
     int recipientidx = 0;
     String attachmentName = F_24;
-    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID);
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification = Optional.ofNullable(null);
 
@@ -398,7 +398,7 @@ class NotificationAttachmentServiceTest {
     String cxId = "paId";
     int recipientidx = 0;
     String attachmentName = PAGOPA;
-    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID);
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
@@ -451,7 +451,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID), null, docidx, true);
+        attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, docidx, true);
 
     // Then
     assertNotNull(result);
@@ -489,7 +489,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID), null, docidx, false);
+        attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, docidx, false);
 
     // Then
     assertNotNull(result);
@@ -505,7 +505,7 @@ class NotificationAttachmentServiceTest {
   void downloadAttachmentWithRedirectByIunAndAttachmentNameFailure() {
     // Given
     String cxType = "PF";
-    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, X_PAGOPA_PN_CX_ID, X_PAGOPA_PN_UID);
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, X_PAGOPA_PN_CX_ID, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
         Optional.of(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
@@ -555,7 +555,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID), mandateId,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID, null), mandateId,
             null, attachmentName, true);
 
     // Then
@@ -593,7 +593,7 @@ class NotificationAttachmentServiceTest {
     when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
         .thenReturn(buildFileDownloadResponse());
-    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString()))
+    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
         .thenReturn(List.of(internalMandateDto));
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
         Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
@@ -601,7 +601,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID), mandateId,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID, null), mandateId,
             null, attachmentName, true);
 
     // Then
@@ -619,7 +619,7 @@ class NotificationAttachmentServiceTest {
     String cxType = "PF";
     String internalIdDelegator = "PF-bcd-123-bcd-123";
     String mandateId = "123-abcd-123456";
-    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, X_PAGOPA_PN_CX_ID, X_PAGOPA_PN_UID);
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, X_PAGOPA_PN_CX_ID, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
         Optional.of(buildNotification(IUN, internalIdDelegator));
@@ -630,7 +630,7 @@ class NotificationAttachmentServiceTest {
     when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
         .thenReturn(buildFileDownloadResponse());
-    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString()))
+    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
         .thenReturn(List.of());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
         Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);

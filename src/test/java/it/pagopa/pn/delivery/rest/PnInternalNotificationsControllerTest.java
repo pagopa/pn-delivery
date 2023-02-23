@@ -31,6 +31,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
@@ -44,7 +47,7 @@ class PnInternalNotificationsControllerTest {
     private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String RECIPIENT_INTERNAL_ID = "PF-2d74ffe9-aa40-47c2-88ea-9fb171ada637";
-    public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader("PF", RECIPIENT_INTERNAL_ID, null);
+    public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader("PF", RECIPIENT_INTERNAL_ID, null, null);
     private static final String UID = "2d74ffe9-aa40-47c2-88ea-9fb171ada637";
     private static final String SUBJECT_REG_EXP = "asd";
     private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
@@ -141,7 +144,8 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+                .thenReturn(result);
 
         ModelMapper mapper = new ModelMapper();
         mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
@@ -174,7 +178,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
 
-        Mockito.verify(retrieveSvc).searchNotification(searchDto);
+        Mockito.verify(retrieveSvc).searchNotification(eq(searchDto), any(), any());
     }
 
     @Test
@@ -197,7 +201,8 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class), any(), any()))
+                .thenReturn(result);
 
         ModelMapper mapper = new ModelMapper();
         mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
@@ -232,7 +237,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
 
-        Mockito.verify(retrieveSvc).searchNotification(searchDto);
+        Mockito.verify(retrieveSvc).searchNotification(searchDto, null, null);
     }
 
     @Test
@@ -255,7 +260,8 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
+        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+                .thenReturn(result);
 
         ModelMapper mapper = new ModelMapper();
         mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
@@ -281,7 +287,8 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void searchNotificationsPrivateFailure() {
-        Mockito.when( retrieveSvc.searchNotification( Mockito.any( InputSearchNotificationDto.class ) ) ).thenThrow( new PnNotFoundException("test", "test", "test") );
+        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+                .thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.get()
                 .uri(uriBuilder ->

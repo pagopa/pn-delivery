@@ -5,14 +5,13 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -62,8 +61,9 @@ class NotificationDaoDynamoTest {
         entity2dto = new EntityToDtoNotificationMapper();
         entityDao = new EntityDaoMock();
         metadataEntityDao = new MetadataEntityDaoMock();
+        NotificationDelegationMetadataEntityDao delegationMetadataEntityDao = new DelegationMetadataEntityDaoMock();
         pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
-        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
+        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, delegationMetadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
     }
 
     @Test
@@ -335,6 +335,55 @@ class NotificationDaoDynamoTest {
         @Override
         public PageSearchTrunk<NotificationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String partitionValue, String sentAt) {
             return new PageSearchTrunk<NotificationMetadataEntity>(List.of(NotificationMetadataEntity.builder().build()), new ConcurrentHashMap<>());
+        }
+    }
+
+    private static class DelegationMetadataEntityDaoMock implements NotificationDelegationMetadataEntityDao {
+        @Override
+        public void put(NotificationDelegationMetadataEntity value) {
+
+        }
+
+        @Override
+        public void putIfAbsent(NotificationDelegationMetadataEntity value) throws PnIdConflictException {
+
+        }
+
+        @Override
+        public Optional<NotificationDelegationMetadataEntity> get(Key key) {
+            return Optional.empty();
+        }
+
+        @Override
+        public void delete(Key key) {
+
+        }
+
+        @Override
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto, IndexNameAndPartitions.SearchIndexEnum indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+            return null;
+        }
+
+        @Override
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                                int size,
+                                                                                                PnLastEvaluatedKey lastEvaluatedKey) {
+            return null;
+        }
+
+        @Override
+        public List<NotificationDelegationMetadataEntity> batchDeleteItems(List<NotificationDelegationMetadataEntity> deleteBatchItems) {
+            return null;
+        }
+
+        @Override
+        public List<NotificationDelegationMetadataEntity> batchPutItems(List<NotificationDelegationMetadataEntity> items) {
+            return null;
+        }
+
+        @Override
+        public Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity) {
+            return Optional.empty();
         }
     }
 

@@ -135,6 +135,53 @@ Resources:
       BillingMode: "PAY_PER_REQUEST"
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
+  
+  NotificationDelegationMetadataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '${ProjectName}-NotificationDelegationMetadata'
+      AttributeDefinitions:
+        - AttributeName: "iun_recipientId_delegateId_groupId"
+          AttributeType: "S"
+        - AttributeName: "sentAt"
+          AttributeType: "S"
+        - AttributeName: "delegateId_creationMonth"
+          AttributeType: "S"
+        - AttributeName: "delegateId_groupId_creationMonth"
+          AttributeType: "S"
+        - AttributeName: "mandateId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "iun_recipientId_delegateId_groupId"
+          KeyType: "HASH"
+        - AttributeName: "sentAt"
+          KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: "delegateId"
+          KeySchema:
+            - AttributeName: "delegateId_creationMonth"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "delegateId_groupId"
+          KeySchema:
+            - AttributeName: "delegateId_groupId_creationMonth"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "mandateId"
+          KeySchema:
+            - AttributeName: "mandateId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+      BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
@@ -182,6 +229,13 @@ Outputs:
   NotificationsMetadataDynamoTableArn:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
+
+  NotificationDelegationMetadataDynamoTableName:
+    Description: Name of dynamodb table containing delegated notifications metadata
+    Value: !Ref NotificationDelegationMetadataTable
+  NotificationDelegationMetadataDynamoTableArn:
+    Description: ARN of dynamodb table containing delegated notifications metadata
+    Value: !Sub '${NotificationDelegationMetadataTable.Arn}'
 
   # Delivery Insert Trigger DLQ
   PnDeliveryInsertTriggerDLQName:

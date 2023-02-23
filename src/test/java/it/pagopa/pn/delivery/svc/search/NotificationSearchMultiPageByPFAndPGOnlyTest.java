@@ -51,9 +51,10 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
                 .opaqueFilterIdPF( "opaqueRecipientIdPF" )
                 .build();
 
-        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto(Mockito.any())).thenReturn(NotificationSearchRow.builder()
-                .recipients(List.of("recipientId1"))
-                .build());
+        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto((NotificationMetadataEntity) Mockito.any()))
+                .thenReturn(NotificationSearchRow.builder()
+                        .recipients(List.of("recipientId1"))
+                        .build());
 
         BaseRecipientDto baseRecipientDto = new BaseRecipientDto();
         baseRecipientDto.setInternalId("recipientId1");

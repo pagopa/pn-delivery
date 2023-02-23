@@ -41,7 +41,7 @@ paths:
         - AppIO-PN-Notification
       operationId: getReceivedNotification
       parameters:
-        - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '../parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                       # ONLY EXTERNAL
       responses:
         '200':
@@ -64,8 +64,8 @@ paths:
         - AppIO-PN-Documents
       operationId: getSentNotificationDocument
       parameters:
-        - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
-        - $ref: '../api-external-b2b-pa-v1.yaml#/components/parameters/pathDocumentIdx'
+        - $ref: '../parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '../api-external-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
       responses:
         '200':
@@ -73,7 +73,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '../schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: '../schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -99,7 +99,7 @@ paths:
         - AppIO-PN-LegalFacts
       operationId: getLegalFact
       parameters:
-        - $ref: '../parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '../parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
@@ -130,7 +130,7 @@ components:
       in: path
       required: true
       schema:
-        $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactCategory'
+        $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/LegalFactCategory'
     pathLegalFactId:
       description: >-
         Identificativo dell'atto opponibile a terzi
@@ -141,9 +141,9 @@ components:
         type: string
   schemas:
     LegalFactDownloadMetadataResponse:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
     ThirdPartyMessage:
-      $ref: './schemas-pn-timeline-appio-v1.yaml#/components/schemas/ThirdPartyMessage'
+      $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/ThirdPartyMessage'
 
     Problem:
       $ref: '../remote-refs.yaml#/components/schemas/Problem'

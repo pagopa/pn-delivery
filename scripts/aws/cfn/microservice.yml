@@ -79,6 +79,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing notifications metadata'
 
+  NotificationDelegationMetadataDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing delegated notifications metadata
+
+  NotificationDelegationMetadataDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing delegated notifications metadata
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -175,17 +183,17 @@ Parameters:
     Description: health check timeout seconds
     Type: Number
     Default: 5
-  
+
   HealthyThresholdCount:
     Description: |
       The number of consecutive health checks successes required before considering 
-      an unhealthy target healthy. 
+      an unhealthy target healthy.
     Type: Number
     Default: 5
-  
+
   UnhealthyThresholdCount:
     Description: |
-      The number of consecutive health check failures required before considering a target unhealthy. 
+      The number of consecutive health check failures required before considering a target unhealthy.
     Type: Number
     Default: 2
 
@@ -230,7 +238,7 @@ Parameters:
   AutoscalingThreshold:
     Default: 70
     Type: String
-  
+
   MinTasksNumber:
     Default: 1
     Type: Number
@@ -241,6 +249,13 @@ Parameters:
     Type: Number
     Description: maximum autoscaling number of tasks
 
+  Mandate2DeliveryQueueName:
+    Type: String
+    Description: 'The name of the SQS queue used to communicate with pn-mandate module.'
+
+  Mandate2DeliveryQueueARN:
+    Type: String
+    Description: 'Identify the resource that the policy applies to.'
 
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
@@ -291,6 +306,8 @@ Resources:
         ContainerEnvEntry19: !Sub 'PN_DELIVERY_MAXDOCUMENTSAVAILABLEDAYS=${MaxDocumentsAvailableDays}'
         ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         ContainerEnvEntry21: !Sub 'PN_DELIVERY_TOPICS_PAYMENTEVENTS=${DeliveryPushInputsQueueName}'
+        ContainerEnvEntry22: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
+        ContainerEnvEntry23: !Sub 'PN_DELIVERY_NOTIFICATIONDELEGATIONMETADATADAO_TABLENAME=${NotificationDelegationMetadataDynamoTableName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -320,6 +337,7 @@ Resources:
               - sqs:SendMessage
             Resource:
               - !Ref DeliveryPushInputsQueueARN
+              - !Ref Mandate2DeliveryQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -329,6 +347,8 @@ Resources:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
               - !Sub "${NotificationsCostDynamoTableArn}"
               - !Sub "${NotificationsCostDynamoTableArn}/*"
               - !Sub "${NotificationsQRDynamoTableArn}"
@@ -427,6 +447,7 @@ Resources:
           - - !Ref NotificationsDynamoTableName
             - !Ref NotificationsCostDynamoTableName
             - !Ref NotificationsMetadataDynamoTableName
+            - !Ref NotificationDelegationMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
         LambdaArns: !Join 
           - ','
@@ -451,6 +472,9 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
+        QueueArns: !Join
+          - ','
+          - - !Ref Mandate2DeliveryQueueARN
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
@@ -661,4 +685,3 @@ Resources:
               };
       #ENDpndeliveryinserttrigger
       #Non rimuovere o modificare il commento sopra, è usato come placeholder negli script
-

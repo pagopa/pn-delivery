@@ -162,7 +162,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
-            serviceResult =  retrieveSvc.searchNotification( searchDto );
+            serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
             response = mapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
@@ -189,7 +189,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null, null);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -220,8 +220,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .iun(iun)
                 .build();
         logEvent.log();
+
+
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null, null);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,

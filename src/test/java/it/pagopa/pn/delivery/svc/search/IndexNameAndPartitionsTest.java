@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.svc.search;
 
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -165,6 +166,49 @@ class IndexNameAndPartitionsTest {
         Assertions.assertEquals( INDEX_BY_RECEIVER, indexAndPartitions.getIndexName() );
         Assertions.assertEquals(
                 Arrays.asList("receiverId##202012","receiverId##202011","receiverId##202010"),
+                indexAndPartitions.getPartitions()
+        );
+    }
+
+    @Test
+    void searchByDelegate() {
+        // - GIVEN
+        InputSearchNotificationDelegatedDto searchParams = InputSearchNotificationDelegatedDto.builder()
+                .delegateId("delegateId")
+                .startDate(Instant.parse("2020-10-13T10:00:00Z"))
+                .endDate(Instant.parse("2020-12-13T10:00:00Z"))
+                .build();
+
+        // - WHEN
+        IndexNameAndPartitions indexAndPartitions;
+        indexAndPartitions = IndexNameAndPartitions.selectDelegatedIndexAndPartitions(searchParams);
+
+        // - THAN
+        Assertions.assertEquals(INDEX_BY_DELEGATE, indexAndPartitions.getIndexName());
+        Assertions.assertEquals(
+                Arrays.asList("delegateId##202012", "delegateId##202011", "delegateId##202010"),
+                indexAndPartitions.getPartitions()
+        );
+    }
+
+    @Test
+    void searchByDelegateGroup() {
+        // - GIVEN
+        InputSearchNotificationDelegatedDto searchParams = InputSearchNotificationDelegatedDto.builder()
+                .delegateId("delegateId")
+                .group("G")
+                .startDate(Instant.parse("2020-10-13T10:00:00Z"))
+                .endDate(Instant.parse("2020-12-13T10:00:00Z"))
+                .build();
+
+        // - WHEN
+        IndexNameAndPartitions indexAndPartitions;
+        indexAndPartitions = IndexNameAndPartitions.selectDelegatedIndexAndPartitions(searchParams);
+
+        // - THAN
+        Assertions.assertEquals(INDEX_BY_DELEGATE_GROUP, indexAndPartitions.getIndexName());
+        Assertions.assertEquals(
+                Arrays.asList("delegateId##G##202012", "delegateId##G##202011", "delegateId##G##202010"),
                 indexAndPartitions.getPartitions()
         );
     }
