@@ -20,6 +20,7 @@ import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.*;
@@ -226,13 +227,25 @@ public class NotificationDaoDynamo implements NotificationDao {
 		Optional<NotificationEntity> daoResult = entityDao.get( keyToSearch );
 
 		if(daoResult.isPresent()) {
-			log.debug("notification found, proceeding with retrieve by recipient");
-			String recipientId = daoResult.get().getRecipients().get(0).getRecipientId();
-			return this.metadataEntityDao.searchByIun( inputSearchNotificationDto,  iun + "##" + recipientId, daoResult.get().getSentAt().toString());
+			// controllo se lo IUN richiesto fa parte di una PA su cui ho il permesso.
+			// NB: mandateAllowedPaIds sarà popolato solo se c'è una delega, e se tale delega prevede una visibilità solo per alcune PA
+			log.debug("notification found, proceeding with check if user is allowed for this PA allowedPaIds={}", inputSearchNotificationDto.getMandateAllowedPaIds());
+			if (CollectionUtils.isEmpty(inputSearchNotificationDto.getMandateAllowedPaIds()) || inputSearchNotificationDto.getMandateAllowedPaIds().contains(daoResult.get().getSenderPaId()))
+			{
+				log.debug("notification found and allowed, proceeding with retrieve by recipient");
+				String recipientId = daoResult.get().getRecipients().get(0).getRecipientId();
+				return this.metadataEntityDao.searchByIun( inputSearchNotificationDto,  iun + "##" + recipientId, daoResult.get().getSentAt().toString());
+			}
+			else
+			{
+				log.info("user is not allowed to see PA paId={} iun={}", daoResult.get().getSenderPaId(), iun);
+				return new PageSearchTrunk<>();
+			}
 		}
 
 		return new PageSearchTrunk<>();
 	}
+
 
 
 	Predicate<String> buildRegexpPredicate(String subjectRegExp) {

@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnForbiddenException;
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
@@ -200,6 +201,106 @@ class NotificationRetrieverServiceTest {
 
         // Then
         Assertions.assertNotNull( result );
+    }
+
+
+    @Test
+    void checkMandate_notfound() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( false )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( "SENDER_ID" )
+                .filterId( "EEEEEEEEEEEEEEEE" )
+                .size( 10 )
+                .mandateId(MANDATE_ID)
+                .nextPagesKey( null )
+                .build();
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch ) );
+
+    }
+
+
+    @Test
+    void checkMandate_ok() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( false )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( UID )
+                .filterId( "EEEEEEEEEEEEEEEE" )
+                .size( 10 )
+                .mandateId(MANDATE_ID)
+                .nextPagesKey( null )
+                .build();
+
+
+        //When
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId( MANDATE_ID );
+        internalMandateDto.setDelegate( UID );
+        internalMandateDto.setDelegator( CX_ID  );
+        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
+
+        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(mandateResult);
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+
+        // Then
+        Assertions.assertNotNull( result );
+    }
+
+
+
+    @Test
+    void checkMandate_invalidPAId() {
+        //Given
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( false )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( UID )
+                .filterId( "EEEEEEEEEEEEEEEE" )
+                .size( 10 )
+                .mandateId(MANDATE_ID)
+                .nextPagesKey( null )
+                .build();
+
+
+        //When
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId( MANDATE_ID );
+        internalMandateDto.setDelegate( UID );
+        internalMandateDto.setDelegator( CX_ID  );
+        internalMandateDto.setVisibilityIds(List.of(SENDER_ID + "OTHER"));
+        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
+
+        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(mandateResult);
+
+        //When
+        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch ) );
+
     }
 
     @NotNull
@@ -711,6 +812,156 @@ class NotificationRetrieverServiceTest {
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, delegateInfo );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
+    }
+
+    @Test
+    void getNotificationAndViewEventByDelegateNotAllowedPAID() {
+        //Given
+        String nowTestInstant = "2022-06-17T13:00:00.00Z";
+        InternalNotification internalNotification = getNewInternalNotification();
+
+        List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                .elementId( "elementId" )
+                .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                .timestamp(  Instant.now()
+                        .atOffset(ZoneOffset.UTC) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+
+        //When
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId( MANDATE_ID );
+        internalMandateDto.setDelegate( UID );
+        internalMandateDto.setDelegator( CX_ID );
+        internalMandateDto.setVisibilityIds(List.of(SENDER_ID+"OTHER"));
+        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
+
+        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+        NotificationViewDelegateInfo delegateInfo = NotificationViewDelegateInfo.builder()
+                .mandateId( MANDATE_ID )
+                .delegateType( NotificationViewDelegateInfo.DelegateType.PF )
+                .operatorUuid( UID )
+                .internalId( CX_ID )
+                .build();
+
+        //When
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID));
+
+    }
+
+
+    @Test
+    void getNotificationAndViewEventByDelegateNotAllowedNOMandate() {
+        //Given
+        String nowTestInstant = "2022-06-17T13:00:00.00Z";
+        InternalNotification internalNotification = getNewInternalNotification();
+
+        List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                .elementId( "elementId" )
+                .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                .timestamp(  Instant.now()
+                        .atOffset(ZoneOffset.UTC) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+
+        //When
+
+        List<InternalMandateDto> mandateResult = List.of(  );
+
+        NotificationViewDelegateInfo delegateInfo = NotificationViewDelegateInfo.builder()
+                .mandateId( MANDATE_ID )
+                .delegateType( NotificationViewDelegateInfo.DelegateType.PF )
+                .operatorUuid( UID )
+                .internalId( CX_ID )
+                .build();
+
+        //When
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID));
+
+    }
+
+    @Test
+    void getNotificationAndViewEventByDelegateNotAllowedNOMandateForDelegator() {
+        //Given
+        String nowTestInstant = "2022-06-17T13:00:00.00Z";
+        InternalNotification internalNotification = getNewInternalNotification();
+
+        List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement()
+                .elementId( "elementId" )
+                .category( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElementCategory.REFINEMENT )
+                .timestamp(  Instant.now()
+                        .atOffset(ZoneOffset.UTC) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+
+        //When
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId( MANDATE_ID+"OTHER" );
+        internalMandateDto.setDelegate( UID );
+        internalMandateDto.setDelegator( CX_ID + "OTHER" );
+        internalMandateDto.setDatefrom( "2022-03-23T23:23:00Z" );
+
+        List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
+
+        NotificationViewDelegateInfo delegateInfo = NotificationViewDelegateInfo.builder()
+                .mandateId( MANDATE_ID )
+                .delegateType( NotificationViewDelegateInfo.DelegateType.PF )
+                .operatorUuid( UID )
+                .internalId( CX_ID )
+                .build();
+
+        //When
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+
+        ModelMapper mapperNotification = new ModelMapper();
+        mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
+        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+                .thenReturn( mapperNotification );
+
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID));
+
     }
 
     @Test

@@ -260,27 +260,24 @@ public class NotificationRetrieverService {
 	 */
 	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId, String recipientType, List<String> cxGroups) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
-		log.info( "START check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
+		log.info( "START check mandate for receiverId={} and mandateId={}", senderReceiverId, mandateId );
 		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId, CxTypeAuthFleet.valueOf(recipientType), cxGroups);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {
 				if (mandate.getDelegator() != null && mandate.getDatefrom() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
-					adjustSearchDatesAndReceiver( searchDto, mandate );
-					validMandate = true;
-					log.info( "Valid mandate for delegate={}", senderReceiverId );
+					validMandate =  adjustSearchDatesAndReceiverAndAllowedPaIds( searchDto, mandate );
+					log.info( "Valid mandate for delegate={} mandate={}", senderReceiverId, mandate );
 					break;
 				}
 			}
 			if (!validMandate){
 				String message = String.format("Unable to find valid mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
-				log.error( message );
-				throw new PnMandateNotFoundException( message );
+				handlePnMandateInvalid(message);
 			}
 		} else {
 			String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
-			log.error( message );
-			throw new PnMandateNotFoundException(  message );
+			handlePnMandateInvalid(message);
 		}
 		log.info( "END check mandate for receiverId={} and mandateId={}", senderReceiverId, mandateId );
 	}
@@ -290,10 +287,10 @@ public class NotificationRetrieverService {
 	 *
 	 * @param searchDto search input data
 	 * @param mandate mandate object
-	 *
+	 * @return true if delegation is valid, false if search is done for a not allowed PA
 	 *
 	 */
-	private void adjustSearchDatesAndReceiver(InputSearchNotificationDto searchDto,
+	private boolean adjustSearchDatesAndReceiverAndAllowedPaIds(InputSearchNotificationDto searchDto,
 											  InternalMandateDto mandate) {
 		Instant searchStartDate = searchDto.getStartDate();
 		Instant searchEndDate = searchDto.getEndDate();
@@ -309,7 +306,23 @@ public class NotificationRetrieverService {
 		if (StringUtils.hasText( delegator )) {
 			searchDto.setSenderReceiverId( delegator );
 		}
+
+		// filtro sugli ID della PA che può visualizzare
+		if (StringUtils.hasText(searchDto.getFilterId())
+			&& !CollectionUtils.isEmpty(mandate.getVisibilityIds())
+			&& !mandate.getVisibilityIds().contains(searchDto.getFilterId()))
+		{
+			// questo è il caso in cui c'è un filtro per PA e la delega è solo per alcune PA e la PA non è nella delega
+			// Da notare che per ora, lato GUI, non c'è possibilità di filtrare per PA, quindi qui dentro non dovrebbe entrarci mai finchè non verrà eventualmente implementata la funzionalità
+			// per ora vien lanciato errore (equivale ad una delega non presente), ma in futuro questa condizione potrebbe non essere vera (cioè si preferisce tornare array vuoto senza errori)
+			log.warn("user delegate is not allowed too see required paId={} mandateAllowedPaIds={} delegatorId={} delegateId={}", searchDto.getFilterId(), mandate.getVisibilityIds(), mandate.getDelegator(), mandate.getDelegate());
+			return false;
+		}
+		else	// in tutti gli altri casi, non mi interessa fare altri controlli. Se la lista è vuota/nulla non darà luogo a nessun filtro poi.
+			searchDto.setMandateAllowedPaIds(mandate.getVisibilityIds());
+
 		log.debug( "Adjust receiverId={}", delegator );
+		return  true;
 	}
 
 	private void validateInput(InputSearchNotificationDto searchDto) {
@@ -571,8 +584,12 @@ public class NotificationRetrieverService {
 
 		String delegatorId = null;
 		NotificationViewDelegateInfo delegateInfo = null;
+		// cerco prima la notifica in DB, poi controllo la delega, visto che mi serve il paId
+		// Il caso più comune infatti è che l'utente abbia il permesso di vedere una certa notifica
+		InternalNotification notification = getNotificationInformation(iun);
+
 		if ( StringUtils.hasText( mandateId ) ) {
-			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups());
+			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, notification.getSenderPaId(), iun, internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups());
 			delegateInfo = NotificationViewDelegateInfo.builder()
 					.mandateId( mandateId )
 					.internalId(internalAuthHeader.xPagopaPnCxId())
@@ -584,7 +601,6 @@ public class NotificationRetrieverService {
 			throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
 		}
 
-		InternalNotification notification = getNotificationInformation(iun);
 		String recipientId = delegatorId != null ? delegatorId : internalAuthHeader.xPagopaPnCxId();
 		int recipientIndex = getRecipientIndexFromRecipientId(notification, recipientId);
 		filterTimelinesByRecipient(notification, internalAuthHeader, recipientIndex);
@@ -632,31 +648,49 @@ public class NotificationRetrieverService {
 		}
 	}
 
-	private String checkMandateForNotificationDetail(String userId, String mandateId, String recipientType, List<String> cxGroups) {
-		String delegatorId = null;
+	private String checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups) {
 
 		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, CxTypeAuthFleet.valueOf(recipientType), cxGroups);
 		if(!mandates.isEmpty()) {
-			boolean validMandate = false;
+
 			for ( InternalMandateDto mandate : mandates ) {
-				if (mandate.getDelegator() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
-					delegatorId = mandate.getDelegator();
-					validMandate = true;
-					log.info( "Valid mandate for notification detail for delegate={}", userId );
-					break;
+				String delegatorId = evaluateMandateAndRetrieveDelegatorId(userId, mandateId, paId, iun, mandate);
+				if (delegatorId != null)
+					return delegatorId;
+			}
+		}
+
+		String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s iun=%s", userId, mandateId, iun);
+		handlePnMandateInvalid(message);
+		return null;
+	}
+
+	private String evaluateMandateAndRetrieveDelegatorId(String userId, String mandateId, String paId, String iun, InternalMandateDto mandate){
+		if (mandate.getDelegator() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
+
+			if( !CollectionUtils.isEmpty(mandate.getVisibilityIds()) ) {
+				boolean isPaIdInVisibilityPa = mandate.getVisibilityIds().stream().anyMatch(
+						paId::equals
+				);
+
+				if( !isPaIdInVisibilityPa ){
+					String message = String.format("Unable to find valid mandate for notification detail, paNotificationId=%s is not in visibility pa id for mandate" +
+							"- iun=%s delegate=%s with mandateId=%s", paId, iun, userId, mandateId);
+					log.warn(message);
+					return null;
 				}
 			}
-			if (!validMandate){
-				String message = String.format("Unable to find valid mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
-				log.error( message );
-				throw new PnMandateNotFoundException( message );
-			}
-		} else {
-			String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
-			log.error( message );
-			throw new PnMandateNotFoundException( message );
+
+			log.info( "Valid mandate for notification detail for delegate={}", userId );
+			return mandate.getDelegator();
 		}
-		return delegatorId;
+
+		return null;
+	}
+
+	private void handlePnMandateInvalid(String message) {
+		log.error(message);
+		throw new PnMandateNotFoundException(message);
 	}
 
 	private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate) {
