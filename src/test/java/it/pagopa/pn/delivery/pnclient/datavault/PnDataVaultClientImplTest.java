@@ -38,7 +38,7 @@ class PnDataVaultClientImplTest {
     void setup() {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         Mockito.when( cfg.getDataVaultBaseUrl() ).thenReturn( "http://localhost:8080" );
-        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         this.dataVaultClient = new PnDataVaultClientImpl( restTemplate, cfg );
     }
 
