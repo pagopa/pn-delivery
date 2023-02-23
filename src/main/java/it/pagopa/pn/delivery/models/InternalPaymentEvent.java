@@ -25,6 +25,10 @@ public class InternalPaymentEvent {
     private Instant paymentDate;
     @NotNull
     private PnDeliveryPaymentEvent.PaymentType paymentType;
+    @NotNull
+    private int paymentAmount;
+    @NotNull
+    private String paymentSourceChannel;
     @Nullable
     private String creditorTaxId;
     @Nullable
