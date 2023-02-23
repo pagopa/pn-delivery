@@ -90,7 +90,7 @@ class PaymentEventsServiceTest {
                 .thenReturn( authorizationOutcome );
 
 
-        service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+        service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestPagoPa );
 
         // Then
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
@@ -126,7 +126,7 @@ class PaymentEventsServiceTest {
 
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestPagoPa );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -160,7 +160,7 @@ class PaymentEventsServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.empty() );
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestPagoPa );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -199,7 +199,7 @@ class PaymentEventsServiceTest {
 
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestPagoPa );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -231,7 +231,7 @@ class PaymentEventsServiceTest {
         Mockito.when( checkAuthComponent.canAccess( Mockito.any( ReadAccessAuth.class ), Mockito.any( InternalNotification.class ) ) )
                 .thenReturn( authorizationOutcome );
 
-        service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+        service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestF24 );
 
         // Then
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
@@ -263,7 +263,7 @@ class PaymentEventsServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.empty() );
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestF24 );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -290,7 +290,7 @@ class PaymentEventsServiceTest {
                 .thenReturn( null );
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestF24 );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -320,7 +320,7 @@ class PaymentEventsServiceTest {
                 .thenReturn( AuthorizationOutcome.fail() );
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestF24 );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 

@@ -42,7 +42,7 @@ public class PaymentEventsService {
         this.checkAuthComponent = checkAuthComponent;
     }
 
-    public String handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, PaymentEventsRequestPagoPa paymentEventsRequest) {
+    public String handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, PaymentEventsRequestPagoPa paymentEventsRequest) {
         List<PaymentEventPagoPa> paymentRequests = paymentEventsRequest.getEvents();
         List<InternalPaymentEvent> paymentEvents = new ArrayList<>( paymentRequests.size() );
 
@@ -82,7 +82,7 @@ public class PaymentEventsService {
             }
 
             // controllo autorizzazione
-            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, xPagopaPnCxId, null, iun, recipientIdx );
+            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, xPagopaPnCxId, null, xPagopaPnCxGroups, iun, recipientIdx );
             AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, internalNotification );
 
             if ( !authorizationOutcome.isAuthorized() ) {
@@ -107,7 +107,7 @@ public class PaymentEventsService {
         return iun;
     }
 
-    public void handlePaymentEventsF24(String cxTypePa, String cxIdPaId, PaymentEventsRequestF24 paymentEventsRequestF24) {
+    public void handlePaymentEventsF24(String cxTypePa, String cxIdPaId, List<String> xPagopaPnCxGroups, PaymentEventsRequestF24 paymentEventsRequestF24) {
         List<InternalPaymentEvent> paymentEvents = new ArrayList<>( paymentEventsRequestF24.getEvents().size() );
 
         for (PaymentEventF24 paymentEventF24 : paymentEventsRequestF24.getEvents() ) {
@@ -137,7 +137,7 @@ public class PaymentEventsService {
             }
 
             // controllo autorizzazione
-            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxTypePa, cxIdPaId, null, iun, recipientIdx );
+            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxTypePa, cxIdPaId, null, xPagopaPnCxGroups, iun, recipientIdx );
             AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, internalNotification );
 
             if ( !authorizationOutcome.isAuthorized() ) {

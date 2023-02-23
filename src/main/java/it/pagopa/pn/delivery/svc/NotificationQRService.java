@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarMandateDto;
@@ -66,12 +67,13 @@ public class NotificationQRService {
         return uri.getQuery().split("=")[1];
     }
 
-    public ResponseCheckAarMandateDto getNotificationByQRWithMandate( RequestCheckAarMandateDto request, String recipientType, String userId ) {
+    public ResponseCheckAarMandateDto getNotificationByQRWithMandate( RequestCheckAarMandateDto request, String recipientType, String userId, List<String> cxGroups ) {
         String aarQrCodeValue = request.getAarQrCodeValue();
         log.info( "Get notification QR with mandate for aarQrCodeValue={} recipientType={} userId={}", aarQrCodeValue, recipientType, userId);
         InternalNotificationQR internalNotificationQR = getInternalNotificationQR( aarQrCodeValue );
-        if ( !isRecipientInNotification( internalNotificationQR, userId ) ){
-            String mandateId = getMandateId( internalNotificationQR, userId );
+        boolean isRecipient = isRecipientInNotification( internalNotificationQR, userId );
+        if (!isRecipient || (CxTypeAuthFleet.valueOf(recipientType).equals(CxTypeAuthFleet.PG) && !CollectionUtils.isEmpty(cxGroups))) {
+            String mandateId = getMandateId( internalNotificationQR, userId, CxTypeAuthFleet.valueOf(recipientType), cxGroups );
             if ( StringUtils.hasText( mandateId ) ) {
                 return ResponseCheckAarMandateDto.builder()
                         .iun( internalNotificationQR.getIun() )
@@ -81,7 +83,9 @@ public class NotificationQRService {
                 log.info( "Invalid userId={} without mandate for aarQrCodeValue={}", userId, aarQrCodeValue );
                 throw new PnNotificationNotFoundException( String.format("Invalid userId=%s without mandate for aarQrCodeValue=%s", userId, aarQrCodeValue) );
             }
-        } else {
+        }
+        else {
+
             return ResponseCheckAarMandateDto.builder()
                     .iun( internalNotificationQR.getIun() )
                     .build();
@@ -112,9 +116,9 @@ public class NotificationQRService {
         return internalNotificationQR.getRecipientInternalId().equals( recipientInternalId );
     }
 
-    private String getMandateId( InternalNotificationQR internalNotificationQR, String userId ) {
+    private String getMandateId(InternalNotificationQR internalNotificationQR, String userId, CxTypeAuthFleet cxType, List<String> cxGroups) {
         String mandateId = null;
-        List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null);
+        List<InternalMandateDto> mandateDtoList = mandateClient.listMandatesByDelegate(userId, null, cxType, cxGroups);
         if (!CollectionUtils.isEmpty(mandateDtoList)) {
             Optional<InternalMandateDto> optMandate = mandateDtoList.stream()
                     .filter(mandate -> userId.equals(mandate.getDelegate()) &&

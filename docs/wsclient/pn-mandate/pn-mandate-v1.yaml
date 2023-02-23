@@ -3,18 +3,31 @@ openapi: 3.0.1
 info:
   title: PN Mandate u-service
   description: Documentation APIs v1.0
-  version: '1.0'
+  termsOfService: https://termofservice.it
+  x-api-id: api-internal-mandate
+  x-summary: 'Piattaforma Notifiche: API gestione deleghe'
+  version: '1.0.0'
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
 servers:
-  - url: http://localhost:8080
+  - url: https://api.pn.pagopa.it
     description: Generated server url
 paths:
   /mandate-private/api/v1/mandates-by-internaldelegate/{internaluserId}:
     get:
       tags:
         - mandate-private-service
-      description: Return only active mandates for delegate, optionally filtered by single mandateId
+      summary: Return only active mandates for delegate, optionally filtered by single mandateId
       operationId: listMandatesByDelegate
       parameters:
+        - name: x-pagopa-pn-cx-type
+          in: query
+          description: cx-type (PF, PG, PA)
+          schema:
+            $ref: '#/components/schemas/cxTypeAuthFleet'
         - name: internaluserId
           in: path
           required: true
@@ -24,6 +37,12 @@ paths:
           in: query
           schema:
             type: string
+        - name: x-pagopa-pn-cx-groups
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: OK
@@ -43,9 +62,14 @@ paths:
     get:
       tags:
         - mandate-private-service
-      description: Return only active mandates for delegator, optionally filtered by single mandateId
+      summary: Return only active mandates for delegator, optionally filtered by single mandateId
       operationId: listMandatesByDelegator
       parameters:
+        - name: x-pagopa-pn-cx-type
+          in: query
+          description: cx-type (PF, PG, PA)
+          schema:
+            $ref: '#/components/schemas/cxTypeAuthFleet'
         - name: internaluserId
           in: path
           required: true
@@ -55,6 +79,21 @@ paths:
           in: query
           schema:
             type: string
+        - name: x-pagopa-pn-cx-groups
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: cx-role
+          in: query
+          schema:
+            type: string
+        - name: delegateType
+          in: query
+          description: delegate type (PF, PG)
+          schema:
+            $ref: '#/components/schemas/delegateType'
       responses:
         '200':
           description: OK
@@ -70,15 +109,60 @@ paths:
             application/json:
               schema:
                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
+  /mandate-private/api/v1/mandates-by-internaldelegators:
+    post:
+      tags:
+        - mandate-private-service
+      summary: Return only active mandates for delegators, filtered by multiple mandateId
+      operationId: listMandatesByDelegators
+      parameters:
+        - name: delegateType
+          in: query
+          description: delegate type (PF, PG)
+          schema:
+            $ref: '#/components/schemas/delegateType'
+        - name: delegateGroups
+          in: query
+          description: delegate groups
+          schema:
+            type: array
+            items:
+              type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/MandateByDelegatorRequestDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InternalMandateDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'
   /mandate/api/v1/count-by-delegate:
     get:
       tags:
         - mandate-service
-      description: Return total mandates based on required status if filter's specified. If no filter is present, returns total of all pending and active mandates
+      summary: >-
+        Return total mandates based on required status if filter's specified. 
+        If no filter is present, returns total of all pending and active mandates
       operationId: countMandatesByDelegate
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
         - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/cxRoleAuthFleet'
         - name: status
           in: query
           schema:
@@ -100,11 +184,13 @@ paths:
     post:
       tags:
         - mandate-service
-      description: Create a new mandate, returns the just created mandate if successful
+      summary: Create a new mandate, returns the just created mandate if successful
       operationId: createMandate
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
         - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/cxRoleAuthFleet'
       requestBody:
         content:
           application/json:
@@ -127,11 +213,13 @@ paths:
     patch:
       tags:
         - mandate-service
-      description: Accept a mandate
+      summary: Accept a mandate
       operationId: acceptMandate
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
         - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/cxRoleAuthFleet'
         - name: mandateId
           in: path
           required: true
@@ -155,11 +243,13 @@ paths:
     patch:
       tags:
         - mandate-service
-      description: Reject a mandate
+      summary: Reject a mandate
       operationId: rejectMandate
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
         - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/cxRoleAuthFleet'
         - name: mandateId
           in: path
           required: true
@@ -178,11 +268,13 @@ paths:
     patch:
       tags:
         - mandate-service
-      description: Revoke a mandate
+      summary: Revoke a mandate
       operationId: revokeMandate
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
         - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/cxRoleAuthFleet'
         - name: mandateId
           in: path
           required: true
@@ -201,11 +293,13 @@ paths:
     get:
       tags:
         - mandate-service
-      description: Return filtered mandates based on required status if filter's specified. If no filter is present, returns all pending and active mandates
+      summary: Return filtered mandates based on required status if filter's specified. If no filter is present, returns all pending and active mandates
       operationId: listMandatesByDelegate_1
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
         - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/cxRoleAuthFleet'
         - name: status
           in: query
           schema:
@@ -229,11 +323,13 @@ paths:
     get:
       tags:
         - mandate-service
-      description: Return all pending and active mandates
+      summary: Return all pending and active mandates
       operationId: listMandatesByDelegator_1
       parameters:
         - $ref: 'remote-refs.yaml#/components/parameters/cxIdAuthFleet'
         - $ref: 'remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
+        - $ref: 'remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
+        - $ref: '#/components/parameters/cxRoleAuthFleet'
       responses:
         '200':
           description: OK
@@ -250,7 +346,26 @@ paths:
               schema:
                 $ref: 'pn-errors.yaml#/components/schemas/Problem'
 components:
+  parameters:
+    cxRoleAuthFleet:
+      name: x-pagopa-pn-cx-role
+      in: header
+      description: Ruolo (estratto da token di Self Care)
+      required: false
+      schema:
+        type: string
   schemas:
+    cxTypeAuthFleet:
+      type: string
+      enum:
+        - PG
+        - PF
+        - PA
+    delegateType:
+      type: string
+      enum:
+        - PG
+        - PF
     InternalMandateDto:
       type: object
       properties:
@@ -270,6 +385,10 @@ components:
         dateto:
           type: string
           description: ISO 8601 format
+        groups:
+          type: array
+          items:
+            type: string
     MandateCountsDto:
       type: object
       properties:
@@ -344,5 +463,17 @@ components:
       properties:
         verificationCode:
           type: string
-    ServerResponse:
+        groups:
+          type: array
+          items:
+            type: string
+    MandateByDelegatorRequestDto:
       type: object
+      required:
+        - mandateId
+        - delegatorId
+      properties:
+        mandateId:
+          type: string
+        delegatorId:
+          type: string

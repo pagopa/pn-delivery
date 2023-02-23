@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificatio
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
@@ -26,13 +27,17 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class StatusServiceTest {
+
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+
     @Mock
     private NotificationDao notificationDao;
-
     @Mock
     private NotificationMetadataEntityDao notificationMetadataEntityDao;
-
+    @Mock
+    private NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
+    @Mock
+    private NotificationDelegatedService notificationDelegatedService;
     @Mock
     private PnDataVaultClientImpl dataVaultClient;
     
@@ -40,9 +45,8 @@ class StatusServiceTest {
 
     @BeforeEach
     public void setup() {
-        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, dataVaultClient);
+        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, notificationDelegationMetadataEntityDao, notificationDelegatedService, dataVaultClient);
     }
-
 
     @ExtendWith(MockitoExtension.class)
     @Test

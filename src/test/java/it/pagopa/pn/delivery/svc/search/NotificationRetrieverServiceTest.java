@@ -1,13 +1,12 @@
 package it.pagopa.pn.delivery.svc.search;
 
-
-
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -15,10 +14,12 @@ import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.Notifi
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
+import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -37,8 +38,18 @@ import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 
-import java.time.*;
-import java.util.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 class NotificationRetrieverServiceTest {
 
@@ -47,7 +58,7 @@ class NotificationRetrieverServiceTest {
     private static final String CX_ID = "cxId";
     private static final String CX_TYPE = "PF";
     private static final String UID = "uid";
-    public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader(CX_TYPE, CX_ID, UID);
+    public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader(CX_TYPE, CX_ID, UID, null);
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     private static final String SENDER_ID = "senderId";
     private static final String WRONG_SENDER_ID = "wrongSenderId";
@@ -57,6 +68,12 @@ class NotificationRetrieverServiceTest {
     public static final String NOTICE_CODE = "302000100000019421";
     public static final String NOTICE_CODE_ALTERNATIVE = "302000100000019422";
     public static final String SENDER_TAXID = "01199250158";
+    private static final Integer SIZE = 10;
+    private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
+    private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
+    public static final List<String> GROUPS = List.of("Group1", "Group2");
+    public static final String GROUP = "Group";
+    public static final String DELEGATE_ID = "DelegateId";
 
     private Clock clock;
     private NotificationViewedProducer notificationViewedProducer;
@@ -91,10 +108,10 @@ class NotificationRetrieverServiceTest {
         this.mvpParameterConsumer = Mockito.mock( MVPParameterConsumer.class );
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
 
-        Mockito.when(notificationSearchFactory.getMultiPageSearch(Mockito.any(), Mockito.any())).thenReturn(notificationSearch);
-        Mockito.when( cfg.getMaxDocumentsAvailableDays() ).thenReturn( "120" );
-        Mockito.when( cfg.getMaxFirstNoticeCodeDays() ).thenReturn( "5" );
-        Mockito.when( cfg.getMaxSecondNoticeCodeDays() ).thenReturn( "60" );
+        when(notificationSearchFactory.getMultiPageSearch(any(), any())).thenReturn(notificationSearch);
+        when( cfg.getMaxDocumentsAvailableDays() ).thenReturn( "120" );
+        when( cfg.getMaxFirstNoticeCodeDays() ).thenReturn( "5" );
+        when( cfg.getMaxSecondNoticeCodeDays() ).thenReturn( "60" );
 
         this.svc = new NotificationRetrieverService(
                 clock,
@@ -126,10 +143,10 @@ class NotificationRetrieverServiceTest {
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
 
         //When
-        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
-        Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+        when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification(inputSearch, "PF", null);
 
         // Then
         Assertions.assertNotNull( result );
@@ -156,7 +173,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch, "PA", null);
 
         // Then
         Assertions.assertNotNull( result );
@@ -180,36 +197,34 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch, "PA", null );
 
         // Then
         Assertions.assertNotNull( result );
     }
 
-
     @Test
     void checkMandate_notfound() {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
-                .bySender( false )
-                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
-                .senderReceiverId( "SENDER_ID" )
-                .filterId( "EEEEEEEEEEEEEEEE" )
-                .size( 10 )
+                .bySender(false)
+                .startDate(Instant.parse("2022-05-01T00:00:00.00Z"))
+                .endDate(Instant.parse("2022-05-30T00:00:00.00Z"))
+                .senderReceiverId("SENDER_ID")
+                .filterId("EEEEEEEEEEEEEEEE")
+                .size(10)
                 .mandateId(MANDATE_ID)
-                .nextPagesKey( null )
+                .nextPagesKey(null)
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> results = getPaginatedNotifications();
 
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch ) );
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification(inputSearch, "PF", null));
 
     }
-
 
     @Test
     void checkMandate_ok() {
@@ -237,18 +252,17 @@ class NotificationRetrieverServiceTest {
 
 
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
-        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(mandateResult);
+        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
+                .thenReturn(mandateResult);
 
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch, "PF", null );
 
         // Then
         Assertions.assertNotNull( result );
     }
-
-
 
     @Test
     void checkMandate_invalidPAId() {
@@ -277,12 +291,12 @@ class NotificationRetrieverServiceTest {
 
 
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
-        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(mandateResult);
+        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any())).thenReturn(mandateResult);
 
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch ) );
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch, "PF", null ) );
 
     }
 
@@ -333,12 +347,13 @@ class NotificationRetrieverServiceTest {
 
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
 
-        Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(new ResultPaginationDto<>());
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(new ResultPaginationDto<>());
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), eq(CxTypeAuthFleet.PF), any()))
+                .thenReturn(mandateResult);
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification(inputSearch, "PF", null);
 
         Assertions.assertNotNull( result );
 
@@ -364,9 +379,10 @@ class NotificationRetrieverServiceTest {
         List<InternalMandateDto> mandateResult = List.of( internalMandateDto );
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        when(pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), eq(CxTypeAuthFleet.PF), any()))
+                .thenReturn(mandateResult);
 
-        Executable todo = () -> svc.searchNotification( inputSearch );
+        Executable todo = () -> svc.searchNotification(inputSearch, "PF", null);
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
@@ -374,13 +390,14 @@ class NotificationRetrieverServiceTest {
     @Test
     void searchValidateInputException() {
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .senderReceiverId(RECIPIENT_ID)
                 .startDate( Instant.now() )
                 .endDate( Instant.now() )
                 .groups( Collections.emptyList() )
                 .statuses( Collections.emptyList() )
                 .build();
 
-        Executable todo = () -> svc.searchNotification( inputSearch );
+        Executable todo = () -> svc.searchNotification(inputSearch, null, null);
 
         Assertions.assertThrows( PnValidationException.class, todo );
     }
@@ -396,7 +413,7 @@ class NotificationRetrieverServiceTest {
                 .nextPagesKey( "fakeNextPageKey" )
                 .build();
 
-        Executable todo = () -> svc.searchNotification( inputSearch );
+        Executable todo = () -> svc.searchNotification(inputSearch, null, null);
 
         Assertions.assertThrows( PnInternalException.class, todo );
     }
@@ -421,13 +438,13 @@ class NotificationRetrieverServiceTest {
                         .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
         InternalNotification result = svc.getNotificationInformation( IUN );
@@ -456,15 +473,15 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         // When
-        Mockito.when( notificationDao.getRequestId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( Optional.of( REQUEST_ID ) );
+        when( notificationDao.getRequestId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( Optional.of( REQUEST_ID ) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
         InternalNotification result = svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
@@ -479,7 +496,7 @@ class NotificationRetrieverServiceTest {
     @Test
     void getNotificationInformationByProtocolAndIdempotenceFailure() {
         // When
-        Mockito.when( notificationDao.getRequestId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( Optional.empty() );
+        when( notificationDao.getRequestId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( Optional.empty() );
         Executable todo = () -> svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
 
         // Then
@@ -502,12 +519,12 @@ class NotificationRetrieverServiceTest {
                         .status(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatus.ACCEPTED)
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
         InternalNotification result = svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID );
@@ -522,7 +539,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationInformationByWrongSenderIdFailure() {
         InternalNotification notification = getNewInternalNotification();
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
 
         Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, WRONG_SENDER_ID );
         Assertions.assertThrows( PnNotificationNotFoundException.class, todo );
@@ -547,12 +564,12 @@ class NotificationRetrieverServiceTest {
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
 
         InternalNotification result = svc.getNotificationInformation( IUN, true, false );
 
@@ -605,7 +622,7 @@ class NotificationRetrieverServiceTest {
         //Given
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.empty() );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.empty() );
         Executable todo = () -> svc.getNotificationInformation( IUN );
 
         //Then
@@ -620,13 +637,13 @@ class NotificationRetrieverServiceTest {
         List<PaGroup> groups = getGroups();
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
         InternalNotification result = svc.getNotificationInformation( IUN, false, true, SENDER_ID);
@@ -644,13 +661,13 @@ class NotificationRetrieverServiceTest {
         List<PaGroup> groups = getGroups();
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        Mockito.when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
         InternalNotification result = svc.getNotificationInformation( IUN, false, true, SENDER_ID);
@@ -723,16 +740,16 @@ class NotificationRetrieverServiceTest {
 
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
@@ -776,17 +793,18 @@ class NotificationRetrieverServiceTest {
                 .build();
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), eq(CxTypeAuthFleet.PF), any()))
+                .thenReturn( mandateResult );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, delegateInfo );
@@ -831,7 +849,7 @@ class NotificationRetrieverServiceTest {
                 .build();
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
@@ -878,7 +896,7 @@ class NotificationRetrieverServiceTest {
                 .build();
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
@@ -929,7 +947,7 @@ class NotificationRetrieverServiceTest {
                 .build();
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
@@ -963,17 +981,17 @@ class NotificationRetrieverServiceTest {
 
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
@@ -1000,16 +1018,16 @@ class NotificationRetrieverServiceTest {
 
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( clock.instant() ).thenReturn( Instant.now() );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( clock.instant() ).thenReturn( Instant.now() );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        Executable todo = () -> svc.getNotificationAndNotifyViewedEvent( IUN, new InternalAuthHeader("", CX_TYPE, UID), null );
+        Executable todo = () -> svc.getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", CX_TYPE, UID, null), null);
 
         //Then
         Assertions.assertThrows(PnNotFoundException.class, todo);
@@ -1036,17 +1054,17 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
@@ -1079,18 +1097,18 @@ class NotificationRetrieverServiceTest {
                 .status( PaymentStatus.SUCCEEDED );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-02-11T00:00:00.00Z" ) );
-        Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( clock.instant() ).thenReturn( Instant.parse( "2022-02-11T00:00:00.00Z" ) );
+        when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-02-11T00:00:00.00Z" ), 0, null );
@@ -1123,18 +1141,18 @@ class NotificationRetrieverServiceTest {
                 .status( PaymentStatus.REQUIRED );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
@@ -1168,18 +1186,18 @@ class NotificationRetrieverServiceTest {
                 .status( PaymentStatus.REQUIRED );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
@@ -1213,18 +1231,18 @@ class NotificationRetrieverServiceTest {
                 .status( PaymentStatus.REQUIRED );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
@@ -1253,17 +1271,17 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-05-11T00:00:00.00Z" ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( clock.instant() ).thenReturn( Instant.parse( "2022-05-11T00:00:00.00Z" ) );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-05-11T00:00:00.00Z" ), 0, null );
@@ -1292,18 +1310,18 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-03-11T00:00:00.00Z" ) );
-        Mockito.when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenThrow( PnHttpResponseException.class );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( clock.instant() ).thenReturn( Instant.parse( "2022-03-11T00:00:00.00Z" ) );
+        when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenThrow( PnHttpResponseException.class );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-03-11T00:00:00.00Z" ), 0, null );
         Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
@@ -1328,16 +1346,16 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
         // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
@@ -1365,17 +1383,17 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-03-01T11:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
         // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
     }
@@ -1399,17 +1417,17 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-03-01T11:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
-        Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         ModelMapper mapperNotification = new ModelMapper();
         mapperNotification.createTypeMap( InternalNotification.class, FullSentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
+        when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) )
                 .thenReturn( mapperNotification );
 
         // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent( IUN, INTERNAL_AUTH_HEADER, null );
+        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
@@ -1543,4 +1561,110 @@ class NotificationRetrieverServiceTest {
         internalNotification.setRecipientIds(recipientIds);
     }
 
+    @Test
+    void searchNotificationDelegatedEpochAfterEndDateTest() {
+        InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId(DELEGATE_ID)
+                .startDate(OffsetDateTime.now().toInstant())
+                .group(GROUP)
+                .senderId(SENDER_ID)
+                .receiverId(RECIPIENT_ID)
+                .statuses(List.of(STATUS))
+                .size(null)
+                .nextPageKey(null)
+                .endDate(OffsetDateTime.MIN.toInstant())
+                .cxGroups(GROUPS)
+                .build();
+
+        Assertions.assertEquals( ResultPaginationDto.<NotificationSearchRow, String>builder()
+                .resultsPage(Collections.emptyList())
+                .nextPagesKey(Collections.emptyList())
+                .moreResult(false)
+                .build(), svc.searchNotificationDelegated(inputSearchNotificationDelegatedDto));
+    }
+
+    @Test
+    void searchNotificationDelegatedCanNotAccessDelegatedGroupTest() {
+        InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId(DELEGATE_ID)
+                .startDate(OffsetDateTime.now().toInstant())
+                .group(null)
+                .senderId(SENDER_ID)
+                .receiverId(RECIPIENT_ID)
+                .statuses(List.of(STATUS))
+                .size(null)
+                .nextPageKey(null)
+                .endDate(OffsetDateTime.now().toInstant())
+                .cxGroups(GROUPS)
+                .build();
+
+        Executable todo = () -> svc.searchNotificationDelegated(inputSearchNotificationDelegatedDto);
+
+        Assertions.assertThrows(PnForbiddenException.class, todo);
+    }
+
+    @Test
+    void searchNotificationDelegatedValidateInputException() {
+        InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId(DELEGATE_ID)
+                .startDate(OffsetDateTime.now().toInstant())
+                .endDate(OffsetDateTime.MAX.toInstant())
+                .group(null)
+                .senderId(SENDER_ID)
+                .receiverId(RECIPIENT_ID)
+                .statuses(List.of(STATUS))
+                .size(null)
+                .nextPageKey(null)
+                .build();
+
+        Executable todo = () -> svc.searchNotificationDelegated(inputSearchNotificationDelegatedDto);
+
+        Assertions.assertThrows( PnValidationException.class, todo );
+    }
+
+    @Test
+    void searchNotificationDelegatedUnableDeserializeLEK() {
+        InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId(DELEGATE_ID)
+                .startDate(OffsetDateTime.now().toInstant())
+                .senderId(SENDER_ID)
+                .receiverId(RECIPIENT_ID)
+                .statuses(List.of(STATUS))
+                .size(SIZE)
+                .nextPageKey("fakeNextPageKey")
+                .endDate(OffsetDateTime.MAX.toInstant())
+                .build();
+
+
+        Executable todo = () -> svc.searchNotificationDelegated(inputSearchNotificationDelegatedDto);
+
+        Assertions.assertThrows( PnInternalException.class, todo );
+    }
+
+    @Test
+    void searchNotificationDelegatedSuccess() {
+
+        //Given
+        InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId(DELEGATE_ID)
+                .startDate( OffsetDateTime.MIN.toInstant() )
+                .endDate( OffsetDateTime.MAX.toInstant())                .senderId(SENDER_ID)
+                .receiverId(RECIPIENT_ID)
+                .statuses(List.of(STATUS))
+                .nextPageKey(null)
+                .cxGroups(List.of("group-code", "group-code-no-match"))
+                .group("group-code")
+                .size( 10 )
+                .build();
+        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+
+        //When
+        when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
+        when(notificationSearchFactory.getMultiPageDelegatedSearch(any(), any()))
+                .thenReturn(notificationSearch);
+
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotificationDelegated(inputSearchNotificationDelegatedDto);
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals( 3, results.getResultsPage().size());
+    }
 }

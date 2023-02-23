@@ -82,7 +82,7 @@ class ReceivedNotificationsDocumentTest {
 		this.entityDao = Mockito.mock(NotificationEntityDao.class);
 		this.entity2DtoMapper = Mockito.mock(EntityToDtoNotificationMapper.class);
 		this.pnDataVaultClient = Mockito.mock(PnDataVaultClientImpl.class);
-		this.notificationDao = new NotificationDaoDynamo(entityDao, null, null, entity2DtoMapper, pnDataVaultClient);
+		this.notificationDao = new NotificationDaoDynamo(entityDao, null, null, null, entity2DtoMapper, pnDataVaultClient);
 	}
 
 	@Test

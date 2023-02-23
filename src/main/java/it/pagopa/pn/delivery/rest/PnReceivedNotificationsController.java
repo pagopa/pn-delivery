@@ -7,6 +7,7 @@ import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.RecipientReadApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -22,6 +23,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -73,13 +75,59 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         ResultPaginationDto<NotificationSearchRow, String> serviceResult;
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
-            serviceResult = retrieveSvc.searchNotification(searchDto);
+            serviceResult = retrieveSvc.searchNotification(searchDto, xPagopaPnCxType.getValue(), xPagopaPnCxGroups);
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
             response = mapper.map(serviceResult, NotificationSearchResponse.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<NotificationSearchResponse> searchReceivedDelegatedNotification(String xPagopaPnUid,
+                                                                                          CxTypeAuthFleet xPagopaPnCxType,
+                                                                                          String xPagopaPnCxId,
+                                                                                          OffsetDateTime startDate,
+                                                                                          OffsetDateTime endDate,
+                                                                                          List<String> xPagopaPnCxGroups,
+                                                                                          String senderId,
+                                                                                          String recipientId,
+                                                                                          String group,
+                                                                                          NotificationStatus status,
+                                                                                          Integer size,
+                                                                                          String nextPagesKey) {
+        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEvent logEvent = auditLogBuilder
+                .before(PnAuditLogEventType.AUD_NT_SEARCH_RCP, "searchReceivedDelegatedNotification")
+                .build();
+        logEvent.log();
+        InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId(xPagopaPnCxId)
+                .startDate(startDate.toInstant())
+                .endDate(endDate.toInstant())
+                .group(group)
+                .senderId(senderId)
+                .receiverId(recipientId)
+                .statuses(status != null ? List.of(status) : Collections.emptyList())
+                .size(size)
+                .nextPageKey(nextPagesKey)
+                .cxGroups(xPagopaPnCxGroups)
+                .build();
+        log.info("Search received delegated notification to {} with filter senderId={} recipientId={}", xPagopaPnCxId, senderId, recipientId);
+        ResultPaginationDto<NotificationSearchRow, String> result;
+        NotificationSearchResponse response;
+        try {
+            result = retrieveSvc.searchNotificationDelegated(searchDto);
+            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
+            response = mapper.map(result, NotificationSearchResponse.class);
+            logEvent.generateSuccess().log();
+        } catch (PnRuntimeException e) {
+            log.error("can not search received delegated notification", e);
+            logEvent.generateFailure("" + e.getProblem()).log();
+            throw  e;
         }
         return ResponseEntity.ok(response);
     }
@@ -100,7 +148,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId);
 
             ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, FullReceivedNotification.class);
@@ -131,7 +179,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -168,7 +216,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader( xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid );
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -205,7 +253,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         logEvent.log();
         ResponseCheckAarMandateDto responseCheckAarMandateDto;
         try {
-            responseCheckAarMandateDto = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId );
+            responseCheckAarMandateDto = notificationQRService.getNotificationByQRWithMandate( requestCheckAarMandateDto, xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnCxGroups );
             logEvent.getMdc().put("iun", responseCheckAarMandateDto.getIun());
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
