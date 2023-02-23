@@ -33,7 +33,7 @@ class PnDeliveryPushClientImplTest {
     void setup() {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         Mockito.when( cfg.getDeliveryPushBaseUrl() ).thenReturn( "http://localhost:8080" );
-        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         this.deliveryPushClient = new PnDeliveryPushClientImpl( restTemplate, cfg );
     }
 

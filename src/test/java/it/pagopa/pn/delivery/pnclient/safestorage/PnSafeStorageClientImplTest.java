@@ -40,7 +40,7 @@ class PnSafeStorageClientImplTest {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         Mockito.when( cfg.getSafeStorageBaseUrl() ).thenReturn( "http://localhost:8080" );
         Mockito.when( cfg.getSafeStorageCxId() ).thenReturn( "pn-delivery-002" );
-        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         this.safeStorageClient = new PnSafeStorageClientImpl( restTemplate, cfg );
     }
 
