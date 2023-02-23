@@ -203,30 +203,28 @@ class NotificationRetrieverServiceTest {
         Assertions.assertNotNull( result );
     }
 
-
     @Test
     void checkMandate_notfound() {
         //Given
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
-                .bySender( false )
-                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
-                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
-                .senderReceiverId( "SENDER_ID" )
-                .filterId( "EEEEEEEEEEEEEEEE" )
-                .size( 10 )
+                .bySender(false)
+                .startDate(Instant.parse("2022-05-01T00:00:00.00Z"))
+                .endDate(Instant.parse("2022-05-30T00:00:00.00Z"))
+                .senderReceiverId("SENDER_ID")
+                .filterId("EEEEEEEEEEEEEEEE")
+                .size(10)
                 .mandateId(MANDATE_ID)
-                .nextPagesKey( null )
+                .nextPagesKey(null)
                 .build();
 
-        ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> results = getPaginatedNotifications();
 
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch ) );
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification(inputSearch, "PF", null));
 
     }
-
 
     @Test
     void checkMandate_ok() {
@@ -254,18 +252,17 @@ class NotificationRetrieverServiceTest {
 
 
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
-        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(mandateResult);
+        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
+                .thenReturn(mandateResult);
 
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch );
+        ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification( inputSearch, "PF", null );
 
         // Then
         Assertions.assertNotNull( result );
     }
-
-
 
     @Test
     void checkMandate_invalidPAId() {
@@ -294,12 +291,12 @@ class NotificationRetrieverServiceTest {
 
 
         ResultPaginationDto<NotificationSearchRow,PnLastEvaluatedKey> results = getPaginatedNotifications();
-        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString())).thenReturn(mandateResult);
+        Mockito.when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any())).thenReturn(mandateResult);
 
         //When
         Mockito.when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
 
-        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch ) );
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.searchNotification( inputSearch, "PF", null ) );
 
     }
 
@@ -852,7 +849,7 @@ class NotificationRetrieverServiceTest {
                 .build();
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
@@ -899,7 +896,7 @@ class NotificationRetrieverServiceTest {
                 .build();
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
@@ -950,7 +947,7 @@ class NotificationRetrieverServiceTest {
                 .build();
 
         //When
-        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( mandateResult );
+        Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
