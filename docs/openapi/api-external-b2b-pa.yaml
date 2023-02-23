@@ -277,17 +277,18 @@ info:
     ><details>
       <summary><strong>Come posso simulare l'upload di un documento su S3?</strong></summary>
       <em>Aprire la shell di Git Bash o un terminal SSH ed eseguire il comando:</em></br></br>
-      >`curl -X<httpMethod> \`</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"Content-type: application/pdf" \`</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"x-amz-checksum-sha256: <checkSum>" \ `</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`--upload-file <file>  \ `</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"x-amz-meta-secret: <secret>" \`</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<url>" \`
+      `curl -X<httpMethod> \`</br>
+      `-H"Content-type: application/pdf" \`</br>
+      `-H"x-amz-meta-secret: <secret>" \`</br>
+      `-H"trailer: x-amz-checksum-sha256" \ `</br>
+      `-H"x-amz-checksum-sha256: <checkSum>" \ `</br>
+      `--upload-file <file>  \ `</br>
+      ` "<url>"`
       </br></br>
       __\<httpMethod\>__: è il metodo http (PUT o POST) indicato nella response della preload, da utilizzare per questa chiamata</br>
+      __\<secret\>__: è il secret ottenuto nella response della preload</br>
       __\<checksum\>__: è il checksum sha256, codificato in base 64, del contenuto binario del file da caricare</br>
       __\<file\>__: è il path del file da caricare</br>
-      __\<secret\>__: è il secret ottenuto nella response della preload</br>
       __\<url\>__: è l'url del bucket S3 ottenuto nella response della preload, sul quale effettuare l'upload del documento</br>
     </details></br>
 
@@ -938,6 +939,8 @@ components:
     PreLoadRequest:
       title: Richiesta di precaricamento di un File
       type: object
+      required:
+        - sha256
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file

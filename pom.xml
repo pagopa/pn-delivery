@@ -72,6 +72,12 @@
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-junit-jupiter</artifactId>
+            <version>5.11.1</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -212,7 +218,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.basedir}/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
                             <configOptions>
                                 <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -303,7 +309,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.basedir}/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
                             <configOptions>
                                 <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>

@@ -13,11 +13,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class PnDeliveryPushClientImplTest {
@@ -34,6 +33,7 @@ class PnDeliveryPushClientImplTest {
     void setup() {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         Mockito.when( cfg.getDeliveryPushBaseUrl() ).thenReturn( "http://localhost:8080" );
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         this.deliveryPushClient = new PnDeliveryPushClientImpl( restTemplate, cfg );
     }
 
@@ -60,7 +60,7 @@ class PnDeliveryPushClientImplTest {
         // When
         Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
                 .thenReturn(response);
-        NotificationHistoryResponse notificationHistoryResponse = deliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), OffsetDateTime.now() );
+        NotificationHistoryResponse notificationHistoryResponse = deliveryPushClient.getTimelineAndStatusHistory( "iun", 1, OffsetDateTime.now() );
 
         // Then
         Assertions.assertNotNull( notificationHistoryResponse );

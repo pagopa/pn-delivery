@@ -494,6 +494,11 @@ class NotificationRetrieverServiceTest {
                                 .noticeCode( NOTICE_CODE )
                                 .noticeCodeAlternative( NOTICE_CODE_ALTERNATIVE )
                                 .build() )
+                        .taxId("77777777777")
+                        .digitalDomicile(NotificationDigitalAddress.builder().address("recipient0@pec.it").build())
+                        .physicalAddress(NotificationPhysicalAddress.builder().address("via Roma").zip("80100").build())
+                        .denomination("Marco Polo")
+                        .internalId("internalId-recipient-0")
                         .build())
                 ).build(), Collections.singletonList( CX_ID ), X_PAGOPA_PN_SRC_CH );
     }
@@ -1223,7 +1228,16 @@ class NotificationRetrieverServiceTest {
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
         //mi aspetto che il destinatario che invoca il servizio (cxid, con indice 0), non "veda" la timeline di VIEWD poiché "appartiene" al destinatario another-recipient con indice 1
         Assertions.assertEquals(1, internalNotificationResult.getTimeline().size());
-        Assertions.assertEquals(TimelineElementCategory.REFINEMENT, internalNotification.getTimeline().get(0).getCategory());
+        Assertions.assertEquals(TimelineElementCategory.REFINEMENT, internalNotificationResult.getTimeline().get(0).getCategory());
+        //mi aspetto che il destinatario che invoca il servizio (cxid, con indice 0), non "veda" nella lista di recipient i dati del recipient con indice 1
+        Assertions.assertEquals(2, internalNotificationResult.getRecipients().size()); //la dimensione dell'array non deve cambiare
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getTaxId());
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getDenomination());
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getDigitalDomicile());
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPayment());
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPhysicalAddress());
+        //e mi aspetto che possa vedere i suoi dati di recipient
+        Assertions.assertEquals(internalNotificationResult.getRecipients().get(0), internalNotificationResult.getRecipients().get(0));
     }
 
     @Test
@@ -1265,6 +1279,16 @@ class NotificationRetrieverServiceTest {
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
         //mi aspetto che il destinatario che invoca il servizio (cxid, con indice 0), "veda" anche la timeline di VIEWD poiché "appartiene" a lui
         Assertions.assertEquals(2, internalNotificationResult.getTimeline().size());
+        //ma mi aspetto che il destinatario che invoca il servizio (cxid, con indice 0), non "veda" i dati del recipient 1
+        Assertions.assertEquals(2, internalNotificationResult.getRecipients().size()); //la dimensione dell'array non deve cambiare
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getTaxId());
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getDenomination());
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getDigitalDomicile());
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPayment());
+        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPhysicalAddress());
+        //e mi aspetto che possa vedere i suoi dati di recipient
+        Assertions.assertEquals(internalNotificationResult.getRecipients().get(0), internalNotificationResult.getRecipients().get(0));
+
     }
 
     private void enrichInternalNotificationWithAnotherRecipient(InternalNotification internalNotification, String recipient) {
@@ -1276,6 +1300,11 @@ class NotificationRetrieverServiceTest {
                         .noticeCode(NOTICE_CODE + 1)
                         .noticeCodeAlternative(NOTICE_CODE_ALTERNATIVE + 1)
                         .build())
+                .taxId("88888888")
+                .digitalDomicile(NotificationDigitalAddress.builder().address("recipient1@pec.it").build())
+                .physicalAddress(NotificationPhysicalAddress.builder().address("via Milano").zip("80100").build())
+                .denomination("Cristoforo Colombo")
+                .internalId("internalId-recipient-1")
                 .build());
 
         internalNotification.setRecipients(notificationRecipients);

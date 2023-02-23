@@ -588,6 +588,7 @@ public class NotificationRetrieverService {
 		String recipientId = delegatorId != null ? delegatorId : internalAuthHeader.xPagopaPnCxId();
 		int recipientIndex = getRecipientIndexFromRecipientId(notification, recipientId);
 		filterTimelinesByRecipient(notification, internalAuthHeader, recipientIndex);
+		filterRecipients(notification, internalAuthHeader, recipientIndex);
 		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo);
 		return notification;
 	}
@@ -595,7 +596,7 @@ public class NotificationRetrieverService {
 	private void filterTimelinesByRecipient(InternalNotification internalNotification, InternalAuthHeader internalAuthHeader, int recipientIndex) {
 		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
 			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
-			//filtro superfluo poiché attualmente il servizio è invocato solo lato destinatario
+			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
 			List<TimelineElement> timeline = internalNotification.getTimeline();
 			log.debug("Timelines size before filter: {}", timeline.size());
 
@@ -606,6 +607,28 @@ public class NotificationRetrieverService {
 
 			log.debug("Timelines size after filter: {}", filteredTimelineElements.size());
 			internalNotification.setTimeline(filteredTimelineElements);
+		}
+	}
+
+	private void filterRecipients(InternalNotification internalNotification, InternalAuthHeader internalAuthHeader, int recipientIndex) {
+		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
+			//se il servizio è invocato da un destinatario (o suo delegato), devo vedere tutti i dati in chiaro solo per lo specifico destinatario
+			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
+
+			//"pulisco gli altri destinatari"
+			var filteredNotificationRecipients = new ArrayList<NotificationRecipient>();
+			for(int i = 0; i< internalNotification.getRecipients().size(); i ++) {
+				NotificationRecipient recipient = internalNotification.getRecipients().get(i);
+				if(i != recipientIndex) {
+					recipient = NotificationRecipient.builder()
+							.recipientType(recipient.getRecipientType())
+							.internalId(recipient.getInternalId())
+							.build();
+				}
+				filteredNotificationRecipients.add(recipient);
+			}
+
+			internalNotification.setRecipients(filteredNotificationRecipients);
 		}
 	}
 
