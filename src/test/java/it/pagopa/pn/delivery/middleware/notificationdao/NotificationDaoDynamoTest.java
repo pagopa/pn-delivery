@@ -25,6 +25,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +37,8 @@ class NotificationDaoDynamoTest {
     private EntityToDtoNotificationMapper entity2dto;
     private ModelMapperFactory modelMapperFactory;
     private PnDataVaultClientImpl pnDataVaultClient;
+    private NotificationEntityDao entityDao;
+    private NotificationMetadataEntityDao metadataEntityDao;
 
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     public static final String ATTACHMENT_BODY_STR = "Body";
@@ -57,8 +60,8 @@ class NotificationDaoDynamoTest {
     void setup() {
         DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper();
         entity2dto = new EntityToDtoNotificationMapper();
-        NotificationEntityDao entityDao = new EntityDaoMock();
-        NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
+        entityDao = new EntityDaoMock();
+        metadataEntityDao = new MetadataEntityDaoMock();
         pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
         dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
     }
@@ -216,6 +219,54 @@ class NotificationDaoDynamoTest {
 
     }
 
+    @Test
+    void searchByIUN(){
+
+        String iun = "IUN";
+        String senderId = "sender-pa-id";
+
+        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto();
+        inputSearchNotificationDto.setIunMatch(iun);
+        entityDao.put(NotificationEntity.builder()
+                        .iun(iun)
+                        .sentAt(Instant.now())
+                        .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
+                        .senderPaId(senderId)
+                .build());
+
+
+        PageSearchTrunk<NotificationMetadataEntity> pageSearchTrunk = this.dao.searchByIUN(inputSearchNotificationDto);
+
+        Assertions.assertNotNull(pageSearchTrunk);
+        Assertions.assertEquals(1, pageSearchTrunk.getResults().size());
+
+    }
+
+    @Test
+    void searchByIUN_mandateNotAllowedPA(){
+
+        String iun = "IUN";
+        String senderId = "sender-pa-id";
+
+        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto();
+        inputSearchNotificationDto.setIunMatch(iun);
+        inputSearchNotificationDto.setMandateAllowedPaIds(List.of("pa-allowed-id"));
+
+        entityDao.put(NotificationEntity.builder()
+                .iun(iun)
+                .sentAt(Instant.now())
+                .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
+                .senderPaId(senderId)
+                .build());
+
+
+        PageSearchTrunk<NotificationMetadataEntity> pageSearchTrunk = this.dao.searchByIUN(inputSearchNotificationDto);
+
+        Assertions.assertNotNull(pageSearchTrunk);
+        Assertions.assertNull(pageSearchTrunk.getResults());
+
+    }
+
     private static class EntityDaoMock implements NotificationEntityDao {
 
         private final Map<Key, NotificationEntity> storage = new ConcurrentHashMap<>();
@@ -283,7 +334,7 @@ class NotificationDaoDynamoTest {
 
         @Override
         public PageSearchTrunk<NotificationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String partitionValue, String sentAt) {
-            return null;
+            return new PageSearchTrunk<NotificationMetadataEntity>(List.of(NotificationMetadataEntity.builder().build()), new ConcurrentHashMap<>());
         }
     }
 
