@@ -161,8 +161,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 queryEnhancedRequest.exclusiveStartKey(),
                 key1.partitionKeyValue() + "/" + key1.sortKeyValue(),
                 key2.partitionKeyValue() + "/" + key2.sortKeyValue(),
-                queryEnhancedRequest.filterExpression().expression(),
-                queryEnhancedRequest.filterExpression().expressionValues()  );
+                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expression(),
+                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expressionValues()  );
 
         SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( queryEnhancedRequest );
 
