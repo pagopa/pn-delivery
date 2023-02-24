@@ -1,0 +1,3029 @@
+openapi: 3.0.1
+info:
+  title: >-
+    ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
+  version: '2023-02-24T14:24:03.251Z'
+basePath: /${stageVariables.ServiceApiPath}
+schemes:
+  - https
+paths:
+  /attachments/preload:
+    post:
+      summary: Richiesta di pre-caricamento dei documenti della notifica
+      description: >-
+        Operazione che richiede a Piattaforma Notifica le informazioni e le
+        autorizzazioni necessarie  a precaricare uno o più file da allegare a
+        una notifica. <br/>
+      tags:
+        - NewNotification
+      operationId: presignedUploadRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PreLoadRequest'
+              minItems: 1
+              maxItems: 15
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PreLoadResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/attachments/preload
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /attachments/preload API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/attachments/preload
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /requests:
+    post:
+      summary: Richiesta invio notifica
+      description: >-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere
+        l'invio di una notifica.
+
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è
+        sintatticamente
+
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+
+        Per conoscere lo stato di accettazione della richiesta di notifica
+        bisogna utilizzare l'operazione
+
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push
+        prevista dai webhook. <br/>
+      tags:
+        - NewNotification
+      operationId: sendNewNotification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewNotificationRequest'
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    get:
+      operationId: retrieveNotificationRequestStatus
+      tags:
+        - SenderReadB2B
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è
+        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
+        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+      parameters:
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /requests API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/sent/{iun}:
+    get:
+      summary: 'Mittente: lettura dettagli notifica'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotification
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FullSentNotification'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /notifications/sent/{iun} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/sent/{iun}/attachments/documents/{docIdx}:
+    get:
+      description: Download documento notificato
+      summary: Download documento notificato
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationDocument
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}/attachments/documents/{docIdx}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: >-
+        Options for /notifications/sent/{iun}/attachments/documents/{docIdx} API
+        CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}/attachments/documents/{docIdx}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}:
+    get:
+      description: Download allegato per pagamento
+      summary: Download allegato per pagamento
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationAttachment
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathRecipientIdx'
+        - $ref: '#/components/parameters/pathAttachmentName'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: >-
+        Options for
+        /notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
+        API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /price/{paTaxId}/{noticeCode}:
+    get:
+      operationId: retrieveNotificationPrice
+      summary: Retrieve notification price and effective date
+      description: >-
+        Used to retrieve the notification price charged and effective
+        date          # ONLY EXTERNAL from PagoPa identifiers paTaxId and
+        noticeCode.                             # ONLY EXTERNAL Called from PA
+        to turn notification cost to the receiver during the         # ONLY
+        EXTERNAL pagoPa payment verification
+        phase.                                          # ONLY EXTERNAL
+      tags:
+        - NotificationPrice
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            $ref: '#/components/schemas/paTaxId'
+        - name: noticeCode
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            $ref: '#/components/schemas/noticeCode'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPriceResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/price/{paTaxId}/{noticeCode}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /price/{paTaxId}/{noticeCode} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/price/{paTaxId}/{noticeCode}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /events/payment/pagopa:
+    post:
+      operationId: paymentEventsRequestPagoPa
+      description: >-
+        Questa API è a disposizione della Pubblica Amministrazione per inviare
+        eventi di chiusura di una o più posizioni debitorie di tipo PagoPA.
+        <br/>
+      tags:
+        - PaymentEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentEventsRequestPagoPa'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/pagopa
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /events/payment/pagopa API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/pagopa
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /events/payment/f24:
+    post:
+      operationId: paymentEventsRequestF24
+      description: >-
+        Questa API è a disposizione della Pubblica Amministrazione per inviare
+        eventi di chiusura di una o più posizioni debitorie di tipo F24. <br/>
+      tags:
+        - PaymentEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentEventsRequestF24'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/f24
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /events/payment/f24 API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/f24
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/sent:
+    get:
+      summary: Ricerca notifiche inviate
+      description: >-
+        servizio di consultazione dello stato di invio delle notifiche
+        individuate dai parametri  di ricerca specificati
+      tags:
+        - SenderReadWeb
+      operationId: searchSentNotification
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'
+        - $ref: '#/components/parameters/cxTypeAuthFleet'
+        - $ref: '#/components/parameters/cxIdAuthFleet'
+        - $ref: '#/components/parameters/cxGroups'
+        - $ref: '#/components/parameters/notificationSearchStartDate'
+        - $ref: '#/components/parameters/notificationSearchEndDate'
+        - $ref: '#/components/parameters/notificationSearchRecipientId'
+        - $ref: '#/components/parameters/notificationSearchStatus'
+        - $ref: '#/components/parameters/notificationSearchSubject'
+        - $ref: '#/components/parameters/notificationSearchIun'
+        - $ref: '#/components/parameters/notificationSearchPageSize'
+        - $ref: '#/components/parameters/notificationSearchNextPagesKey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSearchResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /notifications/sent API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/received:
+    get:
+      summary: Ricerca notifiche inviate
+      description: >-
+        servizio di consultazione dello stato di invio delle notifiche
+        individuate dai parametri  di ricerca specificati
+      tags:
+        - RecipientRead
+      operationId: searchReceivedNotification
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      parameters:
+        - $ref: '#/components/parameters/notificationSearchStartDate'
+        - $ref: '#/components/parameters/notificationSearchEndDate'
+        - $ref: '#/components/parameters/notificationSearchMandateId'
+        - $ref: '#/components/parameters/notificationSearchSenderId'
+        - $ref: '#/components/parameters/notificationSearchStatus'
+        - $ref: '#/components/parameters/notificationSearchSubject'
+        - $ref: '#/components/parameters/notificationSearchIun'
+        - $ref: '#/components/parameters/notificationSearchPageSize'
+        - $ref: '#/components/parameters/notificationSearchNextPagesKey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSearchResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /notifications/received API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/received/{iun}:
+    get:
+      summary: Accesso notifiche ricevute
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
+        dettagli delle  notifiche ricevute.
+      tags:
+        - RecipientRead
+      operationId: getReceivedNotification
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/notificationSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/FullReceivedNotification'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /notifications/received/{iun} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/received/{iun}/attachments/documents/{docIdx}:
+    get:
+      summary: Download documento notificato
+      tags:
+        - RecipientRead
+      operationId: getReceivedNotificationDocument
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/documents/{docIdx}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: >-
+        Options for /notifications/received/{iun}/attachments/documents/{docIdx}
+        API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/documents/{docIdx}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/received/{iun}/attachments/payment/{attachmentName}:
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - RecipientRead
+      operationId: getReceivedNotificationAttachment
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/payment/{attachmentName}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: >-
+        Options for
+        /notifications/received/{iun}/attachments/payment/{attachmentName} API
+        CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/payment/{attachmentName}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /notifications/received/check-aar-qr-code:
+    post:
+      description: Servizio per la verifica accesso rapido
+      summary: servizio per la verifica del aar-qr-code
+      tags:
+        - RecipientRead
+      operationId: checkAarQrCode
+      security:
+        - pn-auth-fleet_jwtAuthorizer: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCheckAarMandateDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCheckAarMandateDto'
+        '404':
+          description: QrCode reference Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-aar-qr-code
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.path.proxy: method.request.path.proxy
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /notifications/received/check-aar-qr-code API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-aar-qr-code
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /v3/api-docs:
+    x-amazon-apigateway-any-method:
+      operationId: Proxy to pn-delivery public api-docs
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v3/api-docs
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+components:
+  parameters:
+    notificationRequestId:
+      in: query
+      required: false
+      name: notificationRequestId
+      description: identificativo della richiesta di notifica
+      schema:
+        type: string
+    paProtocolNumber:
+      name: paProtocolNumber
+      in: query
+      required: false
+      description: >-
+        Numero di protocollo associato alla notifica, può essere riutilizzato
+        per rettifiche.
+      schema:
+        type: string
+    idempotenceToken:
+      name: idempotenceToken
+      description: >-
+        token usato per disambiguare "richieste di notificazione" effetuate con
+        lo stesso  numero di protocollo. 
+      in: query
+      required: false
+      schema:
+        type: string
+    pathDocumentIdx:
+      name: docIdx
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    pathRecipientIdx:
+      name: recipientIdx
+      description: indice dei destinatario nella lista partendo da 0.
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: PAGOPA|F24
+    pathLegalFactType:
+      description: Categoria dell'atto opponbile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/LegalFactCategory'
+    pathLegalFactId:
+      description: Identificativo dell'atto opponbile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+    pathIun:
+      description: Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+    cxTypeAuthFleet:
+      name: x-pagopa-pn-cx-type
+      in: header
+      description: Customer/Receiver Type
+      required: true
+      schema:
+        $ref: '#/components/schemas/CxTypeAuthFleet'
+    cxIdAuthFleet:
+      name: x-pagopa-pn-cx-id
+      in: header
+      description: Customer/Receiver Identifier
+      required: true
+      schema:
+        type: string
+    cxGroupsAuthFleet:
+      $ref: '#/components/parameters/cxGroups'
+    uidAuthFleet:
+      name: x-pagopa-pn-uid
+      in: header
+      description: User Identifier
+      required: true
+      schema:
+        type: string
+    cxGroups:
+      name: x-pagopa-pn-cx-groups
+      in: header
+      description: Customer Groups
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+    notificationSearchStartDate:
+      name: startDate
+      in: query
+      required: true
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
+      schema:
+        type: string
+        format: date-time
+    notificationSearchEndDate:
+      name: endDate
+      in: query
+      required: true
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
+      schema:
+        type: string
+        format: date-time
+    notificationSearchRecipientId:
+      name: recipientId
+      in: query
+      required: false
+      description: identificativo del destinatario
+      schema:
+        type: string
+    notificationSearchStatus:
+      name: status
+      in: query
+      required: false
+      description: stato della notifica
+      schema:
+        $ref: '#/components/schemas/NotificationStatus'
+    notificationSearchSubject:
+      name: subjectRegExp
+      description: >-
+        Regular expression usata, se presente, per filtrare i risultati in base
+        al subject  delle notifiche.
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchIun:
+      name: iunMatch
+      description: >-
+        Se presente indica che lo IUN dei risultati deve essere uguale al valore
+        di questo parametro.
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchPageSize:
+      name: size
+      description: dmensione della pagina di risultati
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+        maximum: 50
+    notificationSearchNextPagesKey:
+      name: nextPagesKey
+      description: >-
+        Chiave indicante la pagina di risultati, da specificare solo se si vuole
+        una pagina  diversa dalla prima.
+      in: query
+      required: false
+      schema:
+        type: string
+    queryMandateId:
+      name: mandateId
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
+    notificationSearchSenderId:
+      name: senderId
+      in: query
+      required: false
+      description: identificativo del mittente
+      schema:
+        type: string
+  schemas:
+    PnStatusResponse:
+      title: Stato attuale di PN
+      description: >-
+        Elenco delle funzionalità della piattaforma ed elenco dei disservizi
+        noti e attivi  al momento della richiesta. I disservizi
+        (_openIncidents_) segnalati sono al più uno  per funzionalità; gli
+        attributi _endDate_ e _legalFactId_ non saranno valorizzati.
+      type: object
+      required:
+        - functionalities
+        - openIncidents
+      properties:
+        status:
+          description: Bad Request
+          example: 400
+          exclusiveMaximum: true
+          format: int32
+          maximum: 600
+          minimum: 100
+          type: integer
+        title:
+          description: The server cannot process the request
+          example: Bad Request
+          maxLength: 64
+          pattern: ^[ -~]{0,64}$
+          type: string
+        detail:
+          description: The server cannot process the request
+          example: Bad Request
+          maxLength: 4096
+          pattern: ^.{0,4096}$
+          type: string
+        functionalities:
+          title: elenco funzionalità di PN
+          description: >-
+            Un array che comprende tutti i possibili valori dell'enum
+            _PnFunctionality_
+          type: array
+          items:
+            $ref: '#/components/schemas/PnFunctionality'
+        openIncidents:
+          title: elenco disservizi correnti
+          description: Al più uno per funzionalità
+          type: array
+          items:
+            $ref: '#/components/schemas/PnDowntimeEntry'
+    PreLoadRequest:
+      title: Richiesta di precaricamento di un File
+      type: object
+      properties:
+        preloadIdx:
+          title: Id della richiesta di precaricamento di un file
+          description: >-
+            Identificativo univoco all'interno della request HTTP, serve per
+            correlare la risposta. 
+          type: string
+        contentType:
+          title: MIME type del file che verrà caricato
+          description: >-
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è
+            supportato solo
+              - application/pdf
+          type: string
+          example: application/pdf
+        sha256:
+          title: checksum sha256 del file che verrà caricato
+          description: >-
+            checksum sha256, codificato in base 64, del contenuto binario del
+            file che verrà caricato
+          type: string
+          example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
+    PreLoadResponse:
+      title: Informazioni per il caricamento file
+      description: >-
+        Per ogni richiesta che è stata fatta viene fornito un presigned URL e
+        le  informazioni per usarlo.
+      type: object
+      properties:
+        preloadIdx:
+          description: per correlazione con la richiesta
+          type: string
+        secret:
+          description: >-
+            Token aggiuntivo per far si che sia necessario intercettare anche
+            gli  header e non solo l'URL di upload del contenuto del documento.
+          example: AZ23RF12
+          type: string
+        httpMethod:
+          description: >-
+            Indica se per l'upload del contenuto file bisogna utilizzare il
+            metodo PUT o POST
+          type: string
+          example: PUT
+          enum:
+            - POST
+            - PUT
+        url:
+          description: URL a cui effettuare l'upload del contenuto del documento.
+          type: string
+          example: https://preloadpn.aws.amazon.......
+        key:
+          description: >-
+            la chiave restituita sarà globalmente unica e andrà utilizzata nella
+            richiesta  di notifica.
+          example: PN_NOTIFICATION_ATTACHMENTS-0001-301W-B9CB-9U72-WIKD
+          type: string
+    NotificationPriceResponse:
+      title: Notification price Response
+      description: Notification price and effective date
+      type: object
+      properties:
+        iun:
+          $ref: '#/components/schemas/IUN'
+        amount:
+          description: amount in euro cents
+          example: '1220'
+          type: string
+        effectiveDate:
+          description: notification effective IT local date
+          type: string
+          format: date-time
+    NewNotificationResponse:
+      title: Identificativi della richiesta di notifica
+      description: >-
+        Contiene le informazioni per identificare una richiesta di invio
+        notifica che non è ancora stata accettata da Piattaforma notifiche.
+      type: object
+      required:
+        - notificationRequestId
+        - paProtocolNumber
+      properties:
+        notificationRequestId:
+          type: string
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
+        paProtocolNumber:
+          type: string
+          description: Identificativo inviato dalla pubblica amministrazione
+        idempotenceToken:
+          description: >-
+            Ripetizione del token usato per disambiguare "richieste di
+            notificazione"  effetuate con lo stesso numero di protocollo (campo
+            _paProtocolNumber_). 
+          type: string
+    NewNotificationRequestStatusResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - notificationRequestId
+            - notificationRequestStatus
+          properties:
+            notificationRequestId:
+              description: >-
+                identificativo univoco di una richiesta di invio notifica, non è
+                lo IUN
+              type: string
+            notificationRequestStatus:
+              description: >-
+                - __WAITING__: in attesa di essere valutata - __ACCEPTED__:
+                richiesta di notifica accettata, lo IUN è valorizzato -
+                __REFUSED__: richiesta di notifica rifiutata, è valorizzato il
+                campo _errors_
+              type: string
+            retryAfter:
+              type: integer
+              format: int32
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova
+                richiesta per  la stessa entità; valorizzato quando lo status è
+                __WAITING__.
+            iun:
+              $ref: '#/components/schemas/IUN'
+            errors:
+              description: >-
+                Elenco degli errori che hanno causato il rifiuto della richiesta
+                di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/ProblemError'
+    Problem:
+      properties:
+        type:
+          description: URI reference of type definition
+          type: string
+        status:
+          description: >-
+            The HTTP status code generated by the origin server for this
+            occurrence of the problem.
+          type: integer
+          format: int32
+          example: 503
+          maximum: 600
+          minimum: 100
+          exclusiveMaximum: true
+        title:
+          description: >-
+            A short, summary of the problem type. Written in english and
+            readable
+          example: Service Unavailable
+          maxLength: 64
+          pattern: ^[ -~]{0,64}$
+          type: string
+        detail:
+          description: A human readable explanation of the problem.
+          example: Request took too long to complete.
+          maxLength: 4096
+          pattern: ^.{0,4096}$
+          type: string
+        traceId:
+          description: Internal support identifier associated to error
+          example: 123e4567-e89b-12d3-a456-426614174000
+          type: string
+        timestamp:
+          description: date and time referred to UTC
+          example: '2022-07-27T12:22:33.444Z'
+          type: string
+          format: date-time
+        errors:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ProblemError'
+      required:
+        - status
+        - errors
+    ProblemError:
+      properties:
+        code:
+          description: Internal code of the error, in human-readable format
+          example: >-
+            PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY
+            | etc...
+          type: string
+        element:
+          description: Parameter or request body field name for validation error
+          example: body.order.item[2].quantity
+          type: string
+        detail:
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Parameter not valid
+          maxLength: 1024
+          type: string
+      required:
+        - code
+    FullSentNotification:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: '#/components/schemas/SentNotification'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElement'
+    PaymentEventsRequestPagoPa:
+      title: Invio eventi di pagamento da PA a PN
+      description: >-
+        Richiesta contenente un array di eventi di pagamento di tipo PagoPA di
+        cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi di pagamento
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentEventPagoPa'
+    PaymentEventsRequestF24:
+      title: Invio eventi di pagamento da PA a PN
+      description: >-
+        Richiesta contenente un array di eventi di pagamento di tipo F24 di cui
+        una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          description: Elenco degli eventi di pagamento
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentEventF24'
+    PaymentEventPagoPa:
+      title: Evento di pagamento PagoPa
+      description: |-
+        Comprende: <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - data e ora del pagamento. <br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+        - paymentDate
+      properties:
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        paymentDate:
+          type: string
+          format: date-time
+    PaymentEventF24:
+      title: Evento di pagamento F24
+      description: |-
+        Comprende: <br/>
+          - lo _IUN_ della notifica pagata, <br/>
+          - data e ora del pagamento, <br/>
+          - il codice fiscale del destinatario pagatore, <br/>
+          - e la tipologia del destinatario pagatore (PF / PG). <br/>
+      type: object
+      required:
+        - iun
+        - paymentDate
+        - recipientTaxId
+        - recipientType
+      properties:
+        iun:
+          type: string
+        paymentDate:
+          type: string
+          format: date-time
+        recipientTaxId:
+          $ref: '#/components/schemas/TaxId'
+        recipientType:
+          type: string
+          pattern: PF|PG
+    TimelineElement:
+      type: object
+      additionalProperties: false
+      properties:
+        elementId:
+          type: string
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica definisce in  maniera univoca l'elemento di timeline
+        timestamp:
+          type: string
+          description: >-
+            Momento in cui avviene l'evento descritto in questo elemento di
+            timeline
+          format: date-time
+        legalFactsIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalFactsId'
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
+            descritto in timeline. Questo elemento
+        category:
+          $ref: '#/components/schemas/TimelineElementCategory'
+        details:
+          $ref: '#/components/schemas/TimelineElementDetails'
+    NotificationStatus:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:
+          * `IN_VALIDATION` - notifica depositata in attesa di validazione
+          * `ACCEPTED` - L'ente ha depositato la notifica con successo
+          * `REFUSED` - Notifica rifiutata a seguito della validazione
+          * `DELIVERING` - L'invio della notifica è in corso
+          * `DELIVERED` - La notifica è stata consegnata a tutti i destinatari
+          * `VIEWED` - Il destinatario ha letto la notifica entro il termine stabilito
+          * `EFFECTIVE_DATE` - Il destinatario non ha letto la notifica entro il termine stabilito
+          * `PAID` - Uno dei destinatari ha pagato la notifica
+          * `UNREACHABLE` - Il destinatario non è reperibile
+          * `CANCELLED` - L'ente ha annullato l'invio della notifica
+      enum:
+        - IN_VALIDATION
+        - ACCEPTED
+        - REFUSED
+        - DELIVERING
+        - DELIVERED
+        - VIEWED
+        - EFFECTIVE_DATE
+        - PAID
+        - UNREACHABLE
+        - CANCELLED
+    NotificationStatusHistory:
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: array
+      items:
+        $ref: '#/components/schemas/NotificationStatusHistoryElement'
+    LegalFactDownloadMetadataResponse:
+      title: Url e metadati per il download di un allegato di una notifica
+      description: |-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentLength
+      properties:
+        filename:
+          type: string
+        contentLength:
+          type: number
+          format: decimal32
+          example: 54092
+          description: dmensione, in byte, del contenuto.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
+        retryAfter:
+          type: number
+          format: decimal32
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
+    schemas-ProblemError:
+      properties:
+        code:
+          description: Internal code of the error, in human-readable format
+          example: >-
+            PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY
+            | etc...
+          type: string
+        element:
+          description: Parameter or request body field name for validation error
+          example: body.order.item[2].quantity
+          type: string
+        detail:
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Parameter not valid
+          maxLength: 1024
+          type: string
+      required:
+        - code
+    TaxId:
+      description: C.F. persona fisica o persona giuridica (Partita iva)
+      type: string
+      minLength: 11
+      maxLength: 16
+      pattern: >-
+        ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+    Denomination:
+      description: Denominazione ente o persona fisica / ragione sociale
+      type: string
+      minLength: 1
+      maxLength: 80
+      pattern: ^([\x20-\xFF]{1,80})$
+    NotificationDigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+        - address
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+          enum:
+            - PEC
+        address:
+          type: string
+          example: account@domain
+          description: >-
+            Indirizzo PEC o REM che il mittente della notifica intende
+            utilizzare per  raggiungere il destinatario.
+    NotificationPhysicalAddress:
+      description: >-
+        Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in
+        fase di Sperimentazione)
+      type: object
+      required:
+        - address
+        - municipality
+        - zip
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune
+        municipalityDetails:
+          type: string
+          description: Frazione o località
+        province:
+          type: string
+          description: Provincia
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+    noticeCode:
+      description: Payment notice number  numero avviso
+      example: '302000100000019421'
+      type: string
+      maxLength: 18
+      minLength: 18
+      pattern: ^\d+$
+    paTaxId:
+      description: Payment PA fiscal code
+      example: '77777777777'
+      type: string
+      maxLength: 11
+      minLength: 11
+      pattern: ^\d+$
+    NotificationAttachmentDigests:
+      description: Codici per la verifica del corretto caricamento di un allegato
+      type: object
+      required:
+        - sha256
+      properties:
+        sha256:
+          type: string
+          description: Digest "sha256" della codifica binaria dell'allegato
+    NotificationAttachmentBodyRef:
+      description: Riferimento all'allegato precaricato
+      required:
+        - key
+        - versionToken
+      type: object
+      properties:
+        key:
+          type: string
+          description: Chiave in cui è stato salvato l'allegato
+        versionToken:
+          type: string
+          description: Token per recuperare l'esatta istanza dell'allegato
+    NotificationAttachment:
+      description: Un allegato della notifica.
+      type: object
+      required:
+        - digests
+        - contentType
+        - ref
+      properties:
+        digests:
+          $ref: '#/components/schemas/NotificationAttachmentDigests'
+        contentType:
+          type: string
+          description: tipo di contenuto dell'allegato, supportato application/pdf
+        ref:
+          $ref: '#/components/schemas/NotificationAttachmentBodyRef'
+    NotificationPaymentAttachment:
+      description: Un modulo di pagamento allegato alla notifica
+      allOf:
+        - $ref: '#/components/schemas/NotificationAttachment'
+    NotificationPaymentInfo:
+      title: Informazioni per effettuare il pagamento
+      description: >-
+        Informazioni utili per effettuare il pagamento di una notifica, sono
+        associate al destinatario perché le spese di notifica possono differire
+        a seconda del canale di notifica utilizzato. <br/>
+          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
+             calcolato puntualmente. <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
+          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+      properties:
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        noticeCodeAlternative:
+          $ref: '#/components/schemas/noticeCode'
+        pagoPaForm:
+          $ref: '#/components/schemas/NotificationPaymentAttachment'
+        f24flatRate:
+          $ref: '#/components/schemas/NotificationPaymentAttachment'
+        f24standard:
+          $ref: '#/components/schemas/NotificationPaymentAttachment'
+    NotificationRecipient:
+      description: Informazioni sui destinatari
+      required:
+        - denomination
+        - recipientType
+        - taxId
+        - physicalAddress
+      type: object
+      properties:
+        recipientType:
+          type: string
+          description: >-
+            Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)
+          enum:
+            - PF
+            - PG
+        taxId:
+          $ref: '#/components/schemas/TaxId'
+        internalId:
+          type: string
+          description: id interno anonimizzato
+        denomination:
+          $ref: '#/components/schemas/Denomination'
+        digitalDomicile:
+          $ref: '#/components/schemas/NotificationDigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/NotificationPhysicalAddress'
+        payment:
+          $ref: '#/components/schemas/NotificationPaymentInfo'
+    NotificationDocument:
+      description: Un documento da notifcare
+      allOf:
+        - $ref: '#/components/schemas/NotificationAttachment'
+        - type: object
+          properties:
+            title:
+              type: string
+              description: Titolo del documento allegato
+            docIdx:
+              type: string
+              description: Indice del documento partendo da 0.
+    IUN:
+      description: Identificativo Univoco Notifica
+      type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    NewNotificationRequest:
+      description: I campi utilizzati per la creazione di una nuova Notifica.
+      type: object
+      required:
+        - paProtocolNumber
+        - subject
+        - recipients
+        - documents
+        - physicalCommunicationType
+        - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
+      properties:
+        idempotenceToken:
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare
+            differenti  "richieste di notificazione" effettuate con lo stesso
+            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
+            necessario in caso di  "richiesta di notifica" rifiutata per errori
+            nei codici di verifica degli allegati.
+          type: string
+        paProtocolNumber:
+          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+        subject:
+          type: string
+          description: titolo della notifica
+          maxLength: 512
+        abstract:
+          type: string
+          description: descrizione sintetica della notifica
+          maxLength: 1024
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: '#/components/schemas/NotificationRecipient'
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
+          minItems: 1
+        notificationFeePolicy:
+          type: string
+          description: >-
+            Politica di addebitamento dei costi di notifica. <br/> -
+            _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo
+            calcolato in base all'effettivo percorso di notifica. <br/>
+          enum:
+            - FLAT_RATE
+            - DELIVERY_MODE
+        cancelledIun:
+          $ref: '#/components/schemas/IUN'
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+        amount:
+          type: integer
+          format: int32
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
+          description: >-
+            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
+            all'Italia
+        taxonomyCode:
+          type: string
+          minLength: 7
+          maxLength: 7
+          pattern: ^([0-9]{6}[A-Z]{1})$
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente
+            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
+            PIATTAFORMA NOTIFICHE
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
+          default: 010101P
+    SentNotification:
+      description: Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: >-
+                Identificativo IPA della PA mittente che ha eseguito
+                l'onborading su SelfCare.
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              $ref: '#/components/schemas/IUN'
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
+    TimelineElementId:
+      type: string
+    NotificationStatusHistoryElement:
+      description: elenco degli avanzamenti effettuati dal processo di notifica
+      type: object
+      required:
+        - status
+        - activeFrom
+        - relatedTimelineElements
+      properties:
+        status:
+          $ref: '#/components/schemas/NotificationStatus'
+        activeFrom:
+          type: string
+          description: data e ora di raggiungimento dello stato di avanzamento
+          format: date-time
+        relatedTimelineElements:
+          type: array
+          description: Eventi avvenuti nello stato
+          items:
+            $ref: '#/components/schemas/TimelineElementId'
+    LegalFactCategory:
+      title: Tipi di atti opponibili a terzi
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a
+        disposizione dei suoi utenti.
+          - _SENDER_ACK_: atto di "presa in carico" di una notifica
+          - _DIGITAL_DELIVERY_: ...
+      type: string
+      enum:
+        - SENDER_ACK
+        - DIGITAL_DELIVERY
+        - ANALOG_DELIVERY
+        - RECIPIENT_ACCESS
+        - PEC_RECEIPT
+    LegalFactsId:
+      description: Chiavi dei documenti generati durante il processo di consegna cartacea
+      type: object
+      required:
+        - key
+        - category
+      properties:
+        key:
+          description: >-
+            Chiave dell'atto opponibile a terzi generato durante il processo di
+            consegna
+          type: string
+        category:
+          $ref: '#/components/schemas/LegalFactCategory'
+    TimelineElementCategory:
+      type: string
+      description: |
+        stato di avanzamento del processo di notifica:`
+          * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
+          * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
+          * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
+          * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
+          * `PUBLIC_REGISTRY_CALL` - Effettuata la richiesta ai registri pubblici per ottenere l'indirizzo generale
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
+          * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
+          * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
+          * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
+          * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
+          * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
+          * `REFINEMENT` - Perfezionamento per decorrenza termini
+          * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
+          * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
+          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
+          * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
+          * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
+          * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
+          * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+          * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
+          * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Ricezione pagamento della notifica
+          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+      enum:
+        - SENDER_ACK_CREATION_REQUEST
+        - REQUEST_ACCEPTED
+        - SEND_COURTESY_MESSAGE
+        - GET_ADDRESS
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
+        - SCHEDULE_ANALOG_WORKFLOW
+        - SCHEDULE_DIGITAL_WORKFLOW
+        - SEND_DIGITAL_DOMICILE
+        - SEND_DIGITAL_PROGRESS
+        - SEND_DIGITAL_FEEDBACK
+        - REFINEMENT
+        - SCHEDULE_REFINEMENT
+        - DIGITAL_DELIVERY_CREATION_REQUEST
+        - DIGITAL_SUCCESS_WORKFLOW
+        - DIGITAL_FAILURE_WORKFLOW
+        - ANALOG_SUCCESS_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW
+        - PREPARE_SIMPLE_REGISTERED_LETTER
+        - SEND_SIMPLE_REGISTERED_LETTER
+        - NOTIFICATION_VIEWED_CREATION_REQUEST
+        - NOTIFICATION_VIEWED
+        - PREPARE_ANALOG_DOMICILE
+        - SEND_ANALOG_DOMICILE
+        - SEND_ANALOG_PROGRESS
+        - SEND_ANALOG_FEEDBACK
+        - PAYMENT
+        - COMPLETELY_UNREACHABLE
+        - REQUEST_REFUSED
+        - AAR_CREATION_REQUEST
+        - AAR_GENERATION
+        - NOT_HANDLED
+    SenderAckCreationRequestDetails:
+      type: object
+      properties:
+        legalfactId:
+          type: string
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
+    NotificationRequestAcceptedDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    AnalogFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    PhysicalAddress:
+      type: object
+      required:
+        - address
+        - municipality
+        - zip
+      properties:
+        at:
+          type: string
+          description: Campo "presso" dell'indirizzo
+        address:
+          type: string
+          description: Indirizzo del domicilio fisico
+        addressDetails:
+          type: string
+          description: Seconda riga dell'indirizzo fisico
+        zip:
+          type: string
+          description: Codice di avviamento postale
+        municipality:
+          type: string
+          description: Comune in cui l'indirizzo si trova
+        municipalityDetails:
+          type: string
+          description: Frazione o località
+        province:
+          type: string
+          description: Provincia in cui si trova l'indirizzo
+        foreignState:
+          type: string
+          description: Denominazione paese estero
+      description: Indirizzo fisico scoperto durante fase di consegna
+    AnalogSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+    CompletelyUnreachableDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    DigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+        - address
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+        address:
+          type: string
+          description: account@domain
+    EndWorkflowStatus:
+      type: string
+      description: Stato chiusura workflow
+      enum:
+        - SUCCESS
+        - FAILURE
+    DigitalDeliveryCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        endWorkflowStatus:
+          $ref: '#/components/schemas/EndWorkflowStatus'
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
+        legalfactId:
+          type: string
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
+    DigitalFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    DigitalSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+    DigitalAddressSource:
+      type: string
+      description: sorgente indirizzo di invio della notifica
+      enum:
+        - PLATFORM
+        - SPECIAL
+        - GENERAL
+    GetAddressInfoDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - isAvailable
+        - attemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        isAvailable:
+          type: boolean
+          description: Disponibilità indirizzo
+        attemptDate:
+          type: string
+          description: Data tentativo
+          format: date-time
+    RaddType:
+      type: string
+      description: |
+        tipo di Rete Anti Digital Divide <br/>
+        __FSU__: Fornitore Servizio Universale <br/>
+    RaddTransactionId:
+      type: string
+      description: Identificativo della pratica all'interno della rete RADD
+    RecipientType:
+      type: string
+      enum:
+        - PF
+        - PG
+    DelegateInfo:
+      type: object
+      properties:
+        internalId:
+          type: string
+        taxId:
+          type: string
+        operatorUuid:
+          type: string
+        mandateId:
+          type: string
+        denomination:
+          type: string
+        delegateType:
+          $ref: '#/components/schemas/RecipientType'
+    NotificationViewedCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalfactId:
+          type: string
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
+        eventTimestamp:
+          type: string
+          description: Data ricezione richiesta visualizzazione notifica
+          format: date-time
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
+    NotificationViewedDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationCost:
+          description: >-
+            costo notifica in euro cents, può essere nullo se la notifica si è
+            perfezionata prima per decorrenza termini
+          example: 1220
+          type: integer
+          format: int64
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
+    DeliveryMode:
+      type: string
+      description: Tipologia Domiciliazione
+      enum:
+        - DIGITAL
+        - ANALOG
+    ContactPhase:
+      type: string
+      description: Fase in cui è avvenuta la richiesta
+      enum:
+        - CHOOSE_DELIVERY
+        - SEND_ATTEMPT
+    PublicRegistryCallDetails:
+      type: object
+      required:
+        - recIndex
+        - deliveryMode
+        - contactPhase
+        - sentAttemptMade
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        deliveryMode:
+          $ref: '#/components/schemas/DeliveryMode'
+        contactPhase:
+          $ref: '#/components/schemas/ContactPhase'
+        sentAttemptMade:
+          type: integer
+          description: Numero di tentativi di notificazione già effettuati
+          format: int32
+        sendDate:
+          type: string
+          description: Data invio richiesta ai public registry
+          format: date-time
+    PublicRegistryResponseDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+    RefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationCost:
+          description: >-
+            costo notifica in euro cents, può essere nullo se la notifica si è
+            perfezionata prima per visualizzazione
+          example: 1220
+          type: integer
+          format: int64
+    RequestRefusedDetails:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            type: string
+            description: Motivazioni che hanno portato al rifiuto della notifica
+    ScheduleAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    ScheduleDigitalWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - sentAttemptMade
+        - lastAttemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        sentAttemptMade:
+          type: integer
+          format: int32
+        lastAttemptDate:
+          type: string
+          format: date-time
+    ScheduleRefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    SendCourtesyMessageDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        sendDate:
+          type: string
+          description: data invio messaggio di cortesia
+          format: date-time
+    SendDigitalDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - retryNumber
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+    ResponseStatus:
+      type: string
+      description: stato risposta ricevuta da externalChannel
+      enum:
+        - OK
+        - KO
+    SendingReceipt:
+      type: object
+      properties:
+        id:
+          type: string
+        system:
+          type: string
+    SendDigitalFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - responseStatus
+        - notificationDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        errors:
+          type: array
+          x-pn-fieldannotations: >-
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+    SendDigitalProgressDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        eventCode:
+          type: string
+          description: esito tornate da ext-channel
+        shouldRetry:
+          type: boolean
+          description: indica se il progress ha dato luogo ad un ritentativo
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+    ServiceLevel:
+      type: string
+      description: Livello Servizio
+      enum:
+        - AR_REGISTERED_LETTER
+        - REGISTERED_LETTER_890
+    SendAnalogDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        serviceLevel:
+          $ref: '#/components/schemas/ServiceLevel'
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        relatedRequestId:
+          type: string
+          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
+        productType:
+          type: string
+          description: Tipo di invio cartaceo effettivamente inviato
+        analogCost:
+          type: integer
+          description: costo in eurocent dell'invio
+          format: int32
+    SendAnalogFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+        - responseStatus
+        - investigation
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        serviceLevel:
+          $ref: '#/components/schemas/ServiceLevel'
+        sentAttemptMade:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        investigation:
+          type: boolean
+          description: E' richiesta investigazione indirizzo fisico alternativo
+        newAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        errors:
+          type: array
+          x-pn-fieldannotations: >-
+            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
+          description: Lista errori, vuota in caso di successo
+          items:
+            type: string
+            description: Lista errori, vuota in caso di successo
+    SimpleRegisteredLetterDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        productType:
+          type: string
+          description: Tipo di invio cartaceo effettivamente inviato
+        analogCost:
+          type: integer
+          description: costo in eurocent dell'invio
+          format: int32
+    AarCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - aarKey
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        aarKey:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
+          format: int32
+    AarGenerationDetails:
+      type: object
+      required:
+        - recIndex
+        - generatedAarUrl
+        - numberOfPages
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
+        numberOfPages:
+          type: integer
+          description: numero di pagine del PDF generato
+          format: int32
+    NotHandledDetails:
+      type: object
+      required:
+        - recIndex
+        - reasonCode
+        - reason
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        reasonCode:
+          type: string
+          description: Codice motivazione casistica non gestita
+        reason:
+          type: string
+          description: Motivazione casistica non gestita
+    NotificationPaidDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+    TimelineElementDetails:
+      description: The raw event payload that will be different based on the event.
+      oneOf:
+        - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
+        - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
+        - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
+        - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableDetails'
+        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
+        - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
+        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/GetAddressInfoDetails'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetails'
+        - $ref: '#/components/schemas/NotificationViewedDetails'
+        - $ref: '#/components/schemas/PublicRegistryCallDetails'
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - $ref: '#/components/schemas/RefinementDetails'
+        - $ref: '#/components/schemas/RequestRefusedDetails'
+        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
+        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
+        - $ref: '#/components/schemas/ScheduleRefinementDetails'
+        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/SendDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendAnalogDetails'
+        - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
+        - $ref: '#/components/schemas/AarCreationRequestDetails'
+        - $ref: '#/components/schemas/AarGenerationDetails'
+        - $ref: '#/components/schemas/NotHandledDetails'
+        - $ref: '#/components/schemas/NotificationPaidDetails'
+    NotificationAttachmentDownloadMetadataResponse:
+      title: Url e metadati per il download di un allegato di una notifica
+      description: |-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentType
+        - contentLength
+        - sha256
+      properties:
+        filename:
+          type: string
+        contentType:
+          type: string
+          example: application/pdf
+        contentLength:
+          type: integer
+          format: int32
+          example: 54092
+          description: dmensione, in byte, del contenuto.
+        sha256:
+          type: string
+          description: SHA256 del contenuto del file.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
+        retryAfter:
+          type: integer
+          format: int32
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia disponibile per il download.
+    PnFunctionality:
+      title: Funzionalità di PN
+      description: >-
+        - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
+
+        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le
+        notifiche e scaricare gli atti. 
+
+        - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
+      type: string
+      enum:
+        - NOTIFICATION_CREATE
+        - NOTIFICATION_VISUALIZATION
+        - NOTIFICATION_WORKFLOW
+      x-enum-varnames:
+        - NOTIFICATION_CREATE
+        - NOTIFICATION_VISUALIZATION
+        - NOTIFICATION_WORKFLOW
+    PnFunctionalityStatus:
+      type: string
+      enum:
+        - KO
+        - OK
+    PnDowntimeEntry:
+      title: Dati relativi ad un disservizio di PN.
+      type: object
+      required:
+        - functionality
+        - status
+        - startDate
+      properties:
+        functionality:
+          $ref: '#/components/schemas/PnFunctionality'
+        status:
+          $ref: '#/components/schemas/PnFunctionalityStatus'
+        startDate:
+          title: data inizio disservizio
+          type: string
+          format: date-time
+        endDate:
+          title: data fine disservizio
+          description: >-
+            se il disservizio è ancora attivo questo campo sarà assente o con
+            valore _null_
+          type: string
+          format: date-time
+        legalFactId:
+          title: id dell'atto opponibile a terzi
+          description: >-
+            Se assente o valorizzato _null_ indica che l'atto opponibile a terzi
+            non è ancora disponibile. Questo avviene per i disservizi ancora
+            aperti e per i disservizi  terminati da pochi minuti. <br/> Questo
+            valore è da utilizzare con l'API _getLegalFact_ di questo stesso
+            servizio.
+          type: string
+        fileAvailable:
+          type: boolean
+    CxTypeAuthFleet:
+      type: string
+      enum:
+        - PA
+        - PF
+        - PG
+    NotificationSearchRow:
+      type: object
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco Notifica
+          $ref: '#/components/schemas/IUN'
+        paProtocolNumber:
+          type: string
+          description: Numero protocollo associato alla notifica da parte della PA
+        sender:
+          type: string
+          description: Denominazione della PA che ha inviato l'atto.
+        sentAt:
+          type: string
+          description: Data spedizione notifica
+          format: date-time
+        subject:
+          type: string
+          description: Oggetto della notifica
+        notificationStatus:
+          $ref: '#/components/schemas/NotificationStatus'
+        recipients:
+          description: >-
+            Elenco delle denominazioni dei destinatari della notifica. <br/>
+            __N.B:__ campo da utilizzare solo per visualizzazione.
+          type: array
+          items:
+            type: string
+        requestAcceptedAt:
+          description: Data accettazione notifica
+          type: string
+          format: date-time
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+    NotificationSearchResponse:
+      title: Elenco di notifiche
+      description: >-
+        Dto contenente i risultati di una ricerca di notifiche. Ogni risposta
+        conterrà solo  una pagina di risultati relativi a una ricerca e le
+        indicazioni per raggiungere alcune pagine successive.
+      type: object
+      properties:
+        resultsPage:
+          description: Una pagina di risultati della query
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationSearchRow'
+        moreResult:
+          description: Indica se sono presenti ulteriori pagine di risultati
+          type: boolean
+        nextPagesKey:
+          description: >-
+            Elenco, non esaustivo, delle chiavi da usare per richiedere le 
+            pagine di risultati successive a quella corrente. <br/> Valorizzato
+            solo se il campo __moreResult__ ha valore __true__.
+          type: array
+          items:
+            type: string
+    FullReceivedNotification:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata e il
+        processo di  inoltro della notifica verso i destinatari (Persone Fisiche
+        o Giuridiche).
+      allOf:
+        - $ref: '#/components/schemas/SentNotification'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElement'
+    RequestCheckAarMandateDto:
+      description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
+      type: object
+      required:
+        - aarQrCodeValue
+      properties:
+        aarQrCodeValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          pattern: ^[A-Za-z0-9_-]*$
+          minLength: 106
+          maxLength: 136
+    ResponseCheckAarMandateDto:
+      description: >-
+        Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue
+        con possibile identificativo della delega attiva
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          $ref: '#/components/schemas/IUN'
+        mandateId:
+          description: identificativo della delega
+          type: string
+  securitySchemes:
+    pn-auth-fleet_jwtAuthorizer:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: custom
+      x-amazon-apigateway-authorizer:
+        authorizerUri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${stageVariables.ProjectName}-jwtAuthorizerLambda/invocations
+        authorizerResultTtlInSeconds: 300
+        type: token
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+  - name: HealthCheck
+    description: Invocazioni per sapere lo stato di Piattaforma Notifiche
+  - name: NewNotification
+    description: >-
+      Invocazioni per effettuare il pre-caricamento dei documenti della notifica
+      e inviare notifiche
+  - name: SenderReadB2B
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle
+      richieste  di notifica inviate e delle notifiche accettate.
+  - name: NotificationPrice
+    description: Invocazioni per determinare il costo della notifica per il destinario.
+  - name: LegalFacts
+    description: Invocazioni per effettuare il downalod degli atti opponibili a terzi
+  - name: PaymentEvents
+    description: Invocazioni per comunicare eventi di pagamento dalla PA
+  - name: SenderReadWeb
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle
+      notifiche inviate
+  - name: RecipientRead
+    description: >-
+      Invocazioni utilizzate dai destinatari per ottenere informazioni sulle
+      notifiche a loro destinate.
+x-amazon-apigateway-gateway-responses:
+  DEFAULT_5XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+  DEFAULT_4XX:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''

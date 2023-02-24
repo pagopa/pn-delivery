@@ -173,6 +173,17 @@ Parameters:
     Type: String
     Description: 'Application load balancer security group'
 
+  # OpenApi Bucket params
+  MicroserviceBucketName:
+    Type: String
+    Default: ''
+    Description: 'Name of the bucket where the microservice files are copied during deploy'
+
+  MicroserviceBucketBaseKey:
+    Type: String
+    Default: ''
+    Description: 'Base key of the microservice in the s3 bucket'
+
   # Heath Check parameters
   HealthCheckInterval:
     Description: Seconds between two health check
@@ -390,7 +401,7 @@ Resources:
   DeliveryMicroservicePublicWebAPI:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         IntendedUsage: WEB
@@ -400,7 +411,10 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn        
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn    
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/api-delivery-WEB-aws.yaml
+
   DeliveryMicroservicePublicWebApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
