@@ -1156,11 +1156,13 @@ components:
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - data e ora del pagamento. <br/>
+          - importo del pagamento in eurocent. <br/>
       type: object
       required:
         - noticeCode
         - creditorTaxId
         - paymentDate
+        - amount
       properties:
         noticeCode:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
@@ -1169,6 +1171,9 @@ components:
         paymentDate:
           type: string
           format: date-time
+        amount:
+          type: integer
+          format: int32
 
     PaymentEventF24:
       title: Evento di pagamento F24
@@ -1177,13 +1182,15 @@ components:
           - lo _IUN_ della notifica pagata, <br/>
           - data e ora del pagamento, <br/>
           - il codice fiscale del destinatario pagatore, <br/>
-          - e la tipologia del destinatario pagatore (PF / PG). <br/>
+          - la tipologia del destinatario pagatore (PF / PG), <br/>
+          - importo del pagamento in eurocent. <br/>
       type: object
       required:
         - iun
         - paymentDate
         - recipientTaxId
         - recipientType
+        - amount
       properties:
         iun:
           type: string
@@ -1195,6 +1202,9 @@ components:
         recipientType:
           type: string
           pattern: "PF|PG"
+        amount:
+          type: integer
+          format: int32
     
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'

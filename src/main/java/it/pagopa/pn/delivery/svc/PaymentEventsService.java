@@ -28,6 +28,8 @@ public class PaymentEventsService {
     public static final String NOTIFICATION_NOT_FOUND_MSG = "No notification by iun=";
     public static final String HANDLE_PAYMENT_EVENT_PAGOPA_NO_NOTIFICATION_BY_IUN_MSG = "Handle payment event PagoPa - No notification by iun={} ";
     public static final String HANDLE_PAYMENT_EVENT_F24_NO_NOTIFICATION_BY_IUN_MSG = "Handle payment event F24 - No notification by iun={} ";
+    public static final String PAYMENT_SOURCE_CHANNEL_PA = "PA";
+
     private final PaymentEventsProducer paymentEventsProducer;
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
@@ -95,8 +97,10 @@ public class PaymentEventsService {
                     .iun( iun )
                     .recipientType( PnDeliveryPaymentEvent.RecipientType.valueOf( recipientType ) )
                     .recipientIdx( recipientIdx )
+                    .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
                     .paymentDate( paymentRequest.getPaymentDate().toInstant() )
                     .paymentType( paymentType )
+                    .paymentAmount( paymentRequest.getAmount() )
                     .creditorTaxId( creditorTaxId )
                     .noticeCode( noticeCode )
                     .build()
@@ -149,8 +153,10 @@ public class PaymentEventsService {
                     .iun( iun )
                     .recipientType( PnDeliveryPaymentEvent.RecipientType.valueOf( paymentEventF24.getRecipientType() ) )
                     .recipientIdx( recipientIdx )
+                    .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
                     .paymentDate( paymentEventF24.getPaymentDate().toInstant() )
                     .paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
+                    .paymentAmount( paymentEventF24.getAmount() )
                     .build()
             );
         }
