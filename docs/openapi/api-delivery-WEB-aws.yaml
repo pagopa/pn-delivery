@@ -3,9 +3,11 @@ info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
   version: '2023-02-24T14:24:03.251Z'
-basePath: /${stageVariables.ServiceApiPath}
-schemes:
-  - https
+servers:
+  - url: "https://${stageVariables.DnsName}/{basePath}"
+    variables:
+      basePath:
+        default: "/${stageVariables.ServiceApiPath}"
 paths:
   /attachments/preload:
     post:
