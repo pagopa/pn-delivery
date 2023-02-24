@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-02-24T16:03:30.484Z'
+  version: '2023-02-24T16:32:32.609Z'
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -262,7 +262,7 @@ paths:
         '200':
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/FullSentNotification'
         '400':
@@ -860,7 +860,7 @@ paths:
         '200':
           description: OK
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/FullReceivedNotification'
         '400':
@@ -3039,6 +3039,9 @@ components:
         mandateId:
           description: identificativo della delega
           type: string
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
   securitySchemes:
     pn-auth-fleet_jwtAuthorizer:
       type: apiKey
@@ -3050,14 +3053,6 @@ components:
           arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${stageVariables.ProjectName}-jwtAuthorizerLambda/invocations
         authorizerResultTtlInSeconds: 300
         type: token
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: x-api-key
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
 tags:
   - name: HealthCheck
     description: Invocazioni per sapere lo stato di Piattaforma Notifiche
