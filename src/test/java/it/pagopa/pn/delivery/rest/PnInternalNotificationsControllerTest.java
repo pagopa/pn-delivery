@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -8,10 +9,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationPriceService;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.StatusService;
+import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -32,8 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
@@ -83,6 +80,9 @@ class PnInternalNotificationsControllerTest {
 
     @MockBean
     private NotificationAttachmentService attachmentService;
+
+    @MockBean
+    private PaymentEventsService paymentEventsService;
 
     @MockBean
     private PnDeliveryConfigs cfg;
@@ -619,6 +619,46 @@ class PnInternalNotificationsControllerTest {
                 .exchange()
                 .expectStatus()
                 .isNotFound();
+    }
+
+    @Test
+    void paymentEventPagoPaPrivateSuccess() {
+        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
+                .paymentDate(OffsetDateTime.parse("2023-01-16T15:30:00Z"))
+                .creditorTaxId("77777777777")
+                .noticeCode("123456789123456789")
+                .amount(2000)
+                .build();
+
+        webTestClient.post()
+                .uri("/delivery-private/events/payment/pagopa")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(paymentEventPagoPa), PaymentEventPagoPa.class)
+                .exchange()
+                .expectStatus().isNoContent();
+
+        Mockito.verify( paymentEventsService ).handlePaymentEventPagoPaPrivate( paymentEventPagoPa );
+    }
+
+    @Test
+    void paymentEventPagoPaPrivateFailure() {
+        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
+                .paymentDate(OffsetDateTime.parse("2023-01-16T15:30:00Z"))
+                .creditorTaxId("77777777777")
+                .noticeCode("123456789123456789")
+                .amount(2000)
+                .build();
+
+        Mockito.doThrow( new PnRuntimeException( "test", "description", 400, "errorCode", "element", "detail" ) )
+                .when( paymentEventsService )
+                .handlePaymentEventPagoPaPrivate( Mockito.any( PaymentEventPagoPa.class ) );
+
+        webTestClient.post()
+                .uri("/delivery-private/events/payment/pagopa")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(paymentEventPagoPa), PaymentEventPagoPa.class)
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     private InternalNotification newNotification() {

@@ -11,14 +11,12 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationPriceService;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.StatusService;
+import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,16 +34,18 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     private final NotificationPriceService priceService;
     private final NotificationQRService qrService;
     private final NotificationAttachmentService notificationAttachmentService;
+    private final PaymentEventsService paymentEventsService;
 
     private final ModelMapperFactory modelMapperFactory;
 
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, PaymentEventsService paymentEventsService, ModelMapperFactory modelMapperFactory) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
+        this.paymentEventsService = paymentEventsService;
         this.modelMapperFactory = modelMapperFactory;
     }
 
@@ -248,4 +248,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
       return ResponseEntity.ok(qrService.getQRByIun(iun));
     }
 
+    @Override
+    public ResponseEntity<Void> paymentEventPagoPaPrivate(PaymentEventPagoPa paymentEventPagoPa) {
+        paymentEventsService.handlePaymentEventPagoPaPrivate( paymentEventPagoPa );
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
