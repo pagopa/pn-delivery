@@ -2,12 +2,14 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-02-24T14:24:03.251Z'
+  version: '2023-02-24T16:03:30.484Z'
 servers:
-  - url: "https://${stageVariables.DnsName}/{basePath}"
+  - url: https://${stageVariables.DnsName}/{basePath}
     variables:
       basePath:
-        default: "/${stageVariables.ServiceApiPath}"
+        default: /${stageVariables.ServiceApiPath}
+    x-amazon-apigateway-endpoint-configuration:
+      disableExecuteApiEndpoint: true
 paths:
   /attachments/preload:
     post:
@@ -70,6 +72,12 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
+      parameters:
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
     options:
       operationId: Options for /attachments/preload API CORS
       x-amazon-apigateway-integration:
@@ -153,6 +161,12 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
+      parameters:
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
     get:
       operationId: retrieveNotificationRequestStatus
       tags:
@@ -167,6 +181,11 @@ paths:
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
         - $ref: '#/components/parameters/idempotenceToken'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -234,6 +253,11 @@ paths:
       operationId: retrieveSentNotification
       parameters:
         - $ref: '#/components/parameters/pathIun'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -294,6 +318,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -364,6 +393,11 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -452,6 +486,11 @@ paths:
           example: '302000100000019421'
           schema:
             $ref: '#/components/schemas/noticeCode'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -558,6 +597,12 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
+      parameters:
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
     options:
       operationId: Options for /events/payment/pagopa API CORS
       x-amazon-apigateway-integration:
@@ -624,6 +669,12 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
+      parameters:
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
     options:
       operationId: Options for /events/payment/f24 API CORS
       x-amazon-apigateway-integration:
@@ -657,6 +708,11 @@ paths:
         - $ref: '#/components/parameters/notificationSearchIun'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -728,6 +784,11 @@ paths:
         - $ref: '#/components/parameters/notificationSearchIun'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -790,6 +851,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/notificationSearchMandateId'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -852,6 +918,11 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryMandateId'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -917,6 +988,11 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
@@ -1017,6 +1093,12 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
+      parameters:
+        - name: proxy
+          in: path
+          required: true
+          schema:
+            type: string
     options:
       operationId: Options for /notifications/received/check-aar-qr-code API CORS
       x-amazon-apigateway-integration:
@@ -1660,27 +1742,6 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.
-    schemas-ProblemError:
-      properties:
-        code:
-          description: Internal code of the error, in human-readable format
-          example: >-
-            PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY
-            | etc...
-          type: string
-        element:
-          description: Parameter or request body field name for validation error
-          example: body.order.item[2].quantity
-          type: string
-        detail:
-          description: >-
-            A human readable explanation specific to this occurrence of the
-            problem.
-          example: Parameter not valid
-          maxLength: 1024
-          type: string
-      required:
-        - code
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
       type: string
