@@ -164,7 +164,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
     protected int readDataFromPartition(int currentRequest, String partition, List<NotificationMetadataEntity> cumulativeQueryResult,
                                       PnLastEvaluatedKey lastEvaluatedKey,
                                       Integer requiredSize, int dynamoDbPageSize) {
-        log.debug( "START compute partition read trunk indexName={}  partition={} currentRequest={} dynamoDbPageSize={}",  indexNameAndPartitions.getIndexName(), partition, currentRequest++, dynamoDbPageSize );
+        log.trace( "START compute partition read trunk indexName={}  partition={} currentRequest={} dynamoDbPageSize={}",  indexNameAndPartitions.getIndexName(), partition, currentRequest++, dynamoDbPageSize );
 
         PageSearchTrunk<NotificationMetadataEntity> oneQueryResult;
         oneQueryResult = notificationDao.searchForOneMonth(
@@ -173,7 +173,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
                 partition,
                 dynamoDbPageSize,
                 lastEvaluatedKey);
-        log.debug( "END search for one month indexName={} partitionValue={} dynamoDbPageSize={} rowsRead={}", indexNameAndPartitions.getIndexName(), partition, dynamoDbPageSize, (oneQueryResult.getResults()==null?0:oneQueryResult.getResults().size()) );
+        log.trace( "END search for one month indexName={} partitionValue={} dynamoDbPageSize={} rowsRead={}", indexNameAndPartitions.getIndexName(), partition, dynamoDbPageSize, (oneQueryResult.getResults()==null?0:oneQueryResult.getResults().size()) );
 
         // inserisco i risultati della query ad una singola partizione nei risultati cumulativi di ricerca
         // viene eseguito il "distinct" per IUN
@@ -182,13 +182,13 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
 
         if (requiredSize != null && cumulativeQueryResult.size() >= requiredSize)
         {
-            log.debug("ending search, requiredSize reached  partition={} currentRequest={}", partition, currentRequest);
+            log.trace("ending search, requiredSize reached  partition={} currentRequest={}", partition, currentRequest);
             return currentRequest;
         }
 
         if (oneQueryResult.getLastEvaluatedKey() != null)
         {
-            log.debug("thare are more data to read for partition={} currentRequest={} currentReadSize={}", partition, currentRequest, cumulativeQueryResult.size());
+            log.trace("thare are more data to read for partition={} currentRequest={} currentReadSize={}", partition, currentRequest, cumulativeQueryResult.size());
             PnLastEvaluatedKey nextEvaluationKeyForSearch = new PnLastEvaluatedKey();
             nextEvaluationKeyForSearch.setExternalLastEvaluatedKey(partition);
             nextEvaluationKeyForSearch.setInternalLastEvaluatedKey(oneQueryResult.getLastEvaluatedKey());
@@ -206,7 +206,7 @@ public abstract class NotificationSearchMultiPage extends NotificationSearch {
         }
         else
         {
-            log.debug("no more data to read for partition={} currentRequest={} currentReadSize={}", partition, currentRequest, cumulativeQueryResult.size());
+            log.trace("no more data to read for partition={} currentRequest={} currentReadSize={}", partition, currentRequest, cumulativeQueryResult.size());
             return currentRequest;
         }
     }

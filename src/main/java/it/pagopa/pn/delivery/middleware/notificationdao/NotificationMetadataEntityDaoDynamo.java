@@ -156,13 +156,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         // eseguo la query
         QueryEnhancedRequest queryEnhancedRequest = requestBuilder.build();
 
-        log.info( "START query execution index={} exclusiveStartKey={} startKeyPartition/Range={} endKeyPartition/Range={} expression={} expressionValues={}",
-                index.indexName(),
-                queryEnhancedRequest.exclusiveStartKey(),
-                key1.partitionKeyValue() + "/" + key1.sortKeyValue(),
-                key2.partitionKeyValue() + "/" + key2.sortKeyValue(),
-                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expression(),
-                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expressionValues()  );
+        log.trace( "START query execution index={}", index.indexName()  );
 
         SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( queryEnhancedRequest );
 
@@ -177,7 +171,16 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         res.setResults( page.items() );
         res.setLastEvaluatedKey(page.lastEvaluatedKey());
 
-        log.trace( "END search for one month readRows={} lastEvaluatedKey={}", (page.items()==null?0:page.items().size()), page.lastEvaluatedKey());
+        log.info( "DONE search for one month index={} requiredSize={} exclusiveStartKey={} startKeyPartition/Range={} endKeyPartition/Range={} expression={} expressionValues={} readRows={} lastEvaluatedKey={}",
+                index.indexName(),
+                queryEnhancedRequest.limit(),
+                queryEnhancedRequest.exclusiveStartKey(),
+                key1.partitionKeyValue() + "/" + key1.sortKeyValue(),
+                key2.partitionKeyValue() + "/" + key2.sortKeyValue(),
+                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expression(),
+                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expressionValues(),
+                (page.items()==null?0:page.items().size()),
+                page.lastEvaluatedKey() );
         return res;
     }
 
