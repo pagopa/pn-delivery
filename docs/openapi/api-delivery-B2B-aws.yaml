@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-02-27T11:49:55.360Z'
+  version: '2023-02-27T14:30:53.743Z'
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1007,7 +1007,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/schemas-ProblemError'
+            $ref: '#/components/schemas/ProblemError'
       required:
         - status
         - errors
