@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-02-27T10:26:20.767Z'
+  version: '2023-02-27T10:26:18.134Z'
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -53,7 +53,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/attachments/preload
@@ -65,7 +66,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -142,7 +143,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
@@ -154,7 +156,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -212,7 +214,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
@@ -224,7 +227,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -278,7 +281,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}
@@ -290,7 +294,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -350,7 +354,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}/attachments/documents/{docIdx}
@@ -362,7 +367,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -425,7 +430,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
@@ -437,7 +443,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -511,7 +517,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/price/{paTaxId}/{noticeCode}
@@ -523,7 +530,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -578,7 +585,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/pagopa
@@ -590,7 +598,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -650,7 +658,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_ApiKeyAuthorizerV2: []
+        - api_key: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/f24
@@ -662,7 +671,7 @@ paths:
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
         passthroughBehavior: when_no_match
@@ -680,501 +689,6 @@ paths:
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/f24
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /notifications/sent:
-    get:
-      summary: Ricerca notifiche inviate
-      description: >-
-        servizio di consultazione dello stato di invio delle notifiche
-        individuate dai parametri  di ricerca specificati
-      tags:
-        - SenderReadWeb
-      operationId: searchSentNotification
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroups'
-        - $ref: '#/components/parameters/notificationSearchStartDate'
-        - $ref: '#/components/parameters/notificationSearchEndDate'
-        - $ref: '#/components/parameters/notificationSearchRecipientId'
-        - $ref: '#/components/parameters/notificationSearchStatus'
-        - $ref: '#/components/parameters/notificationSearchSubject'
-        - $ref: '#/components/parameters/notificationSearchIun'
-        - $ref: '#/components/parameters/notificationSearchPageSize'
-        - $ref: '#/components/parameters/notificationSearchNextPagesKey'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationSearchResponse'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_jwtAuthorizer: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /notifications/sent API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /notifications/received:
-    get:
-      summary: Ricerca notifiche inviate
-      description: >-
-        servizio di consultazione dello stato di invio delle notifiche
-        individuate dai parametri  di ricerca specificati
-      tags:
-        - RecipientRead
-      operationId: searchReceivedNotification
-      security:
-        - pn-auth-fleet_jwtAuthorizer: []
-      parameters:
-        - $ref: '#/components/parameters/notificationSearchStartDate'
-        - $ref: '#/components/parameters/notificationSearchEndDate'
-        - $ref: '#/components/parameters/notificationSearchMandateId'
-        - $ref: '#/components/parameters/notificationSearchSenderId'
-        - $ref: '#/components/parameters/notificationSearchStatus'
-        - $ref: '#/components/parameters/notificationSearchSubject'
-        - $ref: '#/components/parameters/notificationSearchIun'
-        - $ref: '#/components/parameters/notificationSearchPageSize'
-        - $ref: '#/components/parameters/notificationSearchNextPagesKey'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationSearchResponse'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /notifications/received API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /notifications/received/delegated:
-    get:
-      summary: Ricerca notifiche delegate ricevute
-      description: Servizio di consultazione delle notifiche delegate
-      tags:
-        - RecipientRead
-      operationId: searchReceivedDelegatedNotification
-      parameters:
-        - $ref: '#/components/parameters/notificationSearchStartDate'
-        - $ref: '#/components/parameters/notificationSearchEndDate'
-        - $ref: '#/components/parameters/notificationSearchSenderId'
-        - $ref: '#/components/parameters/notificationSearchRecipientId'
-        - $ref: '#/components/parameters/notificationSearchGroup'
-        - $ref: '#/components/parameters/notificationSearchStatus'
-        - $ref: '#/components/parameters/notificationSearchPageSize'
-        - $ref: '#/components/parameters/notificationSearchNextPagesKey'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationSearchResponse'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_jwtAuthorizer: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/delegated
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /notifications/received/delegated API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/delegated
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /notifications/received/{iun}:
-    get:
-      summary: Accesso notifiche ricevute
-      description: >-
-        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
-        dettagli delle  notifiche ricevute.
-      tags:
-        - RecipientRead
-      operationId: getReceivedNotification
-      security:
-        - pn-auth-fleet_jwtAuthorizer: []
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/notificationSearchMandateId'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FullReceivedNotification'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /notifications/received/{iun} API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /notifications/received/{iun}/attachments/documents/{docIdx}:
-    get:
-      summary: Download documento notificato
-      tags:
-        - RecipientRead
-      operationId: getReceivedNotificationDocument
-      security:
-        - pn-auth-fleet_jwtAuthorizer: []
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathDocumentIdx'
-        - $ref: '#/components/parameters/queryMandateId'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: >-
-                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/documents/{docIdx}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: >-
-        Options for /notifications/received/{iun}/attachments/documents/{docIdx}
-        API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/documents/{docIdx}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /notifications/received/{iun}/attachments/payment/{attachmentName}:
-    get:
-      summary: Download allegato per pagamento
-      tags:
-        - RecipientRead
-      operationId: getReceivedNotificationAttachment
-      security:
-        - pn-auth-fleet_jwtAuthorizer: []
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathAttachmentName'
-        - $ref: '#/components/parameters/queryMandateId'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: >-
-                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/payment/{attachmentName}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: >-
-        Options for
-        /notifications/received/{iun}/attachments/payment/{attachmentName} API
-        CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/payment/{attachmentName}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /notifications/received/check-aar-qr-code:
-    post:
-      description: Servizio per la verifica accesso rapido
-      summary: servizio per la verifica del aar-qr-code
-      tags:
-        - RecipientRead
-      operationId: checkAarQrCode
-      security:
-        - pn-auth-fleet_jwtAuthorizer: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RequestCheckAarMandateDto'
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseCheckAarMandateDto'
-        '404':
-          description: QrCode reference Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-aar-qr-code
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-      parameters:
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
-    options:
-      operationId: Options for /notifications/received/check-aar-qr-code API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-aar-qr-code
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         passthroughBehavior: when_no_match
@@ -1222,6 +736,7 @@ components:
         type: string
     pathDocumentIdx:
       name: docIdx
+      description: indice del documento nella lista partendo da 0.
       in: path
       required: true
       schema:
@@ -1237,11 +752,14 @@ components:
         format: int32
     pathAttachmentName:
       name: attachmentName
+      description: >-
+        Tipologia del pagamento allegato alla notifica. Valori possibili
+        PAGOPA|F24_FLAT|F24_STANDARD
       in: path
       required: true
       schema:
         type: string
-        pattern: PAGOPA|F24
+        pattern: PAGOPA|F24_FLAT|F24_STANDARD
     pathLegalFactType:
       description: Categoria dell'atto opponbile a terzi
       name: legalFactType
@@ -1261,131 +779,6 @@ components:
       name: iun
       in: path
       required: true
-      schema:
-        type: string
-    cxTypeAuthFleet:
-      name: x-pagopa-pn-cx-type
-      in: header
-      description: Customer/Receiver Type
-      required: true
-      schema:
-        $ref: '#/components/schemas/CxTypeAuthFleet'
-    cxIdAuthFleet:
-      name: x-pagopa-pn-cx-id
-      in: header
-      description: Customer/Receiver Identifier
-      required: true
-      schema:
-        type: string
-    cxGroupsAuthFleet:
-      $ref: '#/components/parameters/cxGroups'
-    uidAuthFleet:
-      name: x-pagopa-pn-uid
-      in: header
-      description: User Identifier
-      required: true
-      schema:
-        type: string
-    cxGroups:
-      name: x-pagopa-pn-cx-groups
-      in: header
-      description: Customer Groups
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-    notificationSearchStartDate:
-      name: startDate
-      in: query
-      required: true
-      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
-      schema:
-        type: string
-        format: date-time
-    notificationSearchEndDate:
-      name: endDate
-      in: query
-      required: true
-      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
-      schema:
-        type: string
-        format: date-time
-    notificationSearchRecipientId:
-      name: recipientId
-      in: query
-      required: false
-      description: identificativo del destinatario
-      schema:
-        type: string
-    notificationSearchStatus:
-      name: status
-      in: query
-      required: false
-      description: stato della notifica
-      schema:
-        $ref: '#/components/schemas/NotificationStatus'
-    notificationSearchSubject:
-      name: subjectRegExp
-      description: >-
-        Regular expression usata, se presente, per filtrare i risultati in base
-        al subject  delle notifiche.
-      in: query
-      required: false
-      schema:
-        type: string
-    notificationSearchIun:
-      name: iunMatch
-      description: >-
-        Se presente indica che lo IUN dei risultati deve essere uguale al valore
-        di questo parametro.
-      in: query
-      required: false
-      schema:
-        type: string
-    notificationSearchPageSize:
-      name: size
-      description: dmensione della pagina di risultati
-      in: query
-      required: false
-      schema:
-        type: integer
-        format: int32
-        maximum: 50
-    notificationSearchNextPagesKey:
-      name: nextPagesKey
-      description: >-
-        Chiave indicante la pagina di risultati, da specificare solo se si vuole
-        una pagina  diversa dalla prima.
-      in: query
-      required: false
-      schema:
-        type: string
-    queryMandateId:
-      name: mandateId
-      in: query
-      required: false
-      schema:
-        type: string
-    notificationSearchMandateId:
-      name: mandateId
-      in: query
-      required: false
-      description: identificativo della delega
-      schema:
-        type: string
-    notificationSearchSenderId:
-      name: senderId
-      in: query
-      required: false
-      description: identificativo del mittente
-      schema:
-        type: string
-    notificationSearchGroup:
-      name: group
-      in: query
-      required: false
-      description: Gruppo da utilizzare nella query come filtro
       schema:
         type: string
   schemas:
@@ -1614,7 +1007,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/ProblemError'
+            $ref: '#/components/schemas/schemas-ProblemError'
       required:
         - status
         - errors
@@ -3014,138 +2407,23 @@ components:
           type: string
         fileAvailable:
           type: boolean
-    CxTypeAuthFleet:
-      type: string
-      enum:
-        - PA
-        - PF
-        - PG
-    NotificationSearchRow:
-      type: object
-      properties:
-        iun:
-          type: string
-          description: Identificativo Univoco Notifica
-          $ref: '#/components/schemas/IUN'
-        paProtocolNumber:
-          type: string
-          description: Numero protocollo associato alla notifica da parte della PA
-        sender:
-          type: string
-          description: Denominazione della PA che ha inviato l'atto.
-        sentAt:
-          type: string
-          description: Data spedizione notifica
-          format: date-time
-        subject:
-          type: string
-          description: Oggetto della notifica
-        notificationStatus:
-          $ref: '#/components/schemas/NotificationStatus'
-        recipients:
-          description: >-
-            Elenco delle denominazioni dei destinatari della notifica. <br/>
-            __N.B:__ campo da utilizzare solo per visualizzazione.
-          type: array
-          items:
-            type: string
-        requestAcceptedAt:
-          description: Data accettazione notifica
-          type: string
-          format: date-time
-        group:
-          type: string
-          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-        mandateId:
-          type: String
-          description: Id delega (per notifiche delegate)
-    NotificationSearchResponse:
-      title: Elenco di notifiche
-      description: >-
-        Dto contenente i risultati di una ricerca di notifiche. Ogni risposta
-        conterrà solo  una pagina di risultati relativi a una ricerca e le
-        indicazioni per raggiungere alcune pagine successive.
-      type: object
-      properties:
-        resultsPage:
-          description: Una pagina di risultati della query
-          type: array
-          items:
-            $ref: '#/components/schemas/NotificationSearchRow'
-        moreResult:
-          description: Indica se sono presenti ulteriori pagine di risultati
-          type: boolean
-        nextPagesKey:
-          description: >-
-            Elenco, non esaustivo, delle chiavi da usare per richiedere le 
-            pagine di risultati successive a quella corrente. <br/> Valorizzato
-            solo se il campo __moreResult__ ha valore __true__.
-          type: array
-          items:
-            type: string
-    FullReceivedNotification:
-      description: >-
-        Le informazioni riguardanti una richiesta di notifica accettata e il
-        processo di  inoltro della notifica verso i destinatari (Persone Fisiche
-        o Giuridiche).
-      allOf:
-        - $ref: '#/components/schemas/SentNotification'
-        - type: object
-          required:
-            - notificationStatus
-            - notificationStatusHistory
-            - timeline
-          properties:
-            notificationStatus:
-              $ref: '#/components/schemas/NotificationStatus'
-            notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistory'
-            timeline:
-              description: >-
-                elenco dettagliato di tutto ciò che è accaduto durrante il
-                processo di notifica
-              type: array
-              items:
-                $ref: '#/components/schemas/TimelineElement'
-    RequestCheckAarMandateDto:
-      description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
-      type: object
-      required:
-        - aarQrCodeValue
-      properties:
-        aarQrCodeValue:
-          type: string
-          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
-          pattern: ^[A-Za-z0-9_-]*$
-          minLength: 106
-          maxLength: 136
-    ResponseCheckAarMandateDto:
-      description: >-
-        Le informazioni fornite in risposta alla verifica del AAR-QR-CodeValue
-        con possibile identificativo della delega attiva
-      type: object
-      required:
-        - iun
-      properties:
-        iun:
-          $ref: '#/components/schemas/IUN'
-        mandateId:
-          description: identificativo della delega
-          type: string
-  responses:
-    UnauthorizedError:
-      description: Access token is missing or invalid
+  responses: {}
   securitySchemes:
-    pn-auth-fleet_jwtAuthorizer:
+    api_key:
       type: apiKey
-      name: Authorization
+      name: x-api-key
+      in: header
+    pn-auth-fleet_ApiKeyAuthorizerV2:
+      type: apiKey
+      name: x-api-key
       in: header
       x-amazon-apigateway-authtype: custom
       x-amazon-apigateway-authorizer:
         authorizerUri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${stageVariables.ProjectName}-jwtAuthorizerLambda/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${stageVariables.ProjectName}-ApiKeyAuthorizerV2Lambda/invocations
         authorizerResultTtlInSeconds: 300
-        type: token
+        identitySource: method.request.header.x-api-key
+        type: request
 tags:
   - name: HealthCheck
     description: >-
@@ -3165,14 +2443,6 @@ tags:
     description: Invocazioni per effettuare il downalod degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
-  - name: SenderReadWeb
-    description: >-
-      Invocazioni utilizzabili dai mittenti per verificare lo stato delle
-      notifiche inviate
-  - name: RecipientRead
-    description: >-
-      Invocazioni utilizzate dai destinatari per ottenere informazioni sulle
-      notifiche a loro destinate.
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:
