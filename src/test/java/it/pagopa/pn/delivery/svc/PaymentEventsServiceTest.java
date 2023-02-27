@@ -38,6 +38,8 @@ class PaymentEventsServiceTest {
     public static final String PAYMENT_DATE_STRING = "2023-01-17T12:21:00Z";
     public static final String RECIPIENT_TAX_ID = "RSSMRA77E04H501Q";
     public static final String RECIPIENT_INTERNAL_ID = "recipientInternalId";
+    private static final Integer PAYMENT_AMOUNT = 1200;
+    private static final String PAYMENT_SOURCE_CHANNEL = "PA";
     @Mock
     private PaymentEventsProducer paymentEventsProducer;
     @Mock
@@ -63,6 +65,7 @@ class PaymentEventsServiceTest {
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
                                 .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                                .amount( PAYMENT_AMOUNT )
                                 .creditorTaxId( CREDITOR_TAX_ID )
                                 .noticeCode( NOTICE_CODE )
                         .build()
@@ -96,6 +99,8 @@ class PaymentEventsServiceTest {
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
+                .paymentAmount( PAYMENT_AMOUNT )
+                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL )
                 .iun( IUN )
                 .creditorTaxId( CREDITOR_TAX_ID )
                 .noticeCode( NOTICE_CODE )
@@ -215,6 +220,7 @@ class PaymentEventsServiceTest {
                                 .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
                                 .recipientTaxId( RECIPIENT_TAX_ID )
                                 .recipientType( RECIPIENT_TYPE_PF )
+                                .amount( PAYMENT_AMOUNT )
                         .build() ) )
                 .build();
 
@@ -237,6 +243,8 @@ class PaymentEventsServiceTest {
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
+                .paymentAmount( PAYMENT_AMOUNT )
+                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL )
                 .iun( IUN )
                 .recipientIdx( 0 )
                 .recipientType( PnDeliveryPaymentEvent.RecipientType.PF )
