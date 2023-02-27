@@ -442,6 +442,7 @@ paths:
       description: >-
         Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
         a precaricare uno o più file da allegare a una notifica. <br/>
+
       tags:
         - NewNotification
       operationId: presignedUploadRequest
@@ -846,7 +847,7 @@ components:
     ############################################################################################
     ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
     ############################################################################################
-
+     
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
@@ -1205,7 +1206,7 @@ components:
         amount:
           type: integer
           format: int32
-
+    
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
