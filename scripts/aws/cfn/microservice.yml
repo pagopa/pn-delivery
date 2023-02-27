@@ -79,6 +79,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing notifications metadata'
 
+  NotificationDelegationMetadataDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing delegated notifications metadata
+
+  NotificationDelegationMetadataDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing delegated notifications metadata
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -164,7 +172,91 @@ Parameters:
   AlbSecurityGroup:
     Type: String
     Description: 'Application load balancer security group'
-    
+
+  # Heath Check parameters
+  HealthCheckInterval:
+    Description: Seconds between two health check
+    Type: Number
+    Default: 60
+
+  HealthCheckTimeout:
+    Description: health check timeout seconds
+    Type: Number
+    Default: 5
+
+  HealthyThresholdCount:
+    Description: |
+      The number of consecutive health checks successes required before considering 
+      an unhealthy target healthy.
+    Type: Number
+    Default: 5
+
+  UnhealthyThresholdCount:
+    Description: |
+      The number of consecutive health check failures required before considering a target unhealthy.
+    Type: Number
+    Default: 2
+
+  # Instance parameters
+  # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
+  # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
+  # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
+  # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
+  # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
+  CpuValue:
+    Type: Number
+    Default: 1024
+    Description: Fargate virtual CPU quantity 1024 equals one vCPU
+
+  # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
+  # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
+  # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
+  # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
+  # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
+  MemoryAmount:
+    Type: String
+    Default: 2GB
+    Description: memory amount reserved to the task pod.
+    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
+
+  # Autoscaling parameters
+  AutoscalingCheckPeriod:
+    Default: 60
+    Type: Number
+    Description: minimum autoscaling number of tasks\
+
+  AutoscalingDataPointN:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingDataPointM:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingThreshold:
+    Default: 70
+    Type: String
+
+  MinTasksNumber:
+    Default: 1
+    Type: Number
+    Description: minimum autoscaling number of tasks
+
+  MaxTasksNumber:
+    Default: 6
+    Type: Number
+    Description: maximum autoscaling number of tasks
+
+  Mandate2DeliveryQueueName:
+    Type: String
+    Description: 'The name of the SQS queue used to communicate with pn-mandate module.'
+
+  Mandate2DeliveryQueueARN:
+    Type: String
+    Description: 'Identify the resource that the policy applies to.'
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -177,13 +269,20 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
-        CpuValue: 1024
-        MemoryAmount: 2GB
+        CpuValue: !Ref CpuValue
+        MemoryAmount: !Ref MemoryAmount
         HealthCheckPath: /actuator/health
-        HealthCheckTimeout: 15
+        HealthCheckTimeout: !Ref HealthCheckTimeout
+        HealthCheckInterval: !Ref HealthCheckInterval
+        HealthyThresholdCount: !Ref HealthyThresholdCount
+        UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
         AutoscalingStrategy: REST-API
-        AutoscalingThreshold: 70
-        MinTasksNumber: 1
+        AutoscalingThreshold: !Ref AutoscalingThreshold
+        AutoscalingCheckPeriod: !Ref AutoscalingCheckPeriod
+        MinTasksNumber: !Ref MinTasksNumber
+        MaxTasksNumber: !Ref MaxTasksNumber
+        AutoscalingDataPointN: !Ref AutoscalingDataPointN
+        AutoscalingDataPointM: !Ref AutoscalingDataPointM
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
@@ -207,6 +306,8 @@ Resources:
         ContainerEnvEntry19: !Sub 'PN_DELIVERY_MAXDOCUMENTSAVAILABLEDAYS=${MaxDocumentsAvailableDays}'
         ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
         ContainerEnvEntry21: !Sub 'PN_DELIVERY_TOPICS_PAYMENTEVENTS=${DeliveryPushInputsQueueName}'
+        ContainerEnvEntry22: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
+        ContainerEnvEntry23: !Sub 'PN_DELIVERY_NOTIFICATIONDELEGATIONMETADATADAO_TABLENAME=${NotificationDelegationMetadataDynamoTableName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -236,6 +337,7 @@ Resources:
               - sqs:SendMessage
             Resource:
               - !Ref DeliveryPushInputsQueueARN
+              - !Ref Mandate2DeliveryQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -245,6 +347,8 @@ Resources:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
               - !Sub "${NotificationsCostDynamoTableArn}"
               - !Sub "${NotificationsCostDynamoTableArn}/*"
               - !Sub "${NotificationsQRDynamoTableArn}"
@@ -255,6 +359,7 @@ Resources:
               - ssm:GetParameters
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdWhiteList'
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
@@ -277,6 +382,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-b2b'
+        IntendedUsage: B2B
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
         ExcludedRule0: CrossSiteScripting_BODY
 
@@ -301,6 +407,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-web'
+        IntendedUsage: WEB
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
         Limit: 6000
 
@@ -325,6 +432,7 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-io'
+        IntendedUsage: IO
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
 
   # Dashboard
@@ -339,6 +447,7 @@ Resources:
           - - !Ref NotificationsDynamoTableName
             - !Ref NotificationsCostDynamoTableName
             - !Ref NotificationsMetadataDynamoTableName
+            - !Ref NotificationDelegationMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
         LambdaArns: !Join 
           - ','
@@ -363,6 +472,9 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
+        QueueArns: !Join
+          - ','
+          - - !Ref Mandate2DeliveryQueueARN
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
@@ -476,6 +588,16 @@ Resources:
                 Effect: Allow
                 Resource: "*"
 
+  PnDeliveryInsertTriggerLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - PnDeliveryInsertTriggerLambdaLogGroup
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref PnDeliveryInsertTriggerLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
   PnDeliveryInsertTriggerLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
@@ -563,4 +685,3 @@ Resources:
               };
       #ENDpndeliveryinserttrigger
       #Non rimuovere o modificare il commento sopra, è usato come placeholder negli script
-

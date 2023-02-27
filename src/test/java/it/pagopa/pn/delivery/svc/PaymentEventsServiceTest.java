@@ -31,12 +31,15 @@ class PaymentEventsServiceTest {
     public static final String CREDITOR_TAX_ID = "77777777777";
     public static final String SENDER_PA_ID = "sender_pa_id";
     public static final String CX_TYPE_PA = "PA";
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     public static final String NOTICE_CODE = "123456789012345678";
     public static final String IUN = "fake_IUN";
     public static final String RECIPIENT_TYPE_PF = "PF";
     public static final String PAYMENT_DATE_STRING = "2023-01-17T12:21:00Z";
     public static final String RECIPIENT_TAX_ID = "RSSMRA77E04H501Q";
     public static final String RECIPIENT_INTERNAL_ID = "recipientInternalId";
+    private static final Integer PAYMENT_AMOUNT = 1200;
+    private static final String PAYMENT_SOURCE_CHANNEL = "PA";
     @Mock
     private PaymentEventsProducer paymentEventsProducer;
     @Mock
@@ -62,6 +65,7 @@ class PaymentEventsServiceTest {
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
                                 .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                                .amount( PAYMENT_AMOUNT )
                                 .creditorTaxId( CREDITOR_TAX_ID )
                                 .noticeCode( NOTICE_CODE )
                         .build()
@@ -89,12 +93,14 @@ class PaymentEventsServiceTest {
                 .thenReturn( authorizationOutcome );
 
 
-        service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+        service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestPagoPa );
 
         // Then
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
+                .paymentAmount( PAYMENT_AMOUNT )
+                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL )
                 .iun( IUN )
                 .creditorTaxId( CREDITOR_TAX_ID )
                 .noticeCode( NOTICE_CODE )
@@ -125,7 +131,7 @@ class PaymentEventsServiceTest {
 
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestPagoPa );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -159,7 +165,7 @@ class PaymentEventsServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.empty() );
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestPagoPa );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -198,7 +204,7 @@ class PaymentEventsServiceTest {
 
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestPagoPa );
+        Executable todo = () -> service.handlePaymentEventsPagoPa( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestPagoPa );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -214,6 +220,7 @@ class PaymentEventsServiceTest {
                                 .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
                                 .recipientTaxId( RECIPIENT_TAX_ID )
                                 .recipientType( RECIPIENT_TYPE_PF )
+                                .amount( PAYMENT_AMOUNT )
                         .build() ) )
                 .build();
 
@@ -230,12 +237,14 @@ class PaymentEventsServiceTest {
         Mockito.when( checkAuthComponent.canAccess( Mockito.any( ReadAccessAuth.class ), Mockito.any( InternalNotification.class ) ) )
                 .thenReturn( authorizationOutcome );
 
-        service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+        service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestF24 );
 
         // Then
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
+                .paymentAmount( PAYMENT_AMOUNT )
+                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL )
                 .iun( IUN )
                 .recipientIdx( 0 )
                 .recipientType( PnDeliveryPaymentEvent.RecipientType.PF )
@@ -262,7 +271,7 @@ class PaymentEventsServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.empty() );
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestF24 );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -289,7 +298,7 @@ class PaymentEventsServiceTest {
                 .thenReturn( null );
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestF24 );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -319,7 +328,7 @@ class PaymentEventsServiceTest {
                 .thenReturn( AuthorizationOutcome.fail() );
 
         // Then
-        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, paymentEventsRequestF24 );
+        Executable todo = () -> service.handlePaymentEventsF24( CX_TYPE_PA, SENDER_PA_ID, null, paymentEventsRequestF24 );
 
         Assertions.assertThrows(PnNotFoundException.class, todo);
 
@@ -335,7 +344,8 @@ class PaymentEventsServiceTest {
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(notificationRecipient))
                 .build(),
-                List.of(RECIPIENT_INTERNAL_ID)
+                List.of(RECIPIENT_INTERNAL_ID),
+                X_PAGOPA_PN_SRC_CH
         );
     }
 

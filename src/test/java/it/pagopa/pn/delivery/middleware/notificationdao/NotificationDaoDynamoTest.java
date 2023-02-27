@@ -5,14 +5,13 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -25,6 +24,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,7 +36,10 @@ class NotificationDaoDynamoTest {
     private EntityToDtoNotificationMapper entity2dto;
     private ModelMapperFactory modelMapperFactory;
     private PnDataVaultClientImpl pnDataVaultClient;
+    private NotificationEntityDao entityDao;
+    private NotificationMetadataEntityDao metadataEntityDao;
 
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     public static final String ATTACHMENT_BODY_STR = "Body";
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     private static final String VERSION_TOKEN = "VERSION_TOKEN";
@@ -56,10 +59,11 @@ class NotificationDaoDynamoTest {
     void setup() {
         DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper();
         entity2dto = new EntityToDtoNotificationMapper();
-        NotificationEntityDao entityDao = new EntityDaoMock();
-        NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
+        entityDao = new EntityDaoMock();
+        metadataEntityDao = new MetadataEntityDaoMock();
+        NotificationDelegationMetadataEntityDao delegationMetadataEntityDao = new DelegationMetadataEntityDaoMock();
         pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
-        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
+        dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, delegationMetadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
     }
 
     @Test
@@ -215,6 +219,54 @@ class NotificationDaoDynamoTest {
 
     }
 
+    @Test
+    void searchByIUN(){
+
+        String iun = "IUN";
+        String senderId = "sender-pa-id";
+
+        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto();
+        inputSearchNotificationDto.setIunMatch(iun);
+        entityDao.put(NotificationEntity.builder()
+                        .iun(iun)
+                        .sentAt(Instant.now())
+                        .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
+                        .senderPaId(senderId)
+                .build());
+
+
+        PageSearchTrunk<NotificationMetadataEntity> pageSearchTrunk = this.dao.searchByIUN(inputSearchNotificationDto);
+
+        Assertions.assertNotNull(pageSearchTrunk);
+        Assertions.assertEquals(1, pageSearchTrunk.getResults().size());
+
+    }
+
+    @Test
+    void searchByIUN_mandateNotAllowedPA(){
+
+        String iun = "IUN";
+        String senderId = "sender-pa-id";
+
+        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto();
+        inputSearchNotificationDto.setIunMatch(iun);
+        inputSearchNotificationDto.setMandateAllowedPaIds(List.of("pa-allowed-id"));
+
+        entityDao.put(NotificationEntity.builder()
+                .iun(iun)
+                .sentAt(Instant.now())
+                .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
+                .senderPaId(senderId)
+                .build());
+
+
+        PageSearchTrunk<NotificationMetadataEntity> pageSearchTrunk = this.dao.searchByIUN(inputSearchNotificationDto);
+
+        Assertions.assertNotNull(pageSearchTrunk);
+        Assertions.assertNull(pageSearchTrunk.getResults());
+
+    }
+
     private static class EntityDaoMock implements NotificationEntityDao {
 
         private final Map<Key, NotificationEntity> storage = new ConcurrentHashMap<>();
@@ -282,7 +334,56 @@ class NotificationDaoDynamoTest {
 
         @Override
         public PageSearchTrunk<NotificationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String partitionValue, String sentAt) {
+            return new PageSearchTrunk<NotificationMetadataEntity>(List.of(NotificationMetadataEntity.builder().build()), new ConcurrentHashMap<>());
+        }
+    }
+
+    private static class DelegationMetadataEntityDaoMock implements NotificationDelegationMetadataEntityDao {
+        @Override
+        public void put(NotificationDelegationMetadataEntity value) {
+
+        }
+
+        @Override
+        public void putIfAbsent(NotificationDelegationMetadataEntity value) throws PnIdConflictException {
+
+        }
+
+        @Override
+        public Optional<NotificationDelegationMetadataEntity> get(Key key) {
+            return Optional.empty();
+        }
+
+        @Override
+        public void delete(Key key) {
+
+        }
+
+        @Override
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchForOneMonth(InputSearchNotificationDelegatedDto searchDto, IndexNameAndPartitions.SearchIndexEnum indexName, String partitionValue, int size, PnLastEvaluatedKey lastEvaluatedKey) {
             return null;
+        }
+
+        @Override
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                                int size,
+                                                                                                PnLastEvaluatedKey lastEvaluatedKey) {
+            return null;
+        }
+
+        @Override
+        public List<NotificationDelegationMetadataEntity> batchDeleteItems(List<NotificationDelegationMetadataEntity> deleteBatchItems) {
+            return null;
+        }
+
+        @Override
+        public List<NotificationDelegationMetadataEntity> batchPutItems(List<NotificationDelegationMetadataEntity> items) {
+            return null;
+        }
+
+        @Override
+        public Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity) {
+            return Optional.empty();
         }
     }
 
@@ -345,7 +446,7 @@ class NotificationDaoDynamoTest {
                                 .contentType( "application/pdf" )
                                 .build()
                 ))
-                .build(), Collections.singletonList("Codice Fiscale 01"));
+                .build(), Collections.singletonList("Codice Fiscale 01"), X_PAGOPA_PN_SRC_CH);
     }
 
     /*private Notification newNotificationWithPaymentsDeliveryMode( boolean withIuv ) {

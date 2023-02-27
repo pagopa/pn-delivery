@@ -15,7 +15,7 @@ import java.util.List;
 public class InternalNotification extends FullSentNotification {
 
 
-    public InternalNotification(FullSentNotification fsn, List<String> recipientIds) {
+    public InternalNotification(FullSentNotification fsn, List<String> recipientIds, String sourceChannel) {
         super(
                 fsn.getIdempotenceToken(),
                 fsn.getPaProtocolNumber(),
@@ -42,6 +42,7 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getTimeline()
             );
         this.recipientIds = recipientIds;
+        this.sourceChannel = sourceChannel;
     }
 
     //@Schema( description = "Lista degli id dei destinatari")
@@ -50,6 +51,12 @@ public class InternalNotification extends FullSentNotification {
     public List<String> getRecipientIds() { return this.recipientIds; }
 
     public void setRecipientIds( List<String> recipientIds ) { this.recipientIds = recipientIds; }
+
+    private String sourceChannel;
+
+    public String getSourceChannel() { return this.sourceChannel; }
+
+    public void setSourceChannel( String sourceChannel ) { this.sourceChannel = sourceChannel; }
 
     @Override
     public boolean equals(Object o) {

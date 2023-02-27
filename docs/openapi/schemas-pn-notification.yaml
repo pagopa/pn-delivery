@@ -6,7 +6,7 @@ components:
     ############################################################################################
     ###                           IDENTIFICATIVI DELLE NOTIFICHE                             ###
     ############################################################################################
-    
+
     IUN:
       description: Identificativo Univoco Notifica
       type: string
@@ -47,7 +47,7 @@ components:
     ############################################################################################
     ###                                 DTO DELLE NOTIFICHE                                  ###
     ############################################################################################
-    
+
     NewNotificationRequest:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
@@ -76,7 +76,7 @@ components:
         subject:
           type: string
           description: titolo della notifica
-          maxLength: 512
+          maxLength: 134
         abstract:
           type: string
           description: descrizione sintetica della notifica
@@ -99,16 +99,16 @@ components:
             - _FLAT_RATE_: costo forfettario fisso. <br/>
             - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
           enum:
-          - FLAT_RATE
-          - DELIVERY_MODE
+            - FLAT_RATE
+            - DELIVERY_MODE
         cancelledIun:
           $ref: '#/components/schemas/IUN'
         physicalCommunicationType:
           type: string
           description: Tipologia comunicazione fisica
           enum:
-          - AR_REGISTERED_LETTER
-          - REGISTERED_LETTER_890
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
         senderDenomination:
           $ref: '#/components/schemas/Denomination'
         senderTaxId:
@@ -162,13 +162,14 @@ components:
     ############################################################################################
     ###                                ELEMENTI DI DETTAGLIO                                 ###
     ############################################################################################
-    
+
     NotificationRecipient:
       description: Informazioni sui destinatari
       required:
-      - denomination
-      - recipientType
-      - taxId
+        - denomination
+        - recipientType
+        - taxId
+        - physicalAddress
       type: object
       properties:
         recipientType:
@@ -176,8 +177,8 @@ components:
           description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
             (PG)'
           enum:
-          - PF
-          - PG
+            - PF
+            - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
         internalId:
@@ -212,13 +213,13 @@ components:
     NotificationPaymentAttachment:
       description: >-
         Un modulo di pagamento allegato alla notifica
-      allOf: 
+      allOf:
         - $ref: "#/components/schemas/NotificationAttachment"
-    
+
     NotificationDocument:
       description: >-
         Un documento da notifcare
-      allOf: 
+      allOf:
         - $ref: "#/components/schemas/NotificationAttachment"
         - type: object
           properties:
@@ -227,7 +228,7 @@ components:
               description: Titolo del documento allegato
             docIdx:
               type: string
-              description: >- 
+              description: >-
                 Indice del documento partendo da 0.
 
 
@@ -240,7 +241,7 @@ components:
         sha256:
           type: string
           description: Digest "sha256" della codifica binaria dell'allegato
-    
+
     NotificationAttachmentBodyRef:
       description: Riferimento all'allegato precaricato
       required:
@@ -274,11 +275,11 @@ components:
         - creditorTaxId
       properties:
         noticeCode:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         creditorTaxId:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
         noticeCodeAlternative:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         pagoPaForm:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
         f24flatRate:
@@ -306,26 +307,25 @@ components:
     ### Ripetuti per non accoppiare i microservizi e avere più facilità di evoluzione, anche ###
     ### se questo implica un po' di duplicazione.                                            ###
     ############################################################################################
-    
+
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
-      - address
-      - type
+        - address
+        - type
       type: object
       properties:
         type:
           type: string
           description: tipo di indirizzo PEC, REM, SERCQ, ...
           enum:
-          - PEC
+            - PEC
         address:
           type: string
           example: account@domain
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
             raggiungere il destinatario.
- 
 
     NotificationPhysicalAddress:
       description: Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in fase di Sperimentazione)
@@ -359,14 +359,14 @@ components:
         foreignState:
           type: string
           description: Denominazione paese estero
-    
-    
+
+
     ############################################################################################
     ###                             RISULTATO RICERCA NOTIFICHE                              ###
     ############################################################################################
-    
+
     NotificationSearchResponse:
-      title: Elenco di notifiche 
+      title: Elenco di notifiche
       description: >-
         Dto contenente i risultati di una ricerca di notifiche. Ogni risposta conterrà solo 
         una pagina di risultati relativi a una ricerca e le indicazioni per raggiungere alcune
@@ -426,8 +426,11 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-    
-    #NotificationStatus:
+        mandateId:
+          type: String
+          description: Id delega (per notifiche delegate)
+
+      #NotificationStatus:
       #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
       #type: string
 
@@ -435,7 +438,7 @@ components:
     ############################################################################################
     ###                                  DOWNLOAD ALLEGATI                                   ###
     ############################################################################################
-    
+
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: >-
@@ -462,7 +465,7 @@ components:
           description: dmensione, in byte, del contenuto.
         sha256:
           type: string
-          description: >- 
+          description: >-
             SHA256 del contenuto del file.
         url:
           type: string
@@ -475,11 +478,10 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia disponibile per il download.
+    
 
-            
     NotificationQuickAccessLinkTokens:
       description: Dizionario recipientId/quickAccessLinkToken
-      type: object 
+      type: object
       additionalProperties:
         type: string
-        

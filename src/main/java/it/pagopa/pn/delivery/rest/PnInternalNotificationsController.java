@@ -61,6 +61,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         NotificationCostResponse response;
         try {
             response = priceService.getNotificationCost( paTaxId, noticeCode );
+            logEvent.getMdc().put("iun", response.getIun());
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("Exception on get notification cost private= " + exc.getProblem()).log();
@@ -88,6 +89,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ResponseCheckAarDto responseCheckAarDto;
         try {
             responseCheckAarDto = qrService.getNotificationByQR( requestCheckAarDto );
+            logEvent.getMdc().put("iun", responseCheckAarDto.getIun());
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("Exception on get notification qr private= " + exc.getProblem()).log();
@@ -160,7 +162,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
-            serviceResult =  retrieveSvc.searchNotification( searchDto );
+            serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
             ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
             response = mapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
@@ -187,7 +189,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .build();
         logEvent.log();
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null, null);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -218,8 +220,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                 .iun(iun)
                 .build();
         logEvent.log();
+
+
         try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null);
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null, null);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,

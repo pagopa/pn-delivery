@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -22,6 +23,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
 
@@ -65,6 +67,7 @@ public class NotificationReceiverService {
 	public NewNotificationResponse receiveNotification(
 			String xPagopaPnCxId,
 			NewNotificationRequest newNotificationRequest,
+			String xPagopaPnSrcCh,
 			List<String> xPagopaPnCxGroups
 	) throws PnIdConflictException {
 		log.info("New notification storing START");
@@ -80,6 +83,7 @@ public class NotificationReceiverService {
 		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
 
 		internalNotification.setSenderPaId( xPagopaPnCxId );
+		internalNotification.setSourceChannel( xPagopaPnSrcCh );
 
 		String iun = doSaveWithRethrow(internalNotification);
 
@@ -90,23 +94,31 @@ public class NotificationReceiverService {
 	}
 
 	private void checkGroup(String senderId, String notificationGroup, List<String> xPagopaPnCxGroups) {
-		if ( StringUtils.hasText( notificationGroup ) ) {
-			if( !CollectionUtils.isEmpty( xPagopaPnCxGroups ) && !xPagopaPnCxGroups.contains( notificationGroup ) ) {
+
+		if( StringUtils.hasText( notificationGroup ) ) {
+
+			List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId );
+			PaGroup paGroup = paGroups.stream().filter(elem -> {
+				assert elem.getId() != null;
+				return elem.getId().equals(notificationGroup);
+			}).findAny().orElse(null);
+
+			if( paGroup == null || Objects.equals(paGroup.getStatus(), PaGroupStatus.SUSPENDED)){
+				String logMessage = String.format("Group=%s not present or suspended in pa_groups=%s", notificationGroup, paGroup);
+				throw new PnInvalidInputException(ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage);
+			}
+
+			if( !CollectionUtils.isEmpty( xPagopaPnCxGroups ) && !xPagopaPnCxGroups.contains(notificationGroup)){
 				String logMessage = String.format("Group=%s not present in cx_groups=%s", notificationGroup, xPagopaPnCxGroups);
-				throw new PnInvalidInputException( ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
+				throw new PnInvalidInputException(ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage);
 			}
 		} else {
-			if ( !CollectionUtils.isEmpty( xPagopaPnCxGroups ) ) {
+			if( !CollectionUtils.isEmpty( xPagopaPnCxGroups ) ) {
 				String logMessage = String.format( "Specify a group in cx_groups=%s", xPagopaPnCxGroups );
 				throw new PnInvalidInputException( ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
-			} else {
-				List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId );
-				if ( !paGroups.isEmpty() ){
-					String logMessage = String.format( "Specify a group in paGroups=%s", paGroups );
-					throw new PnInvalidInputException( ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage );
-				}
 			}
 		}
+
 	}
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {

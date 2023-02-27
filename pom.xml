@@ -30,6 +30,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-stream</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-cloudwatch2</artifactId>
         </dependency>
@@ -52,6 +56,11 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>de.idealo.spring</groupId>
+            <artifactId>spring-cloud-stream-binder-sqs</artifactId>
+            <version>1.9.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -61,6 +70,12 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-junit-jupiter</artifactId>
+            <version>5.11.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -197,12 +212,13 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-pa-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-b2b-pa.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
                             <configOptions>
                                 <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -227,7 +243,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-private-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-private.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
@@ -257,7 +273,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-pa-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-pa.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
@@ -287,12 +303,13 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-recipient-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/api-internal-web-recipient.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
+                            <templateDirectory>${project.basedir}/scripts/openapi/templates/server</templateDirectory>
                             <configOptions>
                                 <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -317,7 +334,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/docs/openapi/appio/api-internal-b2b-appio-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/docs/openapi/appio/api-internal-b2b-appio.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <library>spring-boot</library>
                             <modelNameSuffix />
@@ -452,7 +469,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/1005c95adb238463c3edba4bed34fda5582b1a2c/docs/openapi/api-private-v1.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-delivery-push/b4c255cdee2ea65b75ff3a92046f4e8f0edee48f/docs/openapi/api-private-v1.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>

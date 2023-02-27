@@ -28,6 +28,8 @@ public class PaymentEventsService {
     public static final String NOTIFICATION_NOT_FOUND_MSG = "No notification by iun=";
     public static final String HANDLE_PAYMENT_EVENT_PAGOPA_NO_NOTIFICATION_BY_IUN_MSG = "Handle payment event PagoPa - No notification by iun={} ";
     public static final String HANDLE_PAYMENT_EVENT_F24_NO_NOTIFICATION_BY_IUN_MSG = "Handle payment event F24 - No notification by iun={} ";
+    public static final String PAYMENT_SOURCE_CHANNEL_PA = "PA";
+
     private final PaymentEventsProducer paymentEventsProducer;
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
@@ -42,19 +44,21 @@ public class PaymentEventsService {
         this.checkAuthComponent = checkAuthComponent;
     }
 
-    public void handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, PaymentEventsRequestPagoPa paymentEventsRequest) {
+    public String handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, PaymentEventsRequestPagoPa paymentEventsRequest) {
         List<PaymentEventPagoPa> paymentRequests = paymentEventsRequest.getEvents();
         List<InternalPaymentEvent> paymentEvents = new ArrayList<>( paymentRequests.size() );
 
+        String iun = null;
+        String creditorTaxId;
+        String noticeCode;
+        int recipientIdx;
+        String recipientType;
+        PnDeliveryPaymentEvent.PaymentType paymentType = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
+
         // per ogni evento di pagamento nella lista di eventi
         for ( PaymentEventPagoPa paymentRequest : paymentRequests ) {
-
-            String creditorTaxId = paymentRequest.getCreditorTaxId();
-            String noticeCode = paymentRequest.getNoticeCode();
-            String iun;
-            int recipientIdx;
-            String recipientType;
-            PnDeliveryPaymentEvent.PaymentType paymentType = PnDeliveryPaymentEvent.PaymentType.PAGOPA;
+            creditorTaxId = paymentRequest.getCreditorTaxId();
+            noticeCode = paymentRequest.getNoticeCode();
 
             InternalNotification internalNotification;
 
@@ -80,7 +84,7 @@ public class PaymentEventsService {
             }
 
             // controllo autorizzazione
-            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, xPagopaPnCxId, null, iun, recipientIdx );
+            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, xPagopaPnCxId, null, xPagopaPnCxGroups, iun, recipientIdx );
             AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, internalNotification );
 
             if ( !authorizationOutcome.isAuthorized() ) {
@@ -93,8 +97,10 @@ public class PaymentEventsService {
                     .iun( iun )
                     .recipientType( PnDeliveryPaymentEvent.RecipientType.valueOf( recipientType ) )
                     .recipientIdx( recipientIdx )
+                    .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
                     .paymentDate( paymentRequest.getPaymentDate().toInstant() )
                     .paymentType( paymentType )
+                    .paymentAmount( paymentRequest.getAmount() )
                     .creditorTaxId( creditorTaxId )
                     .noticeCode( noticeCode )
                     .build()
@@ -102,9 +108,10 @@ public class PaymentEventsService {
         }
         // pubblico eventi sulla coda di delivery-push
         paymentEventsProducer.sendPaymentEvents( paymentEvents );
+        return iun;
     }
 
-    public void handlePaymentEventsF24(String cxTypePa, String cxIdPaId, PaymentEventsRequestF24 paymentEventsRequestF24) {
+    public void handlePaymentEventsF24(String cxTypePa, String cxIdPaId, List<String> xPagopaPnCxGroups, PaymentEventsRequestF24 paymentEventsRequestF24) {
         List<InternalPaymentEvent> paymentEvents = new ArrayList<>( paymentEventsRequestF24.getEvents().size() );
 
         for (PaymentEventF24 paymentEventF24 : paymentEventsRequestF24.getEvents() ) {
@@ -134,7 +141,7 @@ public class PaymentEventsService {
             }
 
             // controllo autorizzazione
-            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxTypePa, cxIdPaId, null, iun, recipientIdx );
+            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxTypePa, cxIdPaId, null, xPagopaPnCxGroups, iun, recipientIdx );
             AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, internalNotification );
 
             if ( !authorizationOutcome.isAuthorized() ) {
@@ -146,8 +153,10 @@ public class PaymentEventsService {
                     .iun( iun )
                     .recipientType( PnDeliveryPaymentEvent.RecipientType.valueOf( paymentEventF24.getRecipientType() ) )
                     .recipientIdx( recipientIdx )
+                    .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
                     .paymentDate( paymentEventF24.getPaymentDate().toInstant() )
                     .paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
+                    .paymentAmount( paymentEventF24.getAmount() )
                     .build()
             );
         }

@@ -39,6 +39,9 @@ class PaymentEventsLogUtilTest {
 
         // Then
         assertNotNull( result );
+        paymentEventsRequestF24.getEvents().forEach(
+                e -> assertEquals(RECIPIENT_TAX_ID, e.getRecipientTaxId())
+        );
 
     }
 }

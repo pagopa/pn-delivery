@@ -4,7 +4,7 @@
     "PnDeliveryInsertTriggerLambdaEventSourceMappingBatchSize": "10",
     "PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds": "20",
     "PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts": "20",
-    "IsMvpDefaultValue": "true",
+    "IsMvpDefaultValue": "false",
     "MaxDocumentsAvailableDays": "120"
   }
 }

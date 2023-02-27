@@ -18,6 +18,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.List;
 
@@ -39,6 +40,7 @@ class PnSafeStorageClientImplTest {
         this.cfg = Mockito.mock( PnDeliveryConfigs.class );
         Mockito.when( cfg.getSafeStorageBaseUrl() ).thenReturn( "http://localhost:8080" );
         Mockito.when( cfg.getSafeStorageCxId() ).thenReturn( "pn-delivery-002" );
+//        Mockito.when((restTemplate.getUriTemplateHandler())).thenReturn(new DefaultUriBuilderFactory());
         this.safeStorageClient = new PnSafeStorageClientImpl( restTemplate, cfg );
     }
 

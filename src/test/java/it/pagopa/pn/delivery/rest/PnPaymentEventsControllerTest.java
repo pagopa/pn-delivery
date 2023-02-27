@@ -20,6 +20,8 @@ import reactor.core.publisher.Mono;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.isNull;
+
 @WebFluxTest(PnPaymentEventsController.class)
 class PnPaymentEventsControllerTest {
 
@@ -44,6 +46,7 @@ class PnPaymentEventsControllerTest {
                                 .paymentDate( OffsetDateTime.parse( "2023-01-16T15:30:00Z" ) )
                                 .creditorTaxId( "77777777777" )
                                 .noticeCode( "123456789123456789" )
+                                .amount( 2000 )
                         .build() )
                 )
                 .build();
@@ -61,7 +64,7 @@ class PnPaymentEventsControllerTest {
                 .exchange()
                 .expectStatus().isNoContent();
 
-        Mockito.verify( paymentEventsService ).handlePaymentEventsPagoPa( CX_TYPE_PA, CX_ID_PA_ID, paymentEventsRequestPagoPa );
+        Mockito.verify( paymentEventsService ).handlePaymentEventsPagoPa( CX_TYPE_PA, CX_ID_PA_ID, null, paymentEventsRequestPagoPa );
 
     }
 
@@ -79,7 +82,7 @@ class PnPaymentEventsControllerTest {
 
         Mockito.doThrow( new PnRuntimeException( "test", "description", 400, "errorCode", "element", "detail" ) )
                 .when( paymentEventsService )
-                .handlePaymentEventsPagoPa( Mockito.anyString(), Mockito.anyString(), Mockito.any( PaymentEventsRequestPagoPa.class ) );
+                .handlePaymentEventsPagoPa( Mockito.anyString(), Mockito.anyString(), isNull(), Mockito.any( PaymentEventsRequestPagoPa.class ) );
 
         webTestClient.post()
                 .uri("/delivery/events/payment/pagopa")
@@ -104,6 +107,7 @@ class PnPaymentEventsControllerTest {
                         .iun( "IUN" )
                         .recipientTaxId( "12345678901" )
                         .recipientType( "PG" )
+                        .amount( 1200 )
                         .build() )
                 )
                 .build();
@@ -121,7 +125,7 @@ class PnPaymentEventsControllerTest {
                 .exchange()
                 .expectStatus().isNoContent();
 
-        Mockito.verify( paymentEventsService ).handlePaymentEventsF24( CX_TYPE_PA, CX_ID_PA_ID, paymentEventsRequestF24 );
+        Mockito.verify( paymentEventsService ).handlePaymentEventsF24( CX_TYPE_PA, CX_ID_PA_ID, null, paymentEventsRequestF24 );
 
     }
 
@@ -140,7 +144,7 @@ class PnPaymentEventsControllerTest {
 
         Mockito.doThrow( new PnRuntimeException( "test", "description", 400, "errorCode", "element", "detail" ) )
                 .when( paymentEventsService )
-                .handlePaymentEventsF24( Mockito.anyString(), Mockito.anyString(), Mockito.any( PaymentEventsRequestF24.class ) );
+                .handlePaymentEventsF24( Mockito.anyString(), Mockito.anyString(), isNull(), Mockito.any( PaymentEventsRequestF24.class ) );
 
 
         webTestClient.post()

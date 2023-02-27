@@ -4,7 +4,8 @@
 openapi: 3.0.3
 info:
   termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
-  x-api-id: api-external-b2b-pa # ONLY EXTERNAL
+  x-api-id: api-internal-b2b-pa # NO EXTERNAL
+#  x-api-id: api-external-b2b-pa # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   version: '1.0.0'
@@ -228,6 +229,9 @@ info:
       [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)</em>
     </details></br>
     
+    ><details>
+      <summary><strong>Come si individua il domicilio del destinatario di una notifica in base alla tipologia del destinatario (PF e PG) ?</strong></summary>
+      <em>Quando si invia una notifica, occorre indicare la tipologia del destinatario:</em>
         <ul>
           <li><em>Se il destinatario è PF, l'ordine di individuazione è il seguente:</em></br>
             >>>><em><strong>1) </strong> Domicilio digitale di piattaforma (se disponibile, quello configurato dal destinatario per l'ente mittente della notifica; in alternativa, quello configurato dal destinatario per la genericità degli enti mittenti)</em></br>
@@ -274,17 +278,18 @@ info:
     ><details>
       <summary><strong>Come posso simulare l'upload di un documento su S3?</strong></summary>
       <em>Aprire la shell di Git Bash o un terminal SSH ed eseguire il comando:</em></br></br>
-      >`curl -X<httpMethod> \`</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"Content-type: application/pdf" \`</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"x-amz-checksum-sha256: <checkSum>" \ `</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`--upload-file <file>  \ `</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`-H"x-amz-meta-secret: <secret>" \`</br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<url>" \`
+      `curl -X<httpMethod> \`</br>
+      `-H"Content-type: application/pdf" \`</br>
+      `-H"x-amz-meta-secret: <secret>" \`</br>
+      `-H"trailer: x-amz-checksum-sha256" \ `</br>
+      `-H"x-amz-checksum-sha256: <checkSum>" \ `</br>
+      `--upload-file <file>  \ `</br>
+      ` "<url>"`
       </br></br>
       __\<httpMethod\>__: è il metodo http (PUT o POST) indicato nella response della preload, da utilizzare per questa chiamata</br>
+      __\<secret\>__: è il secret ottenuto nella response della preload</br>
       __\<checksum\>__: è il checksum sha256, codificato in base 64, del contenuto binario del file da caricare</br>
       __\<file\>__: è il path del file da caricare</br>
-      __\<secret\>__: è il secret ottenuto nella response della preload</br>
       __\<url\>__: è l'url del bucket S3 ottenuto nella response della preload, sul quale effettuare l'upload del documento</br>
     </details></br>
 
@@ -372,7 +377,7 @@ servers:
 tags:
   - name: HealthCheck
     description: >-
-      Invocazioni per sapere lo stato di Piattaforma Notifiche
+      Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è ancora in fase di sviluppo
   - name: NewNotification
     description: >-
       Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
@@ -439,9 +444,24 @@ paths:
         Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
         a precaricare uno o più file da allegare a una notifica. <br/>
 
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        | 5 richieste/sec    |
+        | __Idempotenza__          | No                 |
+        | __Read/Write intensive__ | Write              |
+        | __Cachable__             | No                 |
+        </details>
       tags:
         - NewNotification
       operationId: presignedUploadRequest
+      parameters: # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'       # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'         # NO EXTERNAL
       requestBody:
         content:
           application/json:
@@ -489,14 +509,31 @@ paths:
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
         _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
         
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        | 5 richieste/sec    |
+        | __Idempotenza__          | No                 |
+        | __Read/Write intensive__ | Write              |
+        | __Cachable__             | No                 |
+        </details>
       tags:
         - NewNotification
       operationId: sendNewNotification
+      parameters: # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'      # NO EXTERNAL
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
         required: true
       responses:
         '202':
@@ -529,7 +566,8 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: retrieveNotificationRequestStatus                 # ONLY EXTERNAL
+      operationId: getNotificationRequestStatus                       # NO EXTERNAL
+#      operationId: retrieveNotificationRequestStatus                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -539,6 +577,10 @@ paths:
         Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
         _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
         - $ref: '#/components/parameters/idempotenceToken'
@@ -579,11 +621,27 @@ paths:
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Read               |
+        | __Cachable__             | No                 |
+        </details>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotification                                # ONLY EXTERNAL
+      operationId: getSentNotification                                      # NO EXTERNAL
+#      operationId: retrieveSentNotification                                # ONLY EXTERNAL
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
         '200':
           description: OK
@@ -613,12 +671,28 @@ paths:
       description: |-
         Download documento notificato
 
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Read               |
+        | __Cachable__             | No                 |
+        </details>
       summary: Download documento notificato
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationDocument                                # ONLY EXTERNAL
+      operationId: getSentNotificationDocument                                      # NO EXTERNAL
+#      operationId: retrieveSentNotificationDocument                                # ONLY EXTERNAL
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
       responses:
         '200':
@@ -626,7 +700,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -652,9 +726,14 @@ paths:
       summary: Download allegato per pagamento
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationAttachment                                # ONLY EXTERNAL
+      operationId: getSentNotificationAttachment                                      # NO EXTERNAL
+#      operationId: retrieveSentNotificationAttachment                                # ONLY EXTERNAL
       parameters:
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
       responses:
@@ -663,7 +742,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas-pn-notification-v1.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -692,9 +771,10 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
       tags: # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
-      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
+      operationId: getLegalFact                                                     # NO EXTERNAL
+#      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
       parameters: # ONLY EXTERNAL
-        - $ref: './parameters-notification-search-v1.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
       responses: # ONLY EXTERNAL
@@ -718,7 +798,8 @@ paths:
                 $ref: '#/components/schemas/Problem'     # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL
     get: # ONLY EXTERNAL
-      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
+      operationId: getNotificationPrice                                             # NO EXTERNAL
+#      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
         Used to retrieve the notification price charged and effective date          # ONLY EXTERNAL
@@ -734,14 +815,14 @@ paths:
           required: true                                                            # ONLY EXTERNAL
           example: '77777777777'                                                    # ONLY EXTERNAL
           schema: # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'     # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'     # ONLY EXTERNAL
         - name: noticeCode                                                          # ONLY EXTERNAL
           description: Payment notice number  numero avviso                         # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
           example: '302000100000019421'                                             # ONLY EXTERNAL
           schema: # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'  # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'  # ONLY EXTERNAL
       responses: # ONLY EXTERNAL
         '200': # ONLY EXTERNAL
           description: OK                                                           # ONLY EXTERNAL
@@ -768,6 +849,11 @@ paths:
   '/delivery/events/payment/pagopa':
     post:
       operationId: paymentEventsRequestPagoPa
+      parameters:                                                  # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
       description: >-
         Questa API è a disposizione della Pubblica Amministrazione per inviare eventi
         di chiusura di una o più posizioni debitorie di tipo PagoPA. <br/>
@@ -804,6 +890,11 @@ paths:
   '/delivery/events/payment/f24':
     post:
       operationId: paymentEventsRequestF24
+      parameters:                                                  # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
       description: >-
         Questa API è a disposizione della Pubblica Amministrazione per inviare eventi
         di chiusura di una o più posizioni debitorie di tipo F24. <br/>
@@ -841,8 +932,27 @@ components:
   
   parameters:
     ############################################################################################
+    ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
+    ############################################################################################
+    headerSourceChannel:                                                            # NO EXTERNAL
+      name: x-pagopa-pn-src-ch                                                      # NO EXTERNAL
+      in: header                                                                    # NO EXTERNAL
+      description: Notification creation source channel                             # NO EXTERNAL
+      required: true                                                                # NO EXTERNAL
+      schema:                                                                       # NO EXTERNAL
+        type: string                                                                # NO EXTERNAL
+     
+    ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
+    cxTypeAuthFleet:                                                                # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
+    cxIdAuthFleet:                                                                  # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
+    cxGroupsAuthFleet:                                                              # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+    uidAuthFleet:                                                                   # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'                # NO EXTERNAL
 
     ############################################################################################
     ###                       PARAMETRI RICERCA RICHIESTA DI NOTIFICA                        ###
@@ -932,6 +1042,8 @@ components:
     PreLoadRequest:
       title: Richiesta di precaricamento di un File
       type: object
+      required:
+        - sha256
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
@@ -995,7 +1107,7 @@ components:
       type: object
       properties:
         iun:
-          $ref: './schemas-pn-notification-v1.yaml#/components/schemas/IUN'
+          $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
         amount:
           description: amount in euro cents
           example: '1220'
@@ -1035,7 +1147,7 @@ components:
     
     NewNotificationRequestStatusResponse:
       allOf:
-        - $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/NewNotificationRequest"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
         - type: object
           required:
             - notificationRequestId
@@ -1058,7 +1170,7 @@ components:
                 Numero di secondi da attendere prima di effettuare una nuova richiesta per 
                 la stessa entità; valorizzato quando lo status è __WAITING__.
             iun:
-              $ref: "./schemas-pn-notification-v1.yaml#/components/schemas/IUN"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/IUN"
             errors:
               description: >-
                 Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
@@ -1081,7 +1193,7 @@ components:
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification-v1.yaml#/components/schemas/SentNotification'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
         - type: object
           required:
             - notificationStatus
@@ -1147,19 +1259,24 @@ components:
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - data e ora del pagamento. <br/>
+          - importo del pagamento in eurocent. <br/>
       type: object
       required:
         - noticeCode
         - creditorTaxId
         - paymentDate
+        - amount
       properties:
         noticeCode:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/noticeCode'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         creditorTaxId:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/paTaxId'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
         paymentDate:
           type: string
           format: date-time
+        amount:
+          type: integer
+          format: int32
 
     PaymentEventF24:
       title: Evento di pagamento F24
@@ -1168,13 +1285,15 @@ components:
           - lo _IUN_ della notifica pagata, <br/>
           - data e ora del pagamento, <br/>
           - il codice fiscale del destinatario pagatore, <br/>
-          - e la tipologia del destinatario pagatore (PF / PG). <br/>
+          - la tipologia del destinatario pagatore (PF / PG), <br/>
+          - importo del pagamento in eurocent. <br/>
       type: object
       required:
         - iun
         - paymentDate
         - recipientTaxId
         - recipientType
+        - amount
       properties:
         iun:
           type: string
@@ -1182,10 +1301,13 @@ components:
           type: string
           format: date-time
         recipientTaxId:
-          $ref: 'schemas-pn-notification-v1.yaml#/components/schemas/TaxId'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/TaxId'
         recipientType:
           type: string
           pattern: "PF|PG"
+        amount:
+          type: integer
+          format: int32
     
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
@@ -1196,14 +1318,14 @@ components:
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
-  securitySchemes:        # ONLY EXTERNAL
-    ApiKeyAuth:           # ONLY EXTERNAL
-      type: apiKey        # ONLY EXTERNAL
-      in: header          # ONLY EXTERNAL
-      name: x-api-key     # ONLY EXTERNAL
+#  securitySchemes:        # ONLY EXTERNAL
+#    ApiKeyAuth:           # ONLY EXTERNAL
+#      type: apiKey        # ONLY EXTERNAL
+#      in: header          # ONLY EXTERNAL
+#      name: x-api-key     # ONLY EXTERNAL
 
-security:                 # ONLY EXTERNAL
-  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+#security:                 # ONLY EXTERNAL
+#  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
               
 
 
