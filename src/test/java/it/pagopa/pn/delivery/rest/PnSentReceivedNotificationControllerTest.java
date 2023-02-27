@@ -974,6 +974,7 @@ class PnSentReceivedNotificationControllerTest {
                         NotificationRecipient.builder()
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
+								.internalId( "recipientInternalId" )
                                 .digitalDomicile(NotificationDigitalAddress.builder()
 										.type( NotificationDigitalAddress.TypeEnum.PEC )
                                         .address("account@dominio.it")
