@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-02-27T10:26:20.767Z'
+  version: '2023-02-27T11:49:58.468Z'
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3057,7 +3057,7 @@ components:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
         mandateId:
-          type: String
+          type: string
           description: Id delega (per notifiche delegate)
     NotificationSearchResponse:
       title: Elenco di notifiche

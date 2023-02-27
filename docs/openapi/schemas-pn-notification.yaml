@@ -427,7 +427,7 @@ components:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
         mandateId:
-          type: String
+          type: string
           description: Id delega (per notifiche delegate)
 
       #NotificationStatus:
