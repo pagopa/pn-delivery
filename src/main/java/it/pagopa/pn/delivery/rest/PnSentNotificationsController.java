@@ -55,7 +55,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .iun(iun)
                 .build();
         logEvent.log();
-        if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() ) ) {
+        if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() )
+                || NotificationStatus.REFUSED.equals( internalNotification.getNotificationStatus() ) ) {
             logEvent.generateFailure("Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus()).log();
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
@@ -146,6 +147,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 NewNotificationRequestStatusResponse.class
         );
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
+        // rimozione internalId per ogni destinatario
+        response.getRecipients().forEach( r -> r.setInternalId( null ) );
 
         NotificationStatus lastStatus;
         if ( !CollectionUtils.isEmpty( internalNotification.getNotificationStatusHistory() )) {
@@ -156,37 +159,34 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             lastStatus = NotificationStatus.IN_VALIDATION;
         }
 
-        switch ( lastStatus ) {
-            case IN_VALIDATION: {
-                response.setNotificationRequestStatus( "WAITING" );
-                response.retryAfter( 10 );
-                response.setIun( null );
-                break;
+        switch (lastStatus) {
+            case IN_VALIDATION -> {
+                response.setNotificationRequestStatus("WAITING");
+                response.retryAfter(10);
+                response.setIun(null);
             }
-            case REFUSED: {
-                response.setNotificationRequestStatus( "REFUSED" );
-                response.setIun( null );
+            case REFUSED -> {
+                response.setNotificationRequestStatus("REFUSED");
+                response.setIun(null);
                 Optional<TimelineElement> timelineElement = internalNotification.getTimeline().stream().filter(
-                        tle -> TimelineElementCategory.REQUEST_REFUSED.equals( tle.getCategory() ) ).findFirst();
-                setRefusedErrors( response, timelineElement );
-                break; }
-            default: response.setNotificationRequestStatus( "ACCEPTED" );
+                        tle -> TimelineElementCategory.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
+                timelineElement.ifPresent(element -> setRefusedErrors(response, element));
+            }
+            default -> response.setNotificationRequestStatus("ACCEPTED");
         }
 
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( response );
     }
 
-    private void setRefusedErrors(NewNotificationRequestStatusResponse response, Optional<TimelineElement> timelineElement) {
-        if (timelineElement.isPresent() ) {
-            List<String> errors = timelineElement.get().getDetails().getErrors();
-            List<ProblemError> problemErrorList = errors.stream().map(
-                    error -> ProblemError.builder()
-                    .detail( error )
-                    .build()
-            ).toList();
-            response.setErrors( problemErrorList );
-        }
+    private void setRefusedErrors(NewNotificationRequestStatusResponse response, TimelineElement timelineElement) {
+        List<String> errors = timelineElement.getDetails().getErrors();
+        List<ProblemError> problemErrorList = errors.stream().map(
+                error -> ProblemError.builder()
+                        .detail( error )
+                        .build()
+        ).toList();
+        response.setErrors( problemErrorList );
     }
 
     @Override

@@ -475,6 +475,9 @@ Resources:
         QueueArns: !Join
           - ','
           - - !Ref Mandate2DeliveryQueueARN
+        LogGroupsNames: !Join
+          - ','
+          - - !Sub '/ecs/${ProjectName}-delivery'
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:

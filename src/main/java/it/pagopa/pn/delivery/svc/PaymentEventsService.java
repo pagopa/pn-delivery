@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class PaymentEventsService {
     public static final String HANDLE_PAYMENT_EVENT_PAGOPA_NO_NOTIFICATION_BY_IUN_MSG = "Handle payment event PagoPa - No notification by iun={} ";
     public static final String HANDLE_PAYMENT_EVENT_F24_NO_NOTIFICATION_BY_IUN_MSG = "Handle payment event F24 - No notification by iun={} ";
     public static final String PAYMENT_SOURCE_CHANNEL_PA = "PA";
+    public static final String PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY = "EXTERNAL_REGISTRY";
 
     private final PaymentEventsProducer paymentEventsProducer;
     private final NotificationCostEntityDao notificationCostEntityDao;
@@ -44,6 +46,31 @@ public class PaymentEventsService {
         this.checkAuthComponent = checkAuthComponent;
     }
 
+    public void handlePaymentEventPagoPaPrivate( PaymentEventPagoPa paymentEventPagoPa ) {
+        String creditorTaxId = paymentEventPagoPa.getCreditorTaxId();
+        String noticeCode = paymentEventPagoPa.getNoticeCode();
+        log.debug( "Handle payment event pagoPa private for creditorTaxId={} noticeCode={}", creditorTaxId, noticeCode );
+
+        InternalNotificationCost internalNotificationCost = getInternalNotificationCost(creditorTaxId, noticeCode);
+
+        String iun = internalNotificationCost.getIun();
+        int recipientIdx = internalNotificationCost.getRecipientIdx();
+        InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
+                .iun( iun )
+                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY )
+                .paymentAmount( paymentEventPagoPa.getAmount() )
+                .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
+                .paymentDate( paymentEventPagoPa.getPaymentDate().toInstant() )
+                .creditorTaxId( creditorTaxId )
+                .noticeCode( noticeCode )
+                .recipientIdx( recipientIdx )
+                .recipientType(  PnDeliveryPaymentEvent.RecipientType.valueOf( internalNotificationCost.getRecipientType() ) )
+                .build();
+
+        log.debug( "Send payment event iun={} sourceChannel={} creditorTaxId={} noticeCode={} recipientIdx={}",
+                iun, PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY, creditorTaxId, noticeCode, recipientIdx );
+        paymentEventsProducer.sendPaymentEvents( List.of( internalPaymentEvent ) );
+    }
     public String handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, PaymentEventsRequestPagoPa paymentEventsRequest) {
         List<PaymentEventPagoPa> paymentRequests = paymentEventsRequest.getEvents();
         List<InternalPaymentEvent> paymentEvents = new ArrayList<>( paymentRequests.size() );
@@ -60,20 +87,13 @@ public class PaymentEventsService {
             creditorTaxId = paymentRequest.getCreditorTaxId();
             noticeCode = paymentRequest.getNoticeCode();
 
+            InternalNotificationCost internalNotificationCost = getInternalNotificationCost(creditorTaxId, noticeCode);
+
+            iun = internalNotificationCost.getIun();
+            recipientIdx = internalNotificationCost.getRecipientIdx();
+            recipientType = internalNotificationCost.getRecipientType();
+
             InternalNotification internalNotification;
-
-            // recupero iun, recipientIdx e recipientType dalla NotificationsCost table
-            Optional<InternalNotificationCost> optionalInternalNotificationCost = notificationCostEntityDao.getNotificationByPaymentInfo(creditorTaxId, noticeCode);
-            if (optionalInternalNotificationCost.isPresent()) {
-                InternalNotificationCost internalNotificationCost = optionalInternalNotificationCost.get();
-                iun = internalNotificationCost.getIun();
-                recipientIdx = internalNotificationCost.getRecipientIdx();
-                recipientType = internalNotificationCost.getRecipientType();
-            } else {
-                log.info( "Handle payment event - No notification by creditorTaxId={} noticeCode={}", creditorTaxId, noticeCode);
-                throw new PnNotificationNotFoundException( String.format( "No notification by creditorTaxId=%s noticeCode=%s", creditorTaxId, noticeCode) );
-            }
-
             // recupero notifica tramite iun
             Optional<InternalNotification> optionalInternalNotification = notificationDao.getNotificationByIun( iun );
             if ( optionalInternalNotification.isPresent() ) {
@@ -109,6 +129,18 @@ public class PaymentEventsService {
         // pubblico eventi sulla coda di delivery-push
         paymentEventsProducer.sendPaymentEvents( paymentEvents );
         return iun;
+    }
+
+    @NotNull
+    private InternalNotificationCost getInternalNotificationCost(String creditorTaxId, String noticeCode) {
+        // recupero iun, recipientIdx e recipientType dalla NotificationsCost table
+        Optional<InternalNotificationCost> optionalInternalNotificationCost = notificationCostEntityDao.getNotificationByPaymentInfo(creditorTaxId, noticeCode);
+        if (optionalInternalNotificationCost.isPresent()) {
+            return optionalInternalNotificationCost.get();
+        } else {
+            log.info( "Handle payment event - No notification by creditorTaxId={} noticeCode={}", creditorTaxId, noticeCode);
+            throw new PnNotificationNotFoundException( String.format( "No notification by creditorTaxId=%s noticeCode=%s", creditorTaxId, noticeCode) );
+        }
     }
 
     public void handlePaymentEventsF24(String cxTypePa, String cxIdPaId, List<String> xPagopaPnCxGroups, PaymentEventsRequestF24 paymentEventsRequestF24) {
