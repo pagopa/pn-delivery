@@ -442,6 +442,7 @@ paths:
       description: >-
         Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
         a precaricare uno o più file da allegare a una notifica. <br/>
+
       tags:
         - NewNotification
       operationId: presignedUploadRequest
