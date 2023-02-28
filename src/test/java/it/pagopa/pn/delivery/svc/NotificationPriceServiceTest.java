@@ -95,7 +95,7 @@ class NotificationPriceServiceTest {
     void getNotificationPriceFlatRateSuccess() {
         //Given
         InternalNotification internalNotification = getNewInternalNotification();
-        internalNotification.setNotificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE );
+        internalNotification.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
 
 
         InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
@@ -225,7 +225,7 @@ class NotificationPriceServiceTest {
     @NotNull
     private InternalNotification getNewInternalNotification() {
         return new InternalNotification(FullSentNotification.builder()
-                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE )
+                .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
                 .iun( "iun" )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
@@ -257,7 +257,7 @@ class NotificationPriceServiceTest {
     private InternalNotification getNewInternalNotificationNoRefinement() {
         return new InternalNotification(FullSentNotification.builder()
                 .iun( "iun" )
-                .notificationFeePolicy( FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE )
+                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .physicalAddress(NotificationPhysicalAddress.builder()

@@ -468,7 +468,7 @@ class NotificationReceiverTest {
 								.key( KEY )
 								.build() )
 						.build() ) )
-				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
+				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
 				.paProtocolNumber( "paProtocolNumber" )
 				.recipients( Collections.singletonList( NotificationRecipient.builder()
 						.payment( NotificationPaymentInfo.builder()
@@ -552,7 +552,7 @@ class NotificationReceiverTest {
 
 	private NewNotificationRequest newNotificationWithPaymentsDeliveryMode( ) {
 		NewNotificationRequest notification = newNotificationWithoutPayments( );
-		notification.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.DELIVERY_MODE );
+		notification.notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
 
 		for( NotificationRecipient recipient : notification.getRecipients()) {
 			recipient.payment( NotificationPaymentInfo.builder()

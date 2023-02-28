@@ -1059,8 +1059,6 @@ components:
       title: Informazioni per effettuare il pagamento
       description: |-
         Informazioni utili per effettuare il pagamento di una notifica, sono associate al destinatario perché le spese di notifica possono differire a seconda del canale di notifica utilizzato. <br/>
-          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
-             calcolato puntualmente. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
@@ -1123,6 +1121,12 @@ components:
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
+    NotificationFeePolicy:
+      type: string
+      description: 'Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in base all''effettivo percorso di notifica. <br/>'
+      enum:
+        - FLAT_RATE
+        - DELIVERY_MODE
     IUN:
       description: Identificativo Univoco Notifica
       type: string
@@ -1168,11 +1172,7 @@ components:
             $ref: '#/components/schemas/NotificationDocument'
           minItems: 1
         notificationFeePolicy:
-          type: string
-          description: 'Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in base all''effettivo percorso di notifica. <br/>'
-          enum:
-            - FLAT_RATE
-            - DELIVERY_MODE
+          $ref: '#/components/schemas/NotificationFeePolicy'
         cancelledIun:
           $ref: '#/components/schemas/IUN'
         physicalCommunicationType:
