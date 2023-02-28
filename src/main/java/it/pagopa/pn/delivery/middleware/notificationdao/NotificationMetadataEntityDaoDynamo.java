@@ -111,22 +111,22 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             int size,
             PnLastEvaluatedKey lastEvaluatedKey
     ) {
-        log.debug( "START search for one month" );
+        log.trace( "START search for one month" );
         Instant startDate = inputSearchNotificationDto.getStartDate();
         Instant endDate = inputSearchNotificationDto.getEndDate();
 
-        log.debug( "Key building ..." );
+        log.trace( "Key building ..." );
         // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
         Key key1 = builder.sortValue(startDate.toString()).build();
         Key key2 = builder.sortValue(endDate.toString()).build();
-        log.debug( " ... key building done " +
+        log.trace( " ... key building done " +
                 "startKeyPartition={} startKeyRange={} endKeyPartition={} endKeyRange={}",
                 key1.partitionKeyValue(), key1.sortKeyValue(),
                 key2.partitionKeyValue(), key2.sortKeyValue()
             );
 
-        log.debug( "Create query conditional" );
+        log.trace( "Create query conditional" );
         QueryConditional betweenConditional = QueryConditional
                 .sortBetween( key1, key2 );
 
@@ -138,10 +138,10 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 .limit( size )
                 .scanIndexForward( false );
 
-        log.debug( "START add filter expression" );
+        log.trace( "START add filter expression" );
         // aggiunta dei filtri alla query: status, groups, iun
         addFilterExpression(inputSearchNotificationDto, requestBuilder);
-        log.debug( "END add filter expression" );
+        log.trace( "END add filter expression" );
 
         // se query su partizione precedente ha restituito una LEK
         // recupero nome dell'attributo in base all'indice di ricerca ed imposto
@@ -153,11 +153,14 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             }
         }
 
-        log.debug( "START query execution" );
         // eseguo la query
-        SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( requestBuilder.build() );
+        QueryEnhancedRequest queryEnhancedRequest = requestBuilder.build();
 
-        log.debug( "END query execution" );
+        log.trace( "START query execution index={}", index.indexName()  );
+
+        SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( queryEnhancedRequest );
+
+        log.trace( "END query execution" );
 
         // recupero i risultati della query
         Page<NotificationMetadataEntity> page = notificationMetadataPages.iterator().next();
@@ -168,7 +171,16 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         res.setResults( page.items() );
         res.setLastEvaluatedKey(page.lastEvaluatedKey());
 
-        log.debug( "END mapper from metadata to searchRow" );
+        log.info( "DONE search for one month index={} requiredSize={} exclusiveStartKey={} startKeyPartition/Range={} endKeyPartition/Range={} expression={} expressionValues={} readRows={} lastEvaluatedKey={}",
+                index.indexName(),
+                queryEnhancedRequest.limit(),
+                queryEnhancedRequest.exclusiveStartKey(),
+                key1.partitionKeyValue() + "/" + key1.sortKeyValue(),
+                key2.partitionKeyValue() + "/" + key2.sortKeyValue(),
+                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expression(),
+                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expressionValues(),
+                (page.items()==null?0:page.items().size()),
+                page.lastEvaluatedKey() );
         return res;
     }
 
@@ -251,7 +263,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         if ( !CollectionUtils.isEmpty( groupList )) {
             // restituire anche le notifiche con gruppo <stringa_vuota>
             groupList.add("");
-            log.debug( "Add group filter expression" );
+            log.trace( "Add group filter expression" );
             if ( expressionBuilder.length() > 0 )
                 expressionBuilder.append( " AND ( " );
             else {
@@ -281,7 +293,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                           StringBuilder expressionBuilder) {
         if ( !CollectionUtils.isEmpty( mandateAllowedPaIds )) {
             // devo restituire solo le righe con PaId mittente permessa nelle deleghe
-            log.debug( "Add paIds filter expression" );
+            log.trace( "Add paIds filter expression" );
             if ( expressionBuilder.length() > 0 )
                 expressionBuilder.append( " AND  ( " );
             else {
