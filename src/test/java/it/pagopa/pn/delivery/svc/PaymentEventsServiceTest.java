@@ -39,7 +39,8 @@ class PaymentEventsServiceTest {
     public static final String RECIPIENT_TAX_ID = "RSSMRA77E04H501Q";
     public static final String RECIPIENT_INTERNAL_ID = "recipientInternalId";
     private static final Integer PAYMENT_AMOUNT = 1200;
-    private static final String PAYMENT_SOURCE_CHANNEL = "PA";
+    private static final String PAYMENT_SOURCE_CHANNEL_PA = "PA";
+    private static final String PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY = "EXTERNAL_REGISTRY";
     @Mock
     private PaymentEventsProducer paymentEventsProducer;
     @Mock
@@ -100,7 +101,7 @@ class PaymentEventsServiceTest {
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
                 .paymentAmount( PAYMENT_AMOUNT )
-                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL )
+                .paymentSourceChannel(PAYMENT_SOURCE_CHANNEL_PA)
                 .iun( IUN )
                 .creditorTaxId( CREDITOR_TAX_ID )
                 .noticeCode( NOTICE_CODE )
@@ -109,6 +110,69 @@ class PaymentEventsServiceTest {
                 .build();
 
         Mockito.verify( paymentEventsProducer ).sendPaymentEvents( List.of( internalPaymentEvent ) );
+
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handlePaymentEventsPagoPaPrivate() {
+        // Given
+        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
+                .paymentDate(OffsetDateTime.parse(PAYMENT_DATE_STRING))
+                .amount(PAYMENT_AMOUNT)
+                .creditorTaxId(CREDITOR_TAX_ID)
+                .noticeCode(NOTICE_CODE)
+                .build();
+
+        // When
+        InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
+                .iun(IUN)
+                .recipientIdx(0)
+                .recipientType(RECIPIENT_TYPE_PF)
+                .creditorTaxIdNoticeCode(CREDITOR_TAX_ID + "##" + NOTICE_CODE)
+                .build();
+
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(), Mockito.anyString() ) )
+                .thenReturn( Optional.of(internalNotificationCost));
+
+
+        service.handlePaymentEventPagoPaPrivate( paymentEventPagoPa );
+
+        // Then
+        InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
+                .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
+                .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
+                .paymentAmount( PAYMENT_AMOUNT )
+                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY )
+                .iun( IUN )
+                .creditorTaxId( CREDITOR_TAX_ID )
+                .noticeCode( NOTICE_CODE )
+                .recipientIdx( 0 )
+                .recipientType( PnDeliveryPaymentEvent.RecipientType.PF )
+                .build();
+
+        Mockito.verify( paymentEventsProducer ).sendPaymentEvents( List.of( internalPaymentEvent ) );
+
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void handlePaymentEventsPagoPaPrivateNoNotificationsCost() {
+        // Given
+        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
+                .paymentDate(OffsetDateTime.parse(PAYMENT_DATE_STRING))
+                .creditorTaxId(CREDITOR_TAX_ID)
+                .noticeCode(NOTICE_CODE)
+                .build();
+
+        // When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(), Mockito.anyString() ) )
+                .thenReturn( Optional.empty() );
+
+        // Then
+        Executable todo = () -> service.handlePaymentEventPagoPaPrivate( paymentEventPagoPa );
+
+        Assertions.assertThrows(PnNotFoundException.class, todo);
 
     }
 
@@ -244,7 +308,7 @@ class PaymentEventsServiceTest {
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
                 .paymentAmount( PAYMENT_AMOUNT )
-                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL )
+                .paymentSourceChannel(PAYMENT_SOURCE_CHANNEL_PA)
                 .iun( IUN )
                 .recipientIdx( 0 )
                 .recipientType( PnDeliveryPaymentEvent.RecipientType.PF )
