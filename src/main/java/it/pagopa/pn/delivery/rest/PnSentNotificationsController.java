@@ -55,7 +55,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 .iun(iun)
                 .build();
         logEvent.log();
-        if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() ) ) {
+        if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() )
+                || NotificationStatus.REFUSED.equals( internalNotification.getNotificationStatus() ) ) {
             logEvent.generateFailure("Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus()).log();
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
