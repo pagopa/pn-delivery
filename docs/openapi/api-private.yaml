@@ -476,7 +476,6 @@ components:
         - noticeCode
         - creditorTaxId
         - paymentDate
-        - amount
       properties:
         noticeCode:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'

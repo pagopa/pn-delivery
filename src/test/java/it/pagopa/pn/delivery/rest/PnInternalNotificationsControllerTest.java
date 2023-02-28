@@ -627,7 +627,6 @@ class PnInternalNotificationsControllerTest {
                 .paymentDate(OffsetDateTime.parse("2023-01-16T15:30:00Z"))
                 .creditorTaxId("77777777777")
                 .noticeCode("123456789123456789")
-                .amount(2000)
                 .build();
 
         webTestClient.post()
@@ -646,7 +645,6 @@ class PnInternalNotificationsControllerTest {
                 .paymentDate(OffsetDateTime.parse("2023-01-16T15:30:00Z"))
                 .creditorTaxId("77777777777")
                 .noticeCode("123456789123456789")
-                .amount(2000)
                 .build();
 
         Mockito.doThrow( new PnRuntimeException( "test", "description", 400, "errorCode", "element", "detail" ) )
