@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-02-27T16:32:24.718Z'
+  version: '2023-02-28T11:02:05.966Z'
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
