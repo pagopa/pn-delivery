@@ -25,8 +25,8 @@ public class InternalPaymentEvent {
     private Instant paymentDate;
     @NotNull
     private PnDeliveryPaymentEvent.PaymentType paymentType;
-    @NotNull
-    private int paymentAmount;
+    @Nullable
+    private Integer paymentAmount;
     @NotNull
     private String paymentSourceChannel;
     @Nullable
