@@ -443,6 +443,18 @@ paths:
       description: >-
         Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie 
         a precaricare uno o più file da allegare a una notifica. <br/>
+
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        | 5 richieste/sec    |
+        | __Idempotenza__          | No                 |
+        | __Read/Write intensive__ | Write              |
+        | __Cachable__             | No                 |
+        </details>
       tags:
         - NewNotification
       operationId: presignedUploadRequest

@@ -144,6 +144,37 @@ class PnSentReceivedNotificationControllerTest {
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID);
 	}
 
+
+	@Test
+	void getSentNotificationNotFoundCauseREFUSED() {
+		// Given
+		InternalNotification notification = newNotification();
+		notification.setNotificationStatus( NotificationStatus.REFUSED );
+
+		// When
+		ModelMapper mapper = new ModelMapper();
+		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
+		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
+
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/sent/" + IUN  )
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isNotFound();
+
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID);
+	}
+
+
 	@Test
 	void getNotificationRequestStatusByRequestIdIN_VALIDATION() {
 		// Given
@@ -962,54 +993,55 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotification.builder()
-                .iun("IUN_01")
-                .paProtocolNumber("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
+		return new InternalNotification(FullSentNotification.builder()
+				.iun("IUN_01")
+				.paProtocolNumber("protocol_01")
+				.subject("Subject 01")
+				.cancelledByIun("IUN_05")
+				.cancelledIun("IUN_00")
 				.senderPaId( PA_ID )
 				.notificationStatus( NotificationStatus.ACCEPTED )
-                .recipients( Collections.singletonList(
-                        NotificationRecipient.builder()
-                                .taxId("Codice Fiscale 01")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(NotificationDigitalAddress.builder()
+				.recipients( Collections.singletonList(
+						NotificationRecipient.builder()
+								.taxId("Codice Fiscale 01")
+								.denomination("Nome Cognome/Ragione Sociale")
+								.internalId( "recipientInternalId" )
+								.digitalDomicile(NotificationDigitalAddress.builder()
 										.type( NotificationDigitalAddress.TypeEnum.PEC )
-                                        .address("account@dominio.it")
-                                        .build())
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NotificationDocument.builder()
-                                .ref( NotificationAttachmentBodyRef.builder()
+										.address("account@dominio.it")
+										.build())
+								.build()
+				))
+				.documents(Arrays.asList(
+						NotificationDocument.builder()
+								.ref( NotificationAttachmentBodyRef.builder()
 										.key("doc00")
 										.versionToken("v01_doc00")
 										.build()
 								)
 								.digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .build(),
+										.sha256("sha256_doc00")
+										.build()
+								)
+								.build(),
 						NotificationDocument.builder()
 								.ref( NotificationAttachmentBodyRef.builder()
 										.key("doc01")
 										.versionToken("v01_doc01")
 										.build()
 								)
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .build()
-                ))
+								.digests(NotificationAttachmentDigests.builder()
+										.sha256("sha256_doc01")
+										.build()
+								)
+								.build()
+				))
 				.timeline( Collections.singletonList(TimelineElement.builder().build()))
 				.notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
-								.status( NotificationStatus.ACCEPTED )
+						.status( NotificationStatus.ACCEPTED )
 						.build() ) )
-                .build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
-    }
+				.build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
+	}
 	@Test
 	void searchNotificationDelegatedFailure() {
 		// When
