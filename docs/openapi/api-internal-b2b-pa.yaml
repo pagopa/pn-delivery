@@ -982,7 +982,7 @@ components:
     idempotenceToken:
       name: idempotenceToken
       description: >-
-        token usato per disambiguare "richieste di notificazione" effetuate con lo stesso 
+        token usato per disambiguare "richieste di notificazione" effettuate con lo stesso 
         numero di protocollo. 
       in: query
       required: false
@@ -1064,6 +1064,9 @@ components:
               - application/pdf
           type: string
           example: application/pdf
+          minLength: 25
+          maxLength: 25
+          pattern: "application/pdf"
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -1307,6 +1310,9 @@ components:
       properties:
         iun:
           type: string
+          minLength: 25
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         paymentDate:
           type: string
           format: date-time
