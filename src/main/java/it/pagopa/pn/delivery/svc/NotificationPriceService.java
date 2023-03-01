@@ -1,139 +1,123 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
-import java.time.OffsetDateTime;
-import java.util.Comparator;
 import java.util.Optional;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONMETADATANOTFOUND;
 
 @Service
 @Slf4j
 public class NotificationPriceService {
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
-    private final NotificationRetrieverService retrieverService;
-    private final PnDeliveryConfigs cfg;
+    private final NotificationMetadataEntityDao notificationMetadataEntityDao;
+    private final PnDeliveryPushClientImpl deliveryPushClient;
     private final RefinementLocalDate refinementLocalDateUtils;
 
-    public NotificationPriceService(NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationRetrieverService retrieverService, PnDeliveryConfigs cfg, RefinementLocalDate refinementLocalDateUtils) {
+    public NotificationPriceService(NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, RefinementLocalDate refinementLocalDateUtils) {
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
-        this.retrieverService = retrieverService;
-        this.cfg = cfg;
+        this.notificationMetadataEntityDao = notificationMetadataEntityDao;
+        this.deliveryPushClient = deliveryPushClient;
         this.refinementLocalDateUtils = refinementLocalDateUtils;
     }
 
     public NotificationPriceResponse getNotificationPrice(String paTaxId, String noticeCode) {
-        // richiesta al dao per recuperare la notifica dato paTaxId e noticeCode
-        OffsetDateTime effectiveDate = null;
-        String amount = null;
-        log.info( "Get notification cost for paTaxId={} noticeCode={}", paTaxId, noticeCode );
-        Optional<InternalNotificationCost> optionalNotificationCost = notificationCostEntityDao.getNotificationByPaymentInfo( paTaxId, noticeCode );
-        if (optionalNotificationCost.isPresent()) {
-            log.info( "Get notification with iun={}", optionalNotificationCost.get().getIun() );
-                Optional<InternalNotification> optionalNotification = notificationDao.getNotificationByIun( optionalNotificationCost.get().getIun() );
-                if (optionalNotification.isPresent()) {
-                    // recupero degli elementi di timeline per prendere la data di effective date
-                    log.info( "Get notification timeline for iun={}", optionalNotificationCost.get().getIun() );
-                    InternalNotification notification = retrieverService.enrichWithTimelineAndStatusHistory( optionalNotificationCost.get().getIun(), optionalNotification.get() );
-                    Optional<TimelineElement> timelineElement = notification.getTimeline()
-                            .stream()
-                            .filter( tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory())
-                                    || TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-                            .min( Comparator.comparing(TimelineElement::getTimestamp) );
-                    if (timelineElement.isPresent()){
-                        effectiveDate = refinementLocalDateUtils.setLocalRefinementDate( timelineElement.get() );
-                    }
-                    // calcolo costo della notifica
-                    amount = computeAmount( optionalNotificationCost.get().getRecipientIdx(), notification );
-                } else {
-                    log.error( "Unable to find notification for iun={}", optionalNotificationCost.get().getIun() );
-                    throw new PnNotificationNotFoundException( String.format("Unable to find notification for iun=%s", optionalNotificationCost.get().getIun() ));
-                }
-
-        } else {
-            log.info( "No notification by paTaxId={} noticeCode={}", paTaxId, noticeCode );
-            throw new PnNotificationNotFoundException( String.format( "No notification by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) );
-        }
+        log.info( "Get notification price for paTaxId={} noticeCode={}", paTaxId, noticeCode );
+        InternalNotificationCost internalNotificationCost = getInternalNotificationCost(paTaxId, noticeCode);
+        String iun = internalNotificationCost.getIun();
+        log.info( "Get notification with iun={}", iun);
+        InternalNotification internalNotification = getInternalNotification(iun);
+        NotificationFeePolicy notificationFeePolicy = NotificationFeePolicy.fromValue(
+                internalNotification.getNotificationFeePolicy().getValue()
+        );
+        int recipientIdx = internalNotificationCost.getRecipientIdx();
+        // se la lista degli id non presente nell'internal notifications la posso recuperare dalla notificationMetadataEntity
+        String recipientId = internalNotification.getRecipientIds().get(recipientIdx);
+        log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
+        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy);
 
         // creazione dto response
         return NotificationPriceResponse.builder()
-                .amount( amount )
-                .iun( optionalNotificationCost.get().getIun() )
-                .effectiveDate( effectiveDate )
+                .amount( notificationProcessCost.getAmount() )
+                .refinementDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getRefinementDate() ) )
+                .notificationViewDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getNotificationViewDate() ) )
+                .iun( iun )
                 .build();
     }
 
-    private String computeAmount(int recipientIdx, InternalNotification notification) {
-        log.info( "Compute notification cost amount for recipientIdx={} iun={}", recipientIdx, notification.getIun() );
-        long notificationCost;
-        switch ( notification.getNotificationFeePolicy() ) {
-            case FLAT_RATE: {
-                log.info( "Notification cost amount for FLATE_RATE" );
-                notificationCost = 0L;
-            } break;
-            case DELIVERY_MODE: {
-                log.info( "Compute notification cost amount for DELIVERY_MODE" );
-                PnDeliveryConfigs.Costs costs = cfg.getCosts();
-                // costo di notifica per destinatrio
-                notificationCost = Long.parseLong( costs.getNotification() );
-                for ( TimelineElement tle : notification.getTimeline() ) {
-                    if (tle.getCategory() == TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER && recipientIdx == tle.getDetails().getRecIndex()) {
-                        notificationCost += computeSimpleRegisteredLetterCost(tle);
-                    }
-                } break;
-            }
-            default: throw new UnsupportedOperationException();
-        }
-        return Long.toString(notificationCost);
-    }
-
-    private Long computeSimpleRegisteredLetterCost(TimelineElement tle) {
-        log.info( "Compute simple register letter cost for timelineElementId={}", tle.getElementId() );
-        long simpleRegisteredLetterCost;
-        String foreignState = tle.getDetails().getPhysicalAddress().getForeignState();
-        log.debug( "ForeignState={}", foreignState );
-        if (foreignState == null || foreignState.equals( "Italia" )) {
-            simpleRegisteredLetterCost = Long.parseLong( cfg.getCosts().getRaccomandataIta() );
+    private InternalNotification getInternalNotification(String iun) {
+        Optional<InternalNotification> optionalNotification = notificationDao.getNotificationByIun(iun);
+        if (optionalNotification.isPresent()) {
+            return optionalNotification.get();
         } else {
-            // NOTA: nella PN-1567 recupero della zona in base al codice foreignState
-            simpleRegisteredLetterCost = Long.parseLong( cfg.getCosts().getRaccomandataEstZona1() );
+            log.error( "Unable to find notification for iun={}", iun);
+            throw new PnNotificationNotFoundException( String.format("Unable to find notification for iun=%s", iun));
         }
-        return simpleRegisteredLetterCost;
     }
 
+    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy) {
+        // controllo che notifica sia stata accettata cercandola nella tabella notificationMetadata tramite PK iun##recipientId
+        getNotificationMetadataEntity(iun, recipientId);
+
+        // contatto delivery-push per farmi calcolare tramite iun, recipientIdx, notificationFeePolicy costo della notifica
+        // delivery-push mi risponde con amount, data perfezionamento presa visione, data perfezionamento decorrenza termini
+        return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy);
+    }
+
+    private void getNotificationMetadataEntity(String iun, String recipientId) {
+        Optional<NotificationMetadataEntity> optionalNotificationMetadataEntity = notificationMetadataEntityDao.get(Key.builder()
+                .partitionValue(iun + "##" + recipientId)
+                .build()
+        );
+        if (optionalNotificationMetadataEntity.isEmpty()) {
+            log.info( "Notification iun={}, recipientId={} not found in NotificationsMetadata", iun, recipientId);
+            throw new PnNotFoundException("Notification metadata not found", String.format(
+                    "Notification iun=%s, recipientId=%s not found in NotificationsMetadata", iun, recipientId),
+                    ERROR_CODE_DELIVERY_NOTIFICATIONMETADATANOTFOUND );
+        }
+    }
+
+    // NOTA da eliminare poiché non utilizzato da pn-delivery-push
     public NotificationCostResponse getNotificationCost(String paTaxId, String noticeCode) {
         String iun;
         int recipientIdx;
         log.info( "Get notification cost info for paTaxId={} noticeCode={}", paTaxId, noticeCode );
-        Optional<InternalNotificationCost> optionalNotificationCost = notificationCostEntityDao.getNotificationByPaymentInfo( paTaxId, noticeCode );
-        if (optionalNotificationCost.isPresent()) {
-            iun = optionalNotificationCost.get().getIun();
-            recipientIdx = optionalNotificationCost.get().getRecipientIdx();
-        } else {
-            log.info( "No notification cost info by paTaxId={} noticeCode={}", paTaxId, noticeCode );
-            throw new PnNotFoundException("Notification cost not found", String.format( "No notification cost info by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) , ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND );
-        }
+        InternalNotificationCost internalNotificationCost = getInternalNotificationCost(paTaxId, noticeCode);
+        iun = internalNotificationCost.getIun();
+        recipientIdx = internalNotificationCost.getRecipientIdx();
 
         return NotificationCostResponse.builder()
                 .iun( iun )
                 .recipientIdx( recipientIdx )
                 .build();
+    }
+
+    private InternalNotificationCost getInternalNotificationCost( String paTaxId, String noticeCode ) {
+        Optional<InternalNotificationCost> optionalNotificationCost = notificationCostEntityDao.getNotificationByPaymentInfo( paTaxId, noticeCode );
+        if (optionalNotificationCost.isPresent()) {
+            return optionalNotificationCost.get();
+        } else {
+            log.info( "No notification cost info by paTaxId={} noticeCode={}", paTaxId, noticeCode );
+            throw new PnNotFoundException("Notification cost not found", String.format( "No notification cost info by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) , ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND );
+        }
     }
 }

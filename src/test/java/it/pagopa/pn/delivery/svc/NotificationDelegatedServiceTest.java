@@ -73,12 +73,12 @@ class NotificationDelegatedServiceTest {
     @Test
     @DisplayName("Test duplication")
     void testHandleAcceptedMandate2() {
-        Instant mandateStartValidity = Instant.now().minus(1, ChronoUnit.DAYS);
+        Instant now = Instant.now();
         InternalMandateDto internalMandateDto = new InternalMandateDto();
         internalMandateDto.setMandateId(MANDATE_ID);
         internalMandateDto.setDelegator(DELEGATOR_ID);
         internalMandateDto.setDelegate(DELEGATE_ID);
-        internalMandateDto.setDatefrom(mandateStartValidity.toString());
+        internalMandateDto.setDatefrom(now.toString());
         List<InternalMandateDto> internalMandateDtoList = List.of(internalMandateDto);
         when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
                 .thenReturn(internalMandateDtoList);
@@ -94,7 +94,7 @@ class NotificationDelegatedServiceTest {
                 .mandateId(MANDATE_ID)
                 .delegatorId(DELEGATOR_ID)
                 .delegateId(DELEGATE_ID)
-                .validFrom(mandateStartValidity)
+                .validFrom(now)
                 .build();
         assertDoesNotThrow(() -> notificationDelegatedService.handleAcceptedMandate(payload, EventType.MANDATE_ACCEPTED));
 
@@ -139,12 +139,12 @@ class NotificationDelegatedServiceTest {
     @Test
     @DisplayName("Test query pagination")
     void testHandleAcceptedMandate4() {
-        Instant mandateStartValidity = Instant.now().minus(1, ChronoUnit.DAYS);
+        Instant now = Instant.now();
         InternalMandateDto internalMandateDto = new InternalMandateDto();
         internalMandateDto.setMandateId(MANDATE_ID);
         internalMandateDto.setDelegator(DELEGATOR_ID);
         internalMandateDto.setDelegate(DELEGATE_ID);
-        internalMandateDto.setDatefrom(mandateStartValidity.toString());
+        internalMandateDto.setDatefrom(now.toString());
         List<InternalMandateDto> internalMandateDtoList = List.of(internalMandateDto);
         when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
                 .thenReturn(internalMandateDtoList);
@@ -164,7 +164,7 @@ class NotificationDelegatedServiceTest {
                 .mandateId(MANDATE_ID)
                 .delegatorId(DELEGATOR_ID)
                 .delegateId(DELEGATE_ID)
-                .validFrom(mandateStartValidity)
+                .validFrom(now)
                 .build();
         assertDoesNotThrow(() -> notificationDelegatedService.handleAcceptedMandate(payload, EventType.MANDATE_ACCEPTED));
 

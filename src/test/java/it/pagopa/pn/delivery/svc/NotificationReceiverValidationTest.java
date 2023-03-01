@@ -13,6 +13,7 @@ import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import it.pagopa.pn.commons.utils.ValidateUtils;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,19 +26,6 @@ import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentBodyRef;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDigests;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentAttachment;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.delivery.models.InternalNotification;
 
 class NotificationReceiverValidationTest {
@@ -140,7 +128,7 @@ class NotificationReceiverValidationTest {
   @Test
   void checkOk() {
     InternalNotification n = validDocumentWithoutPayments();
-    n.setNotificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE);
+    n.setNotificationFeePolicy(NotificationFeePolicy.FLAT_RATE);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -246,7 +234,7 @@ class NotificationReceiverValidationTest {
     // GIVEN
     InternalNotification n = new InternalNotification(
         notificationWithPhysicalCommunicationType()._abstract(INVALID_ABSTRACT)
-            .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE),
+            .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE),
         Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
@@ -264,7 +252,7 @@ class NotificationReceiverValidationTest {
     InternalNotification n =
         new InternalNotification(
             notificationWithPhysicalCommunicationType().subject(INVALID_SUBJECT)
-                .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.FLAT_RATE),
+                .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE),
             Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
@@ -321,7 +309,7 @@ class NotificationReceiverValidationTest {
             .recipients(Collections.singletonList(NotificationRecipient.builder().build()))
             .documents(Collections.singletonList(NotificationDocument.builder().build())),
         Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
-    n.notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE);
+    n.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -375,7 +363,7 @@ class NotificationReceiverValidationTest {
   void validDocumentAndRecipientWithoutPayments() {
     // GIVEN
     InternalNotification n = validDocumentWithoutPayments();
-    n.notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE);
+    n.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -404,7 +392,7 @@ class NotificationReceiverValidationTest {
 
     // GIVEN
     InternalNotification n = validDocumentWithoutPayments();
-    n.notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE);
+    n.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
     InternalNotification wrongEmail = new InternalNotification(
         n.recipients(Collections.singletonList(n.getRecipients().get(0)
             .digitalDomicile(n.getRecipients().get(0).getDigitalDomicile().address(null)))),
@@ -428,7 +416,7 @@ class NotificationReceiverValidationTest {
             .documents(Collections.singletonList(NotificationDocument.builder().build())),
         Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
     notification
-        .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE);
+        .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -603,7 +591,7 @@ class NotificationReceiverValidationTest {
   private InternalNotification validDocumentWithPayments() {
     return new InternalNotification(
         newFullSentNotification()
-            .notificationFeePolicy(FullSentNotification.NotificationFeePolicyEnum.DELIVERY_MODE)
+            .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
             .recipients(Collections.singletonList(NotificationRecipient.builder()
                 .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipient.RecipientTypeEnum.PF)
                 .denomination("Ada Lovelace")

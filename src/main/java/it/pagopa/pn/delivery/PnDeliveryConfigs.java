@@ -50,8 +50,6 @@ public class PnDeliveryConfigs {
 
     private Integer maxPageSize;
 
-    private Costs costs;
-
     private String maxDocumentsAvailableDays;
 
     private String maxFirstNoticeCodeDays;
@@ -87,15 +85,6 @@ public class PnDeliveryConfigs {
     @Data
     public static class NotificationQRDao {
         private String tableName;
-    }
-
-    @Data
-    public static class Costs {
-        private String notification;
-        private String raccomandataIta;
-        private String raccomandataEstZona1;
-        private String raccomandataEstZona2;
-        private String raccomandataEstZona3;
     }
 
 }
