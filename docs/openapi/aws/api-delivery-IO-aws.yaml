@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-03-01T10:15:53.815Z'
+  version: '2023-03-01T13:43:19.216Z'
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1964,7 +1964,7 @@ components:
       x-amazon-apigateway-authtype: custom
       x-amazon-apigateway-authorizer:
         authorizerUri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-ApiKeyAuthorizerV2Lambda/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-ioAuthorizerLambda/invocations
         authorizerResultTtlInSeconds: 300
         identitySource: >-
           method.request.header.x-api-key,
