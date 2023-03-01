@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: '2023-02-28T16:25:05.794Z'
+  version: '2023-03-01T10:15:53.815Z'
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -33,11 +33,6 @@ paths:
         - $ref: '#/components/parameters/notificationSearchIun'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: OK
@@ -64,7 +59,6 @@ paths:
         httpMethod: ANY
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
@@ -82,6 +76,7 @@ paths:
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
+        requestParameters: {}
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -102,11 +97,6 @@ paths:
         - $ref: '#/components/parameters/notificationSearchStatus'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: OK
@@ -136,7 +126,6 @@ paths:
         httpMethod: ANY
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
@@ -154,6 +143,7 @@ paths:
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/delegated
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
+        requestParameters: {}
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -173,11 +163,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/notificationSearchMandateId'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: OK
@@ -206,13 +191,13 @@ paths:
         httpMethod: ANY
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -224,6 +209,8 @@ paths:
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -241,11 +228,6 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryMandateId'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: OK
@@ -275,13 +257,14 @@ paths:
         httpMethod: ANY
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.docIdx: method.request.path.docIdx
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -295,6 +278,9 @@ paths:
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/documents/{docIdx}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.docIdx: method.request.path.docIdx
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -312,11 +298,6 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: OK
@@ -346,13 +327,14 @@ paths:
         httpMethod: ANY
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.attachmentName: method.request.path.attachmentName
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -367,6 +349,9 @@ paths:
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/payment/{attachmentName}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.attachmentName: method.request.path.attachmentName
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
@@ -407,7 +392,6 @@ paths:
         httpMethod: ANY
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.path.proxy: method.request.path.proxy
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
           integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
           integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
@@ -418,12 +402,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-      parameters:
-        - name: proxy
-          in: path
-          required: true
-          schema:
-            type: string
+      parameters: []
     options:
       operationId: Options for /notifications/received/check-aar-qr-code API CORS
       x-amazon-apigateway-integration:
@@ -431,6 +410,7 @@ paths:
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-aar-qr-code
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
+        requestParameters: {}
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
