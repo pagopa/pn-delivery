@@ -1,7 +1,5 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
@@ -17,7 +15,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,16 +30,13 @@ class PnNotificationPriceControllerTest {
     @MockBean
     private NotificationPriceService service;
 
-    @MockBean
-    private PnDeliveryConfigs cfg;
-
     @Test
     void getPriceSuccess() {
         //Given
         NotificationPriceResponse priceResponse = NotificationPriceResponse.builder()
                 .iun( "iun" )
-                .effectiveDate( OffsetDateTime.now() )
-                .amount( "2000" )
+                .refinementDate( OffsetDateTime.now() )
+                .amount( 2000 )
                 .build();
 
         //When
