@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: X+uTYKiy/gjXlA8uFpYRSQY6hsOeM4J2vs+FDKX1UWI=
+  version: imXXjgwnjT2ng/EU41VcriiF0Jd4KBPR/AehyC2gOnQ=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -53,7 +53,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/attachments/preload
@@ -137,7 +137,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
@@ -196,7 +196,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
@@ -257,7 +257,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}
@@ -326,7 +326,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}/attachments/documents/{docIdx}
@@ -400,7 +400,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}
@@ -445,11 +445,10 @@ paths:
       summary: Retrieve notification price and effective date
       description: >-
         Used to retrieve the notification price charged and effective
-        date          # ONLY EXTERNAL from PagoPa identifiers paTaxId and
-        noticeCode.                             # ONLY EXTERNAL Called from PA
-        to turn notification cost to the receiver during the         # ONLY
-        EXTERNAL pagoPa payment verification
-        phase.                                          # ONLY EXTERNAL
+        date           from PagoPa identifiers paTaxId and
+        noticeCode.                              Called from PA to turn
+        notification cost to the receiver during the          pagoPa payment
+        verification phase. Usata per recuperare il costo di notificazione e se
       tags:
         - NotificationPrice
       parameters:
@@ -480,6 +479,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '500':
           description: Internal Server Error
           content:
@@ -487,7 +492,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/price/{paTaxId}/{noticeCode}
@@ -558,7 +563,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/pagopa
@@ -625,7 +630,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/events/payment/f24
@@ -698,7 +703,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent
@@ -738,7 +743,7 @@ paths:
         - RecipientRead
       operationId: searchReceivedNotification
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
         - $ref: '#/components/parameters/notificationSearchStartDate'
         - $ref: '#/components/parameters/notificationSearchEndDate'
@@ -833,7 +838,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/delegated
@@ -873,7 +878,7 @@ paths:
         - RecipientRead
       operationId: getReceivedNotification
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/notificationSearchMandateId'
@@ -936,7 +941,7 @@ paths:
         - RecipientRead
       operationId: getReceivedNotificationDocument
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -1005,7 +1010,7 @@ paths:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
@@ -1076,7 +1081,7 @@ paths:
         - RecipientRead
       operationId: checkAarQrCode
       security:
-        - pn-auth-fleet_jwtAuthorizer: []
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       requestBody:
         content:
           application/json:
@@ -1451,10 +1456,14 @@ components:
           $ref: '#/components/schemas/IUN'
         amount:
           description: amount in euro cents
-          example: '1220'
+          type: integer
+          format: int32
+        refinementDate:
+          description: data di perfezionamento per decorrenza termini localizzata
           type: string
-        effectiveDate:
-          description: notification effective IT local date
+          format: date-time
+        notificationViewDate:
+          description: data di perfezionamento per presa visione
           type: string
           format: date-time
     NewNotificationResponse:
@@ -1903,8 +1912,6 @@ components:
         Informazioni utili per effettuare il pagamento di una notifica, sono
         associate al destinatario perché le spese di notifica possono differire
         a seconda del canale di notifica utilizzato. <br/>
-          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
-             calcolato puntualmente. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
@@ -1969,6 +1976,15 @@ components:
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
+    NotificationFeePolicy:
+      type: string
+      description: >-
+        Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_:
+        costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in
+        base all'effettivo percorso di notifica. <br/>
+      enum:
+        - FLAT_RATE
+        - DELIVERY_MODE
     IUN:
       description: Identificativo Univoco Notifica
       type: string
@@ -2019,14 +2035,7 @@ components:
             $ref: '#/components/schemas/NotificationDocument'
           minItems: 1
         notificationFeePolicy:
-          type: string
-          description: >-
-            Politica di addebitamento dei costi di notifica. <br/> -
-            _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo
-            calcolato in base all'effettivo percorso di notifica. <br/>
-          enum:
-            - FLAT_RATE
-            - DELIVERY_MODE
+          $ref: '#/components/schemas/NotificationFeePolicy'
         cancelledIun:
           $ref: '#/components/schemas/IUN'
         physicalCommunicationType:
@@ -2566,6 +2575,9 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        schedulingDate:
+          type: string
+          format: date-time
     SendCourtesyMessageDetails:
       type: object
       required:
@@ -3081,7 +3093,7 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   securitySchemes:
-    pn-auth-fleet_jwtAuthorizer:
+    pn-auth-fleet_jwtAuthorizer_openapi:
       type: apiKey
       name: Authorization
       in: header

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ffpOTrV5pXbLLuefHGzXwUiinnFdh4EuFpTpeCBJeeo=
+  version: rWgYh88CGatWZA7MiYawD8asxAnnenoiz+ByIiOrPFE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -21,8 +21,8 @@ paths:
         - RecipientRead
       operationId: searchReceivedNotification
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       parameters:
         - $ref: '#/components/parameters/notificationSearchStartDate'
         - $ref: '#/components/parameters/notificationSearchEndDate'
@@ -117,8 +117,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/delegated
@@ -158,8 +158,8 @@ paths:
         - RecipientRead
       operationId: getReceivedNotification
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/notificationSearchMandateId'
@@ -222,8 +222,8 @@ paths:
         - RecipientRead
       operationId: getReceivedNotificationDocument
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -292,8 +292,8 @@ paths:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
@@ -364,8 +364,8 @@ paths:
         - RecipientRead
       operationId: checkAarQrCode
       security:
-        - pn-auth-fleet_IoAuthorizer: []
-        - api_key: []
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
       requestBody:
         content:
           application/json:
@@ -956,8 +956,6 @@ components:
         Informazioni utili per effettuare il pagamento di una notifica, sono
         associate al destinatario perché le spese di notifica possono differire
         a seconda del canale di notifica utilizzato. <br/>
-          - _notificationFeePolicy_: indica se il pagamento delle spese di notifica è forfettario o
-             calcolato puntualmente. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
@@ -1022,6 +1020,15 @@ components:
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
+    NotificationFeePolicy:
+      type: string
+      description: >-
+        Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_:
+        costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in
+        base all'effettivo percorso di notifica. <br/>
+      enum:
+        - FLAT_RATE
+        - DELIVERY_MODE
     NewNotificationRequest:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
@@ -1066,14 +1073,7 @@ components:
             $ref: '#/components/schemas/NotificationDocument'
           minItems: 1
         notificationFeePolicy:
-          type: string
-          description: >-
-            Politica di addebitamento dei costi di notifica. <br/> -
-            _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo
-            calcolato in base all'effettivo percorso di notifica. <br/>
-          enum:
-            - FLAT_RATE
-            - DELIVERY_MODE
+          $ref: '#/components/schemas/NotificationFeePolicy'
         cancelledIun:
           $ref: '#/components/schemas/IUN'
         physicalCommunicationType:
@@ -1613,6 +1613,9 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        schedulingDate:
+          type: string
+          format: date-time
     SendCourtesyMessageDetails:
       type: object
       required:
@@ -1953,11 +1956,11 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   securitySchemes:
-    api_key:
+    api_key_openapi:
       type: apiKey
       name: x-api-key
       in: header
-    pn-auth-fleet_IoAuthorizer:
+    pn-auth-fleet_IoAuthorizer_openapi:
       type: apiKey
       name: Unused
       in: header
