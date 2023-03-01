@@ -765,82 +765,89 @@ paths:
     ###########################################################################################
     ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
     ###########################################################################################
-  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}': # ONLY EXTERNAL
-    get: # ONLY EXTERNAL
+  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':                 # ONLY EXTERNAL
+    get:                                                                            # ONLY EXTERNAL
       summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
-      tags: # ONLY EXTERNAL
+      tags:                                                                         # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
       operationId: getLegalFact                                                     # NO EXTERNAL
 #      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
-      parameters: # ONLY EXTERNAL
+      parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
-      responses: # ONLY EXTERNAL
-        '200': # ONLY EXTERNAL
+      responses:                                                                    # ONLY EXTERNAL
+        '200':                                                                      # ONLY EXTERNAL
           description: OK                                                           # ONLY EXTERNAL
-          content: # ONLY EXTERNAL
-            application/json: # ONLY EXTERNAL
-              schema: # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/json:                                                       # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
                 $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      # ONLY EXTERNAL
-        '400': # ONLY EXTERNAL
+        '400':                                                                      # ONLY EXTERNAL
           description: Bad request                                                  # ONLY EXTERNAL
-          content: # ONLY EXTERNAL
-            application/problem+json: # ONLY EXTERNAL
-              schema: # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'     # ONLY EXTERNAL
-        '500': # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+        '500':                                                                      # ONLY EXTERNAL
           description: Internal error                                               # ONLY EXTERNAL
-          content: # ONLY EXTERNAL
-            application/problem+json: # ONLY EXTERNAL
-              schema: # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'     # ONLY EXTERNAL
-  '/delivery/price/{paTaxId}/{noticeCode}': # ONLY EXTERNAL
-    get: # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+  '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
+    get:                                                                            # ONLY EXTERNAL
       operationId: getNotificationPrice                                             # NO EXTERNAL
 #      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
-        Used to retrieve the notification price charged and effective date          # ONLY EXTERNAL
-        from PagoPa identifiers paTaxId and noticeCode.                             # ONLY EXTERNAL
-        Called from PA to turn notification cost to the receiver during the         # ONLY EXTERNAL
-        pagoPa payment verification phase.                                          # ONLY EXTERNAL
-      tags: # ONLY EXTERNAL
+        Used to retrieve the notification price charged and effective date          
+        from PagoPa identifiers paTaxId and noticeCode.                             
+        Called from PA to turn notification cost to the receiver during the         
+        pagoPa payment verification phase.
+        Usata per recuperare il costo di notificazione e se
+      tags:                                                                         # ONLY EXTERNAL
         - NotificationPrice                                                         # ONLY EXTERNAL
-      parameters: # ONLY EXTERNAL
-        - name: paTaxId                                                              # ONLY EXTERNAL
+      parameters:                                                                   # ONLY EXTERNAL
+        - name: paTaxId                                                             # ONLY EXTERNAL
           description: Payment PA fiscal code                                       # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
           example: '77777777777'                                                    # ONLY EXTERNAL
-          schema: # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'     # ONLY EXTERNAL
+          schema:                                                                   # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'        # ONLY EXTERNAL
         - name: noticeCode                                                          # ONLY EXTERNAL
           description: Payment notice number  numero avviso                         # ONLY EXTERNAL
           in: path                                                                  # ONLY EXTERNAL
           required: true                                                            # ONLY EXTERNAL
           example: '302000100000019421'                                             # ONLY EXTERNAL
-          schema: # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'  # ONLY EXTERNAL
-      responses: # ONLY EXTERNAL
-        '200': # ONLY EXTERNAL
+          schema:                                                                   # ONLY EXTERNAL
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'     # ONLY EXTERNAL
+      responses:                                                                    # ONLY EXTERNAL
+        '200':                                                                      # ONLY EXTERNAL
           description: OK                                                           # ONLY EXTERNAL
-          content: # ONLY EXTERNAL
-            application/json: # ONLY EXTERNAL
-              schema: # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/json:                                                       # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/NotificationPriceResponse'              # ONLY EXTERNAL
-        '400': # ONLY EXTERNAL
+        '400':                                                                      # ONLY EXTERNAL
           description: Invalid input                                                # ONLY EXTERNAL
-          content: # ONLY EXTERNAL
-            application/problem+json: # ONLY EXTERNAL
-              schema: # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-        '500': # ONLY EXTERNAL
+        '404':                                                                      # ONLY EXTERNAL
+          description: Not Found                                                # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+        '500':                                                                      # ONLY EXTERNAL
           description: Internal Server Error                                        # ONLY EXTERNAL
-          content: # ONLY EXTERNAL
-            application/problem+json: # ONLY EXTERNAL
-              schema: # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
 
     ###########################################################################################
@@ -1110,13 +1117,16 @@ components:
           $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
         amount:
           description: amount in euro cents
-          example: '1220'
-          type: string
-        effectiveDate:
-          description: notification effective IT local date
+          type: integer
+          format: int32
+        refinementDate:
+          description: data di perfezionamento per decorrenza termini localizzata
           type: string
           format: date-time
-          #example: 2017-07-21T17:32:59.645442Z
+        notificationViewDate:
+          description: data di perfezionamento per presa visione
+          type: string
+          format: date-time
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
