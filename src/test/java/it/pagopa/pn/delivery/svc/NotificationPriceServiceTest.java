@@ -96,6 +96,35 @@ class NotificationPriceServiceTest {
         Assertions.assertNull( response.getNotificationViewDate() );
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationPriceFailure() {
+        //Given
+        InternalNotification internalNotification = getNewInternalNotification();
+        internalNotification.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
+
+        InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
+                .recipientIdx( 0 )
+                .iun( "iun" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
+                .build();
+
+        //When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
+                .thenReturn( Optional.of(internalNotificationCost) );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( Optional.of( internalNotification ) );
+
+        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.empty() );
+
+
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
+
+        //Then
+        Assertions.assertThrows(PnNotFoundException.class, todo);
+    }
+
 
 
     @ExtendWith(MockitoExtension.class)

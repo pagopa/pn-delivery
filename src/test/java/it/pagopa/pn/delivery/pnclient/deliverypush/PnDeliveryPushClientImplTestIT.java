@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
 import it.pagopa.pn.delivery.MockAWSObjectsTest;
+import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationFeePolicy;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -65,6 +66,29 @@ class PnDeliveryPushClientImplTestIT extends MockAWSObjectsTest {
         // Then
         assertDoesNotThrow( () -> {
             deliveryPushClient.getTimelineAndStatusHistory( "DHUJ-QYVT-DMVH-202302-P-1", 2, createdAt );
+        });
+    }
+
+    @Test
+    void getNotificationProcessCost() {
+        String path = "/delivery-push-private/DHUJ-QYVT-DMVH-202302-P-1/notification-process-cost/0";
+        // Given
+
+        // When
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path)
+                        .withQueryStringParameter("notificationFeePolicy", NotificationFeePolicy.FLAT_RATE.getValue())
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                );
+
+        deliveryPushClient.getNotificationProcessCost( "DHUJ-QYVT-DMVH-202302-P-1", 0, NotificationFeePolicy.FLAT_RATE );
+        // Then
+        assertDoesNotThrow( () -> {
+            deliveryPushClient.getNotificationProcessCost( "DHUJ-QYVT-DMVH-202302-P-1", 0, NotificationFeePolicy.FLAT_RATE );
         });
     }
 

@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
