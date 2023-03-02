@@ -335,7 +335,7 @@ info:
     
     ><details>
       <summary><strong>Se l’Ente invia una richiesta di notifica in modalità FLAT_RATE e chiama il servizio GET/delivery/price/{paTaxId}/{noticeCode}, quale sarà il costo (amount) notificato da PN?</strong></summary>
-      <em>Sarà notificato comunque il costo della notifica sostenuto da PagoPA, perché tale valore potrebbe essere utilizzato ai fini della verifica della fatturazione.</em>
+      <em>Il costo della notifica restituito equivale a € 0, poiché si demanda alla PA l'applicazione del costo forfettario di notificazione.</em>
     </details></br>
     
     ><details>
@@ -343,7 +343,7 @@ info:
         <table 
         background-color="red"
         border="1px solid black">
-          <tr><th>Modalità</th><th>Tipo di notifica</th><th>Esito Notifica</th><th>Tipo di canale analogico</th><th>Spese postali</th><th>Importo fornito all’Ente tramite il servizio GET delivery/price</th></tr><tr><td>DELIVERY\_MODE</td><td>Notifica digitale</td><td>Destinatario raggiunto sul canale digitale</td><td>N/A</td><td>N/A</td><td>€ 2.00 (costo base)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica digitale</td><td>Destinatario non raggiungibile sul canale digitale</td><td>N/A</td><td>Costo raccomandata semplice</td><td>€ 2.00 (costo base) + Costo raccomandata semplice</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al primo indirizzo</td><td>Raccomandata A/R</td><td>Costo raccomandata A/R</td><td>€ 2.00 (costo base)  + Costo A/R (primo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al primo indirizzo</td><td>890</td><td>Costo 890</td><td>€ 2.00 (costo base)  + Costo 890 (primo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al secondo indirizzo</td><td>Raccomandata A/R</td><td>Costo raccomandata A/R</td><td>€ 2.00 (costo base)  + Costo A/R (primo indirizzo) + Costo A/R (secondo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al secondo indirizzo</td><td>890</td><td>Costo 890</td><td>€ 2.00 (costo base)  + Costo 890 (primo indirizzo) + Costo 890 (secondo indirizzo)</td></tr>
+          <tr><th>Modalità</th><th>Tipo di notifica</th><th>Esito Notifica</th><th>Tipo di canale analogico</th><th>Spese postali</th><th>Importo fornito all’Ente tramite il servizio GET delivery/price</th></tr><tr><td>DELIVERY\_MODE</td><td>Notifica digitale</td><td>Destinatario raggiunto sul canale digitale</td><td>N/A</td><td>N/A</td><td>€ 1.00 (costo base)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica digitale</td><td>Destinatario non raggiungibile sul canale digitale</td><td>N/A</td><td>Costo raccomandata semplice</td><td>€ 1.00 (costo base) + Costo raccomandata semplice</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al primo indirizzo</td><td>Raccomandata A/R</td><td>Costo raccomandata A/R</td><td>€ 1.00 (costo base)  + Costo A/R (primo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al primo indirizzo</td><td>890</td><td>Costo 890</td><td>€ 1.00 (costo base)  + Costo 890 (primo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al secondo indirizzo</td><td>Raccomandata A/R</td><td>Costo raccomandata A/R</td><td>€ 1.00 (costo base)  + Costo A/R (primo indirizzo) + Costo A/R (secondo indirizzo)</td></tr><tr><td>DELIVERY\_MODE</td><td>Notifica analogica</td><td>Destinatario reperibile al secondo indirizzo</td><td>890</td><td>Costo 890</td><td>€ 1.00 (costo base)  + Costo 890 (primo indirizzo) + Costo 890 (secondo indirizzo)</td></tr>
         </table>
     </details></br>
 
@@ -725,11 +725,8 @@ paths:
       operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
-        Used to retrieve the notification price charged and effective date          
-        from PagoPa identifiers paTaxId and noticeCode.                             
-        Called from PA to turn notification cost to the receiver during the         
-        pagoPa payment verification phase.
-        Usata per recuperare il costo di notificazione e se
+        Usata dalla PA per recuperare il costo di notificazione tramite
+         l'identificativo della posizione debitoria paTaxId e noticeCode.
       tags:                                                                         # ONLY EXTERNAL
         - NotificationPrice                                                         # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
@@ -761,7 +758,7 @@ paths:
               schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
         '404':                                                                      # ONLY EXTERNAL
-          description: Not Found                                                # ONLY EXTERNAL
+          description: Not Found                                                    # ONLY EXTERNAL
           content:                                                                  # ONLY EXTERNAL
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
