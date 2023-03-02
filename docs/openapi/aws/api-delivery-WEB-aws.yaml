@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: imXXjgwnjT2ng/EU41VcriiF0Jd4KBPR/AehyC2gOnQ=
+  version: 1v2E8PITjJoWIisaxA9w/pBOiWDiYdCaiX21VrrvtRA=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1127,18 +1127,6 @@ paths:
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /v3/api-docs:
-    x-amazon-apigateway-any-method:
-      operationId: Proxy to pn-delivery public api-docs
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v3/api-docs
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000
