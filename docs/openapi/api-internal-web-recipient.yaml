@@ -319,7 +319,7 @@ paths:
         - $ref: '#/components/parameters/cxTypeAuthFleet'                                 # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'                                   # NO EXTERNAL
         - $ref: '#/components/parameters/cxGroupsAuthFleet'                               # NO EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'    # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                               # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                                 # ONLY EXTERNAL
       responses:                                                                          # ONLY EXTERNAL
@@ -374,6 +374,8 @@ components:
       required: true
       schema:
         type: string
+        minLength: 3
+        maxLength: 6
         pattern: "PAGOPA|F24"
         # quella sottostante è quella corretta. Riscritta per problemi con tool usato
         #    oneOf:
