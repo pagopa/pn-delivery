@@ -948,6 +948,8 @@ components:
       required: true                                                                # NO EXTERNAL
       schema:                                                                       # NO EXTERNAL
         type: string                                                                # NO EXTERNAL
+        maxLength: 3                                                                # NO EXTERNAL
+        pattern: "B2B|WEB"                                                          # NO EXTERNAL
      
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
@@ -1016,6 +1018,8 @@ components:
       required: true
       schema:
         type: string
+        minLength: 6
+        maxLength: 12
         pattern: "PAGOPA|F24_FLAT|F24_STANDARD"
         #quella sottostante è quella corretta. Riscritta per problemi con tool usato
         #oneOf:
@@ -1324,6 +1328,8 @@ components:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/TaxId'
         recipientType:
           type: string
+          minLength: 2
+          maxLength: 2
           pattern: "PF|PG"
         amount:
           type: integer
