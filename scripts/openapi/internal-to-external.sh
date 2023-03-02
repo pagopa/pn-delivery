@@ -21,3 +21,8 @@ redocly bundle docs/openapi/api-external-b2b-pa.yaml --output docs/openapi/api-e
 
 #spectral lint -r https://italia.github.io/api-oas-checker/spectral-security.yml docs/openapi/api-external-b2b-pa-bundle.yaml
 spectral lint -r https://italia.github.io/api-oas-checker/spectral.yml docs/openapi/api-external-b2b-pa-bundle.yaml
+
+# single files checks
+#spectral lint -r https://italia.github.io/api-oas-checker/spectral-security.yml docs/openapi/api-internal-b2b-pa.yaml
+#spectral lint -r https://italia.github.io/api-oas-checker/spectral-security.yml docs/openapi/api-internal-web-recipient.yaml
+#spectral lint -r https://italia.github.io/api-oas-checker/spectral-security.yml docs/openapi/appio/api-internal-b2b-appio.yaml

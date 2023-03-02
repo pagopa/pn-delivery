@@ -1067,7 +1067,7 @@ components:
             Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
               - application/pdf
           type: string
-          example: application/pdf
+          #example: application/pdf
           minLength: 25
           maxLength: 25
           pattern: "application/pdf"
@@ -1077,9 +1077,8 @@ components:
             checksum sha256, codificato in base 64, del contenuto binario del file che verrà
             caricato
           type: string
-          example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
+          example: 'jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE='
           maxLength: 44
-          pattern: ^[A-Za-z0-9+\/]{4}*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?
 
     PreLoadResponse:
       title: Informazioni per il caricamento file
@@ -1156,7 +1155,6 @@ components:
           description: >-
             identificativo univoco di una richiesta di invio notifica, non è lo IUN
           maxLength: 36
-          pattern: ^[A-Za-z0-9+\/]{4}*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
