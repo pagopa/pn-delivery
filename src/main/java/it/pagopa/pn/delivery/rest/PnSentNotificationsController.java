@@ -228,6 +228,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
+            // @TODO qui verrà tornato anche la filekey da usare nell'auditlog (Ma senza modificare NotificationAttachmentDownloadMetadataResponse)
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
@@ -235,11 +236,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     docIdx,
                     false
             );
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("dockey", response.getFileKey()).log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
-        return ResponseEntity.ok( response );
+        return ResponseEntity.ok( response.getNotificationAttachmentDownloadMetadataResponse() );
     }
 }

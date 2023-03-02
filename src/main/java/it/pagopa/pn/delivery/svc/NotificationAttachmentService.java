@@ -20,6 +20,7 @@ import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -116,17 +117,16 @@ public class NotificationAttachmentService {
         }
     }
 
+    @Data
     public static class FileInfos {
         private final String fileName;
         private final FileDownloadResponse fileDownloadResponse;
+        private final String fileKey;
 
-        public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse) {
+        public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse, String fileKey) {
             this.fileName = fileName;
             this.fileDownloadResponse = fileDownloadResponse;
-        }
-
-        public String getFileName() {
-            return fileName;
+            this.fileKey = fileKey;
         }
     }
 
@@ -220,6 +220,7 @@ public class NotificationAttachmentService {
                 notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo );
             }
 
+            // @TODO qui tornare tornato anche la filekey da usare nell'auditlog (Ma senza modificare NotificationAttachmentDownloadMetadataResponse)
             return NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
@@ -289,7 +290,7 @@ public class NotificationAttachmentService {
             fileName = buildFilename(iun, name, r.getContentType());
 
             log.info("downloadDocumentWithRedirect with fileKey={} filename:{} - iun={}", fileKey, fileName, iun);
-            return new FileInfos( fileName, r );
+            return new FileInfos( fileName, r , fileKey);
         } catch (Exception exc) {
             if (exc instanceof PnHttpResponseException pnHttpResponseException && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
                 throw new PnBadRequestException("File info not found", pnHttpResponseException.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, pnHttpResponseException);
