@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND;
@@ -53,7 +54,7 @@ public class NotificationPriceService {
         // se la lista degli id non presente nell'internal notifications la posso recuperare dalla notificationMetadataEntity
         String recipientId = internalNotification.getRecipientIds().get(recipientIdx);
         log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
-        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy);
+        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt());
 
         // creazione dto response
         return NotificationPriceResponse.builder()
@@ -74,18 +75,19 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy) {
+    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt) {
         // controllo che notifica sia stata accettata cercandola nella tabella notificationMetadata tramite PK iun##recipientId
-        getNotificationMetadataEntity(iun, recipientId);
+        getNotificationMetadataEntity(iun, recipientId, sentAt);
 
         // contatto delivery-push per farmi calcolare tramite iun, recipientIdx, notificationFeePolicy costo della notifica
         // delivery-push mi risponde con amount, data perfezionamento presa visione, data perfezionamento decorrenza termini
         return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy);
     }
 
-    private void getNotificationMetadataEntity(String iun, String recipientId) {
+    private void getNotificationMetadataEntity(String iun, String recipientId, OffsetDateTime sentAt) {
         Optional<NotificationMetadataEntity> optionalNotificationMetadataEntity = notificationMetadataEntityDao.get(Key.builder()
                 .partitionValue(iun + "##" + recipientId)
+                .sortValue( sentAt.toString() )
                 .build()
         );
         if (optionalNotificationMetadataEntity.isEmpty()) {
