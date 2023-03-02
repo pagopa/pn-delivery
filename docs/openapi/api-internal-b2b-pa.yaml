@@ -802,11 +802,8 @@ paths:
 #      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
-        Used to retrieve the notification price charged and effective date          
-        from PagoPa identifiers paTaxId and noticeCode.                             
-        Called from PA to turn notification cost to the receiver during the         
-        pagoPa payment verification phase.
-        Usata per recuperare il costo di notificazione e se
+        Usata dalla PA per recuperare il costo di notificazione tramite
+         l'identificativo della posizione debitoria paTaxId e noticeCode.
       tags:                                                                         # ONLY EXTERNAL
         - NotificationPrice                                                         # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
@@ -838,7 +835,7 @@ paths:
               schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
         '404':                                                                      # ONLY EXTERNAL
-          description: Not Found                                                # ONLY EXTERNAL
+          description: Not Found                                                    # ONLY EXTERNAL
           content:                                                                  # ONLY EXTERNAL
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
