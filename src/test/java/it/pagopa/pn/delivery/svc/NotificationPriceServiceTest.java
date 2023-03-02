@@ -196,6 +196,7 @@ class NotificationPriceServiceTest {
         return new InternalNotification(FullSentNotification.builder()
                 .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
                 .iun( "iun" )
+                .sentAt( OffsetDateTime.now() )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .physicalAddress(NotificationPhysicalAddress.builder()
