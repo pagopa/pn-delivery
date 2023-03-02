@@ -334,8 +334,24 @@ info:
     </details></br>
     
     ><details>
-      <summary><strong>Se l’Ente invia una richiesta di notifica in modalità FLAT_RATE e chiama il servizio GET/delivery/price/{paTaxId}/{noticeCode}, quale sarà il costo (amount) notificato da PN?</strong></summary>
-      <em>Sarà notificato comunque il costo della notifica sostenuto da PagoPA, perché tale valore potrebbe essere utilizzato ai fini della verifica della fatturazione.</em>
+      <summary><strong>Con quale logica l'API notificationPrice risponde?</strong></summary>
+      <em>l'API NotificazionPrice, quando riceve come parametri il codice ente creditore (paTaxId) e il numero avviso (noticeCode) di pagoPA risponde come segue:
+        <ul>
+        <li> 0 se il notificationFeePolicy=FLAT_RATE. Questo permette alla PA mittente di applicare al destinatario un costo forfettario stabilito dalla PA mittente stessa.</li>
+        <li> € 1 se il notificationFeePolicy=DELIVERY_MODE e la notifica NON ha comportato invio cartaceo</li>
+        <li>€ 1 + X € costo dell'invio cartaceo se il notificationFeePolicy=DELIVERY_MODE e la notifica ha comportato invio cartaceo</li>
+        </ul>
+      </em>
+    </details></br>
+    
+    ><details>
+      <summary><strong>Come avviene la fatturazione di PN nei confronti della PA mittente?</strong></summary>
+      <em>PND fatturerà alla PA mittente, nei termini previsti dal contratto di adesione, le notifiche indipendentemente dalla scelta delle PA (FLAT_RATE/DELIVERY_MODE) i seguenti costi:
+        <ul>
+        <li>€ 1 per servizio PN per ogni destinatario della notifica (a copertura dei servizi di PND)</li>
+        <li>il costo di tutti gli invii cartacei (a copertura dei servizi di postalizzazione)</li>
+        </ul>
+      </em>
     </details></br>
     
     ><details>
