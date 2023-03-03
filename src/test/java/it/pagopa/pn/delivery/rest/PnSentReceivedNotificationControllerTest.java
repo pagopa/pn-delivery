@@ -622,6 +622,45 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
+	void getSentNotificationAttachmentSuccessFileKeyNull() {
+		//Given
+		InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
+				.url( REDIRECT_URL )
+				.contentType( "application/pdf" )
+				.sha256( SHA256_BODY )
+				.filename( FILENAME )
+				.build(), null);
+
+		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
+
+		// When
+		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
+		Mockito.when( attachmentService.downloadAttachmentWithRedirectWithFileKey(
+				anyString(),
+				any(InternalAuthHeader.class),
+				isNull(),
+				Mockito.anyInt(),
+				anyString(),
+				Mockito.anyBoolean()
+		)).thenReturn( response );
+
+		// Then
+		webTestClient.get()
+				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
+				.accept( MediaType.ALL )
+				.header(HttpHeaders.ACCEPT, "application/json")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, UID)
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PA)
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus()
+				.isOk();
+
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirectWithFileKey( IUN, internalAuthHeader, null,  0, PAGOPA, false);
+	}
+
+	@Test
 	void getSentNotificationAttachmentFailure() {
 		// When
 		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
