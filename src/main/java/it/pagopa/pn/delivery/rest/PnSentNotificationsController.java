@@ -191,7 +191,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        NotificationAttachmentService.PairResult response;
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment={}", attachmentName)
@@ -200,7 +200,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            response = notificationAttachmentService.downloadAttachmentWithRedirect(
+            response = notificationAttachmentService.downloadAttachmentWithRedirectWithFileKey(
                     iun,
                     internalAuthHeader,
                     null,
@@ -208,18 +208,18 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     attachmentName,
                     false
             );
-            logEvent.generateSuccess().log();
+            logEvent.generateSuccess("dockey", response.getFileKey()).log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
      
-        return ResponseEntity.ok( response );
+        return ResponseEntity.ok( response.getNotificationAttachmentDownloadMetadataResponse() );
     }
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        NotificationAttachmentService.PairResult response;
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}", docIdx)
@@ -228,8 +228,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         logEvent.log();
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            // @TODO qui verrà tornato anche la filekey da usare nell'auditlog (Ma senza modificare NotificationAttachmentDownloadMetadataResponse)
-            response = notificationAttachmentService.downloadDocumentWithRedirect(
+            response = notificationAttachmentService.downloadDocumentWithRedirectWithFileKey(
                     iun,
                     internalAuthHeader,
                     null,

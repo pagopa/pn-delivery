@@ -20,8 +20,10 @@ import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.internal.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -136,6 +138,18 @@ public class NotificationAttachmentService {
             String mandateId,
             Integer documentIdx,
             Boolean markNotificationAsViewed) {
+
+        return downloadDocumentWithRedirectWithFileKey( iun, internalAuthHeader, mandateId,
+                documentIdx, markNotificationAsViewed ).notificationAttachmentDownloadMetadataResponse;
+    }
+
+    public PairResult downloadDocumentWithRedirectWithFileKey(
+            String iun,
+            InternalAuthHeader internalAuthHeader,
+            String mandateId,
+            Integer documentIdx,
+            Boolean markNotificationAsViewed) {
+
         InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
                 .cxType(internalAuthHeader.cxType())
                 .cxId(internalAuthHeader.xPagopaPnCxId())
@@ -150,8 +164,19 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
-
     public NotificationAttachmentDownloadMetadataResponse downloadAttachmentWithRedirect(
+            String iun,
+            InternalAuthHeader internalAuthHeader,
+            String mandateId,
+            Integer recipientIdx,
+            String attachmentName,
+            Boolean markNotificationAsViewed) {
+
+        return downloadAttachmentWithRedirectWithFileKey( iun,internalAuthHeader,mandateId,
+                recipientIdx,attachmentName,markNotificationAsViewed ).notificationAttachmentDownloadMetadataResponse;
+    }
+
+    public PairResult downloadAttachmentWithRedirectWithFileKey(
             String iun,
             InternalAuthHeader internalAuthHeader,
             String mandateId,
@@ -172,7 +197,7 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
-    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect( InputDownloadDto inputDownloadDto ) {
+    private PairResult downloadDocumentWithRedirect( InputDownloadDto inputDownloadDto ) {
         String cxType = inputDownloadDto.getCxType();
         String cxId = inputDownloadDto.getCxId();
         String uid = inputDownloadDto.getUid();
@@ -220,8 +245,7 @@ public class NotificationAttachmentService {
                 notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo );
             }
 
-            // @TODO qui tornare tornato anche la filekey da usare nell'auditlog (Ma senza modificare NotificationAttachmentDownloadMetadataResponse)
-            return NotificationAttachmentDownloadMetadataResponse.builder()
+            return PairResult.of(NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
                     .contentLength( nullSafeBigDecimalToInteger(
@@ -231,8 +255,7 @@ public class NotificationAttachmentService {
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
                     .retryAfter( nullSafeBigDecimalToInteger(
                             fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
-                    ))
-                    .build();
+                    )).build() , fileInfos.fileKey);
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
             throw new PnNotificationNotFoundException("Notification not found for iun=" + iun);
@@ -360,4 +383,15 @@ public class NotificationAttachmentService {
         return bd != null ? bd.intValue() : null;
     }
 
+
+    @Data
+    @AllArgsConstructor
+    public static final class PairResult{
+        NotificationAttachmentDownloadMetadataResponse notificationAttachmentDownloadMetadataResponse;
+        String fileKey;
+
+        public static PairResult of(NotificationAttachmentDownloadMetadataResponse notification, String fileKey) {
+            return new PairResult(notification, fileKey);
+        }
+    }
 }
