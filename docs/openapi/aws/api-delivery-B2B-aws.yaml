@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Wm++zuVvwMzploRchwnpyoq3GIf4IkL63NgKGDMbWRQ=
+  version: HrSfZXvMYJ4umUtWxPeixVkCiinyQ/3J8TrPUxpaZzE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1952,6 +1952,13 @@ components:
         schedulingDate:
           type: string
           format: date-time
+    IoSendMessageResult:
+      type: string
+      description: Risultato invio messaggio su IO
+      enum:
+        - NOT_SENT_OPTIN_ALREADY_SENT
+        - SENT_COURTESY
+        - SENT_OPTIN
     SendCourtesyMessageDetails:
       type: object
       required:
@@ -1968,6 +1975,8 @@ components:
           type: string
           description: data invio messaggio di cortesia
           format: date-time
+        ioSendMessageResult:
+          $ref: '#/components/schemas/IoSendMessageResult'
     SendDigitalDetails:
       type: object
       required:
@@ -2063,6 +2072,27 @@ components:
       enum:
         - AR_REGISTERED_LETTER
         - REGISTERED_LETTER_890
+    BaseAnalogDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+        - serviceLevel
+        - sentAttemptMade
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        serviceLevel:
+          $ref: '#/components/schemas/ServiceLevel'
+        sentAttemptMade:
+          type: number
+          description: numero dei tentativi effettuati
+        relatedRequestId:
+          type: string
+          description: Id relativo alla eventuale precedente richiesta di invio cartaceo
     SendAnalogDetails:
       type: object
       required:
@@ -2125,6 +2155,17 @@ components:
           items:
             type: string
             description: Lista errori, vuota in caso di successo
+    BaseRegisteredLetterDetails:
+      type: object
+      required:
+        - recIndex
+        - physicalAddress
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
     SimpleRegisteredLetterDetails:
       type: object
       required:
@@ -2215,6 +2256,21 @@ components:
         paymentSourceChannel:
           type: string
           description: Canale sorgente della richiesta di pagamento
+    SendAnalogProgressDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario che ha effettuato il pagamento della notifica
+        notificationDate:
+          type: string
+          format: date-time
+        eventCode:
+          type: string
+        eventDetail:
+          type: string
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
@@ -2240,13 +2296,16 @@ components:
         - $ref: '#/components/schemas/SendDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
         - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
+        - $ref: '#/components/schemas/BaseRegisteredLetterDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterDetails'
         - $ref: '#/components/schemas/AarCreationRequestDetails'
         - $ref: '#/components/schemas/AarGenerationDetails'
         - $ref: '#/components/schemas/NotHandledDetails'
         - $ref: '#/components/schemas/NotificationPaidDetails'
+        - $ref: '#/components/schemas/SendAnalogProgressDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
