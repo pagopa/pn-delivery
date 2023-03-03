@@ -24,13 +24,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
-
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService.PairResult;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED;
+
 
 @RestController
 @Slf4j
@@ -191,7 +192,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentService.PairResult response;
+        PairResult response= new PairResult();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment={}", attachmentName)
@@ -208,7 +209,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     attachmentName,
                     false
             );
-            logEvent.generateSuccess("dockey", response.getFileKey()).log();
+            if(response == null || response.getFileKey() == null){
+                logEvent.generateSuccess().log();
+            }else{
+                logEvent.generateSuccess("dockey", response.getFileKey()).log();
+            }
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
@@ -219,7 +224,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
-        NotificationAttachmentService.PairResult response;
+        PairResult response = new PairResult();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_DOCOPEN_SND, "getSentNotificationDocument={}", docIdx)
@@ -235,7 +240,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     docIdx,
                     false
             );
-            logEvent.generateSuccess("dockey", response.getFileKey()).log();
+            if(response == null || response.getFileKey() == null){
+                logEvent.generateSuccess().log();
+            }else{
+                logEvent.generateSuccess("dockey", response.getFileKey()).log();
+            }
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;

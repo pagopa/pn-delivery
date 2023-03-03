@@ -22,6 +22,7 @@ import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.internal.Pair;
 import org.springframework.http.HttpStatus;
@@ -386,6 +387,7 @@ public class NotificationAttachmentService {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static final class PairResult{
         NotificationAttachmentDownloadMetadataResponse notificationAttachmentDownloadMetadataResponse;
         String fileKey;

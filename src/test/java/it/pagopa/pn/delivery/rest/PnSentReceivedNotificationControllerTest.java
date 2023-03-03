@@ -29,7 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
-
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService.PairResult;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -428,18 +428,18 @@ class PnSentReceivedNotificationControllerTest {
 
 	@Test
 	void getSentNotificationDocumentsWithPresignedSuccess() {
-		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+		PairResult response = PairResult.of(NotificationAttachmentDownloadMetadataResponse.builder()
 				.url( REDIRECT_URL )
 				.contentType( "application/pdf" )
 				.sha256( SHA256_BODY )
 				.filename( FILENAME )
-				.build();
+				.build(), "MockFileKey");
 
 		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, PA_ID, UID, List.of("asdasd"));
 
 		// When
 		Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( true );
-		Mockito.when( attachmentService.downloadDocumentWithRedirect(
+		Mockito.when( attachmentService.downloadDocumentWithRedirectWithFileKey(
 						anyString(),
 						any(InternalAuthHeader.class),
 						isNull(),
@@ -462,7 +462,7 @@ class PnSentReceivedNotificationControllerTest {
 				//.is3xxRedirection()
 		        .isOk();
 
-		Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, internalAuthHeader, null, DOCUMENT_INDEX, false );
+		Mockito.verify( attachmentService ).downloadDocumentWithRedirectWithFileKey( IUN, internalAuthHeader, null, DOCUMENT_INDEX, false );
 	}
 
 	@Test
@@ -585,18 +585,18 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getSentNotificationAttachmentSuccess() {
 		//Given
-		NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+		PairResult response = PairResult.of(NotificationAttachmentDownloadMetadataResponse.builder()
 				.url( REDIRECT_URL )
 				.contentType( "application/pdf" )
 				.sha256( SHA256_BODY )
 				.filename( FILENAME )
-				.build();
+				.build(), "MockFileFey");
 
 		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PA, CX_ID, UID, List.of("asdasd"));
 
 		// When
 		//Mockito.when(cfg.isDownloadWithPresignedUrl()).thenReturn( false );
-		Mockito.when( attachmentService.downloadAttachmentWithRedirect(
+		Mockito.when( attachmentService.downloadAttachmentWithRedirectWithFileKey(
 						anyString(),
 						any(InternalAuthHeader.class),
 						isNull(),
@@ -618,7 +618,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, internalAuthHeader, null,  0, PAGOPA, false);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirectWithFileKey( IUN, internalAuthHeader, null,  0, PAGOPA, false);
 	}
 
 	@Test
@@ -626,7 +626,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, PAGOPA, false );
+				.downloadAttachmentWithRedirectWithFileKey( IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, PAGOPA, false );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}".replace("{iun}",IUN).replace("{recipientIdx}","0").replace("{attachmentName}",PAGOPA))
@@ -642,7 +642,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getSentNotificationDocumentFailure() {
 		// When
-		Mockito.when( attachmentService.downloadDocumentWithRedirect( IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, false ))
+		Mockito.when( attachmentService.downloadDocumentWithRedirectWithFileKey( IUN, new InternalAuthHeader(CX_TYPE_PF, PA_ID, UID, List.of("asdasd")), null, 0, false ))
 				.thenThrow( new PnNotificationNotFoundException("Simulated Error") );
 
 		webTestClient.get()
