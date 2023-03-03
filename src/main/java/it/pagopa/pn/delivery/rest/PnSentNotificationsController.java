@@ -219,7 +219,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             throw exc;
         }
      
-        return ResponseEntity.ok( response.getNotificationAttachmentDownloadMetadataResponse() );
+        return ResponseEntity.ok( response == null ? null : response.getNotificationAttachmentDownloadMetadataResponse() );
     }
 
     @Override
@@ -249,6 +249,6 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
-        return ResponseEntity.ok( response.getNotificationAttachmentDownloadMetadataResponse() );
+        return ResponseEntity.ok( response == null ? null : response.getNotificationAttachmentDownloadMetadataResponse() );
     }
 }
