@@ -390,6 +390,8 @@ components:
       required: false
       schema:
         type: string
+        format: uuid
+        maxLength: 36
 
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
