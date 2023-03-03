@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZeElBtl22/7lmJgKRBPKiAP9mumTZv9PBoSaRsU9phc=
+  version: sto3nUHUaEn6PXuY/BIh09PvcG6HQuGLv1CqENzCbtM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1864,11 +1864,29 @@ components:
       type: object
       required:
         - recIndex
+        - recipientType
+        - paymentSourceChannel
       properties:
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
           format: int32
+        recipientType:
+          $ref: '#/components/schemas/RecipientType'
+        amount:
+          type: integer
+          description: Importo di pagamento in eurocent
+          format: int32
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        idF24:
+          type: string
+          description: un UUID che identifica un pagamento f24
+        paymentSourceChannel:
+          type: string
+          description: Canale sorgente della richiesta di pagamento
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:

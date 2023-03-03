@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: mbjXFoq+59aPaNYp1jHv+A5NBLvZk48cCrGvfsQrmSE=
+  version: C+4X78qD9gOnK3js/9TZJ8Adl1JSMnMPLihkmMr3IX4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -443,12 +443,9 @@ paths:
     get:
       operationId: retrieveNotificationPrice
       summary: Retrieve notification price and effective date
-      description: >-
-        Used to retrieve the notification price charged and effective
-        date           from PagoPa identifiers paTaxId and
-        noticeCode.                              Called from PA to turn
-        notification cost to the receiver during the          pagoPa payment
-        verification phase. Usata per recuperare il costo di notificazione e se
+      description: |-
+        Usata dalla PA per recuperare il costo di notificazione tramite
+         l'identificativo della posizione debitoria paTaxId e noticeCode.
       tags:
         - NotificationPrice
       parameters:
@@ -2826,11 +2823,29 @@ components:
       type: object
       required:
         - recIndex
+        - recipientType
+        - paymentSourceChannel
       properties:
         recIndex:
           type: integer
           description: Index destinatario che ha effettuato il pagamento della notifica
           format: int32
+        recipientType:
+          $ref: '#/components/schemas/RecipientType'
+        amount:
+          type: integer
+          description: Importo di pagamento in eurocent
+          format: int32
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        idF24:
+          type: string
+          description: un UUID che identifica un pagamento f24
+        paymentSourceChannel:
+          type: string
+          description: Canale sorgente della richiesta di pagamento
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
