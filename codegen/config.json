@@ -24,5 +24,8 @@
             ],
             "servicePath": "delivery"
         }
+    ],
+    "openapiBundlePresenceCheck": [
+        "api-external-b2b-pa-bundle.yaml"
     ]
 }

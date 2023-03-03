@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: C+4X78qD9gOnK3js/9TZJ8Adl1JSMnMPLihkmMr3IX4=
+  version: 1FK4whaROmlatAx7MbayaNOaWAvYVNrvnfwFVEAMA8o=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -668,10 +668,6 @@ paths:
         - SenderReadWeb
       operationId: searchSentNotification
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroups'
         - $ref: '#/components/parameters/notificationSearchStartDate'
         - $ref: '#/components/parameters/notificationSearchEndDate'
         - $ref: '#/components/parameters/notificationSearchRecipientId'
@@ -1198,38 +1194,6 @@ components:
       required: true
       schema:
         type: string
-    cxTypeAuthFleet:
-      name: x-pagopa-pn-cx-type
-      in: header
-      description: Customer/Receiver Type
-      required: true
-      schema:
-        $ref: '#/components/schemas/CxTypeAuthFleet'
-    cxIdAuthFleet:
-      name: x-pagopa-pn-cx-id
-      in: header
-      description: Customer/Receiver Identifier
-      required: true
-      schema:
-        type: string
-    cxGroupsAuthFleet:
-      $ref: '#/components/parameters/cxGroups'
-    uidAuthFleet:
-      name: x-pagopa-pn-uid
-      in: header
-      description: User Identifier
-      required: true
-      schema:
-        type: string
-    cxGroups:
-      name: x-pagopa-pn-cx-groups
-      in: header
-      description: Customer Groups
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
     notificationSearchStartDate:
       name: startDate
       in: query
@@ -2974,12 +2938,6 @@ components:
           type: string
         fileAvailable:
           type: boolean
-    CxTypeAuthFleet:
-      type: string
-      enum:
-        - PA
-        - PF
-        - PG
     NotificationSearchRow:
       type: object
       properties:

@@ -55,10 +55,6 @@ paths:
         - SenderReadWeb
       operationId: searchSentNotification
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'
-        - $ref: '#/components/parameters/cxTypeAuthFleet'
-        - $ref: '#/components/parameters/cxIdAuthFleet'
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'        
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
@@ -94,14 +90,6 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'
-    cxIdAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'
-    cxGroupsAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'
-    uidAuthFleet:
-      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'
 
   schemas:
     Problem:
