@@ -24,7 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.internal.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -141,10 +140,10 @@ public class NotificationAttachmentService {
             Boolean markNotificationAsViewed) {
 
         return downloadDocumentWithRedirectWithFileKey( iun, internalAuthHeader, mandateId,
-                documentIdx, markNotificationAsViewed ).notificationAttachmentDownloadMetadataResponse;
+                documentIdx, markNotificationAsViewed ).downloadMetadataResponse;
     }
 
-    public PairResult downloadDocumentWithRedirectWithFileKey(
+    public InternalAttachmentWithFileKey downloadDocumentWithRedirectWithFileKey(
             String iun,
             InternalAuthHeader internalAuthHeader,
             String mandateId,
@@ -174,10 +173,10 @@ public class NotificationAttachmentService {
             Boolean markNotificationAsViewed) {
 
         return downloadAttachmentWithRedirectWithFileKey( iun,internalAuthHeader,mandateId,
-                recipientIdx,attachmentName,markNotificationAsViewed ).notificationAttachmentDownloadMetadataResponse;
+                recipientIdx,attachmentName,markNotificationAsViewed ).downloadMetadataResponse;
     }
 
-    public PairResult downloadAttachmentWithRedirectWithFileKey(
+    public InternalAttachmentWithFileKey downloadAttachmentWithRedirectWithFileKey(
             String iun,
             InternalAuthHeader internalAuthHeader,
             String mandateId,
@@ -198,7 +197,7 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
-    private PairResult downloadDocumentWithRedirect( InputDownloadDto inputDownloadDto ) {
+    private InternalAttachmentWithFileKey downloadDocumentWithRedirect(InputDownloadDto inputDownloadDto ) {
         String cxType = inputDownloadDto.getCxType();
         String cxId = inputDownloadDto.getCxId();
         String uid = inputDownloadDto.getUid();
@@ -246,7 +245,7 @@ public class NotificationAttachmentService {
                 notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo );
             }
 
-            return PairResult.of(NotificationAttachmentDownloadMetadataResponse.builder()
+            return InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
                     .contentLength( nullSafeBigDecimalToInteger(
@@ -388,12 +387,12 @@ public class NotificationAttachmentService {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static final class PairResult{
-        NotificationAttachmentDownloadMetadataResponse notificationAttachmentDownloadMetadataResponse;
+    public static final class InternalAttachmentWithFileKey {
+        NotificationAttachmentDownloadMetadataResponse downloadMetadataResponse;
         String fileKey;
 
-        public static PairResult of(NotificationAttachmentDownloadMetadataResponse notification, String fileKey) {
-            return new PairResult(notification, fileKey);
+        public static InternalAttachmentWithFileKey of(NotificationAttachmentDownloadMetadataResponse notification, String fileKey) {
+            return new InternalAttachmentWithFileKey(notification, fileKey);
         }
     }
 }

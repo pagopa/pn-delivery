@@ -29,7 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService.PairResult;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -428,7 +428,7 @@ class PnSentReceivedNotificationControllerTest {
 
 	@Test
 	void getSentNotificationDocumentsWithPresignedSuccess() {
-		PairResult response = PairResult.of(NotificationAttachmentDownloadMetadataResponse.builder()
+		InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
 				.url( REDIRECT_URL )
 				.contentType( "application/pdf" )
 				.sha256( SHA256_BODY )
@@ -585,7 +585,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getSentNotificationAttachmentSuccess() {
 		//Given
-		PairResult response = PairResult.of(NotificationAttachmentDownloadMetadataResponse.builder()
+		InternalAttachmentWithFileKey response = InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
 				.url( REDIRECT_URL )
 				.contentType( "application/pdf" )
 				.sha256( SHA256_BODY )
