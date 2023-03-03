@@ -1,0 +1,31 @@
+{
+    "openapi": [
+        {
+            "intendedUsage": "IO",
+            "openapiFiles": [
+                "api-internal-web-recipient.yaml"
+            ],
+            "servicePath": "delivery"
+        },
+        {
+            "intendedUsage": "B2B",
+            "openapiFiles": [
+                "api-internal-b2b-pa.yaml"
+            ],
+            "servicePath": "delivery",
+            "generateBundle": true
+        },
+        {
+            "intendedUsage": "WEB",
+            "openapiFiles": [
+                "api-internal-b2b-pa.yaml",
+                "api-internal-web-pa.yaml",
+                "api-internal-web-recipient.yaml"
+            ],
+            "servicePath": "delivery"
+        }
+    ],
+    "openapiBundlePresenceCheck": [
+        "api-external-b2b-pa-bundle.yaml"
+    ]
+}
