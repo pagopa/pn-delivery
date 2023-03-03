@@ -893,7 +893,7 @@ components:
     idempotenceToken:
       name: idempotenceToken
       description: >-
-        token usato per disambiguare "richieste di notificazione" effetuate con lo stesso 
+        token usato per disambiguare "richieste di notificazione" effettuate con lo stesso 
         numero di protocollo. 
       in: query
       required: false
@@ -927,6 +927,8 @@ components:
       required: true
       schema:
         type: string
+        minLength: 6
+        maxLength: 12
         pattern: "PAGOPA|F24_FLAT|F24_STANDARD"
         #quella sottostante è quella corretta. Riscritta per problemi con tool usato
         #oneOf:
@@ -966,22 +968,32 @@ components:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
           description: >-
-            Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. 
+            Identificativo univoco all'interno della request HTTP, serve per correlare la risposta.
+            Stringa alfanumerica con caratteri utilizzabili in un file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
             Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
               - application/pdf
           type: string
-          example: application/pdf
+          #example: application/pdf
+          minLength: 25
+          maxLength: 25
+          pattern: ^application\/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
             checksum sha256, codificato in base 64, del contenuto binario del file che verrà
             caricato
           type: string
-          example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
+          example: 'jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE='
+          minLength: 43
+          maxLength: 44
+          pattern: ^[A-Za-z0-9+/]{43}=|[A-Za-z0-9+/]{44}$
 
     PreLoadResponse:
       title: Informazioni per il caricamento file
@@ -991,8 +1003,11 @@ components:
       type: object
       properties:
         preloadIdx:
-          description: per correlazione con la richiesta
+          description: per correlazione con la richiesta. Stringa alfanumerica con caratteri utilizzabili in un file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
           description: >-
             Token aggiuntivo per far si che sia necessario intercettare anche gli 
@@ -1057,6 +1072,8 @@ components:
           type: string
           description: >-
             identificativo univoco di una richiesta di invio notifica, non è lo IUN
+          maxLength: 36
+          pattern: ^[A-Za-z0-9+/=]{36}$
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
@@ -1218,6 +1235,9 @@ components:
       properties:
         iun:
           type: string
+          minLength: 25
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         paymentDate:
           type: string
           format: date-time
@@ -1225,6 +1245,8 @@ components:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/TaxId'
         recipientType:
           type: string
+          minLength: 2
+          maxLength: 2
           pattern: "PF|PG"
         amount:
           type: integer

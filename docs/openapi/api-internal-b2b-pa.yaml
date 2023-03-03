@@ -1072,18 +1072,22 @@ components:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
           description: >-
-            Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. 
+            Identificativo univoco all'interno della request HTTP, serve per correlare la risposta.
+            Stringa alfanumerica con caratteri utilizzabili in un file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
             Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
               - application/pdf
           type: string
-          example: application/pdf
+          #example: application/pdf
           minLength: 25
           maxLength: 25
-          pattern: "application/pdf"
+          pattern: ^application\/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -1103,8 +1107,11 @@ components:
       type: object
       properties:
         preloadIdx:
-          description: per correlazione con la richiesta
+          description: per correlazione con la richiesta. Stringa alfanumerica con caratteri utilizzabili in un file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
           description: >-
             Token aggiuntivo per far si che sia necessario intercettare anche gli 
