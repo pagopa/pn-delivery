@@ -20,6 +20,9 @@ import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -116,17 +119,16 @@ public class NotificationAttachmentService {
         }
     }
 
+    @Data
     public static class FileInfos {
         private final String fileName;
         private final FileDownloadResponse fileDownloadResponse;
+        private final String fileKey;
 
-        public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse) {
+        public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse, String fileKey) {
             this.fileName = fileName;
             this.fileDownloadResponse = fileDownloadResponse;
-        }
-
-        public String getFileName() {
-            return fileName;
+            this.fileKey = fileKey;
         }
     }
 
@@ -136,6 +138,18 @@ public class NotificationAttachmentService {
             String mandateId,
             Integer documentIdx,
             Boolean markNotificationAsViewed) {
+
+        return downloadDocumentWithRedirectWithFileKey( iun, internalAuthHeader, mandateId,
+                documentIdx, markNotificationAsViewed ).downloadMetadataResponse;
+    }
+
+    public InternalAttachmentWithFileKey downloadDocumentWithRedirectWithFileKey(
+            String iun,
+            InternalAuthHeader internalAuthHeader,
+            String mandateId,
+            Integer documentIdx,
+            Boolean markNotificationAsViewed) {
+
         InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
                 .cxType(internalAuthHeader.cxType())
                 .cxId(internalAuthHeader.xPagopaPnCxId())
@@ -150,8 +164,19 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
-
     public NotificationAttachmentDownloadMetadataResponse downloadAttachmentWithRedirect(
+            String iun,
+            InternalAuthHeader internalAuthHeader,
+            String mandateId,
+            Integer recipientIdx,
+            String attachmentName,
+            Boolean markNotificationAsViewed) {
+
+        return downloadAttachmentWithRedirectWithFileKey( iun,internalAuthHeader,mandateId,
+                recipientIdx,attachmentName,markNotificationAsViewed ).downloadMetadataResponse;
+    }
+
+    public InternalAttachmentWithFileKey downloadAttachmentWithRedirectWithFileKey(
             String iun,
             InternalAuthHeader internalAuthHeader,
             String mandateId,
@@ -172,7 +197,7 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
-    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect( InputDownloadDto inputDownloadDto ) {
+    private InternalAttachmentWithFileKey downloadDocumentWithRedirect(InputDownloadDto inputDownloadDto ) {
         String cxType = inputDownloadDto.getCxType();
         String cxId = inputDownloadDto.getCxId();
         String uid = inputDownloadDto.getUid();
@@ -220,7 +245,7 @@ public class NotificationAttachmentService {
                 notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo );
             }
 
-            return NotificationAttachmentDownloadMetadataResponse.builder()
+            return InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
                     .contentLength( nullSafeBigDecimalToInteger(
@@ -230,8 +255,7 @@ public class NotificationAttachmentService {
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
                     .retryAfter( nullSafeBigDecimalToInteger(
                             fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
-                    ))
-                    .build();
+                    )).build() , fileInfos.fileKey);
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
             throw new PnNotificationNotFoundException("Notification not found for iun=" + iun);
@@ -289,7 +313,7 @@ public class NotificationAttachmentService {
             fileName = buildFilename(iun, name, r.getContentType());
 
             log.info("downloadDocumentWithRedirect with fileKey={} filename:{} - iun={}", fileKey, fileName, iun);
-            return new FileInfos( fileName, r );
+            return new FileInfos( fileName, r , fileKey);
         } catch (Exception exc) {
             if (exc instanceof PnHttpResponseException pnHttpResponseException && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
                 throw new PnBadRequestException("File info not found", pnHttpResponseException.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, pnHttpResponseException);
@@ -359,4 +383,16 @@ public class NotificationAttachmentService {
         return bd != null ? bd.intValue() : null;
     }
 
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static final class InternalAttachmentWithFileKey {
+        NotificationAttachmentDownloadMetadataResponse downloadMetadataResponse;
+        String fileKey;
+
+        public static InternalAttachmentWithFileKey of(NotificationAttachmentDownloadMetadataResponse notification, String fileKey) {
+            return new InternalAttachmentWithFileKey(notification, fileKey);
+        }
+    }
 }
