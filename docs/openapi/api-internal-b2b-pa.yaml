@@ -812,6 +812,9 @@ components:
         Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
       schema:
         type: string
+        # ASCII printable characters
+        pattern: ^[ -~]*$
+        maxLength: 256
     idempotenceToken:
       name: idempotenceToken
       description: >-
@@ -821,6 +824,9 @@ components:
       required: false
       schema:
         type: string
+        # ASCII printable characters
+        pattern: ^[ -~]*$
+        maxLength: 256
     
     
     ############################################################################################

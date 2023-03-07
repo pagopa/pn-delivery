@@ -452,6 +452,8 @@ components:
       description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 256
     idempotenceToken:
       name: idempotenceToken
       description: 'token usato per disambiguare "richieste di notificazione" effettuate con lo stesso  numero di protocollo. '
@@ -459,6 +461,8 @@ components:
       required: false
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 256
     pathDocumentIdx:
       name: docIdx
       description: indice del documento nella lista partendo da 0.
@@ -646,7 +650,7 @@ components:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
         idempotenceToken:
-          description: 'Ripetizione del token usato per disambiguare "richieste di notificazione"  effetuate con lo stesso numero di protocollo (campo _paProtocolNumber_). '
+          description: Ripetizione del token usato per disambiguare "richieste di notificazione"  effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
     NewNotificationRequestStatusResponse:
       allOf:

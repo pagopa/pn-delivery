@@ -708,6 +708,9 @@ components:
         Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
       schema:
         type: string
+        # ASCII printable characters
+        pattern: ^[ -~]*$
+        maxLength: 256
     idempotenceToken:
       name: idempotenceToken
       description: >-
@@ -717,6 +720,9 @@ components:
       required: false
       schema:
         type: string
+        # ASCII printable characters
+        pattern: ^[ -~]*$
+        maxLength: 256
     
     
     ############################################################################################
@@ -898,7 +904,7 @@ components:
         idempotenceToken:
           description: >-
             Ripetizione del token usato per disambiguare "richieste di notificazione" 
-            effetuate con lo stesso numero di protocollo (campo _paProtocolNumber_). 
+            effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
     
     NewNotificationRequestStatusResponse:

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -164,11 +165,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, String mandateId) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, UUID mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_RCP;
         String logMsg = "getReceivedNotificationDocument from documents array with index={}";
-        if (StringUtils.hasText( mandateId )) {
+        if (StringUtils.hasText( mandateId.toString() )) {
             eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_DEL;
             logMsg = "getDelegateNotificationDocument from documents array with index={} with mandateId={}";
         }
@@ -183,7 +184,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
-                    mandateId,
+                    mandateId.toString(),
                     docIdx,
                     true
             );
@@ -202,11 +203,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, UUID mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP;
         String logMsg = "getReceivedNotificationAttachment attachment name={}";
-        if (StringUtils.hasText( mandateId )) {
+        if (StringUtils.hasText( mandateId.toString() )) {
             eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
             logMsg = "getReceivedAndDelegatedNotificationAttachment attachment name={} and mandateId={}";
         }
@@ -220,7 +221,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,
-                    mandateId,
+                    mandateId.toString(),
                     null,
                     attachmentName,
                     true
