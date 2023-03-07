@@ -41,7 +41,7 @@ import static org.mockito.ArgumentMatchers.*;
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class PnSentReceivedNotificationControllerTest {
 
-	private static final String IUN = "IUN";
+	private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
 	private static final String CX_ID = "CX_ID";
 	private static final String UID = "UID";
 	private static final String PA_ID = "PA_ID";
@@ -52,7 +52,7 @@ class PnSentReceivedNotificationControllerTest {
 	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
 	private static final String FILENAME = "filename.pdf";
 	private static final String REQUEST_ID = "VkdLVi1VS0hOLVZJQ0otMjAyMjA1LVAtMQ==";
-	private static final String MANDATE_ID = "mandateId";
+	private static final String MANDATE_ID = "4fd712cd-8751-48ba-9f8c-471815146896";
 	public static final String CX_TYPE_PF = "PF";
 	public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID, List.of("asdasd"));
 	private static final String CX_TYPE_PA = "PA";
@@ -61,7 +61,7 @@ class PnSentReceivedNotificationControllerTest {
 	private static final String PAGOPA = "PAGOPA";
 	public static final String AAR_QR_CODE_VALUE_V1 = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
 	public static final String AAR_QR_CODE_VALUE_V2 = "VVFNWi1LTERHLUtEWVQtMjAyMjExLUwtMV9QRi00ZmM3NWRmMy0wOTEzLTQwN2UtYmRhYS1lNTAzMjk3MDhiN2RfZDA2ZjdhNDctNDJkMC00NDQxLWFkN2ItMTE4YmQ4NzlkOTJj";
-	private static final String SENDER_ID = "test";
+	private static final String SENDER_ID = "CSRGGL44L13H501E";
 	private static final String START_DATE = "2021-09-17T00:00:00.000Z";
 	private static final String END_DATE = "2021-09-18T00:00:00.000Z";
 	private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
