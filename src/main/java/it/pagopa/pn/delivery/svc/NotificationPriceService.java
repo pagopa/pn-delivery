@@ -6,10 +6,13 @@ import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.Notifi
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
+import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.AsseverationEvent;
+import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
@@ -18,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
@@ -31,13 +35,16 @@ public class NotificationPriceService {
     private final NotificationDao notificationDao;
     private final NotificationMetadataEntityDao notificationMetadataEntityDao;
     private final PnDeliveryPushClientImpl deliveryPushClient;
+
+    private final AsseverationEventsProducer asseverationEventsProducer;
     private final RefinementLocalDate refinementLocalDateUtils;
 
-    public NotificationPriceService(NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, RefinementLocalDate refinementLocalDateUtils) {
+    public NotificationPriceService(NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
         this.deliveryPushClient = deliveryPushClient;
+        this.asseverationEventsProducer = asseverationEventsProducer;
         this.refinementLocalDateUtils = refinementLocalDateUtils;
     }
 
@@ -56,12 +63,35 @@ public class NotificationPriceService {
         log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
         NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt());
 
+        // invio l'evento di asseverazione sulla coda
+        asseverationEventsProducer.sendAsseverationEvent(
+                createInternalAsseverationEvent(internalNotificationCost, internalNotification, recipientId)
+        );
+
         // creazione dto response
         return NotificationPriceResponse.builder()
                 .amount( notificationProcessCost.getAmount() )
                 .refinementDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getRefinementDate() ) )
                 .notificationViewDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getNotificationViewDate() ) )
                 .iun( iun )
+                .build();
+    }
+
+    private static InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification, String recipientId) {
+        Instant now = Instant.now();
+        return InternalAsseverationEvent.builder()
+                .iun(internalNotificationCost.getIun())
+                .notificationSentAt(internalNotification.getSentAt().toInstant())
+                .creditorTaxId(internalNotificationCost.getCreditorTaxIdNoticeCode().split("##")[0])
+                .noticeCode(internalNotificationCost.getCreditorTaxIdNoticeCode().split("##")[1])
+                .senderPaId(internalNotification.getSenderPaId())
+                .recipientId(recipientId)
+                .recipientType(AsseverationEvent.RecipientType.valueOf(internalNotificationCost.getRecipientType()))
+                .recipientIdx(internalNotificationCost.getRecipientIdx())
+                .debitorPosUpdateDate(now)
+                .recordCreationDate(now)
+                .version(1)
+                .asseverationEventPayload(null)
                 .build();
     }
 

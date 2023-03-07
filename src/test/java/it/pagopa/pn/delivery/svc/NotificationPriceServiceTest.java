@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
@@ -45,13 +46,16 @@ class NotificationPriceServiceTest {
     @Mock
     private PnDeliveryPushClientImpl deliveryPushClient;
 
+    @Mock
+    private AsseverationEventsProducer asseverationEventsProducer;
+
     private final RefinementLocalDate refinementLocalDateUtils = new RefinementLocalDate();
 
     private NotificationPriceService svc;
 
     @BeforeEach
     void setup() {
-        svc = new NotificationPriceService( notificationCostEntityDao, notificationDao, notificationMetadataEntityDao, deliveryPushClient, refinementLocalDateUtils);
+        svc = new NotificationPriceService( notificationCostEntityDao, notificationDao, notificationMetadataEntityDao, deliveryPushClient, asseverationEventsProducer, refinementLocalDateUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -65,6 +69,7 @@ class NotificationPriceServiceTest {
                 .recipientIdx( 0 )
                 .iun( "iun" )
                 .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
+                .recipientType( RecipientType.PF.getValue() )
                 .build();
 
         //When
