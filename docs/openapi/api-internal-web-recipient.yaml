@@ -391,8 +391,8 @@ components:
       schema:
         type: string
         format: uuid
-        minLength: 36
-        maxLength: 36
+        #minLength: 36
+        #maxLength: 36
 
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###

@@ -169,7 +169,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_RCP;
         String logMsg = "getReceivedNotificationDocument from documents array with index={}";
-        if (StringUtils.hasText( mandateId.toString() )) {
+        if (mandateId != null && StringUtils.hasText( mandateId.toString() )) {
             eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_DEL;
             logMsg = "getDelegateNotificationDocument from documents array with index={} with mandateId={}";
         }
@@ -184,7 +184,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
-                    mandateId.toString(),
+                    mandateId != null ? mandateId.toString() : null,
                     docIdx,
                     true
             );
@@ -207,7 +207,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP;
         String logMsg = "getReceivedNotificationAttachment attachment name={}";
-        if (StringUtils.hasText( mandateId.toString() )) {
+        if (mandateId != null && StringUtils.hasText( mandateId.toString() )) {
             eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
             logMsg = "getReceivedAndDelegatedNotificationAttachment attachment name={} and mandateId={}";
         }
@@ -221,7 +221,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,
-                    mandateId.toString(),
+                    mandateId != null ? mandateId.toString() : null,
                     null,
                     attachmentName,
                     true
