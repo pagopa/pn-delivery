@@ -32,7 +32,7 @@ public class InternalAsseverationEvent {
     private String creditorTaxId;
 
     @NotNull
-    private Instant debitorPosUpdateDate;
+    private Instant debtorPosUpdateDate;
 
     @NotNull
     private Instant recordCreationDate;
@@ -48,5 +48,5 @@ public class InternalAsseverationEvent {
     private int version;
 
     @Nullable
-    private AsseverationEvent.AsseverationEventPayload asseverationEventPayload;
+    private Object payload;
 }

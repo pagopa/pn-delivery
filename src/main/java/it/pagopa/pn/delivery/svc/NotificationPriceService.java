@@ -88,10 +88,10 @@ public class NotificationPriceService {
                 .recipientId(recipientId)
                 .recipientType(AsseverationEvent.RecipientType.valueOf(internalNotificationCost.getRecipientType()))
                 .recipientIdx(internalNotificationCost.getRecipientIdx())
-                .debitorPosUpdateDate(now)
+                .debtorPosUpdateDate(now)
                 .recordCreationDate(now)
                 .version(1)
-                .asseverationEventPayload(null)
+                .payload(null)
                 .build();
     }
 

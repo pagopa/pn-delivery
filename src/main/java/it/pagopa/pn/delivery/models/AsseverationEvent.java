@@ -43,7 +43,7 @@ public class AsseverationEvent implements GenericEvent<StandardEventHeader, Asse
         private String creditorTaxId;
 
         @NotNull
-        private Instant debitorPosUpdateDate;
+        private Instant debtorPosUpdateDate;
 
         @NotNull
         private Instant recordCreationDate;
@@ -59,10 +59,8 @@ public class AsseverationEvent implements GenericEvent<StandardEventHeader, Asse
         private int version;
 
         @Nullable
-        private AsseverationEventPayload asseverationEventPayload;
+        private Object asseverationPayload;
     }
-
-    public interface AsseverationEventPayload { }
 
     public enum RecipientType {
         PF("PF"),
