@@ -11,7 +11,6 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
-import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
@@ -65,7 +64,7 @@ public class NotificationPriceService {
 
         // invio l'evento di asseverazione sulla coda
         asseverationEventsProducer.sendAsseverationEvent(
-                createInternalAsseverationEvent(internalNotificationCost, internalNotification, recipientId)
+                createInternalAsseverationEvent(internalNotificationCost, internalNotification)
         );
 
         // creazione dto response
@@ -77,7 +76,7 @@ public class NotificationPriceService {
                 .build();
     }
 
-    private static InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification, String recipientId) {
+    private static InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification) {
         Instant now = Instant.now();
         return InternalAsseverationEvent.builder()
                 .iun(internalNotificationCost.getIun())
@@ -85,8 +84,6 @@ public class NotificationPriceService {
                 .creditorTaxId(internalNotificationCost.getCreditorTaxIdNoticeCode().split("##")[0])
                 .noticeCode(internalNotificationCost.getCreditorTaxIdNoticeCode().split("##")[1])
                 .senderPaId(internalNotification.getSenderPaId())
-                .recipientId(recipientId)
-                .recipientType(AsseverationEvent.RecipientType.valueOf(internalNotificationCost.getRecipientType()))
                 .recipientIdx(internalNotificationCost.getRecipientIdx())
                 .debtorPosUpdateDate(now)
                 .recordCreationDate(now)

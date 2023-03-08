@@ -37,12 +37,6 @@ public class InternalAsseverationEvent {
     @NotNull
     private Instant recordCreationDate;
 
-    @NotEmpty
-    private String recipientId;
-
-    @NotNull
-    private AsseverationEvent.RecipientType recipientType;
-
     private int recipientIdx;
 
     private int version;

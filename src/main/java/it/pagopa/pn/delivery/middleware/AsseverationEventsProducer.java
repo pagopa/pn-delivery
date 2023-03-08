@@ -29,8 +29,6 @@ public interface AsseverationEventsProducer extends MomProducer<AsseverationEven
                         .notificationSentAt( internalAsseverationEvent.getNotificationSentAt() )
                         .debtorPosUpdateDate( internalAsseverationEvent.getDebtorPosUpdateDate() )
                         .recordCreationDate( internalAsseverationEvent.getRecordCreationDate() )
-                        .recipientId( internalAsseverationEvent.getRecipientId() )
-                        .recipientType( internalAsseverationEvent.getRecipientType() )
                         .recipientIdx( internalAsseverationEvent.getRecipientIdx() )
                         .version( internalAsseverationEvent.getVersion() )
                         .asseverationPayload( internalAsseverationEvent.getPayload() )

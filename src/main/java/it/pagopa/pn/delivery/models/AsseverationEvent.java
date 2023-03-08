@@ -48,38 +48,11 @@ public class AsseverationEvent implements GenericEvent<StandardEventHeader, Asse
         @NotNull
         private Instant recordCreationDate;
 
-        @NotEmpty
-        private String recipientId;
-
-        @NotNull
-        private RecipientType recipientType;
-
         private int recipientIdx;
 
         private int version;
 
         @Nullable
         private Object asseverationPayload;
-    }
-
-    public enum RecipientType {
-        PF("PF"),
-
-        PG("PG");
-
-        private final String value;
-
-        RecipientType(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(value);
-        }
     }
 }
