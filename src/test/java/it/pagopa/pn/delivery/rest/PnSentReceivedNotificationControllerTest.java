@@ -824,7 +824,7 @@ class PnSentReceivedNotificationControllerTest {
 		Mockito.when( attachmentService.downloadAttachmentWithRedirect(
 				Mockito.anyString(),
 				Mockito.any( InternalAuthHeader.class ),
-				Mockito.anyString(),
+				Mockito.isNull(),
 				Mockito.isNull(),
 				Mockito.anyString(),
 				Mockito.anyBoolean()
@@ -835,7 +835,7 @@ class PnSentReceivedNotificationControllerTest {
 				.uri(uriBuilder ->
 						uriBuilder
 								.path( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",pagopa) )
-								.queryParam("mandateId", "")
+								//.queryParam("mandateId", null)
 								.build())
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
@@ -847,7 +847,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, "", null, pagopa, true);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, pagopa, true);
 	}
 
 	@Test
