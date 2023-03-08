@@ -53,6 +53,6 @@ public class AsseverationEvent implements GenericEvent<StandardEventHeader, Asse
         private int version;
 
         @Nullable
-        private Object asseverationPayload;
+        private Object moreFields;
     }
 }

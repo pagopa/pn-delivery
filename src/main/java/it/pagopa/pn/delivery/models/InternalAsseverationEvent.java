@@ -42,5 +42,5 @@ public class InternalAsseverationEvent {
     private int version;
 
     @Nullable
-    private Object payload;
+    private Object moreFields;
 }

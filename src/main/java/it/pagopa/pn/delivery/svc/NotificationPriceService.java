@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 @Service
 @Slf4j
 public class NotificationPriceService {
+    private final Clock clock;
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
     private final NotificationMetadataEntityDao notificationMetadataEntityDao;
@@ -38,7 +40,8 @@ public class NotificationPriceService {
     private final AsseverationEventsProducer asseverationEventsProducer;
     private final RefinementLocalDate refinementLocalDateUtils;
 
-    public NotificationPriceService(NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
+    public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
+        this.clock = clock;
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
@@ -76,8 +79,8 @@ public class NotificationPriceService {
                 .build();
     }
 
-    private static InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification) {
-        Instant now = Instant.now();
+    private InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification) {
+        Instant now = clock.instant();
         return InternalAsseverationEvent.builder()
                 .iun(internalNotificationCost.getIun())
                 .notificationSentAt(internalNotification.getSentAt().toInstant())
@@ -88,7 +91,7 @@ public class NotificationPriceService {
                 .debtorPosUpdateDate(now)
                 .recordCreationDate(now)
                 .version(1)
-                .payload(null)
+                .moreFields(null)
                 .build();
     }
 

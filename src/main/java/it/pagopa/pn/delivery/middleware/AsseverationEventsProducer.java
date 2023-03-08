@@ -31,7 +31,7 @@ public interface AsseverationEventsProducer extends MomProducer<AsseverationEven
                         .recordCreationDate( internalAsseverationEvent.getRecordCreationDate() )
                         .recipientIdx( internalAsseverationEvent.getRecipientIdx() )
                         .version( internalAsseverationEvent.getVersion() )
-                        .asseverationPayload( internalAsseverationEvent.getPayload() )
+                        .moreFields( internalAsseverationEvent.getMoreFields() )
                         .build()
                 )
                 .build();

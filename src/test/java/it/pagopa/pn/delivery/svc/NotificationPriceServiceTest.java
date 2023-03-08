@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
@@ -23,7 +24,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 class NotificationPriceServiceTest {
@@ -33,6 +37,8 @@ class NotificationPriceServiceTest {
     public static final String REFINEMENT_DATE = "2022-10-07T11:01:25.122312Z";
     public static final String EXPECTED_REFINEMENT_DATE = "2022-10-07T23:59:59.999999999+02:00";
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+    public static final String SENT_AT_DATE = "2023-03-08T14:35:39.214793Z";
+    public static final String EVENT_DATE = "2023-03-08T15:45:39.753534Z";
 
     @Mock
     private NotificationDao notificationDao;
@@ -55,7 +61,8 @@ class NotificationPriceServiceTest {
 
     @BeforeEach
     void setup() {
-        svc = new NotificationPriceService( notificationCostEntityDao, notificationDao, notificationMetadataEntityDao, deliveryPushClient, asseverationEventsProducer, refinementLocalDateUtils);
+        Clock clock = Clock.fixed( Instant.parse( EVENT_DATE ), ZoneId.of("UTC"));
+        svc = new NotificationPriceService(clock, notificationCostEntityDao, notificationDao, notificationMetadataEntityDao, deliveryPushClient, asseverationEventsProducer, refinementLocalDateUtils);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -99,6 +106,21 @@ class NotificationPriceServiceTest {
         Assertions.assertEquals( 2000, response.getAmount() );
         Assertions.assertEquals( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) , response.getRefinementDate() );
         Assertions.assertNull( response.getNotificationViewDate() );
+
+        InternalAsseverationEvent asseverationEvent = InternalAsseverationEvent.builder()
+                .iun( "iun" )
+                .senderPaId( "senderPaId" )
+                .notificationSentAt( Instant.parse( SENT_AT_DATE ) )
+                .noticeCode( "noticeCode" )
+                .creditorTaxId( "creditorTaxId" )
+                .debtorPosUpdateDate( Instant.parse( EVENT_DATE ) )
+                .recordCreationDate( Instant.parse( EVENT_DATE ) )
+                .recipientIdx( 0 )
+                .version( 1 )
+                .moreFields( null )
+                .build();
+
+        Mockito.verify( asseverationEventsProducer ).sendAsseverationEvent( asseverationEvent );
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -201,7 +223,8 @@ class NotificationPriceServiceTest {
         return new InternalNotification(FullSentNotification.builder()
                 .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
                 .iun( "iun" )
-                .sentAt( OffsetDateTime.now() )
+                .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
+                .senderPaId( "senderPaId" )
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .physicalAddress(NotificationPhysicalAddress.builder()
@@ -227,34 +250,4 @@ class NotificationPriceServiceTest {
                                 .build()) )
                 .build(), List.of( "recipientInternalId0" ), X_PAGOPA_PN_SRC_CH );
     }
-
-    @NotNull
-    private InternalNotification getNewInternalNotificationNoRefinement() {
-        return new InternalNotification(FullSentNotification.builder()
-                .iun( "iun" )
-                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .recipients(Collections.singletonList(NotificationRecipient.builder()
-                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                        .physicalAddress(NotificationPhysicalAddress.builder()
-                                .foreignState( "Italia" )
-                                .build())
-                        .payment( NotificationPaymentInfo.builder()
-                                .creditorTaxId( PA_TAX_ID )
-                                .noticeCode( NOTICE_CODE )
-                                .build() )
-                        .build()) )
-                .timeline( List.of( TimelineElement.builder()
-                                .category( TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER )
-                                .details( TimelineElementDetails.builder()
-                                        .recIndex( 0 )
-                                        .physicalAddress( PhysicalAddress.builder()
-                                                .foreignState( "Italia" )
-                                                .build() )
-                                        .build() )
-                                .build()) )
-                .build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH );
-    }
-
-
-
 }

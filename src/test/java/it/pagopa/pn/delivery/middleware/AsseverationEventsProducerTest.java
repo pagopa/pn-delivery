@@ -56,7 +56,7 @@ class AsseverationEventsProducerTest {
                 .recordCreationDate( now )
                 .notificationSentAt( Instant.parse( "2023-01-18T12:34:00Z" ) )
                 .version( 1 )
-                .payload( null )
+                .moreFields( null )
                 .build();
         AsseverationEvent asseverationEvent = asseverationEventsProducer.buildAsseverationEvent(internalAsseverationEvent);
 
