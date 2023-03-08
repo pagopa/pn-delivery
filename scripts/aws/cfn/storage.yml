@@ -196,6 +196,16 @@ Resources:
         HasDLQ:  "false"
         QueueHasAlarm:  "true"
 
+  # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
+  # NB: usati i valori di default per: DelaySeconds, DeadLetterQueueName, MessageRetentionPeriod, MaxReceiveCount, DeadLetterMessageRetentionPeriod, HasDLQ,
+  # QueueHasAlarm, QueueOldestAgeLimit
+  PnDeliveryAsseverationQueue:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: 'notificationCostServiceCalls'
+
 Outputs:
 
   # Dynamo table
@@ -250,3 +260,23 @@ Outputs:
   PnDeliveryInsertTriggerDLQAlarmARN:
     Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.SqsDLQAlarmArn
     Description: pn-delivery_insert_trigger_DLQ alarm ARN
+
+  # Delivery Asseveration Queue
+  PnDeliveryAsseverationQueueName:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueName
+    Description: notificationCostServiceCalls queue name
+  PnDeliveryAsseverationQueueURL:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueURL
+    Description: notificationCostServiceCalls queue url
+  PnDeliveryAsseverationQueueARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueARN
+    Description: notificationCostServiceCalls queue arn
+  PnDeliveryAsseverationDLQName:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueName
+    Description: notificationCostServiceCalls-DLQ queue name
+  PnDeliveryAsseverationDLQURL:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueURL
+    Description: notificationCostServiceCalls-DLQ queue url
+  PnDeliveryAsseverationDLQARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueARN
+    Description: notificationCostServiceCalls-DLQ queue arn
