@@ -170,6 +170,10 @@ Parameters:
     Default: "0"
     Description: 'MaximumBatchingWindow asseveration event source mapping'
 
+  LogsBucketName:
+    Type: String
+    Description: 'Logs bucket name'
+
   PnDeliveryInsertTriggerDLQARN:
     Type: String
     Description: 'DLQ ARN for insert trigger'
@@ -846,7 +850,7 @@ Resources:
           BUCKET_NAME: !Sub "${LogsBucketName}"
       Code:
         ZipFile: |
-              import AWS from '/var/runtime/node_modules/aws-sdk/lib/aws.js';
+              const AWS = require('aws-sdk')
               const crypto = await import('node:crypto');
 
               const S3 = new AWS.S3();
