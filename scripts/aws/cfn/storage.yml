@@ -197,14 +197,17 @@ Resources:
         QueueHasAlarm:  "true"
 
   # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
-  # NB: usati i valori di default per: DelaySeconds, DeadLetterQueueName, MessageRetentionPeriod, MaxReceiveCount, DeadLetterMessageRetentionPeriod, HasDLQ,
-  # QueueHasAlarm, QueueOldestAgeLimit
+  # NB: usati i valori di default per: DelaySeconds, DeadLetterQueueName, MessageRetentionPeriod, MaxReceiveCount, DeadLetterMessageRetentionPeriod,
+  # QueueOldestAgeLimit
   PnDeliveryAsseverationQueue:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
-        QueueName: 'notificationCostServiceCalls'
+        QueueName: "notificationCostServiceCalls"
+        HasDLQ:  "true"
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        QueueHasAlarm: "true"
 
 Outputs:
 
@@ -265,9 +268,6 @@ Outputs:
   PnDeliveryAsseverationQueueName:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueName
     Description: notificationCostServiceCalls queue name
-  PnDeliveryAsseverationQueueURL:
-    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueURL
-    Description: notificationCostServiceCalls queue url
   PnDeliveryAsseverationQueueARN:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueARN
     Description: notificationCostServiceCalls queue arn
@@ -279,4 +279,10 @@ Outputs:
     Description: notificationCostServiceCalls-DLQ queue url
   PnDeliveryAsseverationDLQARN:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueARN
-    Description: notificationCostServiceCalls-DLQ queue arn
+    Description: notificationCostServiceCalls-DLQ queue ARN
+  PnDeliveryAsseverationDLQAlarmARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsDLQAlarmArn
+    Description: notificationCostServiceCalls-DLQ alarm ARN
+  PnDeliveryAsseverationAgeAlarmARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
+    Description: notificationCostServiceCalls-DLQ age alarm ARN
