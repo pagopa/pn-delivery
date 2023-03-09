@@ -802,10 +802,6 @@ Resources:
       BatchSize: !Sub ${PnDeliveryAsseverationLambdaEventSourceMappingBatchSize}
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds}
       FunctionName: !GetAtt PnDeliveryAsseverationLambda.Arn
-       # Add an OnFailure destination on the event source mapping
-      DestinationConfig:
-        OnFailure:
-          Destination: !Ref PnDeliveryAsseverationDLQARN
 
   ### Subscription filters with Kinesis  https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationKinesisExample
   AsseverationSubscriptionFilter:
