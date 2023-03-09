@@ -152,6 +152,10 @@ Parameters:
     Type: String
     Description: 'Target queue ARN for insert asseveration'
 
+  PnDeliveryAsseverationDLQARN:
+    Type: String
+    Description: 'DLQ ARN for insert asseveration'
+
   PnDeliveryAsseverationDLQAlarmARN:
     Type: String
     Description: 'DLQ Alarm ARN for insert asseveration'
