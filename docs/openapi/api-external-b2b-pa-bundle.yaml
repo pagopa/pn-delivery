@@ -562,7 +562,7 @@ components:
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
-          description: Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. Stringa alfanumerica con caratteri utilizzabili in un file.
+          description: Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. Stringa alfanumerica con caratteri utilizzabili in un nome file.
           type: string
           minLength: 1
           maxLength: 512
