@@ -52,9 +52,9 @@ class AsseverationEventsProducerTest {
                 .creditorTaxId( "creditorTaxId" )
                 .senderPaId( "senderPaId" )
                 .recipientIdx( 0 )
-                .debtorPosUpdateDate( now )
-                .recordCreationDate( now )
-                .notificationSentAt( Instant.parse( "2023-01-18T12:34:00Z" ) )
+                .debtorPosUpdateDate( now.toString() )
+                .recordCreationDate( now.toString() )
+                .notificationSentAt( "2023-01-18T12:34:00.000Z" )
                 .version( 1 )
                 .moreFields( null )
                 .build();

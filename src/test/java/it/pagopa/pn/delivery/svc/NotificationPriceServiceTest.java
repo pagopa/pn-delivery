@@ -107,14 +107,15 @@ class NotificationPriceServiceTest {
         Assertions.assertEquals( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) , response.getRefinementDate() );
         Assertions.assertNull( response.getNotificationViewDate() );
 
+        String formattedEventDate = refinementLocalDateUtils.formatInstantToString(Instant.parse(EVENT_DATE));
         InternalAsseverationEvent asseverationEvent = InternalAsseverationEvent.builder()
                 .iun( "iun" )
                 .senderPaId( "senderPaId" )
-                .notificationSentAt( Instant.parse( SENT_AT_DATE ) )
+                .notificationSentAt( refinementLocalDateUtils.formatInstantToString( Instant.parse( SENT_AT_DATE ) ) )
                 .noticeCode( "noticeCode" )
                 .creditorTaxId( "creditorTaxId" )
-                .debtorPosUpdateDate( Instant.parse( EVENT_DATE ) )
-                .recordCreationDate( Instant.parse( EVENT_DATE ) )
+                .debtorPosUpdateDate( formattedEventDate )
+                .recordCreationDate( formattedEventDate )
                 .recipientIdx( 0 )
                 .version( 1 )
                 .moreFields( null )

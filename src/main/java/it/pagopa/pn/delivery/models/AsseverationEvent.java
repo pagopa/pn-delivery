@@ -6,8 +6,6 @@ import lombok.*;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.time.Instant;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,8 +31,8 @@ public class AsseverationEvent implements GenericEvent<StandardEventHeader, Asse
         @NotEmpty
         private String senderPaId;
 
-        @NotNull
-        private Instant notificationSentAt;
+        @NotEmpty
+        private String notificationSentAt;
 
         @NotEmpty
         private String noticeCode;
@@ -42,11 +40,11 @@ public class AsseverationEvent implements GenericEvent<StandardEventHeader, Asse
         @NotEmpty
         private String creditorTaxId;
 
-        @NotNull
-        private Instant debtorPosUpdateDate;
+        @NotEmpty
+        private String debtorPosUpdateDate;
 
-        @NotNull
-        private Instant recordCreationDate;
+        @NotEmpty
+        private String recordCreationDate;
 
         private int recipientIdx;
 

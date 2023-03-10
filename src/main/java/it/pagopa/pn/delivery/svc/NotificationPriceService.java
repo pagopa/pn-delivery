@@ -81,15 +81,17 @@ public class NotificationPriceService {
 
     private InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification) {
         Instant now = clock.instant();
+        String formattedNow = refinementLocalDateUtils.formatInstantToString(now);
+        String formattedSentAt = refinementLocalDateUtils.formatInstantToString(internalNotification.getSentAt().toInstant());
         return InternalAsseverationEvent.builder()
                 .iun(internalNotificationCost.getIun())
-                .notificationSentAt(internalNotification.getSentAt().toInstant())
+                .notificationSentAt(formattedSentAt)
                 .creditorTaxId(internalNotificationCost.getCreditorTaxIdNoticeCode().split("##")[0])
                 .noticeCode(internalNotificationCost.getCreditorTaxIdNoticeCode().split("##")[1])
                 .senderPaId(internalNotification.getSenderPaId())
                 .recipientIdx(internalNotificationCost.getRecipientIdx())
-                .debtorPosUpdateDate(now)
-                .recordCreationDate(now)
+                .debtorPosUpdateDate(formattedNow)
+                .recordCreationDate(formattedNow)
                 .version(1)
                 .moreFields(null)
                 .build();
