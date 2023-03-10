@@ -530,7 +530,7 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
             - !Ref PnDeliveryAsseverationDLQAlarmARN
-            - !Ref PnDeliveryAsseverationLambdaAlarms
+            - !Ref PnDeliveryAsseverationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PnDeliveryAsseverationAgeAlarmARN
         QueueArns: !Join
           - ','
