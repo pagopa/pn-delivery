@@ -66,6 +66,7 @@ public class NotificationPriceService {
         NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt());
 
         // invio l'evento di asseverazione sulla coda
+        log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
         asseverationEventsProducer.sendAsseverationEvent(
                 createInternalAsseverationEvent(internalNotificationCost, internalNotification)
         );
