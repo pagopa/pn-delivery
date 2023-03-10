@@ -207,6 +207,7 @@ Resources:
         QueueName: !Sub '${ProjectName}-notificationCostServiceCalls'
         HasDLQ:  "true"
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        VisibilityTimeout: 900 # the maximum lambda timeout
         QueueHasAlarm: "true"
 
 Outputs:
