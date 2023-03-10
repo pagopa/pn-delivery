@@ -5,9 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class RefinementLocalDate {
@@ -36,5 +35,11 @@ public class RefinementLocalDate {
                     23, 59, 59, 999999999, ZoneId.of(ZONE_ID_EUROPE_ROME).getRules().getOffset( localDateTime.toInstant() ) );
         }
         return localRefinementDate;
+    }
+
+    @NotNull
+    public String formatInstantToString(Instant instantToFormat) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneOffset.UTC);
+        return formatter.format(instantToFormat);
     }
 }
