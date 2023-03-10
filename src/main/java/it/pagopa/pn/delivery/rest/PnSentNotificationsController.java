@@ -212,7 +212,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
                 logEvent.generateSuccess().log();
             }else{
-                logEvent.generateSuccess("dockey", internalAttachmentWithFileKey.getFileKey()).log();
+                logEvent.getMdc().put("dockey", internalAttachmentWithFileKey.getFileKey());
+                logEvent.generateSuccess().log();
             }
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
@@ -243,7 +244,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
                 logEvent.generateSuccess().log();
             }else{
-                logEvent.generateSuccess("dockey", internalAttachmentWithFileKey.getFileKey()).log();
+                logEvent.getMdc().put("dockey", internalAttachmentWithFileKey.getFileKey());
+                logEvent.generateSuccess().log();
             }
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
