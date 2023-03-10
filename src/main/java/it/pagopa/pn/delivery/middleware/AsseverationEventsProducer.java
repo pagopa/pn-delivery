@@ -4,6 +4,8 @@ import it.pagopa.pn.api.dto.events.*;
 import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 
+import java.time.Instant;
+
 public interface AsseverationEventsProducer extends MomProducer<AsseverationEvent> {
 
     default void sendAsseverationEvent( InternalAsseverationEvent internalAsseverationEvent ) {
@@ -19,6 +21,7 @@ public interface AsseverationEventsProducer extends MomProducer<AsseverationEven
                         .eventId( eventId )
                         .eventType( "ASSEVERATION_EVENT" )
                         .publisher( EventPublisher.DELIVERY.name())
+                        .createdAt( Instant.now() )
                         .build()
                 )
                 .payload( AsseverationEvent.Payload.builder()
