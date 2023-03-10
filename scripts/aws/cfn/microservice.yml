@@ -666,7 +666,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Description: 'It triggers notification workflow at notification insertion'
       MemorySize: 128
       Timeout: 10

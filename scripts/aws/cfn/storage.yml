@@ -204,7 +204,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
-        QueueName: "notificationCostServiceCalls"
+        QueueName: !Sub '${ProjectName}-notificationCostServiceCalls'
         HasDLQ:  "true"
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         QueueHasAlarm: "true"
