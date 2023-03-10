@@ -8,6 +8,12 @@ for qn in  $( echo $queues_fifo | tr " " "\n" ) ; do
         --queue-name $qn
 done
 
+echo "### CREATE QUEUES ###"
+aws --profile default --region us-east-1 --endpoint-url http://localstack:4566 \
+    sqs create-queue \
+    --attributes '{"DelaySeconds":"2"}' \
+    --queue-name "local-asseveration-inputs"
+
 
 echo " - Create pn-delivery TABLES"
 aws --profile default --region us-east-1 --endpoint-url=http://localstack:4566 \

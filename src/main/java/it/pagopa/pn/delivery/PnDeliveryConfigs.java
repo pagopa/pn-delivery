@@ -60,6 +60,7 @@ public class PnDeliveryConfigs {
     public static class Topics {
         private String newNotifications;
         private String paymentEvents;
+        private String asseverationEvents;
     }
 
     @Data
