@@ -144,6 +144,52 @@ Parameters:
     Type: String
     Description: 'Target queue URL for insert trigger'
 
+  PnDeliveryAsseverationQueueName:
+    Type: String
+    Description: 'Target queue name for insert asseveration'
+
+  PnDeliveryAsseverationQueueARN:
+    Type: String
+    Description: 'Target queue ARN for insert asseveration'
+
+  PnDeliveryAsseverationDLQARN:
+    Type: String
+    Description: 'DLQ ARN for insert asseveration'
+
+  PnDeliveryAsseverationDLQAlarmARN:
+    Type: String
+    Description: 'DLQ Alarm ARN for insert asseveration'
+
+  PnDeliveryAsseverationAgeAlarmARN:
+    Type: String
+    Description: 'Age Alarm ARN for insert asseveration'
+
+  PnDeliveryAsseverationLambdaEventSourceMappingBatchSize:
+    Type: String
+    Default: "100"
+    Description: 'BatchSize asseveration event source mapping'
+
+  PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds:
+    Type: String
+    Default: "30"
+    Description: 'MaximumBatchingWindow asseveration event source mapping'
+
+  PnDeliveryAsseverationLambdaTimeout:
+    Type: Number
+    Default: 900
+    Description: "Timeout in seconds of the asseveration lambda"
+
+  PnDeliveryAsseverationLambdaMemory:
+    Type: Number
+    Default: 128
+    MinValue: 128
+    MaxValue: 10240
+    Description: "Memory in MB of the asseveration lambda"
+
+  LogsBucketName:
+    Type: String
+    Description: 'Logs bucket name'
+
   PnDeliveryInsertTriggerDLQARN:
     Type: String
     Description: 'DLQ ARN for insert trigger'
@@ -319,6 +365,7 @@ Resources:
         ContainerEnvEntry21: !Sub 'PN_DELIVERY_TOPICS_PAYMENTEVENTS=${DeliveryPushInputsQueueName}'
         ContainerEnvEntry22: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
         ContainerEnvEntry23: !Sub 'PN_DELIVERY_NOTIFICATIONDELEGATIONMETADATADAO_TABLENAME=${NotificationDelegationMetadataDynamoTableName}'
+        ContainerEnvEntry24: !Sub 'PN_DELIVERY_TOPICS_ASSEVERATIONEVENTS=${PnDeliveryAsseverationQueueName}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -349,6 +396,7 @@ Resources:
             Resource:
               - !Ref DeliveryPushInputsQueueARN
               - !Ref Mandate2DeliveryQueueARN
+              - !Ref PnDeliveryAsseverationQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -472,6 +520,7 @@ Resources:
         LambdaArns: !Join 
           - ','
           - - !GetAtt PnDeliveryInsertTriggerLambda.Arn
+            - !GetAtt PnDeliveryAsseverationLambda.Arn
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -492,9 +541,13 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
+            - !Ref PnDeliveryAsseverationDLQAlarmARN
+            - !GetAtt PnDeliveryAsseverationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !Ref PnDeliveryAsseverationAgeAlarmARN
         QueueArns: !Join
           - ','
           - - !Ref Mandate2DeliveryQueueARN
+            - !Ref PnDeliveryAsseverationQueueARN
         LogGroupsNames: !Join
           - ','
           - - !Sub '/ecs/${ProjectName}-delivery'
@@ -625,7 +678,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Description: 'It triggers notification workflow at notification insertion'
       MemorySize: 128
       Timeout: 10
@@ -708,3 +761,159 @@ Resources:
               };
       #ENDpndeliveryinserttrigger
       #Non rimuovere o modificare il commento sopra, è usato come placeholder negli script
+
+
+  # Asseveration Lambda function role
+  PnDeliveryAsseverationLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-PnDeliveryAsseverationLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-PnDeliveryAsseverationLambdaRolePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: Dequeue
+                Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:ChangeMessageVisibility #non utilizzata nella policy di esempio
+                  - sqs:GetQueueUrl #utilizzata nella policy di esempio
+                Resource:
+                  - !Ref PnDeliveryAsseverationQueueARN
+              - Sid: WriteOnS3
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${LogsBucketName}/flussi/pad26_asseverazione/*"
+              - Sid: CanWriteLogs
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+
+  PnDeliveryAsseverationLambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !Ref PnDeliveryAsseverationQueueARN
+      BatchSize: !Sub ${PnDeliveryAsseverationLambdaEventSourceMappingBatchSize}
+      MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds}
+      FunctionName: !GetAtt PnDeliveryAsseverationLambda.Arn
+
+  ### Subscription filters with Kinesis  https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationKinesisExample
+  AsseverationSubscriptionFilter:
+    Type: AWS::Logs::SubscriptionFilter
+    DependsOn:
+      - PnDeliveryAsseverationLambdaLogGroup
+    Condition: SendLogToKinesis
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+          - "SubscriptionFilterServiceRole"
+          - "Arn"
+      LogGroupName: !Sub "/aws/lambda/${PnDeliveryAsseverationLambda}"
+      FilterPattern: !Ref LogsKinesisFilterPattern
+      DestinationArn: !Ref LogsKinesisSourceStreamArn
+
+  PnDeliveryAsseverationLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${PnDeliveryAsseverationLambda}"
+      RetentionInDays: 14
+
+  PnDeliveryAsseverationLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - PnDeliveryAsseverationLambdaLogGroup
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref PnDeliveryAsseverationLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  PnDeliveryAsseverationLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs16.x
+      Description: 'It triggers the asseveration written of sqs'
+      MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
+      Timeout: !Ref PnDeliveryAsseverationLambdaTimeout
+      Role: !GetAtt PnDeliveryAsseverationLambdaRole.Arn
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"          
+      Environment:
+        Variables:
+          BUCKET_NAME: !Sub "${LogsBucketName}"
+      Code:
+        ZipFile: |
+              const AWS = require('aws-sdk')
+              const crypto = await import('node:crypto');
+
+              const S3 = new AWS.S3();
+              const BUCKET_NAME = process.env.BUCKET_NAME
+
+              function putObjectToS3(bucket, key, data){
+                  return new Promise( (accept, reject) => {
+                      var params = {
+                          Bucket : bucket,
+                          Key : key,
+                          Body : data
+                      }
+                      S3.putObject(params, function(err, data) {
+                          if (err) reject(err)
+                          else accept(data)
+                      });
+                  })
+                      
+              }
+
+              function uuidv4(crypto) {
+                  return crypto.randomUUID()
+              }
+
+              function s3KeyName( d, namePrefix ) {
+                  const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+                  const mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
+                  const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+                  
+                  const h = new Intl.DateTimeFormat('it', { hour: '2-digit' }).format(d);
+                  const m = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d);
+                  const s = new Intl.DateTimeFormat('en', { second: '2-digit' }).format(d);
+                  
+                  return ye + '/' + mo + '/' + da + '/' + h + '/' + namePrefix 
+                        + '_' + ye + '' + mo + '' + da + '-' + h + '' + m + '' + s 
+                        + '_' + uuidv4( crypto );
+              }
+
+              export const handler = async(event) => {
+                  console.log( "Numero elementi: " + event.Records.length ) ;
+                  
+                  const messages = event.Records.map( el => el.body )
+                      .map( el => ''+ el).map( el => el.replace(/(\r\n|\n|\r)/gm, '') );
+                  const response = messages.join('\n');
+                  console.log( response );
+                  
+                  const now = new Date();
+                  const fullPath = 'flussi/pad26_asseverazione/' 
+                                + s3KeyName( now, 'pad26' ) + '.json';
+                  
+                  
+                  await putObjectToS3(BUCKET_NAME, fullPath, response);
+                  return response;
+              };

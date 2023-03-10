@@ -196,6 +196,20 @@ Resources:
         HasDLQ:  "false"
         QueueHasAlarm:  "true"
 
+  # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
+  # NB: usati i valori di default per: DelaySeconds, DeadLetterQueueName, MessageRetentionPeriod, MaxReceiveCount, DeadLetterMessageRetentionPeriod,
+  # QueueOldestAgeLimit
+  PnDeliveryAsseverationQueue:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-notificationCostServiceCalls'
+        HasDLQ:  "true"
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        VisibilityTimeout: 900 # the maximum lambda timeout
+        QueueHasAlarm: "true"
+
 Outputs:
 
   # Dynamo table
@@ -250,3 +264,26 @@ Outputs:
   PnDeliveryInsertTriggerDLQAlarmARN:
     Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.SqsDLQAlarmArn
     Description: pn-delivery_insert_trigger_DLQ alarm ARN
+
+  # Delivery Asseveration Queue
+  PnDeliveryAsseverationQueueName:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueName
+    Description: notificationCostServiceCalls queue name
+  PnDeliveryAsseverationQueueARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueARN
+    Description: notificationCostServiceCalls queue arn
+  PnDeliveryAsseverationDLQName:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueName
+    Description: notificationCostServiceCalls-DLQ queue name
+  PnDeliveryAsseverationDLQURL:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueURL
+    Description: notificationCostServiceCalls-DLQ queue url
+  PnDeliveryAsseverationDLQARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueARN
+    Description: notificationCostServiceCalls-DLQ queue ARN
+  PnDeliveryAsseverationDLQAlarmARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsDLQAlarmArn
+    Description: notificationCostServiceCalls-DLQ alarm ARN
+  PnDeliveryAsseverationAgeAlarmARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
+    Description: notificationCostServiceCalls-DLQ age alarm ARN
