@@ -166,13 +166,25 @@ Parameters:
 
   PnDeliveryAsseverationLambdaEventSourceMappingBatchSize:
     Type: String
-    Default: "10"
+    Default: "100"
     Description: 'BatchSize asseveration event source mapping'
 
   PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds:
     Type: String
-    Default: "0"
+    Default: "30"
     Description: 'MaximumBatchingWindow asseveration event source mapping'
+
+  PnDeliveryAsseverationLambdaTimeout:
+    Type: Number
+    Default: 900
+    Description: "Timeout in seconds of the asseveration lambda"
+
+  PnDeliveryAsseverationLambdaMemory:
+    Type: Number
+    Default: 128
+    MinValue: 128
+    MaxValue: 10240
+    Description: "Memory in MB of the asseveration lambda"
 
   LogsBucketName:
     Type: String
@@ -840,8 +852,8 @@ Resources:
       Handler: index.handler
       Runtime: nodejs16.x
       Description: 'It triggers the asseveration written of sqs'
-      MemorySize: 128
-      Timeout: 10
+      MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
+      Timeout: !Ref PnDeliveryAsseverationLambdaTimeout
       Role: !GetAtt PnDeliveryAsseverationLambdaRole.Arn
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"          
