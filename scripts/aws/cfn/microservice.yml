@@ -678,7 +678,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs16.x
       Description: 'It triggers notification workflow at notification insertion'
       MemorySize: 128
       Timeout: 10
@@ -799,6 +799,14 @@ Resources:
                   - s3:PutObject
                 Resource:
                   - !Sub "arn:aws:s3:::${LogsBucketName}/flussi/pad26_asseverazione/*"
+              - Sid: EncryptS3Data
+                Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                Resource:
+                  - !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*
+                  - !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/*
               - Sid: CanWriteLogs
                 Effect: "Allow"
                 Action:
@@ -850,7 +858,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Description: 'It triggers the asseveration written of sqs'
       MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
       Timeout: !Ref PnDeliveryAsseverationLambdaTimeout
@@ -863,14 +871,14 @@ Resources:
       Code:
         ZipFile: |
               const AWS = require('aws-sdk')
-              const crypto = await import('node:crypto');
+              const crypto = require('node:crypto');
 
               const S3 = new AWS.S3();
               const BUCKET_NAME = process.env.BUCKET_NAME
 
               function putObjectToS3(bucket, key, data){
                   return new Promise( (accept, reject) => {
-                      var params = {
+                      const params = {
                           Bucket : bucket,
                           Key : key,
                           Body : data
@@ -900,8 +908,8 @@ Resources:
                         + '_' + ye + '' + mo + '' + da + '-' + h + '' + m + '' + s 
                         + '_' + uuidv4( crypto );
               }
-
-              export const handler = async(event) => {
+          
+              module.exports.handler = async(event) => {
                   console.log( "Numero elementi: " + event.Records.length ) ;
                   
                   const messages = event.Records.map( el => el.body )
