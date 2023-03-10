@@ -858,7 +858,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs16.x
       Description: 'It triggers the asseveration written of sqs'
       MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
       Timeout: !Ref PnDeliveryAsseverationLambdaTimeout
