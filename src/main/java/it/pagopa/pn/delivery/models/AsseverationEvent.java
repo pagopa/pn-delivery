@@ -1,7 +1,9 @@
 package it.pagopa.pn.delivery.models;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import it.pagopa.pn.api.dto.events.GenericEvent;
 import it.pagopa.pn.api.dto.events.StandardEventHeader;
+import it.pagopa.pn.delivery.utils.AsseverationMoreFieldSerializer;
 import lombok.*;
 
 import javax.annotation.Nullable;
@@ -57,6 +59,7 @@ public class AsseverationEvent implements GenericEvent<StandardEventHeader, Asse
         @Builder
         @ToString
         @EqualsAndHashCode
+        @JsonSerialize(using = AsseverationMoreFieldSerializer.class)
         public static class AsseverationMoreField {}
     }
 }
