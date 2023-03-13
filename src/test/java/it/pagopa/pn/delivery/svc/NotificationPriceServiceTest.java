@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
@@ -118,7 +119,7 @@ class NotificationPriceServiceTest {
                 .recordCreationDate( formattedEventDate )
                 .recipientIdx( 0 )
                 .version( 1 )
-                .moreFields( null )
+                .moreFields( AsseverationEvent.Payload.AsseverationMoreField.builder().build() )
                 .build();
 
         Mockito.verify( asseverationEventsProducer ).sendAsseverationEvent( asseverationEvent );
