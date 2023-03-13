@@ -262,7 +262,11 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                           StringBuilder expressionBuilder) {
         if ( !CollectionUtils.isEmpty( groupList )) {
             // restituire anche le notifiche con gruppo <stringa_vuota>
-            groupList.add("");
+            if (!groupList.contains("")) {
+                // aggiungo se non presente, dato che la lista è sempre la stessa nelle varie iterazioni della ricerca
+                groupList.add("");
+            }
+
             log.trace( "Add group filter expression" );
             if ( expressionBuilder.length() > 0 )
                 expressionBuilder.append( " AND ( " );
