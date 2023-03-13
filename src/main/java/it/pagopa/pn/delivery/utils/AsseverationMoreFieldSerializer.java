@@ -9,8 +9,11 @@ import java.io.IOException;
 
 public class AsseverationMoreFieldSerializer extends StdSerializer<AsseverationEvent.Payload.AsseverationMoreField> {
 
+    public AsseverationMoreFieldSerializer() {
+        this(null);
+    }
 
-    protected AsseverationMoreFieldSerializer(Class<AsseverationEvent.Payload.AsseverationMoreField> t) {
+    public AsseverationMoreFieldSerializer(Class<AsseverationEvent.Payload.AsseverationMoreField> t) {
         super(t);
     }
 
