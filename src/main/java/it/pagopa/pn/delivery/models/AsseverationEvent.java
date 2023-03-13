@@ -51,6 +51,12 @@ public class AsseverationEvent implements GenericEvent<StandardEventHeader, Asse
         private int version;
 
         @Nullable
-        private Object moreFields;
+        private AsseverationMoreField moreFields;
+
+        @NoArgsConstructor
+        @Builder
+        @ToString
+        @EqualsAndHashCode
+        public static class AsseverationMoreField {}
     }
 }

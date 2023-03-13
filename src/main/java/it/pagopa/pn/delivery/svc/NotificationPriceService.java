@@ -11,6 +11,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
@@ -94,7 +95,7 @@ public class NotificationPriceService {
                 .debtorPosUpdateDate(formattedNow)
                 .recordCreationDate(formattedNow)
                 .version(1)
-                .moreFields( new Object() )
+                .moreFields( AsseverationEvent.Payload.AsseverationMoreField.builder().build() )
                 .build();
     }
 
