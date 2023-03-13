@@ -208,7 +208,7 @@ Resources:
         HasDLQ:  "true"
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         VisibilityTimeout: 900 # the maximum lambda timeout
-        QueueHasAlarm: "true"
+        QueueHasAlarm: "false"
 
 Outputs:
 
