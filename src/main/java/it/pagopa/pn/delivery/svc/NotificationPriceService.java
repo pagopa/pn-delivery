@@ -94,7 +94,7 @@ public class NotificationPriceService {
                 .debtorPosUpdateDate(formattedNow)
                 .recordCreationDate(formattedNow)
                 .version(1)
-                .moreFields(null)
+                .moreFields( new Object() )
                 .build();
     }
 
