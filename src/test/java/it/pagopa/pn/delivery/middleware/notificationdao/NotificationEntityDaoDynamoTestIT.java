@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
@@ -150,21 +149,27 @@ class NotificationEntityDaoDynamoTestIT {
                         .type(DigitalAddressTypeEntity.PEC)
                         .build())
                 .denomination("recipientDenomination")
-                .payment(NotificationPaymentInfoEntity.builder()
-                        .creditorTaxId("creditorTaxId")
-                        .noticeCode("noticeCode")
-                        .noticeCodeAlternative("noticeCode_opt")
-                        .pagoPaForm(PaymentAttachmentEntity.builder()
-                                .contentType("application/pdf")
-                                .digests(AttachmentDigestsEntity.builder()
-                                        .sha256("sha256")
-                                        .build())
-                                .ref(AttachmentRefEntity.builder()
-                                        .key("key")
-                                        .versionToken("versionToken")
-                                        .build())
-                                .build())
-                        .build())
+                .paymentList( List.of(
+                                NotificationPaymentInfoEntity.builder()
+                                        .creditorTaxId("creditorTaxId")
+                                        .noticeCode("noticeCode")
+                                        .pagoPaForm(PaymentAttachmentEntity.builder()
+                                                .contentType("application/pdf")
+                                                .digests(AttachmentDigestsEntity.builder()
+                                                        .sha256("sha256")
+                                                        .build())
+                                                .ref(AttachmentRefEntity.builder()
+                                                        .key("key")
+                                                        .versionToken("versionToken")
+                                                        .build())
+                                                .build())
+                                        .build(),
+                                NotificationPaymentInfoEntity.builder()
+                                        .creditorTaxId("creditorTaxId")
+                                        .noticeCode("noticeCode_opt")
+                                        .build()
+                        )
+                )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
                         .address("address")
                         .addressDetails("addressDetail")
@@ -177,10 +182,13 @@ class NotificationEntityDaoDynamoTestIT {
                 .build();
         NotificationRecipientEntity notificationRecipientEntity1 = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
-                .payment(NotificationPaymentInfoEntity.builder()
-                        .creditorTaxId("77777777777")
-                        .noticeCode("002720356512737953")
-                        .build())
+                .paymentList( List.of(
+                        NotificationPaymentInfoEntity.builder()
+                                .creditorTaxId("77777777777")
+                                .noticeCode("002720356512737953")
+                                .build()
+                    )
+                )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
                         .foreignState("Svizzera")
                         .address("via canton ticino")

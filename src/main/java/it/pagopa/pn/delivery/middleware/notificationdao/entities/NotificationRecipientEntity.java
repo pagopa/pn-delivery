@@ -4,6 +4,8 @@ import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
+import java.util.List;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +18,7 @@ public class NotificationRecipientEntity {
     private String denomination;
     private NotificationDigitalAddressEntity digitalDomicile;
     private NotificationPhysicalAddressEntity physicalAddress;
-    private NotificationPaymentInfoEntity payment;
+    private List<NotificationPaymentInfoEntity> paymentList;
 
     @DynamoDbAttribute(value = "recipientType")
     public RecipientTypeEntity getRecipientType() {
@@ -63,12 +65,12 @@ public class NotificationRecipientEntity {
         this.physicalAddress = physicalAddress;
     }
 
-    @DynamoDbAttribute(value = "payment")
-    public NotificationPaymentInfoEntity getPayment() {
-        return payment;
+    @DynamoDbAttribute(value = "paymentList")
+    public List<NotificationPaymentInfoEntity> getPaymentList() {
+        return paymentList;
     }
 
-    public void setPayment(NotificationPaymentInfoEntity payment) {
-        this.payment = payment;
+    public void setPaymentList(List<NotificationPaymentInfoEntity> paymentList) {
+        this.paymentList = paymentList;
     }
 }

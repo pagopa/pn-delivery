@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_PHYSICALCOMMUNICATIONTYPE;
@@ -45,16 +46,18 @@ public class EntityToDtoNotificationMapper {
                 .physicalCommunicationType( entity.getPhysicalCommunicationType() )
                 .group( entity.getGroup() )
                 .senderPaId( entity.getSenderPaId() )
-                .recipients( entity2RecipientDto( entity.getRecipients() ) )
+                .recipients( entity.getVersion() == 1?
+                        entity2RecipientsDto( entity.getRecipients() ) : Collections.emptyList() )
                 .documents( buildDocumentsList( entity ) )
                 .amount(entity.getAmount())
                 .paymentExpirationDate(entity.getPaymentExpirationDate())
                 .taxonomyCode( entity.getTaxonomyCode() )
-                .build()
-        , recipientIds, entity.getSourceChannel() );
+                .build(),
+                recipientIds, entity.getSourceChannel()
+        );
     }
 
-    private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
+    private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         mapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )

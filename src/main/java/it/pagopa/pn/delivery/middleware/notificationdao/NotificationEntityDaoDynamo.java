@@ -3,10 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationQREntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -185,27 +182,17 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         List<NotificationCostEntity> notificationCostEntityList = new ArrayList<>();
 
         for (NotificationRecipientEntity rec : notificationEntity.getRecipients() ) {
-
-            if (Objects.nonNull(rec.getPayment())) {
-                NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
-                        .recipientType ( rec.getRecipientType().getValue() )
-                        .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
-                        .iun( notificationEntity.getIun() )
-                        .creditorTaxIdNoticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCode() )
-                        .build();
-                notificationCostEntityList.add(notificationCostEntity);
-
-                if ( rec.getPayment().getNoticeCodeAlternative() != null ) {
-                    notificationCostEntityList.add( NotificationCostEntity.builder()
+            for ( NotificationPaymentInfoEntity payment : rec.getPaymentList() )
+                if ( Objects.nonNull( payment ) ) {
+                    NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
                             .recipientType ( rec.getRecipientType().getValue() )
                             .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
                             .iun( notificationEntity.getIun() )
-                            .creditorTaxIdNoticeCode( rec.getPayment().getCreditorTaxId() + "##" + rec.getPayment().getNoticeCodeAlternative() )
-                            .build()
-                    );
+                            .creditorTaxIdNoticeCode( payment.getCreditorTaxId() + "##" + payment.getNoticeCode() )
+                            .build();
+                    notificationCostEntityList.add(notificationCostEntity);
                 }
             }
-        }
         return notificationCostEntityList;
     }
 
