@@ -6,10 +6,13 @@ import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.Notifi
 import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
+import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.AsseverationEvent;
+import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
@@ -18,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
@@ -27,17 +32,22 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 @Service
 @Slf4j
 public class NotificationPriceService {
+    private final Clock clock;
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
     private final NotificationMetadataEntityDao notificationMetadataEntityDao;
     private final PnDeliveryPushClientImpl deliveryPushClient;
+
+    private final AsseverationEventsProducer asseverationEventsProducer;
     private final RefinementLocalDate refinementLocalDateUtils;
 
-    public NotificationPriceService(NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, RefinementLocalDate refinementLocalDateUtils) {
+    public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
+        this.clock = clock;
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
         this.deliveryPushClient = deliveryPushClient;
+        this.asseverationEventsProducer = asseverationEventsProducer;
         this.refinementLocalDateUtils = refinementLocalDateUtils;
     }
 
@@ -56,12 +66,36 @@ public class NotificationPriceService {
         log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
         NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt());
 
+        // invio l'evento di asseverazione sulla coda
+        log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
+        asseverationEventsProducer.sendAsseverationEvent(
+                createInternalAsseverationEvent(internalNotificationCost, internalNotification)
+        );
+
         // creazione dto response
         return NotificationPriceResponse.builder()
                 .amount( notificationProcessCost.getAmount() )
                 .refinementDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getRefinementDate() ) )
                 .notificationViewDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getNotificationViewDate() ) )
                 .iun( iun )
+                .build();
+    }
+
+    private InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification) {
+        Instant now = clock.instant();
+        String formattedNow = refinementLocalDateUtils.formatInstantToString(now);
+        String formattedSentAt = refinementLocalDateUtils.formatInstantToString(internalNotification.getSentAt().toInstant());
+        return InternalAsseverationEvent.builder()
+                .iun(internalNotificationCost.getIun())
+                .notificationSentAt(formattedSentAt)
+                .creditorTaxId(internalNotificationCost.getCreditorTaxIdNoticeCode().split("##")[0])
+                .noticeCode(internalNotificationCost.getCreditorTaxIdNoticeCode().split("##")[1])
+                .senderPaId(internalNotification.getSenderPaId())
+                .recipientIdx(internalNotificationCost.getRecipientIdx())
+                .debtorPosUpdateDate(formattedNow)
+                .recordCreationDate(formattedNow)
+                .version(1)
+                .moreFields( AsseverationEvent.Payload.AsseverationMoreField.builder().build() )
                 .build();
     }
 
