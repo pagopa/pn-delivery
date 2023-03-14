@@ -40,5 +40,6 @@ public class InternalAsseverationEvent {
     private int version;
 
     @Nullable
-    private Object moreFields;
+    private AsseverationEvent.Payload.AsseverationMoreField moreFields;
+
 }
