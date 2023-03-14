@@ -68,8 +68,8 @@ public class DtoToEntityNotificationMapper {
             );
             if ( StringUtils.hasText( dto.getNoticeCodeAlternative() ) ) {
                 paymentInfoEntityList.add( NotificationPaymentInfoEntity.builder()
-                        .creditorTaxId( dto.getNoticeCodeAlternative() )
-                        .noticeCode( dto.getNoticeCode() )
+                        .creditorTaxId( dto.getCreditorTaxId() )
+                        .noticeCode( dto.getNoticeCodeAlternative() )
                         .pagoPaForm( dto2PaymentAttachment( dto.getPagoPaForm() ) )
                         .build()
                 );
