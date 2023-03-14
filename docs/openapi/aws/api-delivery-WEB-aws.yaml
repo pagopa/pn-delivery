@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: owMEQjcaRbPQyETU/3Oq9zbHroY0KFCchmt5U6sm48g=
+  version: UEZKlWIh2j1pSsrSxUEqRSfJL8IBfgrMx1cisW3q5Jg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1142,15 +1142,19 @@ components:
         per rettifiche.
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 256
     idempotenceToken:
       name: idempotenceToken
       description: >-
-        token usato per disambiguare "richieste di notificazione" effetuate con
+        token usato per disambiguare "richieste di notificazione" effettuate con
         lo stesso  numero di protocollo. 
       in: query
       required: false
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 256
     pathDocumentIdx:
       name: docIdx
       in: path
@@ -1170,6 +1174,8 @@ components:
       required: true
       schema:
         type: string
+        minLength: 3
+        maxLength: 6
         pattern: PAGOPA|F24
     pathLegalFactType:
       description: Categoria dell'atto opponbile a terzi
@@ -1192,6 +1198,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     notificationSearchStartDate:
       name: startDate
       in: query
@@ -1242,7 +1251,7 @@ components:
         type: string
     notificationSearchPageSize:
       name: size
-      description: dmensione della pagina di risultati
+      description: dimensione della pagina di risultati
       in: query
       required: false
       schema:
@@ -1263,6 +1272,7 @@ components:
       required: false
       schema:
         type: string
+        format: uuid
     notificationSearchMandateId:
       name: mandateId
       in: query
@@ -1340,8 +1350,12 @@ components:
           title: Id della richiesta di precaricamento di un file
           description: >-
             Identificativo univoco all'interno della request HTTP, serve per
-            correlare la risposta. 
+            correlare la risposta. Stringa alfanumerica con caratteri
+            utilizzabili in un nome file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
@@ -1349,7 +1363,9 @@ components:
             supportato solo
               - application/pdf
           type: string
-          example: application/pdf
+          minLength: 25
+          maxLength: 25
+          pattern: ^application\/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -1357,6 +1373,9 @@ components:
             file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
+          minLength: 43
+          maxLength: 44
+          pattern: ^[A-Za-z0-9+/]{43}=|[A-Za-z0-9+/]{44}$
     PreLoadResponse:
       title: Informazioni per il caricamento file
       description: >-
@@ -1365,8 +1384,13 @@ components:
       type: object
       properties:
         preloadIdx:
-          description: per correlazione con la richiesta
+          description: >-
+            per correlazione con la richiesta. Stringa alfanumerica con
+            caratteri utilizzabili in un file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
           description: >-
             Token aggiuntivo per far si che sia necessario intercettare anche
@@ -1425,14 +1449,16 @@ components:
           description: >-
             identificativo univoco di una richiesta di invio notifica, non è lo
             IUN
+          maxLength: 36
+          pattern: ^[A-Za-z0-9+/=]{36}$
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
         idempotenceToken:
           description: >-
             Ripetizione del token usato per disambiguare "richieste di
-            notificazione"  effetuate con lo stesso numero di protocollo (campo
-            _paProtocolNumber_). 
+            notificazione"  effettuate con lo stesso numero di protocollo (campo
+            _paProtocolNumber_).
           type: string
     NewNotificationRequestStatusResponse:
       allOf:
@@ -1629,6 +1655,9 @@ components:
       properties:
         iun:
           type: string
+          minLength: 25
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         paymentDate:
           type: string
           format: date-time
@@ -1636,6 +1665,8 @@ components:
           $ref: '#/components/schemas/TaxId'
         recipientType:
           type: string
+          minLength: 2
+          maxLength: 2
           pattern: PF|PG
         amount:
           type: number
@@ -3027,7 +3058,7 @@ components:
               $ref: '#/components/schemas/NotificationStatusHistory'
             timeline:
               description: >-
-                elenco dettagliato di tutto ciò che è accaduto durrante il
+                elenco dettagliato di tutto ciò che è accaduto durante il
                 processo di notifica
               type: array
               items:

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 5fYDR8Q+xm8B4IHAkBcX/YkZfeePP7el29yEh12vlnE=
+  version: JrEuqSTTHWBJe20YTY14euMygEsoL0rOhRKCy+FQkC0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -429,6 +429,8 @@ components:
       required: true
       schema:
         type: string
+        minLength: 3
+        maxLength: 6
         pattern: PAGOPA|F24
     queryMandateId:
       name: mandateId
@@ -436,6 +438,7 @@ components:
       required: false
       schema:
         type: string
+        format: uuid
     pathLegalFactType:
       description: Categoria dell'atto opponbile a terzi
       name: legalFactType
@@ -507,7 +510,7 @@ components:
         type: string
     notificationSearchPageSize:
       name: size
-      description: dmensione della pagina di risultati
+      description: dimensione della pagina di risultati
       in: query
       required: false
       schema:
@@ -543,6 +546,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
   schemas:
     FullReceivedNotification:
       description: >-
@@ -563,7 +569,7 @@ components:
               $ref: '#/components/schemas/NotificationStatusHistory'
             timeline:
               description: >-
-                elenco dettagliato di tutto ciò che è accaduto durrante il
+                elenco dettagliato di tutto ciò che è accaduto durante il
                 processo di notifica
               type: array
               items:
