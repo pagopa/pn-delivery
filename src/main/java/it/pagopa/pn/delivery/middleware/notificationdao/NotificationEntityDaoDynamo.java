@@ -135,7 +135,8 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
             List<TransactPutItemEnhancedRequest<NotificationQREntity>> qrRequestList
     ) {
         TransactWriteItemsEnhancedRequest.Builder requestBuilder = TransactWriteItemsEnhancedRequest.builder();
-
+        // L'uso della putItem è legato anche a https://docs.aws.amazon.com/firehose/latest/dev/dynamic-partitioning.html
+        // utilizzato negli stream verso datalake. Se si modifica stare attenti a "Dynamic partitioning of aggregated data"
         for ( TransactPutItemEnhancedRequest<NotificationEntity> putItemNotification: notificationRequestList ) {
             requestBuilder.addPutItem( dynamoDbTable, putItemNotification);
         }
