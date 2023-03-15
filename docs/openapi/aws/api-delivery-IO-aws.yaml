@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ik8kbQWfZLzyhDNcngsXkwoT7/z7BAE2agS1Z/0uLcQ=
+  version: tQGPjJ4KOBIyHLoE3hkAJRSQwmPBtXO6jdMgb8nDHGE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2010,12 +2010,18 @@ x-amazon-apigateway-gateway-responses:
     responseParameters:
       gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
     responseTemplates:
-      application/json: '{"message": "Validation errors: $context.error.validationErrorString"}'
+      application/json: >-
+        {"status": 400, "title": "VALIDATION ERROR", "traceId":
+        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_PARAMETERS",
+        "detail": "Validation errors: $context.error.validationErrorString" } ]}
   BAD_REQUEST_BODY:
     responseParameters:
       gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
     responseTemplates:
-      application/json: '{"message": "Validation errors: $context.error.validationErrorString"}'
+      application/json: >-
+        {"status": 400, "title": "VALIDATION ERROR", "traceId":
+        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_BODY",
+        "detail": "Validation errors: $context.error.validationErrorString" } ]}
 x-amazon-apigateway-request-validators:
   basic:
     validateRequestBody: true
