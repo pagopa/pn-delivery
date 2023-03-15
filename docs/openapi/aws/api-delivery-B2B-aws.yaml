@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: AD00+kHrDQ+MOxg9c2TEgszBZbMs/OkHKoWnng6Vvs0=
+  version: ZcyNntakumjBlG/9pZvbFDhI2y/XzKHhr05Hm4AJTJ8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1612,7 +1612,7 @@ components:
     SenderAckCreationRequestDetails:
       type: object
       properties:
-        legalfactId:
+        legalFactId:
           type: string
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
