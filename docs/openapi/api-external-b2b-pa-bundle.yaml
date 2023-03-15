@@ -1356,7 +1356,7 @@ components:
     SenderAckCreationRequestDetails:
       type: object
       properties:
-        legalfactId:
+        legalFactId:
           type: string
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
     NotificationRequestAcceptedDetails:
