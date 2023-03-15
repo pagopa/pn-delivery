@@ -16,31 +16,38 @@ docClient.scan(params, (err, data) => {
             const key = item.iun;
             console.log("Key: ", key);
             if (item.recipients) {
-                const payment = item.recipients?.payment;
-                if (payment) {
-                    const paymentList = transformPayment(payment);
-                    console.log("Payment List: ", JSON.stringify(paymentList, null, 2));
-                    const updateParams = {
-                        TableName: 'Notifications',
-                        Key: {
-                            "iun": key
-                        },
-                        UpdateExpression: "SET #p = :p",
-                        ExpressionAttributeNames: {
-                            "#p": "payment"
-                        },
-                        ExpressionAttributeValues: {
-                            ":p": paymentList
+                var recipientIdx = 0;
+                item.recipients.forEach(function (recipient) {
+                    const payment = recipient.payment;
+                    console.log("Payment: ", payment);
+                    if (payment) {
+                        const paymentList = transformPayment(payment);
+                        console.log("Payment List: ", JSON.stringify(paymentList, null, 2));
+                        const updateExpression = "SET #rec[" + recipientIdx + "].#pay = :paymentList"
+                        const updateParams = {
+                            TableName: 'Notifications',
+                            Key: {
+                                "iun": key
+                            },
+                            UpdateExpression: updateExpression,
+                            ExpressionAttributeNames: {
+                                "#rec": 'recipients',
+                                "#pay": 'paymentList'
+                            },
+                            ExpressionAttributeValues: {
+                                ":paymentList": paymentList
+                            }
                         }
+                        docClient.update(updateParams, (err, data) => {
+                            if (err) {
+                                console.error("Errore nell'aggiornamento dell'elemento:", JSON.stringify(err, null, 2));
+                            } else {
+                                console.log("Elemento aggiornato con successo:", JSON.stringify(data, null, 2));
+                            }
+                        })
                     }
-                    docClient.update(updateParams, (err, data) => {
-                        if (err) {
-                            console.error("Errore nell'aggiornamento dell'elemento:", JSON.stringify(err, null, 2));
-                        } else {
-                            console.log("Elemento aggiornato con successo:", JSON.stringify(data, null, 2));
-                        }
-                    })
-                }
+                    recipientIdx++;
+                });     
             }
         });
     }
@@ -53,13 +60,13 @@ function transformPayment(payment) {
         noticeCode: payment.noticeCode,
         creditorTaxId: payment.creditorTaxId,
         pagoPaForm: {
-          contentType: payment.pagoPaForm.contentType,
+          contentType: payment.pagoPaForm?.contentType,
           digests: {
-            sha256: payment.pagoPaForm.digests.sha256,
+            sha256: payment.pagoPaForm?.digests.sha256,
           },
           ref: {
-            key: payment.pagoPaForm.ref.key,
-            versionToken: payment.pagoPaForm.ref.versionToken,
+            key: payment.pagoPaForm?.ref.key,
+            versionToken: payment.pagoPaForm?.ref.versionToken,
           },
         },
       },
@@ -70,13 +77,13 @@ function transformPayment(payment) {
         noticeCode: payment.noticeCodeAlternative,
         creditorTaxId: payment.creditorTaxId,
         pagoPaForm: {
-          contentType: payment.pagoPaForm.contentType,
+          contentType: payment.pagoPaForm?.contentType,
           digests: {
-            sha256: payment.pagoPaForm.digests.sha256,
+            sha256: payment.pagoPaForm?.digests.sha256,
           },
           ref: {
-            key: payment.pagoPaForm.ref.key,
-            versionToken: payment.pagoPaForm.ref.versionToken,
+            key: payment.pagoPaForm?.ref.key,
+            versionToken: payment.pagoPaForm?.ref.versionToken,
           },
         },
       });
