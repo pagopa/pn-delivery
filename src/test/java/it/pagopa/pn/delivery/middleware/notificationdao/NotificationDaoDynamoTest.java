@@ -498,19 +498,7 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotificationWithPaymentsFlat( ) {
         InternalNotification notification =  newNotificationWithoutPayments();
         for (NotificationRecipient recipient : notification.getRecipients() ) {
-            recipient.payment( NotificationPaymentInfo.builder()
-                    /*.f24flatRate( NotificationPaymentAttachment.builder()
-                            .ref( NotificationAttachmentBodyRef.builder()
-                                    .key( KEY )
-                                    .versionToken( VERSION_TOKEN )
-                                    .build() )
-                            .digests( NotificationAttachmentDigests.builder()
-                                    .sha256( SHA256_BODY )
-                                    .build() )
-                            .contentType( "application/pdf" )
-                            .build()
-                    )*/
-                    .build() );
+            recipient.payment( NotificationPaymentInfo.builder().build() );
         }
         return notification;
     }

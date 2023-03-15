@@ -280,24 +280,6 @@ components:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         pagoPaForm:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24flatRate:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24standard:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digital:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digitalWithRs:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digitalWithRi:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRaccSingle:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRaccDouble:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRiSingle:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRiDouble:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
 
 
     ############################################################################################
