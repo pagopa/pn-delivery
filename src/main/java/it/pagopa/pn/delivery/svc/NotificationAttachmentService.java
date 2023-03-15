@@ -43,18 +43,7 @@ public class NotificationAttachmentService {
 
     public static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
     public static final String PRELOADED = "PRELOADED";
-
-    private enum ATTACHMENT_TYPE {
-        PAGOPA("PAGOPA"),
-        F24("F24"),
-        F24_FLAT("F24_FLAT"),
-        F24_STANDARD("F24_STANDARD");
-        private final String value;
-
-        ATTACHMENT_TYPE(String value) {
-            this.value = value;
-        }
-    }
+    private static final String ATTACHMENT_TYPE_PAGO_PA = "PAGOPA" ;
 
     private final PnSafeStorageClientImpl safeStorageClient;
     private final NotificationDao notificationDao;
@@ -334,26 +323,8 @@ public class NotificationAttachmentService {
             }
            
         }
-
-        switch (ATTACHMENT_TYPE.valueOf(attachmentName))
-        {
-            case PAGOPA: {
-                return getKey( payment.getPagoPaForm() );
-            }
-            case F24: {
-                // NOTA: Al momento viene restituito semplicemente l'F24 presente a seguito della issue PN-1835 MA c'è da definire la logica corretta da adottare!!
-                if (doc.getPayment().getF24flatRate() != null) {
-                    return getKey( payment.getF24flatRate() );
-                } else {
-                    return getKey( payment.getF24standard() );
-                }
-            }
-            case F24_FLAT: {
-                return getKey( payment.getF24flatRate() );
-            }
-            case F24_STANDARD: {
-                return getKey( payment.getF24standard() );
-            }
+        if (attachmentName.equals(ATTACHMENT_TYPE_PAGO_PA)) {
+            return getKey( payment.getPagoPaForm() );
         }
         return null;
     }

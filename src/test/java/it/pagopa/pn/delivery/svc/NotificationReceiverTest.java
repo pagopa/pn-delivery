@@ -474,7 +474,7 @@ class NotificationReceiverTest {
 						.payment( NotificationPaymentInfo.builder()
 								.creditorTaxId( "77777777777" )
 								.noticeCode("123456789012345678")
-								.f24flatRate( NotificationPaymentAttachment.builder()
+								/*.f24flatRate( NotificationPaymentAttachment.builder()
 										.digests( NotificationAttachmentDigests.builder()
 												.sha256( SHA256_BODY )
 												.build() )
@@ -483,7 +483,7 @@ class NotificationReceiverTest {
 												.key( KEY )
 												.versionToken( VERSION_TOKEN )
 												.build() )
-										.build() )
+										.build() )*/
 								.pagoPaForm( NotificationPaymentAttachment.builder()
 										.ref(NotificationAttachmentBodyRef.builder()
 												.key( KEY )
@@ -557,9 +557,9 @@ class NotificationReceiverTest {
 		for( NotificationRecipient recipient : notification.getRecipients()) {
 			recipient.payment( NotificationPaymentInfo.builder()
 					.noticeCode( "123456789012345678" )
-					.f24flatRate( buildPaymentAttachment() )
+					/*.f24flatRate( buildPaymentAttachment() )
 					.f24standard( buildPaymentAttachment() )
-					.pagoPaForm( buildPaymentAttachment()  )
+					.pagoPaForm( buildPaymentAttachment()  )*/
 					.creditorTaxId( "12345678901" )
 					.build()
 			);
@@ -583,7 +583,7 @@ class NotificationReceiverTest {
 						.build() )
 				.payment( NotificationPaymentInfo.builder()
 						.creditorTaxId( "creditorTaxId" )
-						.f24flatRate( NotificationPaymentAttachment.builder()
+						/*.f24flatRate( NotificationPaymentAttachment.builder()
 								.ref( NotificationAttachmentBodyRef.builder()
 										.key( KEY )
 										.versionToken( VERSION_TOKEN )
@@ -593,7 +593,7 @@ class NotificationReceiverTest {
 										.build() )
 								.contentType( "application/pdf" )
 								.build()
-						)
+						)*/
 						.pagoPaForm( NotificationPaymentAttachment.builder()
 								.ref( NotificationAttachmentBodyRef.builder()
 										.key( KEY )

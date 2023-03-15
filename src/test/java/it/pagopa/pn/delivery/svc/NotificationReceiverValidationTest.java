@@ -598,13 +598,13 @@ class NotificationReceiverValidationTest {
                 .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
                     .type(NotificationDigitalAddress.TypeEnum.PEC).build())
                 .payment(NotificationPaymentInfo.builder()
-                    .f24flatRate(NotificationPaymentAttachment.builder()
+                    /*.f24flatRate(NotificationPaymentAttachment.builder()
                         .ref(NotificationAttachmentBodyRef
                             .builder().versionToken(VERSION_TOKEN).key(KEY).build())
                         .contentType("application/pdf")
                         .digests(
                             NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                        .build())
+                        .build())*/
                     .creditorTaxId("12345678901").noticeCode("123456789012345678")
                     .pagoPaForm(NotificationPaymentAttachment.builder()
                         .digests(

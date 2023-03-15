@@ -19,6 +19,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
@@ -144,6 +145,7 @@ class NotificationAttachmentServiceTest {
   }
 
   @Test
+  @Disabled("Removed F24 payment attachment")
   void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24() {
     // Given
     String cxType = "PA";
@@ -180,6 +182,7 @@ class NotificationAttachmentServiceTest {
   }
 
   @Test
+  @Disabled("Removed F24 payment")
   void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24FlatNotNull() {
     // Given
     String cxType = "PA";
@@ -210,8 +213,8 @@ class NotificationAttachmentServiceTest {
     // Then
     NotificationRecipient notificationRecipient = notification.getRecipients().get(0);
 
-    Mockito.verify(pnSafeStorageClient)
-        .getFile(notificationRecipient.getPayment().getF24flatRate().getRef().getKey(), false);
+    //Mockito.verify(pnSafeStorageClient)
+    //    .getFile(notificationRecipient.getPayment().getF24flatRate().getRef().getKey(), false);
 
     assertNotNull(result);
     assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
@@ -222,6 +225,7 @@ class NotificationAttachmentServiceTest {
   }
 
   @Test
+  @Disabled("Removed F24 payment attachment")
   void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24StandardNotNull() {
     // Given
     String cxType = "PA";
@@ -251,8 +255,8 @@ class NotificationAttachmentServiceTest {
     // Then
     NotificationRecipient notificationRecipient = notification.getRecipients().get(0);
 
-    Mockito.verify(pnSafeStorageClient)
-        .getFile(notificationRecipient.getPayment().getF24standard().getRef().getKey(), false);
+    //Mockito.verify(pnSafeStorageClient)
+    //    .getFile(notificationRecipient.getPayment().getF24standard().getRef().getKey(), false);
 
 
     assertNotNull(result);
@@ -264,6 +268,7 @@ class NotificationAttachmentServiceTest {
   }
 
   @Test
+  @Disabled("Removed F24 payment attachment")
   void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24FLAT() {
     // Given
     String cxType = "PA";
@@ -300,6 +305,7 @@ class NotificationAttachmentServiceTest {
   }
 
   @Test
+  @Disabled("Removed F24 payment")
   void downloadDocumentWithRedirectByIunAndRecIdxAttachNameF24STANDARD() {
     // Given
     String cxType = "PA";
@@ -502,6 +508,7 @@ class NotificationAttachmentServiceTest {
   }
 
   @Test
+  @Disabled("Removed F24 payment attachment")
   void downloadAttachmentWithRedirectByIunAndAttachmentNameFailure() {
     // Given
     String cxType = "PF";
@@ -524,7 +531,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     assertThrows(PnNotFoundException.class, () -> attachmentService
-        .downloadAttachmentWithRedirect(IUN, internalAuthHeader, null, 0, F_24, false));
+        .downloadAttachmentWithRedirect(IUN, internalAuthHeader, null, 0, PAGOPA, false));
 
     Mockito.verify(notificationViewedProducer, Mockito.times(0))
         .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
@@ -705,7 +712,7 @@ class NotificationAttachmentServiceTest {
 
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
-    Assertions.assertThrows(IllegalArgumentException.class, todo);
+    Assertions.assertThrows(PnNotFoundException.class, todo);
   }
 
   @Test
@@ -759,21 +766,21 @@ class NotificationAttachmentServiceTest {
     notificationAttachmentBodyRef.setKey("filekey");
     notificationPaymentAttachment.setRef(notificationAttachmentBodyRef);
 
-    NotificationPaymentAttachment notificationPaymentAttachmentF24Flat =
-        NotificationPaymentAttachment.builder()
-            .ref(NotificationAttachmentBodyRef.builder().key("filekeyf24Flat").build()).build();
+    //NotificationPaymentAttachment notificationPaymentAttachmentF24Flat =
+        //NotificationPaymentAttachment.builder()
+            //.ref(NotificationAttachmentBodyRef.builder().key("filekeyf24Flat").build()).build();
 
-    NotificationPaymentAttachment notificationPaymentAttachmentF24Standard =
-        NotificationPaymentAttachment.builder()
-            .ref(NotificationAttachmentBodyRef.builder().key("filekeyf24FStandard").build())
-            .build();
+    //NotificationPaymentAttachment notificationPaymentAttachmentF24Standard =
+        //NotificationPaymentAttachment.builder()
+            //.ref(NotificationAttachmentBodyRef.builder().key("filekeyf24FStandard").build())
+            //.build();
 
     if (channel.equals(PAGOPA))
       notificationPaymentInfo.setPagoPaForm(notificationPaymentAttachment);
-    else if (channel.equals(F_24) || channel.equals(F_24_STANDARD))
-      notificationPaymentInfo.setF24standard(notificationPaymentAttachmentF24Standard);
-    else if (channel.equals(F_24_FLAT))
-      notificationPaymentInfo.setF24flatRate(notificationPaymentAttachmentF24Flat);
+    //else if (channel.equals(F_24) || channel.equals(F_24_STANDARD))
+      //notificationPaymentInfo.setF24standard(notificationPaymentAttachmentF24Standard);
+    //else if (channel.equals(F_24_FLAT))
+      //notificationPaymentInfo.setF24flatRate(notificationPaymentAttachmentF24Flat);
 
     notificationRecipient.setPayment(notificationPaymentInfo);
     notification.addRecipientsItem(notificationRecipient);
