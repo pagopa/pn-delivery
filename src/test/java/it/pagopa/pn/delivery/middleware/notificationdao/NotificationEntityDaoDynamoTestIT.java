@@ -48,7 +48,7 @@ class NotificationEntityDaoDynamoTestIT {
     @Test
     void putSuccess() throws PnIdConflictException {
         //Given
-        NotificationEntity notificationToInsert = newNotification();
+        NotificationEntity notificationToInsert = newNotificationEntity();
 
         String controlIdempotenceToken = getControlIdempotenceToken( notificationToInsert );
 
@@ -140,7 +140,7 @@ class NotificationEntityDaoDynamoTestIT {
 
 
 
-    private NotificationEntity newNotification() {
+    private NotificationEntity newNotificationEntity() {
         NotificationRecipientEntity notificationRecipientEntity = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
                 .recipientId("recipientTaxId")

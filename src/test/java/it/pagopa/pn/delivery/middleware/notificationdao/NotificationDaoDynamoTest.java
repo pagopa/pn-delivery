@@ -159,10 +159,10 @@ class NotificationDaoDynamoTest {
 
 
     @Test
-    void insertSuccessWithPaymentsFlat() throws PnIdConflictException {
+    void insertSuccessWithPayments() throws PnIdConflictException {
 
         // GIVEN
-        InternalNotification notification = newNotificationWithPaymentsFlat( );
+        InternalNotification notification = newNotification( );
 
         // WHEN
         ModelMapper addMapper = new ModelMapper();
@@ -486,21 +486,53 @@ class NotificationDaoDynamoTest {
                 .build();
     }*/
 
-    /*private Notification newNotificationWithPaymentsIuvOnly() {
-        return newNotificationWithoutPayments().toBuilder()
-                .payment( NotificationPaymentInfo.builder()
-                        .iuv( "IUV_01" )
-                        .build()
-                )
-                .build();
-    }*/
-
-    private InternalNotification newNotificationWithPaymentsFlat( ) {
-        InternalNotification notification =  newNotificationWithoutPayments();
-        for (NotificationRecipient recipient : notification.getRecipients() ) {
-            recipient.payment( NotificationPaymentInfo.builder().build() );
-        }
-        return notification;
+    private InternalNotification newNotification() {
+        return new InternalNotification(FullSentNotification.builder()
+                .iun("IUN_01")
+                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
+                .paProtocolNumber("protocol_01")
+                .subject("Subject 01")
+                .cancelledByIun("IUN_05")
+                .cancelledIun("IUN_00")
+                .senderPaId("pa_02")
+                .notificationStatus(NotificationStatus.ACCEPTED)
+                .sentAt( OffsetDateTime.parse( "2023-03-16T12:30:23.123Z" ) )
+                .recipients(Collections.singletonList(
+                        NotificationRecipient.builder()
+                                .internalId( "recipientInternalId" )
+                                .payment( NotificationPaymentInfo.builder()
+                                        .noticeCode( "noticeCode" )
+                                        .noticeCodeAlternative( "noticeCodeAlternative" )
+                                        .pagoPaForm( null )
+                                        .build() )
+                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                                .build()
+                ))
+                .documents(Arrays.asList(
+                        NotificationDocument.builder()
+                                .ref(NotificationAttachmentBodyRef.builder()
+                                        .key("doc00")
+                                        .versionToken("v01_doc00")
+                                        .build()
+                                )
+                                .digests(NotificationAttachmentDigests.builder()
+                                        .sha256("sha256_doc00")
+                                        .build()
+                                )
+                                .build(),
+                        NotificationDocument.builder()
+                                .ref(NotificationAttachmentBodyRef.builder()
+                                        .key("doc01")
+                                        .versionToken("v01_doc01")
+                                        .build()
+                                )
+                                .digests(NotificationAttachmentDigests.builder()
+                                        .sha256("sha256_doc01")
+                                        .build()
+                                )
+                                .build()
+                ))
+                .build(), Collections.singletonList("recipientId"), X_PAGOPA_PN_SRC_CH);
     }
-
 }
