@@ -4,8 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -45,8 +43,7 @@ public class EntityToDtoNotificationMapper {
                 .physicalCommunicationType( entity.getPhysicalCommunicationType() )
                 .group( entity.getGroup() )
                 .senderPaId( entity.getSenderPaId() )
-                .recipients( entity.getVersion() == 1?
-                        entity2RecipientsDto( entity.getRecipients() ) : entity2RecipientsDtoV0( entity.getRecipients() ) )
+                .recipients( entity2RecipientsDto( entity.getRecipients() ) )
                 .documents( buildDocumentsList( entity ) )
                 .amount(entity.getAmount())
                 .paymentExpirationDate(entity.getPaymentExpirationDate())
@@ -100,17 +97,6 @@ public class EntityToDtoNotificationMapper {
                     .build();
         }
         return paymentAttachment;
-    }
-
-    private List<NotificationRecipient> entity2RecipientsDtoV0(List<NotificationRecipientEntity> recipients) {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        mapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
-                .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setInternalId );
-
-        return recipients.stream()
-                .map( r -> mapper.map(r, NotificationRecipient.class))
-                .toList();
     }
 
     private List<NotificationDocument> buildDocumentsList(NotificationEntity entity ) {
