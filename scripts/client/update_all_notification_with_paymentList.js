@@ -1,10 +1,14 @@
 const AWS = require('aws-sdk');
-AWS.config.update({profile: 'default', region: 'us-east-1', endpoint: 'http://localhost:4566'});
+var credentials = new AWS.SharedIniFileCredentials({profile: 'default'});
+AWS.config.credentials = credentials;
+AWS.config.update({region: 'us-east-1', endpoint: 'http://localhost:4566'});
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
+TABLE_NAME = 'pn-Notifications'
+
 const params = {
-    TableName: 'Notifications'
+    TableName: TABLE_NAME
 };
 
 docClient.scan(params, (err, data) => {
@@ -25,7 +29,7 @@ docClient.scan(params, (err, data) => {
                         console.log("Payment List: ", JSON.stringify(paymentList, null, 2));
                         const updateExpression = "SET #rec[" + recipientIdx + "].#payList = :paymentList REMOVE #rec[" + recipientIdx + "].#pay"
                         const updateParams = {
-                            TableName: 'Notifications',
+                            TableName: TABLE_NAME,
                             Key: {
                                 "iun": key
                             },
