@@ -325,7 +325,7 @@ components:
       required: true
       schema:
         type: string
-        pattern: "PAGOPA|F24"
+        pattern: "PAGOPA"
         # quella sottostante è quella corretta. Riscritta per problemi con tool usato
         #    oneOf:
         #      - type: number

@@ -396,7 +396,7 @@ components:
       required: true
       schema:
         type: string
-        pattern: "PAGOPA|F24"
+        pattern: "PAGOPA"
     queryMandateId:
       name: mandateId
       in: query

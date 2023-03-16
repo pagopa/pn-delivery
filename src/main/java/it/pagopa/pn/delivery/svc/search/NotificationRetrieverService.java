@@ -718,8 +718,6 @@ public class NotificationRetrieverService {
 			NotificationPaymentInfo payment = recipient.getPayment();
 			if ( payment != null ) {
 				payment.setPagoPaForm( null );
-				payment.setF24flatRate( null );
-				payment.setF24standard( null );
 			}
 		}
 	}
