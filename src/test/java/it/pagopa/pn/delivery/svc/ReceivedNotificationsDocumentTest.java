@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -32,7 +33,7 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.rest.PnReceivedNotificationsController;
 import it.pagopa.pn.delivery.rest.PnSentNotificationsController;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
@@ -65,8 +66,8 @@ class ReceivedNotificationsDocumentTest {
 	@MockBean
 	private PnDeliveryConfigs cfg;
 
-	@MockBean
-	private ModelMapperFactory modelMapperFactory;
+	@SpyBean
+	private ModelMapper modelMapper;
 
 	private NotificationEntityDao entityDao;
 

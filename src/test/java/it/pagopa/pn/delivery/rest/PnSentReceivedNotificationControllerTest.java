@@ -1,22 +1,21 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
-import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
+import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,12 +23,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,8 +83,8 @@ class PnSentReceivedNotificationControllerTest {
 	@MockBean
 	private PnDeliveryConfigs cfg;
 
-	@MockBean
-	private ModelMapperFactory modelMapperFactory;
+	@SpyBean
+	private ModelMapper modelMapper;
 
 	@Test
 	void getSentNotificationSuccess() {
@@ -92,10 +92,6 @@ class PnSentReceivedNotificationControllerTest {
 		InternalNotification notification = newNotification();
 		
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
-
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 				
 		// Then		
@@ -122,10 +118,6 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatus( NotificationStatus.IN_VALIDATION );
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
-
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 
 		// Then
@@ -152,10 +144,6 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatus( NotificationStatus.REFUSED );
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, FullSentNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class ) ).thenReturn( mapper );
-
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 
 		// Then
@@ -182,10 +170,6 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatusHistory( null );
 
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
-
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class ) ).thenReturn( mapper );
 
 		webTestClient.get()
 				.uri(uriBuilder ->
@@ -221,10 +205,6 @@ class PnSentReceivedNotificationControllerTest {
 
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class ) ).thenReturn( mapper );
-
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
@@ -249,10 +229,6 @@ class PnSentReceivedNotificationControllerTest {
 		InternalNotification notification = newNotification();
 
 		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
-
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class ) ).thenReturn( mapper );
 
 		webTestClient.get()
 				.uri(uriBuilder ->
@@ -312,10 +288,6 @@ class PnSentReceivedNotificationControllerTest {
 
 		Mockito.when( svc.getNotificationInformation( anyString(), anyString(), anyString() ) ).thenReturn( notification );
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, NewNotificationRequestStatusResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, NewNotificationRequestStatusResponse.class ) ).thenReturn( mapper );
-
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
@@ -342,10 +314,6 @@ class PnSentReceivedNotificationControllerTest {
 		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID, List.of("asdasd"));
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
-
 		Mockito.when(svc.getNotificationAndNotifyViewedEvent(Mockito.anyString(), Mockito.any(InternalAuthHeader.class), eq(null)))
 				.thenReturn( notification );
 
@@ -370,10 +338,6 @@ class PnSentReceivedNotificationControllerTest {
 	void getReceivedNotificationFailure() {
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
-
 		Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null )) )
 				.thenThrow(new PnNotificationNotFoundException("test"));
 
@@ -398,10 +362,6 @@ class PnSentReceivedNotificationControllerTest {
 		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID, List.of("asdasd"));
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( InternalNotification.class, FullReceivedNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, FullReceivedNotification.class ) ).thenReturn( mapper );
-
 		Mockito.when(svc.getNotificationAndNotifyViewedEvent(anyString(), any(InternalAuthHeader.class), anyString()))
 				.thenReturn(notification);
 
@@ -857,10 +817,6 @@ class PnSentReceivedNotificationControllerTest {
 				.when(svc)
 				.searchNotification(any(InputSearchNotificationDto.class), any(), any());
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
-
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
@@ -885,10 +841,6 @@ class PnSentReceivedNotificationControllerTest {
 				.when(svc)
 				.searchNotification(any(InputSearchNotificationDto.class), any(), any());
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
-
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
@@ -912,10 +864,6 @@ class PnSentReceivedNotificationControllerTest {
 		Mockito.doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
 				.when(svc)
 				.searchNotification(any(InputSearchNotificationDto.class), any(), any());
-
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
 
 		webTestClient.get()
 				.uri(uriBuilder ->
@@ -1088,10 +1036,6 @@ class PnSentReceivedNotificationControllerTest {
 				.when(svc)
 				.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class));
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
-
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
@@ -1117,10 +1061,6 @@ class PnSentReceivedNotificationControllerTest {
 		Mockito.doThrow(new PnValidationException("Simulated Error", Collections.emptySet()))
 				.when(svc)
 				.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class));
-
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-		Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
 
 		webTestClient.get()
 				.uri(uriBuilder ->

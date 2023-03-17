@@ -6,8 +6,8 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.DocumentAttachm
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneOffset;
@@ -17,7 +17,10 @@ import java.util.List;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_PHYSICALCOMMUNICATIONTYPE;
 
 @Component
+@RequiredArgsConstructor
 public class EntityToDtoNotificationMapper {
+
+    private final ModelMapper modelMapper;
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
     	if ( entity.getPhysicalCommunicationType() == null ) {
@@ -55,13 +58,8 @@ public class EntityToDtoNotificationMapper {
     }
 
     private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        mapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
-                .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setInternalId );
-
         return recipients.stream()
-                .map( r -> mapper.map(r, NotificationRecipient.class))
+                .map( r -> modelMapper.map(r, NotificationRecipient.class))
                 .toList();
     }
 
