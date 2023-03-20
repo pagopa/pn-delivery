@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 6DAVDv1VjNNTGiKwi04C1eOmrG4z7VL2eujq7PLhVXw=
+  version: ZcyNntakumjBlG/9pZvbFDhI2y/XzKHhr05Hm4AJTJ8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -685,19 +685,15 @@ components:
         per rettifiche.
       schema:
         type: string
-        pattern: ^[ -~]*$
-        maxLength: 256
     idempotenceToken:
       name: idempotenceToken
       description: >-
-        token usato per disambiguare "richieste di notificazione" effettuate con
+        token usato per disambiguare "richieste di notificazione" effetuate con
         lo stesso  numero di protocollo. 
       in: query
       required: false
       schema:
         type: string
-        pattern: ^[ -~]*$
-        maxLength: 256
     pathDocumentIdx:
       name: docIdx
       description: indice del documento nella lista partendo da 0.
@@ -721,8 +717,6 @@ components:
       required: true
       schema:
         type: string
-        minLength: 6
-        maxLength: 12
         pattern: PAGOPA|F24_FLAT|F24_STANDARD
     pathLegalFactType:
       description: Categoria dell'atto opponbile a terzi
@@ -745,9 +739,6 @@ components:
       required: true
       schema:
         type: string
-        minLength: 25
-        maxLength: 25
-        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
   schemas:
     PnStatusResponse:
       title: Stato attuale di PN
@@ -804,12 +795,8 @@ components:
           title: Id della richiesta di precaricamento di un file
           description: >-
             Identificativo univoco all'interno della request HTTP, serve per
-            correlare la risposta. Stringa alfanumerica con caratteri
-            utilizzabili in un nome file.
+            correlare la risposta. 
           type: string
-          minLength: 1
-          maxLength: 512
-          pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
@@ -817,9 +804,7 @@ components:
             supportato solo
               - application/pdf
           type: string
-          minLength: 25
-          maxLength: 25
-          pattern: ^application\/pdf
+          example: application/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -827,9 +812,6 @@ components:
             file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
-          minLength: 43
-          maxLength: 44
-          pattern: ^[A-Za-z0-9+/]{43}=|[A-Za-z0-9+/]{44}$
     PreLoadResponse:
       title: Informazioni per il caricamento file
       description: >-
@@ -838,13 +820,8 @@ components:
       type: object
       properties:
         preloadIdx:
-          description: >-
-            per correlazione con la richiesta. Stringa alfanumerica con
-            caratteri utilizzabili in un file.
+          description: per correlazione con la richiesta
           type: string
-          minLength: 1
-          maxLength: 512
-          pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
           description: >-
             Token aggiuntivo per far si che sia necessario intercettare anche
@@ -903,16 +880,14 @@ components:
           description: >-
             identificativo univoco di una richiesta di invio notifica, non è lo
             IUN
-          maxLength: 36
-          pattern: ^[A-Za-z0-9+/=]{36}$
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
         idempotenceToken:
           description: >-
             Ripetizione del token usato per disambiguare "richieste di
-            notificazione"  effettuate con lo stesso numero di protocollo (campo
-            _paProtocolNumber_).
+            notificazione"  effetuate con lo stesso numero di protocollo (campo
+            _paProtocolNumber_). 
           type: string
     NewNotificationRequestStatusResponse:
       allOf:
@@ -1109,9 +1084,6 @@ components:
       properties:
         iun:
           type: string
-          minLength: 25
-          maxLength: 25
-          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         paymentDate:
           type: string
           format: date-time
@@ -1119,8 +1091,6 @@ components:
           $ref: '#/components/schemas/TaxId'
         recipientType:
           type: string
-          minLength: 2
-          maxLength: 2
           pattern: PF|PG
         amount:
           type: number
@@ -1642,7 +1612,7 @@ components:
     SenderAckCreationRequestDetails:
       type: object
       properties:
-        legalfactId:
+        legalFactId:
           type: string
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
@@ -2473,6 +2443,22 @@ x-amazon-apigateway-gateway-responses:
   DEFAULT_4XX:
     responseParameters:
       gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+  BAD_REQUEST_PARAMETERS:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: >-
+        {"status": 400, "title": "VALIDATION ERROR", "traceId":
+        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_PARAMETERS",
+        "detail": "Validation errors: $context.error.validationErrorString" } ]}
+  BAD_REQUEST_BODY:
+    responseParameters:
+      gatewayresponse.header.Access-Control-Allow-Origin: '''*'''
+    responseTemplates:
+      application/json: >-
+        {"status": 400, "title": "VALIDATION ERROR", "traceId":
+        "$context.xrayTraceId", "errors": [ { "code": "PN_INVALID_BODY",
+        "detail": "Validation errors: $context.error.validationErrorString" } ]}
 x-amazon-apigateway-request-validators:
   basic:
     validateRequestBody: true

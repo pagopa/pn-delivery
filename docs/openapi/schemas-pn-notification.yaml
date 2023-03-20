@@ -267,8 +267,6 @@ components:
          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
-         - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
-         - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
       type: object
       required:
         - noticeCode
@@ -282,24 +280,6 @@ components:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         pagoPaForm:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
-        f24flatRate:
-          $ref: "#/components/schemas/NotificationPaymentAttachment"
-        f24standard:
-          $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digital:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digitalWithRs:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24digitalWithRi:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRaccSingle:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRaccDouble:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRiSingle:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
-        #f24analogRiDouble:
-        #  $ref: "#/components/schemas/NotificationPaymentAttachment"
 
 
     ############################################################################################

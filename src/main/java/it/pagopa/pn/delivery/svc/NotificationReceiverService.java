@@ -9,7 +9,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResp
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ public class NotificationReceiverService {
 	private final Clock clock;
 	private final NotificationDao notificationDao;
 	private final NotificationReceiverValidator validator;
-	private final ModelMapperFactory modelMapperFactory;
+	private final ModelMapper modelMapper;
 
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 
@@ -45,12 +44,12 @@ public class NotificationReceiverService {
 			Clock clock,
 			NotificationDao notificationDao,
 			NotificationReceiverValidator validator,
-			ModelMapperFactory modelMapperFactory,
+			ModelMapper modelMapper,
 			PnExternalRegistriesClientImpl pnExternalRegistriesClient) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
-		this.modelMapperFactory = modelMapperFactory;
+		this.modelMapper = modelMapper;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 	}
 
@@ -79,7 +78,6 @@ public class NotificationReceiverService {
 		String notificationGroup = newNotificationRequest.getGroup();
 		checkGroup(xPagopaPnCxId, notificationGroup, xPagopaPnCxGroups);
 
-		ModelMapper modelMapper = modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class );
 		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
 
 		internalNotification.setSenderPaId( xPagopaPnCxId );

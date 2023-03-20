@@ -2,8 +2,8 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
@@ -13,7 +13,7 @@ import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.ModelMapperConfig;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
@@ -34,7 +33,7 @@ class NotificationDaoDynamoTest {
 
     private NotificationDaoDynamo dao;
     private EntityToDtoNotificationMapper entity2dto;
-    private ModelMapperFactory modelMapperFactory;
+    private ModelMapper modelMapper;
     private PnDataVaultClientImpl pnDataVaultClient;
     private NotificationEntityDao entityDao;
     private NotificationMetadataEntityDao metadataEntityDao;
@@ -57,8 +56,10 @@ class NotificationDaoDynamoTest {
 
     @BeforeEach
     void setup() {
-        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper();
-        entity2dto = new EntityToDtoNotificationMapper();
+        ModelMapperConfig modelMapperConfig = new ModelMapperConfig();
+        this.modelMapper = modelMapperConfig.modelMapper();
+        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(modelMapper);
+        entity2dto = new EntityToDtoNotificationMapper(modelMapper);
         entityDao = new EntityDaoMock();
         metadataEntityDao = new MetadataEntityDaoMock();
         NotificationDelegationMetadataEntityDao delegationMetadataEntityDao = new DelegationMetadataEntityDaoMock();
@@ -73,15 +74,6 @@ class NotificationDaoDynamoTest {
         InternalNotification notification = newNotificationWithoutPayments( );
 
         // WHEN
-        ModelMapper addMapper = new ModelMapper();
-        addMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
-                .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
-        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
-
-        ModelMapper getMapper = new ModelMapper();
-        getMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class );
-        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class ) ).thenReturn( getMapper );
         Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 
@@ -143,12 +135,6 @@ class NotificationDaoDynamoTest {
         InternalNotification notification = newNotificationWithoutPayments( );
 
         // WHEN
-        ModelMapper addMapper = new ModelMapper();
-        addMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
-                        .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
-
-
         Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
         Executable todo = () -> this.dao.addNotification( newNotificationWithoutPayments() );
@@ -165,16 +151,6 @@ class NotificationDaoDynamoTest {
         InternalNotification notification = newNotificationWithPaymentsFlat( );
 
         // WHEN
-        ModelMapper addMapper = new ModelMapper();
-        addMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        addMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
-                .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
-
-        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipient.class, NotificationRecipientEntity.class ) ).thenReturn( addMapper );
-
-        ModelMapper getMapper = new ModelMapper();
-        getMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class );
-        //Mockito.when( modelMapperFactory.createModelMapper( NotificationRecipientEntity.class, NotificationRecipient.class ) ).thenReturn( getMapper );
         Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 
@@ -498,19 +474,7 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotificationWithPaymentsFlat( ) {
         InternalNotification notification =  newNotificationWithoutPayments();
         for (NotificationRecipient recipient : notification.getRecipients() ) {
-            recipient.payment( NotificationPaymentInfo.builder()
-                    .f24flatRate( NotificationPaymentAttachment.builder()
-                            .ref( NotificationAttachmentBodyRef.builder()
-                                    .key( KEY )
-                                    .versionToken( VERSION_TOKEN )
-                                    .build() )
-                            .digests( NotificationAttachmentDigests.builder()
-                                    .sha256( SHA256_BODY )
-                                    .build() )
-                            .contentType( "application/pdf" )
-                            .build()
-                    )
-                    .build() );
+            recipient.payment( NotificationPaymentInfo.builder().build() );
         }
         return notification;
     }

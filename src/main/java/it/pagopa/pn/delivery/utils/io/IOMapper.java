@@ -4,10 +4,7 @@ import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.IOReceivedNotificati
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchResponse;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -23,7 +20,7 @@ public class IOMapper {
 
     private static final String URL_ATTACHMENT = "/delivery/notifications/sent/{iun}/attachments/documents/{indexDocument}";
 
-    private final ModelMapperFactory modelMapperFactory;
+    private final ModelMapper modelMapper;
 
     public ThirdPartyMessage mapToThirdPartMessage(InternalNotification internalNotification) {
         if(internalNotification == null) return null;
@@ -41,8 +38,7 @@ public class IOMapper {
     public IOReceivedNotification mapToDetails(InternalNotification internalNotification) {
         if(internalNotification == null) return null;
 
-        ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
-        return mapper.map( internalNotification, IOReceivedNotification.class );
+        return modelMapper.map( internalNotification, IOReceivedNotification.class );
     }
 
     public List<ThirdPartyAttachment> mapToThirdPartyAttachment(List<NotificationDocument> documents, String iun) {

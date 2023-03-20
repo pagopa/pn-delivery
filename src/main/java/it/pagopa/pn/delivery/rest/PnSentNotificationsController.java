@@ -15,7 +15,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -39,12 +38,12 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     private final NotificationRetrieverService retrieveSvc;
     private final NotificationAttachmentService notificationAttachmentService;
-    private final ModelMapperFactory modelMapperFactory;
+    private final ModelMapper modelMapper;
 
-    public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
+    public PnSentNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
         this.notificationAttachmentService = notificationAttachmentService;
-        this.modelMapperFactory = modelMapperFactory;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -61,8 +60,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             logEvent.generateFailure("Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus()).log();
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
-        ModelMapper mapper = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
-        FullSentNotification result = mapper.map( internalNotification, FullSentNotification.class );
+        FullSentNotification result = modelMapper.map( internalNotification, FullSentNotification.class );
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
@@ -95,8 +93,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
-            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
-            response = mapper.map( serviceResult, NotificationSearchResponse.class );
+            response = modelMapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
@@ -138,12 +135,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             }
             internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken);
         }
-
-        ModelMapper mapper = modelMapperFactory.createModelMapper(
-                InternalNotification.class,
-                NewNotificationRequestStatusResponse.class
-        );
-        NewNotificationRequestStatusResponse response = mapper.map(
+        NewNotificationRequestStatusResponse response = modelMapper.map(
                 internalNotification,
                 NewNotificationRequestStatusResponse.class
         );

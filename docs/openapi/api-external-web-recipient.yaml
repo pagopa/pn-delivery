@@ -278,7 +278,7 @@ paths:
       security:                                                                           # ONLY EXTERNAL
         - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
       parameters:                                                                         # ONLY EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'    # ONLY EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                               # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                                 # ONLY EXTERNAL
       responses:                                                                          # ONLY EXTERNAL
@@ -325,9 +325,7 @@ components:
       required: true
       schema:
         type: string
-        minLength: 3
-        maxLength: 6
-        pattern: "PAGOPA|F24"
+        pattern: "PAGOPA"
         # quella sottostante è quella corretta. Riscritta per problemi con tool usato
         #    oneOf:
         #      - type: number
@@ -341,9 +339,6 @@ components:
       required: false
       schema:
         type: string
-        format: uuid
-        #minLength: 36
-        #maxLength: 36
 
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
@@ -374,7 +369,7 @@ components:
               $ref: '#/components/schemas/NotificationStatusHistory'
             timeline:
               description: >-
-                elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'

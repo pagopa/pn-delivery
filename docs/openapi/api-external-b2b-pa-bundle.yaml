@@ -452,17 +452,13 @@ components:
       description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
       schema:
         type: string
-        pattern: ^[ -~]*$
-        maxLength: 256
     idempotenceToken:
       name: idempotenceToken
-      description: 'token usato per disambiguare "richieste di notificazione" effettuate con lo stesso  numero di protocollo. '
+      description: 'token usato per disambiguare "richieste di notificazione" effetuate con lo stesso  numero di protocollo. '
       in: query
       required: false
       schema:
         type: string
-        pattern: ^[ -~]*$
-        maxLength: 256
     pathDocumentIdx:
       name: docIdx
       description: indice del documento nella lista partendo da 0.
@@ -481,14 +477,12 @@ components:
         format: int32
     pathAttachmentName:
       name: attachmentName
-      description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24_FLAT|F24_STANDARD
+      description: Tipologia del pagamento allegato alla notifica.
       in: path
       required: true
       schema:
         type: string
-        minLength: 6
-        maxLength: 12
-        pattern: PAGOPA|F24_FLAT|F24_STANDARD
+        pattern: PAGOPA
     pathLegalFactType:
       description: Categoria dell'atto opponbile a terzi
       name: legalFactType
@@ -510,9 +504,6 @@ components:
       required: true
       schema:
         type: string
-        minLength: 25
-        maxLength: 25
-        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
   schemas:
     PnStatusResponse:
       title: Stato attuale di PN
@@ -562,39 +553,28 @@ components:
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
-          description: Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. Stringa alfanumerica con caratteri utilizzabili in un nome file.
+          description: 'Identificativo univoco all''interno della request HTTP, serve per correlare la risposta. '
           type: string
-          minLength: 1
-          maxLength: 512
-          pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
           description: |-
             Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
               - application/pdf
           type: string
-          minLength: 25
-          maxLength: 25
-          pattern: ^application\/pdf
+          example: application/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
-          minLength: 43
-          maxLength: 44
-          pattern: ^[A-Za-z0-9+/]{43}=|[A-Za-z0-9+/]{44}$
     PreLoadResponse:
       title: Informazioni per il caricamento file
       description: Per ogni richiesta che è stata fatta viene fornito un presigned URL e le  informazioni per usarlo.
       type: object
       properties:
         preloadIdx:
-          description: per correlazione con la richiesta. Stringa alfanumerica con caratteri utilizzabili in un file.
+          description: per correlazione con la richiesta
           type: string
-          minLength: 1
-          maxLength: 512
-          pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
           description: Token aggiuntivo per far si che sia necessario intercettare anche gli  header e non solo l'URL di upload del contenuto del documento.
           example: AZ23RF12
@@ -644,13 +624,11 @@ components:
         notificationRequestId:
           type: string
           description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
-          maxLength: 36
-          pattern: ^[A-Za-z0-9+/=]{36}$
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
         idempotenceToken:
-          description: Ripetizione del token usato per disambiguare "richieste di notificazione"  effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
+          description: 'Ripetizione del token usato per disambiguare "richieste di notificazione"  effetuate con lo stesso numero di protocollo (campo _paProtocolNumber_). '
           type: string
     NewNotificationRequestStatusResponse:
       allOf:
@@ -823,9 +801,6 @@ components:
       properties:
         iun:
           type: string
-          minLength: 25
-          maxLength: 25
-          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         paymentDate:
           type: string
           format: date-time
@@ -833,8 +808,6 @@ components:
           $ref: '#/components/schemas/TaxId'
         recipientType:
           type: string
-          minLength: 2
-          maxLength: 2
           pattern: PF|PG
         amount:
           type: integer
@@ -1101,8 +1074,6 @@ components:
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
-          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
-          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
       type: object
       required:
         - noticeCode
@@ -1115,10 +1086,6 @@ components:
         noticeCodeAlternative:
           $ref: '#/components/schemas/noticeCode'
         pagoPaForm:
-          $ref: '#/components/schemas/NotificationPaymentAttachment'
-        f24flatRate:
-          $ref: '#/components/schemas/NotificationPaymentAttachment'
-        f24standard:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
     NotificationRecipient:
       description: Informazioni sui destinatari
@@ -1383,7 +1350,7 @@ components:
     SenderAckCreationRequestDetails:
       type: object
       properties:
-        legalfactId:
+        legalFactId:
           type: string
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
     NotificationRequestAcceptedDetails:
