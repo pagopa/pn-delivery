@@ -29,7 +29,6 @@ class IOMapperTest {
     private IOMapper ioMapper;
 
 
-
     @Test
     void mapToThirdPartyMessage() {
         int indexDocument = 0;
