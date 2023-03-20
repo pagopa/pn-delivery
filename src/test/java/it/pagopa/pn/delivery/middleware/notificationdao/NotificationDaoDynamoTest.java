@@ -13,14 +13,12 @@ import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
-import it.pagopa.pn.delivery.utils.ModelMapperConfig;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
-import org.modelmapper.ModelMapper;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
@@ -33,7 +31,6 @@ class NotificationDaoDynamoTest {
 
     private NotificationDaoDynamo dao;
     private EntityToDtoNotificationMapper entity2dto;
-    private ModelMapper modelMapper;
     private PnDataVaultClientImpl pnDataVaultClient;
     private NotificationEntityDao entityDao;
     private NotificationMetadataEntityDao metadataEntityDao;
@@ -56,10 +53,8 @@ class NotificationDaoDynamoTest {
 
     @BeforeEach
     void setup() {
-        ModelMapperConfig modelMapperConfig = new ModelMapperConfig();
-        this.modelMapper = modelMapperConfig.modelMapper();
-        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(modelMapper);
-        entity2dto = new EntityToDtoNotificationMapper(modelMapper);
+        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper();
+        entity2dto = new EntityToDtoNotificationMapper();
         entityDao = new EntityDaoMock();
         metadataEntityDao = new MetadataEntityDaoMock();
         NotificationDelegationMetadataEntityDao delegationMetadataEntityDao = new DelegationMetadataEntityDaoMock();
