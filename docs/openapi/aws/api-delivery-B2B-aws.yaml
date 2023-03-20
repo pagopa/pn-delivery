@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZcyNntakumjBlG/9pZvbFDhI2y/XzKHhr05Hm4AJTJ8=
+  version: 9IhVG+DuvR3VJfbmyPnd0yFMZHVH+qTo1ybyt1OMxvc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -685,15 +685,19 @@ components:
         per rettifiche.
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 256
     idempotenceToken:
       name: idempotenceToken
       description: >-
-        token usato per disambiguare "richieste di notificazione" effetuate con
+        token usato per disambiguare "richieste di notificazione" effettuate con
         lo stesso  numero di protocollo. 
       in: query
       required: false
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 256
     pathDocumentIdx:
       name: docIdx
       description: indice del documento nella lista partendo da 0.
@@ -717,6 +721,8 @@ components:
       required: true
       schema:
         type: string
+        minLength: 6
+        maxLength: 12
         pattern: PAGOPA|F24_FLAT|F24_STANDARD
     pathLegalFactType:
       description: Categoria dell'atto opponbile a terzi
@@ -739,6 +745,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
   schemas:
     PnStatusResponse:
       title: Stato attuale di PN
@@ -795,8 +804,12 @@ components:
           title: Id della richiesta di precaricamento di un file
           description: >-
             Identificativo univoco all'interno della request HTTP, serve per
-            correlare la risposta. 
+            correlare la risposta. Stringa alfanumerica con caratteri
+            utilizzabili in un nome file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
@@ -804,7 +817,9 @@ components:
             supportato solo
               - application/pdf
           type: string
-          example: application/pdf
+          minLength: 25
+          maxLength: 25
+          pattern: ^application\/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -812,6 +827,9 @@ components:
             file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
+          minLength: 43
+          maxLength: 44
+          pattern: ^[A-Za-z0-9+/]{43}=|[A-Za-z0-9+/]{44}$
     PreLoadResponse:
       title: Informazioni per il caricamento file
       description: >-
@@ -820,8 +838,13 @@ components:
       type: object
       properties:
         preloadIdx:
-          description: per correlazione con la richiesta
+          description: >-
+            per correlazione con la richiesta. Stringa alfanumerica con
+            caratteri utilizzabili in un file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
           description: >-
             Token aggiuntivo per far si che sia necessario intercettare anche
@@ -880,14 +903,16 @@ components:
           description: >-
             identificativo univoco di una richiesta di invio notifica, non è lo
             IUN
+          maxLength: 36
+          pattern: ^[A-Za-z0-9+/=]{36}$
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
         idempotenceToken:
           description: >-
             Ripetizione del token usato per disambiguare "richieste di
-            notificazione"  effetuate con lo stesso numero di protocollo (campo
-            _paProtocolNumber_). 
+            notificazione"  effettuate con lo stesso numero di protocollo (campo
+            _paProtocolNumber_).
           type: string
     NewNotificationRequestStatusResponse:
       allOf:
@@ -1084,6 +1109,9 @@ components:
       properties:
         iun:
           type: string
+          minLength: 25
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         paymentDate:
           type: string
           format: date-time
@@ -1091,6 +1119,8 @@ components:
           $ref: '#/components/schemas/TaxId'
         recipientType:
           type: string
+          minLength: 2
+          maxLength: 2
           pattern: PF|PG
         amount:
           type: number
@@ -1310,8 +1340,6 @@ components:
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
-          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
-          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
       type: object
       required:
         - noticeCode
@@ -1324,10 +1352,6 @@ components:
         noticeCodeAlternative:
           $ref: '#/components/schemas/noticeCode'
         pagoPaForm:
-          $ref: '#/components/schemas/NotificationPaymentAttachment'
-        f24flatRate:
-          $ref: '#/components/schemas/NotificationPaymentAttachment'
-        f24standard:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
     NotificationRecipient:
       description: Informazioni sui destinatari
@@ -2120,6 +2144,24 @@ components:
         analogCost:
           type: number
           description: costo in eurocent dell'invio
+        numberOfPages:
+          type: number
+          description: numero delle pagina che compongono la spedizione cartacea
+        envelopeWeight:
+          type: number
+          description: peso in grammi della busta
+    AttachmentDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        documentType:
+          type: string
+        url:
+          type: string
+        date:
+          type: string
+          format: date-time
     SendAnalogFeedbackDetails:
       type: object
       required:
@@ -2147,14 +2189,14 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
-        errors:
+        deliveryFailureCause:
+          type: string
+        deliveryDetailCode:
+          type: string
+        attachments:
           type: array
-          x-pn-fieldannotations: >-
-            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
-          description: Lista errori, vuota in caso di successo
           items:
-            type: string
-            description: Lista errori, vuota in caso di successo
+            $ref: '#/components/schemas/AttachmentDetails'
     BaseRegisteredLetterDetails:
       type: object
       required:
@@ -2183,6 +2225,12 @@ components:
         analogCost:
           type: number
           description: costo in eurocent dell'invio
+        numberOfPages:
+          type: number
+          description: numero delle pagina che compongono la spedizione cartacea
+        envelopeWeight:
+          type: number
+          description: peso in grammi della busta
     AarCreationRequestDetails:
       type: object
       required:
@@ -2267,10 +2315,14 @@ components:
         notificationDate:
           type: string
           format: date-time
-        eventCode:
+        deliveryFailureCause:
           type: string
-        eventDetail:
+        deliveryDetailCode:
           type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
