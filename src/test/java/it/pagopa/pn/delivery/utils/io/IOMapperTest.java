@@ -7,12 +7,12 @@ import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import java.util.List;
 
@@ -23,11 +23,10 @@ class IOMapperTest {
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 
     @Spy
-    private ModelMapperFactory modelMapperFactory;
+    private ModelMapper modelMapper;
 
     @InjectMocks
     private IOMapper ioMapper;
-
 
 
     @Test

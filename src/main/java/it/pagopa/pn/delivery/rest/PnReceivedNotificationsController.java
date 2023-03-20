@@ -15,7 +15,6 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -33,14 +32,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     private final NotificationAttachmentService notificationAttachmentService;
     private final NotificationQRService notificationQRService;
 
-    private final ModelMapperFactory modelMapperFactory;
+    private final ModelMapper modelMapper;
 
 
-    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, NotificationQRService notificationQRService, ModelMapperFactory modelMapperFactory) {
+    public PnReceivedNotificationsController(NotificationRetrieverService retrieveSvc, NotificationAttachmentService notificationAttachmentService, NotificationQRService notificationQRService, ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
         this.notificationAttachmentService = notificationAttachmentService;
         this.notificationQRService = notificationQRService;
-        this.modelMapperFactory = modelMapperFactory;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -76,8 +75,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, xPagopaPnCxType.getValue(), xPagopaPnCxGroups);
-            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
-            response = mapper.map(serviceResult, NotificationSearchResponse.class);
+            response = modelMapper.map(serviceResult, NotificationSearchResponse.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
@@ -121,8 +119,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         NotificationSearchResponse response;
         try {
             result = retrieveSvc.searchNotificationDelegated(searchDto);
-            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class);
-            response = mapper.map(result, NotificationSearchResponse.class);
+            response = modelMapper.map(result, NotificationSearchResponse.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException e) {
             log.error("can not search received delegated notification", e);
@@ -150,10 +147,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId);
-
-            ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, FullReceivedNotification.class);
-
-            result = mapper.map(internalNotification, FullReceivedNotification.class);
+            result = modelMapper.map(internalNotification, FullReceivedNotification.class);
 
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {

@@ -5,14 +5,17 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePoli
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class DtoToEntityNotificationMapper {
+
+    private final ModelMapper modelMapper;
 
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
@@ -43,13 +46,8 @@ public class DtoToEntityNotificationMapper {
     private List<NotificationRecipientEntity> dto2RecipientsEntity(
             List<NotificationRecipient> recipients
     ) {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        mapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
-                .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
-
         return recipients.stream()
-               .map( r -> mapper.map( r, NotificationRecipientEntity.class ))
+               .map( r -> modelMapper.map( r, NotificationRecipientEntity.class ))
                .toList();
     }
 
