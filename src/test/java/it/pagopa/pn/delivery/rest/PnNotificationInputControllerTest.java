@@ -1,20 +1,19 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.delivery.utils.PreloadRequest;
-import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
+import it.pagopa.pn.delivery.utils.PreloadRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -39,8 +38,8 @@ class PnNotificationInputControllerTest {
 	@Autowired
     WebTestClient webTestClient;
 
-	@MockBean
-	ModelMapperFactory modelMapperFactory;
+	@SpyBean
+	private ModelMapper modelMapper;
 	
 	@MockBean
 	private NotificationReceiverService deliveryService;
@@ -68,11 +67,6 @@ class PnNotificationInputControllerTest {
 						Mockito.anyList())
 				).thenReturn( savedNotification );
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) )
-				.thenReturn( mapper );
-		
 		// Then
 		webTestClient.post()
                 .uri("/delivery/requests")
@@ -280,11 +274,6 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.anyList())
 				).thenReturn( savedNotification );
-
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) )
-				.thenReturn( mapper );
 
 		// Then
 		webTestClient.post()

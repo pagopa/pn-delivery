@@ -11,7 +11,6 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -62,8 +62,8 @@ class NotificationSearchControllerTest {
     @MockBean
     private PnDeliveryConfigs cfg;
 
-    @MockBean
-    private ModelMapperFactory modelMapperFactory;
+    @SpyBean
+    private ModelMapper modelMapper;
 
     @Test
     void getSenderSuccess() {
@@ -89,10 +89,6 @@ class NotificationSearchControllerTest {
         //When
         Mockito.when(svc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
-
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
 
         //Then
         webTestClient.get()
@@ -155,9 +151,8 @@ class NotificationSearchControllerTest {
         Mockito.when(svc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
                 .thenReturn(result);
 
-        ModelMapper mapper = new ModelMapper();
+        org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
         mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -216,9 +211,8 @@ class NotificationSearchControllerTest {
         Mockito.when(svc.searchNotification(any(InputSearchNotificationDto.class), eq("PF"), any()))
                 .thenReturn(result);
 
-        ModelMapper mapper = new ModelMapper();
+        org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
         mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
 
         //Then
         webTestClient.get()
@@ -281,9 +275,8 @@ class NotificationSearchControllerTest {
         Mockito.when(svc.searchNotificationDelegated(any(InputSearchNotificationDelegatedDto.class)))
                 .thenReturn(result);
 
-        ModelMapper mapper = new ModelMapper();
+        org.modelmapper.ModelMapper mapper = new org.modelmapper.ModelMapper();
         mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
 
         //Then
         webTestClient.get()

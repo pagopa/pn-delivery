@@ -15,7 +15,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import it.pagopa.pn.delivery.utils.NotificationDaoMock;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
@@ -72,7 +71,7 @@ class NotificationReceiverTest {
 	private NotificationDao notificationDao;
 	private NotificationReceiverService deliveryService;
 	private FileStorage fileStorage;
-	private ModelMapperFactory modelMapperFactory;
+	private ModelMapper modelMapper;
 	private MVPParameterConsumer mvpParameterConsumer;
 	private ValidateUtils validateUtils;
 	private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
@@ -83,7 +82,7 @@ class NotificationReceiverTest {
 
 		notificationDao = Mockito.spy( new NotificationDaoMock() );
 		fileStorage = Mockito.mock( FileStorage.class );
-		modelMapperFactory = Mockito.mock( ModelMapperFactory.class );
+		modelMapper = new ModelMapper();
 		mvpParameterConsumer = Mockito.mock( MVPParameterConsumer.class );
 		pnExternalRegistriesClient = Mockito.mock( PnExternalRegistriesClientImpl.class );
 		validateUtils = Mockito.mock( ValidateUtils.class );
@@ -98,7 +97,7 @@ class NotificationReceiverTest {
 				clock,
 				notificationDao,
 				validator,
-				modelMapperFactory,
+				modelMapper,
 				pnExternalRegistriesClient);
 	}
 
@@ -113,10 +112,6 @@ class NotificationReceiverTest {
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		FileData fileData = FileData.builder()
 				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
 				.build();
@@ -157,10 +152,6 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
@@ -187,10 +178,6 @@ class NotificationReceiverTest {
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
@@ -223,10 +210,6 @@ class NotificationReceiverTest {
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
@@ -247,10 +230,6 @@ class NotificationReceiverTest {
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS );
 
 		// Then
@@ -267,10 +246,6 @@ class NotificationReceiverTest {
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
 		// Then
@@ -285,10 +260,6 @@ class NotificationReceiverTest {
 		newNotificationRequest.setGroup( null );
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
 		// Then
@@ -301,10 +272,6 @@ class NotificationReceiverTest {
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, List.of( "fake_Group" ) );
 
 		// Then
@@ -318,10 +285,6 @@ class NotificationReceiverTest {
 		newNotificationRequest.setGroup( null );
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS );
 
 		// Then
@@ -335,10 +298,6 @@ class NotificationReceiverTest {
 		newNotificationRequest.setGroup( "group_1" );
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
 				.thenReturn( List.of(new PaGroup().id("group_1").status(PaGroupStatus.SUSPENDED)));
 
@@ -395,10 +354,6 @@ class NotificationReceiverTest {
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		FileData fileData = FileData.builder()
 				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
 				.contentType( CONTENT_TYPE )
@@ -429,10 +384,6 @@ class NotificationReceiverTest {
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) ).thenReturn( mapper );
-
 		FileData fileData = FileData.builder()
 				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
 				.contentType( CONTENT_TYPE )

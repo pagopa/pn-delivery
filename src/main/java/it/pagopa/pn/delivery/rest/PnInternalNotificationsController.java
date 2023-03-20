@@ -13,7 +13,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -36,17 +35,17 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     private final NotificationAttachmentService notificationAttachmentService;
     private final PaymentEventsService paymentEventsService;
 
-    private final ModelMapperFactory modelMapperFactory;
+    private final ModelMapper modelMapper;
 
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, PaymentEventsService paymentEventsService, ModelMapperFactory modelMapperFactory) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, PaymentEventsService paymentEventsService, ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
         this.paymentEventsService = paymentEventsService;
-        this.modelMapperFactory = modelMapperFactory;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -101,8 +100,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     @Override
     public ResponseEntity<SentNotification> getSentNotificationPrivate(String iun) {
         InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
-        ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, SentNotification.class);
-        SentNotification sentNotification = mapper.map(notification, SentNotification.class);
+        SentNotification sentNotification = modelMapper.map(notification, SentNotification.class);
 
         int recIdx = 0;
         for (NotificationRecipient rec : sentNotification.getRecipients()) {
@@ -163,8 +161,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
             serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
-            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
-            response = mapper.map( serviceResult, NotificationSearchResponse.class );
+            response = modelMapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();

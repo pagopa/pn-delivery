@@ -27,11 +27,9 @@ import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.CxType;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -64,7 +62,7 @@ public class NotificationRetrieverService {
 	private final PnMandateClientImpl pnMandateClient;
 	private final PnDataVaultClientImpl dataVaultClient;
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
-	private final ModelMapperFactory modelMapperFactory;
+	private final ModelMapper modelMapper;
 	private final NotificationSearchFactory notificationSearchFactory;
 	private final RefinementLocalDate refinementLocalDateUtils;
 	private final MVPParameterConsumer mvpParameterConsumer;
@@ -79,7 +77,7 @@ public class NotificationRetrieverService {
 										PnMandateClientImpl pnMandateClient,
 										PnDataVaultClientImpl dataVaultClient,
 										PnExternalRegistriesClientImpl pnExternalRegistriesClient,
-										ModelMapperFactory modelMapperFactory,
+										ModelMapper modelMapper,
 										NotificationSearchFactory notificationSearchFactory,
 										RefinementLocalDate refinementLocalDateUtils,
 										MVPParameterConsumer mvpParameterConsumer,
@@ -91,7 +89,7 @@ public class NotificationRetrieverService {
 		this.pnMandateClient = pnMandateClient;
 		this.dataVaultClient = dataVaultClient;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
-		this.modelMapperFactory = modelMapperFactory;
+		this.modelMapper = modelMapper;
 		this.notificationSearchFactory = notificationSearchFactory;
 		this.refinementLocalDateUtils = refinementLocalDateUtils;
 		this.mvpParameterConsumer = mvpParameterConsumer;
@@ -739,29 +737,17 @@ public class NotificationRetrieverService {
 
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		ModelMapper mapperStatusHistory = new ModelMapper();
-		mapperStatusHistory.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class )
-				.addMapping( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
-		mapperStatusHistory.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
-
-		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
-
-		ModelMapper mapperTimeline = new ModelMapper();
-		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
-				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
-		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream()
-						.map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) )
+						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElement.class ) )
 						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
-						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
+						.map( el -> modelMapper.map( el, NotificationStatusHistoryElement.class ))
 						.toList()
 				)
 				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 
-		return mapperNotification.map( resultFullSent, InternalNotification.class );
+		return modelMapper.map( resultFullSent, InternalNotification.class );
 	}
 
 

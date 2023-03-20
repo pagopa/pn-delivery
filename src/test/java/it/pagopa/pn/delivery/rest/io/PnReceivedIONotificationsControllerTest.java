@@ -7,10 +7,10 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -44,7 +44,7 @@ class PnReceivedIONotificationsControllerTest {
     ObjectMapper objectMapper;
 
     @SpyBean
-    ModelMapperFactory modelMapperFactory;
+    ModelMapper modelMapper;
 
     @Test
     void getReceivedNotificationSuccess() {
