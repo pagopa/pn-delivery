@@ -228,7 +228,7 @@ components:
 
     NotificationDocument:
       description: >-
-        Un documento da notifcare
+        Un documento da notificare
       allOf:
         - $ref: "#/components/schemas/NotificationAttachment"
         - type: object
