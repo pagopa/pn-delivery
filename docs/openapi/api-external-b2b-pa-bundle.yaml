@@ -1027,6 +1027,9 @@ components:
         zip:
           type: string
           description: Codice di avviamento postale
+          minLength: 5
+          maxLength: 5
+          pattern: ^\d{5}$
         municipality:
           type: string
           description: Comune

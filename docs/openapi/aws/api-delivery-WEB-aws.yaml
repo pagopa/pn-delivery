@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: RdzQrK2f5B/D1YYLCXuqeWEnL/HfNQevEs5EOlG/w1c=
+  version: hw4FelPlWikCj6LHpctJwx++q8Lp34PdhtC3tdu3Wo4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1810,6 +1810,9 @@ components:
         zip:
           type: string
           description: Codice di avviamento postale
+          minLength: 5
+          maxLength: 5
+          pattern: ^\d{5}$
         municipality:
           type: string
           description: Comune

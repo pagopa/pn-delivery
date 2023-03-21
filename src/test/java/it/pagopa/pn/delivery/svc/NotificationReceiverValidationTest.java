@@ -183,7 +183,7 @@ class NotificationReceiverValidationTest {
   private static NotificationPhysicalAddress createPhysicalAddress() {
     return NotificationPhysicalAddress.builder()
             .address("address")
-            .zip("zipCode")
+            .zip("83100")
             .municipality("municipality")
             .build();
   }
@@ -530,7 +530,7 @@ class NotificationReceiverValidationTest {
             .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
             .digitalDomicile(NotificationDigitalAddress.builder()
                 .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
-            .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("zip")
+            .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
                 .province("province").municipality("municipality").at("at").build())
             .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
                 .noticeCodeAlternative("noticeCodeAlternative").build())
