@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hR/DUNYoZMuIhudEixIDLAaJgYPMwIYXSpK/qZe1da0=
+  version: x9nC8kVkIs3EBG2grGfu6+UZlwCN93tiAAD5uCW+V2M=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1481,6 +1481,8 @@ components:
           description: Importo della notifica in eurocent
         paymentExpirationDate:
           type: string
+          minLength: 10
+          maxLength: 10
           pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
           description: >-
             Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
