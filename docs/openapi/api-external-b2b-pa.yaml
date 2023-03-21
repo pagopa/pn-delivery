@@ -115,6 +115,9 @@ info:
       \- _trailer_: valorizzato con ```x-amz-checksum-sha256``` <br/>
       \- _x-amz-checksum-sha256_: valorizzato con il checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato. (__N.B.__ questo è un trailer HTTP non un header).
         Vedi [HTTP Trailer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Trailer) <br/>
+        __NOTA:__ se l'operazione di upload è stata eseguita con successo, si otterrà come risposta _status 200 OK_. <br/>
+        Nell'header di questa risposta, si otterrà il campo __x-amz-version-id__ che dovrà essere utilizzato durante <br/> 
+        l'inserimento della notifica, nel campo ref.__versionToken__ in corrispondenza del documento ad esso associato.
   
      
       </br>
