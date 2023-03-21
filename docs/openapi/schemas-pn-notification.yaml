@@ -78,10 +78,16 @@ components:
             "richiesta di notifica" rifiutata per errori nei codici di verifica degli
             allegati.
           type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         paProtocolNumber:
           description: >-
             Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         subject:
           type: string
           description: titolo della notifica

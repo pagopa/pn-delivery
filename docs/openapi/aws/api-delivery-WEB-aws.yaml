@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 9qUU0Yqwv5ctl/54eZ5zW0NGtb9ynxHGxpUaQPPVPJk=
+  version: 02zHQInt1+mmw03TNT2awZ/UGIRb+p4HU7UXJZIwGNo=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1983,9 +1983,13 @@ components:
             necessario in caso di  "richiesta di notifica" rifiutata per errori
             nei codici di verifica degli allegati.
           type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
         paProtocolNumber:
           description: Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
         subject:
           type: string
           description: titolo della notifica

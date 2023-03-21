@@ -1185,9 +1185,13 @@ components:
         idempotenceToken:
           description: Identificativo utilizzabile dal chiamante per disambiguare differenti  "richieste di notificazione" effettuate con lo stesso numero di protocollo  (campo _paProtocolNumber_). Questo può essere necessario in caso di  "richiesta di notifica" rifiutata per errori nei codici di verifica degli allegati.
           type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
         paProtocolNumber:
           description: Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
         subject:
           type: string
           description: titolo della notifica
