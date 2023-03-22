@@ -478,7 +478,6 @@ public class NotificationRetrieverService {
 	}
 
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
-		// - per l'MVP la notifica ha necessariamente un solo destinatario
 		for ( NotificationRecipient recipient : recipientList ) {
 			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
 			if ( notificationPaymentInfo != null) {
