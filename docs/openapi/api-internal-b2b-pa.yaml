@@ -224,10 +224,10 @@ tags:
       di notifica inviate e delle notifiche accettate.
   - name: NotificationPrice
     description: >-
-      Invocazioni per determinare il costo della notifica per il destinario.
+      Invocazioni per determinare il costo della notifica per il destinatario.
   - name: LegalFacts
     description: >-
-      Invocazioni per effettuare il downalod degli atti opponibili a terzi
+      Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: >-
       Invocazioni per comunicare eventi di pagamento dalla PA

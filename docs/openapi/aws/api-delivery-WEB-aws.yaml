@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Zkx06pK8bjMIKLIr+5/0Bw7RYI9chbjjx22SrzhcE3U=
+  version: v2ULtPbtwmMiw7PuiO5R/bBXRrAl7LumYF2HzXXOTmY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3179,9 +3179,9 @@ tags:
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle
       richieste  di notifica inviate e delle notifiche accettate.
   - name: NotificationPrice
-    description: Invocazioni per determinare il costo della notifica per il destinario.
+    description: Invocazioni per determinare il costo della notifica per il destinatario.
   - name: LegalFacts
-    description: Invocazioni per effettuare il downalod degli atti opponibili a terzi
+    description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
   - name: SenderReadWeb

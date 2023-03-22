@@ -28,9 +28,9 @@ tags:
   - name: SenderReadB2B
     description: Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste  di notifica inviate e delle notifiche accettate.
   - name: NotificationPrice
-    description: Invocazioni per determinare il costo della notifica per il destinario.
+    description: Invocazioni per determinare il costo della notifica per il destinatario.
   - name: LegalFacts
-    description: Invocazioni per effettuare il downalod degli atti opponibili a terzi
+    description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
 paths:
