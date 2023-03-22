@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class IOMapper {
 
-    private static final String URL_ATTACHMENT = "/delivery/notifications/sent/{iun}/attachments/documents/{indexDocument}";
+    private static final String URL_ATTACHMENT = "/delivery/notifications/received/{iun}/attachments/documents/{indexDocument}";
 
     private final ModelMapper modelMapper;
 
