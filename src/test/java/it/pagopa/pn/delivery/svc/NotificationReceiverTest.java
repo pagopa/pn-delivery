@@ -550,7 +550,7 @@ class NotificationReceiverTest {
 		return NotificationPaymentAttachment.builder()
 				.ref( NotificationAttachmentBodyRef.builder().key("k1").versionToken("v1").build())
 				.contentType("application/pdf")
-				.digests( NotificationAttachmentDigests.builder().sha256("sha256").build())
+				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 				.build();
 	}
 

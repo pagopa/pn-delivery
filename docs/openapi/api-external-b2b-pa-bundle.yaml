@@ -1082,7 +1082,10 @@ components:
       properties:
         sha256:
           type: string
-          description: Digest "sha256" della codifica binaria dell'allegato
+          description: Digest "sha256" della codifica binaria dell'allegato (hex)
+          minLength: 64
+          maxLength: 64
+          pattern: ^[0-9a-fA-F]{64}$
     NotificationAttachmentBodyRef:
       description: Riferimento all'allegato precaricato
       required:

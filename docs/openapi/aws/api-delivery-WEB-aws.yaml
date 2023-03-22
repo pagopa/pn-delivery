@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Mtby03cVAcoGQl1nDZ41vaqKZF6oq6QpyU+xFkGOpgc=
+  version: Zkx06pK8bjMIKLIr+5/0Bw7RYI9chbjjx22SrzhcE3U=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1865,7 +1865,10 @@ components:
       properties:
         sha256:
           type: string
-          description: Digest "sha256" della codifica binaria dell'allegato
+          description: Digest "sha256" della codifica binaria dell'allegato (hex)
+          minLength: 64
+          maxLength: 64
+          pattern: ^[0-9a-fA-F]{64}$
     NotificationAttachmentBodyRef:
       description: Riferimento all'allegato precaricato
       required:
