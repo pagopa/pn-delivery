@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: qpoRmOhKhSwx/7rjZD7TIsdL0REP2bQDTkzTyF+dk1k=
+  version: Kb55LcZC5isYPMG4n0QtVValTcl4BrzT6VY/rghnFME=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1501,6 +1501,8 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
         amount:
           type: number
           description: Importo della notifica in eurocent

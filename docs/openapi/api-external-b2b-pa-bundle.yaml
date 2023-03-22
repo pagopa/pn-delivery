@@ -1249,6 +1249,8 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
         amount:
           type: integer
           format: int32

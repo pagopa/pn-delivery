@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: SzE3ewmHJB5ZfNx9EoRmGYC/1QscvC96IJE/unrBgP0=
+  version: 4XXMUDqXLjPMF1Ta7YB3DoODi/d2tg51RsyA7yD2Uvo=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -773,6 +773,8 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
         mandateId:
           type: string
           description: Id delega (per notifiche delegate)
@@ -1105,6 +1107,8 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
         amount:
           type: number
           description: Importo della notifica in eurocent

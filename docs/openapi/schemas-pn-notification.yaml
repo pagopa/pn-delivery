@@ -124,6 +124,9 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
         amount:
           type: integer
           format: int32
@@ -445,6 +448,9 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
         mandateId:
           type: string
           description: Id delega (per notifiche delegate)
