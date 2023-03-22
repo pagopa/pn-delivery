@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 3Upq+cz05rg6AQWH8w1GAOx/8MA3/gCG5hCqekQO7hw=
+  version: AwF2GwXfLKyhVJAoEjcY4rFv+roFhuonmX2+QE2qEMg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -676,6 +676,8 @@ components:
       description: identificativo della richiesta di notifica
       schema:
         type: string
+        maxLength: 36
+        pattern: ^[A-Za-z0-9+/=]{36}$
     paProtocolNumber:
       name: paProtocolNumber
       in: query

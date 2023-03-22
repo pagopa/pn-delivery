@@ -807,6 +807,8 @@ components:
       description: identificativo della richiesta di notifica
       schema:
         type: string
+        maxLength: 36
+        pattern: ^[A-Za-z0-9+/=]{36}$
     paProtocolNumber:
       name: paProtocolNumber
       in: query
