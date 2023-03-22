@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hlYt0uoOs2Pw3fE7BaxMBi9qvPkv9LA+lzyKTmSBEmk=
+  version: NDL0W1oCL2fU5mSXu+l/He8zIW39cqTuwxL1bryWis8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1883,6 +1883,7 @@ components:
         key:
           type: string
           description: Chiave in cui è stato salvato l'allegato
+          maxLength: 512
         versionToken:
           type: string
           description: >-
