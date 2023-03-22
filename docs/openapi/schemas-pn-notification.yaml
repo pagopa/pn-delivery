@@ -331,12 +331,22 @@ components:
         at:
           type: string
           description: Campo "presso" dell'indirizzo
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         address:
           type: string
           description: Indirizzo del domicilio fisico
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          minLength: 2
+          maxLength: 1024
         addressDetails:
           type: string
           description: Seconda riga dell'indirizzo fisico
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
         zip:
           type: string
           description: Codice di avviamento postale
@@ -346,15 +356,28 @@ components:
         municipality:
           type: string
           description: Comune
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          minLength: 2
+          maxLength: 256
         municipalityDetails:
           type: string
           description: Frazione o località
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         province:
           type: string
           description: Provincia
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         foreignState:
           type: string
           description: Denominazione paese estero
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
 
 
     ############################################################################################

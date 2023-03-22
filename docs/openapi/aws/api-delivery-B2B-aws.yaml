@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: l+SVoJZF3EiCiBJQO3eFNOxUi6E8VPwXGr4kHVI28x4=
+  version: qpoRmOhKhSwx/7rjZD7TIsdL0REP2bQDTkzTyF+dk1k=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1257,12 +1257,19 @@ components:
         at:
           type: string
           description: Campo "presso" dell'indirizzo
+          pattern: ^[ -~]*$
+          maxLength: 256
         address:
           type: string
           description: Indirizzo del domicilio fisico
+          pattern: ^[ -~]*$
+          minLength: 2
+          maxLength: 1024
         addressDetails:
           type: string
           description: Seconda riga dell'indirizzo fisico
+          pattern: ^[ -~]*$
+          maxLength: 1024
         zip:
           type: string
           description: Codice di avviamento postale
@@ -1272,15 +1279,24 @@ components:
         municipality:
           type: string
           description: Comune
+          pattern: ^[ -~]*$
+          minLength: 2
+          maxLength: 256
         municipalityDetails:
           type: string
           description: Frazione o località
+          pattern: ^[ -~]*$
+          maxLength: 256
         province:
           type: string
           description: Provincia
+          pattern: ^[ -~]*$
+          maxLength: 256
         foreignState:
           type: string
           description: Denominazione paese estero
+          pattern: ^[ -~]*$
+          maxLength: 256
     noticeCode:
       description: Payment notice number  numero avviso
       example: '302000100000019421'
