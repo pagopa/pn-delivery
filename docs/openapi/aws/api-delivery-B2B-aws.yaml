@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hRdlZiqVGbYEbSkesoF+vQ9yeEJh2iDHwyyXNgm7/TA=
+  version: V3efd4+tXnWxO5ATNpZnJ8aB2Nf8Pl+j+qj5zcWZcM8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1426,7 +1426,12 @@ components:
           properties:
             title:
               type: string
-              description: Titolo del documento allegato
+              description: >-
+                Titolo del documento allegato. Stringa alfanumerica con
+                caratteri utilizzabili in un nome file.
+              minLength: 1
+              maxLength: 512
+              pattern: ^[a-zA-Z0-9._-]{1,512}$
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
