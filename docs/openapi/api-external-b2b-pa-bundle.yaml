@@ -573,8 +573,8 @@ components:
             Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
               - application/pdf
           type: string
-          minLength: 25
-          maxLength: 25
+          minLength: 15
+          maxLength: 15
           pattern: ^application\/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
@@ -1091,6 +1091,9 @@ components:
         contentType:
           type: string
           description: tipo di contenuto dell'allegato, supportato application/pdf
+          minLength: 15
+          maxLength: 15
+          pattern: ^application\/pdf
         ref:
           $ref: '#/components/schemas/NotificationAttachmentBodyRef'
     NotificationPaymentAttachment:
@@ -1146,7 +1149,7 @@ components:
         payment:
           $ref: '#/components/schemas/NotificationPaymentInfo'
     NotificationDocument:
-      description: Un documento da notifcare
+      description: Un documento da notificare
       allOf:
         - $ref: '#/components/schemas/NotificationAttachment'
         - type: object
@@ -2168,7 +2171,7 @@ components:
           type: integer
           format: int32
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         sha256:
           type: string
           description: SHA256 del contenuto del file.

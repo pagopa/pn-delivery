@@ -911,8 +911,8 @@ components:
             Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
               - application/pdf
           type: string
-          minLength: 25
-          maxLength: 25
+          minLength: 15
+          maxLength: 15
           pattern: ^application\/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato

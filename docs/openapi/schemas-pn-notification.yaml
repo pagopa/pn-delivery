@@ -217,6 +217,9 @@ components:
         contentType:
           type: string
           description: tipo di contenuto dell'allegato, supportato application/pdf
+          minLength: 15
+          maxLength: 15
+          pattern: ^application\/pdf
         ref:
           $ref: "#/components/schemas/NotificationAttachmentBodyRef"
 
@@ -453,7 +456,7 @@ components:
           type: integer
           format: int32
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         sha256:
           type: string
           description: >-

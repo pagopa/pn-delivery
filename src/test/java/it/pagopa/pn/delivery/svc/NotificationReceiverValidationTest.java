@@ -340,7 +340,7 @@ class NotificationReceiverValidationTest {
                         .build()))
                 .documents(Collections.singletonList(NotificationDocument.builder()
                     // .body( BASE64_BODY )
-                    .contentType("Content/Type")
+                    .contentType("application/pdf")
                     .digests(NotificationAttachmentDigests.builder().build()).build())),
             Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 

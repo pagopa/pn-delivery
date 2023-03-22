@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: e1hdy7mHQ0jHsKK6wbSN+yXMFKWRkEVUH1Fy2kiUJis=
+  version: lSz3sFWAWi2jyqRN0V1cTrumqxY3Yav2Ts9TLF+Gz1Y=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -817,8 +817,8 @@ components:
             supportato solo
               - application/pdf
           type: string
-          minLength: 25
-          maxLength: 25
+          minLength: 15
+          maxLength: 15
           pattern: ^application\/pdf
         sha256:
           title: checksum sha256 del file che verrà caricato
@@ -1331,6 +1331,9 @@ components:
         contentType:
           type: string
           description: tipo di contenuto dell'allegato, supportato application/pdf
+          minLength: 15
+          maxLength: 15
+          pattern: ^application\/pdf
         ref:
           $ref: '#/components/schemas/NotificationAttachmentBodyRef'
     NotificationPaymentAttachment:
@@ -1390,7 +1393,7 @@ components:
         payment:
           $ref: '#/components/schemas/NotificationPaymentInfo'
     NotificationDocument:
-      description: Un documento da notifcare
+      description: Un documento da notificare
       allOf:
         - $ref: '#/components/schemas/NotificationAttachment'
         - type: object
@@ -2392,7 +2395,7 @@ components:
         contentLength:
           type: number
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         sha256:
           type: string
           description: SHA256 del contenuto del file.
