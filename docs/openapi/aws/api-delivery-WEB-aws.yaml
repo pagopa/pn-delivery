@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: GwfuodrEqGQsRtqocqDDFHv+LE3KCcdalRi6+g6DMOM=
+  version: oBf8twx0Rw7QlGs09yiH0+wmT1+fslp/p57yd0xqtw8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2020,6 +2020,7 @@ components:
           type: string
           description: titolo della notifica
           maxLength: 134
+          pattern: ^[ -~]*$
         abstract:
           type: string
           description: descrizione sintetica della notifica
@@ -2090,7 +2091,7 @@ components:
               type: string
               description: >-
                 Identificativo IPA della PA mittente che ha eseguito
-                l'onborading su SelfCare.
+                l'onboarding su SelfCare.
             iun:
               $ref: '#/components/schemas/IUN'
             sentAt:

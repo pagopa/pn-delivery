@@ -1222,6 +1222,7 @@ components:
           type: string
           description: titolo della notifica
           maxLength: 134
+          pattern: ^[ -~]*$
         abstract:
           type: string
           description: descrizione sintetica della notifica
@@ -1285,7 +1286,7 @@ components:
           properties:
             senderPaId:
               type: string
-              description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
+              description: Identificativo IPA della PA mittente che ha eseguito l'onboarding su SelfCare.
             iun:
               $ref: '#/components/schemas/IUN'
             sentAt:
