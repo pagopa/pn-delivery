@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: oBf8twx0Rw7QlGs09yiH0+wmT1+fslp/p57yd0xqtw8=
+  version: hlYt0uoOs2Pw3fE7BaxMBi9qvPkv9LA+lzyKTmSBEmk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1635,7 +1635,9 @@ components:
           $ref: '#/components/schemas/paTaxId'
         paymentDate:
           type: string
-          format: date-time
+          pattern: >-
+            ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{3})Z$
+          example: '2023-01-16T15:30:00.234Z'
         amount:
           type: number
     PaymentEventF24:
