@@ -162,7 +162,7 @@ components:
           properties:
             senderPaId:
               type: string
-              description: Identificativo IPA della PA mittente che ha eseguito l'onboarding su SelfCare.
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
             iun:
               $ref: '#/components/schemas/IUN'
             sentAt:
