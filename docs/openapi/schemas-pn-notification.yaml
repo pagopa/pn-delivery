@@ -253,6 +253,8 @@ components:
               type: string
               description: >-
                 Indice del documento partendo da 0.
+              maxLength: 3
+              pattern: ^\d+$
 
 
     NotificationAttachmentDigests:

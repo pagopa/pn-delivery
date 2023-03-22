@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: eD6hmFfNedrnnlmqEkrUBplO+Ky/F2iB8XMeHzrCxqQ=
+  version: 5YutbZkGP8G1k3LiXC26DnSdcPupBIW8XMcAMSsCIR4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1043,6 +1043,8 @@ components:
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
+              maxLength: 3
+              pattern: ^\d+$
     NotificationFeePolicy:
       type: string
       description: >-
@@ -1154,7 +1156,7 @@ components:
             senderPaId:
               type: string
               description: >-
-                Identificativo IPA della PA mittente che ha eseguito
+                Identificativo (non IPA) della PA mittente che ha eseguito
                 l'onboarding su SelfCare.
             iun:
               $ref: '#/components/schemas/IUN'

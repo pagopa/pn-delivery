@@ -1188,6 +1188,8 @@ components:
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
+              maxLength: 3
+              pattern: ^\d+$
     NotificationFeePolicy:
       type: string
       description: 'Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in base all''effettivo percorso di notifica. <br/>'
@@ -1291,7 +1293,7 @@ components:
           properties:
             senderPaId:
               type: string
-              description: Identificativo IPA della PA mittente che ha eseguito l'onboarding su SelfCare.
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
             iun:
               $ref: '#/components/schemas/IUN'
             sentAt:
