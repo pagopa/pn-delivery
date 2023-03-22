@@ -1220,6 +1220,7 @@ components:
         abstract:
           type: string
           description: descrizione sintetica della notifica
+          pattern: ^[ -~]*$
           maxLength: 1024
         recipients:
           type: array

@@ -95,6 +95,8 @@ components:
         abstract:
           type: string
           description: descrizione sintetica della notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
           maxLength: 1024
         recipients:
           type: array
