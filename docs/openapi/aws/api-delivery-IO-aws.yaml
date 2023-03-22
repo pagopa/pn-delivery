@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Y/n/1Vft0w4EPCa/4hZzNH8Ev9pAj7YX2ngC3gBwa40=
+  version: 51BO184qicCw4OPV4nzHVOmADWXZYK/M+podDrsVTfA=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -852,6 +852,8 @@ components:
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende
             utilizzare per  raggiungere il destinatario.
+          pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
+          maxLength: 319
     NotificationPhysicalAddress:
       description: >-
         Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in
