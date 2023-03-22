@@ -45,7 +45,7 @@ class PnPaymentEventsControllerTest {
 
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( Collections.singletonList( PaymentEventPagoPa.builder()
-                                .paymentDate( OffsetDateTime.parse( "2023-01-16T15:30:00Z" ) )
+                                .paymentDate(  "2023-12-16T15:30:00.123Z"  )
                                 .creditorTaxId( "77777777777" )
                                 .noticeCode( "123456789123456789" )
                                 .amount( 2000 )
@@ -75,7 +75,7 @@ class PnPaymentEventsControllerTest {
 
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( Collections.singletonList( PaymentEventPagoPa.builder()
-                        .paymentDate( OffsetDateTime.parse( "2023-01-16T15:30:00Z" ) )
+                        .paymentDate( "2023-01-16T15:30:00Z" )
                         .creditorTaxId( "77777777777" )
                         .noticeCode( "123456789123456789" )
                         .build() )
