@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 2xkYFvCuhQVy0nIMFGkSfX5cE/we9vtlOgAZS3J4vBc=
+  version: gJihCC4eBP1xk3SyDYbHh6fqWA0hFzONS7awA3CRN0g=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -935,7 +935,7 @@ components:
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
           minLength: 43
           maxLength: 44
-          pattern: ^[A-Za-z0-9+/]{43}=|[A-Za-z0-9+/]{44}$
+          pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     NotificationAttachmentBodyRef:
       description: Riferimento all'allegato precaricato
       required:

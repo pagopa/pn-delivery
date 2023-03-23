@@ -585,7 +585,7 @@ components:
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
           minLength: 43
           maxLength: 44
-          pattern: ^[A-Za-z0-9+/]{43}=|[A-Za-z0-9+/]{44}$
+          pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     PreLoadResponse:
       title: Informazioni per il caricamento file
       description: Per ogni richiesta che è stata fatta viene fornito un presigned URL e le  informazioni per usarlo.
@@ -1089,7 +1089,7 @@ components:
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
           minLength: 43
           maxLength: 44
-          pattern: ^[A-Za-z0-9+/]{43}=|[A-Za-z0-9+/]{44}$
+          pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     NotificationAttachmentBodyRef:
       description: Riferimento all'allegato precaricato
       required:
