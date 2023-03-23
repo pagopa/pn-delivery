@@ -1296,6 +1296,8 @@ components:
             senderPaId:
               type: string
               description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
+              pattern: ^[ -~]*$
+              maxLength: 256
             iun:
               $ref: '#/components/schemas/IUN'
             sentAt:

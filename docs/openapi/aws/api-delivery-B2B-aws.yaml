@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: yMrCvrMf8sJB9v4g9rH7F//ug65ziu0AFXJE2Q2gr+0=
+  version: BQM4dqAZnpiSlAVTZSba4phyY9JK8lIOZg70x8ywroY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1558,6 +1558,8 @@ components:
               description: >-
                 Identificativo (non IPA) della PA mittente che ha eseguito
                 l'onboarding su SelfCare.
+              pattern: ^[ -~]*$
+              maxLength: 256
             iun:
               $ref: '#/components/schemas/IUN'
             sentAt:
