@@ -16,7 +16,6 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.utils.NotificationDaoMock;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,8 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class NotificationReceiverTest {
 
 	public static final String ATTACHMENT_BODY_STR = "Body";
-	public static final String BASE64_BODY = Base64Utils.encodeToString(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8));
-	public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
+	public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 	private static final String VERSION_TOKEN = "VERSION_TOKEN";
 	private static final String CONTENT_TYPE = "application/pdf";
 	private static final String KEY = "KEY";

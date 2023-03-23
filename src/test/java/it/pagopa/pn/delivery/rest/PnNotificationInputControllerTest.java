@@ -33,8 +33,7 @@ class PnNotificationInputControllerTest {
 	private static final String URL = "url";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
 	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
-	private static final String FILE_SHA_256 = "6ccaa6415b5ee449e3c5c716f57b4608ebe3b780f5aa6b077bc5d8eee5d961f9";
-	private static final String FILE_SHA_256_BASE64 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
+	private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 
 	@Autowired
     WebTestClient webTestClient;
@@ -302,7 +301,7 @@ class PnNotificationInputControllerTest {
 		// Given
 		List<PreLoadRequest> requests = new ArrayList<>();
 		requests.add( PreLoadRequest.builder()
-				.sha256( FILE_SHA_256_BASE64 )
+				.sha256( FILE_SHA_256 )
 				.build());
 		List<PreLoadResponse> responses = new ArrayList<>();
 		responses.add( PreLoadResponse.builder()
