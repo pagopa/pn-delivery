@@ -285,6 +285,9 @@ components:
         versionToken:
           type: string
           description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
 
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento

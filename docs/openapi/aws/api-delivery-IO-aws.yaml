@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 5YutbZkGP8G1k3LiXC26DnSdcPupBIW8XMcAMSsCIR4=
+  version: wKrBStQfLlxVOtVeoAFEtqGU+lRAS+fQL0jQ2DUo8Ks=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -952,6 +952,8 @@ components:
             Token per recuperare l'esatta istanza dell'allegato, che dovrà
             coincidere con l'__x-amz-version-id__ ottenuto nell'header della
             response in fase di upload del documento ad esso associato.
+          pattern: ^[ -~]*$
+          maxLength: 256
     NotificationAttachment:
       description: Un allegato della notifica.
       type: object
