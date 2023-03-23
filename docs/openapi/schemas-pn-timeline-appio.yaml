@@ -734,9 +734,9 @@ components:
             * `PF`
             * `PG`
         taxId:
-          $ref: '../schemas-pn-notification.yaml#/components/schemas/TaxId'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/TaxId'
         denomination:
-          $ref: '../schemas-pn-notification.yaml#/components/schemas/Denomination'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/Denomination'
         payment:
           $ref: '#/components/schemas/NotificationPaymentInfo'
 

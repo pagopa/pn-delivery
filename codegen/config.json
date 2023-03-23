@@ -3,7 +3,7 @@
         {
             "intendedUsage": "IO",
             "openapiFiles": [
-                "api-internal-web-recipient.yaml"
+                "api-internal-b2b-appio.yaml"
             ],
             "servicePath": "delivery"
         },

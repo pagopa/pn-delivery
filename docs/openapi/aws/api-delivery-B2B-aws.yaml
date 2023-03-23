@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZcyNntakumjBlG/9pZvbFDhI2y/XzKHhr05Hm4AJTJ8=
+  version: OfPBjztOMxiLGfaSpqAhCcZWysxTEEHZtD+wTZKZHZk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -710,14 +710,12 @@ components:
         type: number
     pathAttachmentName:
       name: attachmentName
-      description: >-
-        Tipologia del pagamento allegato alla notifica. Valori possibili
-        PAGOPA|F24_FLAT|F24_STANDARD
+      description: Tipologia del pagamento allegato alla notifica.
       in: path
       required: true
       schema:
         type: string
-        pattern: PAGOPA|F24_FLAT|F24_STANDARD
+        pattern: PAGOPA
     pathLegalFactType:
       description: Categoria dell'atto opponbile a terzi
       name: legalFactType
@@ -1281,7 +1279,10 @@ components:
           description: Chiave in cui è stato salvato l'allegato
         versionToken:
           type: string
-          description: Token per recuperare l'esatta istanza dell'allegato
+          description: >-
+            Token per recuperare l'esatta istanza dell'allegato, che dovrà
+            coincidere con l'__x-amz-version-id__ ottenuto nell'header della
+            response in fase di upload del documento ad esso associato.
     NotificationAttachment:
       description: Un allegato della notifica.
       type: object
@@ -1310,8 +1311,6 @@ components:
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
-          - _f24flatRate_: riferimento al PDF contenete l'F24 con spese di notifica forfettarie<br/>
-          - _f24standard_: riferimento al PDF contenete l'F24 con spese di notifica standard<br/>
       type: object
       required:
         - noticeCode
@@ -1324,10 +1323,6 @@ components:
         noticeCodeAlternative:
           $ref: '#/components/schemas/noticeCode'
         pagoPaForm:
-          $ref: '#/components/schemas/NotificationPaymentAttachment'
-        f24flatRate:
-          $ref: '#/components/schemas/NotificationPaymentAttachment'
-        f24standard:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
     NotificationRecipient:
       description: Informazioni sui destinatari
@@ -2120,6 +2115,24 @@ components:
         analogCost:
           type: number
           description: costo in eurocent dell'invio
+        numberOfPages:
+          type: number
+          description: numero delle pagina che compongono la spedizione cartacea
+        envelopeWeight:
+          type: number
+          description: peso in grammi della busta
+    AttachmentDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        documentType:
+          type: string
+        url:
+          type: string
+        date:
+          type: string
+          format: date-time
     SendAnalogFeedbackDetails:
       type: object
       required:
@@ -2147,14 +2160,14 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
-        errors:
+        deliveryFailureCause:
+          type: string
+        deliveryDetailCode:
+          type: string
+        attachments:
           type: array
-          x-pn-fieldannotations: >-
-            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
-          description: Lista errori, vuota in caso di successo
           items:
-            type: string
-            description: Lista errori, vuota in caso di successo
+            $ref: '#/components/schemas/AttachmentDetails'
     BaseRegisteredLetterDetails:
       type: object
       required:
@@ -2183,6 +2196,12 @@ components:
         analogCost:
           type: number
           description: costo in eurocent dell'invio
+        numberOfPages:
+          type: number
+          description: numero delle pagina che compongono la spedizione cartacea
+        envelopeWeight:
+          type: number
+          description: peso in grammi della busta
     AarCreationRequestDetails:
       type: object
       required:
@@ -2267,10 +2286,14 @@ components:
         notificationDate:
           type: string
           format: date-time
-        eventCode:
+        deliveryFailureCause:
           type: string
-        eventDetail:
+        deliveryDetailCode:
           type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
