@@ -284,7 +284,7 @@ components:
           type: string
           description: Chiave in cui è stato salvato l'allegato
           maxLength: 512
-          #pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
         versionToken:
           type: string
           description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
