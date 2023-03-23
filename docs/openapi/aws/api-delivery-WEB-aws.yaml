@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 0ymJAvsebRPzX6Zd54HAlFqOJof39rjB/hL8PVGyBcU=
+  version: CRso9kKkPnVvma0RPlN0ycIHJCoAtNvoRl8/16q/J70=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1636,8 +1636,8 @@ components:
         paymentDate:
           type: string
           pattern: >-
-            ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{3})Z$
-          example: '2023-01-16T15:30:00.234Z'
+            ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|([+\-][0-9]{2}):([0-9]{2}))$
+          description: data e ora in formato ISO 8601
         amount:
           type: number
     PaymentEventF24:

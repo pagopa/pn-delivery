@@ -488,8 +488,8 @@ components:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
         paymentDate:
           type: string
-          pattern: ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{3})Z$
-          example: "2023-01-16T15:30:00.234Z"
+          pattern: ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|([+\-][0-9]{2}):([0-9]{2}))$
+          description: data e ora in formato ISO 8601
         amount:
           type: integer
           format: int32
