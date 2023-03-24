@@ -285,7 +285,7 @@ components:
           type: string
           description: Chiave in cui è stato salvato l'allegato
           maxLength: 512
-          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         versionToken:
           type: string
           description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
@@ -343,6 +343,7 @@ components:
             raggiungere il destinatario.
           pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
           maxLength: 319
+          # 64 chars for the user and 25 chars for the domain, + 1 char for the '@'
 
     NotificationPhysicalAddress:
       description: Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in fase di Sperimentazione)
