@@ -14,7 +14,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -42,10 +41,9 @@ class NotificationReceiverValidationTest {
   private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
 
   private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
-  public static final String ATTACHMENT_BODY_STR = "Body";
-  public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
+  public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
   public static final String VERSION_TOKEN = "version_token";
-  public static final String KEY = "key";
+  public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
   public static final String INVALID_ABSTRACT =
       "invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars";
   public static final String INVALID_SUBJECT =
@@ -183,7 +181,7 @@ class NotificationReceiverValidationTest {
   private static NotificationPhysicalAddress createPhysicalAddress() {
     return NotificationPhysicalAddress.builder()
             .address("address")
-            .zip("zipCode")
+            .zip("83100")
             .municipality("municipality")
             .build();
   }
@@ -340,7 +338,7 @@ class NotificationReceiverValidationTest {
                         .build()))
                 .documents(Collections.singletonList(NotificationDocument.builder()
                     // .body( BASE64_BODY )
-                    .contentType("Content/Type")
+                    .contentType("application/pdf")
                     .digests(NotificationAttachmentDigests.builder().build()).build())),
             Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
@@ -530,7 +528,7 @@ class NotificationReceiverValidationTest {
             .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
             .digitalDomicile(NotificationDigitalAddress.builder()
                 .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
-            .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("zip")
+            .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
                 .province("province").municipality("municipality").at("at").build())
             .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
                 .noticeCodeAlternative("noticeCodeAlternative").build())

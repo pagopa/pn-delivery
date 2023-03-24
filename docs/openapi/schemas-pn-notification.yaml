@@ -78,17 +78,27 @@ components:
             "richiesta di notifica" rifiutata per errori nei codici di verifica degli
             allegati.
           type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         paProtocolNumber:
           description: >-
             Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         subject:
           type: string
           description: titolo della notifica
           maxLength: 134
+          # ASCII printable characters
+          pattern: ^[ -~]*$
         abstract:
           type: string
           description: descrizione sintetica della notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
           maxLength: 1024
         recipients:
           type: array
@@ -118,15 +128,20 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
         amount:
           type: integer
           format: int32
           description: Importo della notifica in eurocent
         paymentExpirationDate:
           type: string
+          minLength: 10
+          maxLength: 10
           pattern: "^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$"
           description: Data di scadenza del pagamento nel formato YYYY-MM-DD riferito all'Italia
-          # gestito come stringa e pattern perchè con format: date open-api-generator non lo gestiva correttamente
+          # gestito come stringa e pattern perché con format: date open-api-generator non lo gestiva correttamente
         taxonomyCode:
           type: string
           minLength: 7
@@ -147,7 +162,10 @@ components:
           properties:
             senderPaId:
               type: string
-              description: Identificativo IPA della PA mittente che ha eseguito l'onborading su SelfCare.
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
+              # ASCII printable characters
+              pattern: ^[ -~]*$
+              maxLength: 256
             iun:
               $ref: '#/components/schemas/IUN'
             sentAt:
@@ -209,6 +227,9 @@ components:
         contentType:
           type: string
           description: tipo di contenuto dell'allegato, supportato application/pdf
+          minLength: 15
+          maxLength: 15
+          pattern: ^application\/pdf$
         ref:
           $ref: "#/components/schemas/NotificationAttachmentBodyRef"
 
@@ -220,18 +241,23 @@ components:
 
     NotificationDocument:
       description: >-
-        Un documento da notifcare
+        Un documento da notificare
       allOf:
         - $ref: "#/components/schemas/NotificationAttachment"
         - type: object
           properties:
             title:
               type: string
-              description: Titolo del documento allegato
+              description: Titolo del documento allegato. Stringa alfanumerica con caratteri utilizzabili in un nome file.
+              minLength: 1
+              maxLength: 512
+              pattern: ^[a-zA-Z0-9._-]{1,512}$
             docIdx:
               type: string
               description: >-
                 Indice del documento partendo da 0.
+              maxLength: 3
+              pattern: ^\d+$
 
 
     NotificationAttachmentDigests:
@@ -242,7 +268,11 @@ components:
       properties:
         sha256:
           type: string
-          description: Digest "sha256" della codifica binaria dell'allegato
+          description: Digest "sha256" della codifica binaria dell'allegato in base64
+          example: 'jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE='
+          minLength: 44
+          maxLength: 44
+          pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
 
     NotificationAttachmentBodyRef:
       description: Riferimento all'allegato precaricato
@@ -254,9 +284,14 @@ components:
         key:
           type: string
           description: Chiave in cui è stato salvato l'allegato
+          maxLength: 512
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         versionToken:
           type: string
           description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
 
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
@@ -306,6 +341,9 @@ components:
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
             raggiungere il destinatario.
+          pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
+          maxLength: 320
+          # 64 chars for the user and 255 chars for the domain, + 1 char for the '@'
 
     NotificationPhysicalAddress:
       description: Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in fase di Sperimentazione)
@@ -318,27 +356,53 @@ components:
         at:
           type: string
           description: Campo "presso" dell'indirizzo
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         address:
           type: string
           description: Indirizzo del domicilio fisico
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          minLength: 2
+          maxLength: 1024
         addressDetails:
           type: string
           description: Seconda riga dell'indirizzo fisico
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
         zip:
           type: string
           description: Codice di avviamento postale
+          minLength: 5
+          maxLength: 5
+          pattern: ^\d{5}$
         municipality:
           type: string
           description: Comune
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          minLength: 2
+          maxLength: 256
         municipalityDetails:
           type: string
           description: Frazione o località
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         province:
           type: string
           description: Provincia
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
         foreignState:
           type: string
           description: Denominazione paese estero
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
 
 
     ############################################################################################
@@ -406,6 +470,9 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
         mandateId:
           type: string
           description: Id delega (per notifiche delegate)
@@ -442,7 +509,7 @@ components:
           type: integer
           format: int32
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         sha256:
           type: string
           description: >-

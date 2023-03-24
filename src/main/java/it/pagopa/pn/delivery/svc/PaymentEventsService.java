@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +61,7 @@ public class PaymentEventsService {
                 .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY )
                 .paymentAmount( paymentEventPagoPa.getAmount() )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
-                .paymentDate( paymentEventPagoPa.getPaymentDate().toInstant() )
+                .paymentDate( Instant.parse( paymentEventPagoPa.getPaymentDate() ))
                 .creditorTaxId( creditorTaxId )
                 .noticeCode( noticeCode )
                 .recipientIdx( recipientIdx )
@@ -118,7 +119,7 @@ public class PaymentEventsService {
                     .recipientType( PnDeliveryPaymentEvent.RecipientType.valueOf( recipientType ) )
                     .recipientIdx( recipientIdx )
                     .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
-                    .paymentDate( paymentRequest.getPaymentDate().toInstant() )
+                    .paymentDate( Instant.parse( paymentRequest.getPaymentDate()) )
                     .paymentType( paymentType )
                     .paymentAmount( paymentRequest.getAmount() )
                     .creditorTaxId( creditorTaxId )
