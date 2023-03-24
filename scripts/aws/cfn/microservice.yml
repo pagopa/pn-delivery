@@ -678,7 +678,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Description: 'It triggers notification workflow at notification insertion'
       MemorySize: 128
       Timeout: 10
@@ -690,8 +690,11 @@ Resources:
           QUEUE_URL: !Ref DeliveryPushInputsQueueURL
       Code:
         ZipFile: |
-              const AWS = require('aws-sdk')
-              const sqs = new AWS.SQS();
+              const { SQSClient, SendMessageBatchCommand } = require("@aws-sdk/client-sqs");
+              let sqsParams = { region: process.env.REGION };
+              if (process.env.ENDPOINT)
+                sqsParams.endpoint = process.env.ENDPOINT;
+              const sqs = new SQSClient(sqsParams);
 
               const QUEUE_URL = process.env.QUEUE_URL
 
@@ -699,59 +702,25 @@ Resources:
                   console.log(JSON.stringify(event, null, 2));
                   console.log(QUEUE_URL);
 
+                  let messagesToSend = [];
+
                   for(var i = 0;i<event.Records.length;i++)
                   {
                       let record = event.Records[i];
-                      if (record.eventName != 'INSERT')
+                      if (!isRecordToSend(record))
                         continue;
 
-                      console.log('Processing dynamoDB Record: %j', record.dynamodb);
-                      const iun = record.dynamodb.Keys.iun.S;
+                      const message = mapMessage(record);
 
-                      if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/)==null)
-                        continue;
-
-                      const senderPaId = record.dynamodb.NewImage.senderPaId.S;
-
-                      var message = {
-                        DelaySeconds: 0,
-                        MessageGroupId: 'DELIVERY',
-                        MessageDeduplicationId: iun + "_start",
-                        MessageAttributes: {
-                          "createdAt": {
-                            DataType: "String",
-                            StringValue: new Date().toISOString()
-                          },
-                          "eventId": {
-                            DataType: "String",
-                            StringValue: iun + "_start"
-                          },
-                          "eventType": {
-                            DataType: "String",
-                            StringValue: "NEW_NOTIFICATION"
-                          },
-                          "iun": {
-                            DataType: "String",
-                            StringValue: iun
-                          },
-                          "publisher": {
-                            DataType: "String",
-                            StringValue: "DELIVERY"
-                          }
-                        },
-                        MessageBody: JSON.stringify({paId: senderPaId}),
-                        QueueUrl: QUEUE_URL
-                      };
-
-                      console.log('Sending message: %j', message);
-                      try{
-                          let queueRes = await sqs.sendMessage(message).promise();
-                          console.log("Sent message", queueRes.MessageId);
-                      }catch(exc){
-                          console.log("error sending message", exc)
-                          throw exc;
-                      }
+                      console.log('Enqueuing message: %j', message);
+                      messagesToSend.push(message);
                   }
+
+                  // se ho messaggi da spedire, procedo
+                  if (messagesToSend.length > 0)
+                    await sendMessages(messagesToSend);
+                  else
+                    console.log('Nothing to send');
 
                   const response = {
                       StatusCode: 200
@@ -759,6 +728,93 @@ Resources:
                   return response;
 
               };
+
+          function isRecordToSend(record) {
+            if (record.eventName != 'INSERT')
+              return false;
+
+            console.log('Processing dynamoDB Record: %j', record.dynamodb);
+            const iun = record.dynamodb.Keys.iun.S;
+
+            if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/)==null)
+            {
+              console.log('Record is not a notification, skipping');
+              return false;
+            }
+
+            // il record è buono e va processato e inviato
+            return true;
+          };
+
+          function mapMessage(record) {
+              const senderPaId = record.dynamodb.NewImage.senderPaId.S;
+              const iun = record.dynamodb.Keys.iun.S;
+
+              const message = {
+                Id: iun + "_start",
+                DelaySeconds: 0,
+                MessageGroupId: 'DELIVERY',
+                MessageDeduplicationId: iun + "_start",
+                MessageAttributes: {
+                  "createdAt": {
+                    DataType: "String",
+                    StringValue: new Date().toISOString()
+                  },
+                  "eventId": {
+                    DataType: "String",
+                    StringValue: iun + "_start"
+                  },
+                  "eventType": {
+                    DataType: "String",
+                    StringValue: "NEW_NOTIFICATION"
+                  },
+                  "iun": {
+                    DataType: "String",
+                    StringValue: iun
+                  },
+                  "publisher": {
+                    DataType: "String",
+                    StringValue: "DELIVERY"
+                  }
+                },
+                MessageBody: JSON.stringify({paId: senderPaId})
+              };
+              return message;
+          };
+
+          async function sendMessages(messages) {
+              try{
+                  // anche se la configurazione per ora prevede una batch window di 10, se un domani questa dovesse ingrandirsi
+                  // meglio eseguire lo splice a prescindere, per essere sicuri di non sforare i 10 elementi supportati dalla SendMessageBatchCommand
+                  console.log('Proceeding to send ' + messages.length + ' messages to ' + QUEUE_URL);
+                  const input = {
+                    Entries: messages.splice(0,10)  // prendo i primi 10 e rimuovendoli dall'array originale
+                    ,QueueUrl: QUEUE_URL
+                  }
+
+                  console.log('Sending batch message: %j', input);
+
+                  const command = new SendMessageBatchCommand(input);
+                  const response = await sqs.send(command);
+                  console.log('Sent message response: %j', response);
+                  if (response.Failed && response.Failed.length > 0)
+                  {
+                     console.log("error sending some message totalErrors:" + response.Failed.length);
+                     throw new Error("Failed to send some messages");
+                  }
+
+                  if (messages.length > 0)
+                  {
+                    console.log('There are ' + messages.length + ' messages to send');
+                    await sendMessages(messages);
+                  }
+
+              }catch(exc){
+                  console.log("error sending message", exc)
+                  throw exc;
+              }
+
+          };
       #ENDpndeliveryinserttrigger
       #Non rimuovere o modificare il commento sopra, è usato come placeholder negli script
 
