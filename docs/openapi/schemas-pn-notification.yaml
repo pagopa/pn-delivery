@@ -346,7 +346,7 @@ components:
           # 64 chars for the user and 255 chars for the domain, + 1 char for the '@'
 
     NotificationPhysicalAddress:
-      description: Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in fase di Sperimentazione)
+      description: Indirizzo fisico scoperto durante fase di consegna
       type: object
       required:
         - address

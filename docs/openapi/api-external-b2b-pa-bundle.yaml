@@ -1015,7 +1015,7 @@ components:
           pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
           maxLength: 320
     NotificationPhysicalAddress:
-      description: Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in fase di Sperimentazione)
+      description: Indirizzo fisico scoperto durante fase di consegna
       type: object
       required:
         - address
