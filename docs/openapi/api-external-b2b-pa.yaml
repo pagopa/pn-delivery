@@ -811,7 +811,7 @@ components:
           type: string
           minLength: 15
           maxLength: 15
-          pattern: ^application\/pdf
+          pattern: ^application\/pdf$
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -819,7 +819,7 @@ components:
             caricato
           type: string
           example: 'jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE='
-          minLength: 43
+          minLength: 44
           maxLength: 44
           pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
 

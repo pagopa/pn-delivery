@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: gJihCC4eBP1xk3SyDYbHh6fqWA0hFzONS7awA3CRN0g=
+  version: 5gAdXgm+y7fAsDuB/WC+YxtZcqEwFbnOlhbFy1uFrik=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -933,7 +933,7 @@ components:
           type: string
           description: Digest "sha256" della codifica binaria dell'allegato in base64
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
-          minLength: 43
+          minLength: 44
           maxLength: 44
           pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     NotificationAttachmentBodyRef:
@@ -971,7 +971,7 @@ components:
           description: tipo di contenuto dell'allegato, supportato application/pdf
           minLength: 15
           maxLength: 15
-          pattern: ^application\/pdf
+          pattern: ^application\/pdf$
         ref:
           $ref: '#/components/schemas/NotificationAttachmentBodyRef'
     NotificationPaymentAttachment:

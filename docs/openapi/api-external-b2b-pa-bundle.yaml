@@ -577,13 +577,13 @@ components:
           type: string
           minLength: 15
           maxLength: 15
-          pattern: ^application\/pdf
+          pattern: ^application\/pdf$
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
-          minLength: 43
+          minLength: 44
           maxLength: 44
           pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     PreLoadResponse:
@@ -1087,7 +1087,7 @@ components:
           type: string
           description: Digest "sha256" della codifica binaria dell'allegato in base64
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
-          minLength: 43
+          minLength: 44
           maxLength: 44
           pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     NotificationAttachmentBodyRef:
@@ -1122,7 +1122,7 @@ components:
           description: tipo di contenuto dell'allegato, supportato application/pdf
           minLength: 15
           maxLength: 15
-          pattern: ^application\/pdf
+          pattern: ^application\/pdf$
         ref:
           $ref: '#/components/schemas/NotificationAttachmentBodyRef'
     NotificationPaymentAttachment:

@@ -229,7 +229,7 @@ components:
           description: tipo di contenuto dell'allegato, supportato application/pdf
           minLength: 15
           maxLength: 15
-          pattern: ^application\/pdf
+          pattern: ^application\/pdf$
         ref:
           $ref: "#/components/schemas/NotificationAttachmentBodyRef"
 
