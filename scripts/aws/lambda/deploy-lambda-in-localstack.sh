@@ -17,7 +17,7 @@ fi
 
 
 # creo la lambda
-aws lambda create-function --endpoint-url=$endpoint_url --region $region --function-name pn-delivery-insert-trigger --zip-file fileb://./lambda.zip --handler index.handler --environment "Variables={QUEUE_URL=http://localstack:4566/000000000000/local-delivery-push-inputs.fifo,ENV=LOCAL}" --runtime 'nodejs18.x' --role arn:aws-us-east:iam::123412341234:role/abc
+aws lambda create-function --endpoint-url=$endpoint_url --region $region --function-name pn-delivery-insert-trigger --zip-file fileb://./lambda.zip --handler index.handler --environment "Variables={QUEUE_URL=http://localstack:4566/000000000000/local-delivery-push-inputs.fifo,ENV=LOCAL,ENDPOINT=http://localstack:4566}" --runtime 'nodejs18.x' --role arn:aws-us-east:iam::123412341234:role/abc
 # creo lo stream
 aws lambda create-event-source-mapping  --endpoint-url=$endpoint_url --region $region --function-name pn-delivery-insert-trigger --event-source $stream_arn --batch-size 10 --starting-position TRIM_HORIZON
 # elimino il file index.js usato di supporto

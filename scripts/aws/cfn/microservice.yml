@@ -691,8 +691,10 @@ Resources:
       Code:
         ZipFile: |
               const { SQSClient, SendMessageBatchCommand } = require("@aws-sdk/client-sqs");
-              const endpointUrl = (process.env.ENV=='LOCAL'?'http://localstack:4566':null );
-              const sqs = new SQSClient({ region: process.env.REGION, endpoint: endpointUrl});
+              let sqsParams = { region: process.env.REGION };
+              if (process.env.ENDPOINT)
+                sqsParams.endpoint = process.env.ENDPOINT;
+              const sqs = new SQSClient(sqsParams);
 
               const QUEUE_URL = process.env.QUEUE_URL
 
