@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: OfPBjztOMxiLGfaSpqAhCcZWysxTEEHZtD+wTZKZHZk=
+  version: j7/NT0jE22em8E4+lDs0im8G6sOxZekxRPCUgjWp3kw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -676,6 +676,8 @@ components:
       description: identificativo della richiesta di notifica
       schema:
         type: string
+        maxLength: 36
+        pattern: ^[A-Za-z0-9+/=]{36}$
     paProtocolNumber:
       name: paProtocolNumber
       in: query
@@ -685,15 +687,19 @@ components:
         per rettifiche.
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 256
     idempotenceToken:
       name: idempotenceToken
       description: >-
-        token usato per disambiguare "richieste di notificazione" effetuate con
+        token usato per disambiguare "richieste di notificazione" effettuate con
         lo stesso  numero di protocollo. 
       in: query
       required: false
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 256
     pathDocumentIdx:
       name: docIdx
       description: indice del documento nella lista partendo da 0.
@@ -710,12 +716,16 @@ components:
         type: number
     pathAttachmentName:
       name: attachmentName
-      description: Tipologia del pagamento allegato alla notifica.
+      description: >-
+        Tipologia del pagamento allegato alla notifica. Valori possibili
+        PAGOPA|F24_FLAT|F24_STANDARD
       in: path
       required: true
       schema:
         type: string
-        pattern: PAGOPA
+        minLength: 6
+        maxLength: 12
+        pattern: PAGOPA|F24_FLAT|F24_STANDARD
     pathLegalFactType:
       description: Categoria dell'atto opponbile a terzi
       name: legalFactType
@@ -737,6 +747,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
   schemas:
     PnStatusResponse:
       title: Stato attuale di PN
@@ -793,8 +806,12 @@ components:
           title: Id della richiesta di precaricamento di un file
           description: >-
             Identificativo univoco all'interno della request HTTP, serve per
-            correlare la risposta. 
+            correlare la risposta. Stringa alfanumerica con caratteri
+            utilizzabili in un nome file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
@@ -802,7 +819,9 @@ components:
             supportato solo
               - application/pdf
           type: string
-          example: application/pdf
+          minLength: 15
+          maxLength: 15
+          pattern: ^application\/pdf$
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -810,6 +829,9 @@ components:
             file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
+          minLength: 44
+          maxLength: 44
+          pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     PreLoadResponse:
       title: Informazioni per il caricamento file
       description: >-
@@ -818,8 +840,13 @@ components:
       type: object
       properties:
         preloadIdx:
-          description: per correlazione con la richiesta
+          description: >-
+            per correlazione con la richiesta. Stringa alfanumerica con
+            caratteri utilizzabili in un file.
           type: string
+          minLength: 1
+          maxLength: 512
+          pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
           description: >-
             Token aggiuntivo per far si che sia necessario intercettare anche
@@ -878,14 +905,16 @@ components:
           description: >-
             identificativo univoco di una richiesta di invio notifica, non è lo
             IUN
+          maxLength: 36
+          pattern: ^[A-Za-z0-9+/=]{36}$
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
         idempotenceToken:
           description: >-
             Ripetizione del token usato per disambiguare "richieste di
-            notificazione"  effetuate con lo stesso numero di protocollo (campo
-            _paProtocolNumber_). 
+            notificazione"  effettuate con lo stesso numero di protocollo (campo
+            _paProtocolNumber_).
           type: string
     NewNotificationRequestStatusResponse:
       allOf:
@@ -1060,7 +1089,9 @@ components:
           $ref: '#/components/schemas/paTaxId'
         paymentDate:
           type: string
-          format: date-time
+          pattern: >-
+            ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|([+\-][0-9]{2}):([0-9]{2}))$
+          description: data e ora in formato ISO 8601
         amount:
           type: number
     PaymentEventF24:
@@ -1082,6 +1113,9 @@ components:
       properties:
         iun:
           type: string
+          minLength: 25
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
         paymentDate:
           type: string
           format: date-time
@@ -1089,6 +1123,8 @@ components:
           $ref: '#/components/schemas/TaxId'
         recipientType:
           type: string
+          minLength: 2
+          maxLength: 2
           pattern: PF|PG
         amount:
           type: number
@@ -1210,6 +1246,8 @@ components:
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende
             utilizzare per  raggiungere il destinatario.
+          pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
+          maxLength: 320
     NotificationPhysicalAddress:
       description: >-
         Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in
@@ -1223,27 +1261,46 @@ components:
         at:
           type: string
           description: Campo "presso" dell'indirizzo
+          pattern: ^[ -~]*$
+          maxLength: 256
         address:
           type: string
           description: Indirizzo del domicilio fisico
+          pattern: ^[ -~]*$
+          minLength: 2
+          maxLength: 1024
         addressDetails:
           type: string
           description: Seconda riga dell'indirizzo fisico
+          pattern: ^[ -~]*$
+          maxLength: 1024
         zip:
           type: string
           description: Codice di avviamento postale
+          minLength: 5
+          maxLength: 5
+          pattern: ^\d{5}$
         municipality:
           type: string
           description: Comune
+          pattern: ^[ -~]*$
+          minLength: 2
+          maxLength: 256
         municipalityDetails:
           type: string
           description: Frazione o località
+          pattern: ^[ -~]*$
+          maxLength: 256
         province:
           type: string
           description: Provincia
+          pattern: ^[ -~]*$
+          maxLength: 256
         foreignState:
           type: string
           description: Denominazione paese estero
+          pattern: ^[ -~]*$
+          maxLength: 256
     noticeCode:
       description: Payment notice number  numero avviso
       example: '302000100000019421'
@@ -1266,7 +1323,11 @@ components:
       properties:
         sha256:
           type: string
-          description: Digest "sha256" della codifica binaria dell'allegato
+          description: Digest "sha256" della codifica binaria dell'allegato in base64
+          example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
+          minLength: 44
+          maxLength: 44
+          pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     NotificationAttachmentBodyRef:
       description: Riferimento all'allegato precaricato
       required:
@@ -1277,12 +1338,16 @@ components:
         key:
           type: string
           description: Chiave in cui è stato salvato l'allegato
+          maxLength: 512
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         versionToken:
           type: string
           description: >-
             Token per recuperare l'esatta istanza dell'allegato, che dovrà
             coincidere con l'__x-amz-version-id__ ottenuto nell'header della
             response in fase di upload del documento ad esso associato.
+          pattern: ^[ -~]*$
+          maxLength: 256
     NotificationAttachment:
       description: Un allegato della notifica.
       type: object
@@ -1296,6 +1361,9 @@ components:
         contentType:
           type: string
           description: tipo di contenuto dell'allegato, supportato application/pdf
+          minLength: 15
+          maxLength: 15
+          pattern: ^application\/pdf$
         ref:
           $ref: '#/components/schemas/NotificationAttachmentBodyRef'
     NotificationPaymentAttachment:
@@ -1355,17 +1423,24 @@ components:
         payment:
           $ref: '#/components/schemas/NotificationPaymentInfo'
     NotificationDocument:
-      description: Un documento da notifcare
+      description: Un documento da notificare
       allOf:
         - $ref: '#/components/schemas/NotificationAttachment'
         - type: object
           properties:
             title:
               type: string
-              description: Titolo del documento allegato
+              description: >-
+                Titolo del documento allegato. Stringa alfanumerica con
+                caratteri utilizzabili in un nome file.
+              minLength: 1
+              maxLength: 512
+              pattern: ^[a-zA-Z0-9._-]{1,512}$
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
+              maxLength: 3
+              pattern: ^\d+$
     NotificationFeePolicy:
       type: string
       description: >-
@@ -1402,16 +1477,22 @@ components:
             necessario in caso di  "richiesta di notifica" rifiutata per errori
             nei codici di verifica degli allegati.
           type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
         paProtocolNumber:
           description: Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
         subject:
           type: string
           description: titolo della notifica
           maxLength: 134
+          pattern: ^[ -~]*$
         abstract:
           type: string
           description: descrizione sintetica della notifica
+          pattern: ^[ -~]*$
           maxLength: 1024
         recipients:
           type: array
@@ -1441,11 +1522,15 @@ components:
         group:
           type: string
           description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
         amount:
           type: number
           description: Importo della notifica in eurocent
         paymentExpirationDate:
           type: string
+          minLength: 10
+          maxLength: 10
           pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
           description: >-
             Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
@@ -1473,8 +1558,10 @@ components:
             senderPaId:
               type: string
               description: >-
-                Identificativo IPA della PA mittente che ha eseguito
-                l'onborading su SelfCare.
+                Identificativo (non IPA) della PA mittente che ha eseguito
+                l'onboarding su SelfCare.
+              pattern: ^[ -~]*$
+              maxLength: 256
             iun:
               $ref: '#/components/schemas/IUN'
             sentAt:
@@ -2351,7 +2438,7 @@ components:
         contentLength:
           type: number
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         sha256:
           type: string
           description: SHA256 del contenuto del file.
@@ -2454,9 +2541,9 @@ tags:
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle
       richieste  di notifica inviate e delle notifiche accettate.
   - name: NotificationPrice
-    description: Invocazioni per determinare il costo della notifica per il destinario.
+    description: Invocazioni per determinare il costo della notifica per il destinatario.
   - name: LegalFacts
-    description: Invocazioni per effettuare il downalod degli atti opponibili a terzi
+    description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
 x-amazon-apigateway-gateway-responses:

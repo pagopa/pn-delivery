@@ -65,7 +65,7 @@ class PaymentEventsServiceTest {
         // Given
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
-                                .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                                .paymentDate( PAYMENT_DATE_STRING )
                                 .amount( PAYMENT_AMOUNT )
                                 .creditorTaxId( CREDITOR_TAX_ID )
                                 .noticeCode( NOTICE_CODE )
@@ -118,7 +118,7 @@ class PaymentEventsServiceTest {
     void handlePaymentEventsPagoPaPrivate() {
         // Given
         PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
-                .paymentDate(OffsetDateTime.parse(PAYMENT_DATE_STRING))
+                .paymentDate( PAYMENT_DATE_STRING )
                 .amount(PAYMENT_AMOUNT)
                 .creditorTaxId(CREDITOR_TAX_ID)
                 .noticeCode(NOTICE_CODE)
@@ -160,7 +160,7 @@ class PaymentEventsServiceTest {
     void handlePaymentEventsPagoPaPrivateNoNotificationsCost() {
         // Given
         PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
-                .paymentDate(OffsetDateTime.parse(PAYMENT_DATE_STRING))
+                .paymentDate( PAYMENT_DATE_STRING )
                 .creditorTaxId(CREDITOR_TAX_ID)
                 .noticeCode(NOTICE_CODE)
                 .build();
@@ -182,7 +182,7 @@ class PaymentEventsServiceTest {
         // Given
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
-                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .paymentDate( PAYMENT_DATE_STRING )
                         .creditorTaxId( CREDITOR_TAX_ID )
                         .noticeCode( NOTICE_CODE )
                         .build()
@@ -207,7 +207,7 @@ class PaymentEventsServiceTest {
         // Given
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
-                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .paymentDate( PAYMENT_DATE_STRING )
                         .creditorTaxId( CREDITOR_TAX_ID )
                         .noticeCode( NOTICE_CODE )
                         .build()
@@ -241,7 +241,7 @@ class PaymentEventsServiceTest {
         // Given
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
-                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .paymentDate( PAYMENT_DATE_STRING )
                         .creditorTaxId( CREDITOR_TAX_ID )
                         .noticeCode( NOTICE_CODE )
                         .build()

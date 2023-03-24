@@ -14,6 +14,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
 
 
     ############################################################################################
@@ -94,7 +97,7 @@ components:
     notificationSearchPageSize:
       name: size
       description: >-
-        dmensione della pagina di risultati
+        dimensione della pagina di risultati
       in: query
       required: false
       schema:

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 1X92FmjwP24RepsnVB1/8AazmHtpOlxE5fxuro2fEx4=
+  version: uUFQ3GH2ofHuJDqIYEsKyRkW3bt1c6hal6bDhy0g9Sc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -172,6 +172,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
     pathDocumentIdx:
       name: docIdx
       description: indice del documento nella lista partendo da 0.
@@ -453,7 +456,7 @@ components:
         contentLength:
           type: number
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         sha256:
           type: string
           description: SHA256 del contenuto del file.

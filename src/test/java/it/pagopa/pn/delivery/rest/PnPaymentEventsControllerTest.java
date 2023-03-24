@@ -24,6 +24,8 @@ import static org.mockito.ArgumentMatchers.isNull;
 
 @WebFluxTest(PnPaymentEventsController.class)
 class PnPaymentEventsControllerTest {
+    private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
+    private static final String TAX_ID = "CSRGGL44L13H501E";
 
     private static final String CX_ID_PA_ID = "paId";
     public static final String CX_TYPE_PA = "PA";
@@ -43,7 +45,7 @@ class PnPaymentEventsControllerTest {
 
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( Collections.singletonList( PaymentEventPagoPa.builder()
-                                .paymentDate( OffsetDateTime.parse( "2023-01-16T15:30:00Z" ) )
+                                .paymentDate(  "2023-12-16T15:30:00.123Z"  )
                                 .creditorTaxId( "77777777777" )
                                 .noticeCode( "123456789123456789" )
                                 .amount( 2000 )
@@ -73,7 +75,7 @@ class PnPaymentEventsControllerTest {
 
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( Collections.singletonList( PaymentEventPagoPa.builder()
-                        .paymentDate( OffsetDateTime.parse( "2023-01-16T15:30:00Z" ) )
+                        .paymentDate( "2023-01-16T15:30:00Z" )
                         .creditorTaxId( "77777777777" )
                         .noticeCode( "123456789123456789" )
                         .build() )
@@ -104,8 +106,8 @@ class PnPaymentEventsControllerTest {
         PaymentEventsRequestF24 paymentEventsRequestF24 = PaymentEventsRequestF24.builder()
                 .events( Collections.singletonList( PaymentEventF24.builder()
                         .paymentDate( OffsetDateTime.parse( "2023-01-16T15:30:00Z" ) )
-                        .iun( "IUN" )
-                        .recipientTaxId( "12345678901" )
+                        .iun( IUN )
+                        .recipientTaxId( TAX_ID )
                         .recipientType( "PG" )
                         .amount( 1200 )
                         .build() )
@@ -135,8 +137,8 @@ class PnPaymentEventsControllerTest {
         PaymentEventsRequestF24 paymentEventsRequestF24 = PaymentEventsRequestF24.builder()
                 .events( Collections.singletonList( PaymentEventF24.builder()
                         .paymentDate( OffsetDateTime.parse( "2023-01-16T15:30:00Z" ) )
-                        .iun( "IUN" )
-                        .recipientTaxId( "12345678901" )
+                        .iun( IUN )
+                        .recipientTaxId( TAX_ID )
                         .recipientType( "PG" )
                         .build() )
                 )
