@@ -492,19 +492,21 @@ components:
         maxLength: 12
         pattern: PAGOPA|F24_FLAT|F24_STANDARD
     pathLegalFactType:
-      description: Categoria dell'atto opponbile a terzi
+      description: Categoria dell'atto opponibile a terzi
       name: legalFactType
       in: path
       required: true
       schema:
         $ref: '#/components/schemas/LegalFactCategory'
     pathLegalFactId:
-      description: Identificativo dell'atto opponbile a terzi
+      description: Identificativo dell'atto opponibile a terzi
       name: legalFactId
       in: path
       required: true
       schema:
         type: string
+        pattern: ^[ -~]*$
+        maxLength: 1024
     pathIun:
       description: Identificativo Univoco Notifica
       name: iun
@@ -910,7 +912,7 @@ components:
           type: number
           format: decimal32
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         url:
           type: string
           description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
@@ -1335,7 +1337,7 @@ components:
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: |-
-        Tipi di atti opponibili a terzi che Piattaforam Notiiche mette a disposizione dei suoi utenti.
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a disposizione dei suoi utenti.
           - _SENDER_ACK_: atto di "presa in carico" di una notifica
           - _DIGITAL_DELIVERY_: ...
       type: string
@@ -1355,6 +1357,8 @@ components:
         key:
           description: Chiave dell'atto opponibile a terzi generato durante il processo di consegna
           type: string
+          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
     TimelineElementCategory:
@@ -1965,6 +1969,9 @@ components:
           type: integer
           description: peso in grammi della busta
           format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
     AttachmentDetails:
       type: object
       properties:
@@ -2014,6 +2021,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
     BaseRegisteredLetterDetails:
       type: object
       required:
@@ -2153,6 +2163,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
