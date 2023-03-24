@@ -41,12 +41,8 @@ paths:
         - AppIO-PN-Notification
       operationId: getReceivedNotification
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'                                             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'                                          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'                                            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'                                        # NO EXTERNAL
-        - $ref: '../parameters-notification-search.yaml#/components/parameters/pathIun'
-#        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                       # ONLY EXTERNAL
+        - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -66,14 +62,10 @@ paths:
       summary: Download documento notificato
       tags:
         - AppIO-PN-Documents
-      operationId: getSentNotificationDocument
+      operationId: getReceivedNotificationDocument
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'                                         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'                                      # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'                                        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'                                    # NO EXTERNAL
-        - $ref: '../parameters-notification-search.yaml#/components/parameters/pathIun'
-        - $ref: '../api-external-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
+        - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: 'api-external-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
       responses:
         '200':
@@ -81,7 +73,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '../schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: 'schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
         '400':
           description: Bad request
           content:
@@ -107,7 +99,7 @@ paths:
         - AppIO-PN-LegalFacts
       operationId: getLegalFact
       parameters:
-        - $ref: '../parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
@@ -129,16 +121,8 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet: # NO EXTERNAL
-      $ref: '../remote-refs.yaml#/components/parameters/cxTypeAuthFleet'            # NO EXTERNAL
-    cxIdAuthFleet: # NO EXTERNAL
-      $ref: '../remote-refs.yaml#/components/parameters/cxIdAuthFleet'              # NO EXTERNAL
-    cxGroupsAuthFleet: # NO EXTERNAL
-      $ref: '../remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'          # NO EXTERNAL
-    uidAuthFleet: # NO EXTERNAL
-      $ref: '../remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
     cxTaxIdAuthFleet:
-      $ref: '../remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
+      $ref: 'remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
     pathLegalFactType:
       description: >-
         Categoria dell'atto opponibile a terzi
@@ -162,7 +146,7 @@ components:
       $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/ThirdPartyMessage'
 
     Problem:
-      $ref: '../remote-refs.yaml#/components/schemas/Problem'
+      $ref: 'remote-refs.yaml#/components/schemas/Problem'
 
   securitySchemes:
     ApiKeyAuth:
