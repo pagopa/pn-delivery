@@ -245,7 +245,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
-        LogGroupName: !Sub "${ProjectName}-delivery-asseveration-function"
+        LogGroupName: !Sub "${ProjectName}-delivery-asseveration-lambda"
         LogGroupPrefix: '/aws/lambda'
 
   PnDeliveryInsertTriggerLogGroup:
@@ -255,7 +255,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
-        LogGroupName: !Sub "${ProjectName}-delivery-insert-trigger-function"
+        LogGroupName: !Sub "${ProjectName}-delivery-insert-trigger-lambda"
         LogGroupPrefix: '/aws/lambda'
 
 Outputs:
@@ -340,6 +340,6 @@ Outputs:
   EcsLogGroup:
     Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
   PnDeliveryAsseverationLambdaName:
-    Value: !Sub "${ProjectName}-delivery-asseveration-function"
+    Value: !Sub "${ProjectName}-delivery-asseveration-lambda"
   PnDeliveryInsertTriggerLambdaName:
-    Value: !Sub "${ProjectName}-delivery-insert-trigger-function"
+    Value: !Sub "${ProjectName}-delivery-insert-trigger-lambda"
