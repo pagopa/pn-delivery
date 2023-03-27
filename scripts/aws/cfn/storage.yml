@@ -238,7 +238,7 @@ Resources:
         LogGroupName: !Sub '${ProjectName}-delivery'
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
 
-  PnDeliveryAsseverationLambdaLogGroup:
+  PnDeliveryAsseverationLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain    
@@ -248,7 +248,7 @@ Resources:
         LogGroupName: !Sub "${ProjectName}-delivery-asseveration-function"
         LogGroupPrefix: '/aws/lambda'
 
-  PnDeliveryInsertTriggerLambdaLogGroup:
+  PnDeliveryInsertTriggerLogGroup:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
     DeletionPolicy: Retain    
@@ -340,6 +340,6 @@ Outputs:
   EcsLogGroup:
     Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
   PnDeliveryAsseverationLambdaName:
-    Value: !GetAtt PnDeliveryAsseverationLambdaLogGroup.Outputs.LogGroupName
+    Value: !Sub "${ProjectName}-delivery-asseveration-function"
   PnDeliveryInsertTriggerLambdaName:
-    Value: !GetAtt PnDeliveryInsertTriggerLambdaLogGroup.Outputs.LogGroupName
+    Value: !Sub "${ProjectName}-delivery-insert-trigger-function"
