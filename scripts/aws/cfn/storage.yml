@@ -37,6 +37,8 @@ Resources:
   # Dynamo Table
   NotificationsTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-Notifications'
       AttributeDefinitions:
@@ -55,6 +57,8 @@ Resources:
 
   NotificationsCostTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsCost'
       AttributeDefinitions:
@@ -70,6 +74,8 @@ Resources:
 
   NotificationsQRTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsQR'
       AttributeDefinitions:
@@ -93,6 +99,8 @@ Resources:
 
   NotificationsMetadataTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsMetadata'
       AttributeDefinitions:
@@ -142,6 +150,8 @@ Resources:
   
   NotificationDelegationMetadataTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
       TableName: !Sub '${ProjectName}-NotificationDelegationMetadata'
       AttributeDefinitions:
@@ -191,6 +201,8 @@ Resources:
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
   PnDeliveryInsertTriggerDLQ:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -205,6 +217,8 @@ Resources:
   # QueueOldestAgeLimit
   PnDeliveryAsseverationQueue:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -216,23 +230,33 @@ Resources:
 
   PnDeliveryLogGroup:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-log-group.yaml"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
         LogGroupName: !Sub '${ProjectName}-delivery'
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
 
   PnDeliveryAsseverationLambdaLogGroup:
-    Type: AWS::Logs::LogGroup
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${ProjectName}-delivery-asseveration-function"
-      RetentionInDays: 14
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-asseveration-function"
+        LogGroupPrefix: '/aws/lambda'
 
   PnDeliveryInsertTriggerLambdaLogGroup:
-    Type: AWS::Logs::LogGroup
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${ProjectName}-delivery-insert-trigger-function"
-      RetentionInDays: 14
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-insert-trigger-function"
+        LogGroupPrefix: '/aws/lambda'
 
 Outputs:
 
@@ -316,6 +340,6 @@ Outputs:
   EcsLogGroup:
     Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
   PnDeliveryAsseverationLambdaName:
-    Value: !Sub ${ProjectName}-delivery-asseveration-function
+    Value: !GetAtt PnDeliveryAsseverationLambdaLogGroup.Outputs.LogGroupName
   PnDeliveryInsertTriggerLambdaName:
-    Value: !Sub ${ProjectName}-delivery-insert-trigger-function
+    Value: !GetAtt PnDeliveryInsertTriggerLambdaLogGroup.Outputs.LogGroupName
