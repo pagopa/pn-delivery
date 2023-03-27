@@ -219,6 +219,19 @@ Parameters:
     Type: String
     Description: 'Application load balancer security group'
 
+  # Log group parameters
+  EcsLogGroup:
+    Type: String
+    Description: 'Ecs log group name'
+
+  PnDeliveryAsseverationLambdaName:
+    Type: String
+    Description: 'PnDeliveryAsseverationLambdaLogGroup'
+
+  PnDeliveryInsertTriggerLambdaName:
+    Type: String
+    Description: 'PnDeliveryInsertTriggerLambdaName'
+
   # OpenApi Bucket params
   MicroserviceBucketName:
     Type: String
@@ -374,9 +387,9 @@ Resources:
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskManagedPolicy
         AlbSecurityGroup: !Ref AlbSecurityGroup
+        EcsLogGroup: !Ref EcsLogGroup
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
@@ -616,8 +629,6 @@ Resources:
   ### Subscription filters with Kinesis  https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationKinesisExample
   SubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
-    DependsOn:
-      - PnDeliveryInsertTriggerLambdaLogGroup
     Condition: SendLogToKinesis
     Properties:
       RoleArn:
@@ -628,12 +639,6 @@ Resources:
       FilterPattern: !Ref LogsKinesisFilterPattern
       DestinationArn: !Ref LogsKinesisSourceStreamArn
   
-  PnDeliveryInsertTriggerLambdaLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${PnDeliveryInsertTriggerLambda}"
-      RetentionInDays: 14
-
   ### IAM Role used by Subscription filters to allow read logs from Cloudwatch and send logs to Kinesis Firehose
   SubscriptionFilterServiceRole:
     Type: AWS::IAM::Role
@@ -666,8 +671,6 @@ Resources:
 
   PnDeliveryInsertTriggerLambdaAlarms:
     Type: AWS::CloudFormation::Stack
-    DependsOn:
-      - PnDeliveryInsertTriggerLambdaLogGroup
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
@@ -679,6 +682,7 @@ Resources:
     Properties:
       Handler: index.handler
       Runtime: nodejs18.x
+      FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
       Description: 'It triggers notification workflow at notification insertion'
       MemorySize: 128
       Timeout: 10
@@ -882,8 +886,6 @@ Resources:
   ### Subscription filters with Kinesis  https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#DestinationKinesisExample
   AsseverationSubscriptionFilter:
     Type: AWS::Logs::SubscriptionFilter
-    DependsOn:
-      - PnDeliveryAsseverationLambdaLogGroup
     Condition: SendLogToKinesis
     Properties:
       RoleArn:
@@ -894,16 +896,8 @@ Resources:
       FilterPattern: !Ref LogsKinesisFilterPattern
       DestinationArn: !Ref LogsKinesisSourceStreamArn
 
-  PnDeliveryAsseverationLambdaLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/aws/lambda/${PnDeliveryAsseverationLambda}"
-      RetentionInDays: 14
-
   PnDeliveryAsseverationLambdaAlarms:
     Type: AWS::CloudFormation::Stack
-    DependsOn:
-      - PnDeliveryAsseverationLambdaLogGroup
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
@@ -915,6 +909,7 @@ Resources:
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
+      FunctionName: !Ref PnDeliveryAsseverationLambdaName
       Description: 'It triggers the asseveration written of sqs'
       MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
       Timeout: !Ref PnDeliveryAsseverationLambdaTimeout

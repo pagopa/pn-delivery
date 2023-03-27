@@ -24,6 +24,10 @@ Parameters:
     Type: String
     Description: 'Where to send CDC'
 
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send Logs'
+
   AlarmSNSTopicName:
     Type: String
     Description: 'Topic alarm'
@@ -210,6 +214,26 @@ Resources:
         VisibilityTimeout: 900 # the maximum lambda timeout
         QueueHasAlarm: "false"
 
+  PnDeliveryLogGroup:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub '${ProjectName}-delivery'
+        LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
+
+  PnDeliveryAsseverationLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ProjectName}-delivery-asseveration-function"
+      RetentionInDays: 14
+
+  PnDeliveryInsertTriggerLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ProjectName}-delivery-insert-trigger-function"
+      RetentionInDays: 14
+
 Outputs:
 
   # Dynamo table
@@ -287,3 +311,11 @@ Outputs:
   PnDeliveryAsseverationAgeAlarmARN:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
     Description: notificationCostServiceCalls-DLQ age alarm ARN
+  
+  # Log group exports
+  EcsLogGroup:
+    Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
+  PnDeliveryAsseverationLambdaName:
+    Value: !Sub ${ProjectName}-delivery-asseveration-function
+  PnDeliveryInsertTriggerLambdaName:
+    Value: !Sub ${ProjectName}-delivery-insert-trigger-function
