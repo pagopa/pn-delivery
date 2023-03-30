@@ -36,11 +36,11 @@ public class PnSafeStorageClientImpl {
 
     public FileCreationResponse createFile(FileCreationRequest fileCreationRequest, String sha256) {
         log.info("POST LOG: safeStorageCxID {} sha256{} fileCreationRequest{}",this.cfg.getSafeStorageCxId(),sha256,fileCreationRequest.toString());
-        
+
         return fileUploadApi.createFile(
-                    this.cfg.getSafeStorageCxId(),
-                    "SHA-256",
-                    sha256 ,
-                    fileCreationRequest);
+                this.cfg.getSafeStorageCxId(),
+                "SHA-256",
+                sha256 ,
+                fileCreationRequest);
     }
 }
