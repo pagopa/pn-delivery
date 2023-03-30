@@ -1,6 +1,5 @@
 {
   "Parameters" : {
-    "SandboxSafeStorageBaseUrl": "http://alb.confidential.pn.internal:8080/",
     "PnDeliveryInsertTriggerLambdaEventSourceMappingBatchSize": "10",
     "PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds": "20",
     "PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts": "20",
