@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDow
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -35,14 +36,11 @@ public class PnSafeStorageClientImpl {
 
     public FileCreationResponse createFile(FileCreationRequest fileCreationRequest, String sha256) {
         log.info("POST LOG: safeStorageCxID {} sha256{} fileCreationRequest{}",this.cfg.getSafeStorageCxId(),sha256,fileCreationRequest.toString());
-        try{
-            return fileUploadApi.createFile(
+        
+        return fileUploadApi.createFile(
                     this.cfg.getSafeStorageCxId(),
                     "SHA-256",
                     sha256 ,
                     fileCreationRequest);
-        }catch (Exception e) {
-            throw e;
-        }
     }
 }
