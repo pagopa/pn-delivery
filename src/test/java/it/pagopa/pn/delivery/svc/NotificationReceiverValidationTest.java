@@ -465,7 +465,7 @@ class NotificationReceiverValidationTest {
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
-    Assertions.assertEquals(1, errors.size()); 
+    Assertions.assertEquals(1, errors.size());
 
     assertConstraintViolationPresentByMessage(errors, "Max one recipient");
 
