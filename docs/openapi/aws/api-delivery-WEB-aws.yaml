@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: IVzS3LuSI6kNU8uYH8I7I4yFrisEv71MicCI1d/F7x8=
+  version: tiXD9muNueGHvbvGkmF92ja3VnFAay9v9T54szpJjDw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1144,7 +1144,7 @@ components:
         per rettifiche.
       schema:
         type: string
-        pattern: ^[ -~]*$
+        pattern: ^.*$
         maxLength: 256
     idempotenceToken:
       name: idempotenceToken
@@ -1797,9 +1797,7 @@ components:
           pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
           maxLength: 320
     NotificationPhysicalAddress:
-      description: >-
-        Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in
-        fase di Sperimentazione)
+      description: Indirizzo fisico scoperto durante fase di consegna
       type: object
       required:
         - address
@@ -1809,18 +1807,18 @@ components:
         at:
           type: string
           description: Campo "presso" dell'indirizzo
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
         address:
           type: string
           description: Indirizzo del domicilio fisico
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           minLength: 2
           maxLength: 1024
         addressDetails:
           type: string
           description: Seconda riga dell'indirizzo fisico
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 1024
         zip:
           type: string
@@ -1831,23 +1829,23 @@ components:
         municipality:
           type: string
           description: Comune
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           minLength: 2
           maxLength: 256
         municipalityDetails:
           type: string
           description: Frazione o località
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
         province:
           type: string
           description: Provincia
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
         foreignState:
           type: string
           description: Denominazione paese estero
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
     noticeCode:
       description: Payment notice number  numero avviso
@@ -1894,7 +1892,7 @@ components:
             Token per recuperare l'esatta istanza dell'allegato, che dovrà
             coincidere con l'__x-amz-version-id__ ottenuto nell'header della
             response in fase di upload del documento ad esso associato.
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
     NotificationAttachment:
       description: Un allegato della notifica.
@@ -2030,17 +2028,17 @@ components:
         paProtocolNumber:
           description: Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
         subject:
           type: string
           description: titolo della notifica
           maxLength: 134
-          pattern: ^[ -~]*$
+          pattern: ^.*$
         abstract:
           type: string
           description: descrizione sintetica della notifica
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 1024
         recipients:
           type: array
@@ -2108,7 +2106,7 @@ components:
               description: >-
                 Identificativo (non IPA) della PA mittente che ha eseguito
                 l'onboarding su SelfCare.
-              pattern: ^[ -~]*$
+              pattern: ^.*$
               maxLength: 256
             iun:
               $ref: '#/components/schemas/IUN'
