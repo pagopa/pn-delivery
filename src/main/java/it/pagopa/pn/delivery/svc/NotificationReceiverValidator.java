@@ -46,9 +46,6 @@ public class NotificationReceiverValidator {
         if ( Boolean.TRUE.equals( mvpParameterConsumer.isMvp( newNotificationRequest.getSenderTaxId() )) && errors.isEmpty() ) {
             errors = checkNewNotificationRequestForMVP( newNotificationRequest );
         }
-        if ( Boolean.FALSE.equals( mvpParameterConsumer.isMvp( newNotificationRequest.getSenderTaxId() )) && errors.isEmpty() ) {
-            errors = checkNewNotificationRequestNoticeCode( newNotificationRequest );
-        }
         if( ! errors.isEmpty() ) {
             List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
             throw new PnInvalidInputException(newNotificationRequest.getPaProtocolNumber(), errorList);
@@ -69,6 +66,14 @@ public class NotificationReceiverValidator {
               ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
               errors.add( constraintViolation );
           }
+          if(recipient.getPayment() != null){
+              String noticeCode = recipient.getPayment().getNoticeCode();
+              String noticeCodeAlternative = recipient.getPayment().getNoticeCodeAlternative();
+              if ( noticeCode.equals(noticeCodeAlternative) ) {
+                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
+                  errors.add( constraintViolation );
+              }
+          }
           recIdx++;
       }
       errors.addAll(validator.validate( internalNotification ));
@@ -87,24 +92,9 @@ public class NotificationReceiverValidator {
         if (Objects.isNull( payment )) {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient payment" );
             errors.add( constraintViolation );
-        } else {
-            errors.addAll(checkNewNotificationRequestNoticeCode(notificationRequest));
         }
         return errors;
     }
 
-    public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestNoticeCode( NewNotificationRequest notificationRequest ) {
-        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
-        for (NotificationRecipient recipient : notificationRequest.getRecipients() ) {
-            if(recipient.getPayment() != null){
-                String noticeCode = recipient.getPayment().getNoticeCode();
-                String noticeCodeAlternative = recipient.getPayment().getNoticeCodeAlternative();
-                if ( noticeCode.equals(noticeCodeAlternative) ) {
-                    ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
-                    errors.add( constraintViolation );
-                }
-            }
-        }
-        return errors;
-    }
+
 }
