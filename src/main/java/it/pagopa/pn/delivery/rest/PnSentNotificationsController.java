@@ -48,7 +48,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId );
+        InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_VIEW_SND, "getSenderNotification")
@@ -121,7 +121,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         if (StringUtils.hasText( notificationRequestId )) {
             String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
             logEvent.getMdc().put("iun", iun);
-            internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId );
+            internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         } else {
             if ( !StringUtils.hasText( paProtocolNumber ) ) {
                 PnInvalidInputException e = new PnInvalidInputException(ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED, "paProtocolNumber");
@@ -133,7 +133,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 logEvent.generateFailure("[notificationRequestId={} paProtocolNumber={}]" + e.getProblem(), notificationRequestId, paProtocolNumber);
                 throw e;
             }
-            internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken);
+            internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken, xPagopaPnCxGroups);
         }
         NewNotificationRequestStatusResponse response = modelMapper.map(
                 internalNotification,
