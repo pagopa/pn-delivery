@@ -530,6 +530,17 @@ class NotificationRetrieverServiceTest {
     }
 
     @Test
+    void getNotificationInformationByWrongSenderGroupFailure() {
+        InternalNotification notification = getNewInternalNotification();
+        notification.setGroup( "fakeGroup" );
+
+        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+
+        Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID, GROUPS );
+        Assertions.assertThrows( PnNotificationNotFoundException.class, todo );
+    }
+
+    @Test
     void getNotificationInfoReturnFirstNoticeCode() {
         InternalNotification notification = getNewInternalNotification();
 
