@@ -473,7 +473,7 @@ class NotificationRetrieverServiceTest {
         when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification result = svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
+        InternalNotification result = svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 
         // Then
         Assertions.assertNotNull( result );
@@ -486,7 +486,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationInformationByProtocolAndIdempotenceFailure() {
         // When
         when( notificationDao.getRequestId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( Optional.empty() );
-        Executable todo = () -> svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
+        Executable todo = () -> svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 
         // Then
         Assertions.assertThrows(PnNotificationNotFoundException.class, todo);
@@ -511,7 +511,7 @@ class NotificationRetrieverServiceTest {
         when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification result = svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID );
+        InternalNotification result = svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID, GROUPS );
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals( IUN, result.getIun() );
@@ -525,7 +525,7 @@ class NotificationRetrieverServiceTest {
 
         when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
 
-        Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, WRONG_SENDER_ID );
+        Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, WRONG_SENDER_ID, GROUPS );
         Assertions.assertThrows( PnNotificationNotFoundException.class, todo );
     }
 
