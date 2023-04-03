@@ -123,6 +123,6 @@ class IOMapperTest {
                 .documents(List.of(notificationDocument()))
                 .build();
 
-        return new InternalNotification(fullSentNotification, List.of(), X_PAGOPA_PN_SRC_CH);
+        return new InternalNotification(fullSentNotification);
     }
 }

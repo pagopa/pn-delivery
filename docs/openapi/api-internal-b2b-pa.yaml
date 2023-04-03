@@ -1069,6 +1069,8 @@ components:
             - notificationStatus
             - notificationStatusHistory
             - timeline
+            - recipientIds
+            - sourceChannel
           properties:
             notificationStatus:
               $ref: '#/components/schemas/NotificationStatus'
@@ -1080,7 +1082,15 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
-
+            recipientIds:
+              description: >-
+                elenco id destinatario della notifica
+              type: array
+              items:
+                type: string
+            sourceChannel:
+              type: string
+              description: Canale sorgente della richiesta di pagamento
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###

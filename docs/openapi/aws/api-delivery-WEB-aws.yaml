@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: IVzS3LuSI6kNU8uYH8I7I4yFrisEv71MicCI1d/F7x8=
+  version: 7zWrsx6ewgvq0lN8l8+RSx5N0QiTQD33CBmTDE3cZAM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1576,6 +1576,8 @@ components:
             - notificationStatus
             - notificationStatusHistory
             - timeline
+            - recipientIds
+            - sourceChannel
           properties:
             notificationStatus:
               $ref: '#/components/schemas/NotificationStatus'
@@ -1588,6 +1590,14 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
+            recipientIds:
+              description: elenco id destinatario della notifica
+              type: array
+              items:
+                type: string
+            sourceChannel:
+              type: string
+              description: Canale sorgente della richiesta di pagamento
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1797,9 +1807,7 @@ components:
           pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
           maxLength: 320
     NotificationPhysicalAddress:
-      description: >-
-        Indirizzo fisico scoperto durante fase di consegna (obbligatorio solo in
-        fase di Sperimentazione)
+      description: Indirizzo fisico scoperto durante fase di consegna
       type: object
       required:
         - address

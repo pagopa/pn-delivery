@@ -749,6 +749,8 @@ components:
             - notificationStatus
             - notificationStatusHistory
             - timeline
+            - recipientIds
+            - sourceChannel
           properties:
             notificationStatus:
               $ref: '#/components/schemas/NotificationStatus'
@@ -759,6 +761,14 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
+            recipientIds:
+              description: elenco id destinatario della notifica
+              type: array
+              items:
+                type: string
+            sourceChannel:
+              type: string
+              description: Canale sorgente della richiesta di pagamento
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: Richiesta contenente un array di eventi di pagamento di tipo PagoPA di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.

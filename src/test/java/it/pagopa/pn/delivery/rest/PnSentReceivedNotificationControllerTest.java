@@ -1027,7 +1027,9 @@ class PnSentReceivedNotificationControllerTest {
 				.notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 						.status( NotificationStatus.ACCEPTED )
 						.build() ) )
-				.build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
+				.sourceChannel(X_PAGOPA_PN_SRC_CH)
+				.recipientIds(Collections.emptyList())
+				.build());
 	}
 	@Test
 	void searchNotificationDelegatedFailure() {

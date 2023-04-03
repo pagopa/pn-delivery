@@ -59,6 +59,8 @@ class StatusServiceTest {
                 .iun(iun)
                 .sentAt( OffsetDateTime.parse("2021-09-16T15:00:00.00Z") )
                 .subject( "Subject" )
+                .recipientIds(Collections.singletonList( "recipientId" ))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .paProtocolNumber( "123" )
                 .senderPaId( "PAID" )
                 .senderDenomination( "senderDenomination" )
@@ -67,7 +69,7 @@ class StatusServiceTest {
                         .taxId( "CodiceFiscale" )
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .build()) )
-                .build(), List.of( "recipientId" ), X_PAGOPA_PN_SRC_CH));
+                .build()));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         Mockito.when( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, "CodiceFiscale" ) )
                 .thenReturn( "CodiceFiscale" );

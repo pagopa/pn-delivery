@@ -227,6 +227,8 @@ class NotificationPriceServiceTest {
                 .iun( "iun" )
                 .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
                 .senderPaId( "senderPaId" )
+                .recipientIds(List.of( "recipientInternalId0" ))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .physicalAddress(NotificationPhysicalAddress.builder()
@@ -250,6 +252,6 @@ class NotificationPriceServiceTest {
                                                 .build() )
                                         .build() )
                                 .build()) )
-                .build(), List.of( "recipientInternalId0" ), X_PAGOPA_PN_SRC_CH );
+                .build());
     }
 }
