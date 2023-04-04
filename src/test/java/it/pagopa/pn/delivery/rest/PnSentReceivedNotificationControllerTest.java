@@ -92,7 +92,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalNotification notification = newNotification();
 		
 		// When
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
 				
 		// Then		
 		webTestClient.get()
@@ -102,13 +102,14 @@ class PnSentReceivedNotificationControllerTest {
 			.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 			.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 			.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
-			.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+			.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get( 0 ) )
+			.header(PnDeliveryRestConstants.CX_GROUPS_HEADER,  GROUPS.get( 1 ) )
 			.exchange()
 			.expectStatus()
 			.isOk()
 			.expectBody(FullSentNotification.class);
 		
-		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID);
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
 
 	@Test
@@ -118,7 +119,7 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatus( NotificationStatus.IN_VALIDATION );
 
 		// When
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
 
 		// Then
 		webTestClient.get()
@@ -128,12 +129,13 @@ class PnSentReceivedNotificationControllerTest {
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get( 0 ) )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER,  GROUPS.get( 1 ) )
 				.exchange()
 				.expectStatus()
 				.isNotFound();
 
-		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID);
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
 
 
@@ -144,7 +146,7 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatus( NotificationStatus.REFUSED );
 
 		// When
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
 
 		// Then
 		webTestClient.get()
@@ -154,12 +156,13 @@ class PnSentReceivedNotificationControllerTest {
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get( 0 ) )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER,  GROUPS.get( 1 ) )
 				.exchange()
 				.expectStatus()
 				.isNotFound();
 
-		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID);
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
 
 
@@ -169,7 +172,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalNotification notification = newNotification();
 		notification.setNotificationStatusHistory( null );
 
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
 
 		webTestClient.get()
 				.uri(uriBuilder ->
@@ -180,13 +183,14 @@ class PnSentReceivedNotificationControllerTest {
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get( 0 ) )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER,  GROUPS.get( 1 ) )
 				.exchange()
 				.expectStatus()
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID );
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
 
 	@Test
@@ -203,7 +207,7 @@ class PnSentReceivedNotificationControllerTest {
 								.build() )
 				.build() ) );
 
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
 
 		webTestClient.get()
 				.uri(uriBuilder ->
@@ -214,13 +218,14 @@ class PnSentReceivedNotificationControllerTest {
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get( 0 ) )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER,  GROUPS.get( 1 ) )
 				.exchange()
 				.expectStatus()
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID );
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
 
 	@Test
@@ -228,7 +233,7 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 		InternalNotification notification = newNotification();
 
-		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformationWithSenderIdCheck( anyString(), anyString(), anyList() ) ).thenReturn( notification );
 
 		webTestClient.get()
 				.uri(uriBuilder ->
@@ -239,13 +244,14 @@ class PnSentReceivedNotificationControllerTest {
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get( 0 ) )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER,  GROUPS.get( 1 ) )
 				.exchange()
 				.expectStatus()
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID );
+		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
 
 	@Test
@@ -286,7 +292,7 @@ class PnSentReceivedNotificationControllerTest {
 		// Given
 		InternalNotification notification = newNotification();
 
-		Mockito.when( svc.getNotificationInformation( anyString(), anyString(), anyString() ) ).thenReturn( notification );
+		Mockito.when( svc.getNotificationInformation( anyString(), anyString(), anyString(), anyList() ) ).thenReturn( notification );
 
 		webTestClient.get()
 				.uri(uriBuilder ->
@@ -298,13 +304,14 @@ class PnSentReceivedNotificationControllerTest {
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, CX_TYPE_PF)
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get( 0 ) )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER,  GROUPS.get( 1 ) )
 				.exchange()
 				.expectStatus()
 				.isOk()
 				.expectBody( NewNotificationRequestStatusResponse.class );
 
-		Mockito.verify( svc ).getNotificationInformation( PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
+		Mockito.verify( svc ).getNotificationInformation( PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 	}
 
 	@Test

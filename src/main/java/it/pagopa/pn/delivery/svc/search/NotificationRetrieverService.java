@@ -401,20 +401,26 @@ public class NotificationRetrieverService {
 	 * @return Notification DTO
 	 *
 	 */
-	public InternalNotification getNotificationInformationWithSenderIdCheck(String iun, String senderId) {
+	public InternalNotification getNotificationInformationWithSenderIdCheck(String iun, String senderId, List<String> groups) {
 		log.debug( "Retrieve complete notification with sender check by iun={} senderId={} START", iun, senderId );
 		InternalNotification notification = getInternalNotification( iun );
-		checkSenderId( iun, notification.getSenderPaId(), senderId );
+		checkSenderId( iun, notification.getSenderPaId(), senderId, notification.getGroup(), groups );
 		completeInternalNotificationWithTimeline(iun, true, notification);
 		labelizeGroup(notification, senderId);
 		return notification;
 	}
 
-	private void checkSenderId(String iun, String notificationSenderPaId, String senderId) {
+	private void checkSenderId(String iun, String notificationSenderPaId, String senderId, String notificationGroup, List<String> groups) {
 		if ( !notificationSenderPaId.equals( senderId ) )
 			throw new PnNotificationNotFoundException(
 					String.format("Unable to find notification with iun=%s for senderId=%s", iun, senderId  )
 			);
+		if ( StringUtils.hasText( notificationGroup ) && !CollectionUtils.isEmpty( groups )
+				&& !groups.contains( notificationGroup ) ) {
+			throw new PnNotificationNotFoundException(
+				String.format("Unable to find notification with iun=%s for senderId=%s in groups=%s", iun, senderId, groups )
+			);
+		}
 	}
 
 	/**
@@ -438,7 +444,7 @@ public class NotificationRetrieverService {
 		Optional<TimelineElement> optionalMin = timeline
 				.stream()
 				.filter(tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory() )
-								|| TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+						|| TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
 				.min( Comparator.comparing(TimelineElement::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
@@ -478,7 +484,6 @@ public class NotificationRetrieverService {
 	}
 
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
-		// - per l'MVP la notifica ha necessariamente un solo destinatario
 		for ( NotificationRecipient recipient : recipientList ) {
 			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
 			if ( notificationPaymentInfo != null) {
@@ -557,14 +562,14 @@ public class NotificationRetrieverService {
 		return getNotificationInformation( iun, true, false );
 	}
 
-	public InternalNotification getNotificationInformation(String senderId, String paProtocolNumber, String idempotenceToken) {
+	public InternalNotification getNotificationInformation(String senderId, String paProtocolNumber, String idempotenceToken, List<String> groups) {
 		Optional<String> optionalRequestId = notificationDao.getRequestId( senderId, paProtocolNumber, idempotenceToken );
 		if (optionalRequestId.isEmpty()) {
 			String msg = String.format( "Unable to find requestId for senderId=%s paProtocolNumber=%s idempotenceToken=%s", senderId, paProtocolNumber, idempotenceToken );
 			throw new PnNotificationNotFoundException(msg);
 		}
 		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
-		return getNotificationInformationWithSenderIdCheck( iun, senderId );
+		return getNotificationInformationWithSenderIdCheck( iun, senderId, groups );
 	}
 
 	/**

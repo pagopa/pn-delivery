@@ -454,7 +454,7 @@ components:
       description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
       schema:
         type: string
-        pattern: ^[ -~]*$
+        pattern: ^.*$
         maxLength: 256
     idempotenceToken:
       name: idempotenceToken
@@ -1033,18 +1033,18 @@ components:
         at:
           type: string
           description: Campo "presso" dell'indirizzo
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
         address:
           type: string
           description: Indirizzo del domicilio fisico
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           minLength: 2
           maxLength: 1024
         addressDetails:
           type: string
           description: Seconda riga dell'indirizzo fisico
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 1024
         zip:
           type: string
@@ -1055,23 +1055,23 @@ components:
         municipality:
           type: string
           description: Comune
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           minLength: 2
           maxLength: 256
         municipalityDetails:
           type: string
           description: Frazione o località
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
         province:
           type: string
           description: Provincia
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
         foreignState:
           type: string
           description: Denominazione paese estero
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
     noticeCode:
       description: Payment notice number  numero avviso
@@ -1115,7 +1115,7 @@ components:
         versionToken:
           type: string
           description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
     NotificationAttachment:
       description: Un allegato della notifica.
@@ -1237,17 +1237,17 @@ components:
         paProtocolNumber:
           description: Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 256
         subject:
           type: string
           description: titolo della notifica
           maxLength: 134
-          pattern: ^[ -~]*$
+          pattern: ^.*$
         abstract:
           type: string
           description: descrizione sintetica della notifica
-          pattern: ^[ -~]*$
+          pattern: ^.*$
           maxLength: 1024
         recipients:
           type: array
@@ -1308,7 +1308,7 @@ components:
             senderPaId:
               type: string
               description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
-              pattern: ^[ -~]*$
+              pattern: ^.*$
               maxLength: 256
             iun:
               $ref: '#/components/schemas/IUN'
