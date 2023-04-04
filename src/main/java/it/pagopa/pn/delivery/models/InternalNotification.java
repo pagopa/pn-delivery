@@ -10,13 +10,6 @@ import lombok.*;
 @Builder(toBuilder = true, builderMethodName = "fullSentNotificationBuilder")
 @ToString
 public class InternalNotification extends FullSentNotification {
-
-// this entity, before my changes has 2 props in the constructor
-    // List<String> recipientIds, String sourceChannel
-    // now this 2 elements, will be imported inside the FullSentNotification object
-    // and passed to the constructor using -
-    // fsn.getRecipientIds(),
-    // fsn.getSourceChannel()
     public InternalNotification(FullSentNotification fsn) {
         super(
                 fsn.getIdempotenceToken(),

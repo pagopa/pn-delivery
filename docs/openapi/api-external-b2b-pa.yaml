@@ -965,7 +965,6 @@ components:
             - notificationStatus
             - notificationStatusHistory
             - timeline
-            - recipientIds
             - sourceChannel
           properties:
             notificationStatus:
@@ -980,13 +979,13 @@ components:
                 $ref: '#/components/schemas/TimelineElement'
             recipientIds:
               description: >-
-                elenco id destinatario della notifica
+                List of Anonymous Recipient Identifier
               type: array
               items:
                 type: string
             sourceChannel:
               type: string
-              description: Canale sorgente della richiesta di pagamento
+              description: Canale sorgente della richiesta di notifica o canale sorgente creazione notifica
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###

@@ -72,7 +72,6 @@ class NotificationReceiverValidationTest {
     errors = validator.checkNewNotificationBeforeInsert(n);
 
     // THEN
-    assertConstraintViolationPresentByField(errors, "recipientIds");
     assertConstraintViolationPresentByField(errors, "sourceChannel");
     assertConstraintViolationPresentByField(errors, "recipients");
     assertConstraintViolationPresentByField(errors, "timeline");
@@ -87,7 +86,7 @@ class NotificationReceiverValidationTest {
     assertConstraintViolationPresentByField(errors, "notificationFeePolicy");
     assertConstraintViolationPresentByField(errors, "senderDenomination");
     assertConstraintViolationPresentByField(errors, "senderTaxId");
-    Assertions.assertEquals(15, errors.size());
+    Assertions.assertEquals(14, errors.size());
   }
 
   @Test
@@ -109,7 +108,6 @@ class NotificationReceiverValidationTest {
     @Size(min = 1)
     List<ProblemError> errors = validationException.getProblem().getErrors();
     assertProblemErrorConstraintViolationPresentByField(errors, "sourceChannel");
-    assertProblemErrorConstraintViolationPresentByField(errors, "recipientIds");
     assertProblemErrorConstraintViolationPresentByField(errors, "recipients");
     assertProblemErrorConstraintViolationPresentByField(errors, "timeline");
     assertProblemErrorConstraintViolationPresentByField(errors, "notificationStatusHistory");
@@ -123,7 +121,7 @@ class NotificationReceiverValidationTest {
     assertProblemErrorConstraintViolationPresentByField(errors, "notificationFeePolicy");
     assertProblemErrorConstraintViolationPresentByField(errors, "senderDenomination");
     assertProblemErrorConstraintViolationPresentByField(errors, "senderTaxId");
-    Assertions.assertEquals(15, errors.size());
+    Assertions.assertEquals(14, errors.size());
   }
 
   @Test
@@ -562,7 +560,6 @@ class NotificationReceiverValidationTest {
             .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatus.ACCEPTED)
             .relatedTimelineElements(Collections.emptyList()).build()))
         .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject")
-        .recipientIds(Collections.emptyList())
         .sourceChannel(X_PAGOPA_PN_SRC_CH)
         .physicalCommunicationType(
             FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
