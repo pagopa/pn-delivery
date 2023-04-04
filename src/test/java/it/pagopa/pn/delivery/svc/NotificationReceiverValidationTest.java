@@ -72,7 +72,6 @@ class NotificationReceiverValidationTest {
     errors = validator.checkNewNotificationBeforeInsert(n);
 
     // THEN
-    assertConstraintViolationPresentByField(errors, "sourceChannel");
     assertConstraintViolationPresentByField(errors, "recipients");
     assertConstraintViolationPresentByField(errors, "timeline");
     assertConstraintViolationPresentByField(errors, "notificationStatusHistory");
@@ -86,7 +85,7 @@ class NotificationReceiverValidationTest {
     assertConstraintViolationPresentByField(errors, "notificationFeePolicy");
     assertConstraintViolationPresentByField(errors, "senderDenomination");
     assertConstraintViolationPresentByField(errors, "senderTaxId");
-    Assertions.assertEquals(14, errors.size());
+    Assertions.assertEquals(13, errors.size());
   }
 
   @Test
@@ -107,7 +106,6 @@ class NotificationReceiverValidationTest {
     @Valid
     @Size(min = 1)
     List<ProblemError> errors = validationException.getProblem().getErrors();
-    assertProblemErrorConstraintViolationPresentByField(errors, "sourceChannel");
     assertProblemErrorConstraintViolationPresentByField(errors, "recipients");
     assertProblemErrorConstraintViolationPresentByField(errors, "timeline");
     assertProblemErrorConstraintViolationPresentByField(errors, "notificationStatusHistory");
@@ -121,7 +119,7 @@ class NotificationReceiverValidationTest {
     assertProblemErrorConstraintViolationPresentByField(errors, "notificationFeePolicy");
     assertProblemErrorConstraintViolationPresentByField(errors, "senderDenomination");
     assertProblemErrorConstraintViolationPresentByField(errors, "senderTaxId");
-    Assertions.assertEquals(14, errors.size());
+    Assertions.assertEquals(13, errors.size());
   }
 
   @Test

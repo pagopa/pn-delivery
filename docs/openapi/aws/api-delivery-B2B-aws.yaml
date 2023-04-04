@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: I1eVbiTeg0Gj+R0jgGZsM4Gasjs2K20TSCK7eOenJvM=
+  version: c1+eEy/aRAvTN5EW1LtyZCqrXrOC0lp+xyL3ufQqzSw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1030,7 +1030,6 @@ components:
             - notificationStatus
             - notificationStatusHistory
             - timeline
-            - sourceChannel
           properties:
             notificationStatus:
               $ref: '#/components/schemas/NotificationStatus'
@@ -1044,15 +1043,13 @@ components:
               items:
                 $ref: '#/components/schemas/TimelineElement'
             recipientIds:
-              description: List of Anonymous Recipient Identifier
+              description: Lista degli identificativi anonimizzati dei destinatari
               type: array
               items:
                 type: string
             sourceChannel:
               type: string
-              description: >-
-                Canale sorgente della richiesta di notifica o canale sorgente
-                creazione notifica
+              description: Canale sorgente della richiesta di notifica
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
