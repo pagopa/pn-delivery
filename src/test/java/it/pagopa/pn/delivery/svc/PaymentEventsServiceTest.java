@@ -400,8 +400,8 @@ class PaymentEventsServiceTest {
 
 
     private InternalNotification createInternalNotification() {
-        NotificationRecipient notificationRecipient = createRecipient();
-        return new InternalNotification(FullSentNotification.builder()
+        NotificationRecipientPrivate notificationRecipient = createRecipient();
+        return new InternalNotification(FullSentNotificationPrivate.builder()
                 .iun( IUN )
                 .subject("Subject 01")
                 .senderPaId( SENDER_PA_ID )
@@ -413,12 +413,12 @@ class PaymentEventsServiceTest {
         );
     }
 
-    private NotificationRecipient createRecipient() {
-        return NotificationRecipient.builder()
+    private NotificationRecipientPrivate createRecipient() {
+        return NotificationRecipientPrivate.builder()
                 .internalId( RECIPIENT_INTERNAL_ID )
                 .taxId( RECIPIENT_TAX_ID )
                 .denomination("Mario Rossi")
-                .recipientType( NotificationRecipient.RecipientTypeEnum.valueOf( RECIPIENT_TYPE_PF ) )
+                .recipientType( NotificationRecipientPrivate.RecipientTypeEnum.valueOf( RECIPIENT_TYPE_PF ) )
                 .digitalDomicile(NotificationDigitalAddress.builder()
                         .type(NotificationDigitalAddress.TypeEnum.PEC)
                         .address("account@dominio.it")

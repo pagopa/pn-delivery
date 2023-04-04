@@ -158,11 +158,11 @@ public class PaymentEventsService {
 
                 // opacizzo recipientTaxId tramite pn-datavault
                 String recipientInternalId = dataVaultClient.ensureRecipientByExternalId(  RecipientType.valueOf( paymentEventF24.getRecipientType() ), paymentEventF24.getRecipientTaxId() );
-                List<NotificationRecipient> internalNotificationRecipients = internalNotification.getRecipients();
-                Optional<NotificationRecipient> optionalNotificationRecipient = internalNotificationRecipients.stream().filter(rec -> rec.getInternalId().equals( recipientInternalId )).findFirst();
+                List<NotificationRecipientPrivate> internalNotificationRecipients = internalNotification.getRecipients();
+                Optional<NotificationRecipientPrivate> optionalNotificationRecipient = internalNotificationRecipients.stream().filter(rec -> rec.getInternalId().equals( recipientInternalId )).findFirst();
                 if (optionalNotificationRecipient.isPresent() ) {
                     // setto recipientIdx del destinatario che ha effettuato il pagamento
-                    NotificationRecipient notificationRecipient = optionalNotificationRecipient.get();
+                    NotificationRecipientPrivate notificationRecipient = optionalNotificationRecipient.get();
                     recipientIdx = internalNotification.getRecipientIds().indexOf( notificationRecipient.getInternalId() );
                 } else {
                     log.info( "Handle payment event - No notification iun={} with recipientInternalId={}", iun, recipientInternalId );

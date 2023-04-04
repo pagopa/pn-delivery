@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientPrivate;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class DtoToEntityNotificationMapper {
     }
 
     private List<NotificationRecipientEntity> dto2RecipientsEntity(
-            List<NotificationRecipient> recipients
+            List<NotificationRecipientPrivate> recipients
     ) {
         return recipients.stream()
                .map( r -> modelMapper.map( r, NotificationRecipientEntity.class ))

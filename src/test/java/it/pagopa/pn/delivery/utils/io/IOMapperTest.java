@@ -105,16 +105,16 @@ class IOMapperTest {
     }
 
     private InternalNotification internalNotification() {
-        FullSentNotification fullSentNotification = FullSentNotification.builder()
+        FullSentNotificationPrivate fullSentNotification = FullSentNotificationPrivate.builder()
                 .subject("SUBJECT")
                 .iun("IUN")
                 ._abstract("ABSTRACT")
                 .recipients(List.of(
-                        it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.builder()
+                        it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientPrivate.builder()
                                 .internalId("INTERNALID")
                                 .taxId("TAXID")
                                 .denomination("DENOMINATION")
-                                .recipientType(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.RecipientTypeEnum.PF)
+                                .recipientType(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientPrivate.RecipientTypeEnum.PF)
                                 .physicalAddress(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress.builder().address("ADDRESS").build())
                                 .build()
                 ))

@@ -1081,6 +1081,29 @@ components:
               items:
                 $ref: '#/components/schemas/TimelineElement'
 
+    FullSentNotificationPrivate:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
+        processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationPrivate'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElement'
+
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###

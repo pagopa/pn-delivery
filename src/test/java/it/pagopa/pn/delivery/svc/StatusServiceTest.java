@@ -2,10 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -55,7 +52,7 @@ class StatusServiceTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         // WHEN
-        Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
+        Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotificationPrivate.builder()
                 .iun(iun)
                 .sentAt( OffsetDateTime.parse("2021-09-16T15:00:00.00Z") )
                 .subject( "Subject" )
@@ -63,9 +60,9 @@ class StatusServiceTest {
                 .senderPaId( "PAID" )
                 .senderDenomination( "senderDenomination" )
                 .notificationStatus( NotificationStatus.ACCEPTED )
-                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                .recipients( Collections.singletonList(NotificationRecipientPrivate.builder()
                         .taxId( "CodiceFiscale" )
-                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                        .recipientType( NotificationRecipientPrivate.RecipientTypeEnum.PF )
                         .build()) )
                 .build(), List.of( "recipientId" ), X_PAGOPA_PN_SRC_CH));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);

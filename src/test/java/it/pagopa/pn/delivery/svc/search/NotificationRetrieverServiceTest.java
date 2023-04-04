@@ -568,15 +568,15 @@ class NotificationRetrieverServiceTest {
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationPrivate.builder()
                 .iun( IUN )
                 .idempotenceToken( IDEMPOTENCE_TOKEN )
                 .paProtocolNumber( PA_PROTOCOL_NUMBER )
                 .sentAt( OffsetDateTime.now() )
                 .senderTaxId( SENDER_TAXID )
                 .senderPaId( SENDER_ID )
-                .recipients(Collections.singletonList(NotificationRecipient.builder()
-                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipients(Collections.singletonList(NotificationRecipientPrivate.builder()
+                        .recipientType( NotificationRecipientPrivate.RecipientTypeEnum.PF )
                         .payment( NotificationPaymentInfo.builder()
                                 .creditorTaxId( "77777777777" )
                                 .noticeCode( NOTICE_CODE )
@@ -1419,9 +1419,9 @@ class NotificationRetrieverServiceTest {
     }
 
     private void enrichInternalNotificationWithAnotherRecipient(InternalNotification internalNotification, String recipient) {
-        ArrayList<NotificationRecipient> notificationRecipients = new ArrayList<>(internalNotification.getRecipients());
-        notificationRecipients.add(NotificationRecipient.builder()
-                .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+        var notificationRecipients = new ArrayList<>(internalNotification.getRecipients());
+        notificationRecipients.add(NotificationRecipientPrivate.builder()
+                .recipientType(NotificationRecipientPrivate.RecipientTypeEnum.PF)
                 .payment(NotificationPaymentInfo.builder()
                         .creditorTaxId("88888888")
                         .noticeCode(NOTICE_CODE + 1)

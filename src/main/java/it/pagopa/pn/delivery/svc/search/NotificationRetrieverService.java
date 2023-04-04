@@ -483,8 +483,8 @@ public class NotificationRetrieverService {
 		return noticeCodeToReturn;
 	}
 
-	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
-		for ( NotificationRecipient recipient : recipientList ) {
+	private void setNoticeCodeToReturn(List<NotificationRecipientPrivate> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
+		for ( NotificationRecipientPrivate recipient : recipientList ) {
 			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
 			if ( notificationPaymentInfo != null) {
     			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
@@ -635,11 +635,11 @@ public class NotificationRetrieverService {
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
 
 			//"pulisco gli altri destinatari"
-			var filteredNotificationRecipients = new ArrayList<NotificationRecipient>();
+			var filteredNotificationRecipients = new ArrayList<NotificationRecipientPrivate>();
 			for(int i = 0; i< internalNotification.getRecipients().size(); i ++) {
-				NotificationRecipient recipient = internalNotification.getRecipients().get(i);
+				NotificationRecipientPrivate recipient = internalNotification.getRecipients().get(i);
 				if(i != recipientIndex) {
-					recipient = NotificationRecipient.builder()
+					recipient = NotificationRecipientPrivate.builder()
 							.recipientType(recipient.getRecipientType())
 							.internalId(recipient.getInternalId())
 							.build();
@@ -717,7 +717,7 @@ public class NotificationRetrieverService {
 	private void removeDocuments(InternalNotification notification) {
 		notification.setDocumentsAvailable( false );
 		notification.setDocuments( Collections.emptyList() );
-		for ( NotificationRecipient recipient : notification.getRecipients() ) {
+		for ( NotificationRecipientPrivate recipient : notification.getRecipients() ) {
 			NotificationPaymentInfo payment = recipient.getPayment();
 			if ( payment != null ) {
 				payment.setPagoPaForm( null );
@@ -742,7 +742,7 @@ public class NotificationRetrieverService {
 
 		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		FullSentNotification resultFullSent = notification
+		FullSentNotificationPrivate resultFullSent = notification
 				.timeline( timelineList.stream()
 						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElement.class ) )
 						.toList()  )

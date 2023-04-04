@@ -65,7 +65,7 @@ class NotificationReceiverValidationTest {
 
     // GIVEN
     InternalNotification n =
-        new InternalNotification(FullSentNotification.builder().build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
+        new InternalNotification(FullSentNotificationPrivate.builder().build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -94,7 +94,7 @@ class NotificationReceiverValidationTest {
 
     // GIVEN
     InternalNotification n =
-        new InternalNotification(FullSentNotification.builder().build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
+        new InternalNotification(FullSentNotificationPrivate.builder().build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
     Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(n);
@@ -140,7 +140,7 @@ class NotificationReceiverValidationTest {
     // GIVEN
     InternalNotification n = new InternalNotification(
         notificationWithPhysicalCommunicationType().senderTaxId("01199250158")
-            .recipients(Collections.singletonList(NotificationRecipient.builder().build())),
+            .recipients(Collections.singletonList(NotificationRecipientPrivate.builder().build())),
         Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
 
     // WHEN
@@ -161,8 +161,8 @@ class NotificationReceiverValidationTest {
     // GIVEN
     InternalNotification n = new InternalNotification(
         validDocumentWithPayments().senderTaxId("01199250158")
-            .recipients(Collections.singletonList(NotificationRecipient.builder()
-                .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+            .recipients(Collections.singletonList(NotificationRecipientPrivate.builder()
+                .recipientType(NotificationRecipientPrivate.RecipientTypeEnum.PF)
                 // C.F. Omocodice 0=L 1=M 2=N 3=P 4=Q 5=R 6=S 7=T 8=U 9=V
                 .taxId("MRNLCU00A01H50MJ")
                     .denomination("valid Denomination")
@@ -192,8 +192,8 @@ class NotificationReceiverValidationTest {
     // GIVEN
     InternalNotification n = new InternalNotification(
         notificationWithPhysicalCommunicationType().senderTaxId("01199250158")
-            .recipients(Collections.singletonList(NotificationRecipient.builder()
-                .recipientType(NotificationRecipient.RecipientTypeEnum.PF).taxId("invalidTaxId")
+            .recipients(Collections.singletonList(NotificationRecipientPrivate.builder()
+                .recipientType(NotificationRecipientPrivate.RecipientTypeEnum.PF).taxId("invalidTaxId")
                 .denomination("valid Denomination")
                     .physicalAddress( createPhysicalAddress() )
                     .build()
@@ -304,7 +304,7 @@ class NotificationReceiverValidationTest {
     // GIVEN
     InternalNotification n = new InternalNotification(
         notificationWithPhysicalCommunicationType()
-            .recipients(Collections.singletonList(NotificationRecipient.builder().build()))
+            .recipients(Collections.singletonList(NotificationRecipientPrivate.builder().build()))
             .documents(Collections.singletonList(NotificationDocument.builder().build())),
         Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
     n.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
@@ -331,7 +331,7 @@ class NotificationReceiverValidationTest {
     InternalNotification n =
         new InternalNotification(
             notificationWithPhysicalCommunicationType()
-                .recipients(Collections.singletonList(NotificationRecipient
+                .recipients(Collections.singletonList(NotificationRecipientPrivate
                     .builder().taxId("LVLDAA85T50G702B").denomination("Ada Lovelace")
                     .digitalDomicile(NotificationDigitalAddress.builder().build())
                         .physicalAddress( createPhysicalAddress() )
@@ -537,8 +537,8 @@ class NotificationReceiverValidationTest {
         .senderTaxId("paId").recipients(recipients).build();
   }
 
-  private FullSentNotification newFullSentNotification() {
-    return FullSentNotification.builder().sentAt(OffsetDateTime.now()).iun(IUN)
+  private FullSentNotificationPrivate newFullSentNotification() {
+    return FullSentNotificationPrivate.builder().sentAt(OffsetDateTime.now()).iun(IUN)
         .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
         .timeline(Collections.singletonList(TimelineElement.builder().build()))
         .notificationStatus(NotificationStatus.ACCEPTED)
@@ -547,8 +547,8 @@ class NotificationReceiverValidationTest {
             .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
                 .build())
             .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
-        .recipients(Collections.singletonList(NotificationRecipient.builder()
-            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+        .recipients(Collections.singletonList(NotificationRecipientPrivate.builder()
+            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientPrivate.RecipientTypeEnum.PF)
             .denomination("Ada Lovelace")
             .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
                 .type(NotificationDigitalAddress.TypeEnum.PEC).build())
@@ -560,7 +560,7 @@ class NotificationReceiverValidationTest {
             .relatedTimelineElements(Collections.emptyList()).build()))
         .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject")
         .physicalCommunicationType(
-            FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+            FullSentNotificationPrivate.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
         .build();
   }
 
@@ -571,7 +571,7 @@ class NotificationReceiverValidationTest {
   private InternalNotification notificationWithPhysicalCommunicationType() {
     return new InternalNotification(
         newFullSentNotification().physicalCommunicationType(
-            FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890),
+            FullSentNotificationPrivate.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890),
         Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
   }
 
@@ -589,8 +589,8 @@ class NotificationReceiverValidationTest {
     return new InternalNotification(
         newFullSentNotification()
             .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
-            .recipients(Collections.singletonList(NotificationRecipient.builder()
-                .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+            .recipients(Collections.singletonList(NotificationRecipientPrivate.builder()
+                .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientPrivate.RecipientTypeEnum.PF)
                 .denomination("Ada Lovelace")
                 .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
                     .type(NotificationDigitalAddress.TypeEnum.PEC).build())

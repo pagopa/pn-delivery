@@ -140,8 +140,6 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 NewNotificationRequestStatusResponse.class
         );
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
-        // rimozione internalId per ogni destinatario
-        response.getRecipients().forEach( r -> r.setInternalId( null ) );
 
         NotificationStatus lastStatus;
         if ( !CollectionUtils.isEmpty( internalNotification.getNotificationStatusHistory() )) {

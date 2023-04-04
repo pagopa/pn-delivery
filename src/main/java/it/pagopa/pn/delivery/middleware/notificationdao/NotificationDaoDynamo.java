@@ -3,10 +3,8 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
@@ -57,8 +55,8 @@ public class NotificationDaoDynamo implements NotificationDao {
 	public void addNotification(InternalNotification internalNotification  ) throws PnIdConflictException {
 
 		List<NotificationRecipientAddressesDto> recipientAddressesDtoList = new ArrayList<>();
-		List<NotificationRecipient> cleanedRecipientList = new ArrayList<>();
-		for ( NotificationRecipient recipient  : internalNotification.getRecipients()) {
+		List<NotificationRecipientPrivate> cleanedRecipientList = new ArrayList<>();
+		for ( NotificationRecipientPrivate recipient  : internalNotification.getRecipients()) {
 			String opaqueTaxId = pnDataVaultClient.ensureRecipientByExternalId( RecipientType.fromValue( recipient.getRecipientType().getValue() ), recipient.getTaxId() );
 			recipient.setTaxId( opaqueTaxId );
 			NotificationRecipientAddressesDto recipientAddressesDto = new NotificationRecipientAddressesDto()
@@ -77,8 +75,8 @@ public class NotificationDaoDynamo implements NotificationDao {
 		entityDao.putIfAbsent( entity );
 	}
 
-	private NotificationRecipient removeConfidantialInfo(NotificationRecipient recipient) {
-		return NotificationRecipient.builder()
+	private NotificationRecipientPrivate removeConfidantialInfo(NotificationRecipientPrivate recipient) {
+		return NotificationRecipientPrivate.builder()
 				.recipientType( recipient.getRecipientType() )
 				.taxId( recipient.getTaxId() )
 				.payment( recipient.getPayment() )
@@ -128,10 +126,10 @@ public class NotificationDaoDynamo implements NotificationDao {
 	}
 
 	private void handleRecipients(InternalNotification daoResult) {
-		List<NotificationRecipient> daoNotificationRecipientList = daoResult.getRecipients();
+		List<NotificationRecipientPrivate> daoNotificationRecipientList = daoResult.getRecipients();
 
 		Set<String> opaqueIds = daoNotificationRecipientList.stream()
-				.map(NotificationRecipient::getInternalId)
+				.map(NotificationRecipientPrivate::getInternalId)
 				.collect(Collectors.toSet());
 
 		List<BaseRecipientDto> baseRecipientDtoList =
@@ -140,7 +138,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.getIun() );
 		List<String> opaqueRecipientsIds = new ArrayList<>();
 		int recipientIndex = 0;
-		for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
+		for ( NotificationRecipientPrivate recipient : daoNotificationRecipientList ) {
 			String opaqueTaxId = recipient.getInternalId();
 			opaqueRecipientsIds.add( opaqueTaxId );
 

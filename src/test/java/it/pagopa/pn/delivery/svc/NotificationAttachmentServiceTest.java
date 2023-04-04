@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,14 +32,6 @@ import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMan
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentBodyRef;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentAttachment;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -115,8 +108,8 @@ class NotificationAttachmentServiceTest {
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
+    NotificationRecipientPrivate recipient =
+            NotificationRecipientPrivate.builder().taxId(X_PAGOPA_PN_CX_ID).build();
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
@@ -208,8 +201,8 @@ class NotificationAttachmentServiceTest {
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
+    NotificationRecipientPrivate recipient =
+            NotificationRecipientPrivate.builder().taxId(X_PAGOPA_PN_CX_ID).build();
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
@@ -242,8 +235,8 @@ class NotificationAttachmentServiceTest {
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
+    NotificationRecipientPrivate recipient =
+            NotificationRecipientPrivate.builder().taxId(X_PAGOPA_PN_CX_ID).build();
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
@@ -278,8 +271,8 @@ class NotificationAttachmentServiceTest {
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
+    NotificationRecipientPrivate recipient =
+            NotificationRecipientPrivate.builder().taxId(X_PAGOPA_PN_CX_ID).build();
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
@@ -315,7 +308,7 @@ class NotificationAttachmentServiceTest {
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, xPagopaPnCxId));
 
-    NotificationRecipient recipient = NotificationRecipient.builder().taxId(xPagopaPnCxId).build();
+    NotificationRecipientPrivate recipient = NotificationRecipientPrivate.builder().taxId(xPagopaPnCxId).build();
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
@@ -352,8 +345,8 @@ class NotificationAttachmentServiceTest {
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, internalIdDelegator));
 
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(internalIdDelegator).build();
+    NotificationRecipientPrivate recipient =
+            NotificationRecipientPrivate.builder().taxId(internalIdDelegator).build();
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
@@ -445,7 +438,7 @@ class NotificationAttachmentServiceTest {
   void computeFileInfoInternalExcNoPayment() {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
-    notification.setRecipients(Collections.singletonList(NotificationRecipient.builder().build()));
+    notification.setRecipients(Collections.singletonList(NotificationRecipientPrivate.builder().build()));
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
         NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA);
 
@@ -458,7 +451,7 @@ class NotificationAttachmentServiceTest {
   void computeFileInfoInternalExcNoPaymentIsMvp() {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
-    notification.setRecipients(Collections.singletonList(NotificationRecipient.builder().build()));
+    notification.setRecipients(Collections.singletonList(NotificationRecipientPrivate.builder().build()));
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
         NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA);
     when(mvpParameterConsumer.isMvp(any())).thenReturn(Boolean.TRUE);
@@ -522,7 +515,7 @@ class NotificationAttachmentServiceTest {
 
     InternalNotification notification = new InternalNotification();
     notification.setIun(iun);
-    NotificationRecipient notificationRecipient = new NotificationRecipient();
+    NotificationRecipientPrivate notificationRecipient = new NotificationRecipientPrivate();
     notificationRecipient.setTaxId(taxid);
     NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
     NotificationPaymentAttachment notificationPaymentAttachment =

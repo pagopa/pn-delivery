@@ -181,7 +181,7 @@ class CheckAuthComponentTest {
     }
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationPrivate.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
@@ -191,7 +191,7 @@ class CheckAuthComponentTest {
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .sentAt( OffsetDateTime.parse( "2022-08-26T00:00Z" ) )
                 .recipients( Collections.singletonList(
-                        NotificationRecipient.builder()
+                        NotificationRecipientPrivate.builder()
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(NotificationDigitalAddress.builder()

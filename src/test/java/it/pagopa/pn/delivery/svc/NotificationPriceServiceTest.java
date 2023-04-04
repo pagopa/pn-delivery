@@ -222,13 +222,13 @@ class NotificationPriceServiceTest {
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationPrivate.builder()
                 .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
                 .iun( "iun" )
                 .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
                 .senderPaId( "senderPaId" )
-                .recipients(Collections.singletonList(NotificationRecipient.builder()
-                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipients(Collections.singletonList(NotificationRecipientPrivate.builder()
+                        .recipientType( NotificationRecipientPrivate.RecipientTypeEnum.PF )
                         .physicalAddress(NotificationPhysicalAddress.builder()
                                 .foreignState( "Italia" )
                                 .build())

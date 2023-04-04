@@ -12,10 +12,10 @@ import java.util.List;
 @Setter
 @Builder(toBuilder = true, builderMethodName = "fullSentNotificationBuilder")
 @ToString
-public class InternalNotification extends FullSentNotification {
+public class InternalNotification extends FullSentNotificationPrivate {
 
 
-    public InternalNotification(FullSentNotification fsn, List<String> recipientIds, String sourceChannel) {
+    public InternalNotification(FullSentNotificationPrivate fsn, List<String> recipientIds, String sourceChannel) {
         super(
                 fsn.getIdempotenceToken(),
                 fsn.getPaProtocolNumber(),

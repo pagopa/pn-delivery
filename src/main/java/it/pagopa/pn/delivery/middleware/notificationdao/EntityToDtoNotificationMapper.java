@@ -33,7 +33,7 @@ public class EntityToDtoNotificationMapper {
     	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
                 .toList();
 
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationPrivate.builder()
                 .senderDenomination( entity.getSenderDenomination() )
                 ._abstract( entity.getNotificationAbstract() )
                 .senderTaxId( entity.getSenderTaxId() )
@@ -57,9 +57,9 @@ public class EntityToDtoNotificationMapper {
         , recipientIds, entity.getSourceChannel() );
     }
 
-    private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
+    private List<NotificationRecipientPrivate> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {
         return recipients.stream()
-                .map( r -> modelMapper.map(r, NotificationRecipient.class))
+                .map( r -> modelMapper.map(r, NotificationRecipientPrivate.class))
                 .toList();
     }
 

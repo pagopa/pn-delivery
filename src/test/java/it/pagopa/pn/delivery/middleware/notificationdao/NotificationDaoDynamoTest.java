@@ -364,27 +364,27 @@ class NotificationDaoDynamoTest {
     }
 
     private InternalNotification newNotificationWithoutPayments() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationPrivate.builder()
                 .iun("IUN_01")
                 .paProtocolNumber( "protocol_01" )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
                 .subject("Subject 01")
-                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
+                .physicalCommunicationType( FullSentNotificationPrivate.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .group( "Group_1" )
                 .senderPaId( "pa_02" )
                 .sentAt( OffsetDateTime.now() )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .recipients( Collections.singletonList(NotificationRecipient.builder()
-                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipients( Collections.singletonList(NotificationRecipientPrivate.builder()
+                                .recipientType( NotificationRecipientPrivate.RecipientTypeEnum.PF )
                                 .taxId("Codice Fiscale 01")
                                 .denomination("Nome Cognome/Ragione Sociale")
                                 .digitalDomicile(NotificationDigitalAddress.builder()
                                         .type(NotificationDigitalAddress.TypeEnum.PEC)
                                         .address("account@dominio.it")
                                         .build())
-                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                                .recipientType( NotificationRecipientPrivate.RecipientTypeEnum.PF )
                                 .physicalAddress( NotificationPhysicalAddress.builder()
                                         .address( "address" )
                                         .zip( "zip" )
@@ -473,7 +473,7 @@ class NotificationDaoDynamoTest {
 
     private InternalNotification newNotificationWithPaymentsFlat( ) {
         InternalNotification notification =  newNotificationWithoutPayments();
-        for (NotificationRecipient recipient : notification.getRecipients() ) {
+        for (NotificationRecipientPrivate recipient : notification.getRecipients() ) {
             recipient.payment( NotificationPaymentInfo.builder().build() );
         }
         return notification;

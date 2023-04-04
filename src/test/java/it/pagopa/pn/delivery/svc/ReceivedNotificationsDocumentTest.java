@@ -175,13 +175,13 @@ class ReceivedNotificationsDocumentTest {
 	}
 
 	private InternalNotification createDocumentsNotification() {
-		return new InternalNotification(FullSentNotification.builder()
+		return new InternalNotification(FullSentNotificationPrivate.builder()
 				.iun("IUN_DOCUMENT_01")
 				.subject("Subject 01")
 				.senderPaId( "pa_03" )
 				.notificationStatus( NotificationStatus.ACCEPTED )
 				.recipients( Collections.singletonList(
-						NotificationRecipient.builder()
+						NotificationRecipientPrivate.builder()
 						.taxId("Codice Fiscale 01")
 						.denomination("Denomination_TEST")
 						.digitalDomicile(NotificationDigitalAddress.builder()
@@ -229,13 +229,13 @@ class ReceivedNotificationsDocumentTest {
 	}
 
 	private InternalNotification createNoDocumentsNotification() {
-		return new InternalNotification(FullSentNotification.builder()
+		return new InternalNotification(FullSentNotificationPrivate.builder()
 				.iun("IUN_DOCUMENT_01")
 				.subject("Subject 01")
 				.senderPaId( "pa_03" )
 				.notificationStatus( NotificationStatus.ACCEPTED )
 				.recipients( Collections.singletonList(
-						NotificationRecipient.builder()
+						NotificationRecipientPrivate.builder()
 						.taxId("Codice Fiscale 01")
 						.denomination("Denomination_TEST")
 						.digitalDomicile(NotificationDigitalAddress.builder()
