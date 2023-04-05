@@ -809,8 +809,10 @@ Resources:
                   - sqs:GetQueueAttributes
                   - sqs:ChangeMessageVisibility #non utilizzata nella policy di esempio
                   - sqs:GetQueueUrl #utilizzata nella policy di esempio
+                  - sqs:SendMessage
                 Resource:
                   - !Ref PnDeliveryAsseverationQueueARN
+                  - !Ref PnDeliveryAsseverationDLQARN
               - Sid: WriteOnS3
                 Effect: Allow
                 Action:
@@ -840,6 +842,10 @@ Resources:
       BatchSize: !Sub ${PnDeliveryAsseverationLambdaEventSourceMappingBatchSize}
       MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds}
       FunctionName: !GetAtt PnDeliveryAsseverationLambda.Arn
+      # Add an OnFailure destination on the event source mapping
+      DestinationConfig:
+        OnFailure:
+          Destination: !Ref PnDeliveryAsseverationDLQARN
 
   PnDeliveryAsseverationLambdaAlarms:
     Type: AWS::CloudFormation::Stack
