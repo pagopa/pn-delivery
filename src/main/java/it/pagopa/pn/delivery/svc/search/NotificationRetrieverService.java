@@ -813,7 +813,7 @@ public class NotificationRetrieverService {
 
 		if( recIndex == -1 ) {
 			log.debug("Recipient not found for iun={} and recipientId={} ", internalNotification.getIun(), recipientId );
-			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" +
+		throw new PnNotFoundException("Notification not found" ,"Notification with iun=" +
 					internalNotification.getIun() + " do not have recipient/delegator=" + recipientId,
 					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
 		}

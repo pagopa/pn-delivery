@@ -53,8 +53,9 @@ public class EntityToDtoNotificationMapper {
                 .amount(entity.getAmount())
                 .paymentExpirationDate(entity.getPaymentExpirationDate())
                 .taxonomyCode( entity.getTaxonomyCode() )
-                .build()
-        , recipientIds, entity.getSourceChannel() );
+                .sourceChannel( entity.getSourceChannel() )
+                .recipientIds(recipientIds )
+                .build());
     }
 
     private List<NotificationRecipient> entity2RecipientDto(List<NotificationRecipientEntity> recipients) {

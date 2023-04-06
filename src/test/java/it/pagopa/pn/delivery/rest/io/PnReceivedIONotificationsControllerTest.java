@@ -101,6 +101,8 @@ class PnReceivedIONotificationsControllerTest {
                 .cancelledIun("IUN_00")
                 .senderPaId( PA_ID )
                 ._abstract("Abstract")
+                .recipientIds(Collections.emptyList())
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(
                         NotificationRecipient.builder()
@@ -140,7 +142,7 @@ class PnReceivedIONotificationsControllerTest {
                 .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
                         .status( NotificationStatus.ACCEPTED )
                         .build() ) )
-                .build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH );
+                .build());
     }
 
     private String newThirdPartyMessage(InternalNotification notification) {

@@ -687,10 +687,12 @@ class PnInternalNotificationsControllerTest {
                                 )
                                 .build()
                 ))
+                .recipientIds(Collections.singletonList("recipientId"))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .timeline(Collections.singletonList(TimelineElement.builder().build()))
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))
-                .build(), Collections.singletonList("recipientId"), X_PAGOPA_PN_SRC_CH);
+                .build());
     }
 }
