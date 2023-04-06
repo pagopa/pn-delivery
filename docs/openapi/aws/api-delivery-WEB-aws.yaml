@@ -1588,14 +1588,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
-            recipientIds:
-              description: Lista degli identificativi anonimizzati dei destinatari
-              type: array
-              items:
-                type: string
-            sourceChannel:
-              type: string
-              description: Canale sorgente della richiesta di notifica
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -2191,6 +2183,7 @@ components:
           * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
           * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
           * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
+          * `PREPARE_DIGITAL_DOMICILE` - Preparazione all'invio invio digitale (PEC)
           * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
           * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
           * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
@@ -2223,6 +2216,7 @@ components:
         - PUBLIC_REGISTRY_RESPONSE
         - SCHEDULE_ANALOG_WORKFLOW
         - SCHEDULE_DIGITAL_WORKFLOW
+        - PREPARE_DIGITAL_DOMICILE
         - SEND_DIGITAL_DOMICILE
         - SEND_DIGITAL_PROGRESS
         - SEND_DIGITAL_FEEDBACK
@@ -2615,6 +2609,37 @@ components:
           format: date-time
         ioSendMessageResult:
           $ref: '#/components/schemas/IoSendMessageResult'
+    PrepareDigitalDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - retryNumber
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        retryNumber:
+          type: number
+          description: numero dei tentativi effettuati
+        attemptDate:
+          type: string
+          description: data tentativo precedente
+          format: date-time
+        nextDigitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        nextSourceAttemptsMade:
+          type: number
+          description: numero del prossimo tentativo da effettuare
+        nextLastAttemptMadeForSource:
+          type: string
+          description: data tentativo precedente per prossimo source
+          format: date-time
     SendDigitalDetails:
       type: object
       required:
@@ -2968,6 +2993,7 @@ components:
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
         - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/PrepareDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
         - $ref: '#/components/schemas/SendDigitalProgressDetails'
