@@ -407,9 +407,9 @@ class PaymentEventsServiceTest {
                 .senderPaId( SENDER_PA_ID )
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(notificationRecipient))
-                .build(),
-                List.of(RECIPIENT_INTERNAL_ID),
-                X_PAGOPA_PN_SRC_CH
+                .recipientIds(List.of(RECIPIENT_INTERNAL_ID))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
+                .build()
         );
     }
 

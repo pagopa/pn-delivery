@@ -759,6 +759,14 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
+            recipientIds:
+              description: Lista degli identificativi anonimizzati dei destinatari
+              type: array
+              items:
+                type: string
+            sourceChannel:
+              type: string
+              description: Canale sorgente della richiesta di notifica
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: Richiesta contenente un array di eventi di pagamento di tipo PagoPA di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
