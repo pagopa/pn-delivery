@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 2offH0p6FvNLltjlb9Kif8iwIs7S1GNugG8pHzPv9gM=
+  version: Hv/28PwZZik7p2bwvwsP3W6QI+z0nPGXW5YbPssZMQ0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1419,9 +1419,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:

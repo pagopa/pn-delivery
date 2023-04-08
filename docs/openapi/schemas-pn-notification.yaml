@@ -201,9 +201,9 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
+        internalId:  # NO EXTERNAL       
+          type: string # NO EXTERNAL    
+          description: id interno anonimizzato # NO EXTERNAL    
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
