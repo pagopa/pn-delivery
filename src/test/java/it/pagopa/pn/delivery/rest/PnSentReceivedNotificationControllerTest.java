@@ -203,7 +203,10 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setTimeline( Collections.singletonList( TimelineElement.builder()
 						.category( TimelineElementCategory.REQUEST_REFUSED )
 						.details( TimelineElementDetails.builder()
-								.errors( Collections.singletonList( "Errore" ) )
+								.refusalReasons( Collections.singletonList( NotificationRefusedError.builder()
+												.errorCode( "FILE_NOTFOUND" )
+												.detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )
+										.build() ) )
 								.build() )
 				.build() ) );
 
