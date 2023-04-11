@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: GOH6hel6laROidHdPB2t1OF1Hh7L2jPCpoGySv5PR8k=
+  version: DijaB0rnxMR+HRFtab2cTFG6wpGcIfWzUP+weF//opE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2806,7 +2806,11 @@ components:
           description: Id relativo alla eventuale precedente richiesta di invio cartaceo
         productType:
           type: string
-          description: Tipo di invio cartaceo effettivamente inviato
+          description: |
+            Tipo di invio cartaceo effettivamente inviato
+              - __AR__: Raccomandata nazionale Andata e Ritorno
+              - __890__: Recapito a norma della legge 890/1982
+              - __RIR__: Raccomandata internazionale Andata e Ritorno
         analogCost:
           type: number
           description: costo in eurocent dell'invio
@@ -2945,7 +2949,11 @@ components:
           $ref: '#/components/schemas/PhysicalAddress'
         productType:
           type: string
-          description: Tipo di invio cartaceo effettivamente inviato
+          description: |
+            Tipo di invio cartaceo effettivamente inviato
+              - __AR__: Raccomandata nazionale Andata e Ritorno
+              - __890__: Recapito a norma della legge 890/1982
+              - __RIR__: Raccomandata internazionale Andata e Ritorno
         analogCost:
           type: number
           description: costo in eurocent dell'invio
