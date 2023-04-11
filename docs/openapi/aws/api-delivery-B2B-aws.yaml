@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Hv/28PwZZik7p2bwvwsP3W6QI+z0nPGXW5YbPssZMQ0=
+  version: cVyuW1crTbkylPXcqkzMypc6vErkjBB4L4jcxnSHkZM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -885,11 +885,15 @@ components:
           description: amount in euro cents
           type: number
         refinementDate:
-          description: data di perfezionamento per decorrenza termini localizzata
+          description: >-
+            data di perfezionamento per decorrenza termini localizzata espressa
+            alla mezzanotte del giorno in cui si verifica l'evento
           type: string
           format: date-time
         notificationViewDate:
-          description: data di perfezionamento per presa visione
+          description: >-
+            data di perfezionamento per presa visione espressa alla mezzanotte
+            del giorno in cui si verifica l'evento
           type: string
           format: date-time
     NewNotificationResponse:
@@ -1419,6 +1423,9 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
+        internalId:
+          type: string
+          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -1992,17 +1999,29 @@ components:
             perfezionata prima per visualizzazione
           example: 1220
           type: number
+    NotificationRefusedError:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: |-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND
+              - FILE_SHA_ERROR
+              - TAXID_NOT_VALID
+              - SERVICE_UNAVAILABLE
+        detail:
+          type: string
     RequestRefusedDetails:
       type: object
       required:
-        - errors
+        - refusalReasons
       properties:
-        errors:
+        refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            type: string
-            description: Motivazioni che hanno portato al rifiuto della notifica
+            $ref: '#/components/schemas/NotificationRefusedError'
     ScheduleAnalogWorkflowDetails:
       type: object
       required:
