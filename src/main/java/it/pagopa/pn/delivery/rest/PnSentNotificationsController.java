@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.InternalIdCleaner;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +62,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         FullSentNotification result = modelMapper.map( internalNotification, FullSentNotification.class );
+        InternalIdCleaner.cleanInternalId(result.getRecipients());
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
@@ -141,7 +143,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         );
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
         // rimozione internalId per ogni destinatario
-        response.getRecipients().forEach( r -> r.setInternalId( null ) );
+        InternalIdCleaner.cleanInternalId(response.getRecipients());
 
         NotificationStatus lastStatus;
         if ( !CollectionUtils.isEmpty( internalNotification.getNotificationStatusHistory() )) {
