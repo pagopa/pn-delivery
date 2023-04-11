@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class InternalIdCleanerTest {
 
@@ -23,4 +24,17 @@ class InternalIdCleanerTest {
         assertThat(recipients.get(1).getInternalId()).isNull();
         assertThat(recipients.get(1).getDenomination()).isEqualTo("den2");
     }
+
+    @Test
+    void cleanInternalIdWithEmptyTest() {
+
+        assertDoesNotThrow(() -> InternalIdCleaner.cleanInternalId(List.of()));
+    }
+
+    @Test
+    void cleanInternalIdWithNullTest() {
+        NotificationRecipient notificationRecipient = null;
+        assertDoesNotThrow(() -> InternalIdCleaner.cleanInternalId(notificationRecipient));
+    }
+
 }
