@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 6Mo3nN1Ht6xbakSLkzPLggL1w9NKiuQq5D0mG2pF+Bk=
+  version: GOH6hel6laROidHdPB2t1OF1Hh7L2jPCpoGySv5PR8k=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1431,11 +1431,15 @@ components:
           description: amount in euro cents
           type: number
         refinementDate:
-          description: data di perfezionamento per decorrenza termini localizzata
+          description: >-
+            data di perfezionamento per decorrenza termini localizzata espressa
+            alla mezzanotte del giorno in cui si verifica l'evento
           type: string
           format: date-time
         notificationViewDate:
-          description: data di perfezionamento per presa visione
+          description: >-
+            data di perfezionamento per presa visione espressa alla mezzanotte
+            del giorno in cui si verifica l'evento
           type: string
           format: date-time
     NewNotificationResponse:
@@ -1965,6 +1969,9 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
+        internalId:
+          type: string
+          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -2695,14 +2702,26 @@ components:
           type: string
           description: data notifica
           format: date-time
-        errors:
-          type: array
-          x-pn-fieldannotations: >-
-            @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
-          description: Lista errori, vuota in caso di successo
-          items:
-            type: string
-            description: Lista errori, vuota in caso di successo
+        deliveryFailureCause:
+          description: Codice errore, vuoto in caso di successo
+          type: string
+        deliveryDetailCode:
+          type: string
+          description: |
+            Stato - Codice relativo all'evento - Descrizione:
+              - PROGRESS   C000 = PREACCETTAZIONE
+              - PROGRESS   C001 = ACCETTAZIONE
+              - PROGRESS   C005 = PRESA_IN_CARICO
+              - PROGRESS   C007 = PREAVVISO_ERRORE_CONSEGNA
+              - PROGRESS   DP00 = RE-INVIO PEC CAUSA FALLIMENTO TEMPORANEO
+              - PROGRESS   DP10 = TIMEOUT RICEZIONE RISULTATO
+              - ERROR      C002 = NON_ACCETTAZIONE
+              - ERROR      C004 = ERRORE_CONSEGNA
+              - ERROR      C006 = RILEVAZIONE_VIRUS
+              - ERROR      C008 = ERRORE_COMUNICAZIONE_SERVER_PEC
+              - ERROR      C009 = ERRORE_DOMINIO_PEC_NON_VALIDO
+              - ERROR      C010 = ERROR_INVIO_PEC
+              - OK         C003 = AVVENUTA_CONSEGNA
         sendingReceipts:
           type: array
           items:
@@ -2713,9 +2732,12 @@ components:
         recIndex:
           type: number
           description: Index destinatario notifica digitale
-        eventCode:
+        deliveryFailureCause:
+          description: Codice errore, opzionale
           type: string
-          description: esito tornate da ext-channel
+        deliveryDetailCode:
+          type: string
+          description: Vedi deliveryDetailCode in SendDigitalFeedbackDetails
         shouldRetry:
           type: boolean
           description: indica se il progress ha dato luogo ad un ritentativo
@@ -2804,6 +2826,10 @@ components:
           type: string
         documentType:
           type: string
+          description: >
+            Codici documentType: - Plico: Indica il plico cartaceo - AR: Indica
+            la ricevuta di ritorno - Indagine: Indica la ricevuta dell'analisi
+            dell'indagine - 23L: Indica la ricevuta 23L
         url:
           type: string
         date:
@@ -2838,8 +2864,56 @@ components:
           $ref: '#/components/schemas/ResponseStatus'
         deliveryFailureCause:
           type: string
+          description: >
+            __Motivazione di mancata consegna__ obbligtorie negli stati di
+            mancata consegna
+              - __M01__ destinatario irreperibile
+              - __M02__ destinatario deceduto
+              - __M03__ destinatario sconosciuto
+              - __M04__ destinatario trasferito
+              - __M05__ invio rifiutato
+              - __M06__ indirizzo inesatto
+              - __M07__ indirizzo inesistente
+              - __M08__ indirizzo insufficiente
+              - __F01__ - in caso di furto
+              - __F02__ - in caso di smarrimento
+              - __F03__ - in caso di deterioramento
         deliveryDetailCode:
           type: string
+          description: >
+            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
+            statusDescription
+              - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
+              - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECRS002F__- [RS] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECRS003C__- [RS] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRS004C__- [RS] - [OK] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRS005C__- [RS] - [OK] - Compiuta giacenza - Fascicolo Chiuso
+              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECRN001C__- [AR] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRN002C__- [AR] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECRN002F__- [AR] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECRN003C__- [AR] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRN004C__- [AR] - [KO] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECRN005C__- [AR] - [OK] - Compiuta giacenza - Fascicolo Chiuso
+              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECAG001C__- [890] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECAG002C__- [890] - [OK] - Consegnato a persona abilitata - Fascicolo Chiuso
+              - __RECAG003C__- [890] - [KO] - Mancata consegna - Fascicolo Chiuso
+              - __RECAG003F__- [890] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
+              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECAG005C__- [890] - [OK | PROGRESS] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECAG006C__- [890] - [OK | PROGRESS] - Consegna a persona abilitata presso Punti di Giacenza - Fas. Ch.
+              - __RECAG007C__- [890] - [KO | PROGRESS] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
+              - __RECAG008C__- [890] - [PROGRESS] - Compiuta giacenza - Fascicolo Chiuso
+              - __PNAG012__- [890] - [KO] - Distacco d'ufficio 23L - Fascicolo Chiuso
+              - __RECRI003C__- [RIR] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRI004C__- [RIR] - [KO] - Non Consegnato - fascicolo Chiuso
+              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECRSI003C__- [RIS] - [OK] - Consegnato - Fascicolo Chiuso
+              - __RECRSI004C__- [RIS] - [KO] - Non Consegnato - fascicolo Chiuso
+              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimanto/deterioramento
         attachments:
           type: array
           items:
@@ -2967,8 +3041,10 @@ components:
           format: date-time
         deliveryFailureCause:
           type: string
+          description: Vedi deliveryFailureCause in SendAnalogFeedbackDetails
         deliveryDetailCode:
           type: string
+          description: Vedi deliveryDetailCode in SendAnalogFeedbackDetails
         attachments:
           type: array
           items:
