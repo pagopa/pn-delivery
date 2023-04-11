@@ -630,11 +630,11 @@ components:
           type: integer
           format: int32
         refinementDate:
-          description: data di perfezionamento per decorrenza termini localizzata
+          description: data di perfezionamento per decorrenza termini localizzata espressa alla mezzanotte del giorno in cui si verifica l'evento
           type: string
           format: date-time
         notificationViewDate:
-          description: data di perfezionamento per presa visione
+          description: data di perfezionamento per presa visione espressa alla mezzanotte del giorno in cui si verifica l'evento
           type: string
           format: date-time
     NewNotificationResponse:
@@ -1176,9 +1176,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
