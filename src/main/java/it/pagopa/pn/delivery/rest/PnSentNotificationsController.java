@@ -173,10 +173,11 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     private void setRefusedErrors(NewNotificationRequestStatusResponse response, TimelineElement timelineElement) {
-        List<String> errors = timelineElement.getDetails().getErrors();
-        List<ProblemError> problemErrorList = errors.stream().map(
-                error -> ProblemError.builder()
-                        .detail( error )
+        List<NotificationRefusedError> refusalReasons = timelineElement.getDetails().getRefusalReasons();
+        List<ProblemError> problemErrorList = refusalReasons.stream().map(
+                reason -> ProblemError.builder()
+                        .code( reason.getErrorCode() )
+                        .detail( reason.getDetail() )
                         .build()
         ).toList();
         response.setErrors( problemErrorList );
