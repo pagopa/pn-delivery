@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: DijaB0rnxMR+HRFtab2cTFG6wpGcIfWzUP+weF//opE=
+  version: LhmboOzS72ems531AfOjnzZWuy0n5hN1YB4+rfFKLzk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2951,9 +2951,8 @@ components:
           type: string
           description: |
             Tipo di invio cartaceo effettivamente inviato
-              - __AR__: Raccomandata nazionale Andata e Ritorno
-              - __890__: Recapito a norma della legge 890/1982
-              - __RIR__: Raccomandata internazionale Andata e Ritorno
+              - __RS__: Raccomandata nazionale Semplice (per Avviso di mancato Recapito)
+              - __RIS__: Raccomandata internazionale Semplice
         analogCost:
           type: number
           description: costo in eurocent dell'invio

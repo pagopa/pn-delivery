@@ -2164,9 +2164,8 @@ components:
           type: string
           description: |
             Tipo di invio cartaceo effettivamente inviato
-              - __AR__: Raccomandata nazionale Andata e Ritorno
-              - __890__: Recapito a norma della legge 890/1982
-              - __RIR__: Raccomandata internazionale Andata e Ritorno
+              - __RS__: Raccomandata nazionale Semplice (per Avviso di mancato Recapito)
+              - __RIS__: Raccomandata internazionale Semplice
         analogCost:
           type: integer
           description: costo in eurocent dell'invio
