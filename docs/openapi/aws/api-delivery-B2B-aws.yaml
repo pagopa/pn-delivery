@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: EoZaFiwFK89pWNUI+Ma2H5g4e7uzvV7ASh9yZmmMsKA=
+  version: Sab19Wk/8wNcB6Kixkhr4l7QEaBjtn7GywsuLQ+Xmx8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1999,17 +1999,29 @@ components:
             perfezionata prima per visualizzazione
           example: 1220
           type: number
+    NotificationRefusedError:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: |-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND
+              - FILE_SHA_ERROR
+              - TAXID_NOT_VALID
+              - SERVICE_UNAVAILABLE
+        detail:
+          type: string
     RequestRefusedDetails:
       type: object
       required:
-        - errors
+        - refusalReasons
       properties:
-        errors:
+        refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            type: string
-            description: Motivazioni che hanno portato al rifiuto della notifica
+            $ref: '#/components/schemas/NotificationRefusedError'
     ScheduleAnalogWorkflowDetails:
       type: object
       required:

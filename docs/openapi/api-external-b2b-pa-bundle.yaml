@@ -1738,17 +1738,29 @@ components:
           example: 1220
           type: integer
           format: int64
+    NotificationRefusedError:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: |-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND
+              - FILE_SHA_ERROR
+              - TAXID_NOT_VALID
+              - SERVICE_UNAVAILABLE
+        detail:
+          type: string
     RequestRefusedDetails:
       type: object
       required:
-        - errors
+        - refusalReasons
       properties:
-        errors:
+        refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            type: string
-            description: Motivazioni che hanno portato al rifiuto della notifica
+            $ref: '#/components/schemas/NotificationRefusedError'
     ScheduleAnalogWorkflowDetails:
       type: object
       required:
