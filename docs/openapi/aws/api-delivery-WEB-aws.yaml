@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: dPu0r3BwQoakOnGrb3Z+fAHrqATX/0up7tJfd+2CYxk=
+  version: +uqEtDwfITel7vWamD27LtGZVIugsbxPjlo5XMy4Cxs=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1592,14 +1592,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
-            recipientIds:
-              description: Lista degli identificativi anonimizzati dei destinatari
-              type: array
-              items:
-                type: string
-            sourceChannel:
-              type: string
-              description: Canale sorgente della richiesta di notifica
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1969,9 +1961,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:

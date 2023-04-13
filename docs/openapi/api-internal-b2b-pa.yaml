@@ -1080,15 +1080,14 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
-            recipientIds:
-              description: >-
-                Lista degli identificativi anonimizzati dei destinatari
-              type: array
-              items:
-                type: string
-            sourceChannel:
-              type: string
-              description: Canale sorgente della richiesta di notifica
+            recipientIds:                                                   # NO EXTERNAL
+              description: Lista degli identificativi anonimizzati dei destinatari     # NO EXTERNAL
+              type: array                                                   # NO EXTERNAL
+              items:                                                        # NO EXTERNAL
+                type: string                                                # NO EXTERNAL
+            sourceChannel:                                                  # NO EXTERNAL
+              type: string                                                  # NO EXTERNAL
+              description: Canale sorgente della richiesta di notifica      # NO EXTERNAL
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###

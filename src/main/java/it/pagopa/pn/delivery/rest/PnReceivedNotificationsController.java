@@ -15,7 +15,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.InternalIdCleaner;
+import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -149,8 +149,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId);
+            InternalFieldsCleaner.cleanInternalFields( internalNotification );
             result = modelMapper.map(internalNotification, FullReceivedNotification.class);
-            InternalIdCleaner.cleanInternalId(result.getRecipients());
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
