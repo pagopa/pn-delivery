@@ -19,7 +19,7 @@ components:
       type: string
       minLength: 1
       maxLength: 80
-      pattern: '^([\x20-\xFF]{1,80})$'
+      pattern: '^.*$'
 
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
@@ -251,7 +251,7 @@ components:
               description: Titolo del documento allegato. Stringa alfanumerica con caratteri utilizzabili in un nome file.
               minLength: 1
               maxLength: 512
-              pattern: ^[a-zA-Z0-9._-]{1,512}$
+              pattern: ^.*$
             docIdx:
               type: string
               description: >-

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Rly71z9PnmdugSfZOkZBzdSPu5ICglgw15MxqsnyMCo=
+  version: VSHGcArW+XyXXqa8pW/S53Na5MTmEN6FhKXp87dae3s=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1779,7 +1779,7 @@ components:
       type: string
       minLength: 1
       maxLength: 80
-      pattern: ^([\x20-\xFF]{1,80})$
+      pattern: ^.*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
@@ -1961,9 +1961,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -1985,7 +1982,7 @@ components:
                 caratteri utilizzabili in un nome file.
               minLength: 1
               maxLength: 512
-              pattern: ^[a-zA-Z0-9._-]{1,512}$
+              pattern: ^.*$
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
