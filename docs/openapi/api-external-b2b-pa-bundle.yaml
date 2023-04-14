@@ -1168,6 +1168,9 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
+        internalId:
+          type: string
+          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -1354,7 +1357,7 @@ components:
         key:
           description: Chiave dell'atto opponibile a terzi generato durante il processo di consegna
           type: string
-          pattern: ^(safestorage:\/\/)?[A-Z0-9_-]+$
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
