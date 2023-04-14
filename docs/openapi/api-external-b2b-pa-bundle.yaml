@@ -1015,12 +1015,11 @@ components:
           pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
           maxLength: 320
     NotificationPhysicalAddress:
-      description: Indirizzo fisico scoperto durante fase di consegna
+      description: Indirizzo fisico
       type: object
       required:
         - address
         - municipality
-        - zip
       properties:
         at:
           type: string
@@ -1040,10 +1039,10 @@ components:
           maxLength: 1024
         zip:
           type: string
-          description: Codice di avviamento postale
-          minLength: 5
-          maxLength: 5
-          pattern: ^\d{5}$
+          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
+          minLength: 0
+          maxLength: 15
+          pattern: ^(\w|\ |\-)*$
         municipality:
           type: string
           description: Comune
