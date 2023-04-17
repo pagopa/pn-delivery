@@ -117,8 +117,9 @@ class PaymentEventsServiceTest {
     @Test
     void handlePaymentEventsPagoPaPrivate() {
         // Given
-        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
+        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
                 .paymentDate( PAYMENT_DATE_STRING )
+                .uncertainPaymentDate( true )
                 .amount(PAYMENT_AMOUNT)
                 .creditorTaxId(CREDITOR_TAX_ID)
                 .noticeCode(NOTICE_CODE)
@@ -141,6 +142,7 @@ class PaymentEventsServiceTest {
         // Then
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
+                .uncertainPaymentDate( true )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
                 .paymentAmount( PAYMENT_AMOUNT )
                 .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY )
@@ -159,8 +161,9 @@ class PaymentEventsServiceTest {
     @Test
     void handlePaymentEventsPagoPaPrivateNoNotificationsCost() {
         // Given
-        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
+        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
                 .paymentDate( PAYMENT_DATE_STRING )
+                .uncertainPaymentDate( true )
                 .creditorTaxId(CREDITOR_TAX_ID)
                 .noticeCode(NOTICE_CODE)
                 .build();
