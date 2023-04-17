@@ -454,7 +454,7 @@ components:
       description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
       schema:
         type: string
-        pattern: ^.*$
+        pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
         maxLength: 256
     idempotenceToken:
       name: idempotenceToken
@@ -995,7 +995,7 @@ components:
       type: string
       minLength: 1
       maxLength: 80
-      pattern: ^([\x20-\xFF]{1,80})$
+      pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
@@ -1015,55 +1015,54 @@ components:
           pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
           maxLength: 320
     NotificationPhysicalAddress:
-      description: Indirizzo fisico scoperto durante fase di consegna
+      description: Indirizzo fisico
       type: object
       required:
         - address
         - municipality
-        - zip
       properties:
         at:
           type: string
           description: Campo "presso" dell'indirizzo
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           maxLength: 256
         address:
           type: string
           description: Indirizzo del domicilio fisico
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           minLength: 2
           maxLength: 1024
         addressDetails:
           type: string
           description: Seconda riga dell'indirizzo fisico
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           maxLength: 1024
         zip:
           type: string
-          description: Codice di avviamento postale
-          minLength: 5
-          maxLength: 5
-          pattern: ^\d{5}$
+          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
+          minLength: 0
+          maxLength: 15
+          pattern: ^(\w|\ |\-)*$
         municipality:
           type: string
           description: Comune
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           minLength: 2
           maxLength: 256
         municipalityDetails:
           type: string
           description: Frazione o località
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           maxLength: 256
         province:
           type: string
           description: Provincia
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           maxLength: 256
         foreignState:
           type: string
           description: Denominazione paese estero
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           maxLength: 256
     noticeCode:
       description: Payment notice number  numero avviso
@@ -1107,7 +1106,7 @@ components:
         versionToken:
           type: string
           description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           maxLength: 256
     NotificationAttachment:
       description: Un allegato della notifica.
@@ -1187,7 +1186,7 @@ components:
               description: Titolo del documento allegato. Stringa alfanumerica con caratteri utilizzabili in un nome file.
               minLength: 1
               maxLength: 512
-              pattern: ^[a-zA-Z0-9._-]{1,512}$
+              pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
@@ -1226,17 +1225,17 @@ components:
         paProtocolNumber:
           description: Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           maxLength: 256
         subject:
           type: string
           description: titolo della notifica
           maxLength: 134
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
         abstract:
           type: string
           description: descrizione sintetica della notifica
-          pattern: ^.*$
+          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
           maxLength: 1024
         recipients:
           type: array
@@ -1297,7 +1296,7 @@ components:
             senderPaId:
               type: string
               description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
-              pattern: ^.*$
+              pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
               maxLength: 256
             iun:
               $ref: '#/components/schemas/IUN'
