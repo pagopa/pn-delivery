@@ -714,7 +714,7 @@ components:
       schema:
         type: string
         # wide range of characters
-        pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+        pattern: ^.*$
         maxLength: 256
     idempotenceToken:
       name: idempotenceToken
