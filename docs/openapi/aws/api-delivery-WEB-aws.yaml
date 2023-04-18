@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: S4TGIhX7Bp8gTvJXb0oGU1wLc9PsEUB2dAaSfTw68Ns=
+  version: RCE0YLgMyfU24ldybXvH05/ckIHRZ45atY8xHHdi8wM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1144,7 +1144,7 @@ components:
         per rettifiche.
       schema:
         type: string
-        pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+        pattern: ^.*$
         maxLength: 256
     idempotenceToken:
       name: idempotenceToken
@@ -1779,7 +1779,7 @@ components:
       type: string
       minLength: 1
       maxLength: 80
-      pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+      pattern: ^.*$
     NotificationDigitalAddress:
       description: Indirizzo di invio della notifica
       required:
@@ -1810,18 +1810,18 @@ components:
         at:
           type: string
           description: Campo "presso" dell'indirizzo
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           maxLength: 256
         address:
           type: string
           description: Indirizzo del domicilio fisico
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           minLength: 2
           maxLength: 1024
         addressDetails:
           type: string
           description: Seconda riga dell'indirizzo fisico
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           maxLength: 1024
         zip:
           type: string
@@ -1834,23 +1834,23 @@ components:
         municipality:
           type: string
           description: Comune
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           minLength: 2
           maxLength: 256
         municipalityDetails:
           type: string
           description: Frazione o località
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           maxLength: 256
         province:
           type: string
           description: Provincia
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           maxLength: 256
         foreignState:
           type: string
           description: Denominazione paese estero
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           maxLength: 256
     noticeCode:
       description: Payment notice number  numero avviso
@@ -1897,7 +1897,7 @@ components:
             Token per recuperare l'esatta istanza dell'allegato, che dovrà
             coincidere con l'__x-amz-version-id__ ottenuto nell'header della
             response in fase di upload del documento ad esso associato.
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           maxLength: 256
     NotificationAttachment:
       description: Un allegato della notifica.
@@ -1983,7 +1983,7 @@ components:
                 caratteri utilizzabili in un nome file.
               minLength: 1
               maxLength: 512
-              pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+              pattern: ^.*$
             docIdx:
               type: string
               description: Indice del documento partendo da 0.
@@ -2030,17 +2030,17 @@ components:
         paProtocolNumber:
           description: Numero di protocollo che la PA mittente assegna alla notifica stessa
           type: string
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           maxLength: 256
         subject:
           type: string
           description: titolo della notifica
           maxLength: 134
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
         abstract:
           type: string
           description: descrizione sintetica della notifica
-          pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+          pattern: ^.*$
           maxLength: 1024
         recipients:
           type: array
@@ -2108,7 +2108,7 @@ components:
               description: >-
                 Identificativo (non IPA) della PA mittente che ha eseguito
                 l'onboarding su SelfCare.
-              pattern: ^[\P{Cc}\P{Cn}\P{Cs}]*$
+              pattern: ^.*$
               maxLength: 256
             iun:
               $ref: '#/components/schemas/IUN'
