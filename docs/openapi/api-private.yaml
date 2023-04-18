@@ -211,7 +211,7 @@ paths:
         content:
           application/json:
               schema:
-                $ref: "#/components/schemas/PaymentEventPagoPa"
+                $ref: "#/components/schemas/PaymentEventPagoPaPrivate"
       responses:
         '204':
           description: OK
@@ -468,7 +468,7 @@ components:
           format: int32
           description: indice del destinatario
 
-    PaymentEventPagoPa:
+    PaymentEventPagoPaPrivate:
       title: Evento di pagamento PagoPa
       description: >-
         Comprende: <br/>
@@ -481,6 +481,7 @@ components:
         - noticeCode
         - creditorTaxId
         - paymentDate
+        - uncertainPaymentDate
       properties:
         noticeCode:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
@@ -490,6 +491,9 @@ components:
           type: string
           pattern: ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|([+\-][0-9]{2}):([0-9]{2}))$
           description: data e ora in formato ISO 8601
+        uncertainPaymentDate:
+          type: boolean
+          description: indica se la data di pagamento é incerta
         amount:
           type: integer
           format: int32

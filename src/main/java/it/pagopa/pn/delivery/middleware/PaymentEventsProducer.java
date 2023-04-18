@@ -33,6 +33,7 @@ public interface PaymentEventsProducer extends MomProducer<PnDeliveryPaymentEven
                             .iun( internalPaymentEvent.getIun() )
                             .paymentType( internalPaymentEvent.getPaymentType() )
                             .paymentDate( internalPaymentEvent.getPaymentDate() )
+                            .uncertainPaymentDate( internalPaymentEvent.isUncertainPaymentDate() )
                             .paymentSourceChannel( internalPaymentEvent.getPaymentSourceChannel() )
                             .amount( internalPaymentEvent.getPaymentAmount() )
                             .recipientIdx( internalPaymentEvent.getRecipientIdx() )

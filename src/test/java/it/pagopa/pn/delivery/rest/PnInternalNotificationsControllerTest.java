@@ -607,8 +607,9 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void paymentEventPagoPaPrivateSuccess() {
-        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
+        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
                 .paymentDate( "2023-01-16T15:30:00.234Z" )
+                .uncertainPaymentDate( true )
                 .creditorTaxId("77777777777")
                 .noticeCode("123456789123456789")
                 .amount( 1200 )
@@ -626,20 +627,21 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void paymentEventPagoPaPrivateFailure() {
-        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
+        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
                 .paymentDate( "2023-01-16T15:30:00Z")
+                .uncertainPaymentDate( true )
                 .creditorTaxId("77777777777")
                 .noticeCode("123456789123456789")
                 .build();
 
         Mockito.doThrow( new PnRuntimeException( "test", "description", 400, "errorCode", "element", "detail" ) )
                 .when( paymentEventsService )
-                .handlePaymentEventPagoPaPrivate( Mockito.any( PaymentEventPagoPa.class ) );
+                .handlePaymentEventPagoPaPrivate( Mockito.any( PaymentEventPagoPaPrivate.class ) );
 
         webTestClient.post()
                 .uri("/delivery-private/events/payment/pagopa")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(paymentEventPagoPa), PaymentEventPagoPa.class)
+                .body(Mono.just(paymentEventPagoPa), PaymentEventPagoPaPrivate.class)
                 .exchange()
                 .expectStatus().isBadRequest();
     }
