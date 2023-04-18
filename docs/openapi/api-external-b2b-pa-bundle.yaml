@@ -1455,7 +1455,6 @@ components:
       required:
         - address
         - municipality
-        - zip
       properties:
         at:
           type: string
@@ -1468,7 +1467,7 @@ components:
           description: Seconda riga dell'indirizzo fisico
         zip:
           type: string
-          description: Codice di avviamento postale
+          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
         municipality:
           type: string
           description: Comune in cui l'indirizzo si trova
@@ -1741,8 +1740,6 @@ components:
           type: string
     RequestRefusedDetails:
       type: object
-      required:
-        - refusalReasons
       properties:
         refusalReasons:
           type: array
@@ -2258,6 +2255,9 @@ components:
         paymentSourceChannel:
           type: string
           description: Canale sorgente della richiesta di pagamento
+        uncertainPaymentDate:
+          type: boolean
+          description: Indica se la data di pagamento é certa
     SendAnalogProgressDetails:
       type: object
       required:

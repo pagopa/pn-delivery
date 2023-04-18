@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: woko85/F/+tTkZnd/GhiuuF1M1UtI59Ors54r7+1KOs=
+  version: GerDsbuQPVTvKpz3xoxSZ/vLgjrdI31I7W6IGIxS2ok=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1724,7 +1724,6 @@ components:
       required:
         - address
         - municipality
-        - zip
       properties:
         at:
           type: string
@@ -1737,7 +1736,9 @@ components:
           description: Seconda riga dell'indirizzo fisico
         zip:
           type: string
-          description: Codice di avviamento postale
+          description: >-
+            Codice di avviamento postale. In caso di invio estero diventa
+            facoltativo
         municipality:
           type: string
           description: Comune in cui l'indirizzo si trova
@@ -2004,8 +2005,6 @@ components:
           type: string
     RequestRefusedDetails:
       type: object
-      required:
-        - refusalReasons
       properties:
         refusalReasons:
           type: array
@@ -2491,6 +2490,9 @@ components:
         paymentSourceChannel:
           type: string
           description: Canale sorgente della richiesta di pagamento
+        uncertainPaymentDate:
+          type: boolean
+          description: Indica se la data di pagamento é certa
     SendAnalogProgressDetails:
       type: object
       required:
