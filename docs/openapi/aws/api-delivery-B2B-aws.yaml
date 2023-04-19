@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: CsVHeuzh8AR+zY09ln3xpij/iF47azbZy3ZhxpoVtVg=
+  version: d4PjiTmz7kaqUym9YZglelfQa+jwMubZhrMwTVJ70ms=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1248,11 +1248,12 @@ components:
             - PEC
         address:
           type: string
-          example: account@domain
+          example: account@domain.it
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende
             utilizzare per  raggiungere il destinatario.
-          pattern: ^[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$
+          pattern: >-
+            ^([a-zA-Z0-9]+(?:[.\-_][a-zA-Z0-9]+){0,10}@[a-zA-Z0-9]+(?:[.-][a-zA-Z0-9]+){0,10}(?:\.[a-zA-Z0-9]{2,10}))$
           maxLength: 320
     NotificationPhysicalAddress:
       description: Indirizzo fisico scoperto durante fase di consegna
@@ -1415,9 +1416,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:

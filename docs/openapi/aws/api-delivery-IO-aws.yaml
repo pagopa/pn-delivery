@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: uUFQ3GH2ofHuJDqIYEsKyRkW3bt1c6hal6bDhy0g9Sc=
+  version: devyujeUpYTRAGj/bqTfGqJZ7TXXrObEVVyvmxa0/so=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -200,7 +200,7 @@ components:
         contentLength:
           type: number
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         url:
           type: string
           description: >-

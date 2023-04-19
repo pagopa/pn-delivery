@@ -64,7 +64,7 @@ components:
         contentLength:
           type: number
           example: 54092
-          description: dmensione, in byte, del contenuto.
+          description: dimensione, in byte, del contenuto.
         url:
           type: string
           description: >-

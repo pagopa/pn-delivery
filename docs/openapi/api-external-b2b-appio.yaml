@@ -1,15 +1,15 @@
 openapi: 3.0.3
 info:
   termsOfService: https://da-definire/
-  x-api-id: api-external-b2b-appio
+  x-api-id: api-external-web-recipient                              # ONLY EXTERNAL
   title: "Piattaforma Notifiche: API B2B per backend AppIO"
   x-summary: 'Piattaforma Notifiche: API B2B per backend AppIO'
   description: |-
     ## Abstract
       API utilizzate dal backend di AppIO per recuperare:
-      - i dettagli della notifica
-      - gli url dei documenti allegati alla notifica
-      - gli url degli atti opponibili a terzi
+      - dettagli della notifica
+      - url dei documenti allegati alla notifica
+      - url degli atti opponibili a terzi
   contact:
     email: pn@pagopa.it
   license:
