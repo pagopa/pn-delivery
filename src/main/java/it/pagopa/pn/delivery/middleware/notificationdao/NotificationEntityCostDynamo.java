@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.DeleteItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 
 import java.util.Optional;
@@ -53,5 +54,10 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
                 .item( notificationCostEntity )
                 .build();
         table.putItem( request );
+    }
+
+    @Override
+    public void deleteItem(NotificationCostEntity notificationCostEntity) {
+        table.deleteItem(notificationCostEntity);
     }
 }
