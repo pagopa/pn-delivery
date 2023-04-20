@@ -34,7 +34,7 @@ public class PnDataVaultClientImpl {
     }
 
     public void updateNotificationAddressesByIun(String iun, List<NotificationRecipientAddressesDto> notificationRecipientAddressesDto) {
-        notificationsApi.updateNotificationAddressesByIun( iun, notificationRecipientAddressesDto );
+        notificationsApi.updateNotificationAddressesByIun( iun, null, notificationRecipientAddressesDto );
     }
 
     public List<BaseRecipientDto> getRecipientDenominationByInternalId(List<String> internalId) {
@@ -42,7 +42,7 @@ public class PnDataVaultClientImpl {
     }
 
     public List<NotificationRecipientAddressesDto> getNotificationAddressesByIun(String iun) {
-        return notificationsApi.getNotificationAddressesByIun( iun );
+        return notificationsApi.getNotificationAddressesByIun( iun, null );
     }
 
 }
