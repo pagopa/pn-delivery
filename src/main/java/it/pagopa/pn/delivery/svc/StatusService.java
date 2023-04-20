@@ -1,13 +1,16 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -32,17 +35,20 @@ public class StatusService {
     private final NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
     private final NotificationDelegatedService notificationDelegatedService;
     private final PnDataVaultClientImpl dataVaultClient;
+    private final NotificationCostEntityDao notificationCostEntityDao;
 
     public StatusService(NotificationDao notificationDao,
                          NotificationMetadataEntityDao notificationMetadataEntityDao,
                          NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao,
                          NotificationDelegatedService notificationDelegatedService,
-                         PnDataVaultClientImpl dataVaultClient) {
+                         PnDataVaultClientImpl dataVaultClient,
+                         NotificationCostEntityDao notificationCostEntityDao) {
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
         this.notificationDelegationMetadataEntityDao = notificationDelegationMetadataEntityDao;
         this.notificationDelegatedService = notificationDelegatedService;
         this.dataVaultClient = dataVaultClient;
+        this.notificationCostEntityDao = notificationCostEntityDao;
     }
     
     public void updateStatus(RequestUpdateStatusDto dto) {
@@ -54,7 +60,7 @@ public class StatusService {
 
             OffsetDateTime acceptedAt = null;
 
-            if ( !NotificationStatus.ACCEPTED.equals( dto.getNextStatus() ) ) {
+            if ( !NotificationStatus.ACCEPTED.equals( dto.getNextStatus() ) && !NotificationStatus.REFUSED.equals( dto.getNextStatus()) ) {
                 Key key = Key.builder()
                         .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )
                         .sortValue( notification.getSentAt().toString() )
@@ -69,12 +75,31 @@ public class StatusService {
                 acceptedAt = dto.getTimestamp();
             }
 
-            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
-            nextMetadataEntry.forEach(metadata -> {
-                notificationMetadataEntityDao.put(metadata);
-                List<NotificationDelegationMetadataEntity> delegationMetadata = notificationDelegatedService.computeDelegationMetadataEntries(metadata);
-                delegationMetadata.forEach(notificationDelegationMetadataEntityDao::put);
-            });
+            // The notificationMetadata will be updated if the notification is not REFUSED
+            if ( !NotificationStatus.REFUSED.equals( dto.getNextStatus()) ) {
+                List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
+                nextMetadataEntry.forEach(metadata -> {
+                    notificationMetadataEntityDao.put(metadata);
+                    List<NotificationDelegationMetadataEntity> delegationMetadata = notificationDelegatedService.computeDelegationMetadataEntries(metadata);
+                    delegationMetadata.forEach(notificationDelegationMetadataEntityDao::put);
+                });
+            }
+
+            // When the notification is REFUSED, the NotificationCost table will be cleared of all the related noticeCodes
+            if ( NotificationStatus.REFUSED.equals( dto.getNextStatus() ) ) {
+                notification.getRecipients().stream()
+                        .filter(r -> Objects.nonNull(r.getPayment()))
+                        .forEach(r -> {
+                            notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
+                                    .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCode())
+                                    .build());
+                            if(!r.getPayment().getNoticeCodeAlternative().isEmpty())
+                                notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
+                                        .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCodeAlternative())
+                                        .build());
+
+                        });
+            }
         } else {
             throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun(),
                     ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
