@@ -35,3 +35,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/scripts/generate-code-laf.sh
