@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.function.Executable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -56,6 +57,11 @@ class StatusServiceTest {
 
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
+        Key key = Key.builder()
+                .partitionValue( iun + "##" + "recipientInternalId" )
+                .sortValue( "2021-09-16T15:00Z" )
+                .build();
+
         // WHEN
         Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
                 .iun(iun)
@@ -70,11 +76,16 @@ class StatusServiceTest {
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
                         .taxId( "CodiceFiscale" )
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                        .internalId( "recipientInternalId" )
                         .build()) )
                 .build()));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         Mockito.when( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, "CodiceFiscale" ) )
                 .thenReturn( "CodiceFiscale" );
+        Mockito.when(notificationMetadataEntityDao.get( key )).thenReturn( Optional.of( NotificationMetadataEntity.builder()
+                        .tableRow( Map.of( "acceptedAt", "2021-09-16T16:00Z") )
+                .build() )
+        );
         
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
                 .iun(iun)
