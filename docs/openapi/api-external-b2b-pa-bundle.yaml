@@ -1167,6 +1167,9 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
+        internalId:
+          type: string
+          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -1343,6 +1346,7 @@ components:
         - ANALOG_DELIVERY
         - RECIPIENT_ACCESS
         - PEC_RECEIPT
+        - ANALOG_FAILURE_DELIVERY
     LegalFactsId:
       description: Chiavi dei documenti generati durante il processo di consegna cartacea
       type: object
@@ -1381,8 +1385,10 @@ components:
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
           * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
           * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
+          * `ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto firmato e marcato di chiusura del workflow analogico completato con fallimento
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
+          * `SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione evento non finale relativo all'invio della raccomandata semplice
           * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
           * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
           * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
@@ -1414,8 +1420,10 @@ components:
         - DIGITAL_FAILURE_WORKFLOW
         - ANALOG_SUCCESS_WORKFLOW
         - ANALOG_FAILURE_WORKFLOW
+        - ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST
         - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
+        - SIMPLE_REGISTERED_LETTER_PROGRESS
         - NOTIFICATION_VIEWED_CREATION_REQUEST
         - NOTIFICATION_VIEWED
         - PREPARE_ANALOG_DOMICILE
@@ -1493,6 +1501,30 @@ components:
           format: int32
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
+    EndWorkflowStatus:
+      type: string
+      description: Stato chiusura workflow
+      enum:
+        - SUCCESS
+        - FAILURE
+    AnalogFailureWorkflowCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        legalfactId:
+          type: string
+          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+        endWorkflowStatus:
+          $ref: '#/components/schemas/EndWorkflowStatus'
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
     CompletelyUnreachableDetails:
       type: object
       required:
@@ -1515,12 +1547,6 @@ components:
         address:
           type: string
           description: account@domain
-    EndWorkflowStatus:
-      type: string
-      description: Stato chiusura workflow
-      enum:
-        - SUCCESS
-        - FAILURE
     DigitalDeliveryCreationRequestDetails:
       type: object
       required:
@@ -2133,6 +2159,9 @@ components:
         sendRequestId:
           type: string
           description: RequestId della richiesta d'invio
+        registeredLetterCode:
+          type: string
+          description: Codice della raccomandata
     BaseRegisteredLetterDetails:
       type: object
       required:
@@ -2283,6 +2312,37 @@ components:
         sendRequestId:
           type: string
           description: RequestId della richiesta d'invio
+        registeredLetterCode:
+          type: string
+          description: Codice della raccomandata
+    SimpleRegisteredLetterProgressDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario che ha effettuato il pagamento della notifica
+          format: int32
+        notificationDate:
+          type: string
+          format: date-time
+        deliveryFailureCause:
+          type: string
+          description: Vedi deliveryFailureCause in SendAnalogFeedbackDetails
+        deliveryDetailCode:
+          type: string
+          description: Vedi deliveryDetailCode in SendAnalogFeedbackDetails
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDetails'
+        sendRequestId:
+          type: string
+          description: RequestId della richiesta d'invio
+        registeredLetterCode:
+          type: string
+          description: Codice della raccomandata
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
@@ -2290,6 +2350,7 @@ components:
         - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/AnalogFailureWorkflowCreationRequestDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableDetails'
         - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
@@ -2319,6 +2380,7 @@ components:
         - $ref: '#/components/schemas/NotHandledDetails'
         - $ref: '#/components/schemas/NotificationPaidDetails'
         - $ref: '#/components/schemas/SendAnalogProgressDetails'
+        - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
