@@ -11,6 +11,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,22 +64,7 @@ class StatusServiceTest {
                 .build();
 
         // WHEN
-        Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
-                .iun(iun)
-                .sentAt( OffsetDateTime.parse("2021-09-16T15:00:00.00Z") )
-                .subject( "Subject" )
-                .recipientIds(Collections.singletonList( "recipientId" ))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .paProtocolNumber( "123" )
-                .senderPaId( "PAID" )
-                .senderDenomination( "senderDenomination" )
-                .notificationStatus( NotificationStatus.ACCEPTED )
-                .recipients( Collections.singletonList(NotificationRecipient.builder()
-                        .taxId( "CodiceFiscale" )
-                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                        .internalId( "recipientInternalId" )
-                        .build()) )
-                .build()));
+        Optional<InternalNotification> notification = Optional.of(newInternalNotification(iun, NotificationStatus.ACCEPTED));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
         Mockito.when( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, "CodiceFiscale" ) )
                 .thenReturn( "CodiceFiscale" );
@@ -123,25 +109,7 @@ class StatusServiceTest {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
         // WHEN
-        Optional<InternalNotification> notification = Optional.of(new InternalNotification(FullSentNotification.builder()
-                .iun(iun)
-                .sentAt( OffsetDateTime.parse("2021-09-16T15:00:00.00Z") )
-                .subject( "Subject" )
-                .recipientIds(Collections.singletonList( "recipientId" ))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .paProtocolNumber( "123" )
-                .senderPaId( "PAID" )
-                .senderDenomination( "senderDenomination" )
-                .notificationStatus( NotificationStatus.IN_VALIDATION )
-                .recipients( Collections.singletonList(NotificationRecipient.builder()
-                        .taxId( "CodiceFiscale" )
-                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                        .payment(NotificationPaymentInfo.builder()
-                                .noticeCode("1234")
-                                .noticeCodeAlternative("5678")
-                                .build())
-                        .build()) )
-                .build()));
+        Optional<InternalNotification> notification = Optional.of(newInternalNotification(iun, NotificationStatus.IN_VALIDATION));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
 
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
@@ -157,5 +125,47 @@ class StatusServiceTest {
         Mockito.verify(notificationDelegatedService, times(0)).computeDelegationMetadataEntries(Mockito.any(NotificationMetadataEntity.class));
         Mockito.verify(notificationMetadataEntityDao, times(0)).put(Mockito.any(NotificationMetadataEntity.class));
 
+    }
+
+    @NotNull
+    private static InternalNotification newInternalNotification(String iun, NotificationStatus inValidation) {
+        return new InternalNotification(FullSentNotification.builder()
+                .iun(iun)
+                .sentAt(OffsetDateTime.parse("2021-09-16T15:00:00.00Z"))
+                .subject("Subject")
+                .recipientIds(Collections.singletonList("recipientId"))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
+                .paProtocolNumber("123")
+                .senderPaId("PAID")
+                .senderDenomination("senderDenomination")
+                .notificationStatus(inValidation)
+                .recipients(Collections.singletonList( NotificationRecipient.builder()
+                                .taxId("CodiceFiscale")
+                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                                .internalId("recipientInternalId")
+                                .payment(NotificationPaymentInfo.builder()
+                                        .noticeCode("1234")
+                                        .noticeCodeAlternative("5678")
+                                        .build()
+                                )
+                                .build()))
+                .build());
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void updateStatus_Notification_ACCEPTED() {
+        RequestUpdateStatusDto requestUpdateStatusDto = RequestUpdateStatusDto.builder()
+                .iun( "FAKE_IUN" )
+                .nextStatus( NotificationStatus.ACCEPTED )
+                .timestamp( OffsetDateTime.parse( "2023-04-24T12:15:23Z" ) )
+                .build();
+
+        InternalNotification notification = newInternalNotification( "FAKE_IUN", NotificationStatus.IN_VALIDATION );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+
+        assertDoesNotThrow(() -> statusService.updateStatus( requestUpdateStatusDto ) );
+        Mockito.verify(notificationMetadataEntityDao, times(1)).put(Mockito.any());
     }
 }
