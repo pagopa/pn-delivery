@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: AtHUrI27KEQcJfwA5wrk6BHxWkslNtQ5tSx5LyTikEE=
+  version: CqRywZpEagN/c8BXVPPza++iJmjbnOHT5Ts6WCUyLX0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2179,6 +2179,8 @@ components:
       description: |
         stato di avanzamento del processo di notifica:`
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `VALIDATE_NORMALIZE_ADDRESS` - Richiesta di validazione e normalizzazione indirizzi fisici
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
@@ -2215,6 +2217,8 @@ components:
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
         - SENDER_ACK_CREATION_REQUEST
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
         - GET_ADDRESS
@@ -2257,20 +2261,6 @@ components:
           description: >-
             Identificativo dell'atto opponibile a terzi del quale è stata
             richiesta la creazione
-    NotificationRequestAcceptedDetails:
-      type: object
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-    AnalogFailureWorkflowDetails:
-      type: object
-      required:
-        - recIndex
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
     PhysicalAddress:
       type: object
       required:
@@ -2304,6 +2294,34 @@ components:
           type: string
           description: Denominazione paese estero
       description: Indirizzo fisico scoperto durante fase di consegna
+    NormalizedAddressDetails:
+      type: object
+      required:
+        - recIndex
+        - oldAddress
+        - normalizedAddress
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        oldAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        normalizedAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+    NotificationRequestAcceptedDetails:
+      type: object
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+    AnalogFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
     AnalogSuccessWorkflowDetails:
       type: object
       required:
@@ -3125,6 +3143,7 @@ components:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
+        - $ref: '#/components/schemas/NormalizedAddressDetails'
         - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
@@ -3380,7 +3399,6 @@ components:
         authorizerUri: >-
           arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-jwtAuthorizerLambda/invocations
         authorizerResultTtlInSeconds: 300
-        identityValidationExpression: ^Bearer\s([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)\.([a-zA-Z0-9_\-]+)$
         type: token
 tags:
   - name: HealthCheck
