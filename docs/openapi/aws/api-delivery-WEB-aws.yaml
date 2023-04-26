@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: CqRywZpEagN/c8BXVPPza++iJmjbnOHT5Ts6WCUyLX0=
+  version: Rt6NkkDqGHEpoHp0R7bkZc7zaahbAQCFD5OEXSd7GJw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3399,6 +3399,7 @@ components:
         authorizerUri: >-
           arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-jwtAuthorizerLambda/invocations
         authorizerResultTtlInSeconds: 300
+        identityValidationExpression: ^Bearer\s([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)\.([a-zA-Z0-9_\-]+)$
         type: token
 tags:
   - name: HealthCheck
