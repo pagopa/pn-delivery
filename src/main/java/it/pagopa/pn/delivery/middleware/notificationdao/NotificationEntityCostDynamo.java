@@ -54,4 +54,9 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
                 .build();
         table.putItem( request );
     }
+
+    @Override
+    public void deleteItem(NotificationCostEntity notificationCostEntity) {
+        table.deleteItem(notificationCostEntity);
+    }
 }
