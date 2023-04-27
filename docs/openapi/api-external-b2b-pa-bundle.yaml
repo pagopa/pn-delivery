@@ -2201,6 +2201,9 @@ components:
           type: integer
           description: peso in grammi della busta
           format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
     AarCreationRequestDetails:
       type: object
       required:

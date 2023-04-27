@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 2E2Dl2P5AXTQoNQabolzkKCa3IyFvuBMgAdehhaV7w0=
+  version: /4QwPYK9+Tt0t2CnaEavJU/vUUT6n2gwjAtxZmP3+9w=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2445,6 +2445,9 @@ components:
         envelopeWeight:
           type: number
           description: peso in grammi della busta
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
     AarCreationRequestDetails:
       type: object
       required:
