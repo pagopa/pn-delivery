@@ -1963,9 +1963,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
