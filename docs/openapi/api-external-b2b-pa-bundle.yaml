@@ -1167,6 +1167,9 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
+        internalId:
+          type: string
+          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -2201,6 +2204,9 @@ components:
           type: integer
           description: peso in grammi della busta
           format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
     AarCreationRequestDetails:
       type: object
       required:
