@@ -65,7 +65,7 @@ class PaymentEventsServiceTest {
         // Given
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
-                                .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                                .paymentDate( PAYMENT_DATE_STRING )
                                 .amount( PAYMENT_AMOUNT )
                                 .creditorTaxId( CREDITOR_TAX_ID )
                                 .noticeCode( NOTICE_CODE )
@@ -117,8 +117,9 @@ class PaymentEventsServiceTest {
     @Test
     void handlePaymentEventsPagoPaPrivate() {
         // Given
-        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
-                .paymentDate(OffsetDateTime.parse(PAYMENT_DATE_STRING))
+        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
+                .paymentDate( PAYMENT_DATE_STRING )
+                .uncertainPaymentDate( true )
                 .amount(PAYMENT_AMOUNT)
                 .creditorTaxId(CREDITOR_TAX_ID)
                 .noticeCode(NOTICE_CODE)
@@ -141,6 +142,7 @@ class PaymentEventsServiceTest {
         // Then
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
+                .uncertainPaymentDate( true )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
                 .paymentAmount( PAYMENT_AMOUNT )
                 .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY )
@@ -159,8 +161,9 @@ class PaymentEventsServiceTest {
     @Test
     void handlePaymentEventsPagoPaPrivateNoNotificationsCost() {
         // Given
-        PaymentEventPagoPa paymentEventPagoPa = PaymentEventPagoPa.builder()
-                .paymentDate(OffsetDateTime.parse(PAYMENT_DATE_STRING))
+        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
+                .paymentDate( PAYMENT_DATE_STRING )
+                .uncertainPaymentDate( true )
                 .creditorTaxId(CREDITOR_TAX_ID)
                 .noticeCode(NOTICE_CODE)
                 .build();
@@ -182,7 +185,7 @@ class PaymentEventsServiceTest {
         // Given
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
-                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .paymentDate( PAYMENT_DATE_STRING )
                         .creditorTaxId( CREDITOR_TAX_ID )
                         .noticeCode( NOTICE_CODE )
                         .build()
@@ -207,7 +210,7 @@ class PaymentEventsServiceTest {
         // Given
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
-                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .paymentDate( PAYMENT_DATE_STRING )
                         .creditorTaxId( CREDITOR_TAX_ID )
                         .noticeCode( NOTICE_CODE )
                         .build()
@@ -241,7 +244,7 @@ class PaymentEventsServiceTest {
         // Given
         PaymentEventsRequestPagoPa paymentEventsRequestPagoPa = PaymentEventsRequestPagoPa.builder()
                 .events( List.of( PaymentEventPagoPa.builder()
-                        .paymentDate( OffsetDateTime.parse( PAYMENT_DATE_STRING ) )
+                        .paymentDate( PAYMENT_DATE_STRING )
                         .creditorTaxId( CREDITOR_TAX_ID )
                         .noticeCode( NOTICE_CODE )
                         .build()
@@ -407,9 +410,9 @@ class PaymentEventsServiceTest {
                 .senderPaId( SENDER_PA_ID )
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(notificationRecipient))
-                .build(),
-                List.of(RECIPIENT_INTERNAL_ID),
-                X_PAGOPA_PN_SRC_CH
+                .recipientIds(List.of(RECIPIENT_INTERNAL_ID))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
+                .build()
         );
     }
 

@@ -15,6 +15,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -147,8 +149,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
         try {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId);
+            InternalFieldsCleaner.cleanInternalFields( internalNotification );
             result = modelMapper.map(internalNotification, FullReceivedNotification.class);
-
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
@@ -158,11 +160,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, String mandateId) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups, UUID mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_RCP;
         String logMsg = "getReceivedNotificationDocument from documents array with index={}";
-        if (StringUtils.hasText( mandateId )) {
+        if (mandateId != null && StringUtils.hasText( mandateId.toString() )) {
             eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_DEL;
             logMsg = "getDelegateNotificationDocument from documents array with index={} with mandateId={}";
         }
@@ -177,7 +179,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
                     internalAuthHeader,
-                    mandateId,
+                    mandateId != null ? mandateId.toString() : null,
                     docIdx,
                     true
             );
@@ -196,11 +198,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
 
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, String mandateId) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, String attachmentName, List<String> xPagopaPnCxGroups, UUID mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP;
         String logMsg = "getReceivedNotificationAttachment attachment name={}";
-        if (StringUtils.hasText( mandateId )) {
+        if (mandateId != null && StringUtils.hasText( mandateId.toString() )) {
             eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
             logMsg = "getReceivedAndDelegatedNotificationAttachment attachment name={} and mandateId={}";
         }
@@ -214,7 +216,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
                     internalAuthHeader,
-                    mandateId,
+                    mandateId != null ? mandateId.toString() : null,
                     null,
                     attachmentName,
                     true

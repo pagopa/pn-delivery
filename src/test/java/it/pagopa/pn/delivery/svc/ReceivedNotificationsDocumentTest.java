@@ -179,6 +179,7 @@ class ReceivedNotificationsDocumentTest {
 				.iun("IUN_DOCUMENT_01")
 				.subject("Subject 01")
 				.senderPaId( "pa_03" )
+				.sourceChannel(X_PAGOPA_PN_SRC_CH)
 				.notificationStatus( NotificationStatus.ACCEPTED )
 				.recipients( Collections.singletonList(
 						NotificationRecipient.builder()
@@ -225,11 +226,12 @@ class ReceivedNotificationsDocumentTest {
 								)
 						.build()
 						))
-				.build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
+				.build());
 	}
 
 	private InternalNotification createNoDocumentsNotification() {
 		return new InternalNotification(FullSentNotification.builder()
+				.sourceChannel(X_PAGOPA_PN_SRC_CH)
 				.iun("IUN_DOCUMENT_01")
 				.subject("Subject 01")
 				.senderPaId( "pa_03" )
@@ -244,7 +246,7 @@ class ReceivedNotificationsDocumentTest {
 								.build())
 						.build()
 						))
-				.build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH);
+				.build());
 	}
 
 }

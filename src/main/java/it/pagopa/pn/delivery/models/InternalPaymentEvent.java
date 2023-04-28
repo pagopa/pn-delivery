@@ -23,6 +23,7 @@ public class InternalPaymentEvent {
     private PnDeliveryPaymentEvent.RecipientType recipientType;
     @NotNull
     private Instant paymentDate;
+    private boolean uncertainPaymentDate;
     @NotNull
     private PnDeliveryPaymentEvent.PaymentType paymentType;
     @Nullable

@@ -66,6 +66,14 @@ public class NotificationReceiverValidator {
               ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
               errors.add( constraintViolation );
           }
+          if(recipient.getPayment() != null){
+              String noticeCode = recipient.getPayment().getNoticeCode();
+              String noticeCodeAlternative = recipient.getPayment().getNoticeCodeAlternative();
+              if ( noticeCode.equals(noticeCodeAlternative) ) {
+                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
+                  errors.add( constraintViolation );
+              }
+          }
           recIdx++;
       }
       errors.addAll(validator.validate( internalNotification ));
@@ -84,14 +92,9 @@ public class NotificationReceiverValidator {
         if (Objects.isNull( payment )) {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient payment" );
             errors.add( constraintViolation );
-        } else {
-            String noticeCode = payment.getNoticeCode();
-            String noticeCodeAlternative = payment.getNoticeCodeAlternative();
-            if ( noticeCode.equals(noticeCodeAlternative) ) {
-                ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
-                errors.add( constraintViolation );
-            }
         }
         return errors;
     }
+
+
 }

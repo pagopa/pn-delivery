@@ -3,12 +3,15 @@
         {
             "intendedUsage": "IO",
             "openapiFiles": [
-                "api-internal-web-recipient.yaml"
+                "api-internal-b2b-appio.yaml"
             ],
             "servicePath": "delivery"
         },
         {
             "intendedUsage": "B2B",
+            "commonFiles": [
+                "schemas-pn-notification.yaml"
+            ],
             "openapiFiles": [
                 "api-internal-b2b-pa.yaml"
             ],

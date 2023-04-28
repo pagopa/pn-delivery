@@ -29,7 +29,7 @@ class PnDeliveryPushClientImplTestIT extends MockAWSObjectsTest {
 
     @Autowired
     private PnDeliveryPushClientImpl deliveryPushClient;
-
+  
 
     private static ClientAndServer mockServer;
 

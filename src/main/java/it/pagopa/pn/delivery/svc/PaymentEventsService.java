@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,9 +47,9 @@ public class PaymentEventsService {
         this.checkAuthComponent = checkAuthComponent;
     }
 
-    public void handlePaymentEventPagoPaPrivate( PaymentEventPagoPa paymentEventPagoPa ) {
-        String creditorTaxId = paymentEventPagoPa.getCreditorTaxId();
-        String noticeCode = paymentEventPagoPa.getNoticeCode();
+    public void handlePaymentEventPagoPaPrivate( PaymentEventPagoPaPrivate paymentEventPagoPaPrivate ) {
+        String creditorTaxId = paymentEventPagoPaPrivate.getCreditorTaxId();
+        String noticeCode = paymentEventPagoPaPrivate.getNoticeCode();
         log.debug( "Handle payment event pagoPa private for creditorTaxId={} noticeCode={}", creditorTaxId, noticeCode );
 
         InternalNotificationCost internalNotificationCost = getInternalNotificationCost(creditorTaxId, noticeCode);
@@ -58,9 +59,10 @@ public class PaymentEventsService {
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
                 .iun( iun )
                 .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY )
-                .paymentAmount( paymentEventPagoPa.getAmount() )
+                .paymentAmount( paymentEventPagoPaPrivate.getAmount() )
                 .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
-                .paymentDate( paymentEventPagoPa.getPaymentDate().toInstant() )
+                .paymentDate( Instant.parse( paymentEventPagoPaPrivate.getPaymentDate() ))
+                .uncertainPaymentDate( paymentEventPagoPaPrivate.getUncertainPaymentDate() )
                 .creditorTaxId( creditorTaxId )
                 .noticeCode( noticeCode )
                 .recipientIdx( recipientIdx )
@@ -118,7 +120,8 @@ public class PaymentEventsService {
                     .recipientType( PnDeliveryPaymentEvent.RecipientType.valueOf( recipientType ) )
                     .recipientIdx( recipientIdx )
                     .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
-                    .paymentDate( paymentRequest.getPaymentDate().toInstant() )
+                    .paymentDate( Instant.parse( paymentRequest.getPaymentDate()) )
+                    .uncertainPaymentDate( false )
                     .paymentType( paymentType )
                     .paymentAmount( paymentRequest.getAmount() )
                     .creditorTaxId( creditorTaxId )
@@ -187,6 +190,7 @@ public class PaymentEventsService {
                     .recipientIdx( recipientIdx )
                     .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
                     .paymentDate( paymentEventF24.getPaymentDate().toInstant() )
+                    .uncertainPaymentDate( false )
                     .paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
                     .paymentAmount( paymentEventF24.getAmount() )
                     .build()

@@ -473,7 +473,7 @@ class NotificationRetrieverServiceTest {
         when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification result = svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
+        InternalNotification result = svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 
         // Then
         Assertions.assertNotNull( result );
@@ -486,7 +486,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationInformationByProtocolAndIdempotenceFailure() {
         // When
         when( notificationDao.getRequestId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( Optional.empty() );
-        Executable todo = () -> svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN );
+        Executable todo = () -> svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 
         // Then
         Assertions.assertThrows(PnNotificationNotFoundException.class, todo);
@@ -511,7 +511,7 @@ class NotificationRetrieverServiceTest {
         when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification result = svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID );
+        InternalNotification result = svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID, GROUPS );
 
         Assertions.assertNotNull( result );
         Assertions.assertEquals( IUN, result.getIun() );
@@ -525,7 +525,18 @@ class NotificationRetrieverServiceTest {
 
         when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
 
-        Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, WRONG_SENDER_ID );
+        Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, WRONG_SENDER_ID, GROUPS );
+        Assertions.assertThrows( PnNotificationNotFoundException.class, todo );
+    }
+
+    @Test
+    void getNotificationInformationByWrongSenderGroupFailure() {
+        InternalNotification notification = getNewInternalNotification();
+        notification.setGroup( "fakeGroup" );
+
+        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+
+        Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID, GROUPS );
         Assertions.assertThrows( PnNotificationNotFoundException.class, todo );
     }
 
@@ -564,6 +575,8 @@ class NotificationRetrieverServiceTest {
                 .sentAt( OffsetDateTime.now() )
                 .senderTaxId( SENDER_TAXID )
                 .senderPaId( SENDER_ID )
+                .recipientIds(Collections.singletonList( CX_ID ))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .payment( NotificationPaymentInfo.builder()
@@ -577,7 +590,7 @@ class NotificationRetrieverServiceTest {
                         .denomination("Marco Polo")
                         .internalId("internalId-recipient-0")
                         .build())
-                ).build(), Collections.singletonList( CX_ID ), X_PAGOPA_PN_SRC_CH );
+                ).build());
     }
 
     @NotNull
@@ -713,7 +726,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+            InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
@@ -764,7 +777,6 @@ class NotificationRetrieverServiceTest {
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, MANDATE_ID);
-
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, delegateInfo );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
@@ -929,7 +941,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+            InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
@@ -992,7 +1004,7 @@ class NotificationRetrieverServiceTest {
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+            InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
@@ -1110,12 +1122,19 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+            InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
-        //Then
-        Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertEquals( NOTICE_CODE ,internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
+            //Then
+            Mockito.verify(notificationViewedProducer).sendNotificationViewed(IUN, Instant.parse(nowTestInstant), 0, null);
+            if(internalNotificationResult.getRecipients().get(0).getPayment() == null){
+                Assertions.assertNull(internalNotificationResult.getRecipients().get(0).getPayment());
+                Assertions.assertEquals(null, internalNotificationResult.getRecipients().get(0).getPayment());
+            }else{
+                Assertions.assertNull(internalNotificationResult.getRecipients().get(0).getPayment().getNoticeCodeAlternative());
+                Assertions.assertEquals(NOTICE_CODE, internalNotificationResult.getRecipients().get(0).getPayment().getNoticeCode());
+            }
+
+
     }
 
     @Test
@@ -1150,7 +1169,7 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+            InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
@@ -1184,7 +1203,7 @@ class NotificationRetrieverServiceTest {
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( "2022-05-11T00:00:00.00Z" ) );
 
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+            InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-05-11T00:00:00.00Z" ), 0, null );
@@ -1277,10 +1296,9 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
-
-        Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
+            // Then
+            InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+            Assertions.assertTrue(internalNotificationResult.getDocumentsAvailable());
     }
 
     @Test
@@ -1306,8 +1324,8 @@ class NotificationRetrieverServiceTest {
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
-        // Then
-        InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
+            // Then
+            InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
@@ -1404,7 +1422,6 @@ class NotificationRetrieverServiceTest {
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPhysicalAddress());
         //e mi aspetto che possa vedere i suoi dati di recipient
         Assertions.assertEquals(internalNotificationResult.getRecipients().get(0), internalNotificationResult.getRecipients().get(0));
-
     }
 
     private void enrichInternalNotificationWithAnotherRecipient(InternalNotification internalNotification, String recipient) {

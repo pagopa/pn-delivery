@@ -24,6 +24,10 @@ Parameters:
     Type: String
     Description: 'Where to send CDC'
 
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send Logs'
+
   AlarmSNSTopicName:
     Type: String
     Description: 'Topic alarm'
@@ -33,6 +37,8 @@ Resources:
   # Dynamo Table
   NotificationsTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-Notifications'
       AttributeDefinitions:
@@ -51,6 +57,8 @@ Resources:
 
   NotificationsCostTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsCost'
       AttributeDefinitions:
@@ -66,6 +74,8 @@ Resources:
 
   NotificationsQRTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsQR'
       AttributeDefinitions:
@@ -89,6 +99,8 @@ Resources:
 
   NotificationsMetadataTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsMetadata'
       AttributeDefinitions:
@@ -138,6 +150,8 @@ Resources:
   
   NotificationDelegationMetadataTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
       TableName: !Sub '${ProjectName}-NotificationDelegationMetadata'
       AttributeDefinitions:
@@ -187,6 +201,8 @@ Resources:
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
   PnDeliveryInsertTriggerDLQ:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -201,6 +217,8 @@ Resources:
   # QueueOldestAgeLimit
   PnDeliveryAsseverationQueue:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -209,6 +227,36 @@ Resources:
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         VisibilityTimeout: 900 # the maximum lambda timeout
         QueueHasAlarm: "false"
+
+  PnDeliveryLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub '${ProjectName}-delivery'
+        LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
+
+  PnDeliveryAsseverationLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-asseveration-lambda"
+        LogGroupPrefix: '/aws/lambda'
+
+  PnDeliveryInsertTriggerLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-insert-trigger-lambda"
+        LogGroupPrefix: '/aws/lambda'
 
 Outputs:
 
@@ -287,3 +335,11 @@ Outputs:
   PnDeliveryAsseverationAgeAlarmARN:
     Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
     Description: notificationCostServiceCalls-DLQ age alarm ARN
+  
+  # Log group exports
+  EcsLogGroup:
+    Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
+  PnDeliveryAsseverationLambdaName:
+    Value: !Sub "${ProjectName}-delivery-asseveration-lambda"
+  PnDeliveryInsertTriggerLambdaName:
+    Value: !Sub "${ProjectName}-delivery-insert-trigger-lambda"

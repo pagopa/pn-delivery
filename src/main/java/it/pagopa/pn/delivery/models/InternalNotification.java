@@ -1,21 +1,16 @@
 package it.pagopa.pn.delivery.models;
 
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import lombok.*;
 
-import java.util.List;
-
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder(toBuilder = true, builderMethodName = "fullSentNotificationBuilder")
 @ToString
 public class InternalNotification extends FullSentNotification {
-
-
-    public InternalNotification(FullSentNotification fsn, List<String> recipientIds, String sourceChannel) {
+    public InternalNotification(FullSentNotification fsn) {
         super(
                 fsn.getIdempotenceToken(),
                 fsn.getPaProtocolNumber(),
@@ -39,24 +34,11 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getDocumentsAvailable(),
                 fsn.getNotificationStatus(),
                 fsn.getNotificationStatusHistory(),
-                fsn.getTimeline()
+                fsn.getTimeline(),
+                fsn.getRecipientIds(),
+                fsn.getSourceChannel()
             );
-        this.recipientIds = recipientIds;
-        this.sourceChannel = sourceChannel;
     }
-
-    //@Schema( description = "Lista degli id dei destinatari")
-    private List<String> recipientIds;
-
-    public List<String> getRecipientIds() { return this.recipientIds; }
-
-    public void setRecipientIds( List<String> recipientIds ) { this.recipientIds = recipientIds; }
-
-    private String sourceChannel;
-
-    public String getSourceChannel() { return this.sourceChannel; }
-
-    public void setSourceChannel( String sourceChannel ) { this.sourceChannel = sourceChannel; }
 
     @Override
     public boolean equals(Object o) {

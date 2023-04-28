@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.*;
 @WebFluxTest(controllers = {PnReceivedIONotificationsController.class})
 class PnReceivedIONotificationsControllerTest {
 
-    private static final String IUN = "IUN";
+    private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";
     private static final String USER_ID = "USER_ID";
     private static final String PA_ID = "PA_ID";
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
@@ -101,6 +101,8 @@ class PnReceivedIONotificationsControllerTest {
                 .cancelledIun("IUN_00")
                 .senderPaId( PA_ID )
                 ._abstract("Abstract")
+                .recipientIds(Collections.emptyList())
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .notificationStatus( NotificationStatus.ACCEPTED )
                 .recipients( Collections.singletonList(
                         NotificationRecipient.builder()
@@ -140,7 +142,7 @@ class PnReceivedIONotificationsControllerTest {
                 .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
                         .status( NotificationStatus.ACCEPTED )
                         .build() ) )
-                .build(), Collections.emptyList(), X_PAGOPA_PN_SRC_CH );
+                .build());
     }
 
     private String newThirdPartyMessage(InternalNotification notification) {

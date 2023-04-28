@@ -369,6 +369,8 @@ class NotificationDaoDynamoTest {
                 .cancelledIun("IUN_00")
                 .group( "Group_1" )
                 .senderPaId( "pa_02" )
+                .recipientIds(Collections.singletonList("Codice Fiscale 01"))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .sentAt( OffsetDateTime.now() )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
                 .recipients( Collections.singletonList(NotificationRecipient.builder()
@@ -417,7 +419,7 @@ class NotificationDaoDynamoTest {
                                 .contentType( "application/pdf" )
                                 .build()
                 ))
-                .build(), Collections.singletonList("Codice Fiscale 01"), X_PAGOPA_PN_SRC_CH);
+                .build());
     }
 
     /*private Notification newNotificationWithPaymentsDeliveryMode( boolean withIuv ) {

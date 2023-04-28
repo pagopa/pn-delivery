@@ -6,8 +6,10 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipie
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -32,53 +34,77 @@ public class StatusService {
     private final NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
     private final NotificationDelegatedService notificationDelegatedService;
     private final PnDataVaultClientImpl dataVaultClient;
+    private final NotificationCostEntityDao notificationCostEntityDao;
 
     public StatusService(NotificationDao notificationDao,
                          NotificationMetadataEntityDao notificationMetadataEntityDao,
                          NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao,
                          NotificationDelegatedService notificationDelegatedService,
-                         PnDataVaultClientImpl dataVaultClient) {
+                         PnDataVaultClientImpl dataVaultClient,
+                         NotificationCostEntityDao notificationCostEntityDao) {
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
         this.notificationDelegationMetadataEntityDao = notificationDelegationMetadataEntityDao;
         this.notificationDelegatedService = notificationDelegatedService;
         this.dataVaultClient = dataVaultClient;
+        this.notificationCostEntityDao = notificationCostEntityDao;
     }
-    
+
     public void updateStatus(RequestUpdateStatusDto dto) {
         Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun());
-        
+
         if (notificationOptional.isPresent()) {
             InternalNotification notification = notificationOptional.get();
             log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
 
-            OffsetDateTime acceptedAt = null;
-
-            if ( !NotificationStatus.ACCEPTED.equals( dto.getNextStatus() ) ) {
-                Key key = Key.builder()
-                        .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )
-                        .sortValue( notification.getSentAt().toString() )
-                        .build();
-                Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
-                if (optMetadata.isPresent() ) {
-                    acceptedAt = OffsetDateTime.parse( optMetadata.get().getTableRow().get( "acceptedAt" ) );
-                } else {
-                    log.debug( "Unable to retrieve accepted date - iun={} recipientId={}", notification.getIun(), notification.getRecipientIds().get( 0 ) );
+            NotificationStatus nextStatus = dto.getNextStatus();
+            OffsetDateTime acceptedAt;
+            switch (nextStatus) {
+                case ACCEPTED -> {
+                    acceptedAt = dto.getTimestamp();
+                    putNotificationMetadata(dto, notification, acceptedAt);
                 }
-            } else {
-                acceptedAt = dto.getTimestamp();
+                case REFUSED ->
+                        notification.getRecipients().stream()
+                                .filter(r -> Objects.nonNull(r.getPayment()))
+                                .forEach(r -> {
+                                    notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
+                                            .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCode())
+                                            .build());
+                                    if(!r.getPayment().getNoticeCodeAlternative().isEmpty())
+                                        notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
+                                                .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCodeAlternative())
+                                                .build());
+
+                                });
+                default -> {
+                    Key key = Key.builder()
+                            .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )
+                            .sortValue( notification.getSentAt().toString() )
+                            .build();
+                    Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
+                    if (optMetadata.isPresent() ) {
+                        acceptedAt = OffsetDateTime.parse( optMetadata.get().getTableRow().get( "acceptedAt" ) );
+                        putNotificationMetadata(dto, notification, acceptedAt);
+                    } else {
+                        log.debug( "Unable to retrieve accepted date - iun={} recipientId={}", notification.getIun(), notification.getRecipientIds().get( 0 ) );
+                    }
+                }
             }
 
-            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
-            nextMetadataEntry.forEach(metadata -> {
-                notificationMetadataEntityDao.put(metadata);
-                List<NotificationDelegationMetadataEntity> delegationMetadata = notificationDelegatedService.computeDelegationMetadataEntries(metadata);
-                delegationMetadata.forEach(notificationDelegationMetadataEntityDao::put);
-            });
         } else {
             throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun(),
                     ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
         }
+    }
+
+    private void putNotificationMetadata(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
+        List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
+        nextMetadataEntry.forEach(metadata -> {
+            notificationMetadataEntityDao.put(metadata);
+            List<NotificationDelegationMetadataEntity> delegationMetadata = notificationDelegatedService.computeDelegationMetadataEntries(metadata);
+            delegationMetadata.forEach(notificationDelegationMetadataEntityDao::put);
+        });
     }
 
     private List<NotificationMetadataEntity> computeMetadataEntry(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
