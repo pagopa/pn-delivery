@@ -52,7 +52,7 @@ public class DtoToEntityNotificationMapper {
         return NotificationRecipientEntity.builder()
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
-                .paymentList( dto2PaymentList( recipient.getPayment() ) )
+                .paymentsList( dto2PaymentList( recipient.getPayment() ) )
                 .build();
     }
 

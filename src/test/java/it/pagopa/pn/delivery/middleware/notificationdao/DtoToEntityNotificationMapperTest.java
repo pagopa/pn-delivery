@@ -32,10 +32,10 @@ class DtoToEntityNotificationMapperTest {
         NotificationEntity notificationEntity = mapper.dto2Entity(internalNotification);
 
         Assertions.assertNotNull( notificationEntity );
-        Assertions.assertEquals( 2 , notificationEntity.getRecipients().get( 0 ).getPaymentList().size() );
-        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPaymentList().get( 0 ).getNoticeCode() );
-        Assertions.assertEquals( NOTICE_CODE_ALTERNATIVE , notificationEntity.getRecipients().get( 0 ).getPaymentList().get( 1 ).getNoticeCode() );
-        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPaymentList().get( 0 ).getCreditorTaxId() );
+        Assertions.assertEquals( 2 , notificationEntity.getRecipients().get( 0 ).getPaymentsList().size() );
+        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPaymentsList().get( 0 ).getNoticeCode() );
+        Assertions.assertEquals( NOTICE_CODE_ALTERNATIVE , notificationEntity.getRecipients().get( 0 ).getPaymentsList().get( 1 ).getNoticeCode() );
+        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPaymentsList().get( 0 ).getCreditorTaxId() );
 
     }
 

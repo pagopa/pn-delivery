@@ -63,7 +63,7 @@ public class EntityToDtoNotificationMapper {
         return NotificationRecipient.builder()
                 .internalId( entity.getRecipientId() )
                 .recipientType( NotificationRecipient.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
-                .payment( entity2PaymentInfo( entity.getPaymentList() ) )
+                .payment( entity2PaymentInfo( entity.getPaymentsList() ) )
                 .build();
     }
 

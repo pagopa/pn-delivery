@@ -149,7 +149,7 @@ class NotificationEntityDaoDynamoTestIT {
                         .type(DigitalAddressTypeEntity.PEC)
                         .build())
                 .denomination("recipientDenomination")
-                .paymentList( List.of(
+                .paymentsList( List.of(
                                 NotificationPaymentInfoEntity.builder()
                                         .creditorTaxId("creditorTaxId")
                                         .noticeCode("noticeCode")
@@ -182,7 +182,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .build();
         NotificationRecipientEntity notificationRecipientEntity1 = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
-                .paymentList( List.of(
+                .paymentsList( List.of(
                         NotificationPaymentInfoEntity.builder()
                                 .creditorTaxId("77777777777")
                                 .noticeCode("002720356512737953")
