@@ -18,7 +18,7 @@ public class NotificationRecipientEntity {
     private String denomination;
     private NotificationDigitalAddressEntity digitalDomicile;
     private NotificationPhysicalAddressEntity physicalAddress;
-    private List<NotificationPaymentInfoEntity> paymentsList;
+    private List<NotificationPaymentInfoEntity> payments;
 
     @DynamoDbAttribute(value = "recipientType")
     public RecipientTypeEntity getRecipientType() {
@@ -65,12 +65,12 @@ public class NotificationRecipientEntity {
         this.physicalAddress = physicalAddress;
     }
 
-    @DynamoDbAttribute(value = "paymentsList")
-    public List<NotificationPaymentInfoEntity> getPaymentsList() {
-        return paymentsList;
+    @DynamoDbAttribute(value = "payments")
+    public List<NotificationPaymentInfoEntity> getPayments() {
+        return payments;
     }
 
-    public void setPaymentsList(List<NotificationPaymentInfoEntity> paymentsList) {
-        this.paymentsList = paymentsList;
+    public void setPayments(List<NotificationPaymentInfoEntity> payments) {
+        this.payments = payments;
     }
 }

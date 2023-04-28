@@ -61,9 +61,9 @@ scanTable(params, function(err, data) {
           const payment = recipient.payment;
           //console.log("Payment: ", payment);
           if (payment) {
-            const paymentsList = transformPayment(payment);
+            const payments = transformPayment(payment);
             //console.log("Payment List: ", JSON.stringify(paymentList, null, 2));
-            const updateExpression = "SET #rec[" + recipientIdx + "].#payList = :paymentsList REMOVE #rec[" + recipientIdx + "].#pay"
+            const updateExpression = "SET #rec[" + recipientIdx + "].#payList = :payments REMOVE #rec[" + recipientIdx + "].#pay"
             const updateParams = {
               TableName: TABLE_NAME,
               Key: {
@@ -72,11 +72,11 @@ scanTable(params, function(err, data) {
               UpdateExpression: updateExpression,
               ExpressionAttributeNames: {
                 "#rec": 'recipients',
-                "#payList": 'paymentsList',
+                "#payList": 'payments',
                 "#pay": 'payment'
               },
               ExpressionAttributeValues: {
-                ":paymentsList": paymentsList
+                ":payments": payments
               }
             }
             docClient.update(updateParams, (err, data) => {
@@ -96,7 +96,7 @@ scanTable(params, function(err, data) {
 })
 
 function transformPayment(payment) {
-  const paymentsList = [
+  const payments = [
     {
       noticeCode: payment.noticeCode,
       creditorTaxId: payment.creditorTaxId
@@ -104,14 +104,14 @@ function transformPayment(payment) {
   ];
   
   if (payment.noticeCodeAlternative) {
-    paymentsList.push({
+    payments.push({
       noticeCode: payment.noticeCodeAlternative,
       creditorTaxId: payment.creditorTaxId
     });
   }
   
   if (payment.pagoPaForm) {
-    return paymentsList.map((item) => ({
+    return payments.map((item) => ({
       ...item,
       pagoPaForm: {
         contentType: payment.pagoPaForm.contentType,
@@ -125,5 +125,5 @@ function transformPayment(payment) {
       }
     }));
   }
-  return paymentsList;
+  return payments;
 }
