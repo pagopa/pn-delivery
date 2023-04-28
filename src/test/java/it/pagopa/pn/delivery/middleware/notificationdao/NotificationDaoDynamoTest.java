@@ -506,6 +506,9 @@ class NotificationDaoDynamoTest {
                                 )
                                 .build()
                 ))
-                .build(), Collections.singletonList("recipientId"), X_PAGOPA_PN_SRC_CH);
+                .recipientIds( Collections.singletonList("recipientId") )
+                .sourceChannel( X_PAGOPA_PN_SRC_CH )
+                .build()
+        );
     }
 }

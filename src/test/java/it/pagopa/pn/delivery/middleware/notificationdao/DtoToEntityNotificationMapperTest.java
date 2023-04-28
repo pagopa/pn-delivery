@@ -71,6 +71,9 @@ class DtoToEntityNotificationMapperTest {
                         .build()
                         )
                 )
-                .build(), List.of( "recipientInternalId0" ), X_PAGOPA_PN_SRC_CH);
+                .recipientIds( List.of( "recipientInternalId0" ) )
+                .sourceChannel( X_PAGOPA_PN_SRC_CH )
+                .build()
+        );
     }
 }
