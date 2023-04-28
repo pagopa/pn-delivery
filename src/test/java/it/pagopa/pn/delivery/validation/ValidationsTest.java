@@ -67,11 +67,11 @@ class ValidationsTest {
                                 "at": "",
                                 "address": "Indirizzo 10 con un apostrofo speciale ’",
                                 "addressDetails": "",
-                                "zip": "20100",
+                                "zip": "ABC-2 EF",
                                 "municipality": "Milano con un apostrofo speciale ’",
                                 "municipalityDetails": "",
                                 "province": "MI",
-                                "foreignState": "Italia"
+                                "foreignState": "Spagna"
                             }
                         }
                     ],

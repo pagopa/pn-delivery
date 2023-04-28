@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
+import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
@@ -183,17 +184,21 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
         List<NotificationCostEntity> notificationCostEntityList = new ArrayList<>();
 
         for (NotificationRecipientEntity rec : notificationEntity.getRecipients() ) {
-            for ( NotificationPaymentInfoEntity payment : rec.getPaymentsList() )
-                if ( Objects.nonNull( payment ) ) {
-                    NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
-                            .recipientType ( rec.getRecipientType().getValue() )
-                            .recipientIdx( notificationEntity.getRecipients().indexOf( rec ) )
-                            .iun( notificationEntity.getIun() )
-                            .creditorTaxIdNoticeCode( payment.getCreditorTaxId() + "##" + payment.getNoticeCode() )
-                            .build();
-                    notificationCostEntityList.add(notificationCostEntity);
+            List<NotificationPaymentInfoEntity> paymentsList = rec.getPaymentsList();
+            if (!CollectionUtils.isEmpty(paymentsList)) {
+                for (NotificationPaymentInfoEntity payment : paymentsList) {
+                    if (Objects.nonNull(payment)) {
+                        NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
+                                .recipientType(rec.getRecipientType().getValue())
+                                .recipientIdx(notificationEntity.getRecipients().indexOf(rec))
+                                .iun(notificationEntity.getIun())
+                                .creditorTaxIdNoticeCode(payment.getCreditorTaxId() + "##" + payment.getNoticeCode())
+                                .build();
+                        notificationCostEntityList.add(notificationCostEntity);
+                    }
                 }
             }
+        }
         return notificationCostEntityList;
     }
 
