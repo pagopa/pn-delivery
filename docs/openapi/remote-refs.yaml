@@ -34,7 +34,7 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElement: 
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/338f6d4a606cc5b60e5ae74832347a6b052e6429/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/e0c455c1dd80b39cb7fcc9bd82517e24c19254ce/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/338f6d4a606cc5b60e5ae74832347a6b052e6429/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:

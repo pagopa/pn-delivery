@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 1gdf96TGYMw9dTwtr+uKTVwsXlUK/u0bmLK9ZJ+uNik=
+  version: 6x7pTwt3K2Nx3PTGh+mDnSfXdOPaZ02NxbttAC7gu3U=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1963,6 +1963,9 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
+        internalId:
+          type: string
+          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -2201,7 +2204,7 @@ components:
           * `ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto firmato e marcato di chiusura del workflow analogico completato con fallimento
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
-          * `SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione evento non finale relativo all'invio della raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione evento non finale relativo all'invio della raccomandata semplice
           * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
           * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
           * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
@@ -2236,7 +2239,7 @@ components:
         - ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST
         - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
-        - SIMPLE_REGISTERED_LETTER_PROGRESS
+        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
         - NOTIFICATION_VIEWED_CREATION_REQUEST
         - NOTIFICATION_VIEWED
         - PREPARE_ANALOG_DOMICILE
@@ -3383,7 +3386,6 @@ components:
         authorizerUri: >-
           arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-jwtAuthorizerLambda/invocations
         authorizerResultTtlInSeconds: 300
-        identityValidationExpression: ^Bearer\s([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)\.([a-zA-Z0-9_\-]+)$
         type: token
 tags:
   - name: HealthCheck
