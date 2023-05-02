@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 5cO+YZSSMK/uPFkinvaY67Apkowly4g4fm1C077tLP8=
+  version: zbB7BzMHotZsz3WJ0GcFd/P87qaWIy0dpSwZ7iiDZOA=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1725,6 +1725,9 @@ components:
         recIndex:
           type: number
           description: Index destinatario notifica digitale
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
     PhysicalAddress:
       type: object
       required:
@@ -1802,6 +1805,10 @@ components:
         recIndex:
           type: number
           description: Index destinatario notifica digitale
+        legalFactGenerationDate:
+          type: string
+          description: Data generazione atto opponibile a terzi allegato
+          format: date-time
     DigitalAddress:
       description: Indirizzo di invio della notifica
       required:
