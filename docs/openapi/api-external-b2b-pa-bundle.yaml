@@ -1455,6 +1455,9 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
     PhysicalAddress:
       type: object
       required:
@@ -1531,6 +1534,10 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        legalFactGenerationDate:
+          type: string
+          description: Data generazione atto opponibile a terzi allegato
+          format: date-time
     DigitalAddress:
       description: Indirizzo di invio della notifica
       required:
