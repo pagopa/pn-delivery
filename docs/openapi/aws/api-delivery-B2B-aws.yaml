@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: HY5ALGuuKd1OBYO4tZT24wBDRGbPUMh7gx4f9QAzE1k=
+  version: 5cO+YZSSMK/uPFkinvaY67Apkowly4g4fm1C077tLP8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1633,8 +1633,6 @@ components:
       description: |
         stato di avanzamento del processo di notifica:`
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
-          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
-          * `NORMALIZED_ADDRESS` - Ricezione esito normalizzazione indirizzo
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
@@ -1667,15 +1665,15 @@ components:
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+          * `PAYMENT` - Ricezione pagamento della notifica
+          * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
         - SENDER_ACK_CREATION_REQUEST
-        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
-        - NORMALIZED_ADDRESS
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
         - GET_ADDRESS
-        - NATIONAL_REGISTRY_CALL
-        - NATIONAL_REGISTRY_RESPONSE
+        - PUBLIC_REGISTRY_CALL
+        - PUBLIC_REGISTRY_RESPONSE
         - SCHEDULE_ANALOG_WORKFLOW
         - SCHEDULE_DIGITAL_WORKFLOW
         - PREPARE_DIGITAL_DOMICILE
@@ -1699,10 +1697,12 @@ components:
         - SEND_ANALOG_DOMICILE
         - SEND_ANALOG_PROGRESS
         - SEND_ANALOG_FEEDBACK
+        - PAYMENT
         - COMPLETELY_UNREACHABLE
         - REQUEST_REFUSED
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
+        - NOT_HANDLED
     SenderAckCreationRequestDetails:
       type: object
       properties:
