@@ -415,7 +415,6 @@ Resources:
               - 'dynamodb:GetItem'
               - 'dynamodb:Query'
               - 'dynamodb:PutItem'
-              - 'dynamodb:BatchWriteItem'
             Resource:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"
@@ -426,6 +425,11 @@ Resources:
               - !Sub "${NotificationsCostDynamoTableArn}/*"
               - !Sub "${NotificationsQRDynamoTableArn}"
               - !Sub "${NotificationsQRDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - 'dynamodb:BatchWriteItem'
+            Resource:
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
           - Effect: Allow
             Action:
               - 'dynamodb:BatchWriteItem'
