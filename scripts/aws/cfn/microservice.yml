@@ -415,6 +415,7 @@ Resources:
               - 'dynamodb:GetItem'
               - 'dynamodb:Query'
               - 'dynamodb:PutItem'
+              - 'dynamodb:BatchWriteItem'
             Resource:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"
