@@ -427,6 +427,12 @@ Resources:
               - !Sub "${NotificationsQRDynamoTableArn}/*"
           - Effect: Allow
             Action:
+              - 'dynamodb:BatchWriteItem'
+            Resource:
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
               - ssm:GetParameter
               - ssm:GetParameters
             Resource:
