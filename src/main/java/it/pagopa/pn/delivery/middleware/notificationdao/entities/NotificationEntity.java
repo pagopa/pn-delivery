@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
@@ -42,6 +41,7 @@ public class NotificationEntity {
     public static final String FIELD_REQUEST_ID = "requestId";
     public static final String FIELD_TAXONOMY_CODE = "taxonomyCode";
     public static final String FIELD_SOURCE_CHANNEL = "sourceChannel";
+    public static final String FIELD_VERSION = "version";
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String notificationAbstract;
@@ -65,5 +65,6 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUEST_ID)})) private String requestId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_TAXONOMY_CODE)})) private String taxonomyCode;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL)})) private String sourceChannel;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int version;
 
 }
