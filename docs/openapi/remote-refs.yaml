@@ -34,13 +34,13 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElement: 
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/338f6d4a606cc5b60e5ae74832347a6b052e6429/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/352b0f00ed6b8da2519e97583e582a5b7e45f2b8/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/338f6d4a606cc5b60e5ae74832347a6b052e6429/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/352b0f00ed6b8da2519e97583e582a5b7e45f2b8/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/338f6d4a606cc5b60e5ae74832347a6b052e6429/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/352b0f00ed6b8da2519e97583e582a5b7e45f2b8/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/338f6d4a606cc5b60e5ae74832347a6b052e6429/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/352b0f00ed6b8da2519e97583e582a5b7e45f2b8/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
