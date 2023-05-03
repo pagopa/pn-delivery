@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: UeX03vXzRPUgIdAQJJsI+KC6cEsc0LqS3H22TWP5Tbk=
+  version: x/xWmK9shG21XY+izn9XaXn09EPR0RFCHIvvKDUMZN4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2055,7 +2055,6 @@ components:
       type: object
       required:
         - recIndex
-        - digitalAddress
         - digitalAddressSource
         - sentAttemptMade
         - lastAttemptDate
@@ -2112,7 +2111,6 @@ components:
       type: object
       required:
         - recIndex
-        - digitalAddress
         - digitalAddressSource
         - retryNumber
       properties:
@@ -2334,7 +2332,6 @@ components:
         - serviceLevel
         - sentAttemptMade
         - responseStatus
-        - investigation
       properties:
         recIndex:
           type: number
@@ -2346,13 +2343,13 @@ components:
         sentAttemptMade:
           type: number
           description: numero dei tentativi effettuati
-        investigation:
-          type: boolean
-          description: E' richiesta investigazione indirizzo fisico alternativo
         newAddress:
           $ref: '#/components/schemas/PhysicalAddress'
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          format: date-time
         deliveryFailureCause:
           type: string
           description: >
