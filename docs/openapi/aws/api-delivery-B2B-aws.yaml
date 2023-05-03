@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: swufTV3Ze4y+GX40WM4WrPM33GwlRv4632Oj6xLsT24=
+  version: UeX03vXzRPUgIdAQJJsI+KC6cEsc0LqS3H22TWP5Tbk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1652,7 +1652,6 @@ components:
           * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
           * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo 
           * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
-          * `ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
           * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
           * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
@@ -1662,6 +1661,7 @@ components:
           * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
           * `SEND_ANALOG_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
@@ -1687,7 +1687,6 @@ components:
         - DIGITAL_FAILURE_WORKFLOW
         - ANALOG_SUCCESS_WORKFLOW
         - ANALOG_FAILURE_WORKFLOW
-        - ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST
         - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
@@ -1699,6 +1698,7 @@ components:
         - SEND_ANALOG_FEEDBACK
         - PAYMENT
         - COMPLETELY_UNREACHABLE
+        - COMPLETELY_UNREACHABLE_CREATION_REQUEST
         - REQUEST_REFUSED
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
@@ -1778,7 +1778,7 @@ components:
       enum:
         - SUCCESS
         - FAILURE
-    AnalogFailureWorkflowCreationRequestDetails:
+    CompletelyUnreachableCreationRequestDetails:
       type: object
       required:
         - recIndex
@@ -2334,6 +2334,7 @@ components:
         - serviceLevel
         - sentAttemptMade
         - responseStatus
+        - investigation
       properties:
         recIndex:
           type: number
@@ -2345,13 +2346,13 @@ components:
         sentAttemptMade:
           type: number
           description: numero dei tentativi effettuati
+        investigation:
+          type: boolean
+          description: E' richiesta investigazione indirizzo fisico alternativo
         newAddress:
           $ref: '#/components/schemas/PhysicalAddress'
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
-        notificationDate:
-          type: string
-          format: date-time
         deliveryFailureCause:
           type: string
           description: >
@@ -2591,7 +2592,7 @@ components:
         - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
-        - $ref: '#/components/schemas/AnalogFailureWorkflowCreationRequestDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableDetails'
         - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
