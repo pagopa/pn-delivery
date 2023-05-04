@@ -56,6 +56,12 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         // eseguo la query
         NotificationMetadataEntity entity = table.getItem( requestBuilder.build() );
 
+        if (entity == null)
+        {
+            log.debug("result entity is null");
+            return new PageSearchTrunk<>();
+        }
+
         // applico i filtri
         // filtro per stato
         if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses()) && !inputSearchNotificationDto.getStatuses().contains(NotificationStatus.fromValue(entity.getNotificationStatus())))
