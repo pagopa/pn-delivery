@@ -213,6 +213,31 @@ class NotificationDaoDynamoTest {
 
     }
 
+
+    @Test
+    void searchByIUN_notfound(){
+
+        String iun = "IUN";
+        String senderId = "sender-pa-id";
+
+        InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto();
+        inputSearchNotificationDto.setIunMatch(iun);
+        entityDao.put(NotificationEntity.builder()
+                .iun(iun+"other")
+                .sentAt(Instant.now())
+                .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
+                .senderPaId(senderId)
+                .build());
+
+
+        PageSearchTrunk<NotificationMetadataEntity> pageSearchTrunk = this.dao.searchByIUN(inputSearchNotificationDto);
+
+        Assertions.assertNotNull(pageSearchTrunk);
+        Assertions.assertNull(pageSearchTrunk.getResults());
+
+    }
+
+
     @Test
     void searchByIUN_mandateNotAllowedPA(){
 
