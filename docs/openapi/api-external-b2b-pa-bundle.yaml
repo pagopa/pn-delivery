@@ -1363,6 +1363,8 @@ components:
       description: |
         stato di avanzamento del processo di notifica:`
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
+          * `VALIDATE_NORMALIZE_ADDRESS` - Richiesta di validazione e normalizzazione indirizzi fisici
+          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
@@ -1399,6 +1401,8 @@ components:
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
         - SENDER_ACK_CREATION_REQUEST
+        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
+        - NORMALIZED_ADDRESS
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
         - GET_ADDRESS
@@ -1439,25 +1443,6 @@ components:
         legalFactId:
           type: string
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
-    NotificationRequestAcceptedDetails:
-      type: object
-      properties:
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
-    AnalogFailureWorkflowDetails:
-      type: object
-      required:
-        - recIndex
-      properties:
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
-        generatedAarUrl:
-          type: string
-          description: Chiave per recupero da safe-storage del documento aar
     PhysicalAddress:
       type: object
       required:
@@ -1489,6 +1474,40 @@ components:
           type: string
           description: Denominazione paese estero
       description: Indirizzo fisico scoperto durante fase di consegna
+    NormalizedAddressDetails:
+      type: object
+      required:
+        - recIndex
+        - oldAddress
+        - normalizedAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        oldAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        normalizedAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+    NotificationRequestAcceptedDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    AnalogFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
     AnalogSuccessWorkflowDetails:
       type: object
       required:
@@ -2106,7 +2125,7 @@ components:
         deliveryFailureCause:
           type: string
           description: |
-            __Motivazione di mancata consegna__ obbligtorie negli stati di mancata consegna
+            __Motivazione di mancata consegna__ obbligatorie negli stati di mancata consegna
               - __M01__ destinatario irreperibile
               - __M02__ destinatario deceduto
               - __M03__ destinatario sconosciuto
@@ -2129,19 +2148,19 @@ components:
               - __RECRS003C__- [RS] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
               - __RECRS004C__- [RS] - [OK] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
               - __RECRS005C__- [RS] - [OK] - Compiuta giacenza - Fascicolo Chiuso
-              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECRS006__- [RS] - [PROGRESS] - Furto/Smarrimento/deterioramento
               - __RECRN001C__- [AR] - [OK] - Consegnato - Fascicolo Chiuso
               - __RECRN002C__- [AR] - [KO] - Mancata consegna - Fascicolo Chiuso
               - __RECRN002F__- [AR] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
               - __RECRN003C__- [AR] - [OK] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
               - __RECRN004C__- [AR] - [KO] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
               - __RECRN005C__- [AR] - [OK] - Compiuta giacenza - Fascicolo Chiuso
-              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECRN006__- [AR] - [PROGRESS] - Furto/Smarrimento/deterioramento
               - __RECAG001C__- [890] - [OK] - Consegnato - Fascicolo Chiuso
               - __RECAG002C__- [890] - [OK] - Consegnato a persona abilitata - Fascicolo Chiuso
               - __RECAG003C__- [890] - [KO] - Mancata consegna - Fascicolo Chiuso
               - __RECAG003F__- [890] - [KO] - Irreperibilità Assoluta - Fascicolo Chiuso
-              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECAG004__- [890] - [PROGRESS] - Furto/Smarrimento/deterioramento
               - __RECAG005C__- [890] - [OK | PROGRESS] - Consegnato presso Punti di Giacenza - Fascicolo Chiuso
               - __RECAG006C__- [890] - [OK | PROGRESS] - Consegna a persona abilitata presso Punti di Giacenza - Fas. Ch.
               - __RECAG007C__- [890] - [KO | PROGRESS] - Mancata consegna presso Punti di Giacenza - Fascicolo Chiuso
@@ -2149,10 +2168,10 @@ components:
               - __PNAG012__- [890] - [KO] - Distacco d'ufficio 23L - Fascicolo Chiuso
               - __RECRI003C__- [RIR] - [OK] - Consegnato - Fascicolo Chiuso
               - __RECRI004C__- [RIR] - [KO] - Non Consegnato - fascicolo Chiuso
-              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECRI005__- [RIR] - [PROGRESS] - Furto/Smarrimento/deterioramento
               - __RECRSI003C__- [RIS] - [OK] - Consegnato - Fascicolo Chiuso
               - __RECRSI004C__- [RIS] - [KO] - Non Consegnato - fascicolo Chiuso
-              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimanto/deterioramento
+              - __RECRSI005__- [RIS] - [PROGRESS] - Furto/Smarrimento/deterioramento
         attachments:
           type: array
           items:
@@ -2351,6 +2370,7 @@ components:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
+        - $ref: '#/components/schemas/NormalizedAddressDetails'
         - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
