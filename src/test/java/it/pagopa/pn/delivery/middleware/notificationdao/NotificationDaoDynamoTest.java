@@ -13,14 +13,12 @@ import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
-import it.pagopa.pn.delivery.utils.ModelMapperConfig;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
-import org.modelmapper.ModelMapper;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
@@ -33,7 +31,6 @@ class NotificationDaoDynamoTest {
 
     private NotificationDaoDynamo dao;
     private EntityToDtoNotificationMapper entity2dto;
-    private ModelMapper modelMapper;
     private PnDataVaultClientImpl pnDataVaultClient;
     private NotificationEntityDao entityDao;
     private NotificationMetadataEntityDao metadataEntityDao;
@@ -56,10 +53,8 @@ class NotificationDaoDynamoTest {
 
     @BeforeEach
     void setup() {
-        ModelMapperConfig modelMapperConfig = new ModelMapperConfig();
-        this.modelMapper = modelMapperConfig.modelMapper();
-        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper(modelMapper);
-        entity2dto = new EntityToDtoNotificationMapper(modelMapper);
+        DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper();
+        entity2dto = new EntityToDtoNotificationMapper();
         entityDao = new EntityDaoMock();
         metadataEntityDao = new MetadataEntityDaoMock();
         NotificationDelegationMetadataEntityDao delegationMetadataEntityDao = new DelegationMetadataEntityDaoMock();
@@ -145,10 +140,10 @@ class NotificationDaoDynamoTest {
 
 
     @Test
-    void insertSuccessWithPaymentsFlat() throws PnIdConflictException {
+    void insertSuccessWithPayments() throws PnIdConflictException {
 
         // GIVEN
-        InternalNotification notification = newNotificationWithPaymentsFlat( );
+        InternalNotification notification = newNotification( );
 
         // WHEN
         Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
@@ -464,21 +459,56 @@ class NotificationDaoDynamoTest {
                 .build();
     }*/
 
-    /*private Notification newNotificationWithPaymentsIuvOnly() {
-        return newNotificationWithoutPayments().toBuilder()
-                .payment( NotificationPaymentInfo.builder()
-                        .iuv( "IUV_01" )
-                        .build()
-                )
-                .build();
-    }*/
-
-    private InternalNotification newNotificationWithPaymentsFlat( ) {
-        InternalNotification notification =  newNotificationWithoutPayments();
-        for (NotificationRecipient recipient : notification.getRecipients() ) {
-            recipient.payment( NotificationPaymentInfo.builder().build() );
-        }
-        return notification;
+    private InternalNotification newNotification() {
+        return new InternalNotification(FullSentNotification.builder()
+                .iun("IUN_01")
+                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
+                .paProtocolNumber("protocol_01")
+                .subject("Subject 01")
+                .cancelledByIun("IUN_05")
+                .cancelledIun("IUN_00")
+                .senderPaId("pa_02")
+                .notificationStatus(NotificationStatus.ACCEPTED)
+                .sentAt( OffsetDateTime.parse( "2023-03-16T12:30:23.123Z" ) )
+                .recipients(Collections.singletonList(
+                        NotificationRecipient.builder()
+                                .internalId( "recipientInternalId" )
+                                .payment( NotificationPaymentInfo.builder()
+                                        .noticeCode( "noticeCode" )
+                                        .noticeCodeAlternative( "noticeCodeAlternative" )
+                                        .pagoPaForm( null )
+                                        .build() )
+                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                                .build()
+                ))
+                .documents(Arrays.asList(
+                        NotificationDocument.builder()
+                                .ref(NotificationAttachmentBodyRef.builder()
+                                        .key("doc00")
+                                        .versionToken("v01_doc00")
+                                        .build()
+                                )
+                                .digests(NotificationAttachmentDigests.builder()
+                                        .sha256("sha256_doc00")
+                                        .build()
+                                )
+                                .build(),
+                        NotificationDocument.builder()
+                                .ref(NotificationAttachmentBodyRef.builder()
+                                        .key("doc01")
+                                        .versionToken("v01_doc01")
+                                        .build()
+                                )
+                                .digests(NotificationAttachmentDigests.builder()
+                                        .sha256("sha256_doc01")
+                                        .build()
+                                )
+                                .build()
+                ))
+                .recipientIds( Collections.singletonList("recipientId") )
+                .sourceChannel( X_PAGOPA_PN_SRC_CH )
+                .build()
+        );
     }
-
 }

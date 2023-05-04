@@ -1363,37 +1363,35 @@ components:
       description: |
         stato di avanzamento del processo di notifica:`
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
-          * `VALIDATE_NORMALIZE_ADDRESS` - Richiesta di validazione e normalizzazione indirizzi fisici
-          * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
-          * `GET_ADDRESS` - Informazioni sulla disponibilità dello specifico indirizzo
-          * `PUBLIC_REGISTRY_CALL` - Effettuata la richiesta ai registri pubblici per ottenere l'indirizzo generale
-          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici alla richiesta di ottenimento dell'indirizzo generale
-          * `SCHEDULE_ANALOG_WORKFLOW` - Inizio del workflow per invio cartaceo
-          * `SCHEDULE_DIGITAL_WORKFLOW` - Inizio del workflow per invio digitale (PEC)
-          * `PREPARE_DIGITAL_DOMICILE` - Preparazione all'invio invio digitale (PEC)
+          * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
+          * `NATIONAL_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `NATIONAL_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
+          * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
+          * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
+          * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
           * `SEND_DIGITAL_DOMICILE` - Invio digitale dell’avviso di notifica
-          * `SEND_DIGITAL_PROGRESS` - Ottenuto evento non finale da un invio digitale
+          * `SEND_DIGITAL_PROGRESS` - Tentativo di Invio PEC ad un determinato indirizzo.
           * `SEND_DIGITAL_FEEDBACK` - Ottenuto esito ad un invio digitale
           * `SCHEDULE_REFINEMENT` - Pianificato il perfezionamento per decorrenza termini
           * `REFINEMENT` - Perfezionamento per decorrenza termini
           * `DIGITAL_DELIVERY_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di chiusura del workflow digitale a safe storage
           * `DIGITAL_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio digitale
-          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale
-          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo
-          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo
-          * `ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto firmato e marcato di chiusura del workflow analogico completato con fallimento
-          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Preparazione all'invio di raccomandata semplice
+          * `DIGITAL_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio digitale: tutti i tentativi di invio ai domicili digitali sono falliti.
+          * `ANALOG_SUCCESS_WORKFLOW` - Completato con successo il workflow di invio cartaceo 
+          * `ANALOG_FAILURE_WORKFLOW` - Completato con fallimento il workflow di invio cartaceo NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE
+          * `PREPARE_SIMPLE_REGISTERED_LETTER` - Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel
           * `SEND_SIMPLE_REGISTERED_LETTER` - Invio di raccomandata semplice
-          * `SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione evento non finale relativo all'invio della raccomandata semplice
+          * `SEND_SIMPLE_REGISTERED_LETTER_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea semplice
           * `NOTIFICATION_VIEWED_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage
-          * `NOTIFICATION_VIEWED` - Perfezionamento per presa visione
-          * `PREPARE_ANALOG_DOMICILE` - Preparazione all'invio cartaceo dell’avviso di notifica
+          * `NOTIFICATION_VIEWED` - Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)
+          * `PREPARE_ANALOG_DOMICILE` - Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
           * `SEND_ANALOG_DOMICILE` - Invio cartaceo dell’avviso di notifica
-          * `SEND_ANALOG_PROGRESS` - Ricezione evento non finale dell'invio cartaceo
+          * `SEND_ANALOG_PROGRESS` - Ricezione informazioni intermedia relative ad una notificazione cartacea
           * `SEND_ANALOG_FEEDBACK` - Ricezione esito dell'invio cartaceo
+          * `COMPLETELY_UNREACHABLE_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage 
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
@@ -1401,8 +1399,6 @@ components:
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
       enum:
         - SENDER_ACK_CREATION_REQUEST
-        - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
-        - NORMALIZED_ADDRESS
         - REQUEST_ACCEPTED
         - SEND_COURTESY_MESSAGE
         - GET_ADDRESS
@@ -1421,10 +1417,9 @@ components:
         - DIGITAL_FAILURE_WORKFLOW
         - ANALOG_SUCCESS_WORKFLOW
         - ANALOG_FAILURE_WORKFLOW
-        - ANALOG_FAILURE_WORKFLOW_CREATION_REQUEST
         - PREPARE_SIMPLE_REGISTERED_LETTER
         - SEND_SIMPLE_REGISTERED_LETTER
-        - SIMPLE_REGISTERED_LETTER_PROGRESS
+        - SEND_SIMPLE_REGISTERED_LETTER_PROGRESS
         - NOTIFICATION_VIEWED_CREATION_REQUEST
         - NOTIFICATION_VIEWED
         - PREPARE_ANALOG_DOMICILE
@@ -1433,6 +1428,7 @@ components:
         - SEND_ANALOG_FEEDBACK
         - PAYMENT
         - COMPLETELY_UNREACHABLE
+        - COMPLETELY_UNREACHABLE_CREATION_REQUEST
         - REQUEST_REFUSED
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
@@ -1443,6 +1439,25 @@ components:
         legalFactId:
           type: string
           description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+    NotificationRequestAcceptedDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+    AnalogFailureWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        generatedAarUrl:
+          type: string
+          description: Chiave per recupero da safe-storage del documento aar
     PhysicalAddress:
       type: object
       required:
@@ -1474,37 +1489,6 @@ components:
           type: string
           description: Denominazione paese estero
       description: Indirizzo fisico scoperto durante fase di consegna
-    NormalizedAddressDetails:
-      type: object
-      required:
-        - recIndex
-        - oldAddress
-        - normalizedAddress
-      properties:
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
-        oldAddress:
-          $ref: '#/components/schemas/PhysicalAddress'
-        normalizedAddress:
-          $ref: '#/components/schemas/PhysicalAddress'
-    NotificationRequestAcceptedDetails:
-      type: object
-      properties:
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
-    AnalogFailureWorkflowDetails:
-      type: object
-      required:
-        - recIndex
-      properties:
-        recIndex:
-          type: integer
-          description: Index destinatario notifica digitale
-          format: int32
     AnalogSuccessWorkflowDetails:
       type: object
       required:
@@ -1523,7 +1507,7 @@ components:
       enum:
         - SUCCESS
         - FAILURE
-    AnalogFailureWorkflowCreationRequestDetails:
+    CompletelyUnreachableCreationRequestDetails:
       type: object
       required:
         - recIndex
@@ -1550,6 +1534,10 @@ components:
           type: integer
           description: Index destinatario notifica digitale
           format: int32
+        legalFactGenerationDate:
+          type: string
+          description: Data generazione atto opponibile a terzi allegato
+          format: date-time
     DigitalAddress:
       description: Indirizzo di invio della notifica
       required:
@@ -1801,7 +1789,6 @@ components:
       type: object
       required:
         - recIndex
-        - digitalAddress
         - digitalAddressSource
         - sentAttemptMade
         - lastAttemptDate
@@ -1862,7 +1849,6 @@ components:
       type: object
       required:
         - recIndex
-        - digitalAddress
         - digitalAddressSource
         - retryNumber
       properties:
@@ -2097,7 +2083,6 @@ components:
         - serviceLevel
         - sentAttemptMade
         - responseStatus
-        - investigation
       properties:
         recIndex:
           type: integer
@@ -2111,13 +2096,13 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
-        investigation:
-          type: boolean
-          description: E' richiesta investigazione indirizzo fisico alternativo
         newAddress:
           $ref: '#/components/schemas/PhysicalAddress'
         responseStatus:
           $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          format: date-time
         deliveryFailureCause:
           type: string
           description: |
@@ -2220,6 +2205,9 @@ components:
           type: integer
           description: peso in grammi della busta
           format: int32
+        prepareRequestId:
+          type: string
+          description: request id della relativa richiesta di prepare
     AarCreationRequestDetails:
       type: object
       required:
@@ -2363,11 +2351,10 @@ components:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
-        - $ref: '#/components/schemas/NormalizedAddressDetails'
         - $ref: '#/components/schemas/NotificationRequestAcceptedDetails'
         - $ref: '#/components/schemas/AnalogFailureWorkflowDetails'
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
-        - $ref: '#/components/schemas/AnalogFailureWorkflowCreationRequestDetails'
+        - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableDetails'
         - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
