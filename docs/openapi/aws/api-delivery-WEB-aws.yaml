@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: EKwPF4y1f17H/8bfSxWTmKVkpeDhOIqcKS3/D75Qmik=
+  version: SO5xnCsK2i4WzIqkZ4jJo6gm8VTWL8IGmbbEDxZ+NqY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2215,6 +2215,7 @@ components:
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+          * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -2253,6 +2254,7 @@ components:
         - AAR_CREATION_REQUEST
         - AAR_GENERATION
         - NOT_HANDLED
+        - PROBABLE_SCHEDULING_ANALOG_DATE
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -3146,6 +3148,19 @@ components:
         registeredLetterCode:
           type: string
           description: Codice della raccomandata
+    ProbableDateAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - schedulingAnalogDate
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario che ha effettuato il pagamento della notifica
+        schedulingAnalogDate:
+          type: string
+          format: date-time
+          description: Data probabile di inizio del flusso analogico
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
@@ -3185,6 +3200,7 @@ components:
         - $ref: '#/components/schemas/NotificationPaidDetails'
         - $ref: '#/components/schemas/SendAnalogProgressDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
+        - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
