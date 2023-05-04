@@ -430,6 +430,11 @@ Resources:
               - 'dynamodb:BatchWriteItem'
             Resource:
               - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
+          - Effect: Allow
+            Action:
+              - 'dynamodb:BatchWriteItem'
+            Resource:
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
               - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
           - Effect: Allow
             Action:
