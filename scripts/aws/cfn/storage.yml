@@ -34,7 +34,7 @@ Parameters:
 
   LogRetention:
     Type: Number
-    Default: '14'
+    Default: 14
 
 Resources:
 
