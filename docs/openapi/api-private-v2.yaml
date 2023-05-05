@@ -1,0 +1,502 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-private
+  title: OpenAPI servizi ad uso solo interno
+  x-summary: OpenAPI servizi ad uso solo interno
+  description: >- 
+    API accessibili solo da microservizi interni
+  version: '1.0.0'
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+- url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080
+  description: Generated server url
+  x-sandbox: true
+tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
+  - name: internal-only
+    description: >-
+      Invocazioni per uso interno
+paths:
+  "/status":
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
+  "/delivery-private/notifications/update-status":
+    post:
+      description: |-
+        Servizio per l'aggiornamento dello stato di invio della notifica
+        
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | Altri ms           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        |                    |
+        | __Idempotenza__          | Si                 |
+        | __Read/Write intensive__ | Write              |
+        | __Cachable__             | No                 |
+        </details>
+      summary: servizio per l'aggiornamento dello stato di invio della notifica
+      tags:
+      - internal-only
+      operationId: updateStatus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RequestUpdateStatusDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json: { }
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  
+  "/delivery-private/notifications/{iun}":
+    get:
+      summary: servizio per cercare una notifica dato <iun>
+      tags:
+        - internal-only
+      operationId: getSentNotificationPrivate
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "schemas-pn-notification-v2.yaml#/components/schemas/SentNotificationV2"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  "/delivery-private/search":
+    get:
+      summary: servizio per cercare le notifiche in base ad alcuni parametri di ricerca
+      tags:
+        - internal-only
+      operationId: searchNotificationsPrivate
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientIdIsOpaque'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatuses'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/notifications/{paTaxId}/{noticeCode}":
+    get:
+      summary: servizio che restituisce IUN data la coppia paTaxId_noticeCode
+      tags:
+        - internal-only
+      operationId: getNotificationCostPrivate
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        - name: noticeCode
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationCostResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+    ###########################################################################################
+    ###                     RICEZIONE DATI AVVENUTO PAGAMENTO DA EXTERNAL REGISTRY          ###
+    ###########################################################################################
+  "/delivery-private/events/payment/pagopa":
+    post:
+      operationId: paymentEventPagoPaPrivate
+      description: >-
+        Questa API è a disposizione di external registry per inviare eventi
+        di chiusura di una posizione debitoria di tipo PagoPA. <br/>
+      tags:
+        - internal-only
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentEventPagoPaPrivate"
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/check-aar-qr-code":
+    post:
+      summary: servizio per la verifica del qr code
+      tags:
+      - internal-only
+      operationId: checkAarQrCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestCheckAarDto"
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseCheckAarDto"
+        '404':
+          description: QrCode reference Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '403':
+          description: QrCode Reference misused
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: To many usage of the given QrCode Reference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/notifications/received/{iun}/attachments/documents/{docIdx}":
+    get:
+      summary: Download documento notificato
+      tags:
+        - internal-only
+      operationId: getReceivedNotificationDocumentPrivate
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/queryRecipientInternalId'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'           
+
+  "/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}":
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - internal-only
+      operationId: getReceivedNotificationAttachmentPrivate
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/queryRecipientInternalId'
+        - $ref: '#/components/parameters/queryMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'     
+
+  "/delivery-private/notifications/{iun}/quick-access-link-tokens":
+    get:
+      summary: servizio che dato uno <iun> restituisce per ogni destinatario il token per l'accesso rapido al dettaglio notifica  
+      tags:
+        - internal-only
+      operationId: getQuickAccessLinkTokensPrivate
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "schemas-pn-notification.yaml#/components/schemas/NotificationQuickAccessLinkTokens"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'                
+                
+                         
+
+components:
+  parameters:
+    queryRecipientInternalId:
+      name: recipientInternalId
+      in: query
+      description: Anonymous Recipient Identifier
+      required: true
+      schema:
+        type: string
+    pathDocumentIdx:
+      name: docIdx
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "PAGOPA"
+        minLength: 6
+        maxLength: 6
+    queryMandateId:
+      name: mandateId
+      in: query
+      required: false
+      schema:
+        type: string
+        # string with uuid pattern
+        maxLength: 36
+        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+
+  schemas:
+    
+    RequestCheckAarDto:
+      type: object
+      required:
+        - recipientType
+        - recipientInternalId
+        - aarQrCodeValue
+      properties:
+        recipientType: 
+          type: string
+          description: |
+            tipo del destinatario <br/>
+            __PF__: Persona Fisica <br/>
+            __PG__: Persona Giuridica <br/>
+        recipientInternalId:
+          type: string
+          description: identificativo anonimizzato del destinatario
+        aarQrCodeValue:
+          type: string
+          description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
+          minLength: 1
+          maxLength: 2048
+          
+    ResponseCheckAarDto:
+      type: object
+      required:
+        - iun
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+        
+
+    RequestUpdateStatusDto:
+      type: object
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+        nextStatus:
+          $ref: "remote-refs.yaml#/components/schemas/NotificationStatus"
+        timestamp:
+          type: string
+          description: timestamp del passaggio di stato
+          format: date-time
+
+    NotificationCostResponse:
+      type: object
+      properties:
+        iun:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
+        recipientIdx:
+          type: integer
+          format: int32
+          description: indice del destinatario
+
+    PaymentEventPagoPaPrivate:
+      title: Evento di pagamento PagoPa
+      description: >-
+        Comprende: <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - data e ora del pagamento. <br/>
+          - importo del pagamento in eurocent. <br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+        - paymentDate
+        - uncertainPaymentDate
+      properties:
+        noticeCode:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        paymentDate:
+          type: string
+          pattern: ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|([+\-][0-9]{2}):([0-9]{2}))$
+          description: data e ora in formato ISO 8601
+        uncertainPaymentDate:
+          type: boolean
+          description: indica se la data di pagamento é incerta
+        amount:
+          type: integer
+          format: int32
+
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'

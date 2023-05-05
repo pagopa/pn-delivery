@@ -3,7 +3,8 @@
         {
             "intendedUsage": "IO",
             "openapiFiles": [
-                "api-internal-b2b-appio.yaml"
+                "api-internal-b2b-appio.yaml",
+                "api-internal-b2b-appio-v2.yaml"
             ],
             "servicePath": "delivery"
         },
@@ -13,7 +14,8 @@
                 "schemas-pn-notification.yaml"
             ],
             "openapiFiles": [
-                "api-internal-b2b-pa.yaml"
+                "api-internal-b2b-pa.yaml",
+                "api-internal-b2b-pa-v2.yaml"
             ],
             "servicePath": "delivery",
             "generateBundle": true
@@ -21,9 +23,10 @@
         {
             "intendedUsage": "WEB",
             "openapiFiles": [
-                "api-internal-b2b-pa.yaml",
                 "api-internal-web-pa.yaml",
-                "api-internal-web-recipient.yaml"
+                "api-internal-web-recipient.yaml",
+                "api-internal-web-pa-v2.yaml",
+                "api-internal-web-recipient-v2.yaml"
             ],
             "servicePath": "delivery"
         }

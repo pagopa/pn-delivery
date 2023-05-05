@@ -1,6 +1,6 @@
 components:
   schemas:
-    F24Data:
+    F24Metadata:
       type: object
       minProperties: 1
       maxProperties: 1
