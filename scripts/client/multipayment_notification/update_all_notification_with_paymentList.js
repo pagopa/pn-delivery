@@ -10,14 +10,14 @@ if(arguments.length<=2){
   process.exit(1)
 }
 
-const awsProfile = awsProfile
+const awsProfile = arguments[2]
 
 console.log("Using profile "+awsProfile)
 
 let credentials = null
 
 process.env.AWS_SDK_LOAD_CONFIG=1
-if(credentials.indexOf('sso_')>=0){ // sso profile
+if(awsProfile.indexOf('sso_')>=0){ // sso profile
   credentials = new AWS.SsoCredentials({profile:awsProfile});
   AWS.config.credentials = credentials;
 } else { // IAM profile
