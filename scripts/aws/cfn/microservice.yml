@@ -438,6 +438,12 @@ Resources:
               - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
           - Effect: Allow
             Action:
+              - 'dynamodb:DeleteItem'
+            Resource:
+              - !Sub "${NotificationsCostDynamoTableArn}"
+              - !Sub "${NotificationsCostDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
               - ssm:GetParameter
               - ssm:GetParameters
             Resource:
