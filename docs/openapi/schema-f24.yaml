@@ -1,3 +1,5 @@
+info:
+  version: '1.0.0'
 components:
   schemas:
     F24Metadata:

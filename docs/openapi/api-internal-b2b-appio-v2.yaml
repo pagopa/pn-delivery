@@ -15,7 +15,7 @@ info:
   license:
     name: Licenza di PN
     url: https://da-definire/
-  version: '1.1.0'
+  version: '2.0.0'
 servers:
   - url: https://api-io.pn.pagopa.it
     description: Ambiente di produzione

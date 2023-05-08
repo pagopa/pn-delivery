@@ -1,5 +1,5 @@
 info:
-  version: v2.0
+  version: '2.0.0'
 components:
   schemas:
 
@@ -306,11 +306,9 @@ components:
       minProperties: 1
       properties:
         pagoPa:
-          type:
-            $ref: '#/components/schemas/PagoPaPayment'
+          $ref: '#/components/schemas/PagoPaPayment'
         f24:
-          type:
-            $ref: '#/components/schemas/F24Payment'
+          $ref: '#/components/schemas/F24Payment'
 
     PagoPaPayment:
       title: Informazioni per effettuare il pagamento con sistema pagoPA

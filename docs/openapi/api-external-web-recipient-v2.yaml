@@ -1,7 +1,6 @@
 openapi: 3.0.3
 info:
   termsOfService: https://notifichedigitali.pagopa.it/cittadini/informativa-privacy/index.html
-  x-api-id: api-internal-web-recipient # NO EXTERNAL
   #  x-api-id: api-external-web-recipient # ONLY EXTERNAL
   title: 'Piattaforma Notifiche: API web per i destinatari'
   x-summary: 'Piattaforma Notifiche: API web per i destinatari'
@@ -54,13 +53,9 @@ paths:
       tags:
         - RecipientRead
       operationId: searchReceivedNotification
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
@@ -99,10 +94,6 @@ paths:
         - RecipientRead
       operationId: searchReceivedDelegatedNotification
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'    # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
@@ -140,13 +131,9 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotification
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
       responses:
@@ -181,13 +168,9 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationDocument
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'      # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/queryMandateId'
@@ -219,13 +202,9 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
@@ -260,28 +239,12 @@ paths:
       description: |-
         Servizio per la verifica accesso rapido
 
-        <details no-external>
-        <summary><b> Attributi progettazione di alto livello </b></summary>
-        | Proprietà                | Valore             |
-        | -----------------------: | :----------------- |
-        | __Intended usage__       | WEB                |
-        | __Modalità interazione__ | Sincrona           |
-        | __TPS (stimato)__        |                    |
-        | __Idempotenza__          | Si                 |
-        | __Read/Write intensive__ | Read               |
-        | __Cachable__             | No                 |
-        </details>
       summary: servizio per la verifica del aar-qr-code
       tags:
         - RecipientRead
       operationId: checkAarQrCode
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
-      parameters:                                                   # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+      security:                                      # ONLY EXTERNAL
+        - bearerAuth: [ ]                            # ONLY EXTERNAL
       requestBody:
         content:
           application/json:
@@ -312,13 +275,9 @@ paths:
       tags:                                                                               # ONLY EXTERNAL
         - LegalFacts                                                                      # ONLY EXTERNAL
       operationId: getLegalFact                                                           # ONLY EXTERNAL
-#      security:                                                                           # ONLY EXTERNAL
-#        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
+      security:                                                                           # ONLY EXTERNAL
+        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
       parameters:                                                                         # ONLY EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'                                    # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'                                 # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'                                   # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'                               # NO EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'    # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                               # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                                 # ONLY EXTERNAL
@@ -348,14 +307,6 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:                                                               # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'            # NO EXTERNAL
-    cxIdAuthFleet:                                                                 # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'              # NO EXTERNAL
-    cxGroupsAuthFleet:                                                             # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet'          # NO EXTERNAL
-    uidAuthFleet:                                                                  # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
 
 
     ############################################################################################
@@ -465,10 +416,10 @@ components:
           type: string
 
 
-#  securitySchemes:                                      # ONLY EXTERNAL
-#    bearerAuth:                                         # ONLY EXTERNAL
-#      type: http                                        # ONLY EXTERNAL
-#      scheme: bearer                                    # ONLY EXTERNAL
-#      bearerFormat: JWT                                 # ONLY EXTERNAL
-#security:                                               # ONLY EXTERNAL
-# - bearerAuth: []                                       # ONLY EXTERNAL
+  securitySchemes:                                      # ONLY EXTERNAL
+    bearerAuth:                                         # ONLY EXTERNAL
+      type: http                                        # ONLY EXTERNAL
+      scheme: bearer                                    # ONLY EXTERNAL
+      bearerFormat: JWT                                 # ONLY EXTERNAL
+security:                                               # ONLY EXTERNAL
+ - bearerAuth: []                                       # ONLY EXTERNAL

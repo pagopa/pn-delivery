@@ -55,10 +55,6 @@ paths:
         - SenderReadWeb
       operationId: searchSentNotificationV2
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL        
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
@@ -94,14 +90,6 @@ components:
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
-    cxTypeAuthFleet:                                                      # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'   # NO EXTERNAL
-    cxIdAuthFleet:                                                        # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'     # NO EXTERNAL
-    cxGroupsAuthFleet:                                                    # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
-    uidAuthFleet:                                                         # NO EXTERNAL
-      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'      # NO EXTERNAL
 
   schemas:
     Problem:

@@ -6,7 +6,7 @@ info:
   x-summary: OpenAPI servizi ad uso solo interno
   description: >- 
     API accessibili solo da microservizi interni
-  version: '1.0.0'
+  version: '2.0.0'
   contact:
     email: pn@pagopa.it
   license:
