@@ -71,7 +71,7 @@ public class StatusService {
                                     notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
                                             .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCode())
                                             .build());
-                                    if(!r.getPayment().getNoticeCodeAlternative().isEmpty())
+                                    if(r.getPayment().getNoticeCodeAlternative() != null && !r.getPayment().getNoticeCodeAlternative().isEmpty())
                                         notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
                                                 .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCodeAlternative())
                                                 .build());
