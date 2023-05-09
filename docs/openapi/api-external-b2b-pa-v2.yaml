@@ -214,23 +214,24 @@ tags:
   - name: HealthCheck
     description: >-
       Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è ancora in fase di sviluppo
-  - name: NewNotification
+  - name: v2/NewNotification
     description: >-
       Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
-  - name: SenderReadB2B
+  - name: v2/SenderReadB2B
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
       di notifica inviate e delle notifiche accettate.
-  - name: NotificationPrice
+  - name: v2/NotificationPrice
     description: >-
       Invocazioni per determinare il costo della notifica per il destinatario.
-  - name: LegalFacts
+  - name: v2/LegalFacts
     description: >-
       Invocazioni per effettuare il download degli atti opponibili a terzi
-  - name: PaymentEvents
+  - name: v2/PaymentEvents
     description: >-
       Invocazioni per comunicare eventi di pagamento dalla PA
-
+  - name: v2
+    description: Versione 2.0 delle api
 paths:
   ###########################################################################################
   ###                          STATUS PIATTAFORMA NOTIFICHE                               ###
@@ -281,7 +282,8 @@ paths:
         a precaricare uno o più file da allegare a una notifica. <br/>
 
       tags:
-        - NewNotification
+        - v2/NewNotification
+        - v2
       operationId: presignedUploadRequest
       requestBody:
         content:
@@ -331,7 +333,8 @@ paths:
         _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
         
       tags:
-        - NewNotification
+        - v2/NewNotification
+        - v2
       operationId: sendNewNotification
       requestBody:
         content:
@@ -372,7 +375,8 @@ paths:
     get:
       operationId: retrieveNotificationRequestStatusV2                 # ONLY EXTERNAL
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       summary: Verifica accettazione richiesta notifica
       description: >-
         Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
@@ -421,7 +425,8 @@ paths:
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationV2                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
@@ -456,7 +461,8 @@ paths:
 
       summary: Download documento notificato
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationDocument                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
@@ -492,7 +498,8 @@ paths:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationAttachment                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
@@ -532,7 +539,8 @@ paths:
       summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
       tags:                                                                         # ONLY EXTERNAL
-        - LegalFacts                                                                # ONLY EXTERNAL
+        - v2/LegalFacts                                                             # ONLY EXTERNAL
+        - v2                                                                        # ONLY EXTERNAL
       operationId: retrieveLegalFact                                               # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
@@ -557,15 +565,16 @@ paths:
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-  '/delivery/v2/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
+  '/delivery/v2/price/{paTaxId}/{noticeCode}':                                      # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
-        Usata dalla PA per recuperare il costo di notificazione tramite
+        Usata dalla PA per recuperare il costo di notificazione tramite             
          l'identificativo della posizione debitoria paTaxId e noticeCode.
       tags:                                                                         # ONLY EXTERNAL
-        - NotificationPrice                                                         # ONLY EXTERNAL
+        - v2/NotificationPrice                                                      # ONLY EXTERNAL
+        - v2                                                                        # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - name: paTaxId                                                             # ONLY EXTERNAL
           description: Payment PA fiscal code                                       # ONLY EXTERNAL
@@ -617,7 +626,8 @@ paths:
         Questa API è a disposizione della Pubblica Amministrazione per inviare eventi
         di chiusura di una o più posizioni debitorie di tipo PagoPA. <br/>
       tags:
-        - PaymentEvents
+        - v2/PaymentEvents
+        - v2
       requestBody:
         required: true
         content:
@@ -653,7 +663,8 @@ paths:
         Questa API è a disposizione della Pubblica Amministrazione per inviare eventi
         di chiusura di una o più posizioni debitorie di tipo F24. <br/>
       tags:
-        - PaymentEvents
+        - v2/PaymentEvents
+        - v2
       requestBody:
         required: true
         content:

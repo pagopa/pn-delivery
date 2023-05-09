@@ -14,11 +14,13 @@ info:
     name: Licenza di PN
     url: 'https://da-definire/'
 servers:
-- url: https://webapi.pn.pagopa.it
+- url: https://webapi.notifichedigitali.it
   description: Ambiente di produzione
-- url: https://webapi.uat.pn.pagopa.it
+- url: https://webapi.uat.notifichedigitali.it
+  description: Ambiente di collaudo
+- url: https://webapi.test.notifichedigitali.it
   description: Ambiente di test
-- url: https://webapi.dev.pn.pagopa.it
+- url: https://webapi.dev.notifichedigitali.it
   description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
@@ -27,7 +29,8 @@ tags:
   - name: SenderReadWeb
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle notifiche inviate
-
+  - name: V2
+    description: Versione 2.0 delle api
 
 paths:
   "/status":
@@ -52,7 +55,7 @@ paths:
         servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
         di ricerca specificati
       tags:
-        - SenderReadWeb
+        - SenderReadWebV2
       operationId: searchSentNotificationV2
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'

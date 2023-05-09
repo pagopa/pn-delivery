@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: mX/9Z0UJy2XxlwpAoFGU/S21VuoV/UEQvf2+zWNAABk=
+  version: 6V3meyqT0nbETXe9W0HQspbelyHXcUxjzW1qor6SYC4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -675,7 +675,8 @@ paths:
         autorizzazioni necessarie  a precaricare uno o più file da allegare a
         una notifica. <br/>
       tags:
-        - NewNotification
+        - v2/NewNotification
+        - v2
       operationId: presignedUploadRequest
       requestBody:
         content:
@@ -760,7 +761,8 @@ paths:
         _getNotificationRequestStatus_ oppure utilizzare la modalità push
         prevista dai webhook. <br/>
       tags:
-        - NewNotification
+        - v2/NewNotification
+        - v2
       operationId: sendNewNotification
       requestBody:
         content:
@@ -817,7 +819,8 @@ paths:
     get:
       operationId: retrieveNotificationRequestStatusV2
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       summary: Verifica accettazione richiesta notifica
       description: >-
         Questa operazione serve per verificare se la richiesta di notifica è
@@ -892,7 +895,8 @@ paths:
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationV2
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -954,7 +958,8 @@ paths:
       description: Download documento notificato
       summary: Download documento notificato
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationDocument
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -1028,7 +1033,8 @@ paths:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationAttachment
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -1105,11 +1111,13 @@ paths:
     get:
       operationId: retrieveNotificationPrice
       summary: Retrieve notification price and effective date
-      description: |-
-        Usata dalla PA per recuperare il costo di notificazione tramite
+      description: >-
+        Usata dalla PA per recuperare il costo di notificazione
+        tramite             
          l'identificativo della posizione debitoria paTaxId e noticeCode.
       tags:
-        - NotificationPrice
+        - v2/NotificationPrice
+        - v2
       parameters:
         - name: paTaxId
           description: Payment PA fiscal code
@@ -1194,7 +1202,8 @@ paths:
         eventi di chiusura di una o più posizioni debitorie di tipo PagoPA.
         <br/>
       tags:
-        - PaymentEvents
+        - v2/PaymentEvents
+        - v2
       requestBody:
         required: true
         content:
@@ -1262,7 +1271,8 @@ paths:
         Questa API è a disposizione della Pubblica Amministrazione per inviare
         eventi di chiusura di una o più posizioni debitorie di tipo F24. <br/>
       tags:
-        - PaymentEvents
+        - v2/PaymentEvents
+        - v2
       requestBody:
         required: true
         content:
@@ -3907,9 +3917,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -4071,6 +4078,22 @@ tags:
     description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
+  - name: v2/NewNotification
+    description: >-
+      Invocazioni per effettuare il pre-caricamento dei documenti della notifica
+      e inviare notifiche
+  - name: v2/SenderReadB2B
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle
+      richieste  di notifica inviate e delle notifiche accettate.
+  - name: v2/NotificationPrice
+    description: Invocazioni per determinare il costo della notifica per il destinatario.
+  - name: v2/LegalFacts
+    description: Invocazioni per effettuare il download degli atti opponibili a terzi
+  - name: v2/PaymentEvents
+    description: Invocazioni per comunicare eventi di pagamento dalla PA
+  - name: v2
+    description: Versione 2.0 delle api
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:

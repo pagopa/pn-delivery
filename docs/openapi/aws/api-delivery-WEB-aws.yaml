@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: KFzr046Vtv4GX4EYut/LlsYj24aVHXKCZeHo+asLsyk=
+  version: ZvJqnntRH7et3E2EXhUH0SIn1my3BsLcClmz4+dhFtM=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -484,7 +484,7 @@ paths:
         servizio di consultazione dello stato di invio delle notifiche
         individuate dai parametri  di ricerca specificati
       tags:
-        - SenderReadWeb
+        - SenderReadWebV2
       operationId: searchSentNotificationV2
       parameters:
         - $ref: '#/components/parameters/notificationSearchStartDate'
@@ -552,8 +552,8 @@ paths:
         servizio di consultazione dello stato di invio delle notifiche
         individuate dai parametri  di ricerca specificati
       tags:
-        - RecipientRead
-      operationId: searchReceivedNotification
+        - RecipientReadV2
+      operationId: searchReceivedNotificationV2
       security:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
@@ -619,8 +619,8 @@ paths:
       summary: Ricerca notifiche delegate ricevute
       description: Servizio di consultazione delle notifiche delegate
       tags:
-        - RecipientRead
-      operationId: searchReceivedDelegatedNotification
+        - RecipientReadV2
+      operationId: searchReceivedDelegatedNotificationV2
       parameters:
         - $ref: '#/components/parameters/notificationSearchStartDate'
         - $ref: '#/components/parameters/notificationSearchEndDate'
@@ -687,8 +687,8 @@ paths:
         Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai
         dettagli delle  notifiche ricevute.
       tags:
-        - RecipientRead
-      operationId: getReceivedNotification
+        - RecipientReadV2
+      operationId: getReceivedNotificationV2
       security:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
@@ -750,8 +750,8 @@ paths:
     get:
       summary: Download documento notificato
       tags:
-        - RecipientRead
-      operationId: getReceivedNotificationDocument
+        - RecipientReadV2
+      operationId: getReceivedNotificationDocumentV2
       security:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
@@ -819,8 +819,8 @@ paths:
     get:
       summary: Download allegato per pagamento
       tags:
-        - RecipientRead
-      operationId: getReceivedNotificationAttachment
+        - RecipientReadV2
+      operationId: getReceivedNotificationAttachmentV2
       security:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
@@ -890,8 +890,8 @@ paths:
       description: Servizio per la verifica accesso rapido
       summary: servizio per la verifica del aar-qr-code
       tags:
-        - RecipientRead
-      operationId: checkAarQrCode
+        - RecipientReadV2
+      operationId: checkAarQrCodeV2
       security:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       requestBody:
@@ -3262,9 +3262,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
@@ -3416,6 +3413,8 @@ tags:
     description: >-
       Invocazioni utilizzate dai destinatari per ottenere informazioni sulle
       notifiche a loro destinate.
+  - name: V2
+    description: Versione 2.0 delle api
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:

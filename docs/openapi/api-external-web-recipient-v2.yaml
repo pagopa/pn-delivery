@@ -26,7 +26,8 @@ tags:
   - name: RecipientRead
     description: >-
       Invocazioni utilizzate dai destinatari per ottenere informazioni sulle notifiche a loro destinate.
-
+  - name: V2
+    description: Versione 2.0 delle api
 
 paths:
   "/status":
@@ -51,8 +52,8 @@ paths:
         servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
         di ricerca specificati
       tags:
-        - RecipientRead
-      operationId: searchReceivedNotification
+        - RecipientReadV2
+      operationId: searchReceivedNotificationV2
       security:                                      # ONLY EXTERNAL
         - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
@@ -91,8 +92,8 @@ paths:
       description: >-
         Servizio di consultazione delle notifiche delegate
       tags:
-        - RecipientRead
-      operationId: searchReceivedDelegatedNotification
+        - RecipientReadV2
+      operationId: searchReceivedDelegatedNotificationV2
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
@@ -129,8 +130,8 @@ paths:
         Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
         notifiche ricevute.
       tags:
-        - RecipientRead
-      operationId: getReceivedNotification
+        - RecipientReadV2
+      operationId: getReceivedNotificationV2
       security:                                      # ONLY EXTERNAL
         - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
@@ -166,8 +167,8 @@ paths:
     get:
       summary: Download documento notificato
       tags:
-        - RecipientRead
-      operationId: getReceivedNotificationDocument
+        - RecipientReadV2
+      operationId: getReceivedNotificationDocumentV2
       security:                                      # ONLY EXTERNAL
         - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
@@ -200,8 +201,8 @@ paths:
     get:
       summary: Download allegato per pagamento
       tags:
-        - RecipientRead
-      operationId: getReceivedNotificationAttachment
+        - RecipientReadV2
+      operationId: getReceivedNotificationAttachmentV2
       security:                                      # ONLY EXTERNAL
         - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
@@ -241,8 +242,8 @@ paths:
 
       summary: servizio per la verifica del aar-qr-code
       tags:
-        - RecipientRead
-      operationId: checkAarQrCode
+        - RecipientReadV2
+      operationId: checkAarQrCodeV2
       security:                                      # ONLY EXTERNAL
         - bearerAuth: [ ]                            # ONLY EXTERNAL
       requestBody:
@@ -273,8 +274,8 @@ paths:
       summary: Download atto opponibile a terzi                                           # ONLY EXTERNAL
       description: Permette di scaricare un atto opponibile a terzi                       # ONLY EXTERNAL
       tags:                                                                               # ONLY EXTERNAL
-        - LegalFacts                                                                      # ONLY EXTERNAL
-      operationId: getLegalFact                                                           # ONLY EXTERNAL
+        - LegalFactsV2                                                                      # ONLY EXTERNAL
+      operationId: getLegalFactV2                                                           # ONLY EXTERNAL
       security:                                                                           # ONLY EXTERNAL
         - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
       parameters:                                                                         # ONLY EXTERNAL

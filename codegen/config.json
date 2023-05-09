@@ -11,7 +11,8 @@
         {
             "intendedUsage": "B2B",
             "commonFiles": [
-                "schemas-pn-notification.yaml"
+                "schemas-pn-notification.yaml",
+                "schemas-pn-notification-v2.yaml"
             ],
             "openapiFiles": [
                 "api-internal-b2b-pa.yaml",
@@ -22,6 +23,10 @@
         },
         {
             "intendedUsage": "WEB",
+            "commonFiles": [
+                "schemas-pn-notification.yaml",
+                "schemas-pn-notification-v2.yaml"
+            ],
             "openapiFiles": [
                 "api-internal-web-pa.yaml",
                 "api-internal-web-recipient.yaml",

@@ -23,16 +23,18 @@ servers:
 tags:
   - name: HealthCheck
     description: 'Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è ancora in fase di sviluppo'
-  - name: NewNotification
+  - name: v2/NewNotification
     description: Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
-  - name: SenderReadB2B
+  - name: v2/SenderReadB2B
     description: Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste  di notifica inviate e delle notifiche accettate.
-  - name: NotificationPrice
+  - name: v2/NotificationPrice
     description: Invocazioni per determinare il costo della notifica per il destinatario.
-  - name: LegalFacts
+  - name: v2/LegalFacts
     description: Invocazioni per effettuare il download degli atti opponibili a terzi
-  - name: PaymentEvents
+  - name: v2/PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
+  - name: v2
+    description: Versione 2.0 delle api
 paths:
   /status:
     get:
@@ -80,7 +82,8 @@ paths:
       summary: Richiesta di pre-caricamento dei documenti della notifica
       description: Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie  a precaricare uno o più file da allegare a una notifica. <br/>
       tags:
-        - NewNotification
+        - v2/NewNotification
+        - v2
       operationId: presignedUploadRequest
       requestBody:
         content:
@@ -124,7 +127,8 @@ paths:
         Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
         _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
       tags:
-        - NewNotification
+        - v2/NewNotification
+        - v2
       operationId: sendNewNotification
       requestBody:
         content:
@@ -160,7 +164,8 @@ paths:
     get:
       operationId: retrieveNotificationRequestStatusV2
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       summary: Verifica accettazione richiesta notifica
       description: Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere lo IUN associato a tale richiesta. <br/> Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
@@ -197,7 +202,8 @@ paths:
       summary: 'Mittente: lettura dettagli notifica'
       description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationV2
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -225,7 +231,8 @@ paths:
       description: Download documento notificato
       summary: Download documento notificato
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationDocument
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -260,7 +267,8 @@ paths:
       description: Download allegato per pagamento
       summary: Download allegato per pagamento
       tags:
-        - SenderReadB2B
+        - v2/SenderReadB2B
+        - v2
       operationId: retrieveSentNotificationAttachment
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -296,7 +304,8 @@ paths:
       summary: Download atto opponibile a terzi
       description: Permette di scaricare un atto opponibile a terzi
       tags:
-        - LegalFacts
+        - v2/LegalFacts
+        - v2
       operationId: retrieveLegalFact
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -326,10 +335,11 @@ paths:
       operationId: retrieveNotificationPrice
       summary: Retrieve notification price and effective date
       description: |-
-        Usata dalla PA per recuperare il costo di notificazione tramite
+        Usata dalla PA per recuperare il costo di notificazione tramite             
          l'identificativo della posizione debitoria paTaxId e noticeCode.
       tags:
-        - NotificationPrice
+        - v2/NotificationPrice
+        - v2
       parameters:
         - name: paTaxId
           description: Payment PA fiscal code
@@ -375,7 +385,8 @@ paths:
       operationId: paymentEventsRequestPagoPa
       description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo PagoPA. <br/>
       tags:
-        - PaymentEvents
+        - v2/PaymentEvents
+        - v2
       requestBody:
         required: true
         content:
@@ -408,7 +419,8 @@ paths:
       operationId: paymentEventsRequestF24
       description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo F24. <br/>
       tags:
-        - PaymentEvents
+        - v2/PaymentEvents
+        - v2
       requestBody:
         required: true
         content:
@@ -1594,9 +1606,6 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId:
-          type: string
-          description: id interno anonimizzato
         denomination:
           $ref: '#/components/schemas/Denomination'
         digitalDomicile:
