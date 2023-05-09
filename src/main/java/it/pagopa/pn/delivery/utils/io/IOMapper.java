@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.utils.io;
 
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.IOReceivedNotification;
+import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +40,16 @@ public class IOMapper {
     public IOReceivedNotification mapToDetails(InternalNotification internalNotification) {
         if(internalNotification == null) return null;
 
-        return modelMapper.map( internalNotification, IOReceivedNotification.class );
+        IOReceivedNotification ioReceivedNotification = modelMapper.map(internalNotification, IOReceivedNotification.class);
+        List<NotificationRecipient> filteredNotificationRecipients = ioReceivedNotification.getRecipients()
+                .stream()
+                .filter(rec -> StringUtils.hasText(rec.getTaxId()))
+                .toList();
+        if(!CollectionUtils.isEmpty( filteredNotificationRecipients )) {
+            ioReceivedNotification.setRecipients( filteredNotificationRecipients );
+        }
+
+        return ioReceivedNotification;
     }
 
     public List<ThirdPartyAttachment> mapToThirdPartyAttachment(List<NotificationDocument> documents, String iun) {
