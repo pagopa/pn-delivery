@@ -50,7 +50,6 @@ public class IOMapper {
         }
 
         return ioReceivedNotification;
-
     }
 
     public List<ThirdPartyAttachment> mapToThirdPartyAttachment(List<NotificationDocument> documents, String iun) {
