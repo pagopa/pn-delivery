@@ -98,7 +98,7 @@ Parameters:
   VpcId:
     Type: String
     Description: 'VpcId where the microservice is going to be deployed'
-  
+
   EcsDefaultSecurityGroup:
     Type: String
     Description: 'Default security group required by infrastructure'
@@ -114,7 +114,7 @@ Parameters:
   NetworkLoadBalancerLink:
     Type: String
     Description: 'network load balancer link for API-GW'
-  
+
   AlarmSNSTopicArn:
     Type: String
     Description: ARN of alarm topic
@@ -131,7 +131,7 @@ Parameters:
   MaxDocumentsAvailableDays:
     Type: String
     Description: 'maximum number of days in which documents are available from refinement'
-  
+
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
@@ -428,11 +428,7 @@ Resources:
           - Effect: Allow
             Action:
               - 'dynamodb:BatchWriteItem'
-            Resource:
-              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
-          - Effect: Allow
-            Action:
-              - 'dynamodb:BatchWriteItem'
+              - 'dynamodb:DeleteItem'
             Resource:
               - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
               - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
@@ -492,7 +488,7 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn    
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         OpenApiBucketName: !Ref MicroserviceBucketName
         OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-WEB-aws.yaml
 
@@ -520,7 +516,7 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn        
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         OpenApiBucketName: !Ref MicroserviceBucketName
         OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-IO-aws.yaml
 
@@ -547,7 +543,7 @@ Resources:
             - !Ref NotificationsMetadataDynamoTableName
             - !Ref NotificationDelegationMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
-        LambdaArns: !Join 
+        LambdaArns: !Join
           - ','
           - - !GetAtt PnDeliveryInsertTriggerLambda.Arn
             - !GetAtt PnDeliveryAsseverationLambda.Arn
@@ -663,7 +659,7 @@ Resources:
       Timeout: 10
       Role: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
       Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"          
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Environment:
         Variables:
           QUEUE_URL: !Ref DeliveryPushInputsQueueURL
@@ -877,7 +873,7 @@ Resources:
       Timeout: !Ref PnDeliveryAsseverationLambdaTimeout
       Role: !GetAtt PnDeliveryAsseverationLambdaRole.Arn
       Layers:
-        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"          
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Environment:
         Variables:
           BUCKET_NAME: !Sub "${LogsBucketName}"
