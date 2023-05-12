@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
+import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -143,7 +144,10 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
                 indexNameAndPartitions.getIndexName(), partition, dynamoDbPageSize);
 
         if (!CollectionUtils.isEmpty(oneQueryResult.getResults())) {
-            cumulativeQueryResult.addAll(oneQueryResult.getResults());
+            // è necessario eseguire questa distinct by IUN per evitare che venga tornata più volte la stessa notifica,
+            // questo accade quando la notifica è stata duplicata per lo stesso delegato più volte (per ogni gruppo) e
+            // l'utente che sta facendo la ricerca è l'amministratore senza gruppi
+            cumulativeQueryResult.addAll(distinctByIun(oneQueryResult.getResults()));
         }
 
         if (cumulativeQueryResult.size() >= requiredSize) {
@@ -265,4 +269,11 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
         return mandateClient.listMandatesByDelegators(DelegateType.PG, searchDto.getCxGroups(), requestBody);
     }
 
+    private List<NotificationDelegationMetadataEntity> distinctByIun(List<NotificationDelegationMetadataEntity> queryResult) {
+        return queryResult.stream()
+                .collect(Collectors.toMap(e -> DataUtils.extractIUN(e.getIunRecipientIdDelegateIdGroupId()), Function.identity(), (a, b) -> a))
+                .values()
+                .stream()
+                .toList();
+    }
 }

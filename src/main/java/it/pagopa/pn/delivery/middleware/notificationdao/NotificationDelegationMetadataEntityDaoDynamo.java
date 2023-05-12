@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME;
 
@@ -59,6 +60,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
     @Override
     public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                            Set<String> groups,
                                                                                             int size,
                                                                                             PnLastEvaluatedKey lastEvaluatedKey) {
         log.debug("START search by mandateId");
@@ -74,6 +76,13 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
         requestBuilder.queryConditional(equalToConditional)
                 .limit(size);
+
+        if (groups != null && !groups.isEmpty()) {
+            StringBuilder expression = new StringBuilder();
+            Expression.Builder expressionBuilder = Expression.builder();
+            addGroupFilterExpression(groups, expressionBuilder, expression);
+            requestBuilder.filterExpression(expressionBuilder.build());
+        }
 
         if (lastEvaluatedKey != null && lastEvaluatedKey.getInternalLastEvaluatedKey() != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
             requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
@@ -201,6 +210,19 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
     private void addEventuallyAnd(StringBuilder expressionBuilder) {
         expressionBuilder.append(expressionBuilder.length() > 0 ? " AND (" : " (");
+    }
+
+    private void addGroupFilterExpression(Set<String> groups, Expression.Builder expressionBuilder, StringBuilder expression) {
+        expressionBuilder.putExpressionName("#f", NotificationDelegationMetadataEntity.FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID);
+        int i = 0;
+        for (String group : groups) {
+            expression.append("contains(#f, :g").append(i).append(")");
+            if (i < groups.size() - 1) {
+                expression.append(" OR ");
+            }
+            expressionBuilder.putExpressionValue(":g" + i, AttributeValue.builder().s(group).build());
+            i++;
+        }
     }
 
     private String retrieveAttributeName(IndexNameAndPartitions.SearchIndexEnum indexName) {

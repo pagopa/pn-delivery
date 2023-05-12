@@ -362,6 +362,7 @@ class NotificationDaoDynamoTest {
 
         @Override
         public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                                Set<String> groups,
                                                                                                 int size,
                                                                                                 PnLastEvaluatedKey lastEvaluatedKey) {
             return null;

@@ -10,6 +10,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<Key, NotificationDelegationMetadataEntity> {
 
@@ -21,6 +22,7 @@ public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<K
                                                                             int size,
                                                                             PnLastEvaluatedKey lastEvaluatedKey);
     PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                     Set<String> groups,
                                                                                      int size,
                                                                                      PnLastEvaluatedKey lastEvaluatedKey);
 

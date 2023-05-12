@@ -186,12 +186,12 @@ class NotificationDelegatedServiceTest {
         PageSearchTrunk<NotificationDelegationMetadataEntity> results = new PageSearchTrunk<>();
         results.setResults(resultsList);
         results.setLastEvaluatedKey(null);
-        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
+        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), any(), anyInt(), any()))
                 .thenReturn(results);
 
         assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
 
-        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), any(), anyInt(), any());
         verify(notificationDelegationMetadataEntityDao).deleteWithConditions(any());
     }
 
@@ -211,13 +211,13 @@ class NotificationDelegatedServiceTest {
         PageSearchTrunk<NotificationDelegationMetadataEntity> results2 = new PageSearchTrunk<>();
         results2.setResults(resultsList);
         results2.setLastEvaluatedKey(null);
-        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
+        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), any(), anyInt(), any()))
                 .thenReturn(results1)
                 .thenReturn(results2);
 
         assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
 
-        verify(notificationDelegationMetadataEntityDao, times(2)).searchDelegatedByMandateId(anyString(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao, times(2)).searchDelegatedByMandateId(anyString(), any(), anyInt(), any());
         verify(notificationDelegationMetadataEntityDao, times(2)).deleteWithConditions(any());
     }
 }

@@ -57,7 +57,7 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
 
     @Test
     void testSearchDelegatedByMandateId() {
-        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchDelegatedByMandateId("mandateId", 10, null);
+        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchDelegatedByMandateId("mandateId", null, 10, null);
         assertNotNull(result);
     }
 
