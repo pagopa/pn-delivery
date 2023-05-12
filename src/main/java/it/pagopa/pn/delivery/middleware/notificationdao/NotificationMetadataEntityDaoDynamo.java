@@ -99,6 +99,11 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             log.debug("result not satisfy filter filterid sender");
             return  new PageSearchTrunk<>();
         }
+        // filtro per mittente gruppo
+        if( inputSearchNotificationDto.isBySender() && !CollectionUtils.isEmpty( inputSearchNotificationDto.getGroups()) && !inputSearchNotificationDto.getGroups().contains( entity.getNotificationGroup() ) ) {
+            log.debug("result not satisfy filter group sender");
+            return new PageSearchTrunk<>();
+        }
 
         // preparo i risultati
         PageSearchTrunk<NotificationMetadataEntity> res = new PageSearchTrunk<>();
