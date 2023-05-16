@@ -92,7 +92,7 @@ components:
           type: string
           description: titolo della notifica
           minLength: 10
-          maxLength: 120
+          maxLength: 134
           # wide range of characters
           pattern: ^.*$
         abstract:

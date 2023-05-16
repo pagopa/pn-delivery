@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: /m0v7EF6pIKKHnt38NkKBbc98SwG8EsiAGV5G333ixQ=
+  version: 8wFtzXD8QkG9OWHuJS81wD97KMjaQ6KGTZrg/aNUYW8=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2037,7 +2037,7 @@ components:
           type: string
           description: titolo della notifica
           minLength: 10
-          maxLength: 120
+          maxLength: 134
           pattern: ^.*$
         abstract:
           type: string
