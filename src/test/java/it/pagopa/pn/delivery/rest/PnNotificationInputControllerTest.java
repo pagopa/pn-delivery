@@ -134,7 +134,7 @@ class PnNotificationInputControllerTest {
 										.build() )
 						.build() ) )
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
-				.subject( "subject" )
+				.subject( "subject_length" )
 				.taxonomyCode( "010101P" )
 				.build();
 	}
@@ -260,7 +260,7 @@ class PnNotificationInputControllerTest {
 								.build() )
 						.build() ) )
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
-				.subject( "subject" )
+				.subject( "subject_length" )
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
