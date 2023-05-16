@@ -1230,7 +1230,8 @@ components:
         subject:
           type: string
           description: titolo della notifica
-          maxLength: 134
+          minLength: 10
+          maxLength: 120
           pattern: ^.*$
         abstract:
           type: string
