@@ -57,6 +57,26 @@ class MandateHandlerTest {
         assertThrows(PnInternalException.class, () -> consumer.accept(message));
     }
 
+    @Test
+    void testPnDeliveryUpdatedMandateConsumer() {
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        doNothing().when(notificationDelegatedService).handleUpdatedMandate(same(payload), eq(EventType.MANDATE_UPDATED));
+
+        Consumer<Message<PnMandateEvent.Payload>> consumer = mandateHandler.pnDeliveryUpdatedMandateConsumer();
+        assertDoesNotThrow(() -> consumer.accept(new GenericMessage<>(payload)));
+    }
+
+    @Test
+    void testPnDeliveryUpdatedMandateConsumerException() {
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        doThrow(PnInternalException.class).when(notificationDelegatedService).handleUpdatedMandate(any(), any());
+
+        Consumer<Message<PnMandateEvent.Payload>> consumer = mandateHandler.pnDeliveryUpdatedMandateConsumer();
+        Message<PnMandateEvent.Payload> message = new GenericMessage<>(payload);
+        assertThrows(PnInternalException.class, () -> consumer.accept(message));
+    }
+
+
     /**
      * Method under test: {@link MandateHandler#pnDeliveryAcceptedMandateConsumer()}
      */

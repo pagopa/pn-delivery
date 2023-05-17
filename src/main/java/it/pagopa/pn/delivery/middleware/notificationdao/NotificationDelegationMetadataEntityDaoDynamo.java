@@ -81,6 +81,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
             StringBuilder expression = new StringBuilder();
             Expression.Builder expressionBuilder = Expression.builder();
             addGroupFilterExpression(groups, expressionBuilder, expression);
+            expressionBuilder.expression(expression.toString());
             requestBuilder.filterExpression(expressionBuilder.build());
         }
 
