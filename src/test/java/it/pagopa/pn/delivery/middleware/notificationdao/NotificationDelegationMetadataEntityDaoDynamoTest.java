@@ -9,6 +9,7 @@ import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.time.Instant;
 import java.util.List;
@@ -95,6 +96,11 @@ class NotificationDelegationMetadataEntityDaoDynamoTest {
         @Override
         public Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity) {
             return Optional.empty();
+        }
+
+        @Override
+        public Page<NotificationDelegationMetadataEntity> searchExactNotification(InputSearchNotificationDelegatedDto searchDto) {
+            return null;
         }
     }
 }

@@ -96,6 +96,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                                                                                           String senderId,
                                                                                           String recipientId,
                                                                                           String group,
+                                                                                          String iunMatch,
                                                                                           NotificationStatus status,
                                                                                           Integer size,
                                                                                           String nextPagesKey) {
@@ -110,6 +111,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .endDate(endDate.toInstant())
                 .group(group)
                 .senderId(senderId)
+                .iun(iunMatch)
                 .receiverId(recipientId)
                 .statuses(status != null ? List.of(status) : Collections.emptyList())
                 .size(size)

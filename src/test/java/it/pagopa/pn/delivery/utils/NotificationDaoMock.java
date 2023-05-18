@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.util.Collections;
 import java.util.List;
@@ -80,5 +81,12 @@ public class NotificationDaoMock implements NotificationDao {
                 .build() ));
 
         return result;
+    }
+
+    @Override
+    public Page<NotificationDelegationMetadataEntity> searchByPk(InputSearchNotificationDelegatedDto searchDto) {
+        NotificationDelegationMetadataEntity entity = new NotificationDelegationMetadataEntity();
+        entity.setIunRecipientIdDelegateIdGroupId("IUN##recipientId##delegateId");
+        return Page.create(Collections.singletonList(entity), null);
     }
 }
