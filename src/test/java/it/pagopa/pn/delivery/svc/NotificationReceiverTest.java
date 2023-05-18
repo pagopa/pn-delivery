@@ -406,7 +406,7 @@ class NotificationReceiverTest {
 				.senderTaxId( "01199250158" )
 				.senderDenomination( "Comune di Milano" )
 				.group( "group1" )
-				.subject( "subject" )
+				.subject( "subject_length" )
 				.documents( Collections.singletonList( NotificationDocument.builder()
 						.contentType( "application/pdf" )
 						.digests( NotificationAttachmentDigests.builder()
