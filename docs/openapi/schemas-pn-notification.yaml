@@ -17,6 +17,7 @@ components:
     Denomination:
       description: Denominazione ente o persona fisica / ragione sociale
       type: string
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
       maxLength: 80
       pattern: ^.*$
@@ -24,6 +25,7 @@ components:
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
       type: string
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 11
       maxLength: 16
       pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
@@ -330,6 +332,7 @@ components:
         - address
         - type
       type: object
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       properties:
         type:
           type: string
@@ -349,6 +352,7 @@ components:
     NotificationPhysicalAddress:
       description: Indirizzo fisico
       type: object
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       required:
         - address
         - municipality
