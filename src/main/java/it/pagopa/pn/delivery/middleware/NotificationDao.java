@@ -9,12 +9,11 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.util.Optional;
 
 public interface NotificationDao {
-
-    String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-dao";
 
     void addNotification(InternalNotification notification) throws PnIdConflictException;
 
@@ -42,4 +41,5 @@ public interface NotificationDao {
             InputSearchNotificationDto inputSearchNotificationDto
     );
 
+    Page<NotificationDelegationMetadataEntity> searchByPk(InputSearchNotificationDelegatedDto searchDto);
 }

@@ -6,7 +6,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationM
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -17,18 +16,18 @@ public class NotificationSearchFactory {
     private final EntityToDtoNotificationMetadataMapper entityToDto;
     private final PnDeliveryConfigs cfg;
     private final PnDataVaultClientImpl dataVaultClient;
-    private final PnMandateClientImpl mandateClient;
+    private final NotificationDelegatedSearchUtils notificationDelegatedSearchUtils;
 
     public NotificationSearchFactory(NotificationDao notificationDao,
                                      EntityToDtoNotificationMetadataMapper entityToDto,
                                      PnDeliveryConfigs cfg,
                                      PnDataVaultClientImpl dataVaultClient,
-                                     PnMandateClientImpl mandateClient) {
+                                     NotificationDelegatedSearchUtils notificationDelegatedSearchUtils){
         this.notificationDao = notificationDao;
         this.entityToDto = entityToDto;
         this.cfg = cfg;
         this.dataVaultClient = dataVaultClient;
-        this.mandateClient = mandateClient;
+        this.notificationDelegatedSearchUtils = notificationDelegatedSearchUtils;
     }
 
     public NotificationSearch getMultiPageSearch(InputSearchNotificationDto inputSearchNotificationDto,
@@ -49,6 +48,11 @@ public class NotificationSearchFactory {
     public NotificationSearch getMultiPageDelegatedSearch(InputSearchNotificationDelegatedDto searchDto,
                                                           PnLastEvaluatedKey lastEvaluatedKey) {
         IndexNameAndPartitions indexNameAndPartitions = IndexNameAndPartitions.selectDelegatedIndexAndPartitions(searchDto);
-        return new NotificationDelegatedSearchMultiPage(notificationDao, entityToDto, searchDto, lastEvaluatedKey, cfg, dataVaultClient, mandateClient, indexNameAndPartitions);
+        if(StringUtils.hasText(searchDto.getIun()) && StringUtils.hasText(searchDto.getReceiverId())) {
+            return new NotificationDelegatedSearchExact(notificationDao, entityToDto, searchDto, cfg, dataVaultClient, notificationDelegatedSearchUtils, indexNameAndPartitions);
+        }else if(StringUtils.hasText(searchDto.getIun())){
+            return new NotificationDelegatedSearchWithIun(notificationDao, entityToDto, searchDto, lastEvaluatedKey, cfg, dataVaultClient, notificationDelegatedSearchUtils, indexNameAndPartitions);
+        }
+        return new NotificationDelegatedSearchMultiPage(notificationDao, entityToDto, searchDto, lastEvaluatedKey, cfg, dataVaultClient, notificationDelegatedSearchUtils, indexNameAndPartitions);
     }
 }

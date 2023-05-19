@@ -808,6 +808,7 @@ paths:
         - $ref: '#/components/parameters/notificationSearchSenderId'
         - $ref: '#/components/parameters/notificationSearchRecipientId'
         - $ref: '#/components/parameters/notificationSearchGroup'
+        - $ref: '#/components/parameters/notificationSearchIun'
         - $ref: '#/components/parameters/notificationSearchStatus'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
