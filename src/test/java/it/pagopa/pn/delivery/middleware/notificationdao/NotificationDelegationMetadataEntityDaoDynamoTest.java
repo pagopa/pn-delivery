@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,7 +80,7 @@ class NotificationDelegationMetadataEntityDaoDynamoTest {
         }
 
         @Override
-        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId, int size, PnLastEvaluatedKey lastEvaluatedKey) {
+        public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId, Set<String> groups, int size, PnLastEvaluatedKey lastEvaluatedKey) {
             return null;
         }
 

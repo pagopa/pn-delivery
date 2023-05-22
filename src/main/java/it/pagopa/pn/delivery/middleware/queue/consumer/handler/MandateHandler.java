@@ -35,6 +35,19 @@ public class MandateHandler {
     }
 
     @Bean
+    public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryUpdatedMandateConsumer() {
+        return message -> {
+            try {
+                log.debug("pnDeliveryUpdatedMandateConsumer - message: {}", message);
+                notificationDelegatedService.handleUpdatedMandate(message.getPayload(), EventType.MANDATE_UPDATED);
+            } catch (Exception e) {
+                HandleEventUtils.handleException(message.getHeaders(), e);
+                throw e;
+            }
+        };
+    }
+
+    @Bean
     public Consumer<Message<PnMandateEvent.Payload>> pnDeliveryRejectedMandateConsumer() {
         return message ->  {
             try {
