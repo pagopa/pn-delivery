@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

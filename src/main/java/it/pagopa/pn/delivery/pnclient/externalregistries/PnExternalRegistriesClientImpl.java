@@ -1,11 +1,11 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.api.InternalOnlyApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.api.PaymentInfoApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.ApiClient;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InternalOnlyApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.PaymentInfoApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ public class PnExternalRegistriesClientImpl {
         this.internalOnlyApi = new InternalOnlyApi( newApiClient );
     }
 
-    public PaymentInfo getPaymentInfo( String paTaxId, String noticeNumber ) {
+    public PaymentInfo getPaymentInfo(String paTaxId, String noticeNumber ) {
         return paymentInfoApi.getPaymentInfo( paTaxId, noticeNumber );
     }
 

@@ -7,7 +7,6 @@
         <version>2.0.0</version>
         <relativePath>../pn-parent</relativePath>
     </parent>
-    <groupId>it.pagopa.pn.delivery</groupId>
     <artifactId>pn-delivery</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <name>pn-delivery</name>
@@ -239,10 +238,10 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.api</apiPackage>
-                                <configPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.config</configPackage>
+                                <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
+                                <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
                                 <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
@@ -271,10 +270,10 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.api</apiPackage>
-                                <configPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.config</configPackage>
+                                <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
+                                <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
                                 <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
@@ -303,10 +302,10 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.api</apiPackage>
-                                <configPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.config</configPackage>
+                                <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
+                                <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
                                 <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
@@ -335,10 +334,10 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <basePackage>it.pagopa.pn.delivery.generated.openapi.server.v1</basePackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.dto</modelPackage>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.api</apiPackage>
-                                <configPackage>it.pagopa.pn.delivery.generated.openapi.server.v1.config</configPackage>
+                                <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.v1.api</apiPackage>
+                                <configPackage>${project.groupId}.delivery.generated.openapi.server.v1.config</configPackage>
                                 <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
@@ -367,10 +366,10 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <basePackage>it.pagopa.pn.delivery.generated.openapi.appio.v1</basePackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.dto</modelPackage>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.api</apiPackage>
-                                <configPackage>it.pagopa.pn.delivery.generated.openapi.appio.v1.config</configPackage>
+                                <basePackage>${project.groupId}.delivery.generated.openapi.server.appio.v1</basePackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.server.appio.v1.dto</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.server.appio.v1.api</apiPackage>
+                                <configPackage>${project.groupId}.delivery.generated.openapi.server.appio.v1.config</configPackage>
                                 <additionalModelTypeAnnotations>@lombok.Builder; @lombok.NoArgsConstructor; @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
                                 <dateLibrary>java8</dateLibrary>
                                 <delegatePattern>true</delegatePattern>
@@ -398,8 +397,8 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.api</apiPackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
@@ -407,8 +406,6 @@
                                 <useAbstractionForFiles>true</useAbstractionForFiles>
                                 <useBeanValidation>false</useBeanValidation>
                             </configOptions>
-                            <modelPackage>${project.groupId}.pn-delivery.microservice.client.externalregistries.v1.dto</modelPackage>
-                            <apiPackage>${project.groupId}.pn-delivery.microservice.client.externalregistries.v1.api</apiPackage>
                         </configuration>
                     </execution>
                     <execution>
@@ -425,8 +422,8 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.api</apiPackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
@@ -434,8 +431,6 @@
                                 <useAbstractionForFiles>true</useAbstractionForFiles>
                                 <useBeanValidation>false</useBeanValidation>
                             </configOptions>
-                            <modelPackage>${project.groupId}.pn-delivery.microservice.client.externalregistries.v1.dto</modelPackage>
-                            <apiPackage>${project.groupId}.pn-delivery.microservice.client.externalregistries.v1.api</apiPackage>
                         </configuration>
                     </execution>
                     <execution>
@@ -452,8 +447,8 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.mandate.api</apiPackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.mandate.model</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.mandate.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.mandate.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
@@ -461,8 +456,6 @@
                                 <useAbstractionForFiles>true</useAbstractionForFiles>
                                 <useBeanValidation>false</useBeanValidation>
                             </configOptions>
-                            <modelPackage>${project.groupId}.pn-delivery.microservice.client.mandate.v1.dto</modelPackage>
-                            <apiPackage>${project.groupId}.pn-delivery.microservice.client.mandate.v1.api</apiPackage>
                         </configuration>
                     </execution>
                     <execution>
@@ -479,8 +472,8 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.api</apiPackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.safestorage.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.safestorage.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
@@ -488,8 +481,6 @@
                                 <useAbstractionForFiles>true</useAbstractionForFiles>
                                 <useBeanValidation>false</useBeanValidation>
                             </configOptions>
-                            <modelPackage>${project.groupId}.pn-delivery.microservice.client.safestorage.v1.dto</modelPackage>
-                            <apiPackage>${project.groupId}.pn-delivery.microservice.client.safestorage.v1.api</apiPackage>
                         </configuration>
                     </execution>
                     <execution>
@@ -506,8 +497,8 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.api</apiPackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.deliverypush.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.deliverypush.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
@@ -515,8 +506,6 @@
                                 <useAbstractionForFiles>true</useAbstractionForFiles>
                                 <useBeanValidation>false</useBeanValidation>
                             </configOptions>
-                            <modelPackage>${project.groupId}.pn-delivery.microservice.client.deliverypush.v1.dto</modelPackage>
-                            <apiPackage>${project.groupId}.pn-delivery.microservice.client.deliverypush.v1.api</apiPackage>
                         </configuration>
                     </execution>
                     <execution>
@@ -533,8 +522,8 @@
                             <generateModelTests>false</generateModelTests>
                             <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
                             <configOptions>
-                                <apiPackage>it.pagopa.pn.delivery.generated.openapi.clients.datavault.api</apiPackage>
-                                <modelPackage>it.pagopa.pn.delivery.generated.openapi.clients.datavault.model</modelPackage>
+                                <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.datavault.v1.api</apiPackage>
+                                <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.datavault.v1.model</modelPackage>
                                 <dateLibrary>java8</dateLibrary>
                                 <annotationLibrary>none</annotationLibrary>
                                 <documentationProvider>source</documentationProvider>
@@ -542,8 +531,6 @@
                                 <useAbstractionForFiles>true</useAbstractionForFiles>
                                 <useBeanValidation>false</useBeanValidation>
                             </configOptions>
-                            <modelPackage>${project.groupId}.pn-delivery.microservice.client.datavault.v1.dto</modelPackage>
-                            <apiPackage>${project.groupId}.pn-delivery.microservice.client.datavault.v1.api</apiPackage>
                         </configuration>
                     </execution>
                 </executions>

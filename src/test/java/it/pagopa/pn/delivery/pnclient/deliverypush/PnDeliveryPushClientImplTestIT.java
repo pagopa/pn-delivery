@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
 import it.pagopa.pn.delivery.MockAWSObjectsTest;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

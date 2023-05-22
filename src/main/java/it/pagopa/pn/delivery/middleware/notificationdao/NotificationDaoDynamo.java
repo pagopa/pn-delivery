@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;

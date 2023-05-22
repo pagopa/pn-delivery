@@ -17,10 +17,10 @@ public class ModelMapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
-        modelMapper.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement .class )
-                .addMapping( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
-        modelMapper.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
-                .addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
+        modelMapper.createTypeMap( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement .class )
+                .addMapping( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
+        modelMapper.createTypeMap( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement.class, TimelineElement.class )
+                .addMapping(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
         modelMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
                 .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
         modelMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )

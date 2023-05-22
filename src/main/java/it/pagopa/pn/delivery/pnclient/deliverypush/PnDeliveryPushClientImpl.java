@@ -1,12 +1,12 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.ApiClient;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.api.NotificationProcessCostApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.api.TimelineAndStatusApi;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationProcessCostResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.ApiClient;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.NotificationProcessCostApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.TimelineAndStatusApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;

@@ -2,9 +2,9 @@ package it.pagopa.pn.delivery.pnclient.externalregistries;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.ArrayList;
 import java.util.List;

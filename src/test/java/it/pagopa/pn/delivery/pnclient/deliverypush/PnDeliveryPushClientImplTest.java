@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.*;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;

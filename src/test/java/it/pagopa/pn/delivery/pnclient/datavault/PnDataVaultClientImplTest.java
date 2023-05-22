@@ -1,10 +1,10 @@
 package it.pagopa.pn.delivery.pnclient.datavault;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.AddressDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.AddressDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.NotificationRecipientAddressesDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.List;
 import java.util.UUID;

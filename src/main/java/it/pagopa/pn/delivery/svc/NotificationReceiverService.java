@@ -2,8 +2,8 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroupStatus;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;

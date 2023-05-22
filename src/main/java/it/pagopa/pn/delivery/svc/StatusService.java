@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;

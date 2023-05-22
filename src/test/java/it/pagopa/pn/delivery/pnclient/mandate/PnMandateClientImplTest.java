@@ -1,10 +1,10 @@
 package it.pagopa.pn.delivery.pnclient.mandate;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.DelegateType;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.MandateByDelegatorRequestDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.DelegateType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.MandateByDelegatorRequestDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.util.Collections;
 import java.util.List;

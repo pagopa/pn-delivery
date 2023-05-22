@@ -1,12 +1,10 @@
 package it.pagopa.pn.delivery.pnclient.safestorage;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationRequest;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
