@@ -10,12 +10,15 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA;
 
@@ -217,48 +220,6 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
             ));
         }
         return pageLastEvaluatedKey;
-    }
-
-    private List<NotificationDelegationMetadataEntity> checkMandates(List<NotificationDelegationMetadataEntity> queryResult) {
-        if (CollectionUtils.isEmpty(queryResult)) {
-            log.debug("skip check mandates - query result is empty");
-            return queryResult;
-        }
-        List<InternalMandateDto> mandates = getMandates(queryResult);
-        if (mandates.isEmpty()) {
-            log.info("no valid mandate found");
-            return Collections.emptyList();
-        }
-        Map<String, InternalMandateDto> mapMandates = mandates.stream()
-                .collect(Collectors.toMap(InternalMandateDto::getMandateId, Function.identity()));
-        return queryResult.stream()
-                .filter(row -> isMandateValid(mapMandates.get(row.getMandateId()), row))
-                .toList();
-    }
-
-    private boolean isMandateValid(InternalMandateDto mandate, NotificationDelegationMetadataEntity entity) {
-        if (mandate == null) {
-            return false;
-        }
-        Instant mandateStartDate = mandate.getDatefrom() != null ? Instant.parse(mandate.getDatefrom()) : null;
-        Instant mandateEndDate = mandate.getDateto() != null ? Instant.parse(mandate.getDateto()) : null;
-        return entity.getRecipientId().equals(mandate.getDelegator())
-                && (mandateStartDate == null || entity.getSentAt().compareTo(mandateStartDate) >= 0) // sent after start mandate
-                && (mandateEndDate == null || entity.getSentAt().compareTo(mandateEndDate) <= 0) // sent before end mandate
-                && (CollectionUtils.isEmpty(mandate.getVisibilityIds()) || mandate.getVisibilityIds().contains(entity.getSenderId()));
-    }
-
-    private List<InternalMandateDto> getMandates(List<NotificationDelegationMetadataEntity> queryResult) {
-        List<MandateByDelegatorRequestDto> requestBody = queryResult.stream()
-                .map(row -> {
-                    MandateByDelegatorRequestDto requestDto = new MandateByDelegatorRequestDto();
-                    requestDto.setMandateId(row.getMandateId());
-                    requestDto.setDelegatorId(row.getRecipientId());
-                    return requestDto;
-                })
-                .distinct()
-                .toList();
-        return mandateClient.listMandatesByDelegators(DelegateType.PG, searchDto.getCxGroups(), requestBody);
     }
 
     private List<NotificationDelegationMetadataEntity> distinctByIun(List<NotificationDelegationMetadataEntity> queryResult) {
