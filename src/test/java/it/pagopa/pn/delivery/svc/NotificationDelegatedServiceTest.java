@@ -56,6 +56,22 @@ class NotificationDelegatedServiceTest {
     @MockBean
     private PnMandateClientImpl pnMandateClientImpl;
 
+    @Test
+    void computeDelegationMetadataEntries() {
+        InternalMandateDto mandate = new InternalMandateDto();
+        mandate.setDelegate(DELEGATE_ID);
+        mandate.setDelegator(DELEGATOR_ID);
+        mandate.setDateto(OffsetDateTime.now().plus(1, ChronoUnit.DAYS).toString());
+        mandate.setDatefrom(OffsetDateTime.now().minus(1, ChronoUnit.DAYS).toString());
+        mandate.setMandateId(MANDATE_ID);
+        when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
+                .thenReturn(List.of(new InternalMandateDto()));
+        NotificationMetadataEntity entity = new NotificationMetadataEntity();
+        entity.setSentAt(Instant.now());
+        entity.setRecipientId(DELEGATOR_ID);
+        Assertions.assertEquals(1, notificationDelegatedService.computeDelegationMetadataEntries(entity).size());
+    }
+
     /**
      * Method under test: {@link NotificationDelegatedService#handleAcceptedMandate(PnMandateEvent.Payload, EventType)}
      */

@@ -2,9 +2,6 @@ package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.DelegateType;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.MandateByDelegatorRequestDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
@@ -13,17 +10,12 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
-import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
-import java.time.Instant;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA;
 
@@ -38,7 +30,7 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
     private final InputSearchNotificationDelegatedDto searchDto;
     private final PnDeliveryConfigs cfg;
     private final IndexNameAndPartitions indexNameAndPartitions;
-    private final PnMandateClientImpl mandateClient;
+    private final NotificationDelegatedSearchUtils notificationDelegatedSearchUtils;
 
     public NotificationDelegatedSearchMultiPage(NotificationDao notificationDao,
                                                 EntityToDtoNotificationMetadataMapper entityToDto,
@@ -46,14 +38,14 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
                                                 PnLastEvaluatedKey lastEvaluatedKey,
                                                 PnDeliveryConfigs cfg,
                                                 PnDataVaultClientImpl dataVaultClient,
-                                                PnMandateClientImpl mandateClient,
+                                                NotificationDelegatedSearchUtils notificationDelegatedSearchUtils,
                                                 IndexNameAndPartitions indexNameAndPartitions) {
         super(dataVaultClient, entityToDto);
         this.notificationDao = notificationDao;
         this.searchDto = searchDto;
         this.lastEvaluatedKey = lastEvaluatedKey;
         this.cfg = cfg;
-        this.mandateClient = mandateClient;
+        this.notificationDelegatedSearchUtils = notificationDelegatedSearchUtils;
         this.indexNameAndPartitions = indexNameAndPartitions;
     }
 
@@ -79,7 +71,7 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
         ResultPaginationDto<NotificationDelegationMetadataEntity, PnLastEvaluatedKey> queryResult;
         while (cumulativeQueryResult.size() < requiredSize) {
             queryResult = search(requiredSize, dynamoDbPageSize, startEvaluatedKey);
-            List<NotificationDelegationMetadataEntity> filtered = checkMandates(queryResult.getResultsPage());
+            List<NotificationDelegationMetadataEntity> filtered = notificationDelegatedSearchUtils.checkMandates(queryResult.getResultsPage(), searchDto);
             log.info("check mandates completed, preCheckCount={} postCheckCount={}", queryResult.getResultsPage().size(), filtered.size());
             cumulativeQueryResult.addAll(filtered);
 

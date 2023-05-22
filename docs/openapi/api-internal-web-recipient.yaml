@@ -108,6 +108,7 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSenderId'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchGroup'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchIun'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatus'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'

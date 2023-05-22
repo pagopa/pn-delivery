@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
+import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -335,5 +336,39 @@ public class NotificationDelegationMetadataEntityDaoDynamo
             log.warn("can not delete {} - conditional check failed", entity.getIunRecipientIdDelegateIdGroupId(), e);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Page<NotificationDelegationMetadataEntity> searchExactNotification(InputSearchNotificationDelegatedDto searchDto) {
+        log.debug("START search for one month");
+        Instant startDate = searchDto.getStartDate();
+        Instant endDate = searchDto.getEndDate();
+
+        Key.Builder builder = Key.builder().partitionValue(constructPk(searchDto));
+        Key key1 = builder.sortValue(startDate.toString()).build();
+        Key key2 = builder.sortValue(endDate.toString()).build();
+        log.debug("key building done pk={} start-sk={} end-sk={}", key1.partitionKeyValue(), key1.sortKeyValue(), key2.sortKeyValue());
+
+        QueryConditional betweenConditional = QueryConditional.sortBetween(key1, key2);
+
+        QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder();
+
+        requestBuilder.queryConditional(betweenConditional)
+                .scanIndexForward(false);
+
+        addFilterExpression(searchDto, requestBuilder);
+
+        log.debug("START query execution");
+        SdkIterable<Page<NotificationDelegationMetadataEntity>> pages = table.query(requestBuilder.build());
+        log.debug("END query execution");
+
+        return pages.iterator().next();
+    }
+
+    private String constructPk(InputSearchNotificationDelegatedDto searchDto) {
+        if(!StringUtils.hasText(searchDto.getGroup())){
+            return DataUtils.createConcatenation(searchDto.getIun(), searchDto.getReceiverId(), searchDto.getDelegateId());
+        }
+        return DataUtils.createConcatenation(searchDto.getIun(), searchDto.getReceiverId(), searchDto.getDelegateId(), searchDto.getGroup());
     }
 }
