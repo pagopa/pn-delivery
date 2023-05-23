@@ -202,7 +202,9 @@ public class NotificationDelegatedService {
 
             iterations++;
             log.debug("last evaluated key: {}", oneQueryResult.getLastEvaluatedKey());
-        } while (oneQueryResult.getLastEvaluatedKey() != null && !oneQueryResult.getResults().isEmpty());
+            startEvaluatedKey.setInternalLastEvaluatedKey(oneQueryResult.getLastEvaluatedKey());
+
+        } while (oneQueryResult.getLastEvaluatedKey() != null && !oneQueryResult.getLastEvaluatedKey().isEmpty());
         log.info("mandateId={} deleteCount={} iterations={}", mandateId, deleteCount, iterations);
     }
 
