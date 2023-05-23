@@ -22,9 +22,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,7 +55,8 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
 
     @Test
     void testSearchDelegatedByMandateId() {
-        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchDelegatedByMandateId("mandateId", 10, null);
+        Set<String> set = new HashSet<>(List.of("64425c8e8a0f4e1208fc0ec2", "64425c8e8a0f4e1208fc0ed1", "64425c8e8a0f4e1208fc0ee1"));
+        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchDelegatedByMandateId("mandateId", set, 10, null);
         assertNotNull(result);
     }
 

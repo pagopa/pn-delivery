@@ -50,6 +50,15 @@ class RefinementLocalDateTest {
     }
 
     @Test
+    void checkLocalRefinementDateSolare2() {
+
+        // When
+        OffsetDateTime result = refinementLocalDate.setLocalRefinementDate(OffsetDateTime.parse(REFINEMENT_DATE_SOLARE));
+        // Then
+        Assertions.assertEquals( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE_SOLARE ), result );
+    }
+
+    @Test
     void checkFormatDate() {
         String formattedDate = refinementLocalDate.formatInstantToString(Instant.parse( INSTANT_DATE_TO_FORMAT ));
 

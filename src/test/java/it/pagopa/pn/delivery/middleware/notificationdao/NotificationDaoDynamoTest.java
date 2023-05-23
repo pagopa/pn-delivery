@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -30,13 +31,18 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
 class NotificationDaoDynamoTest {
 
     private NotificationDaoDynamo dao;
     private EntityToDtoNotificationMapper entity2dto;
     private PnDataVaultClientImpl pnDataVaultClient;
     private NotificationEntityDao entityDao;
-    private NotificationMetadataEntityDao metadataEntityDao;
+
+    private NotificationDelegationMetadataEntityDao delegationMetadataEntityDao;
 
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     public static final String ATTACHMENT_BODY_STR = "Body";
@@ -59,9 +65,9 @@ class NotificationDaoDynamoTest {
         DtoToEntityNotificationMapper dto2Entity = new DtoToEntityNotificationMapper();
         entity2dto = new EntityToDtoNotificationMapper();
         entityDao = new EntityDaoMock();
-        metadataEntityDao = new MetadataEntityDaoMock();
-        NotificationDelegationMetadataEntityDao delegationMetadataEntityDao = new DelegationMetadataEntityDaoMock();
+        NotificationMetadataEntityDao metadataEntityDao = new MetadataEntityDaoMock();
         pnDataVaultClient = Mockito.mock( PnDataVaultClientImpl.class );
+        delegationMetadataEntityDao = Mockito.mock( NotificationDelegationMetadataEntityDao.class );
         dao = new NotificationDaoDynamo( entityDao, metadataEntityDao, delegationMetadataEntityDao, dto2Entity, entity2dto, pnDataVaultClient);
     }
 
@@ -72,7 +78,7 @@ class NotificationDaoDynamoTest {
         InternalNotification notification = newNotificationWithoutPayments( );
 
         // WHEN
-        Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 
         // THEN
@@ -88,7 +94,7 @@ class NotificationDaoDynamoTest {
         baseRecipientDto1.setInternalId( "opaqueTaxId1" );
         baseRecipientDto1.setTaxId( "recipientTaxId1" );
 
-        Mockito.when( pnDataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( List.of(baseRecipientDto1, baseRecipientDto ) );
+        when( pnDataVaultClient.getRecipientDenominationByInternalId( Mockito.anyList() ) ).thenReturn( List.of(baseRecipientDto1, baseRecipientDto ) );
 
         NotificationRecipientAddressesDto notificationRecipientAddressesDto = new NotificationRecipientAddressesDto();
         notificationRecipientAddressesDto.setDenomination( "recipientDenomination" );
@@ -114,7 +120,7 @@ class NotificationDaoDynamoTest {
                 .cap( "cap1" )
                 .state( "state1" ));
 
-        Mockito.when( pnDataVaultClient.getNotificationAddressesByIun( Mockito.anyString() ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
+        when( pnDataVaultClient.getNotificationAddressesByIun( Mockito.anyString() ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
         Assertions.assertTrue( saved.isPresent() );
         // verifica ordine taxId destinatari
@@ -133,7 +139,7 @@ class NotificationDaoDynamoTest {
         InternalNotification notification = newNotificationWithoutPayments( );
 
         // WHEN
-        Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
         Executable todo = () -> this.dao.addNotification( newNotificationWithoutPayments() );
 
@@ -149,7 +155,7 @@ class NotificationDaoDynamoTest {
         InternalNotification notification = newNotification( );
 
         // WHEN
-        Mockito.when( pnDataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 
         // THEN
@@ -191,6 +197,27 @@ class NotificationDaoDynamoTest {
         Assertions.assertTrue(predicate2.test("Test"));
         Assertions.assertTrue(predicate2.test("Subject Test"));
 
+    }
+
+    @Test
+    void searchDelegatedForOneMonth() {
+        InputSearchNotificationDelegatedDto dto = new InputSearchNotificationDelegatedDto();
+        PageSearchTrunk<NotificationDelegationMetadataEntity> page = new PageSearchTrunk<>();
+        page.setResults(Collections.singletonList(new NotificationDelegationMetadataEntity()));
+        when(delegationMetadataEntityDao.searchForOneMonth(any(), any(), any(), anyInt(), any())).thenReturn(page);
+        Assertions.assertDoesNotThrow(() -> {
+            this.dao.searchDelegatedForOneMonth(dto, IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_IUN, "partitionValue", 1, null);
+        });
+    }
+
+    @Test
+    void findByPk() {
+        InputSearchNotificationDelegatedDto dto = new InputSearchNotificationDelegatedDto();
+        Page<NotificationDelegationMetadataEntity> page = Page.create(Collections.singletonList(new NotificationDelegationMetadataEntity()), null);
+        when(delegationMetadataEntityDao.searchExactNotification(any())).thenReturn(page);
+        Assertions.assertDoesNotThrow(() -> {
+            this.dao.searchByPk(dto);
+        });
     }
 
     @Test
@@ -365,6 +392,7 @@ class NotificationDaoDynamoTest {
 
         @Override
         public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                                Set<String> groups,
                                                                                                 int size,
                                                                                                 PnLastEvaluatedKey lastEvaluatedKey) {
             return null;
@@ -383,6 +411,11 @@ class NotificationDaoDynamoTest {
         @Override
         public Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity) {
             return Optional.empty();
+        }
+
+        @Override
+        public Page<NotificationDelegationMetadataEntity> searchExactNotification(InputSearchNotificationDelegatedDto searchDto) {
+            return Page.create(Collections.emptyList(), null);
         }
     }
 

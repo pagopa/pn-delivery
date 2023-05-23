@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -246,6 +247,10 @@ public class NotificationDaoDynamo implements NotificationDao {
 		return new PageSearchTrunk<>();
 	}
 
+	@Override
+	public Page<NotificationDelegationMetadataEntity> searchByPk(InputSearchNotificationDelegatedDto searchDto) {
+		return delegationMetadataEntityDao.searchExactNotification(searchDto);
+	}
 
 
 	Predicate<String> buildRegexpPredicate(String subjectRegExp) {

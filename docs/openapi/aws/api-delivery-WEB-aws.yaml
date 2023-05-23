@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 8wFtzXD8QkG9OWHuJS81wD97KMjaQ6KGTZrg/aNUYW8=
+  version: GbFBnSdzafV3a3ZZhA93DNeCiztRPAQElOVHU6sd1DI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -808,6 +808,7 @@ paths:
         - $ref: '#/components/parameters/notificationSearchSenderId'
         - $ref: '#/components/parameters/notificationSearchRecipientId'
         - $ref: '#/components/parameters/notificationSearchGroup'
+        - $ref: '#/components/parameters/notificationSearchIun'
         - $ref: '#/components/parameters/notificationSearchStatus'
         - $ref: '#/components/parameters/notificationSearchPageSize'
         - $ref: '#/components/parameters/notificationSearchNextPagesKey'
