@@ -236,7 +236,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -268,7 +268,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -300,7 +300,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -332,7 +332,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.v1.dto</modelPackage>
@@ -364,7 +364,7 @@
                             <modelNameSuffix />
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/server</templateDirectory>
                             <configOptions>
                                 <basePackage>${project.groupId}.delivery.generated.openapi.server.appio.v1</basePackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.server.appio.v1.dto</modelPackage>
@@ -395,7 +395,7 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.model</modelPackage>
@@ -420,7 +420,7 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.externalregistries.v1.model</modelPackage>
@@ -445,7 +445,7 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.mandate.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.mandate.v1.model</modelPackage>
@@ -470,7 +470,7 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.safestorage.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.safestorage.v1.model</modelPackage>
@@ -495,7 +495,7 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.deliverypush.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.deliverypush.v1.model</modelPackage>
@@ -520,7 +520,7 @@
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
-                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates</templateDirectory>
+                            <templateDirectory>${project.build.directory}/dependency-resources/scripts/openapi/templates/5.4.0/client</templateDirectory>
                             <configOptions>
                                 <apiPackage>${project.groupId}.delivery.generated.openapi.msclient.datavault.v1.api</apiPackage>
                                 <modelPackage>${project.groupId}.delivery.generated.openapi.msclient.datavault.v1.model</modelPackage>
