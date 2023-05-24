@@ -12,10 +12,9 @@ class PgUtilsTest {
 
     @Test
     void checkAuthorizationPGAndValuedGroupsTest() {
-        String recipientType = "PG";
         List<String> cxGroups = List.of("group1");
 
-        assertTrue(checkAuthorizationPG(recipientType, cxGroups));
+        assertTrue(checkAuthorizationPG("PG", cxGroups));
     }
 
     @Test
