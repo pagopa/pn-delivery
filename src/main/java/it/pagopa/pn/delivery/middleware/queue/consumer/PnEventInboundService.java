@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.middleware.queue.consumer;
 
 import it.pagopa.pn.commons.log.MDCWebFilter;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.cloud.function.context.MessageRoutingCallback;
@@ -44,7 +45,7 @@ public class PnEventInboundService {
             traceId = "trace_id:" + UUID.randomUUID();
         }
 
-        MDC.put(MDCWebFilter.MDC_TRACE_ID_KEY, traceId);
+        MDC.put(MDCUtils.MDC_TRACE_ID_KEY, traceId);
     }
 
     private String handleMessage(Message<?> message) {
