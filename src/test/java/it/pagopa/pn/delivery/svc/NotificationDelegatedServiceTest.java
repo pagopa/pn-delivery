@@ -235,8 +235,8 @@ class NotificationDelegatedServiceTest {
 
         assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
 
-        verify(notificationDelegationMetadataEntityDao, times(2)).searchDelegatedByMandateId(anyString(), any(), anyInt(), any());
-        verify(notificationDelegationMetadataEntityDao, times(2)).deleteWithConditions(any());
+        verify(notificationDelegationMetadataEntityDao, times(1)).searchDelegatedByMandateId(anyString(), any(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao, times(1)).deleteWithConditions(any());
     }
 
     @Test
