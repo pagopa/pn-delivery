@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 import java.util.Map;
 
 
@@ -52,7 +53,7 @@ public class EntityToDtoNotificationMetadataMapper {
         return NotificationSearchRow.builder()
                 .iun(entity.getIunRecipientIdDelegateIdGroupId().substring(0, entity.getIunRecipientIdDelegateIdGroupId().indexOf("##")))
                 .sender(tableRow.get(TABLE_ROW_SENDER_DENOMINATION))
-                .recipients(entity.getRecipientIds())
+                .recipients(Collections.singletonList(entity.getRecipientId()))
                 .sentAt(entity.getSentAt().atOffset(ZoneOffset.UTC))
                 .subject(tableRow.get(TABLE_ROW_SUBJECT))
                 .paProtocolNumber(tableRow.get(TABLE_ROW_PA_PROTOCOL_NUMBER))
