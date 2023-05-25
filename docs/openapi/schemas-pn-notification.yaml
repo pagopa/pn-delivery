@@ -332,7 +332,6 @@ components:
         - address
         - type
       type: object
-      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       properties:
         type:
           type: string
@@ -341,6 +340,7 @@ components:
             - PEC
         address:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           example: account@domain.it
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
@@ -352,19 +352,20 @@ components:
     NotificationPhysicalAddress:
       description: Indirizzo fisico
       type: object
-      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       required:
         - address
         - municipality
       properties:
         at:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Campo "presso" dell'indirizzo
           # wide range of characters
           pattern: ^.*$
           maxLength: 256
         address:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Indirizzo del domicilio fisico
           # wide range of characters
           pattern: ^.*$
@@ -372,18 +373,21 @@ components:
           maxLength: 1024
         addressDetails:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Seconda riga dell'indirizzo fisico
           # wide range of characters
           pattern: ^.*$
           maxLength: 1024
         zip:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
           minLength: 0
           maxLength: 15
           pattern: ^(\w|\ |\-)*$
         municipality:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Comune
           # wide range of characters
           pattern: ^.*$
@@ -391,18 +395,21 @@ components:
           maxLength: 256
         municipalityDetails:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Frazione o località
           # wide range of characters
           pattern: ^.*$
           maxLength: 256
         province:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Provincia
           # wide range of characters
           pattern: ^.*$
           maxLength: 256
         foreignState:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Denominazione paese estero
           # wide range of characters
           pattern: ^.*$
