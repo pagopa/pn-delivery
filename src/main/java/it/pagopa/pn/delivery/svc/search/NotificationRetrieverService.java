@@ -651,8 +651,8 @@ public class NotificationRetrieverService {
 	}
 
 	private String checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups) {
-
-		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, CxTypeAuthFleet.valueOf(recipientType), cxGroups);
+		CxTypeAuthFleet cxTypeAuthFleet = StringUtils.hasText(recipientType) ? CxTypeAuthFleet.valueOf(recipientType) : null;
+		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, cxTypeAuthFleet, cxGroups);
 		if(!mandates.isEmpty()) {
 
 			for ( InternalMandateDto mandate : mandates ) {
