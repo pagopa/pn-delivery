@@ -34,21 +34,23 @@ public class PnEventInboundService {
     }
 
     private void setTraceId(Message<?> message) {
-        MessageHeaders headers = message.getHeaders();
+        MessageHeaders messageHeaders = message.getHeaders();
+        MDCUtils.clearMDCKeys();
 
-        String traceId;
-
-        if (headers.containsKey("aws_messageId")) {
-            traceId = headers.get("aws_messageId", String.class);
-        } else {
-            traceId = "trace_id:" + UUID.randomUUID();
+        if (messageHeaders.containsKey("aws_messageId")){
+            String awsMessageId = messageHeaders.get("aws_messageId", String.class);
+            MDC.put(MDCUtils.MDC_PN_CTX_MESSAGE_ID, awsMessageId);
         }
 
-        MDC.put(MDCUtils.MDC_TRACE_ID_KEY, traceId);
+        if (messageHeaders.containsKey("X-Amzn-Trace-Id")){
+            String traceId = messageHeaders.get("X-Amzn-Trace-Id", String.class);
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, traceId);
+        } else {
+            MDC.put(MDCUtils.MDC_TRACE_ID_KEY, String.valueOf(UUID.randomUUID()));
+        }
     }
 
     private String handleMessage(Message<?> message) {
-        log.debug("received message from customRouter: {}", message);
 
         String eventType = (String) message.getHeaders().get("eventType");
         log.debug("received message from customRouter with eventType: {}", eventType);

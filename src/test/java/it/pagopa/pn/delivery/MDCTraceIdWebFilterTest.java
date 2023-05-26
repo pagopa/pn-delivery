@@ -22,9 +22,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.mock;
-
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = { "pn.log.trace-id-header=X-Amzn-Trace-Id" })

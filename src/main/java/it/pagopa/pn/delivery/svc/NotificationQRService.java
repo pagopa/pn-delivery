@@ -1,8 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestCheckAarMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.ResponseCheckAarDto;
