@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.springbootcfg;
+package it.pagopa.pn.delivery.config;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.sqs.AmazonSQSAsync;

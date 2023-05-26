@@ -1,4 +1,4 @@
-package it.pagopa.pn.delivery.springbootcfg;
+package it.pagopa.pn.delivery.config;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.ApiClient;

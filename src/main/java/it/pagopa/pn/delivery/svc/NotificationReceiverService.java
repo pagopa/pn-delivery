@@ -9,7 +9,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResp
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ import java.util.Objects;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
 
 @Service
-@Slf4j
+@CustomLog
 public class NotificationReceiverService {
 
 	private final Clock clock;
@@ -72,9 +72,10 @@ public class NotificationReceiverService {
 		log.info("New notification storing START");
 		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
 				newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken());
+		log.logChecking("New notification request validation process");
 		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
 		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
-
+		log.logCheckingOutcome("New notification request validation process", true, "");
 		String notificationGroup = newNotificationRequest.getGroup();
 		checkGroup(xPagopaPnCxId, notificationGroup, xPagopaPnCxGroups);
 
