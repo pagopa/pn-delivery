@@ -128,6 +128,12 @@ Parameters:
     Description: 'default value to return if paTaxId not present in parameter store'
     AllowedValues: [true, false]
 
+  IsLollipopActive:
+    Type: String
+    Description: 'lollipop authorization activation flag'
+    AllowedValues: [true, false]
+    Default: "false"
+
   MaxDocumentsAvailableDays:
     Type: String
     Description: 'maximum number of days in which documents are available from refinement'
@@ -379,6 +385,7 @@ Resources:
         ContainerEnvEntry22: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
         ContainerEnvEntry23: !Sub 'PN_DELIVERY_NOTIFICATIONDELEGATIONMETADATADAO_TABLENAME=${NotificationDelegationMetadataDynamoTableName}'
         ContainerEnvEntry24: !Sub 'PN_DELIVERY_TOPICS_ASSEVERATIONEVENTS=${PnDeliveryAsseverationQueueName}'
+        ContainerEnvEntry25: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName

@@ -7,6 +7,7 @@
     "MaxDocumentsAvailableDays": "120",
     "PnDeliveryAsseverationLambdaEventSourceMappingBatchSize": "100",
     "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "30",
-    "MaxTasksNumber": "1"
+    "MaxTasksNumber": "1",
+    "IsLollipopActive": "false"
   }
 }
