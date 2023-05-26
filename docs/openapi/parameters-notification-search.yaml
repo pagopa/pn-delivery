@@ -52,6 +52,7 @@ components:
       description: identificativo del destinatario
       schema:
         type: string
+        x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
     notificationSearchRecipientIdIsOpaque:
       name: recipientIdOpaque
       description: >-

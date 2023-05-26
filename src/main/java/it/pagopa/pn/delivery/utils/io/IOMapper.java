@@ -1,9 +1,9 @@
 package it.pagopa.pn.delivery.utils.io;
 
-import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.IOReceivedNotification;
-import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyAttachment;
-import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.IOReceivedNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import lombok.RequiredArgsConstructor;

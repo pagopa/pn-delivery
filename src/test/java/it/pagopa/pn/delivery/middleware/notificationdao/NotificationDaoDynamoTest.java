@@ -2,8 +2,11 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.AddressDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.AnalogDomicile;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.NotificationRecipientAddressesDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
@@ -75,18 +78,18 @@ class NotificationDaoDynamoTest {
         InternalNotification notification = newNotificationWithoutPayments( );
 
         // WHEN
-        when( pnDataVaultClient.ensureRecipientByExternalId( any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 
         // THEN
         BaseRecipientDto baseRecipientDto = new BaseRecipientDto();
-        baseRecipientDto.setRecipientType( RecipientType.PF );
+        baseRecipientDto.setRecipientType( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PF );
         baseRecipientDto.setDenomination( "recipientDenomination" );
         baseRecipientDto.setInternalId( "opaqueTaxId" );
         baseRecipientDto.setTaxId( "recipientTaxId" );
 
         BaseRecipientDto baseRecipientDto1 = new BaseRecipientDto();
-        baseRecipientDto1.setRecipientType( RecipientType.PF );
+        baseRecipientDto1.setRecipientType( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PF );
         baseRecipientDto1.setDenomination( "recipientDenomination1" );
         baseRecipientDto1.setInternalId( "opaqueTaxId1" );
         baseRecipientDto1.setTaxId( "recipientTaxId1" );
@@ -136,7 +139,7 @@ class NotificationDaoDynamoTest {
         InternalNotification notification = newNotificationWithoutPayments( );
 
         // WHEN
-        when( pnDataVaultClient.ensureRecipientByExternalId( any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
+        when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
         Executable todo = () -> this.dao.addNotification( newNotificationWithoutPayments() );
 

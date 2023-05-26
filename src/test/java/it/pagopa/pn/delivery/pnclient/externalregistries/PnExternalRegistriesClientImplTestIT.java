@@ -1,7 +1,8 @@
-package it.pagopa.pn.delivery.pnclient.deliverypush;
+package it.pagopa.pn.delivery.pnclient.externalregistries;
 
-import it.pagopa.pn.delivery.MockAWSObjectsTest;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
@@ -22,14 +24,16 @@ import static org.mockserver.model.HttpResponse.response;
 @SpringBootTest
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
-        "pn.delivery.delivery-push-base-url=http://localhost:9998",
+        "pn.delivery.external-registries-base-url=http://localhost:9998",
 })
-class PnDeliveryPushClientImplTestIT extends MockAWSObjectsTest {
+class PnExternalRegistriesClientImplTestIT {
 
+    private static final String PA_TAX_ID = "paTaxId";
+    private static final String NOTICE_CODE = "noticeCode";
+    private static final String SENDER_ID = "senderId";
 
     @Autowired
-    private PnDeliveryPushClientImpl deliveryPushClient;
-  
+    private PnExternalRegistriesClientImpl externalRegistriesClient;
 
     private static ClientAndServer mockServer;
 
@@ -44,51 +48,64 @@ class PnDeliveryPushClientImplTestIT extends MockAWSObjectsTest {
         mockServer.stop();
     }
 
+
     @Test
-    void getTimelineAndStatusHistory() {
-        String path = "/delivery-push-private/DHUJ-QYVT-DMVH-202302-P-1/history";
-        OffsetDateTime createdAt = OffsetDateTime.parse("2023-02-22T10:11:12.123Z");
-        // Given
+    void getPaymentInfo() {
+
+        String path = "/ext-registry/pagopa/v1/paymentinfo/paTaxId/noticeCode";
+
+        PaymentInfo paymentInfo = new PaymentInfo()
+                .amount( 12000 )
+                .status( PaymentStatus.REQUIRED )
+                .url( "https://api.uat.platform.pagopa.it/checkout/auth/payments/v2" );
 
         // When
         new MockServerClient("localhost", 9998)
                 .when(request()
                         .withMethod("GET")
                         .withPath(path)
-                        .withQueryStringParameter("numberOfRecipients", "2")
-                        .withQueryStringParameter("createdAt", "2023-02-22T10:11:12.123Z")
                 )
                 .respond(response()
                         .withStatusCode(200)
                 );
+        externalRegistriesClient.getPaymentInfo( PA_TAX_ID, NOTICE_CODE );
 
-        deliveryPushClient.getTimelineAndStatusHistory( "DHUJ-QYVT-DMVH-202302-P-1", 2, createdAt );
         // Then
         assertDoesNotThrow( () -> {
-            deliveryPushClient.getTimelineAndStatusHistory( "DHUJ-QYVT-DMVH-202302-P-1", 2, createdAt );
+            externalRegistriesClient.getPaymentInfo( PA_TAX_ID, NOTICE_CODE );
         });
     }
 
     @Test
-    void getNotificationProcessCost() {
-        String path = "/delivery-push-private/DHUJ-QYVT-DMVH-202302-P-1/notification-process-cost/0";
-        // Given
+    void getGroupsSuccess() {
+
+        String path = "/ext-registry-private/pa/v1/groups-all";
+
+        List<PaGroup> res = new ArrayList<>();
+        PaGroup dto = new PaGroup();
+        dto.setId("123456789");
+        dto.setName("amministrazione");
+        res.add(dto);
+        dto = new PaGroup();
+        dto.setId("987654321");
+        dto.setName("dirigenza");
+        res.add(dto);
 
         // When
         new MockServerClient("localhost", 9998)
                 .when(request()
                         .withMethod("GET")
                         .withPath(path)
-                        .withQueryStringParameter("notificationFeePolicy", NotificationFeePolicy.FLAT_RATE.getValue())
                 )
                 .respond(response()
                         .withStatusCode(200)
                 );
 
-        deliveryPushClient.getNotificationProcessCost( "DHUJ-QYVT-DMVH-202302-P-1", 0, NotificationFeePolicy.FLAT_RATE );
+        externalRegistriesClient.getGroups( SENDER_ID );
+
         // Then
         assertDoesNotThrow( () -> {
-            deliveryPushClient.getNotificationProcessCost( "DHUJ-QYVT-DMVH-202302-P-1", 0, NotificationFeePolicy.FLAT_RATE );
+            externalRegistriesClient.getGroups( SENDER_ID );
         });
     }
 

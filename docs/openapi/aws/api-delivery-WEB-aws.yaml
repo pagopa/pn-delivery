@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 8wFtzXD8QkG9OWHuJS81wD97KMjaQ6KGTZrg/aNUYW8=
+  version: RgRY6L4DQ15yO/WgzP9oEO4V5H0z10Orq/1rl23dWbw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1229,6 +1229,7 @@ components:
       description: identificativo del destinatario
       schema:
         type: string
+        x-field-extra-annotation: '@lombok.ToString.Exclude'
     notificationSearchStatus:
       name: status
       in: query
@@ -2272,29 +2273,37 @@ components:
         - municipality
       properties:
         at:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: Campo "presso" dell'indirizzo
         address:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: Indirizzo del domicilio fisico
         addressDetails:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: Seconda riga dell'indirizzo fisico
         zip:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: >-
             Codice di avviamento postale. In caso di invio estero diventa
             facoltativo
         municipality:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: Comune in cui l'indirizzo si trova
         municipalityDetails:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: Frazione o località
         province:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: Provincia in cui si trova l'indirizzo
         foreignState:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: Denominazione paese estero
       description: Indirizzo fisico scoperto durante fase di consegna
@@ -2385,9 +2394,11 @@ components:
       type: object
       properties:
         type:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: tipo di indirizzo PEC, REM, SERCQ, ...
         address:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
           description: account@domain
     DigitalDeliveryCreationRequestDetails:
@@ -2477,12 +2488,14 @@ components:
         internalId:
           type: string
         taxId:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         operatorUuid:
           type: string
         mandateId:
           type: string
         denomination:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
