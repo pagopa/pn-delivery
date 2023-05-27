@@ -3,8 +3,8 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnMandateEvent;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.DelegateType;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.DelegateType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
@@ -135,10 +135,9 @@ public class NotificationDelegatedService {
                 .orElseThrow(() -> new PnInternalException("Mandate not found", ERROR_CODE_DELIVERY_MANDATENOTFOUND));
         log.debug("mandate: {}", mandate);
 
-        if (!CollectionUtils.isEmpty(event.getAddedGroups())) {
-            log.info("mandate {} has new groups {}, duplicating notifications", mandate.getMandateId(), event.getAddedGroups());
-            List<String> groups = event.getAddedGroups() != null ? new ArrayList<>(event.getAddedGroups()) : Collections.emptyList();
-
+        if (!CollectionUtils.isEmpty(event.getAddedGroups()) && !CollectionUtils.isEmpty(mandate.getGroups())){
+            List<String> groups  = event.getAddedGroups().stream().filter(mandate.getGroups()::contains).toList();
+            log.info("mandate {} has new groups {} duplicating notifications", mandate.getMandateId(), groups);
             var now = Instant.now();
             InputSearchNotificationDto searchDto = InputSearchNotificationDto.builder()
                     .senderReceiverId(event.getDelegatorId())
@@ -203,7 +202,9 @@ public class NotificationDelegatedService {
 
             iterations++;
             log.debug("last evaluated key: {}", oneQueryResult.getLastEvaluatedKey());
-        } while (oneQueryResult.getLastEvaluatedKey() != null);
+            startEvaluatedKey.setInternalLastEvaluatedKey(oneQueryResult.getLastEvaluatedKey());
+
+        } while (oneQueryResult.getLastEvaluatedKey() != null && !oneQueryResult.getLastEvaluatedKey().isEmpty());
         log.info("mandateId={} deleteCount={} iterations={}", mandateId, deleteCount, iterations);
     }
 

@@ -7,13 +7,12 @@ import it.pagopa.pn.commons.exceptions.*;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.*;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
@@ -233,12 +232,12 @@ public class NotificationRetrieverService {
 		if ( searchDtoFilterId != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
 			if ( searchDtoFilterId.length() == 11 ) {
 				log.info( "[start] Send request P.Iva to data-vault" );
-				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PG, searchDtoFilterId) );
 			}
 			if ( searchDtoFilterId.length() == 16 ) {
 				log.info( "[start] Send request CF to data-vault" );
-				searchDto.setOpaqueFilterIdPF( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDtoFilterId) );
-				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( RecipientType.PG, searchDtoFilterId) );
+				searchDto.setOpaqueFilterIdPF( dataVaultClient.ensureRecipientByExternalId( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PF, searchDtoFilterId) );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PG, searchDtoFilterId) );
 			}
 			log.info( "[end] Ensured recipient for search" );
 			searchDto.setFilterId( searchDtoFilterId );
@@ -652,8 +651,8 @@ public class NotificationRetrieverService {
 	}
 
 	private String checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups) {
-
-		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, CxTypeAuthFleet.valueOf(recipientType), cxGroups);
+		CxTypeAuthFleet cxTypeAuthFleet = StringUtils.hasText(recipientType) ? CxTypeAuthFleet.valueOf(recipientType) : null;
+		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, cxTypeAuthFleet, cxGroups);
 		if(!mandates.isEmpty()) {
 
 			for ( InternalMandateDto mandate : mandates ) {
@@ -733,14 +732,14 @@ public class NotificationRetrieverService {
 		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, createdAt);
 
 
-		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
+		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
 				.stream()
-				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp))
+				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement::getTimestamp))
 				.toList();
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
-		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
+		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream()

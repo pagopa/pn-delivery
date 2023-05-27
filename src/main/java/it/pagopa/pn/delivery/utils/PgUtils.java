@@ -1,10 +1,11 @@
 package it.pagopa.pn.delivery.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -13,7 +14,8 @@ import java.util.List;
 public class PgUtils {
 
     public static boolean checkAuthorizationPG(String recipientType, List<String> cxGroups) {
-        if (CxTypeAuthFleet.valueOf(recipientType) == CxTypeAuthFleet.PG && !CollectionUtils.isEmpty(cxGroups)) {
+        CxTypeAuthFleet cxTypeAuthFleet = StringUtils.hasText(recipientType) ? CxTypeAuthFleet.valueOf(recipientType) : null;
+        if (CxTypeAuthFleet.PG == cxTypeAuthFleet && !CollectionUtils.isEmpty(cxGroups)) {
             log.warn("only a PG admin/operator without groups can access this resource");
             return true;
         }
