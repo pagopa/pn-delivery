@@ -285,7 +285,7 @@ Parameters:
   # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
   MemoryAmount:
     Type: String
-    Default: 2GB
+    Default: 4GB
     Description: memory amount reserved to the task pod.
     AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
 
