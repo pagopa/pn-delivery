@@ -7,6 +7,8 @@
     "MaxDocumentsAvailableDays": "120",
     "PnDeliveryAsseverationLambdaEventSourceMappingBatchSize": "100",
     "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "30",
-    "MaxTasksNumber": "1"
+    "MaxTasksNumber": "1",
+    "CpuValue": "2048",
+    "MemoryAmount": "4GB"
   }
 }
