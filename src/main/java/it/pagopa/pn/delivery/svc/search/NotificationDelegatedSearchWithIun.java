@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
@@ -12,8 +11,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.util.*;
 
@@ -74,7 +71,7 @@ public class NotificationDelegatedSearchWithIun extends NotificationSearch {
                 evaluatedRecipientIds.stream().limit(requiredSize).toList()
                         .forEach(recipientId -> {
                             searchDto.setReceiverId(recipientId);
-                            toFiltered.add(searchByPk(searchDto));
+                            toFiltered.addAll(searchByPk(searchDto));
                             PnLastEvaluatedKey evaluatedKey = new PnLastEvaluatedKey();
                             evaluatedKey.setInternalLastEvaluatedKey(new HashMap<>());
                             evaluatedKey.setExternalLastEvaluatedKey(recipientId);
@@ -91,12 +88,8 @@ public class NotificationDelegatedSearchWithIun extends NotificationSearch {
         return prepareGlobalResult(cumulativeQueryResult, requiredSize, lastEvaluatedKeys);
     }
 
-    private NotificationDelegationMetadataEntity searchByPk(InputSearchNotificationDelegatedDto searchDto) {
-        Page<NotificationDelegationMetadataEntity> page = notificationDao.searchByPk(searchDto);
-        if (page != null && !CollectionUtils.isEmpty(page.items())) {
-            return page.items().get(0);
-        }
-        throw new PnNotificationNotFoundException("Delegated Notification not found for iun=" + searchDto.getIun());
+    private List<NotificationDelegationMetadataEntity> searchByPk(InputSearchNotificationDelegatedDto searchDto) {
+        return notificationDao.searchByPk(searchDto).items();
     }
 
     private ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> prepareGlobalResult(List<NotificationDelegationMetadataEntity> queryResult,
