@@ -51,6 +51,10 @@ public class NotificationDelegatedSearchWithIun extends NotificationSearch {
         log.info("notification delegated paged search indexName={}", indexNameAndPartitions.getIndexName());
         List<NotificationDelegationMetadataEntity> toFiltered = new ArrayList<>();
         String startRecipientId;
+        List<NotificationDelegationMetadataEntity> cumulativeQueryResult = new ArrayList<>();
+        List<PnLastEvaluatedKey> lastEvaluatedKeys = new ArrayList<>();
+        Integer maxPageNumber = searchDto.getMaxPageNumber() != null ? searchDto.getMaxPageNumber() : cfg.getMaxPageSize();
+        int requiredSize = searchDto.getSize() * maxPageNumber + 1;
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(searchDto.getIun());
         if (optNotification.isPresent()) {
             List<String> recipientIds = optNotification.get().getRecipientIds();
@@ -65,11 +69,6 @@ public class NotificationDelegatedSearchWithIun extends NotificationSearch {
                 lastEvaluatedKey.setExternalLastEvaluatedKey(evaluatedRecipientIds.get(0));
             }
 
-            Integer maxPageNumber = searchDto.getMaxPageNumber() != null ? searchDto.getMaxPageNumber() : cfg.getMaxPageSize();
-            int requiredSize = searchDto.getSize() * maxPageNumber + 1;
-
-            List<NotificationDelegationMetadataEntity> cumulativeQueryResult = new ArrayList<>();
-            List<PnLastEvaluatedKey> lastEvaluatedKeys = new ArrayList<>();
             do{
                 evaluatedRecipientIds = evaluatedRecipientIds.subList(evaluatedRecipientIds.indexOf(lastEvaluatedKey.getExternalLastEvaluatedKey()), evaluatedRecipientIds.size());
                 evaluatedRecipientIds.stream().limit(requiredSize).toList()
@@ -86,10 +85,10 @@ public class NotificationDelegatedSearchWithIun extends NotificationSearch {
                 log.info("check mandates completed, preCheckCount=1 postCheckCount={}", filtered.size());
                 cumulativeQueryResult.addAll(filtered);
             }while (cumulativeQueryResult.size() < requiredSize && evaluatedRecipientIds.size() > requiredSize);
-
-            return prepareGlobalResult(cumulativeQueryResult, requiredSize, lastEvaluatedKeys);
+        } else {
+            log.info("Notification not found for iun=" + searchDto.getIun());
         }
-        throw new PnNotificationNotFoundException("Notification not found for iun=" + searchDto.getIun());
+        return prepareGlobalResult(cumulativeQueryResult, requiredSize, lastEvaluatedKeys);
     }
 
     private NotificationDelegationMetadataEntity searchByPk(InputSearchNotificationDelegatedDto searchDto) {
