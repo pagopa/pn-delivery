@@ -66,7 +66,7 @@ class NotificationDelegatedSearchWithIunTest {
     }
 
     @Test
-    void testCheckMandate() {
+    void testSearchNotificationMetadata() {
         PageSearchTrunk<NotificationDelegationMetadataEntity> pst = new PageSearchTrunk<>();
         pst.setResults(List.of(
                 generateNotificationDelegationMetadataEntity("N1", "m1", "s1", "r1", null),

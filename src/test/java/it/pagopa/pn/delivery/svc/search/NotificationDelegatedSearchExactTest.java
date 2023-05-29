@@ -60,7 +60,7 @@ class NotificationDelegatedSearchExactTest {
     }
 
     @Test
-    void testCheckMandate() {
+    void testSearchNotificationMetadata() {
         PageSearchTrunk<NotificationDelegationMetadataEntity> pst = new PageSearchTrunk<>();
         pst.setResults(List.of(
                 generateNotificationDelegationMetadataEntity()

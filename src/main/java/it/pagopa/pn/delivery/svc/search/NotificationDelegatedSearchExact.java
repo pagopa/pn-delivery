@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc.search;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
@@ -11,8 +10,6 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import java.util.*;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_NOTIFICATION_METADATA;
@@ -48,19 +45,18 @@ public class NotificationDelegatedSearchExact extends NotificationSearch {
 
         Integer maxPageNumber = searchDto.getMaxPageNumber() != null ? searchDto.getMaxPageNumber() : cfg.getMaxPageSize();
         int requiredSize = searchDto.getSize() * maxPageNumber + 1;
-        NotificationDelegationMetadataEntity queryResult = searchByPk(searchDto);
-        List<NotificationDelegationMetadataEntity> filtered = notificationDelegatedSearchUtils.checkMandates(List.of(queryResult), searchDto);
-        log.info("check mandates completed, preCheckCount=1 postCheckCount={}", filtered.size());
-        List<NotificationDelegationMetadataEntity> cumulativeQueryResult = new ArrayList<>(filtered);
+        List<NotificationDelegationMetadataEntity> queryResult = searchByPk(searchDto);
+        List<NotificationDelegationMetadataEntity> cumulativeQueryResult = new ArrayList<>();
+        if(queryResult != null && !queryResult.isEmpty()){
+            List<NotificationDelegationMetadataEntity> filtered = notificationDelegatedSearchUtils.checkMandates(queryResult, searchDto);
+            log.info("check mandates completed, preCheckCount=1 postCheckCount={}", filtered.size());
+            cumulativeQueryResult.addAll(filtered);
+        }
         return prepareGlobalResult(cumulativeQueryResult, requiredSize);
     }
 
-    private NotificationDelegationMetadataEntity searchByPk(InputSearchNotificationDelegatedDto searchDto) {
-        Page<NotificationDelegationMetadataEntity> page = notificationDao.searchByPk(searchDto);
-        if (page != null && !CollectionUtils.isEmpty(page.items())) {
-            return page.items().get(0);
-        }
-        throw new PnNotificationNotFoundException("Notification not found");
+    private List<NotificationDelegationMetadataEntity> searchByPk(InputSearchNotificationDelegatedDto searchDto) {
+        return notificationDao.searchByPk(searchDto).items();
     }
 
     private ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> prepareGlobalResult(List<NotificationDelegationMetadataEntity> queryResult,
