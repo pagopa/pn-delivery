@@ -42,7 +42,16 @@ paths:
       operationId: getReceivedNotification
       parameters:
         - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                        # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -67,6 +76,15 @@ paths:
         - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: 'api-external-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -103,6 +121,15 @@ paths:
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'
+        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
       responses:
         '200':
           description: OK
@@ -139,6 +166,74 @@ components:
       required: true
       schema:
         type: string
+
+    ############################################################################################
+    ###                     HEADER DI AUTENTICAZIONE LOLLIPOP                               ###
+    ############################################################################################
+    lollipopOriginalUrl:
+      name: x-pagopa-lollipop-original-url
+      in: header
+      description: lollipop expected lc original url
+      required: false
+      schema:
+        type: string
+    lollipopOriginalMethod:
+      name: x-pagopa-lollipop-original-method
+      in: header
+      description: lollipop expected lc original method
+      required: false
+      schema:
+        type: string
+    lollipopPublicKey:
+      name: x-pagopa-lollipop-public-key
+      in: header
+      description: lollipop public key
+      required: false
+      schema:
+        type: string
+    lollipopAssertionRef:
+      name: x-pagopa-lollipop-assertion-ref
+      in: header
+      description: lollipop assertion reference
+      required: false
+      schema:
+        type: string
+    lollipopAssertionType:
+      name: x-pagopa-lollipop-assertion-type
+      in: header
+      description: lollipop assertion type (SAML)
+      required: false
+      schema:
+        type: string
+    lollipopAuthJwt:
+      name: x-pagopa-lollipop-auth-jwt
+      in: header
+      description: lollipop authentication jwt
+      required: false
+      schema:
+        type: string
+    lollipopUserId:
+      name: x-pagopa-lollipop-user-id
+      in: header
+      description: lollipop user id
+      required: false
+      schema:
+        type: string
+    lollipopSignatureInput:
+      name: signature-input
+      in: header
+      description: lollipop signature input
+      required: false
+      schema:
+        type: string
+    lollipopSignature:
+      name: signature
+      in: header
+      description: lollipop signature
+      required: false
+      schema:
+        type: string
+
   schemas:
     LegalFactDownloadMetadataResponse:
       $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/LegalFactDownloadMetadataResponse'

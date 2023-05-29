@@ -6,6 +6,7 @@
     "IsMvpDefaultValue": "false",
     "MaxDocumentsAvailableDays": "120",
     "PnDeliveryAsseverationLambdaEventSourceMappingBatchSize": "10000",
-    "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "300"
+    "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "300",
+    "IsLollipopActive": "false"
   }
 }

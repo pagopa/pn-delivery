@@ -7,6 +7,7 @@
     "MaxDocumentsAvailableDays": "120",
     "PnDeliveryAsseverationLambdaEventSourceMappingBatchSize": "100",
     "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "30",
+    "IsLollipopActive": "false",
     "MaxTasksNumber": "1",
     "CpuValue": "2048",
     "MemoryAmount": "4GB"
