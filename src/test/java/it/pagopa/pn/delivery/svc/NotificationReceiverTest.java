@@ -8,6 +8,7 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.ValidateUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
@@ -32,10 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -73,6 +71,7 @@ class NotificationReceiverTest {
 	private MVPParameterConsumer mvpParameterConsumer;
 	private ValidateUtils validateUtils;
 	private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
+	private PnDeliveryConfigs pnDeliveryConfigs;
 
 	@BeforeEach
 	public void setup() {
@@ -84,10 +83,11 @@ class NotificationReceiverTest {
 		mvpParameterConsumer = Mockito.mock( MVPParameterConsumer.class );
 		pnExternalRegistriesClient = Mockito.mock( PnExternalRegistriesClientImpl.class );
 		validateUtils = Mockito.mock( ValidateUtils.class );
+		pnDeliveryConfigs = Mockito.mock(PnDeliveryConfigs.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs);
 
 		Mockito.when( validateUtils.validate( Mockito.anyString() ) ).thenReturn( true );
 
@@ -215,6 +215,182 @@ class NotificationReceiverTest {
 		assertEquals( Base64Utils.encodeToString(savedNotification.getValue().getIun().getBytes(StandardCharsets.UTF_8)), addedNotification.getNotificationRequestId(), "Saved iun differ from returned one");
 		assertEquals( newNotificationRequest.getPaProtocolNumber(), savedNotification.getValue().getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( newNotificationRequest.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
+
+	}
+
+
+	@Test
+	void successWritingNotificationWithTooMuchAttachments() throws PnIdConflictException {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+
+		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(2);
+
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
+				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+				.contentType("application/pdf")
+				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+				.build(),
+		NotificationDocument.builder()
+				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+				.contentType("application/pdf")
+				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+				.build(),
+		NotificationDocument.builder()
+				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+				.contentType("application/pdf")
+				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+				.build()));
+
+		// When
+		Executable todo = () -> {
+			NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		};
+
+		// Then
+		Assertions.assertThrows( PnInvalidInputException.class, todo );
+
+		// Then
+		Mockito.verify( notificationDao, Mockito.never() ).addNotification( savedNotification.capture() );
+
+	}
+
+
+	@Test
+	void successWritingNotificationWithOkAttachments()  {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+
+		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(5);
+
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build(),
+				NotificationDocument.builder()
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build(),
+				NotificationDocument.builder()
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build()));
+
+		// When
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
+
+	}
+
+
+	@Test
+	void successWritingNotificationWithTooMuchRecipients() throws PnIdConflictException {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+
+		Mockito.when( pnDeliveryConfigs.getMaxRecipientsCount()).thenReturn(2);
+
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setRecipients(
+				List.of(
+						builRecipient("LVLDAA85T50G702B", 8),
+						builRecipient("DSRDNI00A01A225I", 7),
+						builRecipient("GLLGLL64B15G702I", 9))
+		);
+
+		// When
+		Executable todo = () -> {
+			NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		};
+
+		// Then
+		Assertions.assertThrows( PnInvalidInputException.class, todo );
+
+		// Then
+		Mockito.verify( notificationDao, Mockito.never() ).addNotification( savedNotification.capture() );
+
+	}
+
+
+	@Test
+	void successWritingNotificationWithOkRecipients()  {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+
+		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(3);
+
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setRecipients(
+				List.of(
+						builRecipient("LVLDAA85T50G702B", 8),
+						builRecipient("DSRDNI00A01A225I", 7),
+						builRecipient("GLLGLL64B15G702I", 9))
+		);
+
+		// When
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
 
 	}
 
@@ -419,38 +595,8 @@ class NotificationReceiverTest {
 						.build() ) )
 				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
 				.paProtocolNumber( "paProtocolNumber" )
-				.recipients( Collections.singletonList( NotificationRecipient.builder()
-						.payment( NotificationPaymentInfo.builder()
-								.creditorTaxId( "77777777777" )
-								.noticeCode("123456789012345678")
-								.pagoPaForm( NotificationPaymentAttachment.builder()
-										.ref(NotificationAttachmentBodyRef.builder()
-												.key( KEY )
-												.versionToken( VERSION_TOKEN )
-												.build())
-										.contentType( "application/pdf" )
-										.digests( NotificationAttachmentDigests.builder()
-												.sha256( SHA256_BODY )
-												.build() )
-										.build() )
-								.build() )
-						.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-						.denomination( "Ada Lovelace" )
-						.taxId( "LVLDAA85T50G702B" )
-						.digitalDomicile( NotificationDigitalAddress.builder()
-								.type( NotificationDigitalAddress.TypeEnum.PEC )
-								.address( "address@pec.it" )
-								.build() )
-						.physicalAddress( NotificationPhysicalAddress.builder()
-								.at( "at" )
-								.province( "province" )
-								.zip( "83100" )
-								.address( "address" )
-								.addressDetails( "addressDetail" )
-								.municipality( "municipality" )
-								.municipalityDetails( "municipalityDetail" )
-								.build() )
-						.build() ))
+				.recipients( Collections.singletonList(
+						builRecipient("LVLDAA85T50G702B", 8) ))
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				._abstract( "abstract" )
 				.build();
@@ -551,6 +697,42 @@ class NotificationReceiverTest {
 				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 				.build();
 	}
+
+	private NotificationRecipient builRecipient(String taxID, int notcode){
+		return NotificationRecipient.builder()
+				.payment( NotificationPaymentInfo.builder()
+						.creditorTaxId( "77777777777" )
+						.noticeCode("12345678901234567" + notcode)
+						.pagoPaForm( NotificationPaymentAttachment.builder()
+								.ref(NotificationAttachmentBodyRef.builder()
+										.key( KEY )
+										.versionToken( VERSION_TOKEN )
+										.build())
+								.contentType( "application/pdf" )
+								.digests( NotificationAttachmentDigests.builder()
+										.sha256( SHA256_BODY )
+										.build() )
+								.build() )
+						.build() )
+				.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+				.denomination( "Ada Lovelace" )
+				.taxId( taxID )
+				.digitalDomicile( NotificationDigitalAddress.builder()
+						.type( NotificationDigitalAddress.TypeEnum.PEC )
+						.address( "address@pec.it" )
+						.build() )
+				.physicalAddress( NotificationPhysicalAddress.builder()
+						.at( "at" )
+						.province( "province" )
+						.zip( "83100" )
+						.address( "address" )
+						.addressDetails( "addressDetail" )
+						.municipality( "municipality" )
+						.municipalityDetails( "municipalityDetail" )
+						.build() )
+				.build();
+	};
+
 
 }
 

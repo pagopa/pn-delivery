@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.commons.utils.ValidateUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
@@ -22,11 +23,13 @@ public class NotificationReceiverValidator {
     private final Validator validator;
     private final MVPParameterConsumer mvpParameterConsumer;
     private final ValidateUtils validateUtils;
+    private final PnDeliveryConfigs pnDeliveryConfigs;
 
-    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils) {
+    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs) {
         this.validator = validator;
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.validateUtils = validateUtils;
+        this.pnDeliveryConfigs = pnDeliveryConfigs;
     }
 
     public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
@@ -54,6 +57,22 @@ public class NotificationReceiverValidator {
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
       Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+
+      // check del numero massimo di documenti allegati
+      if (pnDeliveryConfigs.getMaxAttachmentsCount() > 0 && internalNotification.getDocuments().size() > pnDeliveryConfigs.getMaxAttachmentsCount())
+      {
+          ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max attachment count reached" );
+          errors.add( constraintViolation );
+          return errors;
+      }
+
+      // check del numero massimo di recipient
+      if (pnDeliveryConfigs.getMaxRecipientsCount() > 0 && internalNotification.getRecipients().size() > pnDeliveryConfigs.getMaxRecipientsCount())
+      {
+          ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max recipient count reached" );
+          errors.add( constraintViolation );
+          return errors;
+      }
 
       int recIdx = 0;
       Set<String> distinctTaxIds = new HashSet<>();

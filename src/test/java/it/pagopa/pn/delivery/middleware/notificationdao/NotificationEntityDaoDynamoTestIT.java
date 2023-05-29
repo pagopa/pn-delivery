@@ -27,7 +27,9 @@ import java.util.Optional;
         "pn.delivery.notification-dao.table-name=Notifications",
         "pn.delivery.notification-cost-dao.table-name=NotificationsCost",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata",
-        "pn.delivery.notification-qr-dao.table-name=NotificationsQR"
+        "pn.delivery.notification-qr-dao.table-name=NotificationsQR",
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
     })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)

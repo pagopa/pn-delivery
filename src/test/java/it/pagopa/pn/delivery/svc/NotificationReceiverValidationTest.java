@@ -57,7 +57,7 @@ class NotificationReceiverValidationTest {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
     this.validateUtils = Mockito.mock( ValidateUtils.class );
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils);
+    validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils, cfg);
   }
 
   @Test
