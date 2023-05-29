@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: TaZH0i/uyb4CR6gYrKKntqiTyLuz1pt4ZXFWDGkUfkU=
+  version: UjRcjFbZQirk1FFmnjeWp8pxDnUTzx/DMmlULDjdrMY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2066,6 +2066,10 @@ components:
               - FILE_SHA_ERROR
               - TAXID_NOT_VALID
               - SERVICE_UNAVAILABLE
+              - FILE_PDF_INVALID_ERROR
+              - FILE_PDF_TOOBIG_ERROR
+              - NOT_VALID_ADDRESS
+              - RECIPIENT_ID_NOT_VALID
         detail:
           type: string
     RequestRefusedDetails:

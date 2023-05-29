@@ -1800,6 +1800,10 @@ components:
               - FILE_SHA_ERROR
               - TAXID_NOT_VALID
               - SERVICE_UNAVAILABLE
+              - FILE_PDF_INVALID_ERROR
+              - FILE_PDF_TOOBIG_ERROR
+              - NOT_VALID_ADDRESS
+              - RECIPIENT_ID_NOT_VALID
         detail:
           type: string
     RequestRefusedDetails:
