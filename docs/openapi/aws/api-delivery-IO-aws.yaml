@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: MA733IczEtkMXOaAyPtAYBVaMhqdtOAoXujVuniC+dw=
+  version: lD0FAwpfP1iHv3lwxmW2RCzF3fz4db8bjRMDM8wfgTI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -162,7 +162,7 @@ components:
       name: x-pagopa-cx-taxid
       in: header
       description: Customer taxId, used in B2B AppIO.
-      required: true
+      required: false
       schema:
         type: string
         minLength: 16

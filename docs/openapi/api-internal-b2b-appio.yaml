@@ -186,69 +186,24 @@ components:
     ############################################################################################
     ###                     HEADER DI AUTENTICAZIONE LOLLIPOP                               ###
     ############################################################################################
-    lollipopOriginalUrl:
-      name: x-pagopa-lollipop-original-url
-      in: header
-      description: lollipop expected lc original url
-      required: false
-      schema:
-        type: string
-    lollipopOriginalMethod:
-      name: x-pagopa-lollipop-original-method
-      in: header
-      description: lollipop expected lc original method
-      required: false
-      schema:
-        type: string
-    lollipopPublicKey:
-      name: x-pagopa-lollipop-public-key
-      in: header
-      description: lollipop public key
-      required: false
-      schema:
-        type: string
-    lollipopAssertionRef:
-      name: x-pagopa-lollipop-assertion-ref
-      in: header
-      description: lollipop assertion reference
-      required: false
-      schema:
-        type: string
-    lollipopAssertionType:
-      name: x-pagopa-lollipop-assertion-type
-      in: header
-      description: lollipop assertion type (SAML)
-      required: false
-      schema:
-        type: string
-    lollipopAuthJwt:
-      name: x-pagopa-lollipop-auth-jwt
-      in: header
-      description: lollipop authentication jwt
-      required: false
-      schema:
-        type: string
-    lollipopUserId:
-      name: x-pagopa-lollipop-user-id
-      in: header
-      description: lollipop user id
-      required: false
-      schema:
-        type: string
-    lollipopSignatureInput:
-      name: signature-input
-      in: header
-      description: lollipop signature input
-      required: false
-      schema:
-        type: string
-    lollipopSignature:
-      name: signature
-      in: header
-      description: lollipop signature
-      required: false
-      schema:
-        type: string
+    lollipopOriginalUrl:                                                                            # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopOriginalUrl'                           # ONLY EXTERNAL
+    lollipopOriginalMethod:                                                                         # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopOriginalMethod'                        # ONLY EXTERNAL
+    lollipopPublicKey:                                                                              # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopPublicKey'                             # ONLY EXTERNAL
+    lollipopAssertionRef:                                                                           # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAssertionRef'                          # ONLY EXTERNAL
+    lollipopAssertionType:                                                                          # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAssertionType'                         # ONLY EXTERNAL
+    lollipopAuthJwt:                                                                                # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAuthJwt'                               # ONLY EXTERNAL
+    lollipopUserId:                                                                                 # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopUserId'                                # ONLY EXTERNAL
+    lollipopSignatureInput:                                                                         # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopSignatureInput'                        # ONLY EXTERNAL
+    lollipopSignature:                                                                              # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopSignature'                             # ONLY EXTERNAL
 
   schemas:
     LegalFactDownloadMetadataResponse:
