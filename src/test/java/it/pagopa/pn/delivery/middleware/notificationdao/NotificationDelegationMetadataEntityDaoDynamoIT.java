@@ -34,7 +34,9 @@ import static org.mockito.Mockito.when;
         NotificationDelegationMetadataEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "pn.delivery.notification-dao.table-name=Notifications",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata",
-        "pn.delivery.notification-delegation-metadata-dao.table-name=NotificationDelegationMetadata"
+        "pn.delivery.notification-delegation-metadata-dao.table-name=NotificationDelegationMetadata",
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)

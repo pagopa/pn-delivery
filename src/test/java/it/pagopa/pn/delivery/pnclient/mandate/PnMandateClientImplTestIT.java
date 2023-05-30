@@ -21,6 +21,8 @@ import static org.mockserver.model.HttpResponse.response;
 @ActiveProfiles("test")
 @TestPropertySource(properties = {
         "pn.delivery.mandate-base-url=http://localhost:9998",
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
 })
 class PnMandateClientImplTestIT {
 

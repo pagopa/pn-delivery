@@ -1,13 +1,16 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationEntityDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 
 import javax.validation.ConstraintViolation;
 import java.util.ArrayList;
@@ -16,6 +19,10 @@ import java.util.Set;
 
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
+@TestPropertySource(properties = {
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
+})
 class NotificationReceiverValidationTestIT {
 
     private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";

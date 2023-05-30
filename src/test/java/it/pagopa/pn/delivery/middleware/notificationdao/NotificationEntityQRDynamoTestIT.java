@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationQREntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.RecipientTypeEntity;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
@@ -17,13 +18,16 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         NotificationEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "pn.delivery.notification-dao.table-name=Notifications",
         "pn.delivery.notification-cost-dao.table-name=NotificationsCost",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata",
-        "pn.delivery.notification-qr-dao.table-name=NotificationsQR"
+        "pn.delivery.notification-qr-dao.table-name=NotificationsQR",
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
@@ -45,6 +49,8 @@ class NotificationEntityQRDynamoTestIT {
     @Autowired
     private NotificationQREntityDao notificationQREntityDao;
 
+    @Autowired
+    private PnDeliveryConfigs pnDeliveryConfigs;
 
     @Test
     void getNotificationByQR() {
@@ -65,8 +71,8 @@ class NotificationEntityQRDynamoTestIT {
         assertEquals( IUN, elementFromDb.get().getIun() );
         assertEquals( RECIPIENT_ID, elementFromDb.get().getRecipientInternalId() );
     }
-    
-    
+
+
     @Test
     void getNotificationQR() {
 

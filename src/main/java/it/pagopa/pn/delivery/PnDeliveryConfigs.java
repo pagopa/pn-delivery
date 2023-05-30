@@ -56,6 +56,10 @@ public class PnDeliveryConfigs {
 
     private String maxSecondNoticeCodeDays;
 
+    private Integer maxRecipientsCount;
+
+    private Integer maxAttachmentsCount;
+
     @Data
     public static class Topics {
         private String newNotifications;

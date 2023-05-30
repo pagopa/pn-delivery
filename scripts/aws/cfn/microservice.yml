@@ -134,6 +134,14 @@ Parameters:
     AllowedValues: [true, false]
     Default: "false"
 
+  MaxAttachmentsCount:
+    Type: String
+    Description: 'Max number of attachments allowed for a notification'
+
+  MaxRecipientsCount:
+    Type: String
+    Description: 'Max number of recipients allowed for a notification'
+
   MaxDocumentsAvailableDays:
     Type: String
     Description: 'maximum number of days in which documents are available from refinement'
@@ -386,6 +394,8 @@ Resources:
         ContainerEnvEntry23: !Sub 'PN_DELIVERY_NOTIFICATIONDELEGATIONMETADATADAO_TABLENAME=${NotificationDelegationMetadataDynamoTableName}'
         ContainerEnvEntry24: !Sub 'PN_DELIVERY_TOPICS_ASSEVERATIONEVENTS=${PnDeliveryAsseverationQueueName}'
         ContainerEnvEntry25: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
+        ContainerEnvEntry26: !Sub 'PN_DELIVERY_MAXRECIPIENTSCOUNT=${MaxRecipientsCount}'
+        ContainerEnvEntry27: !Sub 'PN_DELIVERY_MAXATTACHMENTSCOUNT=${MaxAttachmentsCount}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName

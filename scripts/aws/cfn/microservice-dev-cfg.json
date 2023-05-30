@@ -10,6 +10,8 @@
     "IsLollipopActive": "false",
     "MaxTasksNumber": "1",
     "CpuValue": "2048",
-    "MemoryAmount": "4GB"
+    "MemoryAmount": "4GB",
+    "MaxAttachmentsCount": "15",
+    "MaxRecipientsCount": "15"
   }
 }
