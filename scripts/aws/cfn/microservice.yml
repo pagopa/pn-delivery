@@ -136,11 +136,11 @@ Parameters:
 
   MaxAttachmentsCount:
     Type: String
-    Description: 'Max number of attachments allowed'
+    Description: 'Max number of attachments allowed for a notification'
 
   MaxRecipientsCount:
     Type: String
-    Description: 'Max number of attachments allowed'
+    Description: 'Max number of recipients allowed for a notification'
 
   MaxDocumentsAvailableDays:
     Type: String
