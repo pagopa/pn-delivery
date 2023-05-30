@@ -279,21 +279,21 @@ Parameters:
   # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
   # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
   # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
-  CpuValue:
-    Type: Number
-    Default: 1024
-    Description: Fargate virtual CPU quantity 1024 equals one vCPU
+#  CpuValue:
+#    Type: Number
+#    Default: 1024
+#    Description: Fargate virtual CPU quantity 1024 equals one vCPU
 
   # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
   # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
   # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
   # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
   # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
-  MemoryAmount:
-    Type: String
-    Default: 2GB
-    Description: memory amount reserved to the task pod.
-    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
+#  MemoryAmount:
+#    Type: String
+#    Default: 2GB
+#    Description: memory amount reserved to the task pod.
+#    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
 
   # Autoscaling parameters
   AutoscalingCheckPeriod:
@@ -345,8 +345,8 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
-        CpuValue: !Ref CpuValue
-        MemoryAmount: !Ref MemoryAmount
+        CpuValue: 2048
+        MemoryAmount: 4GB
         HealthCheckPath: /actuator/health
         HealthCheckTimeout: !Ref HealthCheckTimeout
         HealthCheckInterval: !Ref HealthCheckInterval
