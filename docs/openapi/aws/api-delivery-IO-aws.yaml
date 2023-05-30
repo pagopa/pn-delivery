@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: lD0FAwpfP1iHv3lwxmW2RCzF3fz4db8bjRMDM8wfgTI=
+  version: 1VsJpRet8ZMmQSM582zw/KhGMfjcyvninLRLniF8xhU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -580,6 +580,7 @@ components:
         authorizerResultTtlInSeconds: 300
         identitySource: >-
           method.request.header.x-api-key,
+          method.request.header.x-pagopa-lollipop-user-id,
           method.request.header.x-pagopa-cx-taxid
         type: request
 tags:
