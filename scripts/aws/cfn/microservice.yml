@@ -407,6 +407,7 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskManagedPolicy
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsLogGroup
+        LogAlarmStrategyV1: 'FATAL'
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
