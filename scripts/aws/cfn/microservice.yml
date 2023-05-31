@@ -341,6 +341,10 @@ Parameters:
     Type: String
     Description: 'Identify the resource that the policy applies to.'
 
+  LogAlarmStrategy:
+    Type: String
+    Default: 'FATAL'
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -407,6 +411,7 @@ Resources:
         TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskManagedPolicy
         AlbSecurityGroup: !Ref AlbSecurityGroup
         EcsLogGroup: !Ref EcsLogGroup
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
