@@ -420,7 +420,7 @@ Resources:
         ContainerEnvEntry29: !Sub 'LOLLIPOP_ENABLE_CONSUMER_LOGGING=${LollipopEnableConsumerLogging}'
         ContainerEnvEntry30: !Sub 'LOLLIPOP_ASSERTION_REST_URI=${LollipopAssertionRestUri}'
         ContainerEnvEntry31: !Sub 'LOLLIPOP_IDP_CLIENT_BASE_URI=${LollipopIdpClientBaseUri}'
-        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=100 -XX:MaxMetaspaceSize=512M'
+        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=80 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds

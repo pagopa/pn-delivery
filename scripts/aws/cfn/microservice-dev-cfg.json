@@ -10,7 +10,7 @@
     "IsLollipopActive": "false",
     "MaxTasksNumber": "1",
     "CpuValue": "2048",
-    "MemoryAmount": "4GB",
+    "MemoryAmount": "6GB",
     "MaxAttachmentsCount": "15",
     "MaxRecipientsCount": "15",
     "LollipopExpectedLcOriginalUrl": "https://localhost:8080/delivery/notifications/received/*",
