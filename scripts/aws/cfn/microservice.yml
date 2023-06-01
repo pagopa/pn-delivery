@@ -396,7 +396,7 @@ Resources:
         ContainerEnvEntry25: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
         ContainerEnvEntry26: !Sub 'PN_DELIVERY_MAXRECIPIENTSCOUNT=${MaxRecipientsCount}'
         ContainerEnvEntry27: !Sub 'PN_DELIVERY_MAXATTACHMENTSCOUNT=${MaxAttachmentsCount}'
-        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
+        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=80 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
         Subnets: !Ref SubnetsIds
