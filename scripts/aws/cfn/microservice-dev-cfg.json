@@ -12,6 +12,10 @@
     "CpuValue": "2048",
     "MemoryAmount": "4GB",
     "MaxAttachmentsCount": "15",
-    "MaxRecipientsCount": "15"
+    "MaxRecipientsCount": "15",
+    "LollipopExpectedLcOriginalUrl": "https://localhost:8080/delivery/notifications/received/*",
+    "LollipopEnableConsumerLogging": "true",
+    "LollipopAssertionRestUri": "http://localhost:3000",
+    "LollipopIdpClientBaseUri": "http://localhost:3001"
   }
 }
