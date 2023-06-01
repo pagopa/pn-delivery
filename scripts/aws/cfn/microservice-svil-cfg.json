@@ -10,9 +10,7 @@
     "IsLollipopActive": "false",
     "MaxAttachmentsCount": "15",
     "MaxRecipientsCount": "15",
-    "LollipopExpectedLcOriginalUrl": "https://localhost:8080/delivery/notifications/received/*",
-    "LollipopEnableConsumerLogging": "true",
-    "LollipopAssertionRestUri": "http://localhost:3000",
-    "LollipopIdpClientBaseUri": "http://localhost:3001"
+    "LollipopExpectedLcOriginalUrl": "https://api-app.io.pagopa.it/api/v1/third-party-messages/:messageId",
+    "LollipopEnableConsumerLogging": "true"
   }
 }
