@@ -142,14 +142,6 @@ Parameters:
     Type: String
     Description: 'enable lollipop consumer logging'
 
-  LollipopAssertionRestUri:
-    Type: String
-    Description: 'assertion rest uri'
-
-  LollipopIdpClientBaseUri:
-    Type: String
-    Description: 'idp client base uri'
-
   MaxAttachmentsCount:
     Type: String
     Description: 'Max number of attachments allowed for a notification'
@@ -418,8 +410,6 @@ Resources:
         ContainerEnvEntry27: !Sub 'PN_DELIVERY_MAXATTACHMENTSCOUNT=${MaxAttachmentsCount}'
         ContainerEnvEntry28: !Sub 'LOLLIPOP_EXPECTED_LC_ORIGINAL_URL=${LollipopExpectedLcOriginalUrl}'
         ContainerEnvEntry29: !Sub 'LOLLIPOP_ENABLE_CONSUMER_LOGGING=${LollipopEnableConsumerLogging}'
-        ContainerEnvEntry30: !Sub 'LOLLIPOP_ASSERTION_REST_URI=${LollipopAssertionRestUri}'
-        ContainerEnvEntry31: !Sub 'LOLLIPOP_IDP_CLIENT_BASE_URI=${LollipopIdpClientBaseUri}'
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
