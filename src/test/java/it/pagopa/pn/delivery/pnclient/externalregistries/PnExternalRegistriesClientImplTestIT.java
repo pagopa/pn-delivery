@@ -103,11 +103,11 @@ class PnExternalRegistriesClientImplTestIT {
                         .withStatusCode(200)
                 );
 
-        externalRegistriesClient.getGroups( SENDER_ID );
+        externalRegistriesClient.getGroups( SENDER_ID , false);
 
         // Then
         assertDoesNotThrow( () -> {
-            externalRegistriesClient.getGroups( SENDER_ID );
+            externalRegistriesClient.getGroups( SENDER_ID, false );
         });
     }
 
