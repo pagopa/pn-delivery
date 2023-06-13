@@ -96,14 +96,14 @@ public class NotificationReceiverService {
 
 		if( StringUtils.hasText( notificationGroup ) ) {
 
-			List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId );
+			List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId, true );
 			PaGroup paGroup = paGroups.stream().filter(elem -> {
 				assert elem.getId() != null;
 				return elem.getId().equals(notificationGroup);
 			}).findAny().orElse(null);
 
-			if( paGroup == null || Objects.equals(paGroup.getStatus(), PaGroupStatus.SUSPENDED)){
-				String logMessage = String.format("Group=%s not present or suspended in pa_groups=%s", notificationGroup, paGroup);
+			if( paGroup == null ){
+				String logMessage = String.format("Group=%s not present or suspended/deleted in pa_groups=%s", notificationGroup, paGroup);
 				throw new PnInvalidInputException(ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage);
 			}
 

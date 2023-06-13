@@ -106,7 +106,7 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -138,7 +138,7 @@ class NotificationReceiverTest {
 		//InternalNotification notification = newNotificationWithPaymentsFlat( );
 		NewNotificationRequest notificationRequest = newNotificationRequest();
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -164,7 +164,7 @@ class NotificationReceiverTest {
 		//InternalNotification notification = newNotificationWithoutPayments( );
 		NewNotificationRequest notificationRequest = newNotificationRequest();
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		FileData fileData = FileData.builder()
@@ -201,7 +201,7 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		//InternalNotification notification = newNotificationWithoutPayments();
@@ -232,7 +232,7 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 
@@ -283,7 +283,7 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 
@@ -329,7 +329,7 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 
@@ -371,7 +371,7 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 
@@ -400,7 +400,7 @@ class NotificationReceiverTest {
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup("group1");
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -416,7 +416,7 @@ class NotificationReceiverTest {
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup(null);
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -472,8 +472,8 @@ class NotificationReceiverTest {
 		newNotificationRequest.setGroup( "group_1" );
 
 		// When
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
-				.thenReturn( List.of(new PaGroup().id("group_1").status(PaGroupStatus.SUSPENDED)));
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
+				.thenReturn( new ArrayList<>());
 
 		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
@@ -524,7 +524,7 @@ class NotificationReceiverTest {
 
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -554,7 +554,7 @@ class NotificationReceiverTest {
 
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When

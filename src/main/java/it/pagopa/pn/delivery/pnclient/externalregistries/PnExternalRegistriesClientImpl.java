@@ -4,6 +4,7 @@ import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.PaymentInfoApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +27,10 @@ public class PnExternalRegistriesClientImpl {
         return paymentInfoApi.getPaymentInfo( paTaxId, noticeNumber );
     }
 
-    public List<PaGroup> getGroups(String senderId) {
+    public List<PaGroup> getGroups(String senderId, boolean onlyActive) {
         try {
             log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_EXTERNAL_REGISTRIES, "getGroups");
-            return internalOnlyApi.getAllGroupsPrivate(senderId, null);
+            return internalOnlyApi.getAllGroupsPrivate(senderId, onlyActive? PaGroupStatus.ACTIVE:null);
         } catch (Exception exc) {
             log.error("Error during retrieve of the groups", exc);
             return Collections.emptyList();

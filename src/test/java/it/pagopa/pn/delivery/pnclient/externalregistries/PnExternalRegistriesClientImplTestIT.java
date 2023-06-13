@@ -103,11 +103,45 @@ class PnExternalRegistriesClientImplTestIT {
                         .withStatusCode(200)
                 );
 
-        externalRegistriesClient.getGroups( SENDER_ID );
+        externalRegistriesClient.getGroups( SENDER_ID , false);
 
         // Then
         assertDoesNotThrow( () -> {
-            externalRegistriesClient.getGroups( SENDER_ID );
+            externalRegistriesClient.getGroups( SENDER_ID, false );
+        });
+    }
+
+
+    @Test
+    void getGroupsSuccess_activeonly() {
+
+        String path = "/ext-registry-private/pa/v1/groups-all";
+
+        List<PaGroup> res = new ArrayList<>();
+        PaGroup dto = new PaGroup();
+        dto.setId("123456789");
+        dto.setName("amministrazione");
+        res.add(dto);
+        dto = new PaGroup();
+        dto.setId("987654321");
+        dto.setName("dirigenza");
+        res.add(dto);
+
+        // When
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path)
+                        .withQueryStringParameter("statusFilter", "ACTIVE")
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                );
+
+
+        // Then
+        assertDoesNotThrow( () -> {
+            externalRegistriesClient.getGroups( SENDER_ID, true );
         });
     }
 

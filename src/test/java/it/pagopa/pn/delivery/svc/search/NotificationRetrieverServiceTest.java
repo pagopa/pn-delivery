@@ -143,7 +143,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         when(notificationSearch.searchNotificationMetadata()).thenReturn(results);
-        when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+        when( externalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(false ) )).thenReturn( groups );
 
         ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotification(inputSearch, "PF", null);
 
@@ -630,7 +630,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+        when( externalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(false ) )).thenReturn( groups );
         when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
 
         InternalNotification result = svc.getNotificationInformation( IUN, false, true, SENDER_ID);
@@ -649,7 +649,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
-        when( externalRegistriesClient.getGroups( Mockito.anyString() )).thenReturn( groups );
+        when( externalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(false ) )).thenReturn( groups );
         when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( true );
 
         InternalNotification result = svc.getNotificationInformation( IUN, false, true, SENDER_ID);
