@@ -473,7 +473,7 @@ class NotificationReceiverTest {
 
 		// When
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
-				.thenReturn( List.of(new PaGroup().id("group_1").status(PaGroupStatus.SUSPENDED)));
+				.thenReturn( new ArrayList<>());
 
 		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
