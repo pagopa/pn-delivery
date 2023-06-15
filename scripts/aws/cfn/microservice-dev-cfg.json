@@ -10,7 +10,7 @@
     "IsLollipopActive": "false",
     "MinTasksNumber": "2",
     "MaxTasksNumber": "7",
-    "AutoscalingThreshold": 9360,
+    "AutoscalingThreshold": "9360",
     "CpuValue": "2048",
     "MemoryAmount": "4GB",
     "MaxAttachmentsCount": "15",
