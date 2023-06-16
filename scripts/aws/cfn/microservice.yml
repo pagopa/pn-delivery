@@ -505,6 +505,7 @@ Resources:
         IntendedUsage: B2B
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
         ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
+        Limit: 600000
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
   DeliveryMicroservicePublicWebAPI:
@@ -532,7 +533,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-web'
         IntendedUsage: WEB
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: 6000
+        Limit: 600000
 
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
@@ -560,6 +561,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-io'
         IntendedUsage: IO
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
+        Limit: 600000
 
   # Dashboard
   DeliveryMicroserviceCloudWatchDashboard:
