@@ -134,6 +134,11 @@ Parameters:
     AllowedValues: [true, false]
     Default: "false"
 
+  IsSendActiveDefaultValue:
+    Type: String
+    Description: 'default value to return if paTaxId not present in parameter store'
+    AllowedValues: [true,false]
+
   LollipopExpectedLcOriginalUrl:
     Type: String
     Description: 'expected lollipop consumer original url'
@@ -410,6 +415,9 @@ Resources:
         ContainerEnvEntry27: !Sub 'PN_DELIVERY_MAXATTACHMENTSCOUNT=${MaxAttachmentsCount}'
         ContainerEnvEntry28: !Sub 'LOLLIPOP_EXPECTED_LC_ORIGINAL_URL=${LollipopExpectedLcOriginalUrl}'
         ContainerEnvEntry29: !Sub 'LOLLIPOP_ENABLE_CONSUMER_LOGGING=${LollipopEnableConsumerLogging}'
+        ContainerEnvEntry30: !Sub 'PN_DELIVERY_FEATURES_ISSENDACTIVEDEFAULTVALUE=${IsSendActiveDefaultValue}'
+        ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
+        MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
@@ -477,6 +485,7 @@ Resources:
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdWhiteList'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendActive'
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
@@ -505,6 +514,7 @@ Resources:
         IntendedUsage: B2B
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
         ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
+        Limit: 600000
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
   DeliveryMicroservicePublicWebAPI:
@@ -532,7 +542,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-web'
         IntendedUsage: WEB
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: 6000
+        Limit: 600000
 
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
@@ -560,6 +570,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-io'
         IntendedUsage: IO
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
+        Limit: 600000
 
   # Dashboard
   DeliveryMicroserviceCloudWatchDashboard:

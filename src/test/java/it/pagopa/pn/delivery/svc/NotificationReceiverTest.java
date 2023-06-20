@@ -9,6 +9,8 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
@@ -69,6 +71,7 @@ class NotificationReceiverTest {
 	private FileStorage fileStorage;
 	private ModelMapper modelMapper;
 	private MVPParameterConsumer mvpParameterConsumer;
+	private SendActiveParameterConsumer sendActiveParameterConsumer;
 	private ValidateUtils validateUtils;
 	private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private PnDeliveryConfigs pnDeliveryConfigs;
@@ -80,6 +83,7 @@ class NotificationReceiverTest {
 		notificationDao = Mockito.spy( new NotificationDaoMock() );
 		fileStorage = Mockito.mock( FileStorage.class );
 		modelMapper = new ModelMapper();
+		sendActiveParameterConsumer = Mockito.mock( SendActiveParameterConsumer.class );
 		mvpParameterConsumer = Mockito.mock( MVPParameterConsumer.class );
 		pnExternalRegistriesClient = Mockito.mock( PnExternalRegistriesClientImpl.class );
 		validateUtils = Mockito.mock( ValidateUtils.class );
@@ -90,12 +94,14 @@ class NotificationReceiverTest {
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs);
 
 		Mockito.when( validateUtils.validate( Mockito.anyString() ) ).thenReturn( true );
+		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
 
 		deliveryService = new NotificationReceiverService(
 				clock,
 				notificationDao,
 				validator,
 				modelMapper,
+				sendActiveParameterConsumer,
 				pnExternalRegistriesClient);
 	}
 
@@ -441,6 +447,19 @@ class NotificationReceiverTest {
 	}
 
 	@Test
+	void badRequestNewNotificationForSendDisabled() {
+		// Given
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+
+		// When
+		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( false );
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, List.of( "fake_Group" ) );
+
+		// Then
+		Assertions.assertThrows(PnBadRequestException.class, todo);
+	}
+
+	@Test
 	void failureNewNotificationCauseGroupCheck() {
 		// Given
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
@@ -487,6 +506,7 @@ class NotificationReceiverTest {
 
 		// Given
 		NewNotificationRequest notification = NewNotificationRequest.builder()
+				.senderTaxId( "fakeSenderTaxId" )
 				.recipients( Collections.singletonList( NotificationRecipient.builder().build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
 				.build();
