@@ -8,12 +8,15 @@
     "PnDeliveryAsseverationLambdaEventSourceMappingBatchSize": "100",
     "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "30",
     "IsLollipopActive": "false",
-    "MaxTasksNumber": "1",
+    "MinTasksNumber": "2",
+    "MaxTasksNumber": "13",
+    "AutoscalingThreshold": "1500",
     "CpuValue": "2048",
     "MemoryAmount": "4GB",
     "MaxAttachmentsCount": "15",
     "MaxRecipientsCount": "15",
     "LollipopExpectedLcOriginalUrl": "^https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}$",
-    "LollipopEnableConsumerLogging": "true"
+    "LollipopEnableConsumerLogging": "true",
+    "IsSendActiveDefaultValue": "true"
   }
 }

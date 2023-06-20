@@ -1,9 +1,10 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -22,9 +23,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Objects;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_SEND_IS_DISABLED;
 
 @Service
 @CustomLog
@@ -34,6 +35,8 @@ public class NotificationReceiverService {
 	private final NotificationDao notificationDao;
 	private final NotificationReceiverValidator validator;
 	private final ModelMapper modelMapper;
+
+	private final SendActiveParameterConsumer parameterConsumer;
 
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 
@@ -45,11 +48,13 @@ public class NotificationReceiverService {
 			NotificationDao notificationDao,
 			NotificationReceiverValidator validator,
 			ModelMapper modelMapper,
+			SendActiveParameterConsumer parameterConsumer,
 			PnExternalRegistriesClientImpl pnExternalRegistriesClient) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
 		this.modelMapper = modelMapper;
+		this.parameterConsumer = parameterConsumer;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 	}
 
@@ -70,6 +75,12 @@ public class NotificationReceiverService {
 			List<String> xPagopaPnCxGroups
 	) throws PnIdConflictException {
 		log.info("New notification storing START");
+
+		if ( Boolean.FALSE.equals( parameterConsumer.isSendActive( newNotificationRequest.getSenderTaxId() ) )) {
+			throw new PnBadRequestException( "SEND non é abilitata", "Comunicazione notifiche disabilitata", ERROR_CODE_DELIVERY_SEND_IS_DISABLED,
+					"Piattaforma Notifiche non é abilitata alla comunicazione di notifiche." );
+		}
+
 		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
 				newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken());
 		log.logChecking("New notification request validation process");
@@ -96,14 +107,14 @@ public class NotificationReceiverService {
 
 		if( StringUtils.hasText( notificationGroup ) ) {
 
-			List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId );
+			List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId, true );
 			PaGroup paGroup = paGroups.stream().filter(elem -> {
 				assert elem.getId() != null;
 				return elem.getId().equals(notificationGroup);
 			}).findAny().orElse(null);
 
-			if( paGroup == null || Objects.equals(paGroup.getStatus(), PaGroupStatus.SUSPENDED)){
-				String logMessage = String.format("Group=%s not present or suspended in pa_groups=%s", notificationGroup, paGroup);
+			if( paGroup == null ){
+				String logMessage = String.format("Group=%s not present or suspended/deleted in pa_groups=%s", notificationGroup, paGroup);
 				throw new PnInvalidInputException(ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage);
 			}
 
