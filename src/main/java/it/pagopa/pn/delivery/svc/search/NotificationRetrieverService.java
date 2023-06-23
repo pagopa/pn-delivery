@@ -732,10 +732,8 @@ public class NotificationRetrieverService {
 		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, createdAt);
 
 
-		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
-				.stream()
-				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement::getTimestamp))
-				.toList();
+		// la lista arriva già ordinata correttamente
+		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline();
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
