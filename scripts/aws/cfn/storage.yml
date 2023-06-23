@@ -214,6 +214,7 @@ Resources:
         DelaySeconds: 1
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ:  "false"
+        OncallDLQLimit: '1'
         QueueHasAlarm:  "true"
 
   # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
