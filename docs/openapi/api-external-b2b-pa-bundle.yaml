@@ -492,6 +492,35 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/legal-facts/{legalFactId}:
+    get:
+      summary: Download atto opponibile a terzi
+      description: Permette di scaricare un atto opponibile a terzi
+      tags:
+        - LegalFacts
+      operationId: retrieveLegalFactById
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /delivery/price/{paTaxId}/{noticeCode}:
     get:
       operationId: retrieveNotificationPrice

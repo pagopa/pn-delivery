@@ -629,6 +629,36 @@ paths:
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+  '/delivery-push/{iun}/legal-facts/{legalFactId}':                                 # ONLY EXTERNAL
+    get:                                                                            # ONLY EXTERNAL
+      summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
+      description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
+      tags:                                                                         # ONLY EXTERNAL
+        - LegalFacts                                                                # ONLY EXTERNAL
+      operationId: getLegalFactById                                                     # NO EXTERNAL
+#      operationId: retrieveLegalFactById                                           # ONLY EXTERNAL
+      parameters:                                                                   # ONLY EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
+        - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
+      responses:                                                                    # ONLY EXTERNAL
+        '200':                                                                      # ONLY EXTERNAL
+          description: OK                                                           # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/json:                                                       # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      # ONLY EXTERNAL
+        '400':                                                                      # ONLY EXTERNAL
+          description: Bad request                                                  # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+        '500':                                                                      # ONLY EXTERNAL
+          description: Internal error                                               # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: getNotificationPrice                                             # NO EXTERNAL
