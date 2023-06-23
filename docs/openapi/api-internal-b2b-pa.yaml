@@ -629,14 +629,14 @@ paths:
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-  '/delivery-push/{iun}/legal-facts/{legalFactId}':                                 # ONLY EXTERNAL
+  '/delivery-push/{iun}/download/legal-facts/{legalFactId}':                        # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
       tags:                                                                         # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
-      operationId: getLegalFactById                                                     # NO EXTERNAL
-#      operationId: retrieveLegalFactById                                           # ONLY EXTERNAL
+      operationId: getLegalFactById                                                 # NO EXTERNAL
+#      operationId: downloadLegalFactById                                           # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
