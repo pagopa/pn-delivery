@@ -100,7 +100,6 @@ public class NotificationReceiverService {
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
 
-		//TODO mettere controllo xPagopaPnSrcChDetails != null per settarlo?
 		internalNotification.setSourceChannelDetails( xPagopaPnSrcChDetails );
 
 		String iun = doSaveWithRethrow(internalNotification);
