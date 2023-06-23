@@ -732,11 +732,11 @@ public class NotificationRetrieverService {
 		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, createdAt);
 
 
+		// la lista arriva già ordinata correttamente
 		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline();
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
-		// la lista arriva già ordinata correttamente
 		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
 		FullSentNotification resultFullSent = notification
