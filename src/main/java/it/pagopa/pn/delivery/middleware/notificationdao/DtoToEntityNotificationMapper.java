@@ -35,6 +35,7 @@ public class DtoToEntityNotificationMapper {
                 .paymentExpirationDate(dto.getPaymentExpirationDate())
                 .taxonomyCode(dto.getTaxonomyCode())
                 .sourceChannel( dto.getSourceChannel() )
+                .sourceChannelDetails( dto.getSourceChannelDetails() )
                 .version( NOTIFICATION_VERSION );
 
         return builder.build();

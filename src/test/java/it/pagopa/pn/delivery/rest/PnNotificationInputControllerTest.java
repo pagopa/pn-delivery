@@ -64,6 +64,7 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
 						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.anyList())
 				).thenReturn( savedNotification );
 
@@ -85,6 +86,7 @@ class PnNotificationInputControllerTest {
 						PA_ID,
 						notificationRequest,
 						X_PAGOPA_PN_SRC_CH,
+						null,
 						GROUPS);
 	}
 
@@ -152,6 +154,7 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
 						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.isNull())
 				).thenThrow( exception );
 
@@ -194,7 +197,7 @@ class PnNotificationInputControllerTest {
 		// Given
 		NewNotificationRequest request = newNotificationRequest();
 
-		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH, Collections.emptyList() ) ).thenThrow( RuntimeException.class );
+		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH,null, Collections.emptyList() ) ).thenThrow( RuntimeException.class );
 
 		webTestClient.post()
 				.uri("/delivery/requests")
@@ -272,6 +275,7 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
 						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.anyList())
 				).thenReturn( savedNotification );
 
@@ -293,8 +297,11 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
 						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.anyList());
 	}
+
+	//TODO aggiungi test con SOURCE_CHANNEL_DETAILS_HEADER
 
 	@Test
 	void postPresignedUploadSuccess() {

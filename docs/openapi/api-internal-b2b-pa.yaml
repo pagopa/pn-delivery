@@ -360,12 +360,13 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotification
-      parameters: # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/headerSourceChannel'      # NO EXTERNAL
+      parameters:                                                     # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
       requestBody:
         content:
           application/json:
@@ -784,6 +785,14 @@ components:
         type: string                                                                # NO EXTERNAL
         maxLength: 3                                                                # NO EXTERNAL
         pattern: "B2B|WEB"                                                          # NO EXTERNAL
+
+    headerSourceChannelDetails:                                                     # NO EXTERNAL
+      name: x-pagopa-pn-src-ch-details                                              # NO EXTERNAL
+      in: header                                                                    # NO EXTERNAL
+      description: Notification creation source channel details                     # NO EXTERNAL
+      required: false                                                               # NO EXTERNAL
+      schema:                                                                       # NO EXTERNAL
+        type: string                                                                # NO EXTERNAL
      
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
@@ -1088,6 +1097,9 @@ components:
             sourceChannel:                                                              # NO EXTERNAL
               type: string                                                              # NO EXTERNAL
               description: Canale sorgente della richiesta di notifica                  # NO EXTERNAL
+            sourceChannelDetails:                                                       # NO EXTERNAL
+              type: string                                                              # NO EXTERNAL
+              description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
