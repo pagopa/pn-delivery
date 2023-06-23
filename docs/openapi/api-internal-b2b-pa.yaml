@@ -635,7 +635,7 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
       tags:                                                                         # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
-      operationId: getLegalFact                                                     # NO EXTERNAL
+      operationId: getLegalFactById                                                     # NO EXTERNAL
 #      operationId: retrieveLegalFactById                                           # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
