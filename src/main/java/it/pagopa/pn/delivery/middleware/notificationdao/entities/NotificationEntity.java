@@ -40,6 +40,7 @@ public class NotificationEntity {
     public static final String FIELD_PAYMENT_EXPIRATION_DATE = "paymentExpirationDate";
     public static final String FIELD_REQUEST_ID = "requestId";
     public static final String FIELD_TAXONOMY_CODE = "taxonomyCode";
+    public static final String FIELD_PAGOPA_INT_MODE = "pagoPaIntMode";
     public static final String FIELD_SOURCE_CHANNEL = "sourceChannel";
     public static final String FIELD_SOURCE_CHANNEL_DETAILS = "sourceChannelDetails";
     public static final String FIELD_VERSION = "version";
@@ -65,6 +66,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENT_EXPIRATION_DATE)})) private String paymentExpirationDate;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUEST_ID)})) private String requestId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_TAXONOMY_CODE)})) private String taxonomyCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAGOPA_INT_MODE)})) private String pagoPaIntMode;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL)})) private String sourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL_DETAILS)})) private String sourceChannelDetails;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int version;

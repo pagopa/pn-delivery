@@ -345,9 +345,9 @@ class NotificationReceiverTest {
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setRecipients(
 				List.of(
-						builRecipient("LVLDAA85T50G702B", 8),
-						builRecipient("DSRDNI00A01A225I", 7),
-						builRecipient("GLLGLL64B15G702I", 9))
+						buildRecipient("LVLDAA85T50G702B", 8),
+						buildRecipient("DSRDNI00A01A225I", 7),
+						buildRecipient("GLLGLL64B15G702I", 9))
 		);
 
 		// When
@@ -387,9 +387,9 @@ class NotificationReceiverTest {
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setRecipients(
 				List.of(
-						builRecipient("LVLDAA85T50G702B", 8),
-						builRecipient("DSRDNI00A01A225I", 7),
-						builRecipient("GLLGLL64B15G702I", 9))
+						buildRecipient("LVLDAA85T50G702B", 8),
+						buildRecipient("DSRDNI00A01A225I", 7),
+						buildRecipient("GLLGLL64B15G702I", 9))
 		);
 
 		// When
@@ -597,7 +597,32 @@ class NotificationReceiverTest {
 				.addNotification( Mockito.any( InternalNotification.class ));
 	}
 
-	//TODO aggiungi test con ricezione richiesta di notifica con settato il caampo xPagopaPnSrcChDetails
+	@Test
+	void successNewNotificationWithPagoPaIntMode() {
+		// Given
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setGroup(null);
+		newNotificationRequest.setPagoPaIntMode( NewNotificationRequest.PagoPaIntModeEnum.SYNC );
+
+		// When
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+
+		// Then
+		Assertions.assertNotNull( response );
+	}
+
+	@Test
+	void successNewNotificationNoPagoPaIntModeNoPayment() {
+		// Given
+		NewNotificationRequest newNotificationRequest = newNotificationWithoutPayments();
+		newNotificationRequest.setGroup(null);
+		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
+		// When
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+
+		// Then
+		Assertions.assertNotNull( response );
+	}
 
 	private NewNotificationRequest newNotificationRequest() {
 		return NewNotificationRequest.builder()
@@ -618,7 +643,7 @@ class NotificationReceiverTest {
 				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
 				.paProtocolNumber( "paProtocolNumber" )
 				.recipients( Collections.singletonList(
-						builRecipient("LVLDAA85T50G702B", 8) ))
+						buildRecipient("LVLDAA85T50G702B", 8) ))
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				._abstract( "abstract" )
 				.build();
@@ -720,11 +745,11 @@ class NotificationReceiverTest {
 				.build();
 	}
 
-	private NotificationRecipient builRecipient(String taxID, int notcode){
+	private NotificationRecipient buildRecipient(String taxID, int noticeCode){
 		return NotificationRecipient.builder()
 				.payment( NotificationPaymentInfo.builder()
 						.creditorTaxId( "77777777777" )
-						.noticeCode("12345678901234567" + notcode)
+						.noticeCode("12345678901234567" + noticeCode)
 						.pagoPaForm( NotificationPaymentAttachment.builder()
 								.ref(NotificationAttachmentBodyRef.builder()
 										.key( KEY )
@@ -753,7 +778,7 @@ class NotificationReceiverTest {
 						.municipalityDetails( "municipalityDetail" )
 						.build() )
 				.build();
-	};
+	}
 
 
 }

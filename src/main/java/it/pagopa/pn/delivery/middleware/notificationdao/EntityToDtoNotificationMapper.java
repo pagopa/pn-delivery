@@ -48,6 +48,7 @@ public class EntityToDtoNotificationMapper {
                 .amount(entity.getAmount())
                 .paymentExpirationDate(entity.getPaymentExpirationDate())
                 .taxonomyCode( entity.getTaxonomyCode() )
+                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) )
                 .sourceChannel( entity.getSourceChannel() )
                 .sourceChannelDetails( entity.getSourceChannelDetails() )
                 .recipientIds(recipientIds )
