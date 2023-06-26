@@ -33,6 +33,7 @@ class PnNotificationInputControllerTest {
 	private static final String URL = "url";
 	public static final List<String> GROUPS = List.of("Group1", "Group2");
 	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+	private static final String X_PAGOPA_PN_SRC_CH_DETAILS = "sourceChannelDetails";
 	private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 
 	@Autowired
@@ -64,6 +65,7 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
 						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.anyList())
 				).thenReturn( savedNotification );
 
@@ -85,7 +87,49 @@ class PnNotificationInputControllerTest {
 						PA_ID,
 						notificationRequest,
 						X_PAGOPA_PN_SRC_CH,
+						null,
 						GROUPS);
+	}
+
+	@Test
+	void postSuccessWithSourceChannelDetails() throws PnIdConflictException {
+		// Given
+		NewNotificationRequest notificationRequest = newNotificationRequest();
+
+		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
+				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.paProtocolNumber("protocol_number").build();
+
+		// When
+		Mockito.when(deliveryService.receiveNotification(
+				Mockito.anyString(),
+				Mockito.any( NewNotificationRequest.class ),
+				Mockito.anyString(),
+				Mockito.anyString(),
+				Mockito.anyList())
+		).thenReturn( savedNotification );
+
+		// Then
+		webTestClient.post()
+				.uri("/delivery/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(notificationRequest), NewNotificationRequest.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) +","+GROUPS.get(1) )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DETAILS )
+				.exchange()
+				.expectStatus().isAccepted();
+
+		Mockito.verify( deliveryService ).receiveNotification(
+				PA_ID,
+				notificationRequest,
+				X_PAGOPA_PN_SRC_CH,
+				X_PAGOPA_PN_SRC_CH_DETAILS,
+				GROUPS);
 	}
 
 	private NewNotificationRequest newNotificationRequest() {
@@ -152,6 +196,7 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
 						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.isNull())
 				).thenThrow( exception );
 
@@ -194,7 +239,7 @@ class PnNotificationInputControllerTest {
 		// Given
 		NewNotificationRequest request = newNotificationRequest();
 
-		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH, Collections.emptyList() ) ).thenThrow( RuntimeException.class );
+		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH,null, Collections.emptyList() ) ).thenThrow( RuntimeException.class );
 
 		webTestClient.post()
 				.uri("/delivery/requests")
@@ -272,6 +317,7 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
 						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.anyList())
 				).thenReturn( savedNotification );
 
@@ -293,6 +339,7 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.any( NewNotificationRequest.class ),
 						Mockito.anyString(),
+						Mockito.isNull(),
 						Mockito.anyList());
 	}
 

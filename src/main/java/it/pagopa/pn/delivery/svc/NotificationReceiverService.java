@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_SEND_IS_DISABLED;
+import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy.DELIVERY_MODE;
 
 @Service
 @CustomLog
@@ -72,6 +74,7 @@ public class NotificationReceiverService {
 			String xPagopaPnCxId,
 			NewNotificationRequest newNotificationRequest,
 			String xPagopaPnSrcCh,
+			String xPagopaPnSrcChDetails,
 			List<String> xPagopaPnCxGroups
 	) throws PnIdConflictException {
 		log.info("New notification storing START");
@@ -90,10 +93,14 @@ public class NotificationReceiverService {
 		String notificationGroup = newNotificationRequest.getGroup();
 		checkGroup(xPagopaPnCxId, notificationGroup, xPagopaPnCxGroups);
 
+		setPagoPaIntMode(newNotificationRequest);
+
 		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
 
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
+
+		internalNotification.setSourceChannelDetails( xPagopaPnSrcChDetails );
 
 		String iun = doSaveWithRethrow(internalNotification);
 
@@ -129,6 +136,25 @@ public class NotificationReceiverService {
 			}
 		}
 
+	}
+
+	private void setPagoPaIntMode(NewNotificationRequest newNotificationRequest) {
+		 // controllo se non é stato settato il valore pagoPaIntMode dalla PA
+		if ( ObjectUtils.isEmpty( newNotificationRequest.getPagoPaIntMode() ) ) {
+			// verifico che nessun destinatario ha un pagamento
+			if ( newNotificationRequest.getRecipients().stream()
+					.noneMatch(notificationRecipient -> notificationRecipient.getPayment() != null )) {
+				// metto default a NONE
+				newNotificationRequest.setPagoPaIntMode(NewNotificationRequest.PagoPaIntModeEnum.NONE);
+			} else {
+				// qualche destinatario ha un pagamento
+				if (newNotificationRequest.getNotificationFeePolicy().equals( DELIVERY_MODE )) {
+					newNotificationRequest.setPagoPaIntMode(NewNotificationRequest.PagoPaIntModeEnum.SYNC);
+				} else {
+					newNotificationRequest.setPagoPaIntMode( NewNotificationRequest.PagoPaIntModeEnum.NONE );
+				}
+			}
+		}
 	}
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {

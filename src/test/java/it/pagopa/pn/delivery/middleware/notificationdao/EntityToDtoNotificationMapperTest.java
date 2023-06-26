@@ -112,6 +112,7 @@ class EntityToDtoNotificationMapperTest {
                 .group( "Group_1" )
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
+                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.NONE.getValue() )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
                 .version( 1 )
                 .build();

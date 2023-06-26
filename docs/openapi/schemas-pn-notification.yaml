@@ -153,6 +153,17 @@ components:
           description: >-
             Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
           default: "010101P"
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della notifica. <br/>
+            - _NONE_: nessuna attualizzazione. <br/>
+            - _SYNC_: modalitá sincrona. <br/>
+#            - _ASYNC_: modalitá asincrona. <br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC  # NO EXTERNAL
     SentNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata

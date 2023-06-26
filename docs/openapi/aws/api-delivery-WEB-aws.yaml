@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: X63lVLIczdsQAjnogwwNA6rnsXyumO2konlFTDs2Jew=
+  version: OIOX3nVmBjty6/nncZyV4+jbeb3oxXRgqNTGWSffEJY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2098,6 +2098,15 @@ components:
             PIATTAFORMA NOTIFICHE
             DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
           default: 010101P
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della
+            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
+            modalitá sincrona. <br/>
+          enum:
+            - NONE
+            - SYNC
     SentNotification:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:

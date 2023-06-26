@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -48,9 +49,18 @@ public class EntityToDtoNotificationMapper {
                 .amount(entity.getAmount())
                 .paymentExpirationDate(entity.getPaymentExpirationDate())
                 .taxonomyCode( entity.getTaxonomyCode() )
+                .pagoPaIntMode(  getSafePagoPaIntMode( entity.getPagoPaIntMode() ) )
                 .sourceChannel( entity.getSourceChannel() )
+                .sourceChannelDetails( entity.getSourceChannelDetails() )
                 .recipientIds(recipientIds )
                 .build());
+    }
+
+    private FullSentNotification.PagoPaIntModeEnum getSafePagoPaIntMode(String pagoPaIntMode) {
+        if(StringUtils.hasText( pagoPaIntMode )) {
+          return FullSentNotification.PagoPaIntModeEnum.fromValue( pagoPaIntMode );
+        }
+        return FullSentNotification.PagoPaIntModeEnum.NONE;
     }
 
     private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {
