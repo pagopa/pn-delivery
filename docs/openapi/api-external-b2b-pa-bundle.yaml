@@ -492,13 +492,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/legal-facts/{legalFactId}:
+  /delivery-push/{iun}/download/legal-facts/{legalFactId}:
     get:
       summary: Download atto opponibile a terzi
       description: Permette di scaricare un atto opponibile a terzi
       tags:
         - LegalFacts
-      operationId: retrieveLegalFactById
+      operationId: downloadLegalFactById
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
