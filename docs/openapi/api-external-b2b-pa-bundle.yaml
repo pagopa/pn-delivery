@@ -1547,14 +1547,14 @@ components:
       description: |
         stato di avanzamento del processo di notifica:`
           * `SENDER_ACK_CREATION_REQUEST` - Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage
-          * `VALIDATE_NORMALIZE_ADDRESS` - Richiesta di validazione e normalizzazione indirizzi fisici
+          * `VALIDATE_NORMALIZE_ADDRESSES_REQUEST` - Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica
           * `NORMALIZED_ADDRESS` - Salvataggio indirizzi normalizzati
           * `REQUEST_ACCEPTED` - Richiesta di notifica accettata a seguito dei controlli di validazione
           * `REQUEST_REFUSED` - Richiesta di notifica rifiutata per fallimento di validazione
           * `SEND_COURTESY_MESSAGE` - Invio di un messaggio di cortesia
           * `GET_ADDRESS` - Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali)
-          * `NATIONAL_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
-          * `NATIONAL_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
+          * `PUBLIC_REGISTRY_CALL` - Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.
+          * `PUBLIC_REGISTRY_RESPONSE` - Ricevuta la risposta dei registri pubblici
           * `SCHEDULE_ANALOG_WORKFLOW` - Pianificazione del workflow per invio cartaceo
           * `SCHEDULE_DIGITAL_WORKFLOW` -Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.
           * `PREPARE_DIGITAL_DOMICILE` - Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.
