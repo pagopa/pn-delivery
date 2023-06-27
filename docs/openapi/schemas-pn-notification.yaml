@@ -485,6 +485,7 @@ components:
           type: array
           items:
             type: string
+            x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
         requestAcceptedAt:
           description: Data accettazione notifica
           type: string

@@ -271,12 +271,9 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     private void addGroupFilterExpression(List<String> groupList,
                                           Expression.Builder filterExpressionBuilder,
                                           StringBuilder expressionBuilder) {
+        // se l'utente appartiene ad almeno 1 gruppo, deve poter vedere SOLO le notifiche di quei gruppi
+        // se invece non appartiene a gruppi, vede tutto (quelle con gruppo e quelle senza)
         if ( !CollectionUtils.isEmpty( groupList )) {
-            // restituire anche le notifiche con gruppo <stringa_vuota>
-            if (!groupList.contains("")) {
-                // aggiungo se non presente, dato che la lista è sempre la stessa nelle varie iterazioni della ricerca
-                groupList.add("");
-            }
 
             log.trace( "Add group filter expression" );
             if ( expressionBuilder.length() > 0 )
@@ -298,7 +295,8 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                 .build());
             }
 
-            expressionBuilder.append(" OR attribute_not_exists(notificationGroup) )");
+            expressionBuilder.append(" )");
+
         }
     }
 
