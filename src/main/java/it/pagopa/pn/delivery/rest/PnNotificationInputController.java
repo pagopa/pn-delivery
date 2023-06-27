@@ -41,7 +41,7 @@ public class PnNotificationInputController implements NewNotificationApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
         String paIdempotenceToken = newNotificationRequest.getIdempotenceToken();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}, idempotenceToken", paProtocolNumber, paIdempotenceToken)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}, idempotenceToken={}", paProtocolNumber, paIdempotenceToken)
                 .build();
         logEvent.log();
         NewNotificationResponse svcRes;
@@ -56,7 +56,7 @@ public class PnNotificationInputController implements NewNotificationApi {
         @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
         String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
         logEvent.getMdc().put("iun", iun);
-        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, idempotenceToken", requestId, protocolNumber, paIdempotenceToken).log();
+        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
         return ResponseEntity.accepted().body( svcRes );
     }
 
