@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: MA733IczEtkMXOaAyPtAYBVaMhqdtOAoXujVuniC+dw=
+  version: ae8pXcsxU9BZ6zOGB2GPZz1oRHmfxQKuDmXCdVuXwQ4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -61,6 +61,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
@@ -134,6 +135,7 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch: '''IO'''
           integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
           integration.request.path.docIdx: method.request.path.docIdx
         passthroughBehavior: when_no_match
