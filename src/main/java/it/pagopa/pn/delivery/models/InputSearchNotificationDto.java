@@ -27,8 +27,14 @@ public class InputSearchNotificationDto {
     private Instant endDate;
 
     private String mandateId;
+
+    private List<String> mandateAllowedPaIds;
     
     private String filterId;
+
+    private String opaqueFilterIdPF;
+
+    private String opaqueFilterIdPG;
     
     private  List<NotificationStatus> statuses;
 

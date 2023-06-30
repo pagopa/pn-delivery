@@ -1,24 +1,24 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationPriceService;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.StatusService;
+import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
@@ -29,6 +29,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
@@ -42,16 +44,23 @@ class PnInternalNotificationsControllerTest {
     private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String RECIPIENT_INTERNAL_ID = "PF-2d74ffe9-aa40-47c2-88ea-9fb171ada637";
+    public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader("PF", RECIPIENT_INTERNAL_ID, null, null);
+    private static final String UID = "2d74ffe9-aa40-47c2-88ea-9fb171ada637";
     private static final String SUBJECT_REG_EXP = "asd";
     private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
     private static final String DELEGATOR_ID = "DelegatorId";
     private static final String MANDATE_ID = "mandateId";
+    private static final String REDIRECT_URL = "http://redirectUrl";
+    public static final String ATTACHMENT_BODY_STR = "Body";
+    public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
+    private static final String FILENAME = "filename.pdf";
     private static final String PA_TAX_ID = "77777777777";
     private static final String NOTICE_CODE = "302000100000019421";
     private static final String ATTACHMENT_NAME = "PAGOPA";
     private static final int DOCUMENT_IDX = 0;
     public static final String AAR_QR_CODE_VALUE = "WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
     public static final String URL_AAR_QR_VALUE = "https://fake.domain.com/notifica?aar=WFFNVS1ETFFILVRWTVotMjAyMjA5LVYtMV9GUk1UVFI3Nk0wNkI3MTVFXzc5ZTA3NWMwLWIzY2MtNDc0MC04MjExLTllNTBjYTU4NjIzOQ";
+    private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 
 
     @Autowired
@@ -73,10 +82,13 @@ class PnInternalNotificationsControllerTest {
     private NotificationAttachmentService attachmentService;
 
     @MockBean
-    private PnDeliveryConfigs cfg;
+    private PaymentEventsService paymentEventsService;
 
     @MockBean
-    private ModelMapperFactory modelMapperFactory;
+    private PnDeliveryConfigs cfg;
+
+    @SpyBean
+    private ModelMapper modelMapper;
 
 
 
@@ -132,11 +144,8 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
-
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+                .thenReturn(result);
 
         //Then
         webTestClient.get()
@@ -165,7 +174,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
 
-        Mockito.verify(retrieveSvc).searchNotification(searchDto);
+        Mockito.verify(retrieveSvc).searchNotification(eq(searchDto), any(), any());
     }
 
     @Test
@@ -188,11 +197,8 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
-
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class), any(), any()))
+                .thenReturn(result);
 
         //Then
         webTestClient.get()
@@ -223,7 +229,7 @@ class PnInternalNotificationsControllerTest {
                 .build();
 
 
-        Mockito.verify(retrieveSvc).searchNotification(searchDto);
+        Mockito.verify(retrieveSvc).searchNotification(searchDto, null, null);
     }
 
     @Test
@@ -246,11 +252,8 @@ class PnInternalNotificationsControllerTest {
                         .nextPagesKey(null).build();
 
         //When
-        Mockito.when(retrieveSvc.searchNotification(Mockito.any(InputSearchNotificationDto.class))).thenReturn(result);
-
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap( ResultPaginationDto.class, NotificationSearchResponse.class );
-        Mockito.when( modelMapperFactory.createModelMapper( ResultPaginationDto.class, NotificationSearchResponse.class ) ).thenReturn( mapper );
+        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+                .thenReturn(result);
 
         //Then
         webTestClient.get()
@@ -272,7 +275,8 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void searchNotificationsPrivateFailure() {
-        Mockito.when( retrieveSvc.searchNotification( Mockito.any( InputSearchNotificationDto.class ) ) ).thenThrow( new PnNotFoundException("test", "test", "test") );
+        Mockito.when(retrieveSvc.searchNotification(any(InputSearchNotificationDto.class), any(), any()))
+                .thenThrow(new PnNotFoundException("test", "test", "test"));
 
         webTestClient.get()
                 .uri(uriBuilder ->
@@ -295,10 +299,6 @@ class PnInternalNotificationsControllerTest {
 
         // When
         Mockito.when( retrieveSvc.getNotificationInformation( IUN, false, true )).thenReturn( notification );
-
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap( InternalNotification.class, SentNotification.class );
-        Mockito.when( modelMapperFactory.createModelMapper( InternalNotification.class, SentNotification.class ) ).thenReturn( mapper );
 
         webTestClient.get()
                 .uri( "/delivery-private/notifications/{iun}".replace( "{iun}", IUN ) )
@@ -435,6 +435,21 @@ class PnInternalNotificationsControllerTest {
 
     @Test
     void getNotificationAttachmentPrivateSuccess() {
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( REDIRECT_URL )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .build();
+
+        Mockito.when( attachmentService.downloadAttachmentWithRedirect(
+                Mockito.anyString(),
+                Mockito.any( InternalAuthHeader.class ),
+                Mockito.isNull(),
+                Mockito.isNull(),
+                Mockito.anyString(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
 
         webTestClient.get()
                 .uri( uriBuilder ->
@@ -449,14 +464,14 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, null, ATTACHMENT_NAME, false );
+        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, ATTACHMENT_NAME, false );
     }
 
     @Test
     void getNotificationAttachmentPrivateFailure() {
         Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( attachmentService )
-                .downloadAttachmentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, null, ATTACHMENT_NAME, false );
+                .downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, ATTACHMENT_NAME, false );
 
         webTestClient.get()
                 .uri( uriBuilder ->
@@ -474,6 +489,21 @@ class PnInternalNotificationsControllerTest {
     @Test
     void getNotificationDocumentPrivateSuccess() {
 
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( REDIRECT_URL )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .build();
+
+        Mockito.when( attachmentService.downloadDocumentWithRedirect(
+                Mockito.anyString(),
+                Mockito.any( InternalAuthHeader.class ),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
+
         webTestClient.get()
                 .uri( uriBuilder ->
                         uriBuilder
@@ -486,14 +516,48 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX, false );
+        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
+    }
+
+    @Test
+    void getNotificationDocumentPrivateWithRetrySuccess() {
+
+        NotificationAttachmentDownloadMetadataResponse response = NotificationAttachmentDownloadMetadataResponse.builder()
+                .url( null )
+                .contentType( "application/pdf" )
+                .sha256( SHA256_BODY )
+                .filename( FILENAME )
+                .retryAfter( 1000 )
+                .build();
+
+        Mockito.when( attachmentService.downloadDocumentWithRedirect(
+                Mockito.anyString(),
+                Mockito.any( InternalAuthHeader.class ),
+                Mockito.isNull(),
+                Mockito.anyInt(),
+                Mockito.anyBoolean()
+        )).thenReturn( response );
+
+        webTestClient.get()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notifications/received/"+ IUN +"/attachments/documents/"+DOCUMENT_IDX)
+                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .build())
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
+
+        Mockito.verify( attachmentService ).downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
     }
 
     @Test
     void getNotificationDocumentPrivateFailure() {
         Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( attachmentService )
-                .downloadDocumentWithRedirect( IUN, "PF", RECIPIENT_INTERNAL_ID, null, DOCUMENT_IDX, false );
+                .downloadDocumentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, DOCUMENT_IDX, false );
 
         webTestClient.get()
                 .uri( uriBuilder ->
@@ -541,6 +605,47 @@ class PnInternalNotificationsControllerTest {
                 .isNotFound();
     }
 
+    @Test
+    void paymentEventPagoPaPrivateSuccess() {
+        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
+                .paymentDate( "2023-01-16T15:30:00.234Z" )
+                .uncertainPaymentDate( true )
+                .creditorTaxId("77777777777")
+                .noticeCode("123456789123456789")
+                .amount( 1200 )
+                .build();
+
+        webTestClient.post()
+                .uri("/delivery-private/events/payment/pagopa")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(paymentEventPagoPa), PaymentEventPagoPa.class)
+                .exchange()
+                .expectStatus().isNoContent();
+
+        Mockito.verify( paymentEventsService ).handlePaymentEventPagoPaPrivate( paymentEventPagoPa );
+    }
+
+    @Test
+    void paymentEventPagoPaPrivateFailure() {
+        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
+                .paymentDate( "2023-01-16T15:30:00Z")
+                .uncertainPaymentDate( true )
+                .creditorTaxId("77777777777")
+                .noticeCode("123456789123456789")
+                .build();
+
+        Mockito.doThrow( new PnRuntimeException( "test", "description", 400, "errorCode", "element", "detail" ) )
+                .when( paymentEventsService )
+                .handlePaymentEventPagoPaPrivate( Mockito.any( PaymentEventPagoPaPrivate.class ) );
+
+        webTestClient.post()
+                .uri("/delivery-private/events/payment/pagopa")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(paymentEventPagoPa), PaymentEventPagoPaPrivate.class)
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
     private InternalNotification newNotification() {
         return new InternalNotification(FullSentNotification.builder()
                 .iun("IUN_01")
@@ -584,10 +689,12 @@ class PnInternalNotificationsControllerTest {
                                 )
                                 .build()
                 ))
+                .recipientIds(Collections.singletonList("recipientId"))
+                .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .timeline(Collections.singletonList(TimelineElement.builder().build()))
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))
-                .build(), Collections.singletonList("recipientId"));
+                .build());
     }
 }

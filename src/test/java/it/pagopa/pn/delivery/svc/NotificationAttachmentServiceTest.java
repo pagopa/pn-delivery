@@ -14,7 +14,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,10 +31,6 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
@@ -49,10 +51,9 @@ import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 class NotificationAttachmentServiceTest {
 
   public static final String X_PAGOPA_PN_CX_ID = "PF-123-abcd-123";
+  public static final String X_PAGOPA_PN_UID = "123-abcd-123";
   public static final String PAGOPA = "PAGOPA";
-  public static final String F_24 = "F24";
-  public static final String F_24_FLAT = "F24_FLAT";
-  public static final String F_24_STANDARD = "F24_STANDARD";
+
   public static final String IUN = "iun";
 
   private NotificationAttachmentService attachmentService;
@@ -128,7 +129,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null, recipientidx,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, recipientidx,
             attachmentName, false);
 
     // Then
@@ -137,200 +138,7 @@ class NotificationAttachmentServiceTest {
     assertNotNull(result.getUrl());
 
     Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
-  }
-
-  @Test
-  void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24() {
-    // Given
-    String cxType = "PA";
-    String cxId = "paId";
-    int recipientidx = 0;
-    String attachmentName = F_24;
-
-    Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID, attachmentName));
-
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
-
-    AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
-
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-    when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-        .thenReturn(buildFileDownloadResponse());
-    when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
-        Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
-
-    // When
-    NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null, recipientidx,
-            attachmentName, false);
-
-    // Then
-    assertNotNull(result);
-    assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
-    assertNotNull(result.getUrl());
-
-    Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
-  }
-
-  @Test
-  void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24FlatNotNull() {
-    // Given
-    String cxType = "PA";
-    String cxId = "paId";
-    int recipientidx = 0;
-    String attachmentName = F_24;
-
-    InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID, F_24_FLAT);
-
-    Optional<InternalNotification> optNotification = Optional.of(notification);
-
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
-
-    AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
-
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-    when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-        .thenReturn(buildFileDownloadResponse());
-    when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
-        Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
-
-    // When
-    NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null, recipientidx,
-            attachmentName, false);
-
-    // Then
-    NotificationRecipient notificationRecipient = notification.getRecipients().get(0);
-
-    Mockito.verify(pnSafeStorageClient)
-        .getFile(notificationRecipient.getPayment().getF24flatRate().getRef().getKey(), false);
-
-    assertNotNull(result);
-    assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
-    assertNotNull(result.getUrl());
-
-    Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
-  }
-
-  @Test
-  void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24StandardNotNull() {
-    // Given
-    String cxType = "PA";
-    String cxId = "paId";
-    int recipientidx = 0;
-    String attachmentName = F_24;
-
-    InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID, F_24_STANDARD);
-    Optional<InternalNotification> optNotification = Optional.of(notification);
-
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
-
-    AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
-
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-    when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-        .thenReturn(buildFileDownloadResponse());
-    when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
-        Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
-
-    // When
-    NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null, recipientidx,
-            attachmentName, false);
-
-    // Then
-    NotificationRecipient notificationRecipient = notification.getRecipients().get(0);
-
-    Mockito.verify(pnSafeStorageClient)
-        .getFile(notificationRecipient.getPayment().getF24standard().getRef().getKey(), false);
-
-
-    assertNotNull(result);
-    assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
-    assertNotNull(result.getUrl());
-
-    Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
-  }
-
-  @Test
-  void downloadAttachmentWithRedirectByIunAndRecIdxAttachNameF24FLAT() {
-    // Given
-    String cxType = "PA";
-    String cxId = "paId";
-    int recipientidx = 0;
-    String attachmentName = F_24_FLAT;
-
-    Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID, attachmentName));
-
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
-
-    AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
-
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-    when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-        .thenReturn(buildFileDownloadResponse());
-    when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
-        Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
-
-    // When
-    NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null, recipientidx,
-            attachmentName, false);
-
-    // Then
-    assertNotNull(result);
-    assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
-    assertNotNull(result.getUrl());
-
-    Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
-  }
-
-  @Test
-  void downloadDocumentWithRedirectByIunAndRecIdxAttachNameF24STANDARD() {
-    // Given
-    String cxType = "PA";
-    String cxId = "paId";
-    int recipientidx = 0;
-    String attachmentName = F_24_STANDARD;
-
-    Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID, attachmentName));
-
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
-
-    AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
-
-
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-    when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-        .thenReturn(buildFileDownloadResponse());
-    when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
-        Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
-
-    // When
-    NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null, recipientidx,
-            attachmentName, false);
-
-    // Then
-    assertNotNull(result);
-    assertEquals(IUN + "__" + attachmentName + ".pdf", result.getFilename());
-    assertNotNull(result.getUrl());
-
-    Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any(NotificationViewDelegateInfo.class));
   }
 
   @Test
@@ -339,7 +147,8 @@ class NotificationAttachmentServiceTest {
     String cxType = "PA";
     String cxId = "paId";
     int recipientidx = 10;
-    String attachmentName = F_24;
+    String attachmentName = PAGOPA;
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID + "-bad", attachmentName));
@@ -354,11 +163,11 @@ class NotificationAttachmentServiceTest {
 
     // When
     assertThrows(PnNotFoundException.class,
-        () -> attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null,
+        () -> attachmentService.downloadAttachmentWithRedirect(IUN, internalAuthHeader, null,
             recipientidx, attachmentName, false));
 
     Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
 
   }
 
@@ -368,7 +177,8 @@ class NotificationAttachmentServiceTest {
     String cxType = "PA";
     String cxId = "paId";
     int recipientidx = 0;
-    String attachmentName = F_24;
+
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification = Optional.ofNullable(null);
 
@@ -378,11 +188,11 @@ class NotificationAttachmentServiceTest {
 
     // When
     assertThrows(PnNotFoundException.class,
-        () -> attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null,
-            recipientidx, attachmentName, false));
+        () -> attachmentService.downloadAttachmentWithRedirect(IUN, internalAuthHeader, null,
+            recipientidx, PAGOPA, false));
 
     Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
 
   }
 
@@ -393,6 +203,7 @@ class NotificationAttachmentServiceTest {
     String cxId = "paId";
     int recipientidx = 0;
     String attachmentName = PAGOPA;
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
@@ -411,11 +222,11 @@ class NotificationAttachmentServiceTest {
 
     // Then
     assertThrows(PnBadRequestException.class,
-        () -> attachmentService.downloadAttachmentWithRedirect(IUN, cxType, cxId, null,
+        () -> attachmentService.downloadAttachmentWithRedirect(IUN, internalAuthHeader, null,
             recipientidx, attachmentName, false));
 
     Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
 
   }
 
@@ -445,7 +256,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadDocumentWithRedirect(IUN, cxType, cxId, null, docidx, true);
+        attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, docidx, true);
 
     // Then
     assertNotNull(result);
@@ -454,16 +265,14 @@ class NotificationAttachmentServiceTest {
     assertNotNull(result.getUrl());
 
     Mockito.verify(notificationViewedProducer, Mockito.times(1))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.isNull());
   }
 
   @Test
   void downloadDocumentWithRedirectByIunAndDocIndexInternal() {
     // Given
     String cxType = "PF";
-    String cxId = X_PAGOPA_PN_CX_ID;
     int docidx = 0;
-    String attachmentName = PAGOPA;
 
 
     Optional<InternalNotification> optNotification =
@@ -483,7 +292,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadDocumentWithRedirect(IUN, cxType, cxId, null, docidx, false);
+        attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, X_PAGOPA_PN_CX_ID, X_PAGOPA_PN_UID, null), null, docidx, false);
 
     // Then
     assertNotNull(result);
@@ -492,36 +301,7 @@ class NotificationAttachmentServiceTest {
     assertNotNull(result.getUrl());
 
     Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
-  }
-
-  @Test
-  void downloadAttachmentWithRedirectByIunAndAttachmentNameFailure() {
-    // Given
-    String cxType = "PF";
-
-    Optional<InternalNotification> optNotification =
-        Optional.of(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
-
-    NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
-
-    AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
-
-
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
-    when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
-        .thenReturn(buildFileDownloadResponse());
-    when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
-        Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
-
-    // When
-    assertThrows(PnNotFoundException.class, () -> attachmentService
-        .downloadAttachmentWithRedirect(IUN, cxType, X_PAGOPA_PN_CX_ID, null, 0, F_24, false));
-
-    Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
-
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
   }
 
   @Test
@@ -548,7 +328,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, cxType, xPagopaPnCxId, mandateId,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID, null), mandateId,
             null, attachmentName, true);
 
     // Then
@@ -557,7 +337,7 @@ class NotificationAttachmentServiceTest {
     assertNotNull(result.getUrl());
 
     Mockito.verify(notificationViewedProducer, Mockito.times(1))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.isNull());
   }
 
   @Test
@@ -586,7 +366,7 @@ class NotificationAttachmentServiceTest {
     when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
         .thenReturn(buildFileDownloadResponse());
-    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString()))
+    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
         .thenReturn(List.of(internalMandateDto));
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
         Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
@@ -594,7 +374,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, cxType, xPagopaPnCxId, mandateId,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID, null), mandateId,
             null, attachmentName, true);
 
     // Then
@@ -603,7 +383,7 @@ class NotificationAttachmentServiceTest {
     assertNotNull(result.getUrl());
 
     Mockito.verify(notificationViewedProducer, Mockito.times(1))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
   }
 
   @Test
@@ -612,6 +392,7 @@ class NotificationAttachmentServiceTest {
     String cxType = "PF";
     String internalIdDelegator = "PF-bcd-123-bcd-123";
     String mandateId = "123-abcd-123456";
+    InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, X_PAGOPA_PN_CX_ID, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
         Optional.of(buildNotification(IUN, internalIdDelegator));
@@ -622,7 +403,7 @@ class NotificationAttachmentServiceTest {
     when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
         .thenReturn(buildFileDownloadResponse());
-    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString()))
+    when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
         .thenReturn(List.of());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
         Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
@@ -630,11 +411,17 @@ class NotificationAttachmentServiceTest {
 
     // When
     assertThrows(PnNotFoundException.class,
-        () -> attachmentService.downloadAttachmentWithRedirect(IUN, cxType, X_PAGOPA_PN_CX_ID,
-            mandateId, null, PAGOPA, false));
+        () -> attachmentService.downloadAttachmentWithRedirect(
+                IUN,
+                internalAuthHeader,
+                mandateId,
+                null,
+                PAGOPA,
+                false)
+    );
 
     Mockito.verify(notificationViewedProducer, Mockito.times(0))
-        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt());
+        .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
 
   }
 
@@ -691,7 +478,7 @@ class NotificationAttachmentServiceTest {
 
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
-    Assertions.assertThrows(IllegalArgumentException.class, todo);
+    Assertions.assertThrows(PnNotFoundException.class, todo);
   }
 
   @Test
@@ -745,21 +532,8 @@ class NotificationAttachmentServiceTest {
     notificationAttachmentBodyRef.setKey("filekey");
     notificationPaymentAttachment.setRef(notificationAttachmentBodyRef);
 
-    NotificationPaymentAttachment notificationPaymentAttachmentF24Flat =
-        NotificationPaymentAttachment.builder()
-            .ref(NotificationAttachmentBodyRef.builder().key("filekeyf24Flat").build()).build();
-
-    NotificationPaymentAttachment notificationPaymentAttachmentF24Standard =
-        NotificationPaymentAttachment.builder()
-            .ref(NotificationAttachmentBodyRef.builder().key("filekeyf24FStandard").build())
-            .build();
-
     if (channel.equals(PAGOPA))
       notificationPaymentInfo.setPagoPaForm(notificationPaymentAttachment);
-    else if (channel.equals(F_24) || channel.equals(F_24_STANDARD))
-      notificationPaymentInfo.setF24standard(notificationPaymentAttachmentF24Standard);
-    else if (channel.equals(F_24_FLAT))
-      notificationPaymentInfo.setF24flatRate(notificationPaymentAttachmentF24Flat);
 
     notificationRecipient.setPayment(notificationPaymentInfo);
     notification.addRecipientsItem(notificationRecipient);

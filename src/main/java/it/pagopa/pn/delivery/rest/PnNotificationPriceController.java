@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
@@ -32,9 +33,10 @@ public class PnNotificationPriceController implements NotificationPriceApi {
         NotificationPriceResponse response;
         try {
             response = service.getNotificationPrice( paTaxId, noticeCode );
+            logEvent.getMdc().put("iun", response.getIun());
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure("Exception on get notification price= " + exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("Exception on get notification price= " + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( response );

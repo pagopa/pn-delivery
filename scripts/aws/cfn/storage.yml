@@ -24,15 +24,25 @@ Parameters:
     Type: String
     Description: 'Where to send CDC'
 
+  LogsKinesisSourceStreamArn:
+    Type: String
+    Description: 'Where to send Logs'
+
   AlarmSNSTopicName:
     Type: String
     Description: 'Topic alarm'
+
+  LogRetention:
+    Type: Number
+    Default: 14
 
 Resources:
 
   # Dynamo Table
   NotificationsTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-Notifications'
       AttributeDefinitions:
@@ -42,6 +52,8 @@ Resources:
         - AttributeName: "iun"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
       KinesisStreamSpecification:
         StreamArn: !Ref CdcKinesisSourceStreamArn
       StreamSpecification:
@@ -49,6 +61,8 @@ Resources:
 
   NotificationsCostTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsCost'
       AttributeDefinitions:
@@ -58,9 +72,14 @@ Resources:
         - AttributeName: "creditorTaxId_noticeCode"
           KeyType: "HASH"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
 
   NotificationsQRTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsQR'
       AttributeDefinitions:
@@ -79,9 +98,13 @@ Resources:
           Projection:
             ProjectionType: "ALL"              
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   NotificationsMetadataTable:
     Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain        
     Properties:
       TableName: !Sub '${ProjectName}-NotificationsMetadata'
       AttributeDefinitions:
@@ -126,11 +149,64 @@ Resources:
           Projection:
             ProjectionType: "ALL"
       BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+  
+  NotificationDelegationMetadataTable:
+    Type: AWS::DynamoDB::Table
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TableName: !Sub '${ProjectName}-NotificationDelegationMetadata'
+      AttributeDefinitions:
+        - AttributeName: "iun_recipientId_delegateId_groupId"
+          AttributeType: "S"
+        - AttributeName: "sentAt"
+          AttributeType: "S"
+        - AttributeName: "delegateId_creationMonth"
+          AttributeType: "S"
+        - AttributeName: "delegateId_groupId_creationMonth"
+          AttributeType: "S"
+        - AttributeName: "mandateId"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "iun_recipientId_delegateId_groupId"
+          KeyType: "HASH"
+        - AttributeName: "sentAt"
+          KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: "delegateId"
+          KeySchema:
+            - AttributeName: "delegateId_creationMonth"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "delegateId_groupId"
+          KeySchema:
+            - AttributeName: "delegateId_groupId_creationMonth"
+              KeyType: "HASH"
+            - AttributeName: "sentAt"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+        - IndexName: "mandateId"
+          KeySchema:
+            - AttributeName: "mandateId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+      BillingMode: "PAY_PER_REQUEST"
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
   ### DLQ used by lambda for communication between PN-DELIVERY and PN-DELIVERY-PUSH ###
   # NB: la coda stessa è di DLQ, quindi va allarmata. Non è necessario invece che sia allarmata la sua DLQ
   PnDeliveryInsertTriggerDLQ:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
       Parameters:
@@ -138,7 +214,57 @@ Resources:
         DelaySeconds: 1
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ:  "false"
+        OncallDLQLimit: '1'
         QueueHasAlarm:  "true"
+
+  # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
+  # NB: usati i valori di default per: DelaySeconds, DeadLetterQueueName, MessageRetentionPeriod, MaxReceiveCount, DeadLetterMessageRetentionPeriod,
+  # QueueOldestAgeLimit
+  PnDeliveryAsseverationQueue:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/sqs-queue.yaml"
+      Parameters:
+        QueueName: !Sub '${ProjectName}-notificationCostServiceCalls'
+        HasDLQ:  "true"
+        AlarmSNSTopicName: !Ref AlarmSNSTopicName
+        VisibilityTimeout: 900 # the maximum lambda timeout
+        QueueHasAlarm: "false"
+
+  PnDeliveryLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub '${ProjectName}-delivery'
+        LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
+        LogGroupRetention: !Ref LogRetention
+
+  PnDeliveryAsseverationLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-asseveration-lambda"
+        LogGroupPrefix: '/aws/lambda'
+        LogGroupRetention: !Ref LogRetention
+
+  PnDeliveryInsertTriggerLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain    
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-insert-trigger-lambda"
+        LogGroupPrefix: '/aws/lambda'
+        LogGroupRetention: !Ref LogRetention
 
 Outputs:
 
@@ -174,6 +300,13 @@ Outputs:
     Description: ARN of dynamodb table containing notifications metadata
     Value: !Sub '${NotificationsMetadataTable.Arn}'
 
+  NotificationDelegationMetadataDynamoTableName:
+    Description: Name of dynamodb table containing delegated notifications metadata
+    Value: !Ref NotificationDelegationMetadataTable
+  NotificationDelegationMetadataDynamoTableArn:
+    Description: ARN of dynamodb table containing delegated notifications metadata
+    Value: !Sub '${NotificationDelegationMetadataTable.Arn}'
+
   # Delivery Insert Trigger DLQ
   PnDeliveryInsertTriggerDLQName:
     Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.QueueName
@@ -187,3 +320,34 @@ Outputs:
   PnDeliveryInsertTriggerDLQAlarmARN:
     Value: !GetAtt PnDeliveryInsertTriggerDLQ.Outputs.SqsDLQAlarmArn
     Description: pn-delivery_insert_trigger_DLQ alarm ARN
+
+  # Delivery Asseveration Queue
+  PnDeliveryAsseverationQueueName:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueName
+    Description: notificationCostServiceCalls queue name
+  PnDeliveryAsseverationQueueARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.QueueARN
+    Description: notificationCostServiceCalls queue arn
+  PnDeliveryAsseverationDLQName:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueName
+    Description: notificationCostServiceCalls-DLQ queue name
+  PnDeliveryAsseverationDLQURL:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueURL
+    Description: notificationCostServiceCalls-DLQ queue url
+  PnDeliveryAsseverationDLQARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.DeadLetterQueueARN
+    Description: notificationCostServiceCalls-DLQ queue ARN
+  PnDeliveryAsseverationDLQAlarmARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsDLQAlarmArn
+    Description: notificationCostServiceCalls-DLQ alarm ARN
+  PnDeliveryAsseverationAgeAlarmARN:
+    Value: !GetAtt PnDeliveryAsseverationQueue.Outputs.SqsAgeAlarmArn  
+    Description: notificationCostServiceCalls-DLQ age alarm ARN
+  
+  # Log group exports
+  EcsLogGroup:
+    Value: !GetAtt PnDeliveryLogGroup.Outputs.LogGroupName
+  PnDeliveryAsseverationLambdaName:
+    Value: !Sub "${ProjectName}-delivery-asseveration-lambda"
+  PnDeliveryInsertTriggerLambdaName:
+    Value: !Sub "${ProjectName}-delivery-insert-trigger-lambda"

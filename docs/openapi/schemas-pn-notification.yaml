@@ -1,0 +1,557 @@
+info:
+  version: v1.0
+components:
+  schemas:
+
+    ############################################################################################
+    ###                           IDENTIFICATIVI DELLE NOTIFICHE                             ###
+    ############################################################################################
+
+    IUN:
+      description: Identificativo Univoco Notifica
+      type: string
+      minLength: 25
+      maxLength: 25
+      pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+
+    Denomination:
+      description: Denominazione ente o persona fisica / ragione sociale
+      type: string
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+      minLength: 1
+      maxLength: 80
+      pattern: ^.*$
+
+    TaxId:
+      description: C.F. persona fisica o persona giuridica (Partita iva)
+      type: string
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+      minLength: 11
+      maxLength: 16
+      pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+
+    noticeCode:
+      description: Payment notice number  numero avviso
+      example: '302000100000019421'
+      type: string
+      maxLength: 18
+      minLength: 18
+      pattern: '^\d+$'
+
+    paTaxId:
+      description: Payment PA fiscal code
+      example: '77777777777'
+      type: string
+      maxLength: 11
+      minLength: 11
+      pattern: '^\d+$'
+
+    NotificationFeePolicy:
+      type: string
+      description: >-
+        Politica di addebitamento dei costi di notifica. <br/>
+        - _FLAT_RATE_: costo forfettario fisso. <br/>
+        - _DELIVERY_MODE_: costo calcolato in base all'effettivo percorso di notifica. <br/>
+      enum:
+        - FLAT_RATE
+        - DELIVERY_MODE
+    ############################################################################################
+    ###                                 DTO DELLE NOTIFICHE                                  ###
+    ############################################################################################
+
+    NewNotificationRequest:
+      description: I campi utilizzati per la creazione di una nuova Notifica.
+      type: object
+      required:
+        - paProtocolNumber
+        - subject
+        - recipients
+        - documents
+        - physicalCommunicationType
+        - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
+      properties:
+        idempotenceToken:
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare differenti 
+            "richieste di notificazione" effettuate con lo stesso numero di protocollo 
+            (campo _paProtocolNumber_). Questo può essere necessario in caso di 
+            "richiesta di notifica" rifiutata per errori nei codici di verifica degli
+            allegati.
+          type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 256
+        paProtocolNumber:
+          description: >-
+            Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
+        subject:
+          type: string
+          description: titolo della notifica
+          minLength: 10
+          maxLength: 134
+          # wide range of characters
+          pattern: ^.*$
+        abstract:
+          type: string
+          description: descrizione sintetica della notifica
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 1024
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: "#/components/schemas/NotificationRecipient"
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: "#/components/schemas/NotificationDocument"
+          minItems: 1
+        notificationFeePolicy:
+          $ref: "#/components/schemas/NotificationFeePolicy"
+        cancelledIun:
+          $ref: '#/components/schemas/IUN'
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
+        amount:
+          type: integer
+          format: int32
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          minLength: 10
+          maxLength: 10
+          pattern: "^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$"
+          description: Data di scadenza del pagamento nel formato YYYY-MM-DD riferito all'Italia
+          # gestito come stringa e pattern perché con format: date open-api-generator non lo gestiva correttamente
+        taxonomyCode:
+          type: string
+          minLength: 7
+          maxLength: 7
+          pattern: "^([0-9]{6}[A-Z]{1})$"
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
+          default: "010101P"
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della notifica. <br/>
+            - _NONE_: nessuna attualizzazione. <br/>
+            - _SYNC_: modalitá sincrona. <br/>
+#            - _ASYNC_: modalitá asincrona. <br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC  # NO EXTERNAL
+    SentNotification:
+      description: >-
+        Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
+              # wide range of characters
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              $ref: '#/components/schemas/IUN'
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
+
+
+    ############################################################################################
+    ###                                ELEMENTI DI DETTAGLIO                                 ###
+    ############################################################################################
+
+    NotificationRecipient:
+      description: Informazioni sui destinatari
+      required:
+        - denomination
+        - recipientType
+        - taxId
+        - physicalAddress
+      type: object
+      properties:
+        recipientType:
+          type: string
+          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)'
+          enum:
+            - PF
+            - PG
+        taxId:
+          $ref: '#/components/schemas/TaxId'
+        internalId:  # NO EXTERNAL       
+          type: string # NO EXTERNAL    
+          description: id interno anonimizzato # NO EXTERNAL    
+        denomination:
+          $ref: '#/components/schemas/Denomination'
+        digitalDomicile:
+          $ref: "#/components/schemas/NotificationDigitalAddress"
+        physicalAddress:
+          $ref: "#/components/schemas/NotificationPhysicalAddress"
+        payment:
+          $ref: "#/components/schemas/NotificationPaymentInfo"
+
+    NotificationAttachment:
+      description: >-
+        Un allegato della notifica.
+      type: object
+      required:
+        - digests
+        - contentType
+        - ref
+      properties:
+        digests:
+          $ref: "#/components/schemas/NotificationAttachmentDigests"
+        contentType:
+          type: string
+          description: tipo di contenuto dell'allegato, supportato application/pdf
+          minLength: 15
+          maxLength: 15
+          pattern: ^application\/pdf$
+        ref:
+          $ref: "#/components/schemas/NotificationAttachmentBodyRef"
+
+    NotificationPaymentAttachment:
+      description: >-
+        Un modulo di pagamento allegato alla notifica
+      allOf:
+        - $ref: "#/components/schemas/NotificationAttachment"
+
+    NotificationDocument:
+      description: >-
+        Un documento da notificare
+      allOf:
+        - $ref: "#/components/schemas/NotificationAttachment"
+        - type: object
+          properties:
+            title:
+              type: string
+              description: Titolo del documento allegato. Stringa alfanumerica con caratteri utilizzabili in un nome file.
+              minLength: 1
+              maxLength: 512
+              pattern: ^.*$
+            docIdx:
+              type: string
+              description: >-
+                Indice del documento partendo da 0.
+              maxLength: 3
+              pattern: ^\d+$
+
+
+    NotificationAttachmentDigests:
+      description: Codici per la verifica del corretto caricamento di un allegato
+      type: object
+      required:
+        - sha256
+      properties:
+        sha256:
+          type: string
+          description: Digest "sha256" della codifica binaria dell'allegato in base64
+          example: 'jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE='
+          minLength: 44
+          maxLength: 44
+          pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
+
+    NotificationAttachmentBodyRef:
+      description: Riferimento all'allegato precaricato
+      required:
+        - key
+        - versionToken
+      type: object
+      properties:
+        key:
+          type: string
+          description: Chiave in cui è stato salvato l'allegato
+          maxLength: 512
+          pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+        versionToken:
+          type: string
+          description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
+
+    NotificationPaymentInfo:
+      title: Informazioni per effettuare il pagamento
+      description: >-
+       Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+       destinatario perché le spese di notifica possono differire a seconda del canale di
+       notifica utilizzato. <br/>
+         - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+         - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+         - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+      properties:
+        noticeCode:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        noticeCodeAlternative:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+        pagoPaForm:
+          $ref: "#/components/schemas/NotificationPaymentAttachment"
+
+
+    ############################################################################################
+    ###                              INDIRIZZI DIGITALE E FISICO                             ###
+    ### Ripetuti per non accoppiare i microservizi e avere più facilità di evoluzione, anche ###
+    ### se questo implica un po' di duplicazione.                                            ###
+    ############################################################################################
+
+    NotificationDigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+        - address
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+          enum:
+            - PEC
+        address:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          example: account@domain.it
+          description: >-
+            Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
+            raggiungere il destinatario.
+          pattern: ^([a-zA-Z0-9]+(?:[.\-_][a-zA-Z0-9]+){0,10}@[a-zA-Z0-9]+(?:[.-][a-zA-Z0-9]+){0,10}(?:\.[a-zA-Z0-9]{2,10}))$
+          maxLength: 320
+          # 64 chars for the user and 255 chars for the domain, + 1 char for the '@'
+
+    NotificationPhysicalAddress:
+      description: Indirizzo fisico
+      type: object
+      required:
+        - address
+        - municipality
+      properties:
+        at:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Campo "presso" dell'indirizzo
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
+        address:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Indirizzo del domicilio fisico
+          # wide range of characters
+          pattern: ^.*$
+          minLength: 2
+          maxLength: 1024
+        addressDetails:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Seconda riga dell'indirizzo fisico
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 1024
+        zip:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
+          minLength: 0
+          maxLength: 15
+          pattern: ^(\w|\ |\-)*$
+        municipality:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Comune
+          # wide range of characters
+          pattern: ^.*$
+          minLength: 2
+          maxLength: 256
+        municipalityDetails:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Frazione o località
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
+        province:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Provincia
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
+        foreignState:
+          type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          description: Denominazione paese estero
+          # wide range of characters
+          pattern: ^.*$
+          maxLength: 256
+
+
+    ############################################################################################
+    ###                             RISULTATO RICERCA NOTIFICHE                              ###
+    ############################################################################################
+
+    NotificationSearchResponse:
+      title: Elenco di notifiche
+      description: >-
+        Dto contenente i risultati di una ricerca di notifiche. Ogni risposta conterrà solo 
+        una pagina di risultati relativi a una ricerca e le indicazioni per raggiungere alcune
+        pagine successive.
+      type: object
+      properties:
+        resultsPage:
+          description: Una pagina di risultati della query
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationSearchRow'
+        moreResult:
+          description: Indica se sono presenti ulteriori pagine di risultati
+          type: boolean
+        nextPagesKey:
+          description: >-
+            Elenco, non esaustivo, delle chiavi da usare per richiedere le 
+            pagine di risultati successive a quella corrente. <br/>
+            Valorizzato solo se il campo __moreResult__ ha valore __true__.
+          type: array
+          items:
+            type: string
+
+    NotificationSearchRow:
+      type: object
+      properties:
+        iun:
+          type: string
+          description: Identificativo Univoco Notifica
+          $ref: '#/components/schemas/IUN'
+        paProtocolNumber:
+          type: string
+          description: Numero protocollo associato alla notifica da parte della PA
+        sender:
+          type: string
+          description: Denominazione della PA che ha inviato l'atto.
+        sentAt:
+          type: string
+          description: Data spedizione notifica
+          format: date-time
+        subject:
+          type: string
+          description: Oggetto della notifica
+        notificationStatus:
+          $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+        recipients:
+          description: >-
+            Elenco delle denominazioni dei destinatari della notifica. <br/>
+            __N.B:__ campo da utilizzare solo per visualizzazione.
+          type: array
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+          items:
+            type: string
+        requestAcceptedAt:
+          description: Data accettazione notifica
+          type: string
+          format: date-time
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
+        mandateId:
+          type: string
+          description: Id delega (per notifiche delegate)
+
+      #NotificationStatus:
+      #$ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+      #type: string
+
+
+    ############################################################################################
+    ###                                  DOWNLOAD ALLEGATI                                   ###
+    ############################################################################################
+
+    NotificationAttachmentDownloadMetadataResponse:
+      title: Url e metadati per il download di un allegato di una notifica
+      description: >-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentType
+        - contentLength
+        - sha256
+      properties:
+        filename:
+          type: string
+        contentType:
+          type: string
+          example: 'application/pdf'
+        contentLength:
+          type: integer
+          format: int32
+          example: 54092
+          description: dimensione, in byte, del contenuto.
+        sha256:
+          type: string
+          description: >-
+            SHA256 del contenuto del file.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere il 
+            contenuto del documento. Presente solo se il documento è pronto per il download.
+        retryAfter:
+          type: integer
+          format: int32
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia disponibile per il download.
+    
+
+    NotificationQuickAccessLinkTokens:
+      description: Dizionario recipientId/quickAccessLinkToken
+      type: object
+      additionalProperties:
+        type: string

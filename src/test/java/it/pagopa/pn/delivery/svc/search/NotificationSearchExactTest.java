@@ -2,10 +2,11 @@ package it.pagopa.pn.delivery.svc.search;
 
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMetadataMapper;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
@@ -40,9 +41,10 @@ class NotificationSearchExactTest {
                 .size( 10 )
                 .build();
 
-        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto(Mockito.any())).thenReturn(NotificationSearchRow.builder()
+        Mockito.when(entityToDtoNotificationMetadataMapper.entity2Dto((NotificationMetadataEntity) Mockito.any()))
+                .thenReturn(NotificationSearchRow.builder()
                         .recipients(List.of("recipientId1"))
-                .build());
+                        .build());
 
         BaseRecipientDto baseRecipientDto = new BaseRecipientDto();
         baseRecipientDto.setInternalId("recipientId1");

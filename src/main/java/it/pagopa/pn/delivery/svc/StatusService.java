@@ -1,76 +1,115 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND;
 
 @Slf4j
 @Service
 public class StatusService {
+
     private final NotificationDao notificationDao;
     private final NotificationMetadataEntityDao notificationMetadataEntityDao;
+    private final NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
+    private final NotificationDelegatedService notificationDelegatedService;
     private final PnDataVaultClientImpl dataVaultClient;
+    private final NotificationCostEntityDao notificationCostEntityDao;
 
     public StatusService(NotificationDao notificationDao,
-                         NotificationMetadataEntityDao notificationMetadataEntityDao, PnDataVaultClientImpl dataVaultClient) {
+                         NotificationMetadataEntityDao notificationMetadataEntityDao,
+                         NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao,
+                         NotificationDelegatedService notificationDelegatedService,
+                         PnDataVaultClientImpl dataVaultClient,
+                         NotificationCostEntityDao notificationCostEntityDao) {
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
+        this.notificationDelegationMetadataEntityDao = notificationDelegationMetadataEntityDao;
+        this.notificationDelegatedService = notificationDelegatedService;
         this.dataVaultClient = dataVaultClient;
+        this.notificationCostEntityDao = notificationCostEntityDao;
     }
-    
+
     public void updateStatus(RequestUpdateStatusDto dto) {
         Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun());
-        
+
         if (notificationOptional.isPresent()) {
             InternalNotification notification = notificationOptional.get();
             log.debug("Notification with protocolNumber={} and iun={} is present", notification.getPaProtocolNumber(), dto.getIun());
 
-            OffsetDateTime acceptedAt = null;
-
-            if ( !NotificationStatus.ACCEPTED.equals( dto.getNextStatus() ) ) {
-                Key key = Key.builder()
-                        .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )
-                        .sortValue( notification.getSentAt().toString() )
-                        .build();
-                Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
-                if (optMetadata.isPresent() ) {
-                    acceptedAt = OffsetDateTime.parse( optMetadata.get().getTableRow().get( "acceptedAt" ) );
-                } else {
-                    log.debug( "Unable to retrieve accepted date - iun={} recipientId={}", notification.getIun(), notification.getRecipientIds().get( 0 ) );
+            NotificationStatus nextStatus = dto.getNextStatus();
+            OffsetDateTime acceptedAt;
+            switch (nextStatus) {
+                case ACCEPTED -> {
+                    acceptedAt = dto.getTimestamp();
+                    putNotificationMetadata(dto, notification, acceptedAt);
                 }
-            } else {
-                acceptedAt = dto.getTimestamp();
+                case REFUSED ->
+                        notification.getRecipients().stream()
+                                .filter(r -> Objects.nonNull(r.getPayment()))
+                                .forEach(r -> {
+                                    notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
+                                            .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCode())
+                                            .build());
+                                    if(r.getPayment().getNoticeCodeAlternative() != null && !r.getPayment().getNoticeCodeAlternative().isEmpty())
+                                        notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
+                                                .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCodeAlternative())
+                                                .build());
+
+                                });
+                default -> {
+                    Key key = Key.builder()
+                            .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )
+                            .sortValue( notification.getSentAt().toString() )
+                            .build();
+                    Optional<NotificationMetadataEntity> optMetadata = notificationMetadataEntityDao.get( key );
+                    if (optMetadata.isPresent() ) {
+                        acceptedAt = OffsetDateTime.parse( optMetadata.get().getTableRow().get( "acceptedAt" ) );
+                        putNotificationMetadata(dto, notification, acceptedAt);
+                    } else {
+                        log.debug( "Unable to retrieve accepted date - iun={} recipientId={}", notification.getIun(), notification.getRecipientIds().get( 0 ) );
+                    }
+                }
             }
 
-            List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
-            nextMetadataEntry.forEach( notificationMetadataEntityDao::put );
         } else {
             throw new PnInternalException("Try to update status for non existing iun=" + dto.getIun(),
                     ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
         }
     }
 
+    private void putNotificationMetadata(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
+        List<NotificationMetadataEntity> nextMetadataEntry = computeMetadataEntry(dto, notification, acceptedAt);
+        nextMetadataEntry.forEach(metadata -> {
+            notificationMetadataEntityDao.put(metadata);
+            List<NotificationDelegationMetadataEntity> delegationMetadata = notificationDelegatedService.computeDelegationMetadataEntries(metadata);
+            delegationMetadata.forEach(notificationDelegationMetadataEntityDao::put);
+        });
+    }
+
     private List<NotificationMetadataEntity> computeMetadataEntry(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
         NotificationStatus lastStatus = dto.getNextStatus();
-        String creationMonth = extractCreationMonth( notification.getSentAt().toInstant() );
+        String creationMonth = DataUtils.extractCreationMonth( notification.getSentAt().toInstant() );
 
         List<String> opaqueTaxIds = new ArrayList<>();
         for (NotificationRecipient recipient : notification.getRecipients()) {
@@ -79,7 +118,7 @@ public class StatusService {
 
         return opaqueTaxIds.stream()
                     .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt))
-                    .collect(Collectors.toList());
+                    .toList();
     }
 
     private NotificationMetadataEntity buildOneSearchMetadataEntry(
@@ -102,10 +141,10 @@ public class StatusService {
                 .notificationGroup( notification.getGroup() )
                 .recipientIds( recipientsIds )
                 .tableRow( tableRowMap )
-                .senderIdRecipientId( createConcatenation( notification.getSenderPaId(), recipientId  ) )
-                .senderIdCreationMonth( createConcatenation( notification.getSenderPaId(), creationMonth ) )
-                .recipientIdCreationMonth( createConcatenation( recipientId , creationMonth ) )
-                .iunRecipientId( createConcatenation( notification.getIun(), recipientId ) )
+                .senderIdRecipientId( DataUtils.createConcatenation( notification.getSenderPaId(), recipientId  ) )
+                .senderIdCreationMonth( DataUtils.createConcatenation( notification.getSenderPaId(), creationMonth ) )
+                .recipientIdCreationMonth( DataUtils.createConcatenation( recipientId , creationMonth ) )
+                .iunRecipientId( DataUtils.createConcatenation( notification.getIun(), recipientId ) )
                 .recipientOne( recipientIndex <= 0 )
                 .build();
     }
@@ -122,16 +161,6 @@ public class StatusService {
             tableRowMap.put( "acceptedAt", acceptedAt.toString() );
         }
         return tableRowMap;
-    }
-
-    private String createConcatenation(String s1, String s2) {
-        return s1 + "##" + s2;
-    }
-
-    private String extractCreationMonth(Instant sentAt) {
-        String sentAtString = sentAt.toString();
-        String[] splitSentAt = sentAtString.split( "-" );
-        return splitSentAt[0] + splitSentAt[1];
     }
 
 }

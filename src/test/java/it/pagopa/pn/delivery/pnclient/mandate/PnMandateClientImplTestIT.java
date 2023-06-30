@@ -1,75 +1,105 @@
 package it.pagopa.pn.delivery.pnclient.mandate;
 
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.integration.ClientAndServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
-import java.util.Collections;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockserver.integration.ClientAndServer.startClientAndServer;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 
+@SpringBootTest
+@ActiveProfiles("test")
+@TestPropertySource(properties = {
+        "pn.delivery.mandate-base-url=http://localhost:9998",
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
+})
 class PnMandateClientImplTestIT {
 
     private static final String DELEGATE = "delegate";
     private static final String DELEGATOR = "delegator";
     private static final String MANDATE_ID = "mandate_id";
     private static final String MANDATE_DATE_FROM = "2022-04-22T16:00:00Z";
-
-    @Mock
-    private RestTemplate restTemplate;
-
-    @Mock
-    private PnDeliveryConfigs cfg;
-
+    @Autowired
     private PnMandateClientImpl mandateClient;
 
-    @BeforeEach
-    void setup() {
-        this.cfg = Mockito.mock( PnDeliveryConfigs.class );
-        Mockito.when( cfg.getMandateBaseUrl() ).thenReturn( "http://localhost:8080" );
-        this.mandateClient = new PnMandateClientImpl( restTemplate, cfg );
+    private static ClientAndServer mockServer;
+
+    @BeforeAll
+    public static void startMockServer() {
+
+        mockServer = startClientAndServer(9998);
     }
 
-    @ExtendWith(MockitoExtension.class)
+    @AfterAll
+    public static void stopMockServer() {
+        mockServer.stop();
+    }
+
     @Test
-    void getMandatesSuccess(){
+    void getMandatesSuccess() {
         //Given
+        String path = "/mandate-private/api/v1/mandates-by-internaldelegate/delegate";
+
         InternalMandateDto internalMandateDto = new InternalMandateDto();
-        internalMandateDto.setDelegate( DELEGATE );
-        internalMandateDto.setDelegator( DELEGATOR );
-        internalMandateDto.mandateId( MANDATE_ID );
-        internalMandateDto.setDatefrom( MANDATE_DATE_FROM );
-        ResponseEntity<List<InternalMandateDto>> response = ResponseEntity.ok( List.of(internalMandateDto) );
+        internalMandateDto.setDelegate(DELEGATE);
+        internalMandateDto.setDelegator(DELEGATOR);
+        internalMandateDto.mandateId(MANDATE_ID);
+        internalMandateDto.setDatefrom(MANDATE_DATE_FROM);
 
         //When
-        Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn( response );
-        List<InternalMandateDto> result = mandateClient.listMandatesByDelegate( DELEGATE, MANDATE_ID );
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path)
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                );
+        mandateClient.listMandatesByDelegate(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null);
 
         //Then
-        Assertions.assertNotNull( result );
+        assertDoesNotThrow( () -> {
+            mandateClient.listMandatesByDelegate(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null);
+        });
 
     }
 
-    @ExtendWith(MockitoExtension.class)
     @Test
-    void getMandatesEmpty() {
-        ResponseEntity<List<InternalMandateDto>> response = ResponseEntity.ok( Collections.emptyList() );
+    void getMandatesByDelegatorSuccess() {
+        //Given
+        String path = "/mandate-private/api/v1/mandates-by-internaldelegator/delegate";
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setDelegate(DELEGATE);
+        internalMandateDto.setDelegator(DELEGATOR);
+        internalMandateDto.mandateId(MANDATE_ID);
+        internalMandateDto.setDatefrom(MANDATE_DATE_FROM);
 
-        Mockito.when( restTemplate.exchange( Mockito.any(RequestEntity.class),Mockito.any(ParameterizedTypeReference.class)))
-                .thenReturn( response );
-        List<InternalMandateDto> result = mandateClient.listMandatesByDelegate( DELEGATE, MANDATE_ID );
+        //When
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path)
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                );
+        mandateClient.listMandatesByDelegator(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null, null, null);
 
-        Assertions.assertNotNull( result );
+        //Then
+        assertDoesNotThrow( () -> {
+            mandateClient.listMandatesByDelegator(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null, null, null);
+        });
     }
 
 }

@@ -1,0 +1,130 @@
+info:
+  version: v1.0
+components:
+  parameters:
+
+    ############################################################################################
+    ###                             PARAMETRI RECUPERO NOTIFICA                              ###
+    ############################################################################################
+    pathIun:
+      description: >-
+        Identificativo Univoco Notifica
+      name: iun
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 25
+        maxLength: 25
+        pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+
+
+    ############################################################################################
+    ###                               PARAMETRI RICERCA NOTIFICHE                            ###
+    ############################################################################################
+    notificationSearchStartDate:
+      name: startDate
+      in: query
+      required: true
+      description: data/ora di inizio dell'intervallo entro cui eseguire la ricerca
+      schema:
+        type: string
+        format: date-time
+    notificationSearchEndDate:
+      name: endDate
+      in: query
+      required: true
+      description: data/ora di fine dell'intervallo entro cui eseguire la ricerca
+      schema:
+        type: string
+        format: date-time
+    notificationSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
+    notificationSearchRecipientId:
+      name: recipientId
+      in: query
+      required: false
+      description: identificativo del destinatario
+      schema:
+        type: string
+        x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
+    notificationSearchRecipientIdIsOpaque:
+      name: recipientIdOpaque
+      description: >-
+        Se presente indica che il recipient id è opaco (usato da BE) o in chiaro (usato da FE)
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
+    notificationSearchStatus:
+      name: status
+      in: query
+      required: false
+      description: stato della notifica
+      schema:
+        $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+    notificationSearchStatuses:
+      name: status
+      in: query
+      required: false
+      description: stato della notifica
+      schema:
+        type: array
+        items:
+          $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+    notificationSearchSubject:
+      name: subjectRegExp
+      description: >-
+        Regular expression usata, se presente, per filtrare i risultati in base al subject 
+        delle notifiche.
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchIun:
+      name: iunMatch
+      description: >-
+        Se presente indica che lo IUN dei risultati deve essere uguale al valore di questo parametro.
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchPageSize:
+      name: size
+      description: >-
+        dimensione della pagina di risultati
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int32
+        maximum: 50
+    notificationSearchNextPagesKey:
+      name: nextPagesKey
+      description: >-
+        Chiave indicante la pagina di risultati, da specificare solo se si vuole una pagina 
+        diversa dalla prima.
+      in: query
+      required: false
+      schema:
+        type: string
+    notificationSearchSenderId:
+      name: senderId
+      in: query
+      required: false
+      description: identificativo del mittente
+      schema:
+        type: string
+    notificationSearchGroup:
+      name: group
+      in: query
+      required: false
+      description: Gruppo da utilizzare nella query come filtro
+      schema:
+        type: string

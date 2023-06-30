@@ -42,13 +42,13 @@ public class PnDeliveryConfigs {
 
     private NotificationMetadataDao notificationMetadataDao;
 
+    private NotificationDelegationMetadataDao notificationDelegationMetadataDao;
+
     private NotificationCostDao notificationCostDao;
 
     private NotificationQRDao notificationQRDao;
 
     private Integer maxPageSize;
-
-    private Costs costs;
 
     private String maxDocumentsAvailableDays;
 
@@ -56,9 +56,15 @@ public class PnDeliveryConfigs {
 
     private String maxSecondNoticeCodeDays;
 
+    private Integer maxRecipientsCount;
+
+    private Integer maxAttachmentsCount;
+
     @Data
     public static class Topics {
         private String newNotifications;
+        private String paymentEvents;
+        private String asseverationEvents;
     }
 
     @Data
@@ -72,6 +78,11 @@ public class PnDeliveryConfigs {
     }
 
     @Data
+    public static class NotificationDelegationMetadataDao {
+        private String tableName;
+    }
+
+    @Data
     public static class NotificationCostDao {
         private String tableName;
     }
@@ -81,12 +92,4 @@ public class PnDeliveryConfigs {
         private String tableName;
     }
 
-    @Data
-    public static class Costs {
-        private String notification;
-        private String raccomandataIta;
-        private String raccomandataEstZona1;
-        private String raccomandataEstZona2;
-        private String raccomandataEstZona3;
-    }
 }

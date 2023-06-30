@@ -1,33 +1,36 @@
 package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.*;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.*;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationHistoryResponse;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaymentStatus;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.svc.authorization.CxType;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
@@ -40,9 +43,10 @@ import javax.validation.ValidatorFactory;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
+import static it.pagopa.pn.delivery.utils.PgUtils.checkAuthorizationPG;
 
 @Service
 @Slf4j
@@ -57,7 +61,7 @@ public class NotificationRetrieverService {
 	private final PnMandateClientImpl pnMandateClient;
 	private final PnDataVaultClientImpl dataVaultClient;
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
-	private final ModelMapperFactory modelMapperFactory;
+	private final ModelMapper modelMapper;
 	private final NotificationSearchFactory notificationSearchFactory;
 	private final RefinementLocalDate refinementLocalDateUtils;
 	private final MVPParameterConsumer mvpParameterConsumer;
@@ -72,7 +76,7 @@ public class NotificationRetrieverService {
 										PnMandateClientImpl pnMandateClient,
 										PnDataVaultClientImpl dataVaultClient,
 										PnExternalRegistriesClientImpl pnExternalRegistriesClient,
-										ModelMapperFactory modelMapperFactory,
+										ModelMapper modelMapper,
 										NotificationSearchFactory notificationSearchFactory,
 										RefinementLocalDate refinementLocalDateUtils,
 										MVPParameterConsumer mvpParameterConsumer,
@@ -84,14 +88,16 @@ public class NotificationRetrieverService {
 		this.pnMandateClient = pnMandateClient;
 		this.dataVaultClient = dataVaultClient;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
-		this.modelMapperFactory = modelMapperFactory;
+		this.modelMapper = modelMapper;
 		this.notificationSearchFactory = notificationSearchFactory;
 		this.refinementLocalDateUtils = refinementLocalDateUtils;
 		this.mvpParameterConsumer = mvpParameterConsumer;
 		this.cfg = cfg;
 	}
 
-	public ResultPaginationDto<NotificationSearchRow,String> searchNotification(InputSearchNotificationDto searchDto ) {
+	public ResultPaginationDto<NotificationSearchRow, String> searchNotification(InputSearchNotificationDto searchDto,
+																				 @Nullable String recipientType,
+																				 @Nullable List<String> cxGroups) {
 
 		Instant startDate = searchDto.getStartDate();
 		if( PN_EPOCH.isAfter(startDate) ) {
@@ -117,9 +123,10 @@ public class NotificationRetrieverService {
 			log.debug( "Search from receiver" );
 			String mandateId = searchDto.getMandateId();
 			if ( StringUtils.hasText( mandateId )) {
-				checkMandate(searchDto, mandateId);
-			} else {
-				log.debug( "Search from receiver without mandate" );
+				checkMandate(searchDto, mandateId, recipientType, cxGroups);
+			} else if (checkAuthorizationPG(recipientType, cxGroups)) {
+				log.error("PG {} can not access this resource", searchDto.getSenderReceiverId());
+				throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
 			}
 		}
 
@@ -137,14 +144,7 @@ public class NotificationRetrieverService {
 		}
 
 		//devo opacizzare i campi di ricerca
-		if (searchDto.getFilterId() != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
-			log.info( "[start] Send request to data-vault" );
-			String opaqueTaxId = dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, searchDto.getFilterId() );
-			log.info( "[end] Ensured recipient for search" );
-			searchDto.setFilterId( opaqueTaxId );
-		} else {
-			log.debug( "No filterId or search is by receiver" );
-		}
+		opaqueFilterId(searchDto);
 
 		NotificationSearch pageSearch = notificationSearchFactory.getMultiPageSearch(
 				searchDto,
@@ -163,11 +163,87 @@ public class NotificationRetrieverService {
 		if ( !CollectionUtils.isEmpty(searchResult.getNextPagesKey()) ) {
 			builder.nextPagesKey( searchResult.getNextPagesKey()
 					.stream().map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
-					.collect(Collectors.toList()) );
+					.toList() );
 		}
 		else
 			builder.nextPagesKey(new ArrayList<>());
 		return builder.build();
+	}
+
+	public ResultPaginationDto<NotificationSearchRow, String> searchNotificationDelegated(InputSearchNotificationDelegatedDto searchDto) {
+		Instant startDate = searchDto.getStartDate();
+		if (PN_EPOCH.isAfter(startDate)) {
+			log.info("start date {} but PN exists since {}", startDate, PN_EPOCH);
+			searchDto.setStartDate(PN_EPOCH);
+		}
+		Instant endDate = searchDto.getEndDate();
+		if (PN_EPOCH.isAfter(endDate)) {
+			log.info("end date {} but PN exists since {}", endDate, PN_EPOCH);
+			return ResultPaginationDto.<NotificationSearchRow, String>builder()
+					.resultsPage(Collections.emptyList())
+					.nextPagesKey(Collections.emptyList())
+					.moreResult(false)
+					.build();
+		}
+
+		if (!CollectionUtils.isEmpty(searchDto.getCxGroups())
+				&& (!StringUtils.hasText(searchDto.getGroup()) || !searchDto.getCxGroups().contains(searchDto.getGroup()))) {
+			log.warn("user with cx-groups {} can not access notification delegated to group {}", searchDto.getCxGroups(), searchDto.getGroup());
+			throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
+		}
+
+		log.info("start search delegated notification - delegateId={}", searchDto.getDelegateId());
+
+		validateInput(searchDto);
+
+		PnLastEvaluatedKey lastEvaluatedKey = null;
+
+		if (searchDto.getNextPageKey() != null) {
+			try {
+				lastEvaluatedKey = PnLastEvaluatedKey.deserializeInternalLastEvaluatedKey(searchDto.getNextPageKey());
+			} catch (JsonProcessingException e) {
+				throw new PnInternalException("Unable to deserialize lastEvaluatedKey", ERROR_CODE_DELIVERY_UNSUPPORTED_LAST_EVALUATED_KEY, e);
+			}
+		} else {
+			log.debug("first page search");
+		}
+
+		NotificationSearch page = notificationSearchFactory.getMultiPageDelegatedSearch(searchDto, lastEvaluatedKey);
+		log.debug("START search notification delegation metadata");
+		ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = page.searchNotificationMetadata();
+		log.debug("END search notification delegation metadata");
+
+		ResultPaginationDto.ResultPaginationDtoBuilder<NotificationSearchRow, String> builder = ResultPaginationDto.builder();
+		builder.moreResult(result.isMoreResult())
+				.resultsPage(result.getResultsPage());
+		if (!CollectionUtils.isEmpty(result.getNextPagesKey())) {
+			builder.nextPagesKey(result.getNextPagesKey().stream()
+							.map(PnLastEvaluatedKey::serializeInternalLastEvaluatedKey)
+							.toList())
+					.build();
+		} else {
+			builder.nextPagesKey(new ArrayList<>());
+		}
+		return builder.build();
+	}
+
+	private void opaqueFilterId(InputSearchNotificationDto searchDto) {
+		String searchDtoFilterId = searchDto.getFilterId();
+		if ( searchDtoFilterId != null && searchDto.isBySender() && !searchDto.isReceiverIdIsOpaque() ) {
+			if ( searchDtoFilterId.length() == 11 ) {
+				log.info( "[start] Send request P.Iva to data-vault" );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PG, searchDtoFilterId) );
+			}
+			if ( searchDtoFilterId.length() == 16 ) {
+				log.info( "[start] Send request CF to data-vault" );
+				searchDto.setOpaqueFilterIdPF( dataVaultClient.ensureRecipientByExternalId( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PF, searchDtoFilterId) );
+				searchDto.setOpaqueFilterIdPG( dataVaultClient.ensureRecipientByExternalId( it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.PG, searchDtoFilterId) );
+			}
+			log.info( "[end] Ensured recipient for search" );
+			searchDto.setFilterId( searchDtoFilterId );
+		} else {
+			log.debug( "No filterId or search is by receiver" );
+		}
 	}
 
 	/**
@@ -179,29 +255,26 @@ public class NotificationRetrieverService {
 	 *
 	 *
 	 */
-	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId) {
+	private void checkMandate(InputSearchNotificationDto searchDto, String mandateId, String recipientType, List<String> cxGroups) {
 		String senderReceiverId = searchDto.getSenderReceiverId();
-		log.info( "START check mandate for receiverId={} and manadteId={}", senderReceiverId, mandateId );
-		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId);
+		log.info( "START check mandate for receiverId={} and mandateId={}", senderReceiverId, mandateId );
+		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(senderReceiverId, mandateId, CxTypeAuthFleet.valueOf(recipientType), cxGroups);
 		if(!mandates.isEmpty()) {
 			boolean validMandate = false;
 			for ( InternalMandateDto mandate : mandates ) {
 				if (mandate.getDelegator() != null && mandate.getDatefrom() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
-					adjustSearchDatesAndReceiver( searchDto, mandate );
-					validMandate = true;
-					log.info( "Valid mandate for delegate={}", senderReceiverId );
+					validMandate =  adjustSearchDatesAndReceiverAndAllowedPaIds( searchDto, mandate );
+					log.info( "Valid mandate for delegate={} mandate={}", senderReceiverId, mandate );
 					break;
 				}
 			}
 			if (!validMandate){
 				String message = String.format("Unable to find valid mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
-				log.error( message );
-				throw new PnMandateNotFoundException( message );
+				handlePnMandateInvalid(message);
 			}
 		} else {
 			String message = String.format("Unable to find any mandate for delegate=%s with mandateId=%s", senderReceiverId, mandateId);
-			log.error( message );
-			throw new PnMandateNotFoundException(  message );
+			handlePnMandateInvalid(message);
 		}
 		log.info( "END check mandate for receiverId={} and mandateId={}", senderReceiverId, mandateId );
 	}
@@ -211,10 +284,10 @@ public class NotificationRetrieverService {
 	 *
 	 * @param searchDto search input data
 	 * @param mandate mandate object
-	 *
+	 * @return true if delegation is valid, false if search is done for a not allowed PA
 	 *
 	 */
-	private void adjustSearchDatesAndReceiver(InputSearchNotificationDto searchDto,
+	private boolean adjustSearchDatesAndReceiverAndAllowedPaIds(InputSearchNotificationDto searchDto,
 											  InternalMandateDto mandate) {
 		Instant searchStartDate = searchDto.getStartDate();
 		Instant searchEndDate = searchDto.getEndDate();
@@ -230,7 +303,23 @@ public class NotificationRetrieverService {
 		if (StringUtils.hasText( delegator )) {
 			searchDto.setSenderReceiverId( delegator );
 		}
+
+		// filtro sugli ID della PA che può visualizzare
+		if (StringUtils.hasText(searchDto.getFilterId())
+			&& !CollectionUtils.isEmpty(mandate.getVisibilityIds())
+			&& !mandate.getVisibilityIds().contains(searchDto.getFilterId()))
+		{
+			// questo è il caso in cui c'è un filtro per PA e la delega è solo per alcune PA e la PA non è nella delega
+			// Da notare che per ora, lato GUI, non c'è possibilità di filtrare per PA, quindi qui dentro non dovrebbe entrarci mai finchè non verrà eventualmente implementata la funzionalità
+			// per ora vien lanciato errore (equivale ad una delega non presente), ma in futuro questa condizione potrebbe non essere vera (cioè si preferisce tornare array vuoto senza errori)
+			log.warn("user delegate is not allowed too see required paId={} mandateAllowedPaIds={} delegatorId={} delegateId={}", searchDto.getFilterId(), mandate.getVisibilityIds(), mandate.getDelegator(), mandate.getDelegate());
+			return false;
+		}
+		else	// in tutti gli altri casi, non mi interessa fare altri controlli. Se la lista è vuota/nulla non darà luogo a nessun filtro poi.
+			searchDto.setMandateAllowedPaIds(mandate.getVisibilityIds());
+
 		log.debug( "Adjust receiverId={}", delegator );
+		return  true;
 	}
 
 	private void validateInput(InputSearchNotificationDto searchDto) {
@@ -245,6 +334,19 @@ public class NotificationRetrieverService {
 		}
 
 		log.debug("Validation search input OK - senderReceiverId {}",searchDto.getSenderReceiverId());
+	}
+
+	private void validateInput(InputSearchNotificationDelegatedDto searchDto) {
+		try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+			Validator validator = factory.getValidator();
+			Set<ConstraintViolation<InputSearchNotificationDelegatedDto>> errors = validator.validate(searchDto);
+			if (!errors.isEmpty()) {
+				log.error("validation search input failed - delegateId {} - errors: {}", searchDto.getDelegateId(), errors);
+				List<ProblemError> errorList = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
+				throw new PnInvalidInputException(searchDto.getDelegateId(), errorList);
+			}
+		}
+		log.debug("validation search input succeeded - delegateId {}", searchDto.getDelegateId());
 	}
 
 	private InternalNotification getInternalNotification(String iun) {
@@ -298,20 +400,26 @@ public class NotificationRetrieverService {
 	 * @return Notification DTO
 	 *
 	 */
-	public InternalNotification getNotificationInformationWithSenderIdCheck(String iun, String senderId) {
+	public InternalNotification getNotificationInformationWithSenderIdCheck(String iun, String senderId, List<String> groups) {
 		log.debug( "Retrieve complete notification with sender check by iun={} senderId={} START", iun, senderId );
 		InternalNotification notification = getInternalNotification( iun );
-		checkSenderId( iun, notification.getSenderPaId(), senderId );
+		checkSenderId( iun, notification.getSenderPaId(), senderId, notification.getGroup(), groups );
 		completeInternalNotificationWithTimeline(iun, true, notification);
 		labelizeGroup(notification, senderId);
 		return notification;
 	}
 
-	private void checkSenderId(String iun, String notificationSenderPaId, String senderId) {
+	private void checkSenderId(String iun, String notificationSenderPaId, String senderId, String notificationGroup, List<String> groups) {
 		if ( !notificationSenderPaId.equals( senderId ) )
 			throw new PnNotificationNotFoundException(
 					String.format("Unable to find notification with iun=%s for senderId=%s", iun, senderId  )
 			);
+		if ( StringUtils.hasText( notificationGroup ) && !CollectionUtils.isEmpty( groups )
+				&& !groups.contains( notificationGroup ) ) {
+			throw new PnNotificationNotFoundException(
+				String.format("Unable to find notification with iun=%s for senderId=%s in groups=%s", iun, senderId, groups )
+			);
+		}
 	}
 
 	/**
@@ -335,7 +443,7 @@ public class NotificationRetrieverService {
 		Optional<TimelineElement> optionalMin = timeline
 				.stream()
 				.filter(tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory() )
-								|| TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+						|| TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
 				.min( Comparator.comparing(TimelineElement::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
@@ -375,7 +483,6 @@ public class NotificationRetrieverService {
 	}
 
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
-		// - per l'MVP la notifica ha necessariamente un solo destinatario
 		for ( NotificationRecipient recipient : recipientList ) {
 			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
 			if ( notificationPaymentInfo != null) {
@@ -438,7 +545,7 @@ public class NotificationRetrieverService {
 		SECOND_NOTICE_CODE("SECOND_NOTICE_CODE"),
 		NO_NOTICE_CODE("NO_NOTICE_CODE");
 
-		private String value;
+		private final String value;
 
 		NoticeCodeToReturn(String value) {
 			this.value = value;
@@ -454,61 +561,138 @@ public class NotificationRetrieverService {
 		return getNotificationInformation( iun, true, false );
 	}
 
-	public InternalNotification getNotificationInformation(String senderId, String paProtocolNumber, String idempotenceToken) {
+	public InternalNotification getNotificationInformation(String senderId, String paProtocolNumber, String idempotenceToken, List<String> groups) {
 		Optional<String> optionalRequestId = notificationDao.getRequestId( senderId, paProtocolNumber, idempotenceToken );
 		if (optionalRequestId.isEmpty()) {
 			String msg = String.format( "Unable to find requestId for senderId=%s paProtocolNumber=%s idempotenceToken=%s", senderId, paProtocolNumber, idempotenceToken );
 			throw new PnNotificationNotFoundException(msg);
 		}
 		String iun = new String( Base64Utils.decodeFromString( optionalRequestId.get() ) );
-		return getNotificationInformationWithSenderIdCheck( iun, senderId );
+		return getNotificationInformationWithSenderIdCheck( iun, senderId, groups );
 	}
 
 	/**
 	 * Get the full detail of a notification by IUN and notify viewed event
 	 *
-	 * @param iun    unique identifier of a Notification
-	 * @param userId identifier of a user
+	 * @param iun                	unique identifier of a Notification
+	 * @param internalAuthHeader	header cx-*
+	 * @param mandateId 	 		id delega (opzionale)
 	 * @return Notification
 	 */
-	public InternalNotification getNotificationAndNotifyViewedEvent(String iun, String userId, String mandateId) {
+	public InternalNotification getNotificationAndNotifyViewedEvent(String iun,
+																	InternalAuthHeader internalAuthHeader,
+																	String mandateId) {
 		log.debug("Start getNotificationAndSetViewed for {}", iun);
 
 		String delegatorId = null;
-		if (mandateId != null) {
-			delegatorId = checkMandateForNotificationDetail(userId, mandateId);
+		NotificationViewDelegateInfo delegateInfo = null;
+		// cerco prima la notifica in DB, poi controllo la delega, visto che mi serve il paId
+		// Il caso più comune infatti è che l'utente abbia il permesso di vedere una certa notifica
+		InternalNotification notification = getNotificationInformation(iun);
+
+		if ( StringUtils.hasText( mandateId ) ) {
+			delegatorId = checkMandateForNotificationDetail(internalAuthHeader.xPagopaPnCxId(), mandateId, notification.getSenderPaId(), iun, internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups());
+			delegateInfo = NotificationViewDelegateInfo.builder()
+					.mandateId( mandateId )
+					.internalId(internalAuthHeader.xPagopaPnCxId())
+					.operatorUuid(internalAuthHeader.xPagopaPnUid())
+					.delegateType( NotificationViewDelegateInfo.DelegateType.valueOf(internalAuthHeader.cxType()) )
+					.build();
+		} else if (checkAuthorizationPG(internalAuthHeader.cxType(), internalAuthHeader.xPagopaPnCxGroups())) {
+			log.error( "only a PG admin can access this resource" );
+			throw new PnForbiddenException(ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND);
 		}
 
-		InternalNotification notification = getNotificationInformation(iun);
-		notifyNotificationViewedEvent(notification, delegatorId != null? delegatorId : userId);
+		String recipientId = delegatorId != null ? delegatorId : internalAuthHeader.xPagopaPnCxId();
+		int recipientIndex = getRecipientIndexFromRecipientId(notification, recipientId);
+		filterTimelinesByRecipient(notification, internalAuthHeader, recipientIndex);
+		filterRecipients(notification, internalAuthHeader, recipientIndex);
+		notifyNotificationViewedEvent(notification, recipientIndex, delegateInfo);
 		return notification;
 	}
 
-	private String checkMandateForNotificationDetail(String userId, String mandateId) {
-		String delegatorId = null;
+	private void filterTimelinesByRecipient(InternalNotification internalNotification, InternalAuthHeader internalAuthHeader, int recipientIndex) {
+		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
+			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
+			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
+			List<TimelineElement> timeline = internalNotification.getTimeline();
+			log.debug("Timelines size before filter: {}", timeline.size());
 
-		List<InternalMandateDto> mandates = this.pnMandateClient.listMandatesByDelegate(userId, mandateId);
+			List<TimelineElement> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
+							timelineElement.getDetails().getRecIndex() == null ||
+							timelineElement.getDetails().getRecIndex() == recipientIndex)
+					.toList();
+
+			log.debug("Timelines size after filter: {}", filteredTimelineElements.size());
+			internalNotification.setTimeline(filteredTimelineElements);
+		}
+	}
+
+	private void filterRecipients(InternalNotification internalNotification, InternalAuthHeader internalAuthHeader, int recipientIndex) {
+		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
+			//se il servizio è invocato da un destinatario (o suo delegato), devo vedere tutti i dati in chiaro solo per lo specifico destinatario
+			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
+
+			//"pulisco gli altri destinatari"
+			var filteredNotificationRecipients = new ArrayList<NotificationRecipient>();
+			for(int i = 0; i< internalNotification.getRecipients().size(); i ++) {
+				NotificationRecipient recipient = internalNotification.getRecipients().get(i);
+				if(i != recipientIndex) {
+					recipient = NotificationRecipient.builder()
+							.recipientType(recipient.getRecipientType())
+							.internalId(recipient.getInternalId())
+							.build();
+				}
+				filteredNotificationRecipients.add(recipient);
+			}
+
+			internalNotification.setRecipients(filteredNotificationRecipients);
+		}
+	}
+
+	private String checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups) {
+		CxTypeAuthFleet cxTypeAuthFleet = StringUtils.hasText(recipientType) ? CxTypeAuthFleet.valueOf(recipientType) : null;
+		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, cxTypeAuthFleet, cxGroups);
 		if(!mandates.isEmpty()) {
-			boolean validMandate = false;
+
 			for ( InternalMandateDto mandate : mandates ) {
-				if (mandate.getDelegator() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
-					delegatorId = mandate.getDelegator();
-					validMandate = true;
-					log.info( "Valid mandate for notification detail for delegate={}", userId );
-					break;
+				String delegatorId = evaluateMandateAndRetrieveDelegatorId(userId, mandateId, paId, iun, mandate);
+				if (delegatorId != null)
+					return delegatorId;
+			}
+		}
+
+		String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s iun=%s", userId, mandateId, iun);
+		handlePnMandateInvalid(message);
+		return null;
+	}
+
+	private String evaluateMandateAndRetrieveDelegatorId(String userId, String mandateId, String paId, String iun, InternalMandateDto mandate){
+		if (mandate.getDelegator() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
+
+			if( !CollectionUtils.isEmpty(mandate.getVisibilityIds()) ) {
+				boolean isPaIdInVisibilityPa = mandate.getVisibilityIds().stream().anyMatch(
+						paId::equals
+				);
+
+				if( !isPaIdInVisibilityPa ){
+					String message = String.format("Unable to find valid mandate for notification detail, paNotificationId=%s is not in visibility pa id for mandate" +
+							"- iun=%s delegate=%s with mandateId=%s", paId, iun, userId, mandateId);
+					log.warn(message);
+					return null;
 				}
 			}
-			if (!validMandate){
-				String message = String.format("Unable to find valid mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
-				log.error( message );
-				throw new PnMandateNotFoundException( message );
-			}
-		} else {
-			String message = String.format("Unable to find any mandate for notification detail for delegate=%s with mandateId=%s", userId, mandateId);
-			log.error( message );
-			throw new PnMandateNotFoundException( message );
+
+			log.info( "Valid mandate for notification detail for delegate={}", userId );
+			return mandate.getDelegator();
 		}
-		return delegatorId;
+
+		return null;
+	}
+
+	private void handlePnMandateInvalid(String message) {
+		log.error(message);
+		throw new PnMandateNotFoundException(message);
 	}
 
 	private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate) {
@@ -536,8 +720,6 @@ public class NotificationRetrieverService {
 			NotificationPaymentInfo payment = recipient.getPayment();
 			if ( payment != null ) {
 				payment.setPagoPaForm( null );
-				payment.setF24flatRate( null );
-				payment.setF24standard( null );
 			}
 		}
 	}
@@ -550,61 +732,32 @@ public class NotificationRetrieverService {
 		NotificationHistoryResponse timelineStatusHistoryDto =  pnDeliveryPushClient.getTimelineAndStatusHistory(iun,numberOfRecipients, createdAt);
 
 
-		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline()
-				.stream()
-				.sorted( Comparator.comparing(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp))
-				.collect(Collectors.toList());
+		// la lista arriva già ordinata correttamente
+		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline();
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
-		List<it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
-
-		ModelMapper mapperStatusHistory = new ModelMapper();
-		mapperStatusHistory.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement.class, NotificationStatusHistoryElement.class )
-				.addMapping( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
-		mapperStatusHistory.getConfiguration().setMatchingStrategy( MatchingStrategies.STRICT );
-
-		ModelMapper mapperNotification = modelMapperFactory.createModelMapper( InternalNotification.class, FullSentNotification.class );
-
-		ModelMapper mapperTimeline = new ModelMapper();
-		mapperTimeline.createTypeMap( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement.class, TimelineElement.class )
-				.addMapping(it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
-		mapperTimeline.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
 		FullSentNotification resultFullSent = notification
 				.timeline( timelineList.stream()
-						.map( timelineElement -> mapperTimeline.map(timelineElement, TimelineElement.class ) )
-						.collect(Collectors.toList())  )
+						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElement.class ) )
+						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
-						.map( el -> mapperStatusHistory.map( el, NotificationStatusHistoryElement.class ))
-						.collect(Collectors.toList())
+						.map( el -> modelMapper.map( el, NotificationStatusHistoryElement.class ))
+						.toList()
 				)
 				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
 
-		return mapperNotification.map( resultFullSent, InternalNotification.class );
+		return modelMapper.map( resultFullSent, InternalNotification.class );
 	}
 
 
-	private void notifyNotificationViewedEvent(InternalNotification notification, String userId) {
+	private void notifyNotificationViewedEvent(InternalNotification notification, int recipientIndex, NotificationViewDelegateInfo delegateInfo) {
 		String iun = notification.getIun();
-
-		int recipientIndex = -1;
-		for( int idx = 0 ; idx < notification.getRecipientIds().size(); idx++) {
-			String recipientId = notification.getRecipientIds().get( idx );
-			if( userId.equals( recipientId ) ) {
-				recipientIndex = idx;
-			}
-		}
-
-		if( recipientIndex == -1 ) {
-			log.debug("Recipient not found for iun={} and userId={} ", iun, userId );
-			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" + iun + " do not have recipient/delegator=" + userId,
-					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
-		}
-
 		log.info("Send \"notification acknowlwdgement\" event for iun={}", iun);
 		Instant createdAt = clock.instant();
-		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex );
+		notificationAcknowledgementProducer.sendNotificationViewed( iun, createdAt, recipientIndex, delegateInfo );
 	}
 
 	private void labelizeGroup(InternalNotification notification, String senderId) {
@@ -613,7 +766,7 @@ public class NotificationRetrieverService {
 		if (notificationGroup == null || notificationGroup.isEmpty() || senderId == null) {
 			return;
 		}
-		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
+		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId, false);
 		if (!groups.isEmpty()) {
 			PaGroup group = groups.stream()
 					.filter(g -> g.getId().equals(notificationGroup))
@@ -635,7 +788,7 @@ public class NotificationRetrieverService {
 		if (notifications == null || notifications.isEmpty() || senderId == null) {
 			return;
 		}
-		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId);
+		List<PaGroup> groups = pnExternalRegistriesClient.getGroups(senderId, false);
 		for (NotificationSearchRow notification : notifications) {
 			String notificationGroup = notification.getGroup();
 			if (!groups.isEmpty() && notificationGroup != null && !notificationGroup.isEmpty()) {
@@ -649,4 +802,20 @@ public class NotificationRetrieverService {
 			}
 		}
 	}
+
+	private int getRecipientIndexFromRecipientId(InternalNotification internalNotification, String recipientId) {
+		int recIndex = IntStream.range(0, internalNotification.getRecipientIds().size())
+				.filter(i -> internalNotification.getRecipientIds().get(i).equals(recipientId))
+				.findFirst().orElse(-1);
+
+		if( recIndex == -1 ) {
+			log.debug("Recipient not found for iun={} and recipientId={} ", internalNotification.getIun(), recipientId );
+		throw new PnNotFoundException("Notification not found" ,"Notification with iun=" +
+					internalNotification.getIun() + " do not have recipient/delegator=" + recipientId,
+					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
+		}
+
+		return recIndex;
+	}
+
 }

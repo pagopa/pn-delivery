@@ -1,6 +1,11 @@
 {
   "Parameters" : {
     "SandboxSafeStorageBaseUrl": "https://14ej9p2krd.execute-api.eu-south-1.amazonaws.com/dev",
-    "NotificationCheckAddress": "true"
+    "NotificationCheckAddress": "true",
+    "IsLollipopActive": "false",
+    "MaxAttachmentsCount": "15",
+    "MaxRecipientsCount": "15",
+    "LollipopExpectedLcOriginalUrl": "https://api-app.io.pagopa.it/api/v1/third-party-messages/:messageId",
+    "LollipopEnableConsumerLogging": "true"
   }
 }

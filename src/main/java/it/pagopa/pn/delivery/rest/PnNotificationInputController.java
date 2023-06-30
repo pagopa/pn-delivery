@@ -1,10 +1,10 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.NewNotificationApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -12,9 +12,11 @@ import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_SIZE;
@@ -35,37 +37,34 @@ public class PnNotificationInputController implements NewNotificationApi {
     }
 
     @Override
-    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}", paProtocolNumber)
-                .uid(xPagopaPnUid)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
+        String paIdempotenceToken = newNotificationRequest.getIdempotenceToken();
+        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}, idempotenceToken={}", paProtocolNumber, paIdempotenceToken)
                 .build();
         logEvent.log();
         NewNotificationResponse svcRes;
         try {
-            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest);
-        } catch (Exception ex) {
-            logEvent.generateFailure(ex.getMessage()).log();
+            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnSrcCh, xPagopaPnSrcChDetails, xPagopaPnCxGroups);
+        } catch (PnRuntimeException ex) {
+            logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + ex.getProblem(),
+                    newNotificationRequest.getPaProtocolNumber(), paIdempotenceToken).log();
             throw ex;
         }
         @NotNull String requestId = svcRes.getNotificationRequestId();
         @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
-        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}", requestId, protocolNumber).log();
+        String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
+        logEvent.getMdc().put("iun", iun);
+        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
         return ResponseEntity.accepted().body( svcRes );
     }
-
 
     @Override
     public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(
             String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<PreLoadRequest> preLoadRequest) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_PRELOAD, "presignedUploadRequest")
-                .uid(xPagopaPnUid)
-                .cxId(xPagopaPnCxId)
-                .cxType(xPagopaPnCxType.toString())
                 .build();
 
         try {
@@ -87,9 +86,8 @@ public class PnNotificationInputController implements NewNotificationApi {
             logEvent.generateSuccess(successMessage).log();
 
             return ResponseEntity.ok(res);
-        } catch (Exception e) {
-            log.error("catched exception", e);
-            logEvent.generateFailure("catched exception on preload", e).log();
+        } catch (PnRuntimeException e) {
+            logEvent.generateFailure("" + e.getProblem()).log();
             throw e;
         }
     }

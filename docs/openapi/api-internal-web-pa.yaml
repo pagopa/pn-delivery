@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://termofservice.it
+  x-api-id: api-internal-web-pa
+  title: 'Piattaforma Notifiche: API per il Front End delle PA'
+  x-summary: 'Piattaforma Notifiche: API per il Front End delle PA'
+  version: '1.0.0'
+  description: >- 
+    ## Abstract
+      API utilizzate dal portale di Piattaforma Notifiche dedicato alle Pubbliche Amministrazioni
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: 'https://da-definire/'
+servers:
+- url: https://webapi.pn.pagopa.it
+  description: Ambiente di produzione
+- url: https://webapi.uat.pn.pagopa.it
+  description: Ambiente di test
+- url: https://webapi.dev.pn.pagopa.it
+  description: Ambiente di sviluppo
+tags:
+  - name: HealthCheck
+    description: >-
+      Invocazioni per sapere lo stato del microservizio
+  - name: SenderReadWeb
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle notifiche inviate
+
+
+paths:
+  "/status":
+    get:
+      summary: healthCheck path
+      description: healtCheck path per verificare lo stato del microservizio
+      tags:
+        - HealthCheck
+      operationId: status
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Internal Server Error
+    ###########################################################################################
+    ###                                  RICERCA NOTIFICHE                                  ###
+    ###########################################################################################
+  "/delivery/notifications/sent":
+    get:    
+      summary: Ricerca notifiche inviate
+      description: >-
+        servizio di consultazione dello stato di invio delle notifiche individuate dai parametri 
+        di ricerca specificati
+      tags:
+        - SenderReadWeb
+      operationId: searchSentNotification
+      parameters:
+        - $ref: '#/components/parameters/uidAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet' # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL        
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchRecipientId'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatus'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchSubject'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchIun'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationSearchResponse'
+        '400':
+          description: Bad request       
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  
+  
+
+components:
+  parameters:                                                             # NO EXTERNAL
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTypeAuthFleet:                                                      # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxTypeAuthFleet'   # NO EXTERNAL
+    cxIdAuthFleet:                                                        # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxIdAuthFleet'     # NO EXTERNAL
+    cxGroupsAuthFleet:                                                    # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/cxGroupsAuthFleet' # NO EXTERNAL
+    uidAuthFleet:                                                         # NO EXTERNAL
+      $ref: './remote-refs.yaml#/components/parameters/uidAuthFleet'      # NO EXTERNAL
+
+  schemas:
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
+    
+
+
+

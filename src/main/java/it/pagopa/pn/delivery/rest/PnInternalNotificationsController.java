@@ -1,21 +1,21 @@
 package it.pagopa.pn.delivery.rest;
 
+import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.commons.log.PnAuditLogBuilder;
 import it.pagopa.pn.commons.log.PnAuditLogEvent;
 import it.pagopa.pn.commons.log.PnAuditLogEventType;
+import it.pagopa.pn.commons.utils.LogUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
-import it.pagopa.pn.delivery.svc.NotificationPriceService;
-import it.pagopa.pn.delivery.svc.NotificationQRService;
-import it.pagopa.pn.delivery.svc.StatusService;
+import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,16 +33,19 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     private final NotificationPriceService priceService;
     private final NotificationQRService qrService;
     private final NotificationAttachmentService notificationAttachmentService;
+    private final PaymentEventsService paymentEventsService;
 
-    private final ModelMapperFactory modelMapperFactory;
+    private final ModelMapper modelMapper;
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapperFactory modelMapperFactory) {
+
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, PaymentEventsService paymentEventsService, ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
-        this.modelMapperFactory = modelMapperFactory;
+        this.paymentEventsService = paymentEventsService;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -57,9 +60,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         NotificationCostResponse response;
         try {
             response = priceService.getNotificationCost( paTaxId, noticeCode );
+            logEvent.getMdc().put("iun", response.getIun());
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure("Exception on get notification cost private= " + exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("Exception on get notification cost private= " + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( response );
@@ -84,8 +88,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ResponseCheckAarDto responseCheckAarDto;
         try {
             responseCheckAarDto = qrService.getNotificationByQR( requestCheckAarDto );
-        } catch (Exception exc) {
-            logEvent.generateFailure("Exception on get notification qr private= " + exc.getMessage()).log();
+            logEvent.getMdc().put("iun", responseCheckAarDto.getIun());
+            logEvent.generateSuccess().log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("Exception on get notification qr private= " + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( responseCheckAarDto );
@@ -94,8 +100,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     @Override
     public ResponseEntity<SentNotification> getSentNotificationPrivate(String iun) {
         InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
-        ModelMapper mapper = modelMapperFactory.createModelMapper(InternalNotification.class, SentNotification.class);
-        SentNotification sentNotification = mapper.map(notification, SentNotification.class);
+        SentNotification sentNotification = modelMapper.map(notification, SentNotification.class);
 
         int recIdx = 0;
         for (NotificationRecipient rec : sentNotification.getRecipients()) {
@@ -120,8 +125,8 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         try {
             statusService.updateStatus(requestUpdateStatusDto);
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(logMessage).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok().build();
@@ -155,12 +160,11 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
-            serviceResult =  retrieveSvc.searchNotification( searchDto );
-            ModelMapper mapper = modelMapperFactory.createModelMapper(ResultPaginationDto.class, NotificationSearchResponse.class );
-            response = mapper.map( serviceResult, NotificationSearchResponse.class );
+            serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
+            response = modelMapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok( response );
@@ -170,26 +174,35 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachmentPrivate(String iun, String attachmentName, String recipientInternalId, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP;
+        String logMsg = "getReceivedNotificationAttachmentPrivate attachment name={}";
+        if (StringUtils.hasText( mandateId )) {
+            eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
+            logMsg = "getReceivedAndDelegatedNotificationAttachmentPrivate attachment name={} and mandateId={}";
+        }
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP, "getReceivedNotificationAttachmentPrivate={}", attachmentName)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, mandateId)
                 .iun(iun)
-                .cxId(recipientInternalId)
-                .cxType("PF")
                 .build();
         logEvent.log();
         try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null, null);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
-                    "PF",
-                    recipientInternalId,
+                    internalAuthHeader,
                     mandateId,
                     null,
                     attachmentName,
                     false
             );
-            logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
+            logEvent.generateSuccess("getReceivedNotificationAttachmentPrivate attachment name={}, {}",
+                    attachmentName, message).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok(response);
@@ -200,23 +213,28 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
         PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate {}", docIdx)
+                .before(PnAuditLogEventType.AUD_NT_DOCOPEN_RCP, "getReceivedNotificationDocumentPrivate from documents array with index={}", docIdx)
                 .iun(iun)
-                .cxId(recipientInternalId)
                 .build();
         logEvent.log();
+
+
         try {
+            InternalAuthHeader internalAuthHeader = new InternalAuthHeader("PF", recipientInternalId, null, null);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
-                    "PF",
-                    recipientInternalId,
+                    internalAuthHeader,
                     mandateId,
                     docIdx,
                     false
             );
-            logEvent.generateSuccess().log();
-        } catch (Exception exc) {
-            logEvent.generateFailure(exc.getMessage()).log();
+            String fileName = response.getFilename();
+            String url = response.getUrl();
+            String retryAfter = String.valueOf( response.getRetryAfter() );
+            String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
+            logEvent.generateSuccess("getReceivedNotificationDocumentPrivate {}", message).log();
+        } catch (PnRuntimeException exc) {
+            logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
         return ResponseEntity.ok(response);
@@ -227,4 +245,9 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
       return ResponseEntity.ok(qrService.getQRByIun(iun));
     }
 
+    @Override
+    public ResponseEntity<Void> paymentEventPagoPaPrivate(PaymentEventPagoPaPrivate paymentEventPagoPaPrivate) {
+        paymentEventsService.handlePaymentEventPagoPaPrivate( paymentEventPagoPaPrivate );
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

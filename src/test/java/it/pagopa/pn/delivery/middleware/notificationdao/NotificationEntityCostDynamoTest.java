@@ -16,7 +16,6 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationEntityCostDynamoTest {
@@ -69,6 +68,33 @@ class NotificationEntityCostDynamoTest {
 
         Assertions.assertTrue( result.isPresent() );
         Assertions.assertNotNull( result.get() );
+    }
+
+    @Test
+    void deleteItem() {
+
+        NotificationCostEntity entityToInsert = NotificationCostEntity.builder()
+                .iun( IUN )
+                .recipientIdx( 0 )
+                .creditorTaxIdNoticeCode( CREDITOR_TAX_ID_NOTICE_CODE )
+                .build();
+
+        costEntityDao.putIfAbsent( entityToInsert );
+
+        Mockito.when( costStorageTable.getItem( Mockito.any(Key.class) ) ).thenReturn( entityToInsert );
+
+        Optional<InternalNotificationCost> resultInsert = costEntityDao.getNotificationByPaymentInfo( CREDITOR_TAX_ID, NOTICE_CODE );
+
+        Assertions.assertTrue( resultInsert.isPresent() );
+        Assertions.assertNotNull( resultInsert.get() );
+
+        Mockito.when( costStorageTable.getItem( Mockito.any(Key.class) ) ).thenReturn( null );
+
+        costEntityDao.deleteItem(entityToInsert);
+
+        Optional<InternalNotificationCost> result = costEntityDao.getNotificationByPaymentInfo( CREDITOR_TAX_ID, NOTICE_CODE );
+
+        Assertions.assertTrue( result.isEmpty() );
     }
 
 }

@@ -14,10 +14,7 @@ public class NotificationPaymentInfoEntity {
 
     private String noticeCode;
     private String creditorTaxId;
-    private String noticeCodeAlternative;
     private PaymentAttachmentEntity pagoPaForm;
-    private PaymentAttachmentEntity f24flatRate;
-    private PaymentAttachmentEntity f24standard;
 
     @DynamoDbAttribute(value = "noticeCode")
     public String getNoticeCode() {
@@ -37,16 +34,6 @@ public class NotificationPaymentInfoEntity {
         this.creditorTaxId = creditorTaxId;
     }
 
-    @DynamoDbAttribute(value = "noticeCodeAlternative")
-    public String getNoticeCodeAlternative() {
-        return noticeCodeAlternative;
-    }
-
-    public void setNoticeCodeAlternative(String noticeCodeAlternative) {
-        this.noticeCodeAlternative = noticeCodeAlternative;
-    }
-
-
     @DynamoDbAttribute(value = "pagoPaForm")
     public PaymentAttachmentEntity getPagoPaForm() {
         return pagoPaForm;
@@ -55,23 +42,4 @@ public class NotificationPaymentInfoEntity {
     public void setPagoPaForm(PaymentAttachmentEntity pagoPaForm) {
         this.pagoPaForm = pagoPaForm;
     }
-
-    @DynamoDbAttribute(value = "f24flatRate")
-    public PaymentAttachmentEntity getF24flatRate() {
-        return f24flatRate;
-    }
-
-    public void setF24flatRate(PaymentAttachmentEntity f24flatRate) {
-        this.f24flatRate = f24flatRate;
-    }
-
-    @DynamoDbAttribute(value = "f24standard")
-    public PaymentAttachmentEntity getF24standard() {
-        return f24standard;
-    }
-
-    public void setF24standard(PaymentAttachmentEntity f24standard) {
-        this.f24standard = f24standard;
-    }
-
 }

@@ -39,6 +39,7 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
                     .creditorTaxIdNoticeCode( notificationCostEntity.getCreditorTaxIdNoticeCode() )
                     .iun( notificationCostEntity.getIun() )
                     .recipientIdx( notificationCostEntity.getRecipientIdx() )
+                    .recipientType (  notificationCostEntity.getRecipientType() )
                     .build());
         } else {
             return Optional.empty();
@@ -52,5 +53,10 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
                 .item( notificationCostEntity )
                 .build();
         table.putItem( request );
+    }
+
+    @Override
+    public void deleteItem(NotificationCostEntity notificationCostEntity) {
+        table.deleteItem(notificationCostEntity);
     }
 }

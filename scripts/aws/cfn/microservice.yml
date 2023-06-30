@@ -79,6 +79,14 @@ Parameters:
     Type: String
     Description: 'ARN of dynamodb table containing notifications metadata'
 
+  NotificationDelegationMetadataDynamoTableName:
+    Type: String
+    Description: Name of dynamodb table containing delegated notifications metadata
+
+  NotificationDelegationMetadataDynamoTableArn:
+    Type: String
+    Description: ARN of dynamodb table containing delegated notifications metadata
+
   ECSClusterName:
     Type: String
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
@@ -87,10 +95,14 @@ Parameters:
     Type: String
     Description: 'subnets ids comma separated list. Where to deploy the microservice'
 
+  VpcEgressSubnetsIds:
+    Type: String
+    Description: subnets where to install PN-CORE
+
   VpcId:
     Type: String
     Description: 'VpcId where the microservice is going to be deployed'
-  
+
   EcsDefaultSecurityGroup:
     Type: String
     Description: 'Default security group required by infrastructure'
@@ -106,7 +118,7 @@ Parameters:
   NetworkLoadBalancerLink:
     Type: String
     Description: 'network load balancer link for API-GW'
-  
+
   AlarmSNSTopicArn:
     Type: String
     Description: ARN of alarm topic
@@ -115,16 +127,42 @@ Parameters:
     Type: String
     Description: 'keep track of used projects commitIds'
 
-
   IsMvpDefaultValue:
     Type: String
     Description: 'default value to return if paTaxId not present in parameter store'
     AllowedValues: [true, false]
 
+  IsLollipopActive:
+    Type: String
+    Description: 'lollipop authorization activation flag'
+    AllowedValues: [true, false]
+    Default: "false"
+
+  IsSendActiveDefaultValue:
+    Type: String
+    Description: 'default value to return if paTaxId not present in parameter store'
+    AllowedValues: [true,false]
+
+  LollipopExpectedLcOriginalUrl:
+    Type: String
+    Description: 'expected lollipop consumer original url'
+
+  LollipopEnableConsumerLogging:
+    Type: String
+    Description: 'enable lollipop consumer logging'
+
+  MaxAttachmentsCount:
+    Type: String
+    Description: 'Max number of attachments allowed for a notification'
+
+  MaxRecipientsCount:
+    Type: String
+    Description: 'Max number of recipients allowed for a notification'
+
   MaxDocumentsAvailableDays:
     Type: String
     Description: 'maximum number of days in which documents are available from refinement'
-  
+
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
@@ -133,17 +171,55 @@ Parameters:
     Type: String
     Description: 'Target queue ARN for insert trigger'
 
-  DeliveryPushInputsQueueAlarmARN:
-    Type: String
-    Description: 'Alarm for target queue ARN for insert trigger'
-
   DeliveryPushInputsQueueURL:
     Type: String
     Description: 'Target queue URL for insert trigger'
 
-  PnDeliveryInsertTriggerDLQName:
+  PnDeliveryAsseverationQueueName:
     Type: String
-    Description: 'DLQ Name for insert trigger'
+    Description: 'Target queue name for insert asseveration'
+
+  PnDeliveryAsseverationQueueARN:
+    Type: String
+    Description: 'Target queue ARN for insert asseveration'
+
+  PnDeliveryAsseverationDLQARN:
+    Type: String
+    Description: 'DLQ ARN for insert asseveration'
+
+  PnDeliveryAsseverationDLQAlarmARN:
+    Type: String
+    Description: 'DLQ Alarm ARN for insert asseveration'
+
+  PnDeliveryAsseverationAgeAlarmARN:
+    Type: String
+    Description: 'Age Alarm ARN for insert asseveration'
+
+  PnDeliveryAsseverationLambdaEventSourceMappingBatchSize:
+    Type: String
+    Default: "100"
+    Description: 'BatchSize asseveration event source mapping'
+
+  PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds:
+    Type: String
+    Default: "30"
+    Description: 'MaximumBatchingWindow asseveration event source mapping'
+
+  PnDeliveryAsseverationLambdaTimeout:
+    Type: Number
+    Default: 900
+    Description: "Timeout in seconds of the asseveration lambda"
+
+  PnDeliveryAsseverationLambdaMemory:
+    Type: Number
+    Default: 128
+    MinValue: 128
+    MaxValue: 10240
+    Description: "Memory in MB of the asseveration lambda"
+
+  LogsBucketName:
+    Type: String
+    Description: 'Logs bucket name'
 
   PnDeliveryInsertTriggerDLQARN:
     Type: String
@@ -165,6 +241,129 @@ Parameters:
     Type: String
     Description: 'MaxRetry stream mapping'
 
+  LogsKinesisFilterPattern:
+    Type: String
+    Default: ""
+    Description: 'Log kinesis filter pattern'
+
+  AlbSecurityGroup:
+    Type: String
+    Description: 'Application load balancer security group'
+
+  # Log group parameters
+  EcsLogGroup:
+    Type: String
+    Description: 'Ecs log group name'
+
+  PnDeliveryAsseverationLambdaName:
+    Type: String
+    Description: 'PnDeliveryAsseverationLambdaLogGroup'
+
+  PnDeliveryInsertTriggerLambdaName:
+    Type: String
+    Description: 'PnDeliveryInsertTriggerLambdaName'
+
+  # OpenApi Bucket params
+  MicroserviceBucketName:
+    Type: String
+    Default: ''
+    Description: 'Name of the bucket where the microservice files are copied during deploy'
+
+  MicroserviceBucketBaseKey:
+    Type: String
+    Default: ''
+    Description: 'Base key of the microservice in the s3 bucket'
+
+  # Heath Check parameters
+  HealthCheckInterval:
+    Description: Seconds between two health check
+    Type: Number
+    Default: 60
+
+  HealthCheckTimeout:
+    Description: health check timeout seconds
+    Type: Number
+    Default: 5
+
+  HealthyThresholdCount:
+    Description: |
+      The number of consecutive health checks successes required before considering 
+      an unhealthy target healthy.
+    Type: Number
+    Default: 5
+
+  UnhealthyThresholdCount:
+    Description: |
+      The number of consecutive health check failures required before considering a target unhealthy.
+    Type: Number
+    Default: 2
+
+  # Instance parameters
+  # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
+  # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
+  # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
+  # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
+  # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
+  CpuValue:
+    Type: Number
+    Default: 1024
+    Description: Fargate virtual CPU quantity 1024 equals one vCPU
+
+  # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
+  # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
+  # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
+  # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
+  # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
+  MemoryAmount:
+    Type: String
+    Default: 2GB
+    Description: memory amount reserved to the task pod.
+    AllowedValues: [ 2GB, 4GB, 6GB, 8GB ]
+
+  # Autoscaling parameters
+  AutoscalingCheckPeriod:
+    Default: 60
+    Type: Number
+    Description: minimum autoscaling number of tasks\
+
+  AutoscalingDataPointN:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingDataPointM:
+    Default: 1
+    Type: Number
+    Description: activate when N datapoint on M
+
+  AutoscalingThreshold:
+    Default: 70
+    Type: String
+
+  MinTasksNumber:
+    Default: 1
+    Type: Number
+    Description: minimum autoscaling number of tasks
+
+  MaxTasksNumber:
+    Default: 6
+    Type: Number
+    Description: maximum autoscaling number of tasks
+
+  Mandate2DeliveryQueueName:
+    Type: String
+    Description: 'The name of the SQS queue used to communicate with pn-mandate module.'
+
+  Mandate2DeliveryQueueARN:
+    Type: String
+    Description: 'Identify the resource that the policy applies to.'
+
+  LogAlarmStrategy:
+    Type: String
+    Default: 'FATAL'
+
+Conditions:
+    SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
 Resources:
 
@@ -175,13 +374,20 @@ Resources:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/ecs-service.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
-        CpuValue: 1024
-        MemoryAmount: 2GB
+        CpuValue: !Ref CpuValue
+        MemoryAmount: !Ref MemoryAmount
         HealthCheckPath: /actuator/health
-        HealthCheckTimeout: 15
+        HealthCheckTimeout: !Ref HealthCheckTimeout
+        HealthCheckInterval: !Ref HealthCheckInterval
+        HealthyThresholdCount: !Ref HealthyThresholdCount
+        UnhealthyThresholdCount: !Ref UnhealthyThresholdCount
         AutoscalingStrategy: REST-API
-        AutoscalingThreshold: 70
-        MinTasksNumber: 1
+        AutoscalingThreshold: !Ref AutoscalingThreshold
+        AutoscalingCheckPeriod: !Ref AutoscalingCheckPeriod
+        MinTasksNumber: !Ref MinTasksNumber
+        MaxTasksNumber: !Ref MaxTasksNumber
+        AutoscalingDataPointN: !Ref AutoscalingDataPointN
+        AutoscalingDataPointM: !Ref AutoscalingDataPointM
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
@@ -204,24 +410,35 @@ Resources:
         ContainerEnvEntry18: !Sub 'PN_DELIVERY_NOTIFICATIONQRDAO_TABLENAME=${NotificationsQRDynamoTableName}'
         ContainerEnvEntry19: !Sub 'PN_DELIVERY_MAXDOCUMENTSAVAILABLEDAYS=${MaxDocumentsAvailableDays}'
         ContainerEnvEntry20: !Sub 'PN_COMMONS_FEATURES_ISMVPDEFAULTVALUE=${IsMvpDefaultValue}'
-        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=50 -XX:MaxMetaspaceSize=512M'
+        ContainerEnvEntry21: !Sub 'PN_DELIVERY_TOPICS_PAYMENTEVENTS=${DeliveryPushInputsQueueName}'
+        ContainerEnvEntry22: !Sub 'PN_DELIVERY_SQS_FROM_PN_MANDATE_NAME=${Mandate2DeliveryQueueName}'
+        ContainerEnvEntry23: !Sub 'PN_DELIVERY_NOTIFICATIONDELEGATIONMETADATADAO_TABLENAME=${NotificationDelegationMetadataDynamoTableName}'
+        ContainerEnvEntry24: !Sub 'PN_DELIVERY_TOPICS_ASSEVERATIONEVENTS=${PnDeliveryAsseverationQueueName}'
+        ContainerEnvEntry25: !Sub 'LOLLIPOP_ACTIVE=${IsLollipopActive}'
+        ContainerEnvEntry26: !Sub 'PN_DELIVERY_MAXRECIPIENTSCOUNT=${MaxRecipientsCount}'
+        ContainerEnvEntry27: !Sub 'PN_DELIVERY_MAXATTACHMENTSCOUNT=${MaxAttachmentsCount}'
+        ContainerEnvEntry28: !Sub 'LOLLIPOP_EXPECTED_LC_ORIGINAL_URL=${LollipopExpectedLcOriginalUrl}'
+        ContainerEnvEntry29: !Sub 'LOLLIPOP_ENABLE_CONSUMER_LOGGING=${LollipopEnableConsumerLogging}'
+        ContainerEnvEntry30: !Sub 'PN_DELIVERY_FEATURES_ISSENDACTIVEDEFAULTVALUE=${IsSendActiveDefaultValue}'
+        ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
+        MicroServiceSecretPrefix: pn-Delivery-Secrets
+        JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
         MappedPaths: '/delivery/*,/delivery-private/*'
         ECSClusterName: !Ref ECSClusterName
-        Subnets: !Ref SubnetsIds
+        Subnets: !Ref VpcEgressSubnetsIds
         VpcId: !Ref VpcId
         EcsDefaultSecurityGroup: !Ref EcsDefaultSecurityGroup
         LoadBalancerListenerArn: !Ref ApplicationLoadBalancerListenerArn
         LoadbalancerRulePriority: !Ref MicroserviceNumber
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
         TaskRoleManagedPolicyArn: !Ref DeliveryMicroserviceTaskManagedPolicy
+        AlbSecurityGroup: !Ref AlbSecurityGroup
+        EcsLogGroup: !Ref EcsLogGroup
+        LogAlarmStrategyV1: !Ref LogAlarmStrategy
 
   # Grant operational rights to PN-Delivery microservice
   DeliveryMicroserviceTaskManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      #PolicyName: !Sub '${ProjectName}-delivery-CustomTaskPolicy'
-      #Roles:
-      #  - !GetAtt DeliveryMicroservice.Outputs.TaskRoleName
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -235,6 +452,8 @@ Resources:
               - sqs:SendMessage
             Resource:
               - !Ref DeliveryPushInputsQueueARN
+              - !Ref Mandate2DeliveryQueueARN
+              - !Ref PnDeliveryAsseverationQueueARN
           - Effect: Allow
             Action:
               - 'dynamodb:GetItem'
@@ -244,22 +463,39 @@ Resources:
               - !Sub "${NotificationsDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}"
               - !Sub "${NotificationsMetadataDynamoTableArn}/*"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
               - !Sub "${NotificationsCostDynamoTableArn}"
               - !Sub "${NotificationsCostDynamoTableArn}/*"
               - !Sub "${NotificationsQRDynamoTableArn}"
               - !Sub "${NotificationsQRDynamoTableArn}/*"
           - Effect: Allow
             Action:
+              - 'dynamodb:BatchWriteItem'
+              - 'dynamodb:DeleteItem'
+            Resource:
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}"
+              - !Sub "${NotificationDelegationMetadataDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
+              - 'dynamodb:DeleteItem'
+            Resource:
+              - !Sub "${NotificationsCostDynamoTableArn}"
+              - !Sub "${NotificationsCostDynamoTableArn}/*"
+          - Effect: Allow
+            Action:
               - ssm:GetParameter
               - ssm:GetParameters
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaMVP'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapTaxIdWhiteList'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/MapPaSendActive'
 
   # Expose PN-Delivery microservice public API with API-GW for B2B usage
   DeliveryMicroservicePublicAPI:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         IntendedUsage: B2B
@@ -270,20 +506,25 @@ Resources:
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-B2B-aws.yaml
+
   DeliveryMicroservicePublicApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-b2b'
+        IntendedUsage: B2B
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
-        ExcludedRule0: CrossSiteScripting_BODY
+        ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
+        Limit: 600000
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
   DeliveryMicroservicePublicWebAPI:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         IntendedUsage: WEB
@@ -293,21 +534,25 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn        
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-WEB-aws.yaml
+
   DeliveryMicroservicePublicWebApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-web'
+        IntendedUsage: WEB
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: 6000
+        Limit: 600000
 
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service.yaml"
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-expose-service-openapi.yaml"
       Parameters:
         MicroServiceUniqueName: !Sub '${ProjectName}-delivery'
         IntendedUsage: IO
@@ -317,14 +562,19 @@ Resources:
         NetworkLoadBalancerLink: !Ref NetworkLoadBalancerLink
         ApplicationLoadBalancerDomain: !Ref ApplicationLoadBalancerDomain
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
-        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn        
+        CloudwatchLogKinesisStreamArn: !Ref LogsKinesisSourceStreamArn
+        OpenApiBucketName: !Ref MicroserviceBucketName
+        OpenApiBucketKey: !Sub ${MicroserviceBucketBaseKey}/docs/openapi/aws/api-delivery-IO-aws.yaml
+
   DeliveryMicroservicePublicIoApiWaf:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/api-gw-waf-acl.yaml"
       Parameters:
         WAFName: !Sub '${ProjectName}-delivery-io'
+        IntendedUsage: IO
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
+        Limit: 600000
 
   # Dashboard
   DeliveryMicroserviceCloudWatchDashboard:
@@ -338,7 +588,12 @@ Resources:
           - - !Ref NotificationsDynamoTableName
             - !Ref NotificationsCostDynamoTableName
             - !Ref NotificationsMetadataDynamoTableName
+            - !Ref NotificationDelegationMetadataDynamoTableName
             - !Ref NotificationsQRDynamoTableName
+        LambdaArns: !Join
+          - ','
+          - - !GetAtt PnDeliveryInsertTriggerLambda.Arn
+            - !GetAtt PnDeliveryAsseverationLambda.Arn
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -351,12 +606,24 @@ Resources:
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiName
         AlarmArns: !Join
           - ','
-          - - !GetAtt DeliveryMicroservice.Outputs.AutoScalingAlarmArn 
-            - !GetAtt DeliveryMicroservice.Outputs.FatalLogsMetricAlarmArn
+          - - !GetAtt DeliveryMicroservice.Outputs.FatalLogsMetricAlarmArn
             - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiErrorAlarmArn
             - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiErrorAlarmArn
+            - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiLatencyAlarmArn
+            - !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.RestApiLatencyAlarmArn
+            - !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.RestApiLatencyAlarmArn
             - !Ref PnDeliveryInsertTriggerDLQAlarmARN
+            - !Ref PnDeliveryAsseverationDLQAlarmARN
+            - !GetAtt PnDeliveryAsseverationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !Ref PnDeliveryAsseverationAgeAlarmARN
+        QueueArns: !Join
+          - ','
+          - - !Ref Mandate2DeliveryQueueARN
+            - !Ref PnDeliveryAsseverationQueueARN
+        LogGroupsNames: !Join
+          - ','
+          - - !Sub '/aws/ecs/${ProjectName}-delivery'
 
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
@@ -419,22 +686,37 @@ Resources:
         OnFailure:
           Destination: !Ref PnDeliveryInsertTriggerDLQARN
 
+
+  PnDeliveryInsertTriggerLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref PnDeliveryInsertTriggerLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
   PnDeliveryInsertTriggerLambda:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
-      Description: ''
+      Runtime: nodejs18.x
+      FunctionName: !Ref PnDeliveryInsertTriggerLambdaName
+      Description: 'It triggers notification workflow at notification insertion'
       MemorySize: 128
       Timeout: 10
       Role: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Environment:
         Variables:
           QUEUE_URL: !Ref DeliveryPushInputsQueueURL
       Code:
         ZipFile: |
-              const AWS = require('aws-sdk')
-              const sqs = new AWS.SQS();
+              const { SQSClient, SendMessageBatchCommand } = require("@aws-sdk/client-sqs");
+              let sqsParams = { region: process.env.REGION };
+              if (process.env.ENDPOINT)
+                sqsParams.endpoint = process.env.ENDPOINT;
+              const sqs = new SQSClient(sqsParams);
 
               const QUEUE_URL = process.env.QUEUE_URL
 
@@ -442,59 +724,25 @@ Resources:
                   console.log(JSON.stringify(event, null, 2));
                   console.log(QUEUE_URL);
 
+                  let messagesToSend = [];
+
                   for(var i = 0;i<event.Records.length;i++)
                   {
                       let record = event.Records[i];
-                      if (record.eventName != 'INSERT')
+                      if (!isRecordToSend(record))
                         continue;
 
-                      console.log('Processing dynamoDB Record: %j', record.dynamodb);
-                      const iun = record.dynamodb.Keys.iun.S;
+                      const message = mapMessage(record);
 
-                      if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/)==null)
-                        continue;
-
-                      const senderPaId = record.dynamodb.NewImage.senderPaId.S;
-
-                      var message = {
-                        DelaySeconds: 0,
-                        MessageGroupId: 'DELIVERY',
-                        MessageDeduplicationId: iun + "_start",
-                        MessageAttributes: {
-                          "createdAt": {
-                            DataType: "String",
-                            StringValue: new Date().toISOString()
-                          },
-                          "eventId": {
-                            DataType: "String",
-                            StringValue: iun + "_start"
-                          },
-                          "eventType": {
-                            DataType: "String",
-                            StringValue: "NEW_NOTIFICATION"
-                          },
-                          "iun": {
-                            DataType: "String",
-                            StringValue: iun
-                          },
-                          "publisher": {
-                            DataType: "String",
-                            StringValue: "DELIVERY"
-                          }
-                        },
-                        MessageBody: JSON.stringify({paId: senderPaId}),
-                        QueueUrl: QUEUE_URL
-                      };
-
-                      console.log('Sending message: %j', message);
-                      try{
-                          let queueRes = await sqs.sendMessage(message).promise();
-                          console.log("Sent message", queueRes.MessageId);
-                      }catch(exc){
-                          console.log("error sending message", exc)
-                          throw exc;
-                      }
+                      console.log('Enqueuing message: %j', message);
+                      messagesToSend.push(message);
                   }
+
+                  // se ho messaggi da spedire, procedo
+                  if (messagesToSend.length > 0)
+                    await sendMessages(messagesToSend);
+                  else
+                    console.log('Nothing to send');
 
                   const response = {
                       StatusCode: 200
@@ -502,6 +750,234 @@ Resources:
                   return response;
 
               };
+
+              function isRecordToSend(record) {
+                if (record.eventName != 'INSERT')
+                  return false;
+
+                console.log('Processing dynamoDB Record: %j', record.dynamodb);
+                const iun = record.dynamodb.Keys.iun.S;
+
+                if (iun.match(/^\S\S\S\S-\S\S\S\S-\S\S\S\S-\d\d\d\d\d\d-\S-\d$/)==null)
+                {
+                  console.log('Record is not a notification, skipping');
+                  return false;
+                }
+
+                // il record è buono e va processato e inviato
+                return true;
+              };
+
+              function mapMessage(record) {
+                  const senderPaId = record.dynamodb.NewImage.senderPaId.S;
+                  const iun = record.dynamodb.Keys.iun.S;
+
+                  const message = {
+                    Id: iun + "_start",
+                    DelaySeconds: 0,
+                    MessageGroupId: 'DELIVERY',
+                    MessageDeduplicationId: iun + "_start",
+                    MessageAttributes: {
+                      "createdAt": {
+                        DataType: "String",
+                        StringValue: new Date().toISOString()
+                      },
+                      "eventId": {
+                        DataType: "String",
+                        StringValue: iun + "_start"
+                      },
+                      "eventType": {
+                        DataType: "String",
+                        StringValue: "NEW_NOTIFICATION"
+                      },
+                      "iun": {
+                        DataType: "String",
+                        StringValue: iun
+                      },
+                      "publisher": {
+                        DataType: "String",
+                        StringValue: "DELIVERY"
+                      }
+                    },
+                    MessageBody: JSON.stringify({paId: senderPaId})
+                  };
+                  return message;
+              };
+
+              async function sendMessages(messages) {
+                  try{
+                      // anche se la configurazione per ora prevede una batch window di 10, se un domani questa dovesse ingrandirsi
+                      // meglio eseguire lo splice a prescindere, per essere sicuri di non sforare i 10 elementi supportati dalla SendMessageBatchCommand
+                      console.log('Proceeding to send ' + messages.length + ' messages to ' + QUEUE_URL);
+                      const input = {
+                        Entries: messages.splice(0,10)  // prendo i primi 10 e rimuovendoli dall'array originale
+                        ,QueueUrl: QUEUE_URL
+                      }
+
+                      console.log('Sending batch message: %j', input);
+
+                      const command = new SendMessageBatchCommand(input);
+                      const response = await sqs.send(command);
+                      console.log('Sent message response: %j', response);
+                      if (response.Failed && response.Failed.length > 0)
+                      {
+                        console.log("error sending some message totalErrors:" + response.Failed.length);
+                        throw new Error("Failed to send some messages");
+                      }
+
+                      if (messages.length > 0)
+                      {
+                        console.log('There are ' + messages.length + ' messages to send');
+                        await sendMessages(messages);
+                      }
+
+                  }catch(exc){
+                      console.log("error sending message", exc)
+                      throw exc;
+                  }
+
+              };
       #ENDpndeliveryinserttrigger
       #Non rimuovere o modificare il commento sopra, è usato come placeholder negli script
 
+
+  # Asseveration Lambda function role
+  PnDeliveryAsseverationLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-PnDeliveryAsseverationLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-PnDeliveryAsseverationLambdaRolePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: Dequeue
+                Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:ChangeMessageVisibility #non utilizzata nella policy di esempio
+                  - sqs:GetQueueUrl #utilizzata nella policy di esempio
+                Resource:
+                  - !Ref PnDeliveryAsseverationQueueARN
+              - Sid: WriteOnS3
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${LogsBucketName}/flussi/pad26_asseverazione/*"
+              - Sid: EncryptS3Data
+                Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:GenerateDataKey
+                Resource:
+                  - !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*
+                  - !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:alias/*
+              - Sid: CanWriteLogs
+                Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+
+  PnDeliveryAsseverationLambdaEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !Ref PnDeliveryAsseverationQueueARN
+      BatchSize: !Sub ${PnDeliveryAsseverationLambdaEventSourceMappingBatchSize}
+      MaximumBatchingWindowInSeconds: !Sub ${PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds}
+      FunctionName: !GetAtt PnDeliveryAsseverationLambda.Arn
+
+  PnDeliveryAsseverationLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref PnDeliveryAsseverationLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  PnDeliveryAsseverationLambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs16.x
+      FunctionName: !Ref PnDeliveryAsseverationLambdaName
+      Description: 'It triggers the asseveration written of sqs'
+      MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
+      Timeout: !Ref PnDeliveryAsseverationLambdaTimeout
+      Role: !GetAtt PnDeliveryAsseverationLambdaRole.Arn
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Environment:
+        Variables:
+          BUCKET_NAME: !Sub "${LogsBucketName}"
+      Code:
+        ZipFile: |
+              const AWS = require('aws-sdk')
+              const crypto = require('node:crypto');
+
+              const S3 = new AWS.S3();
+              const BUCKET_NAME = process.env.BUCKET_NAME
+
+              function putObjectToS3(bucket, key, data){
+                  return new Promise( (accept, reject) => {
+                      const params = {
+                          Bucket : bucket,
+                          Key : key,
+                          Body : data
+                      }
+                      S3.putObject(params, function(err, data) {
+                          if (err) reject(err)
+                          else accept(data)
+                      });
+                  })
+                      
+              }
+
+              function uuidv4(crypto) {
+                  return crypto.randomUUID()
+              }
+
+              function s3KeyName( d, namePrefix ) {
+                  const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
+                  const mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
+                  const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+                  
+                  const h = new Intl.DateTimeFormat('it', { hour: '2-digit' }).format(d);
+                  const m = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d);
+                  const s = new Intl.DateTimeFormat('en', { second: '2-digit' }).format(d);
+                  
+                  return ye + '/' + mo + '/' + da + '/' + h + '/' + namePrefix 
+                        + '_' + ye + '' + mo + '' + da + '-' + h + '' + m + '' + s 
+                        + '_' + uuidv4( crypto );
+              }
+          
+              module.exports.handler = async(event) => {
+                  console.log( "Numero elementi: " + event.Records.length ) ;
+                  
+                  const messages = event.Records.map( el => el.body )
+                      .map( el => ''+ el).map( el => el.replace(/(\r\n|\n|\r)/gm, '') );
+                  const response = messages.join('\n');
+                  console.log( response );
+                  
+                  const now = new Date();
+                  const fullPath = 'flussi/pad26_asseverazione/' 
+                                + s3KeyName( now, 'pad26' ) + '.json';
+                  
+                  
+                  await putObjectToS3(BUCKET_NAME, fullPath, response);
+                  return response;
+              };

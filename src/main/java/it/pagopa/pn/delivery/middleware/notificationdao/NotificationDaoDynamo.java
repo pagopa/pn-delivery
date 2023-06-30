@@ -2,22 +2,27 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
+import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -30,16 +35,20 @@ public class NotificationDaoDynamo implements NotificationDao {
 
 	private final NotificationEntityDao entityDao;
 	private final NotificationMetadataEntityDao metadataEntityDao;
+	private final NotificationDelegationMetadataEntityDao delegationMetadataEntityDao;
 	private final DtoToEntityNotificationMapper dto2entityMapper;
 	private final EntityToDtoNotificationMapper entity2DtoMapper;
 	private final PnDataVaultClientImpl pnDataVaultClient;
 
-	public NotificationDaoDynamo(
-			NotificationEntityDao entityDao,
-			NotificationMetadataEntityDao metadataEntityDao, DtoToEntityNotificationMapper dto2entityMapper,
-			EntityToDtoNotificationMapper entity2DtoMapper, PnDataVaultClientImpl pnDataVaultClient) {
+	public NotificationDaoDynamo(NotificationEntityDao entityDao,
+								 NotificationMetadataEntityDao metadataEntityDao,
+								 NotificationDelegationMetadataEntityDao delegationMetadataEntityDao,
+								 DtoToEntityNotificationMapper dto2entityMapper,
+								 EntityToDtoNotificationMapper entity2DtoMapper,
+								 PnDataVaultClientImpl pnDataVaultClient) {
 		this.entityDao = entityDao;
 		this.metadataEntityDao = metadataEntityDao;
+		this.delegationMetadataEntityDao = delegationMetadataEntityDao;
 		this.dto2entityMapper = dto2entityMapper;
 		this.entity2DtoMapper = entity2DtoMapper;
 		this.pnDataVaultClient = pnDataVaultClient;
@@ -199,6 +208,15 @@ public class NotificationDaoDynamo implements NotificationDao {
 	}
 
 	@Override
+	public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedForOneMonth(InputSearchNotificationDelegatedDto searchDto,
+																							IndexNameAndPartitions.SearchIndexEnum indexName,
+																							String partitionValue,
+																							int size,
+																							PnLastEvaluatedKey lastEvaluatedKey) {
+		return delegationMetadataEntityDao.searchForOneMonth(searchDto, indexName, partitionValue, size, lastEvaluatedKey);
+	}
+
+	@Override
 	public PageSearchTrunk<NotificationMetadataEntity> searchByIUN(InputSearchNotificationDto inputSearchNotificationDto) {
 		log.debug("searchByIUN iun={}", inputSearchNotificationDto.getIunMatch());
 
@@ -210,12 +228,28 @@ public class NotificationDaoDynamo implements NotificationDao {
 		Optional<NotificationEntity> daoResult = entityDao.get( keyToSearch );
 
 		if(daoResult.isPresent()) {
-			log.debug("notification found, proceeding with retrieve by recipient");
-			String recipientId = daoResult.get().getRecipients().get(0).getRecipientId();
-			return this.metadataEntityDao.searchByIun( inputSearchNotificationDto,  iun + "##" + recipientId, daoResult.get().getSentAt().toString());
+			// controllo se lo IUN richiesto fa parte di una PA su cui ho il permesso.
+			// NB: mandateAllowedPaIds sarà popolato solo se c'è una delega, e se tale delega prevede una visibilità solo per alcune PA
+			log.debug("notification found, proceeding with check if user is allowed for this PA allowedPaIds={}", inputSearchNotificationDto.getMandateAllowedPaIds());
+			if (CollectionUtils.isEmpty(inputSearchNotificationDto.getMandateAllowedPaIds()) || inputSearchNotificationDto.getMandateAllowedPaIds().contains(daoResult.get().getSenderPaId()))
+			{
+				log.debug("notification found and allowed, proceeding with retrieve by recipient");
+				String recipientId = daoResult.get().getRecipients().get(0).getRecipientId();
+				return this.metadataEntityDao.searchByIun( inputSearchNotificationDto,  iun + "##" + recipientId, daoResult.get().getSentAt().toString());
+			}
+			else
+			{
+				log.info("user is not allowed to see PA paId={} iun={}", daoResult.get().getSenderPaId(), iun);
+				return new PageSearchTrunk<>();
+			}
 		}
 
 		return new PageSearchTrunk<>();
+	}
+
+	@Override
+	public Page<NotificationDelegationMetadataEntity> searchByPk(InputSearchNotificationDelegatedDto searchDto) {
+		return delegationMetadataEntityDao.searchExactNotification(searchDto);
 	}
 
 

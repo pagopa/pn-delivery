@@ -4,7 +4,7 @@ import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
@@ -27,7 +27,9 @@ import java.util.Optional;
         "pn.delivery.notification-dao.table-name=Notifications",
         "pn.delivery.notification-cost-dao.table-name=NotificationsCost",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata",
-        "pn.delivery.notification-qr-dao.table-name=NotificationsQR"
+        "pn.delivery.notification-qr-dao.table-name=NotificationsQR",
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
     })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
@@ -48,7 +50,7 @@ class NotificationEntityDaoDynamoTestIT {
     @Test
     void putSuccess() throws PnIdConflictException {
         //Given
-        NotificationEntity notificationToInsert = newNotification();
+        NotificationEntity notificationToInsert = newNotificationEntity();
 
         String controlIdempotenceToken = getControlIdempotenceToken( notificationToInsert );
 
@@ -140,7 +142,7 @@ class NotificationEntityDaoDynamoTestIT {
 
 
 
-    private NotificationEntity newNotification() {
+    private NotificationEntity newNotificationEntity() {
         NotificationRecipientEntity notificationRecipientEntity = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
                 .recipientId("recipientTaxId")
@@ -149,21 +151,27 @@ class NotificationEntityDaoDynamoTestIT {
                         .type(DigitalAddressTypeEntity.PEC)
                         .build())
                 .denomination("recipientDenomination")
-                .payment(NotificationPaymentInfoEntity.builder()
-                        .creditorTaxId("creditorTaxId")
-                        .noticeCode("noticeCode")
-                        .noticeCodeAlternative("noticeCode_opt")
-                        .pagoPaForm(PaymentAttachmentEntity.builder()
-                                .contentType("application/pdf")
-                                .digests(AttachmentDigestsEntity.builder()
-                                        .sha256("sha256")
-                                        .build())
-                                .ref(AttachmentRefEntity.builder()
-                                        .key("key")
-                                        .versionToken("versionToken")
-                                        .build())
-                                .build())
-                        .build())
+                .payments( List.of(
+                                NotificationPaymentInfoEntity.builder()
+                                        .creditorTaxId("creditorTaxId")
+                                        .noticeCode("noticeCode")
+                                        .pagoPaForm(PaymentAttachmentEntity.builder()
+                                                .contentType("application/pdf")
+                                                .digests(AttachmentDigestsEntity.builder()
+                                                        .sha256("sha256")
+                                                        .build())
+                                                .ref(AttachmentRefEntity.builder()
+                                                        .key("key")
+                                                        .versionToken("versionToken")
+                                                        .build())
+                                                .build())
+                                        .build(),
+                                NotificationPaymentInfoEntity.builder()
+                                        .creditorTaxId("creditorTaxId")
+                                        .noticeCode("noticeCode_opt")
+                                        .build()
+                        )
+                )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
                         .address("address")
                         .addressDetails("addressDetail")
@@ -176,10 +184,13 @@ class NotificationEntityDaoDynamoTestIT {
                 .build();
         NotificationRecipientEntity notificationRecipientEntity1 = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
-                .payment(NotificationPaymentInfoEntity.builder()
-                        .creditorTaxId("77777777777")
-                        .noticeCode("002720356512737953")
-                        .build())
+                .payments( List.of(
+                        NotificationPaymentInfoEntity.builder()
+                                .creditorTaxId("77777777777")
+                                .noticeCode("002720356512737953")
+                                .build()
+                    )
+                )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
                         .foreignState("Svizzera")
                         .address("via canton ticino")
@@ -204,8 +215,9 @@ class NotificationEntityDaoDynamoTestIT {
                 .senderPaId( "pa_02" )
                 .group( "Group_1" )
                 .sentAt( Instant.now() )
-                .notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
+                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
+                .version( 1 )
                 //.recipientsJson(Collections.emptyMap())
                 .build();
     }

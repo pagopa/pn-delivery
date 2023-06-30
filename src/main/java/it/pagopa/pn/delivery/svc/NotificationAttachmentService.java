@@ -1,34 +1,40 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.commons.utils.MimeTypesUtils;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileCreationRequest;
-import it.pagopa.pn.delivery.generated.openapi.clients.safestorage.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationRequest;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputDownloadDto;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.slf4j.MDC;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT;
@@ -39,18 +45,7 @@ public class NotificationAttachmentService {
 
     public static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
     public static final String PRELOADED = "PRELOADED";
-
-    private enum ATTACHMENT_TYPE {
-        PAGOPA("PAGOPA"),
-        F24("F24"),
-        F24_FLAT("F24_FLAT"),
-        F24_STANDARD("F24_STANDARD");
-        private final String value;
-
-        ATTACHMENT_TYPE(String value) {
-            this.value = value;
-        }
-    }
+    private static final String ATTACHMENT_TYPE_PAGO_PA = "PAGOPA" ;
 
     private final PnSafeStorageClientImpl safeStorageClient;
     private final NotificationDao notificationDao;
@@ -87,7 +82,7 @@ public class NotificationAttachmentService {
                     .secret(resp.getSecret())
                     .preloadIdx(req.getPreloadIdx())
                     .build();
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public static class FileDownloadIdentify {
@@ -115,30 +110,41 @@ public class NotificationAttachmentService {
         }
     }
 
+    @Data
     public static class FileInfos {
         private final String fileName;
         private final FileDownloadResponse fileDownloadResponse;
+        private final String fileKey;
 
-        public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse) {
+        public FileInfos(String fileName, FileDownloadResponse fileDownloadResponse, String fileKey) {
             this.fileName = fileName;
             this.fileDownloadResponse = fileDownloadResponse;
-        }
-
-        public String getFileName() {
-            return fileName;
+            this.fileKey = fileKey;
         }
     }
 
     public NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect(
             String iun,
-            String cxType,
-            String xPagopaPnCxId,
+            InternalAuthHeader internalAuthHeader,
             String mandateId,
             Integer documentIdx,
             Boolean markNotificationAsViewed) {
+
+        return downloadDocumentWithRedirectWithFileKey( iun, internalAuthHeader, mandateId,
+                documentIdx, markNotificationAsViewed ).downloadMetadataResponse;
+    }
+
+    public InternalAttachmentWithFileKey downloadDocumentWithRedirectWithFileKey(
+            String iun,
+            InternalAuthHeader internalAuthHeader,
+            String mandateId,
+            Integer documentIdx,
+            Boolean markNotificationAsViewed) {
+
         InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
-                .cxType( cxType )
-                .cxId( xPagopaPnCxId )
+                .cxType(internalAuthHeader.cxType())
+                .cxId(internalAuthHeader.xPagopaPnCxId())
+                .uid(internalAuthHeader.xPagopaPnUid())
                 .mandateId( mandateId )
                 .iun( iun )
                 .documentIndex( documentIdx )
@@ -149,18 +155,29 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
-
     public NotificationAttachmentDownloadMetadataResponse downloadAttachmentWithRedirect(
             String iun,
-            String cxType,
-            String xPagopaPnCxId,
+            InternalAuthHeader internalAuthHeader,
+            String mandateId,
+            Integer recipientIdx,
+            String attachmentName,
+            Boolean markNotificationAsViewed) {
+
+        return downloadAttachmentWithRedirectWithFileKey( iun,internalAuthHeader,mandateId,
+                recipientIdx,attachmentName,markNotificationAsViewed ).downloadMetadataResponse;
+    }
+
+    public InternalAttachmentWithFileKey downloadAttachmentWithRedirectWithFileKey(
+            String iun,
+            InternalAuthHeader internalAuthHeader,
             String mandateId,
             Integer recipientIdx,
             String attachmentName,
             Boolean markNotificationAsViewed) {
         InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
-                .cxType( cxType )
-                .cxId( xPagopaPnCxId )
+                .cxType(internalAuthHeader.cxType())
+                .cxId(internalAuthHeader.xPagopaPnCxId())
+                .uid(internalAuthHeader.xPagopaPnUid())
                 .mandateId( mandateId )
                 .iun( iun )
                 .documentIndex( null )
@@ -171,18 +188,20 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
-    private NotificationAttachmentDownloadMetadataResponse downloadDocumentWithRedirect( InputDownloadDto inputDownloadDto ) {
+    private InternalAttachmentWithFileKey downloadDocumentWithRedirect(InputDownloadDto inputDownloadDto ) {
         String cxType = inputDownloadDto.getCxType();
         String cxId = inputDownloadDto.getCxId();
+        String uid = inputDownloadDto.getUid();
         String mandateId = inputDownloadDto.getMandateId();
         String iun = inputDownloadDto.getIun();
         Integer recipientIdx = inputDownloadDto.getRecipientIdx();
+        List<String> cxGroups = inputDownloadDto.getCxGroups();
         Integer documentIndex = inputDownloadDto.getDocumentIndex();
         String attachmentName = inputDownloadDto.getAttachmentName();
         Boolean markNotificationAsViewed = inputDownloadDto.getMarkNotificationAsViewed();
         log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} markNotificationAsViewed={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, markNotificationAsViewed );
 
-        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, iun, recipientIdx );
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, cxGroups, iun, recipientIdx );
 
         Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
         if (optNotification.isPresent()) {
@@ -205,10 +224,19 @@ public class NotificationAttachmentService {
             // controlli per essere certi che la richiesta è stata fatta da un destinatario o da un delegato
             // ma non da rete RADD e non da mittente
             if( !cxType.equals( CxTypeAuthFleet.PA.getValue() ) && Boolean.TRUE.equals(markNotificationAsViewed) ) {
-                notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx() );
+                NotificationViewDelegateInfo delegateInfo = null;
+                if (StringUtils.hasText( mandateId ) ) {
+                    delegateInfo = NotificationViewDelegateInfo.builder()
+                            .delegateType( NotificationViewDelegateInfo.DelegateType.valueOf( cxType ) )
+                            .mandateId( mandateId )
+                            .internalId( cxId )
+                            .operatorUuid( uid )
+                            .build();
+                }
+                notificationViewedProducer.sendNotificationViewed( iun, Instant.now(), authorizationOutcome.getEffectiveRecipientIdx(), delegateInfo );
             }
 
-            return NotificationAttachmentDownloadMetadataResponse.builder()
+            return InternalAttachmentWithFileKey.of(NotificationAttachmentDownloadMetadataResponse.builder()
                     .filename( fileInfos.fileName)
                     .url( fileInfos.fileDownloadResponse.getDownload().getUrl() )
                     .contentLength( nullSafeBigDecimalToInteger(
@@ -218,8 +246,7 @@ public class NotificationAttachmentService {
                     .sha256( fileInfos.fileDownloadResponse.getChecksum() )
                     .retryAfter( nullSafeBigDecimalToInteger(
                             fileInfos.fileDownloadResponse.getDownload().getRetryAfter()
-                    ))
-                    .build();
+                    )).build() , fileInfos.fileKey);
         } else {
             log.error("downloadDocumentWithRedirect Notification not found for iun={}", iun);
             throw new PnNotificationNotFoundException("Notification not found for iun=" + iun);
@@ -270,17 +297,17 @@ public class NotificationAttachmentService {
             }
             name = attachmentName;
         }
-
+        MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, fileKey);
         log.info("downloadDocumentWithRedirect with fileKey={} name:{} - iun={}", fileKey, name, iun);
         try {
             FileDownloadResponse r = this.getFile(fileKey);
             fileName = buildFilename(iun, name, r.getContentType());
 
             log.info("downloadDocumentWithRedirect with fileKey={} filename:{} - iun={}", fileKey, fileName, iun);
-            return new FileInfos( fileName, r );
+            return new FileInfos( fileName, r , fileKey);
         } catch (Exception exc) {
-            if (exc instanceof PnHttpResponseException && ((PnHttpResponseException) exc).getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                throw new PnBadRequestException("File info not found", exc.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, exc);
+            if (exc instanceof PnHttpResponseException pnHttpResponseException && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                throw new PnBadRequestException("File info not found", pnHttpResponseException.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, pnHttpResponseException);
             }
             throw exc;
         }
@@ -298,26 +325,8 @@ public class NotificationAttachmentService {
             }
            
         }
-
-        switch (ATTACHMENT_TYPE.valueOf(attachmentName))
-        {
-            case PAGOPA: {
-                return getKey( payment.getPagoPaForm() );
-            }
-            case F24: {
-                // NOTA: Al momento viene restituito semplicemente l'F24 presente a seguito della issue PN-1835 MA c'è da definire la logica corretta da adottare!!
-                if (doc.getPayment().getF24flatRate() != null) {
-                    return getKey( payment.getF24flatRate() );
-                } else {
-                    return getKey( payment.getF24standard() );
-                }
-            }
-            case F24_FLAT: {
-                return getKey( payment.getF24flatRate() );
-            }
-            case F24_STANDARD: {
-                return getKey( payment.getF24standard() );
-            }
+        if (attachmentName.equals(ATTACHMENT_TYPE_PAGO_PA)) {
+            return getKey( payment.getPagoPaForm() );
         }
         return null;
     }
@@ -347,4 +356,16 @@ public class NotificationAttachmentService {
         return bd != null ? bd.intValue() : null;
     }
 
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static final class InternalAttachmentWithFileKey {
+        NotificationAttachmentDownloadMetadataResponse downloadMetadataResponse;
+        String fileKey;
+
+        public static InternalAttachmentWithFileKey of(NotificationAttachmentDownloadMetadataResponse notification, String fileKey) {
+            return new InternalAttachmentWithFileKey(notification, fileKey);
+        }
+    }
 }

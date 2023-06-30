@@ -7,15 +7,38 @@ components:
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
     cxTypeAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/49b7f5dbda112680d3c5aa79123388736b1c215f/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTypeAuthFleet'
     cxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/49b7f5dbda112680d3c5aa79123388736b1c215f/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxIdAuthFleet'
     cxGroupsAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/49b7f5dbda112680d3c5aa79123388736b1c215f/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroups'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxGroupsAuthFleet'
     uidAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/49b7f5dbda112680d3c5aa79123388736b1c215f/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/uidAuthFleet'
     cxTaxIdAuthFleet:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/f34eabb77a2ee56f17afd3cc63e3e42498029f3c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTaxIdAuthFleet'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/cxTaxIdAuthFleet'
+
+
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE LOLLIPOP                             ###
+    ############################################################################################
+    lollipopOriginalUrl:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopOriginalUrl'
+    lollipopOriginalMethod:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopOriginalMethod'
+    lollipopPublicKey:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopPublicKey'
+    lollipopAssertionRef:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopAssertionRef'
+    lollipopAssertionType:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopAssertionType'
+    lollipopAuthJwt:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopAuthJwt'
+    lollipopUserId:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopUserId'
+    lollipopSignatureInput:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopSignatureInput'
+    lollipopSignature:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopSignature'
 
     
     ############################################################################################
@@ -23,9 +46,9 @@ components:
     ############################################################################################
     
     pathLegalFactType:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c97c343b7f52309c92b01254e7c3abc33cc7902/docs/openapi/api-internal-pn-delivery-push-v1.yaml#/components/parameters/pathLegalFactType'
-    pathLegalFactId:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c97c343b7f52309c92b01254e7c3abc33cc7902/docs/openapi/api-internal-pn-delivery-push-v1.yaml#/components/parameters/pathLegalFactId'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactType'
+    pathLegalFactId: 
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactId'
 
 
   schemas:
@@ -33,14 +56,14 @@ components:
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
-    TimelineElement:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c97c343b7f52309c92b01254e7c3abc33cc7902/docs/openapi/schemas-pn-timeline-v1.yaml#/components/schemas/TimelineElement'
+    TimelineElement: 
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c97c343b7f52309c92b01254e7c3abc33cc7902/docs/openapi/schemas-pn-status-v1.yaml#/components/schemas/NotificationStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c97c343b7f52309c92b01254e7c3abc33cc7902/docs/openapi/schemas-pn-status-v1.yaml#/components/schemas/NotificationStatusHistory'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/7c97c343b7f52309c92b01254e7c3abc33cc7902/docs/openapi/schemas-pn-legal-facts-v1.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
@@ -50,3 +73,10 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/61cdf0712f133c8c69e056abfad6ce5223242ba0/docs/openapi/pn-errors.yaml#/components/schemas/Problem'
     ProblemError:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-commons/61cdf0712f133c8c69e056abfad6ce5223242ba0/docs/openapi/pn-errors.yaml#/components/schemas/ProblemError'
+
+    ############################################################################################
+    ###                          STRUTTURE DATI DI PN-DOWNTIME-LOGS                          ###
+    ############################################################################################
+
+    PnStatusResponse:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-downtime-logs/6e086075d1b7294e5b0dcbc59a226de321a7a1d3/docs/openapi/schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse'

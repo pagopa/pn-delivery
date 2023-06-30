@@ -1,26 +1,16 @@
 package it.pagopa.pn.delivery.models;
 
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
-import io.swagger.v3.oas.annotations.media.Schema;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
 import lombok.*;
 
-import java.util.List;
-
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder(toBuilder = true, builderMethodName = "fullSentNotificationBuilder")
 @ToString
-@Schema(
-        description = "Le notifiche di Piattaforma Notifiche",
-        externalDocs = @ExternalDocumentation( description = "MarkDown", url = "http://google.it/"))
 public class InternalNotification extends FullSentNotification {
-
-
-    public InternalNotification(FullSentNotification fsn, List<String> recipientIds) {
+    public InternalNotification(FullSentNotification fsn) {
         super(
                 fsn.getIdempotenceToken(),
                 fsn.getPaProtocolNumber(),
@@ -37,6 +27,7 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getAmount(),
                 fsn.getPaymentExpirationDate(),
                 fsn.getTaxonomyCode(),
+                fsn.getPagoPaIntMode(),
                 fsn.getSenderPaId(),
                 fsn.getIun(),
                 fsn.getSentAt(),
@@ -44,17 +35,12 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getDocumentsAvailable(),
                 fsn.getNotificationStatus(),
                 fsn.getNotificationStatusHistory(),
-                fsn.getTimeline()
+                fsn.getTimeline(),
+                fsn.getRecipientIds(),
+                fsn.getSourceChannel(),
+                fsn.getSourceChannelDetails()
             );
-        this.recipientIds = recipientIds;
     }
-
-    @Schema( description = "Lista degli id dei destinatari")
-    private List<String> recipientIds;
-
-    public List<String> getRecipientIds() { return this.recipientIds; }
-
-    public void setRecipientIds( List<String> recipientIds ) { this.recipientIds = recipientIds; }
 
     @Override
     public boolean equals(Object o) {

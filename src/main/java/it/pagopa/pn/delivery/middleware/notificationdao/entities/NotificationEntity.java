@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -10,7 +10,6 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -41,6 +40,10 @@ public class NotificationEntity {
     public static final String FIELD_PAYMENT_EXPIRATION_DATE = "paymentExpirationDate";
     public static final String FIELD_REQUEST_ID = "requestId";
     public static final String FIELD_TAXONOMY_CODE = "taxonomyCode";
+    public static final String FIELD_PAGOPA_INT_MODE = "pagoPaIntMode";
+    public static final String FIELD_SOURCE_CHANNEL = "sourceChannel";
+    public static final String FIELD_SOURCE_CHANNEL_DETAILS = "sourceChannelDetails";
+    public static final String FIELD_VERSION = "version";
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String notificationAbstract;
@@ -53,7 +56,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_PA_ID)})) private String senderPaId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS)})) private List<NotificationRecipientEntity> recipients;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DOCUMENTS)})) private List<DocumentAttachmentEntity> documents;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTIFICATION_FEE_POLICY)})) private NewNotificationRequest.NotificationFeePolicyEnum notificationFeePolicy;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTIFICATION_FEE_POLICY)})) private NotificationFeePolicy notificationFeePolicy;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotification.PhysicalCommunicationTypeEnum physicalCommunicationType;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_GROUP)})) private String group;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_DENOMINATION)})) private String senderDenomination;
@@ -63,5 +66,9 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENT_EXPIRATION_DATE)})) private String paymentExpirationDate;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REQUEST_ID)})) private String requestId;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_TAXONOMY_CODE)})) private String taxonomyCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAGOPA_INT_MODE)})) private String pagoPaIntMode;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL)})) private String sourceChannel;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL_DETAILS)})) private String sourceChannelDetails;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int version;
 
 }

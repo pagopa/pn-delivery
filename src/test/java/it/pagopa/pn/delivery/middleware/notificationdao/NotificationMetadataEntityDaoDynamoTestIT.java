@@ -4,11 +4,12 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
+import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
@@ -27,13 +28,17 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         NotificationMetadataEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "pn.delivery.notification-dao.table-name=Notifications",
-        "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata"
+        "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata",
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
@@ -351,19 +356,68 @@ class NotificationMetadataEntityDaoDynamoTestIT {
     }
 
     @Test
-    void searchNotificationMetadataWithIunFilter() {
+    void searchNotificationMetadataWithGroupsFilter_grp_and_nogrp() {
         //Given
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
+
+        List<String> groups = new ArrayList<>();
+        groups.add("Group1");
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+        paids.add(senderPaid2);
+
+        Instant sentAt = Instant.parse( "2022-05-28T00:00:00.00Z" );
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1");
+        internalNotification1.setGroup(groups.get(0));
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(sentAt.atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt.atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setSenderPaId(senderPaid1);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        Instant sentAt1 = Instant.parse( "2022-05-29T00:00:00.00Z" );
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt1.atOffset(ZoneOffset.UTC)
+        );
+
+        notificationMetadataEntityDao.put(notificationMetadataEntity1);
+        notificationMetadataEntityDao.put(notificationMetadataEntity2);
+
+
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
                 .bySender( true )
                 .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
-                .senderReceiverId( "c_h501" )
+                .senderReceiverId( senderPaid1 )
                 .size( 10 )
                 .iunMatch( IUN )
                 .build();
 
         String indexName = "senderId";
-        String partitionValue = "c_h501##202205";
+        String partitionValue = createConcatenation(senderPaid1, "202205");
 
         List<BaseRecipientDto> dataVaultResults = getDataVaultResults();
 
@@ -377,14 +431,173 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 null
         );
 
+
         Assertions.assertNotNull( result );
+        Assertions.assertEquals( createConcatenation(internalNotification1.getIun(), recipientId), result.getResults().get(0).getIunRecipientId() );
+        Assertions.assertEquals( createConcatenation(internalNotification2.getIun(), recipientId), result.getResults().get(1).getIunRecipientId() );
     }
 
     @Test
     void searchNotificationMetadataWithGroupsFilter() {
         //Given
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
         List<String> groups = new ArrayList<>();
         groups.add("Group1");
+
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+        paids.add(senderPaid2);
+
+        Instant sentAt = Instant.parse( "2022-05-28T00:00:00.00Z" );
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1");
+        internalNotification1.setGroup(groups.get(0));
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(sentAt.atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt.atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setSenderPaId(senderPaid2);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        Instant sentAt1 = Instant.parse( "2022-05-29T00:00:00.00Z" );
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt1.atOffset(ZoneOffset.UTC)
+        );
+
+        notificationMetadataEntityDao.put(notificationMetadataEntity1);
+        notificationMetadataEntityDao.put(notificationMetadataEntity2);
+
+
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( senderPaid1 )
+                .size( 10 )
+                .groups( groups )
+                .build();
+
+        String indexName = "senderId";
+        String partitionValue = createConcatenation(senderPaid1, "202205");
+
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
+                inputSearch,
+                indexName,
+                partitionValue,
+                inputSearch.getSize(),
+                null
+        );
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals( createConcatenation(internalNotification1.getIun(), recipientId), result.getResults().get(0).getIunRecipientId() );
+    }
+
+
+    @Test
+    void searchNotificationMetadataWithGroupsFilter_2groups() {
+        //Given
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
+        List<String> groups = new ArrayList<>();
+        groups.add("Group1");
+        groups.add("Group2");
+
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+        paids.add(senderPaid2);
+
+        Instant sentAt = Instant.parse( "2022-05-28T00:00:00.00Z" );
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1");
+        internalNotification1.setGroup(groups.get(0));
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(sentAt.atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt.atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setSenderPaId(senderPaid2);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        Instant sentAt1 = Instant.parse( "2022-05-29T00:00:00.00Z" );
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt1.atOffset(ZoneOffset.UTC)
+        );
+
+        notificationMetadataEntityDao.put(notificationMetadataEntity1);
+        notificationMetadataEntityDao.put(notificationMetadataEntity2);
+
+
+
+        InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                .bySender( true )
+                .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                .senderReceiverId( senderPaid1)
+                .size( 10 )
+                .groups( groups )
+                .build();
+
+        String indexName = "senderId";
+        String partitionValue = createConcatenation(senderPaid1, "202205");
+
+        PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
+                inputSearch,
+                indexName,
+                partitionValue,
+                inputSearch.getSize(),
+                null
+        );
+
+        Assertions.assertNotNull( result );
+        Assertions.assertEquals( createConcatenation(internalNotification1.getIun(), recipientId), result.getResults().get(0).getIunRecipientId() );
+    }
+
+
+    @Test
+    void searchNotificationMetadataWithPAIDsFilter_empty() {
+        //Given
+        List<String> paids = new ArrayList<>();
+        paids.add("paid1");
 
 
         InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
@@ -393,7 +606,7 @@ class NotificationMetadataEntityDaoDynamoTestIT {
                 .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
                 .senderReceiverId( "c_h501" )
                 .size( 10 )
-                .groups( groups )
+                .mandateAllowedPaIds( paids )
                 .build();
 
         String indexName = "senderId";
@@ -409,6 +622,552 @@ class NotificationMetadataEntityDaoDynamoTestIT {
 
         Assertions.assertNotNull( result );
     }
+
+
+
+
+    @Test
+    void searchNotificationMetadataWithPAIDsFilterWithFilter() {
+        //Given
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1");
+        internalNotification1.setGroup("group");
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                Instant.parse( "2022-05-29T00:00:00.00Z" ).atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setGroup("group");
+        internalNotification2.setSenderPaId(senderPaid2);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                Instant.parse( "2022-05-29T00:00:00.00Z" ).atOffset(ZoneOffset.UTC)
+        );
+
+        try {
+            notificationMetadataEntityDao.put(notificationMetadataEntity1);
+            notificationMetadataEntityDao.put(notificationMetadataEntity2);
+
+            InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                    .bySender( false )
+                    .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                    .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                    .senderReceiverId( recipientId )
+                    .size( 10 )
+                    .mandateAllowedPaIds( paids )
+                    .build();
+
+            String indexName = "recipientId";
+            String partitionValue = createConcatenation(recipientId , "202205");
+
+            PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
+                    inputSearch,
+                    indexName,
+                    partitionValue,
+                    inputSearch.getSize(),
+                    null
+            );
+
+            Assertions.assertNotNull( result );
+            Assertions.assertEquals(1, result.getResults().size());
+            Assertions.assertEquals(senderPaid1, result.getResults().get(0).getSenderId());
+        } catch (Exception e) {
+            Assertions.fail(e);
+        } finally {
+            notificationMetadataEntityDao.delete(Key.builder()
+                    .partitionValue(notificationMetadataEntity1.getIunRecipientId())
+                    .sortValue(notificationMetadataEntity1.getSentAt().toString())
+                    .build());
+            notificationMetadataEntityDao.delete(Key.builder()
+                    .partitionValue(notificationMetadataEntity2.getIunRecipientId())
+                    .sortValue(notificationMetadataEntity2.getSentAt().toString())
+                    .build());
+        }
+
+
+    }
+
+
+
+    @Test
+    void searchNotificationMetadataWithPAIDsFilterWithFilter_both() {
+        //Given
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+        paids.add(senderPaid2);
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1");
+        internalNotification1.setGroup("group");
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                Instant.parse( "2022-05-29T00:00:00.00Z" ).atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setGroup("group");
+        internalNotification2.setSenderPaId(senderPaid2);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                Instant.parse( "2022-05-29T00:00:00.00Z" ).atOffset(ZoneOffset.UTC)
+        );
+
+        try {
+            notificationMetadataEntityDao.put(notificationMetadataEntity1);
+            notificationMetadataEntityDao.put(notificationMetadataEntity2);
+
+            InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                    .bySender( false )
+                    .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                    .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                    .senderReceiverId( recipientId )
+                    .size( 10 )
+                    .mandateAllowedPaIds( paids )
+                    .build();
+
+            String indexName = "recipientId";
+            String partitionValue = createConcatenation(recipientId , "202205");
+
+            PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchForOneMonth(
+                    inputSearch,
+                    indexName,
+                    partitionValue,
+                    inputSearch.getSize(),
+                    null
+            );
+
+            Assertions.assertNotNull( result );
+            Assertions.assertEquals(2, result.getResults().size());
+
+        } catch (Exception e) {
+            Assertions.fail(e);
+        } finally {
+            notificationMetadataEntityDao.delete(Key.builder()
+                    .partitionValue(notificationMetadataEntity1.getIunRecipientId())
+                    .sortValue(notificationMetadataEntity1.getSentAt().toString())
+                    .build());
+            notificationMetadataEntityDao.delete(Key.builder()
+                    .partitionValue(notificationMetadataEntity2.getIunRecipientId())
+                    .sortValue(notificationMetadataEntity2.getSentAt().toString())
+                    .build());
+        }
+
+
+    }
+
+
+
+
+    @Test
+    void searchByIun_notfound() {
+        //Given
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+        paids.add(senderPaid2);
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1");
+        internalNotification1.setGroup("group");
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                Instant.parse( "2022-05-29T00:00:00.00Z" ).atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setGroup("group");
+        internalNotification2.setSenderPaId(senderPaid2);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                Instant.parse( "2022-05-29T00:00:00.00Z" ).atOffset(ZoneOffset.UTC)
+        );
+
+        try {
+
+            InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                    .bySender( false )
+                    .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                    .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                    .senderReceiverId( recipientId )
+                    .size( 10 )
+                    .mandateAllowedPaIds( paids )
+                    .build();
+
+            String indexName = "recipientId";
+            String partitionValue = createConcatenation(recipientId , "202205");
+
+            PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchByIun(
+                    inputSearch,
+                    partitionValue,"test"
+            );
+
+            Assertions.assertNotNull( result );
+            Assertions.assertNull(result.getResults());
+
+        } catch (Exception e) {
+            Assertions.fail(e);
+        } finally {
+
+        }
+
+
+    }
+
+
+
+    @Test
+    void searchByIun_nullgroup() {
+        //Givend
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+        paids.add(senderPaid2);
+
+        Instant sentAt = Instant.parse( "2022-05-28T00:00:00.00Z" );
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1"); 
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(sentAt.atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt.atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setSenderPaId(senderPaid2);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        Instant sentAt1 = Instant.parse( "2022-05-29T00:00:00.00Z" );
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt1.atOffset(ZoneOffset.UTC)
+        );
+
+        try {
+
+            notificationMetadataEntityDao.put(notificationMetadataEntity1);
+            notificationMetadataEntityDao.put(notificationMetadataEntity2);
+
+            InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                    .bySender( true )
+                    .iunMatch(internalNotification1.getIun())
+                    .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                    .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                    .senderReceiverId( senderPaid1 )
+                    .size( 10 )
+                    .mandateAllowedPaIds( paids )
+                    .build();
+
+            String indexName = "recipientId";
+            String partitionValue = createConcatenation(internalNotification1.getIun() , recipientId);
+
+            PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchByIun(
+                    inputSearch,
+                    partitionValue,sentAt.toString()
+            );
+
+            Assertions.assertNotNull( result );
+            Assertions.assertEquals(1, result.getResults().size());
+
+        } catch (Exception e) {
+            Assertions.fail(e);
+        } finally {
+
+        }
+
+
+    }
+
+
+
+    @Test
+    void searchByIun_somegroup() {
+        //Givend
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+        paids.add(senderPaid2);
+
+        Instant sentAt = Instant.parse( "2022-05-28T00:00:00.00Z" );
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1");
+        internalNotification1.setGroup("gruppo1");
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(sentAt.atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt.atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setSenderPaId(senderPaid2);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        Instant sentAt1 = Instant.parse( "2022-05-29T00:00:00.00Z" );
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt1.atOffset(ZoneOffset.UTC)
+        );
+
+        try {
+
+            notificationMetadataEntityDao.put(notificationMetadataEntity1);
+            notificationMetadataEntityDao.put(notificationMetadataEntity2);
+
+            InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                    .bySender( true )
+                    .iunMatch(internalNotification1.getIun())
+                    .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                    .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                    .senderReceiverId( senderPaid1 )
+                    .groups(List.of("gruppo1"))
+                    .size( 10 )
+                    .mandateAllowedPaIds( paids )
+                    .build();
+
+            String indexName = "recipientId";
+            String partitionValue = createConcatenation(internalNotification1.getIun() , recipientId);
+
+            PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchByIun(
+                    inputSearch,
+                    partitionValue,sentAt.toString()
+            );
+
+            Assertions.assertNotNull( result );
+            Assertions.assertEquals(1, result.getResults().size());
+
+        } catch (Exception e) {
+            Assertions.fail(e);
+        } finally {
+
+        }
+
+
+    }
+
+
+
+    @Test
+    void searchByIun_somegroup_nomatch() {
+        //Givend
+        String recipientId = "recipientId";
+        String senderPaid1 = "paid1";
+        String senderPaid2 = "paid2";
+
+
+        List<String> paids = new ArrayList<>();
+        paids.add(senderPaid1);
+        paids.add(senderPaid2);
+
+        Instant sentAt = Instant.parse( "2022-05-28T00:00:00.00Z" );
+
+        InternalNotification internalNotification1 = new InternalNotification();
+        internalNotification1.setIun("IUN-1");
+        internalNotification1.setGroup("gruppo1");
+        internalNotification1.setSenderPaId(senderPaid1);
+        internalNotification1.setSentAt(sentAt.atOffset(ZoneOffset.UTC));
+
+        NotificationMetadataEntity notificationMetadataEntity1 = buildOneSearchMetadataEntry(
+                internalNotification1,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt.atOffset(ZoneOffset.UTC)
+        );
+
+        InternalNotification internalNotification2 = new InternalNotification();
+        internalNotification2.setIun("IUN-2");
+        internalNotification2.setSenderPaId(senderPaid2);
+        internalNotification2.setSentAt(Instant.parse( "2022-05-28T00:00:00.00Z" ).atOffset(ZoneOffset.UTC));
+
+        Instant sentAt1 = Instant.parse( "2022-05-29T00:00:00.00Z" );
+
+        NotificationMetadataEntity notificationMetadataEntity2 = buildOneSearchMetadataEntry(
+                internalNotification2,
+                NotificationStatus.ACCEPTED,
+                recipientId,
+                List.of(recipientId),
+                "202205",
+                sentAt1.atOffset(ZoneOffset.UTC)
+        );
+
+        try {
+
+            notificationMetadataEntityDao.put(notificationMetadataEntity1);
+            notificationMetadataEntityDao.put(notificationMetadataEntity2);
+
+            InputSearchNotificationDto inputSearch = new InputSearchNotificationDto().toBuilder()
+                    .bySender( true )
+                    .iunMatch(internalNotification1.getIun())
+                    .startDate( Instant.parse( "2022-05-01T00:00:00.00Z" ) )
+                    .endDate( Instant.parse( "2022-05-30T00:00:00.00Z" ) )
+                    .senderReceiverId( senderPaid1 )
+                    .groups(List.of("gruppo2"))
+                    .size( 10 )
+                    .mandateAllowedPaIds( paids )
+                    .build();
+
+            String indexName = "recipientId";
+            String partitionValue = createConcatenation(internalNotification1.getIun() , recipientId);
+
+            PageSearchTrunk<NotificationMetadataEntity> result = notificationMetadataEntityDao.searchByIun(
+                    inputSearch,
+                    partitionValue,sentAt.toString()
+            );
+
+            Assertions.assertNotNull( result );
+            Assertions.assertNull(result.getResults());
+
+        } catch (Exception e) {
+            Assertions.fail(e);
+        } finally {
+
+        }
+
+
+    }
+
+
+    @NotNull
+    private Map<String, String> createTableRowMap(InternalNotification notification, NotificationStatus lastStatus, List<String> recipientsIds, OffsetDateTime acceptedAt) {
+        Map<String,String> tableRowMap = new HashMap<>();
+        tableRowMap.put( "iun", notification.getIun() );
+        tableRowMap.put( "recipientsIds", recipientsIds.toString() );
+        tableRowMap.put( "paProtocolNumber", notification.getPaProtocolNumber() );
+        tableRowMap.put( "subject", notification.getSubject() );
+        tableRowMap.put( "senderDenomination", notification.getSenderDenomination() );
+        if ( Objects.nonNull( acceptedAt )) {
+            tableRowMap.put( "acceptedAt", acceptedAt.toString() );
+        }
+        return tableRowMap;
+    }
+
+    private NotificationMetadataEntity buildOneSearchMetadataEntry(
+            InternalNotification notification,
+            NotificationStatus lastStatus,
+            String recipientId,
+            List<String> recipientsIds,
+            String creationMonth,
+            OffsetDateTime acceptedAt
+    ) {
+        int recipientIndex = recipientsIds.indexOf( recipientId );
+
+        Map<String,String> tableRowMap = createTableRowMap(notification, lastStatus, recipientsIds, acceptedAt);
+
+        return NotificationMetadataEntity.builder()
+                .notificationStatus( lastStatus.toString() )
+                .senderId( notification.getSenderPaId() )
+                .recipientId( recipientId )
+                .sentAt( notification.getSentAt().toInstant() )
+                .notificationGroup( notification.getGroup() )
+                .recipientIds( recipientsIds )
+                .tableRow( tableRowMap )
+                .senderIdRecipientId( createConcatenation( notification.getSenderPaId(), recipientId  ) )
+                .senderIdCreationMonth( createConcatenation( notification.getSenderPaId(), creationMonth ) )
+                .recipientIdCreationMonth( createConcatenation( recipientId , creationMonth ) )
+                .iunRecipientId( createConcatenation( notification.getIun(), recipientId ) )
+                .recipientOne( recipientIndex <= 0 )
+                .build();
+    }
+
+
+    private String createConcatenation(String s1, String s2) {
+        return s1 + "##" + s2;
+    }
+
 
     @Test
     void putIfAbsent() throws PnIdConflictException {

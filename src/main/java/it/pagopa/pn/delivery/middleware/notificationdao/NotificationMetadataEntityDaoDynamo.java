@@ -56,6 +56,12 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         // eseguo la query
         NotificationMetadataEntity entity = table.getItem( requestBuilder.build() );
 
+        if (entity == null)
+        {
+            log.debug("result entity is null");
+            return new PageSearchTrunk<>();
+        }
+
         // applico i filtri
         // filtro per stato
         if (!CollectionUtils.isEmpty(inputSearchNotificationDto.getStatuses()) && !inputSearchNotificationDto.getStatuses().contains(NotificationStatus.fromValue(entity.getNotificationStatus())))
@@ -93,6 +99,11 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             log.debug("result not satisfy filter filterid sender");
             return  new PageSearchTrunk<>();
         }
+        // filtro per mittente gruppo
+        if( inputSearchNotificationDto.isBySender() && !CollectionUtils.isEmpty( inputSearchNotificationDto.getGroups()) && !inputSearchNotificationDto.getGroups().contains( entity.getNotificationGroup() ) ) {
+            log.debug("result not satisfy filter group sender");
+            return new PageSearchTrunk<>();
+        }
 
         // preparo i risultati
         PageSearchTrunk<NotificationMetadataEntity> res = new PageSearchTrunk<>();
@@ -111,22 +122,22 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             int size,
             PnLastEvaluatedKey lastEvaluatedKey
     ) {
-        log.debug( "START search for one month" );
+        log.trace( "START search for one month" );
         Instant startDate = inputSearchNotificationDto.getStartDate();
         Instant endDate = inputSearchNotificationDto.getEndDate();
 
-        log.debug( "Key building ..." );
+        log.trace( "Key building ..." );
         // costruzione delle Keys di ricerca in base alla partizione che si vuole interrogare ed al range di date di interesse
         Key.Builder builder = Key.builder().partitionValue(partitionValue);
         Key key1 = builder.sortValue(startDate.toString()).build();
         Key key2 = builder.sortValue(endDate.toString()).build();
-        log.debug( " ... key building done " +
+        log.trace( " ... key building done " +
                 "startKeyPartition={} startKeyRange={} endKeyPartition={} endKeyRange={}",
                 key1.partitionKeyValue(), key1.sortKeyValue(),
                 key2.partitionKeyValue(), key2.sortKeyValue()
             );
 
-        log.debug( "Create query conditional" );
+        log.trace( "Create query conditional" );
         QueryConditional betweenConditional = QueryConditional
                 .sortBetween( key1, key2 );
 
@@ -138,10 +149,10 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                 .limit( size )
                 .scanIndexForward( false );
 
-        log.debug( "START add filter expression" );
+        log.trace( "START add filter expression" );
         // aggiunta dei filtri alla query: status, groups, iun
         addFilterExpression(inputSearchNotificationDto, requestBuilder);
-        log.debug( "END add filter expression" );
+        log.trace( "END add filter expression" );
 
         // se query su partizione precedente ha restituito una LEK
         // recupero nome dell'attributo in base all'indice di ricerca ed imposto
@@ -153,11 +164,14 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             }
         }
 
-        log.debug( "START query execution" );
         // eseguo la query
-        SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( requestBuilder.build() );
+        QueryEnhancedRequest queryEnhancedRequest = requestBuilder.build();
 
-        log.debug( "END query execution" );
+        log.trace( "START query execution index={}", index.indexName()  );
+
+        SdkIterable<Page<NotificationMetadataEntity>> notificationMetadataPages = index.query( queryEnhancedRequest );
+
+        log.trace( "END query execution" );
 
         // recupero i risultati della query
         Page<NotificationMetadataEntity> page = notificationMetadataPages.iterator().next();
@@ -168,23 +182,29 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         res.setResults( page.items() );
         res.setLastEvaluatedKey(page.lastEvaluatedKey());
 
-        log.debug( "END mapper from metadata to searchRow" );
+        log.info( "DONE search for one month index={} requiredSize={} exclusiveStartKey={} startKeyPartition/Range={} endKeyPartition/Range={} expression={} expressionValues={} readRows={} lastEvaluatedKey={}",
+                index.indexName(),
+                queryEnhancedRequest.limit(),
+                queryEnhancedRequest.exclusiveStartKey(),
+                key1.partitionKeyValue() + "/" + key1.sortKeyValue(),
+                key2.partitionKeyValue() + "/" + key2.sortKeyValue(),
+                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expression(),
+                queryEnhancedRequest.filterExpression()==null?null:queryEnhancedRequest.filterExpression().expressionValues(),
+                (page.items()==null?0:page.items().size()),
+                page.lastEvaluatedKey() );
         return res;
     }
 
     private String retrieveAttributeName(String indexName) {
         String attributeName;
-        switch ( indexName ) {
-            case NotificationMetadataEntity.FIELD_SENDER_ID:
-                attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH; break;
-            case NotificationMetadataEntity.FIELD_RECIPIENT_ID:
-                attributeName = NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH; break;
-            case NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID:
-                attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID; break;
-            default: {
-                String msg = String.format( "Unable to retrieve attributeName by indexName=%s", indexName );
-                log.error( msg );
-                throw new PnInternalException( msg, ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME );
+        switch (indexName) {
+            case NotificationMetadataEntity.FIELD_SENDER_ID -> attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_CREATION_MONTH;
+            case NotificationMetadataEntity.FIELD_RECIPIENT_ID -> attributeName = NotificationMetadataEntity.FIELD_RECIPIENT_ID_CREATION_MONTH;
+            case NotificationMetadataEntity.INDEX_SENDER_ID_RECIPIENT_ID -> attributeName = NotificationMetadataEntity.FIELD_SENDER_ID_RECIPIENT_ID;
+            default -> {
+                String msg = String.format("Unable to retrieve attributeName by indexName=%s", indexName);
+                log.error(msg);
+                throw new PnInternalException(msg, ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME);
             }
         }
         return attributeName;
@@ -198,6 +218,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
         addRecipientOneFilterExpression( inputSearchNotificationDto, filterExpressionBuilder, expressionBuilder );
         addStatusFilterExpression( inputSearchNotificationDto.getStatuses(), filterExpressionBuilder, expressionBuilder);
         addGroupFilterExpression( inputSearchNotificationDto.getGroups(), filterExpressionBuilder, expressionBuilder);
+        addPaIdsFilterExpression( inputSearchNotificationDto.getMandateAllowedPaIds(), filterExpressionBuilder, expressionBuilder);
 
         requestBuilder.filterExpression(filterExpressionBuilder
                 .expression(expressionBuilder.length() > 0 ? expressionBuilder.toString() : null)
@@ -250,10 +271,11 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
     private void addGroupFilterExpression(List<String> groupList,
                                           Expression.Builder filterExpressionBuilder,
                                           StringBuilder expressionBuilder) {
+        // se l'utente appartiene ad almeno 1 gruppo, deve poter vedere SOLO le notifiche di quei gruppi
+        // se invece non appartiene a gruppi, vede tutto (quelle con gruppo e quelle senza)
         if ( !CollectionUtils.isEmpty( groupList )) {
-            // restituire anche le notifiche con gruppo <stringa_vuota>
-            groupList.add("");
-            log.debug( "Add group filter expression" );
+
+            log.trace( "Add group filter expression" );
             if ( expressionBuilder.length() > 0 )
                 expressionBuilder.append( " AND ( " );
             else {
@@ -273,9 +295,43 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
                                 .build());
             }
 
-            expressionBuilder.append(" OR attribute_not_exists(notificationGroup) )");
+            expressionBuilder.append(" )");
+
         }
     }
+
+
+    private void addPaIdsFilterExpression(List<String> mandateAllowedPaIds,
+                                          Expression.Builder filterExpressionBuilder,
+                                          StringBuilder expressionBuilder) {
+        if ( !CollectionUtils.isEmpty( mandateAllowedPaIds )) {
+            // devo restituire solo le righe con PaId mittente permessa nelle deleghe
+            log.trace( "Add paIds filter expression" );
+            if ( expressionBuilder.length() > 0 )
+                expressionBuilder.append( " AND  ( " );
+            else {
+                expressionBuilder.append( " ( " );
+            }
+
+            for (int i = 0; i < mandateAllowedPaIds.size(); i++) {
+                String paid = mandateAllowedPaIds.get( i );
+                expressionBuilder.append( "senderId = :mandateAllowedPaId" );
+                expressionBuilder.append(i).append(" ");
+                if ( i < mandateAllowedPaIds.size() -1 )
+                    expressionBuilder.append( " OR " );
+
+                filterExpressionBuilder.putExpressionValue(":mandateAllowedPaId"+i,
+                        AttributeValue.builder()
+                                .s( paid )
+                                .build());
+            }
+
+
+            expressionBuilder.append(" )");
+        }
+    }
+
+
 
     @Override
     public void putIfAbsent(NotificationMetadataEntity notificationMetadataEntity) {

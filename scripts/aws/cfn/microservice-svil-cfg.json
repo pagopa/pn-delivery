@@ -1,10 +1,16 @@
 {
   "Parameters" : {
-    "SandboxSafeStorageBaseUrl": "https://ewlg4idc89.execute-api.eu-south-1.amazonaws.com/dev",
     "PnDeliveryInsertTriggerLambdaEventSourceMappingBatchSize": "10",
     "PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumBatchingWindowInSeconds": "20",
     "PnDeliveryInsertTriggerLambdaEventSourceMappingMaximumRetryAttempts": "20",
-    "IsMvpDefaultValue": "true",
-    "MaxDocumentsAvailableDays": "120"
+    "IsMvpDefaultValue": "false",
+    "MaxDocumentsAvailableDays": "120",
+    "PnDeliveryAsseverationLambdaEventSourceMappingBatchSize": "10000",
+    "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "300",
+    "IsLollipopActive": "false",
+    "MaxAttachmentsCount": "15",
+    "MaxRecipientsCount": "15",
+    "LollipopExpectedLcOriginalUrl": "https://api-app.io.pagopa.it/api/v1/third-party-messages/:messageId",
+    "LollipopEnableConsumerLogging": "true"
   }
 }

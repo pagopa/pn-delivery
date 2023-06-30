@@ -3,6 +3,8 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
+import it.pagopa.pn.commons.utils.ValidateUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
@@ -20,10 +22,14 @@ public class NotificationReceiverValidator {
 
     private final Validator validator;
     private final MVPParameterConsumer mvpParameterConsumer;
+    private final ValidateUtils validateUtils;
+    private final PnDeliveryConfigs pnDeliveryConfigs;
 
-    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer) {
+    public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs) {
         this.validator = validator;
         this.mvpParameterConsumer = mvpParameterConsumer;
+        this.validateUtils = validateUtils;
+        this.pnDeliveryConfigs = pnDeliveryConfigs;
     }
 
     public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
@@ -50,17 +56,45 @@ public class NotificationReceiverValidator {
     }
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
-      Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();          
-      if ( internalNotification.getRecipients().size() > 1 ) {   
-          Set<String> distinctTaxIds = new HashSet<>();
-          for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
-              if ( !distinctTaxIds.add( recipient.getTaxId() )){
-                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+      Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+
+      // check del numero massimo di documenti allegati
+      if (pnDeliveryConfigs.getMaxAttachmentsCount() > 0 && internalNotification.getDocuments().size() > pnDeliveryConfigs.getMaxAttachmentsCount())
+      {
+          ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max attachment count reached" );
+          errors.add( constraintViolation );
+          return errors;
+      }
+
+      // check del numero massimo di recipient
+      if (pnDeliveryConfigs.getMaxRecipientsCount() > 0 && internalNotification.getRecipients().size() > pnDeliveryConfigs.getMaxRecipientsCount())
+      {
+          ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max recipient count reached" );
+          errors.add( constraintViolation );
+          return errors;
+      }
+
+      int recIdx = 0;
+      Set<String> distinctTaxIds = new HashSet<>();
+      for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+          if( !validateUtils.validate( recipient.getTaxId() ) ) {
+              ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
+              errors.add( constraintViolation );
+          }
+          if ( !distinctTaxIds.add( recipient.getTaxId() )){
+              ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+              errors.add( constraintViolation );
+          }
+          if(recipient.getPayment() != null){
+              String noticeCode = recipient.getPayment().getNoticeCode();
+              String noticeCodeAlternative = recipient.getPayment().getNoticeCodeAlternative();
+              if ( noticeCode.equals(noticeCodeAlternative) ) {
+                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
                   errors.add( constraintViolation );
               }
-              // NOTA: issue PN-2509 verificare ed in caso aggiungere obbligatorietà indirizzo fisico per ogni destinatario fuori MVP
           }
-      }         
+          recIdx++;
+      }
       errors.addAll(validator.validate( internalNotification ));
       return errors;
     }
@@ -72,23 +106,14 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max one recipient" );
             errors.add( constraintViolation );
         }
-        if (notificationRequest.getRecipients().get(0).getPhysicalAddress() == null ) {
-          ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient physical address" );
-          errors.add( constraintViolation );
-        }
         
         NotificationPaymentInfo payment = notificationRequest.getRecipients().get(0).getPayment();
         if (Objects.isNull( payment )) {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient payment" );
             errors.add( constraintViolation );
-        } else {
-            String noticeCode = payment.getNoticeCode();
-            String noticeCodeAlternative = payment.getNoticeCodeAlternative();
-            if ( noticeCode.equals(noticeCodeAlternative) ) {
-                ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
-                errors.add( constraintViolation );
-            }
         }
         return errors;
     }
+
+
 }

@@ -1,0 +1,208 @@
+openapi: 3.0.3
+info:
+  termsOfService: https://da-definire/
+  x-api-id: api-external-b2b-appio
+  title: "Piattaforma Notifiche: API B2B per backend AppIO"
+  x-summary: 'Piattaforma Notifiche: API B2B per backend AppIO'
+  description: |-
+    ## Abstract
+      API utilizzate dal backend di AppIO per recuperare:
+      - i dettagli della notifica
+      - gli url dei documenti allegati alla notifica
+      - gli url degli atti opponibili a terzi
+  contact:
+    email: pn@pagopa.it
+  license:
+    name: Licenza di PN
+    url: https://da-definire/
+  version: '1.1.0'
+servers:
+  - url: https://api-io.pn.pagopa.it
+    description: Ambiente di produzione
+  - url: https://api-io.uat.pn.pagopa.it
+    description: Ambiente di test
+  - url: https://api-io.dev.pn.pagopa.it
+    description: Ambiente di sviluppo
+tags:
+  - name: AppIO-PN-Notification
+    description: Notification details
+  - name: AppIO-PN-Documents
+    description: Notification Documents
+  - name: AppIO-PN-LegalFacts
+    description: Notification Legal Facts
+paths:
+  "/delivery/notifications/received/{iun}":
+    get:
+      summary: Accesso notifiche ricevute
+      description: >-
+        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
+        notifiche ricevute.
+      tags:
+        - AppIO-PN-Notification
+      operationId: getReceivedNotification
+      parameters:
+        - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                        # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+      responses:
+        '200':
+          description: OK
+          content:
+            application/io+json:
+              schema:
+                $ref: "#/components/schemas/ThirdPartyMessage"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery/notifications/received/{iun}/attachments/documents/{docIdx}":
+    get:
+      summary: Download documento notificato
+      tags:
+        - AppIO-PN-Documents
+      operationId: getReceivedNotificationDocument
+      parameters:
+        - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: 'api-external-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: 'schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+    ###########################################################################################
+    ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
+    ###########################################################################################
+
+  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
+    get:
+      summary: Download atto opponibile a terzi
+      description: Permette di scaricare un atto opponibile a terzi
+      tags:
+        - AppIO-PN-LegalFacts
+      operationId: getLegalFact
+      parameters:
+        - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactType'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'
+        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+components:
+  parameters:
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+    cxTaxIdAuthFleet:
+      $ref: 'remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
+    pathLegalFactType:
+      description: >-
+        Categoria dell'atto opponibile a terzi
+      name: legalFactType
+      in: path
+      required: true
+      schema:
+        $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/LegalFactCategory'
+    pathLegalFactId:
+      description: >-
+        Identificativo dell'atto opponibile a terzi
+      name: legalFactId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    ############################################################################################
+    ###                     HEADER DI AUTENTICAZIONE LOLLIPOP                               ###
+    ############################################################################################
+    lollipopOriginalUrl:                                                                            # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopOriginalUrl'                           # ONLY EXTERNAL
+    lollipopOriginalMethod:                                                                         # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopOriginalMethod'                        # ONLY EXTERNAL
+    lollipopPublicKey:                                                                              # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopPublicKey'                             # ONLY EXTERNAL
+    lollipopAssertionRef:                                                                           # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAssertionRef'                          # ONLY EXTERNAL
+    lollipopAssertionType:                                                                          # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAssertionType'                         # ONLY EXTERNAL
+    lollipopAuthJwt:                                                                                # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopAuthJwt'                               # ONLY EXTERNAL
+    lollipopUserId:                                                                                 # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopUserId'                                # ONLY EXTERNAL
+    lollipopSignatureInput:                                                                         # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopSignatureInput'                        # ONLY EXTERNAL
+    lollipopSignature:                                                                              # ONLY EXTERNAL
+      $ref: 'remote-refs.yaml#/components/parameters/lollipopSignature'                             # ONLY EXTERNAL
+
+  schemas:
+    LegalFactDownloadMetadataResponse:
+      $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+    ThirdPartyMessage:
+      $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/ThirdPartyMessage'
+
+    Problem:
+      $ref: 'remote-refs.yaml#/components/schemas/Problem'
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+security:
+  - ApiKeyAuth: [] # use the same name as under securitySchemes

@@ -9,6 +9,9 @@ public class PnDeliveryRestConstants {
     public static final String CX_TYPE_HEADER = "x-pagopa-pn-cx-type";
     public static final String CX_GROUPS_HEADER = "x-pagopa-pn-cx-groups";
 
+    public static final String SOURCE_CHANNEL_HEADER = "x-pagopa-pn-src-ch";
+    public static final String SOURCE_CHANNEL_DETAILS_HEADER = "x-pagopa-pn-src-ch-details";
+
 
     private static final String DELIVERY_PATH = "delivery";
     private static final String DELIVERY_PATH_PRIVATE = "delivery-private";
@@ -29,5 +32,7 @@ public class PnDeliveryRestConstants {
     public static final String NOTIFICATION_UPDATE_STATUS_PATH = DELIVERY_PATH_PRIVATE + "/notifications/update-status";
 
     public static final String DIRECT_ACCESS_PATH = DELIVERY_PATH + "/direct_access";
+
+    public static final String NOTIFICATION_RECEIVED_DELEGATED_PATH = DELIVERY_PATH + "/notifications/received/delegated";
 
 }

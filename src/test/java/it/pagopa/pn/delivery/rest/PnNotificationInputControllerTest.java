@@ -1,20 +1,19 @@
 package it.pagopa.pn.delivery.rest;
 
-import it.pagopa.pn.delivery.utils.PreloadRequest;
-import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
+import it.pagopa.pn.delivery.utils.PreloadRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -29,19 +28,19 @@ class PnNotificationInputControllerTest {
 
 	private static final String PA_ID = "paId";
 	private static final String IUN = "IUN";
-	private static final String PA_NOTIFICATION_ID = "paNotificationId";
-	private static final String SUBJECT = "subject";
-	public static final String DOCUMENT_KEY = "doc_1";
 	public static final Integer MAX_NUMBER_REQUESTS = 1;
 	private static final String SECRET = "secret";
-	private static final String METHOD = "PUT";
 	private static final String URL = "url";
+	public static final List<String> GROUPS = List.of("Group1", "Group2");
+	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
+	private static final String X_PAGOPA_PN_SRC_CH_DETAILS = "sourceChannelDetails";
+	private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 
 	@Autowired
     WebTestClient webTestClient;
 
-	@MockBean
-	ModelMapperFactory modelMapperFactory;
+	@SpyBean
+	private ModelMapper modelMapper;
 	
 	@MockBean
 	private NotificationReceiverService deliveryService;
@@ -62,14 +61,14 @@ class PnNotificationInputControllerTest {
 						.paProtocolNumber("protocol_number").build();
 				
 		// When
-		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
-				.thenReturn( savedNotification );
+		Mockito.when(deliveryService.receiveNotification(
+						Mockito.anyString(),
+						Mockito.any( NewNotificationRequest.class ),
+						Mockito.anyString(),
+						Mockito.isNull(),
+						Mockito.anyList())
+				).thenReturn( savedNotification );
 
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) )
-				.thenReturn( mapper );
-		
 		// Then
 		webTestClient.post()
                 .uri("/delivery/requests")
@@ -79,11 +78,58 @@ class PnNotificationInputControllerTest {
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
-				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) +","+GROUPS.get(1) )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
                 .exchange()
                 .expectStatus().isAccepted();
 		
-		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
+		Mockito.verify( deliveryService ).receiveNotification(
+						PA_ID,
+						notificationRequest,
+						X_PAGOPA_PN_SRC_CH,
+						null,
+						GROUPS);
+	}
+
+	@Test
+	void postSuccessWithSourceChannelDetails() throws PnIdConflictException {
+		// Given
+		NewNotificationRequest notificationRequest = newNotificationRequest();
+
+		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
+				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.paProtocolNumber("protocol_number").build();
+
+		// When
+		Mockito.when(deliveryService.receiveNotification(
+				Mockito.anyString(),
+				Mockito.any( NewNotificationRequest.class ),
+				Mockito.anyString(),
+				Mockito.anyString(),
+				Mockito.anyList())
+		).thenReturn( savedNotification );
+
+		// Then
+		webTestClient.post()
+				.uri("/delivery/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(notificationRequest), NewNotificationRequest.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) +","+GROUPS.get(1) )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DETAILS )
+				.exchange()
+				.expectStatus().isAccepted();
+
+		Mockito.verify( deliveryService ).receiveNotification(
+				PA_ID,
+				notificationRequest,
+				X_PAGOPA_PN_SRC_CH,
+				X_PAGOPA_PN_SRC_CH_DETAILS,
+				GROUPS);
 	}
 
 	private NewNotificationRequest newNotificationRequest() {
@@ -92,18 +138,18 @@ class PnNotificationInputControllerTest {
 				.senderDenomination( "Comune di Milano" )
 				.senderTaxId( "01199250158" )
 				.paProtocolNumber( "protocol_number" )
-				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
+				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
 				.recipients( Collections.singletonList( NotificationRecipient.builder()
 								.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
 								.taxId( "LVLDAA85T50G702B" )
 								.denomination( "Ada Lovelace" )
 								.digitalDomicile( NotificationDigitalAddress.builder()
 										.type( NotificationDigitalAddress.TypeEnum.PEC )
-										.address( "address" )
+										.address( "address@domain.it" )
 										.build() )
 								.physicalAddress( NotificationPhysicalAddress.builder()
-										.zip( "zip" )
-										.municipality( "mnicipality" )
+										.zip( "83100" )
+										.municipality( "municipality" )
 										.address( "address" )
 										.build() )
 								.payment( NotificationPaymentInfo.builder()
@@ -111,11 +157,11 @@ class PnNotificationInputControllerTest {
 										.noticeCode("123456789012345678")
 										.pagoPaForm( NotificationPaymentAttachment.builder()
 												.digests( NotificationAttachmentDigests.builder()
-														.sha256( "sha_256" )
+														.sha256( FILE_SHA_256 )
 														.build() )
 												.contentType( "application/pdf" )
 												.ref( NotificationAttachmentBodyRef.builder()
-														.key( "key" )
+														.key( "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG" ) // or also "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
 														.versionToken( "version_token" )
 														.build() )
 												.build() )
@@ -123,16 +169,17 @@ class PnNotificationInputControllerTest {
 						.build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder()
 								.digests( NotificationAttachmentDigests.builder()
-										.sha256( "sha_256" )
+										.sha256( FILE_SHA_256 )
 										.build() )
 								.contentType( "application/pdf" )
 								.ref( NotificationAttachmentBodyRef.builder()
-										.key( "key" )
+										.key( "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG" )
 										.versionToken( "version_token" )
 										.build() )
 						.build() ) )
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
-				.subject( "subject" )
+				.subject( "subject_length" )
+				.taxonomyCode( "010101P" )
 				.build();
 	}
 
@@ -146,7 +193,12 @@ class PnNotificationInputControllerTest {
 
 		// When
 		Mockito.when( deliveryService.receiveNotification(
-				Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) ) ).thenThrow( exception );
+						Mockito.anyString(),
+						Mockito.any( NewNotificationRequest.class ),
+						Mockito.anyString(),
+						Mockito.isNull(),
+						Mockito.isNull())
+				).thenThrow( exception );
 
 		//Then
 		webTestClient.post()
@@ -157,6 +209,7 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
 				.exchange()
 				.expectStatus()
 				.isEqualTo(HttpStatus.CONFLICT);
@@ -186,7 +239,7 @@ class PnNotificationInputControllerTest {
 		// Given
 		NewNotificationRequest request = newNotificationRequest();
 
-		Mockito.when( deliveryService.receiveNotification( PA_ID, request ) ).thenThrow( RuntimeException.class );
+		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH,null, Collections.emptyList() ) ).thenThrow( RuntimeException.class );
 
 		webTestClient.post()
 				.uri("/delivery/requests")
@@ -196,6 +249,7 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
 				.exchange()
 				.expectStatus()
 				.is5xxServerError();
@@ -211,18 +265,18 @@ class PnNotificationInputControllerTest {
 				.paProtocolNumber( "protocol_number" )
 				.amount(10000)
 				.paymentExpirationDate("2023-10-22")
-				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
+				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
 				.recipients( Collections.singletonList( NotificationRecipient.builder()
 						.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
 						.taxId( "LVLDAA85T50G702B" )
 						.denomination( "Ada Lovelace" )
 						.digitalDomicile( NotificationDigitalAddress.builder()
 								.type( NotificationDigitalAddress.TypeEnum.PEC )
-								.address( "address" )
+								.address( "address@domain.it" )
 								.build() )
 						.physicalAddress( NotificationPhysicalAddress.builder()
-								.zip( "zip" )
-								.municipality( "mnicipality" )
+								.zip( "83100" )
+								.municipality( "municipality" )
 								.address( "address" )
 								.build() )
 						.payment( NotificationPaymentInfo.builder()
@@ -230,11 +284,11 @@ class PnNotificationInputControllerTest {
 								.noticeCode("123456789012345678")
 								.pagoPaForm( NotificationPaymentAttachment.builder()
 										.digests( NotificationAttachmentDigests.builder()
-												.sha256( "sha_256" )
+												.sha256( FILE_SHA_256 )
 												.build() )
 										.contentType( "application/pdf" )
 										.ref( NotificationAttachmentBodyRef.builder()
-												.key( "key" )
+												.key( "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG" )
 												.versionToken( "version_token" )
 												.build() )
 										.build() )
@@ -242,16 +296,16 @@ class PnNotificationInputControllerTest {
 						.build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder()
 						.digests( NotificationAttachmentDigests.builder()
-								.sha256( "sha_256" )
+								.sha256( FILE_SHA_256 )
 								.build() )
 						.contentType( "application/pdf" )
 						.ref( NotificationAttachmentBodyRef.builder()
-								.key( "key" )
+								.key( "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG" )
 								.versionToken( "version_token" )
 								.build() )
 						.build() ) )
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
-				.subject( "subject" )
+				.subject( "subject_length" )
 				.build();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
@@ -259,13 +313,13 @@ class PnNotificationInputControllerTest {
 				.paProtocolNumber( "protocol_number" ).build();
 
 		// When
-		Mockito.when(deliveryService.receiveNotification(Mockito.anyString() ,Mockito.any( NewNotificationRequest.class )))
-				.thenReturn( savedNotification );
-
-		ModelMapper mapper = new ModelMapper();
-		mapper.createTypeMap( NewNotificationRequest.class, InternalNotification.class );
-		Mockito.when( modelMapperFactory.createModelMapper( NewNotificationRequest.class, InternalNotification.class ) )
-				.thenReturn( mapper );
+		Mockito.when(deliveryService.receiveNotification(
+						Mockito.anyString(),
+						Mockito.any( NewNotificationRequest.class ),
+						Mockito.anyString(),
+						Mockito.isNull(),
+						Mockito.anyList())
+				).thenReturn( savedNotification );
 
 		// Then
 		webTestClient.post()
@@ -277,10 +331,16 @@ class PnNotificationInputControllerTest {
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
 				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
 				.exchange()
 				.expectStatus().isAccepted();
 
-		Mockito.verify( deliveryService ).receiveNotification( Mockito.anyString(), Mockito.any( NewNotificationRequest.class ) );
+		Mockito.verify( deliveryService ).receiveNotification(
+						Mockito.anyString(),
+						Mockito.any( NewNotificationRequest.class ),
+						Mockito.anyString(),
+						Mockito.isNull(),
+						Mockito.anyList());
 	}
 
 	@Test
@@ -288,11 +348,10 @@ class PnNotificationInputControllerTest {
 		// Given
 		List<PreLoadRequest> requests = new ArrayList<>();
 		requests.add( PreLoadRequest.builder()
-				.preloadIdx( DOCUMENT_KEY )
+				.sha256( FILE_SHA_256 )
 				.build());
 		List<PreLoadResponse> responses = new ArrayList<>();
 		responses.add( PreLoadResponse.builder()
-				.key( DOCUMENT_KEY )
 				.secret( SECRET )
 				.httpMethod( PreLoadResponse.HttpMethodEnum.PUT )
 				.url( URL )
@@ -325,13 +384,10 @@ class PnNotificationInputControllerTest {
 		//GIven
 		List<PreloadRequest> requests = new ArrayList<>();
 		requests.add( PreloadRequest.builder()
-				.key( DOCUMENT_KEY )
 				.build());
 		requests.add( PreloadRequest.builder()
-				.key( DOCUMENT_KEY )
 				.build());
 		requests.add( PreloadRequest.builder()
-				.key( DOCUMENT_KEY )
 				.build());
 
 		Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn( MAX_NUMBER_REQUESTS );

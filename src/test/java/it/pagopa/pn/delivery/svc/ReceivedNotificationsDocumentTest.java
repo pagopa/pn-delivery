@@ -10,18 +10,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDaoDynamo;
@@ -32,7 +33,7 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.rest.PnReceivedNotificationsController;
 import it.pagopa.pn.delivery.rest.PnSentNotificationsController;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import it.pagopa.pn.delivery.utils.ModelMapperFactory;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
@@ -40,6 +41,7 @@ class ReceivedNotificationsDocumentTest {
 
 	private static final String IUN = "IUN";
 	private static final String PA_ID = "PA_ID";
+	private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
 	private static final int DOCUMENT_INDEX = 0;
 	private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
 	private static final String REDIRECT_URL = "http://redirectUrl";
@@ -64,8 +66,8 @@ class ReceivedNotificationsDocumentTest {
 	@MockBean
 	private PnDeliveryConfigs cfg;
 
-	@MockBean
-	private ModelMapperFactory modelMapperFactory;
+	@SpyBean
+	private ModelMapper modelMapper;
 
 	private NotificationEntityDao entityDao;
 
@@ -81,7 +83,7 @@ class ReceivedNotificationsDocumentTest {
 		this.entityDao = Mockito.mock(NotificationEntityDao.class);
 		this.entity2DtoMapper = Mockito.mock(EntityToDtoNotificationMapper.class);
 		this.pnDataVaultClient = Mockito.mock(PnDataVaultClientImpl.class);
-		this.notificationDao = new NotificationDaoDynamo(entityDao, null, null, entity2DtoMapper, pnDataVaultClient);
+		this.notificationDao = new NotificationDaoDynamo(entityDao, null, null, null, entity2DtoMapper, pnDataVaultClient);
 	}
 
 	@Test
@@ -161,7 +163,7 @@ class ReceivedNotificationsDocumentTest {
 				.requestId( REQUEST_ID )
 				.idempotenceToken( IDEMPOTENCE_TOKEN )
 				.sentAt( Instant.now() )
-				.notificationFeePolicy( NewNotificationRequest.NotificationFeePolicyEnum.FLAT_RATE )
+				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
 				.notificationAbstract( ABSTRACT )
 				.paNotificationId( PA_PROTOCOL_NUMBER )
 				.paymentExpirationDate( PAYMENT_EXPIRE_DATE )
@@ -177,6 +179,7 @@ class ReceivedNotificationsDocumentTest {
 				.iun("IUN_DOCUMENT_01")
 				.subject("Subject 01")
 				.senderPaId( "pa_03" )
+				.sourceChannel(X_PAGOPA_PN_SRC_CH)
 				.notificationStatus( NotificationStatus.ACCEPTED )
 				.recipients( Collections.singletonList(
 						NotificationRecipient.builder()
@@ -223,11 +226,12 @@ class ReceivedNotificationsDocumentTest {
 								)
 						.build()
 						))
-				.build(), Collections.emptyList());
+				.build());
 	}
 
 	private InternalNotification createNoDocumentsNotification() {
 		return new InternalNotification(FullSentNotification.builder()
+				.sourceChannel(X_PAGOPA_PN_SRC_CH)
 				.iun("IUN_DOCUMENT_01")
 				.subject("Subject 01")
 				.senderPaId( "pa_03" )
@@ -242,7 +246,7 @@ class ReceivedNotificationsDocumentTest {
 								.build())
 						.build()
 						))
-				.build(), Collections.emptyList());
+				.build());
 	}
 
 }
