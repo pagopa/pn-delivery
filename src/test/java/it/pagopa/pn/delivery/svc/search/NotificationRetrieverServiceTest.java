@@ -60,7 +60,6 @@ class NotificationRetrieverServiceTest {
     public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader(CX_TYPE, CX_ID, UID, null);
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     private static final String SENDER_ID = "senderId";
-    private static final String WRONG_SENDER_ID = "wrongSenderId";
     private static final String PA_PROTOCOL_NUMBER = "paProtocolNumber";
     private static final String IDEMPOTENCE_TOKEN = "idempotenceToken";
     private static final String MANDATE_ID = "mandateId";
