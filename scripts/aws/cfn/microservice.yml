@@ -574,7 +574,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-io'
         IntendedUsage: IO
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
-        Limit: 600000
+        Limit: 0 # disable IP limit based rule
 
   # Dashboard
   DeliveryMicroserviceCloudWatchDashboard:
