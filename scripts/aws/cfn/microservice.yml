@@ -362,6 +362,10 @@ Parameters:
     Type: String
     Default: 'FATAL'
 
+  IOBackendCidrs:
+    Type: CommaDelimitedList
+    Default: ''
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -575,6 +579,7 @@ Resources:
         IntendedUsage: IO
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicIoAPI.Outputs.APIGatewayARN
         Limit: 0 # disable IP limit based rule
+        AllowedCidrs: !Ref IOBackendCidrs
 
   # Dashboard
   DeliveryMicroserviceCloudWatchDashboard:
