@@ -40,7 +40,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>2.1.9</version>
+            <version>2.1.10</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>
@@ -167,24 +167,6 @@
                             <BP_JVM_TYPE>JDK</BP_JVM_TYPE>
                         </env>
                     </image>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>io.github.git-commit-id</groupId>
-                <artifactId>git-commit-id-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                        <phase>initialize</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                    <commitIdGenerationMode>full</commitIdGenerationMode>
                 </configuration>
             </plugin>
             <plugin>
