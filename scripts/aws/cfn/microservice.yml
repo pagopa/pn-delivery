@@ -363,7 +363,7 @@ Parameters:
     Default: 'FATAL'
 
   IOBackendCidrs:
-    Type: CommaDelimitedList
+    Type: String
     Default: ''
 
 Conditions:
