@@ -75,17 +75,6 @@ components:
           $ref: "#/components/schemas/LocalTaxSection"
         socialSecuritySection:
           $ref: "#/components/schemas/SocialSecuritySection"
-    Header:
-      type: object
-      properties:
-        delegationTo:
-          type: string
-        agency:
-          type: string
-        province:
-          pattern: ^[A-Z]{2}$
-          type: string
-      description: Header object
     LocalTaxRecord:
       allOf:
         - $ref: "#/components/schemas/IncludeNotificationCost"
@@ -358,8 +347,6 @@ components:
     F24Simplified:
       type: object
       properties:
-        header:
-          $ref: "#/components/schemas/Header"
         taxPayer:
           $ref: "#/components/schemas/TaxPayerSimplified"
         paymentsSection:
