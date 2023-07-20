@@ -309,6 +309,23 @@ components:
           $ref: '#/components/schemas/PagoPaPayment'
         f24:
           $ref: '#/components/schemas/F24Payment'
+        alternatives:
+          $ref: '#/components/schemas/NotificationPaymentsAlternatives'
+
+    NotificationPaymentsAlternatives:
+      title: Pagamenti alternativi collegati al pagamento
+      description: >-
+        Lista dei pagamenti alternativi collegati al pagamento
+      type: array
+      items:
+        $ref: '#/components/schemas/NotificationPaymentItemAlternative'
+
+    NotificationPaymentItemAlternative:
+      properties:
+        pagoPa:
+          $ref: '#/components/schemas/PagoPaPayment'
+        f24:
+          $ref: '#/components/schemas/F24Payment'
 
     PagoPaPayment:
       title: Informazioni per effettuare il pagamento con sistema pagoPA
@@ -328,13 +345,8 @@ components:
           $ref: 'schemas-pn-notification-v2.yaml#/components/schemas/noticeCode'
         creditorTaxId:
           $ref: 'schemas-pn-notification-v2.yaml#/components/schemas/paTaxId'
-        noticeCodeAlternative:
-          $ref: 'schemas-pn-notification-v2.yaml#/components/schemas/noticeCode'
         attachment:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
-        expire:
-          type: string
-          format: date-time
 
     F24Payment:
       title: Informazioni per effettuare il pagamento
@@ -346,20 +358,13 @@ components:
       type: object
       required:
         - metadata
+        - title
       properties:
         title:
+          description: Titolo del documento pdf da mostrare all'utente
           type: string
-        amount:
-          type: integer
-          format: int32
-          description: Importo della notifica in eurocent
-        expire:
-          type: string
-          format: date-time
         metadata:
           $ref: 'schema-f24.yaml#/components/schemas/F24Metadata'
-        attachment:
-          $ref: "#/components/schemas/NotificationPaymentAttachment"
 
 
     ############################################################################################
