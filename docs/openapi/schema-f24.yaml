@@ -61,8 +61,8 @@ components:
     F24Standard:
       type: object
       properties:
-        header:
-          $ref: "#/components/schemas/Header"
+        #header:
+        #  $ref: "#/components/schemas/Header"
         taxPayer:
           $ref: "#/components/schemas/TaxPayerStandard"
         treasurySection:

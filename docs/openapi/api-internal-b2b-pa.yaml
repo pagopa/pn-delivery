@@ -446,6 +446,69 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+
+  "/delivery/v2/requests":
+    post:
+      summary: Richiesta invio notifica
+      description: |-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+        Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
+
+        <details no-external>
+        <summary><b> Attributi progettazione di alto livello </b></summary>
+        | Proprietà                | Valore             |
+        | -----------------------: | :----------------- |
+        | __Intended usage__       | B2B, WEB           |
+        | __Modalità interazione__ | Sincrona           |
+        | __TPS (stimato)__        | 5 richieste/sec    |
+        | __Idempotenza__          | No                 |
+        | __Read/Write intensive__ | Write              |
+        | __Cachable__             | No                 |
+        </details>
+      tags:
+        - NewNotification
+      operationId: sendNewNotificationV2
+      parameters: # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'      # NO EXTERNAL
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV2"
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewNotificationResponse"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
     
     
     ###########################################################################################
