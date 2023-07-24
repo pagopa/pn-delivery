@@ -460,23 +460,6 @@ components:
           $ref: '#/components/schemas/PagoPaPayment'
         f24:
           $ref: '#/components/schemas/F24Payment'
-        alternatives:
-          $ref: '#/components/schemas/NotificationPaymentsAlternatives'
-
-    NotificationPaymentsAlternatives:
-      title: Pagamenti alternativi collegati al pagamento
-      description: >-
-        Lista dei pagamenti alternativi collegati al pagamento
-      type: array
-      items:
-        $ref: '#/components/schemas/NotificationPaymentItemAlternative'
-
-    NotificationPaymentItemAlternative:
-      properties:
-        pagoPa:
-          $ref: '#/components/schemas/PagoPaPayment'
-        f24:
-          $ref: '#/components/schemas/F24Payment'
 
     PagoPaPayment:
       title: Informazioni per effettuare il pagamento con sistema pagoPA

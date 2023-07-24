@@ -82,6 +82,7 @@ paths:
   
   "/delivery-private/notifications/{iun}":
     get:
+      deprecated: true
       summary: servizio per cercare una notifica dato <iun>
       tags:
         - internal-only
@@ -113,6 +114,41 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/v2/notifications/{iun}":
+    get:
+      summary: servizio per cercare una notifica dato <iun>
+      tags:
+        - internal-only
+      operationId: getSentNotificationPrivateV2
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV2"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
   "/delivery-private/search":
     get:
       summary: servizio per cercare le notifiche in base ad alcuni parametri di ricerca
@@ -200,6 +236,7 @@ paths:
     ###########################################################################################
   "/delivery-private/events/payment/pagopa":
     post:
+      deprecated: true
       operationId: paymentEventPagoPaPrivate
       description: >-
         Questa API è a disposizione di external registry per inviare eventi
@@ -212,6 +249,42 @@ paths:
           application/json:
               schema:
                 $ref: "#/components/schemas/PaymentEventPagoPaPrivate"
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/v2/events/payment/pagopa":
+    post:
+      operationId: paymentEventPagoPaPrivateV2
+      description: >-
+        Questa API è a disposizione di external registry per inviare eventi
+        di chiusura di una posizione debitoria di tipo PagoPA. <br/>
+      tags:
+        - internal-only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentEventsPagoPaPrivate"
       responses:
         '204':
           description: OK
@@ -467,6 +540,14 @@ components:
           type: integer
           format: int32
           description: indice del destinatario
+
+    PaymentEventsPagoPaPrivate:
+      title: Lista di eventi di pagamento PagoPa
+      description: Lista di eventi di pagamento PagoPa
+      type: array
+      items:
+        $ref: '#/components/schemas/PaymentEventPagoPaPrivate'
+
 
     PaymentEventPagoPaPrivate:
       title: Evento di pagamento PagoPa
