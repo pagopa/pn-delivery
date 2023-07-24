@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.rest.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.appio.v1.dto.ThirdPartyMessage;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;

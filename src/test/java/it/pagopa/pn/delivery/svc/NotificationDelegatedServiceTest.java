@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnMandateEvent;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
@@ -23,8 +23,10 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +54,22 @@ class NotificationDelegatedServiceTest {
 
     @MockBean
     private PnMandateClientImpl pnMandateClientImpl;
+
+    @Test
+    void computeDelegationMetadataEntries() {
+        InternalMandateDto mandate = new InternalMandateDto();
+        mandate.setDelegate(DELEGATE_ID);
+        mandate.setDelegator(DELEGATOR_ID);
+        mandate.setDateto(OffsetDateTime.now().plus(1, ChronoUnit.DAYS).toString());
+        mandate.setDatefrom(OffsetDateTime.now().minus(1, ChronoUnit.DAYS).toString());
+        mandate.setMandateId(MANDATE_ID);
+        when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
+                .thenReturn(List.of(new InternalMandateDto()));
+        NotificationMetadataEntity entity = new NotificationMetadataEntity();
+        entity.setSentAt(Instant.now());
+        entity.setRecipientId(DELEGATOR_ID);
+        Assertions.assertEquals(1, notificationDelegatedService.computeDelegationMetadataEntries(entity).size());
+    }
 
     /**
      * Method under test: {@link NotificationDelegatedService#handleAcceptedMandate(PnMandateEvent.Payload, EventType)}
@@ -186,12 +204,12 @@ class NotificationDelegatedServiceTest {
         PageSearchTrunk<NotificationDelegationMetadataEntity> results = new PageSearchTrunk<>();
         results.setResults(resultsList);
         results.setLastEvaluatedKey(null);
-        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
+        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), any(), anyInt(), any()))
                 .thenReturn(results);
 
         assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
 
-        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao).searchDelegatedByMandateId(anyString(), any(), anyInt(), any());
         verify(notificationDelegationMetadataEntityDao).deleteWithConditions(any());
     }
 
@@ -211,13 +229,73 @@ class NotificationDelegatedServiceTest {
         PageSearchTrunk<NotificationDelegationMetadataEntity> results2 = new PageSearchTrunk<>();
         results2.setResults(resultsList);
         results2.setLastEvaluatedKey(null);
-        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), anyInt(), any()))
+        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(anyString(), any(), anyInt(), any()))
                 .thenReturn(results1)
                 .thenReturn(results2);
 
         assertDoesNotThrow(() -> notificationDelegatedService.deleteNotificationDelegatedByMandateId(MANDATE_ID, EventType.MANDATE_REJECTED));
 
-        verify(notificationDelegationMetadataEntityDao, times(2)).searchDelegatedByMandateId(anyString(), anyInt(), any());
-        verify(notificationDelegationMetadataEntityDao, times(2)).deleteWithConditions(any());
+        verify(notificationDelegationMetadataEntityDao, times(1)).searchDelegatedByMandateId(anyString(), any(), anyInt(), any());
+        verify(notificationDelegationMetadataEntityDao, times(1)).deleteWithConditions(any());
+    }
+
+    @Test
+    void testHandleUpdatedMandate() {
+        when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
+                .thenReturn(new ArrayList<>());
+        PnMandateEvent.Payload payload = new PnMandateEvent.Payload();
+        assertThrows(PnInternalException.class, () -> notificationDelegatedService
+                .handleUpdatedMandate(payload, EventType.MANDATE_ACCEPTED));
+        verify(pnMandateClientImpl).listMandatesByDelegator(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void testHandleUpdatedMandate2() {
+        Instant now = Instant.now();
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId(MANDATE_ID);
+        internalMandateDto.setDelegator(DELEGATOR_ID);
+        internalMandateDto.setDelegate(DELEGATE_ID);
+        internalMandateDto.setDatefrom(now.toString());
+        List<InternalMandateDto> internalMandateDtoList = List.of(internalMandateDto);
+        when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
+                .thenReturn(internalMandateDtoList);
+
+        PageSearchTrunk<NotificationMetadataEntity> page = new PageSearchTrunk<>();
+        page.setResults(List.of(NotificationMetadataEntity.builder().sentAt(Instant.now()).build()));
+        when(notificationMetadataEntityDao.searchForOneMonth(any(), any(), any(), anyInt(), any()))
+                .thenReturn(page);
+        when(notificationDelegationMetadataEntityDao.batchPutItems(anyList()))
+                .thenReturn(Collections.emptyList());
+        PageSearchTrunk<NotificationDelegationMetadataEntity> oneQueryResult = new PageSearchTrunk<>();
+        oneQueryResult.setResults(List.of(NotificationDelegationMetadataEntity.builder().build()));
+        when(notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(any(), any(), anyInt(), any()))
+                .thenReturn(oneQueryResult);
+
+        PnMandateEvent.Payload payload = PnMandateEvent.Payload.builder()
+                .mandateId(MANDATE_ID)
+                .delegatorId(DELEGATOR_ID)
+                .delegateId(DELEGATE_ID)
+                .addedGroups(new HashSet<>(Collections.singletonList("64425c8e8a0f4e1208fc0ed1")))
+                .removedGroups(new HashSet<>(Collections.singletonList("64425c8e8a0f4e1208fc0aa1")))
+                .validFrom(now)
+                .build();
+        assertDoesNotThrow(() -> notificationDelegatedService.handleUpdatedMandate(payload, EventType.MANDATE_ACCEPTED));
+
+        verify(pnMandateClientImpl).listMandatesByDelegator(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void computeDelegationMetadataEntriesTest(){
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setVisibilityIds(Collections.singletonList("senderId"));
+        when(pnMandateClientImpl.listMandatesByDelegator(any(), any(), any(), any(), any(), any()))
+                .thenReturn(Collections.singletonList(internalMandateDto));
+        NotificationMetadataEntity metadata = new NotificationMetadataEntity();
+        metadata.setSenderId("senderId");
+        metadata.setSentAt(Instant.now());
+        List<NotificationDelegationMetadataEntity> result = notificationDelegatedService.computeDelegationMetadataEntries(metadata);
+        Assertions.assertEquals(1, result.size());
+
     }
 }

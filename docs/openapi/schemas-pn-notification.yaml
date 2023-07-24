@@ -17,6 +17,7 @@ components:
     Denomination:
       description: Denominazione ente o persona fisica / ragione sociale
       type: string
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
       maxLength: 80
       pattern: ^.*$
@@ -24,6 +25,7 @@ components:
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
       type: string
+      x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 11
       maxLength: 16
       pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
@@ -91,6 +93,7 @@ components:
         subject:
           type: string
           description: titolo della notifica
+          minLength: 10
           maxLength: 134
           # wide range of characters
           pattern: ^.*$
@@ -150,6 +153,17 @@ components:
           description: >-
             Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
           default: "010101P"
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della notifica. <br/>
+            - _NONE_: nessuna attualizzazione. <br/>
+            - _SYNC_: modalitá sincrona. <br/>
+#            - _ASYNC_: modalitá asincrona. <br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC  # NO EXTERNAL
     SentNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
@@ -545,6 +559,7 @@ components:
             - PEC
         address:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           example: account@domain.it
           description: >-
             Indirizzo PEC o REM che il mittente della notifica intende utilizzare per 
@@ -562,12 +577,14 @@ components:
       properties:
         at:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Campo "presso" dell'indirizzo
           # wide range of characters
           pattern: ^.*$
           maxLength: 256
         address:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Indirizzo del domicilio fisico
           # wide range of characters
           pattern: ^.*$
@@ -575,18 +592,21 @@ components:
           maxLength: 1024
         addressDetails:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Seconda riga dell'indirizzo fisico
           # wide range of characters
           pattern: ^.*$
           maxLength: 1024
         zip:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
           minLength: 0
           maxLength: 15
           pattern: ^(\w|\ |\-)*$
         municipality:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Comune
           # wide range of characters
           pattern: ^.*$
@@ -594,18 +614,21 @@ components:
           maxLength: 256
         municipalityDetails:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Frazione o località
           # wide range of characters
           pattern: ^.*$
           maxLength: 256
         province:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Provincia
           # wide range of characters
           pattern: ^.*$
           maxLength: 256
         foreignState:
           type: string
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           description: Denominazione paese estero
           # wide range of characters
           pattern: ^.*$
@@ -668,6 +691,7 @@ components:
             Elenco delle denominazioni dei destinatari della notifica. <br/>
             __N.B:__ campo da utilizzare solo per visualizzazione.
           type: array
+          x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
           items:
             type: string
         requestAcceptedAt:

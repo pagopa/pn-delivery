@@ -8,9 +8,12 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.ValidateUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroupStatus;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -32,10 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -71,8 +71,10 @@ class NotificationReceiverTest {
 	private FileStorage fileStorage;
 	private ModelMapper modelMapper;
 	private MVPParameterConsumer mvpParameterConsumer;
+	private SendActiveParameterConsumer sendActiveParameterConsumer;
 	private ValidateUtils validateUtils;
 	private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
+	private PnDeliveryConfigs pnDeliveryConfigs;
 
 	@BeforeEach
 	public void setup() {
@@ -81,21 +83,25 @@ class NotificationReceiverTest {
 		notificationDao = Mockito.spy( new NotificationDaoMock() );
 		fileStorage = Mockito.mock( FileStorage.class );
 		modelMapper = new ModelMapper();
+		sendActiveParameterConsumer = Mockito.mock( SendActiveParameterConsumer.class );
 		mvpParameterConsumer = Mockito.mock( MVPParameterConsumer.class );
 		pnExternalRegistriesClient = Mockito.mock( PnExternalRegistriesClientImpl.class );
 		validateUtils = Mockito.mock( ValidateUtils.class );
+		pnDeliveryConfigs = Mockito.mock(PnDeliveryConfigs.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils);
+		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs);
 
 		Mockito.when( validateUtils.validate( Mockito.anyString() ) ).thenReturn( true );
+		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
 
 		deliveryService = new NotificationReceiverService(
 				clock,
 				notificationDao,
 				validator,
 				modelMapper,
+				sendActiveParameterConsumer,
 				pnExternalRegistriesClient);
 	}
 
@@ -106,7 +112,7 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -118,7 +124,7 @@ class NotificationReceiverTest {
 		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( fileData );
 
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification(X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture()  );
@@ -138,7 +144,7 @@ class NotificationReceiverTest {
 		//InternalNotification notification = newNotificationWithPaymentsFlat( );
 		NewNotificationRequest notificationRequest = newNotificationRequest();
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -150,7 +156,7 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture()  );
@@ -164,7 +170,7 @@ class NotificationReceiverTest {
 		//InternalNotification notification = newNotificationWithoutPayments( );
 		NewNotificationRequest notificationRequest = newNotificationRequest();
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		FileData fileData = FileData.builder()
@@ -176,7 +182,7 @@ class NotificationReceiverTest {
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
 		// When
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,notificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
@@ -201,14 +207,14 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 
 		// When
-		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
@@ -218,17 +224,193 @@ class NotificationReceiverTest {
 
 	}
 
+
+	@Test
+	void successWritingNotificationWithTooMuchAttachments() throws PnIdConflictException {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+
+		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(2);
+
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
+				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+				.contentType("application/pdf")
+				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+				.build(),
+		NotificationDocument.builder()
+				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+				.contentType("application/pdf")
+				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+				.build(),
+		NotificationDocument.builder()
+				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+				.contentType("application/pdf")
+				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+				.build()));
+
+		// When
+		Executable todo = () -> {
+			NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		};
+
+		// Then
+		Assertions.assertThrows( PnInvalidInputException.class, todo );
+
+		// Then
+		Mockito.verify( notificationDao, Mockito.never() ).addNotification( savedNotification.capture() );
+
+	}
+
+
+	@Test
+	void successWritingNotificationWithOkAttachments()  {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+
+		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(5);
+
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build(),
+				NotificationDocument.builder()
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build(),
+				NotificationDocument.builder()
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build()));
+
+		// When
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
+
+	}
+
+
+	@Test
+	void successWritingNotificationWithTooMuchRecipients() throws PnIdConflictException {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+
+		Mockito.when( pnDeliveryConfigs.getMaxRecipientsCount()).thenReturn(2);
+
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setRecipients(
+				List.of(
+						buildRecipient("LVLDAA85T50G702B", 8),
+						buildRecipient("DSRDNI00A01A225I", 7),
+						buildRecipient("GLLGLL64B15G702I", 9))
+		);
+
+		// When
+		Executable todo = () -> {
+			NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		};
+
+		// Then
+		Assertions.assertThrows( PnInvalidInputException.class, todo );
+
+		// Then
+		Mockito.verify( notificationDao, Mockito.never() ).addNotification( savedNotification.capture() );
+
+	}
+
+
+	@Test
+	void successWritingNotificationWithOkRecipients()  {
+		ArgumentCaptor<InternalNotification> savedNotification = ArgumentCaptor.forClass(InternalNotification.class);
+
+		FileData fileData = FileData.builder()
+				.content( new ByteArrayInputStream(ATTACHMENT_BODY_STR.getBytes(StandardCharsets.UTF_8)) )
+				.build();
+
+		// Given
+		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
+				.thenReturn( fileData );
+		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+
+		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(3);
+
+		//InternalNotification notification = newNotificationWithoutPayments();
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setRecipients(
+				List.of(
+						buildRecipient("LVLDAA85T50G702B", 8),
+						buildRecipient("DSRDNI00A01A225I", 7),
+						buildRecipient("GLLGLL64B15G702I", 9))
+		);
+
+		// When
+		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+
+		// Then
+		Mockito.verify( notificationDao ).addNotification( savedNotification.capture() );
+
+	}
+
 	@Test
 	void successWriteNotificationWithGroupCheck() {
 		// Given
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup("group1");
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
-		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS );
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS );
 
 		// Then
 		Assertions.assertNotNull( response );
@@ -240,11 +422,11 @@ class NotificationReceiverTest {
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup(null);
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		// When
-		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
 		// Then
 		Assertions.assertNotNull( response );
@@ -258,10 +440,23 @@ class NotificationReceiverTest {
 		newNotificationRequest.setGroup( null );
 
 		// When
-		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
 		// Then
 		Assertions.assertNotNull( response );
+	}
+
+	@Test
+	void badRequestNewNotificationForSendDisabled() {
+		// Given
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+
+		// When
+		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( false );
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, List.of( "fake_Group" ) );
+
+		// Then
+		Assertions.assertThrows(PnBadRequestException.class, todo);
 	}
 
 	@Test
@@ -270,7 +465,7 @@ class NotificationReceiverTest {
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 
 		// When
-		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, List.of( "fake_Group" ) );
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, List.of( "fake_Group" ) );
 
 		// Then
 		Assertions.assertThrows(PnInvalidInputException.class, todo);
@@ -283,7 +478,7 @@ class NotificationReceiverTest {
 		newNotificationRequest.setGroup( null );
 
 		// When
-		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS );
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS );
 
 		// Then
 		Assertions.assertThrows( PnInvalidInputException.class, todo );
@@ -296,10 +491,10 @@ class NotificationReceiverTest {
 		newNotificationRequest.setGroup( "group_1" );
 
 		// When
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
-				.thenReturn( List.of(new PaGroup().id("group_1").status(PaGroupStatus.SUSPENDED)));
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
+				.thenReturn( new ArrayList<>());
 
-		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY );
 
 		// Then
 		Assertions.assertThrows( PnInvalidInputException.class, todo );
@@ -311,12 +506,13 @@ class NotificationReceiverTest {
 
 		// Given
 		NewNotificationRequest notification = NewNotificationRequest.builder()
+				.senderTaxId( "fakeSenderTaxId" )
 				.recipients( Collections.singletonList( NotificationRecipient.builder().build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
 				.build();
 
 		// When
-		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Assertions.assertThrows( PnValidationException.class, todo );
@@ -331,7 +527,7 @@ class NotificationReceiverTest {
 
 		// When
 		Mockito.when( mvpParameterConsumer.isMvp( Mockito.anyString() ) ).thenReturn( false );
-		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Assertions.assertThrows( PnValidationException.class, todo );
@@ -348,7 +544,7 @@ class NotificationReceiverTest {
 
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -360,7 +556,7 @@ class NotificationReceiverTest {
 		Mockito.when( fileStorage.getFileVersion( Mockito.anyString(), Mockito.anyString()))
 				.thenReturn( fileData );
 
-		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		PnIdConflictException exc = Assertions.assertThrows( PnIdConflictException.class, todo );
@@ -378,7 +574,7 @@ class NotificationReceiverTest {
 
 		NewNotificationRequest notification = newNotificationWithPaymentsDeliveryMode( );
 
-		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString() ) )
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
 
 		// When
@@ -391,14 +587,41 @@ class NotificationReceiverTest {
 				.thenReturn( fileData );
 
 		Assertions.assertThrows( PnInternalException.class, () ->
-				deliveryService.receiveNotification( "paId", notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY)
+				deliveryService.receiveNotification( "paId", notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY)
 		);
 
-		deliveryService.receiveNotification( "paId", notification, X_PAGOPA_PN_SRC_CH, X_PAGOPA_PN_CX_GROUPS_EMPTY);
+		deliveryService.receiveNotification( "paId", notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
 		Mockito.verify( notificationDao, Mockito.times( 2 ) )
 				.addNotification( Mockito.any( InternalNotification.class ));
+	}
+
+	@Test
+	void successNewNotificationWithPagoPaIntMode() {
+		// Given
+		NewNotificationRequest newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setGroup(null);
+		newNotificationRequest.setPagoPaIntMode( NewNotificationRequest.PagoPaIntModeEnum.SYNC );
+
+		// When
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+
+		// Then
+		Assertions.assertNotNull( response );
+	}
+
+	@Test
+	void successNewNotificationNoPagoPaIntModeNoPayment() {
+		// Given
+		NewNotificationRequest newNotificationRequest = newNotificationWithoutPayments();
+		newNotificationRequest.setGroup(null);
+		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
+		// When
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY );
+
+		// Then
+		Assertions.assertNotNull( response );
 	}
 
 	private NewNotificationRequest newNotificationRequest() {
@@ -406,7 +629,7 @@ class NotificationReceiverTest {
 				.senderTaxId( "01199250158" )
 				.senderDenomination( "Comune di Milano" )
 				.group( "group1" )
-				.subject( "subject" )
+				.subject( "subject_length" )
 				.documents( Collections.singletonList( NotificationDocument.builder()
 						.contentType( "application/pdf" )
 						.digests( NotificationAttachmentDigests.builder()
@@ -419,38 +642,8 @@ class NotificationReceiverTest {
 						.build() ) )
 				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
 				.paProtocolNumber( "paProtocolNumber" )
-				.recipients( Collections.singletonList( NotificationRecipient.builder()
-						.payment( NotificationPaymentInfo.builder()
-								.creditorTaxId( "77777777777" )
-								.noticeCode("123456789012345678")
-								.pagoPaForm( NotificationPaymentAttachment.builder()
-										.ref(NotificationAttachmentBodyRef.builder()
-												.key( KEY )
-												.versionToken( VERSION_TOKEN )
-												.build())
-										.contentType( "application/pdf" )
-										.digests( NotificationAttachmentDigests.builder()
-												.sha256( SHA256_BODY )
-												.build() )
-										.build() )
-								.build() )
-						.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-						.denomination( "Ada Lovelace" )
-						.taxId( "LVLDAA85T50G702B" )
-						.digitalDomicile( NotificationDigitalAddress.builder()
-								.type( NotificationDigitalAddress.TypeEnum.PEC )
-								.address( "address@pec.it" )
-								.build() )
-						.physicalAddress( NotificationPhysicalAddress.builder()
-								.at( "at" )
-								.province( "province" )
-								.zip( "83100" )
-								.address( "address" )
-								.addressDetails( "addressDetail" )
-								.municipality( "municipality" )
-								.municipalityDetails( "municipalityDetail" )
-								.build() )
-						.build() ))
+				.recipients( Collections.singletonList(
+						buildRecipient("LVLDAA85T50G702B", 8) ))
 				.physicalCommunicationType( NewNotificationRequest.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				._abstract( "abstract" )
 				.build();
@@ -551,6 +744,42 @@ class NotificationReceiverTest {
 				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 				.build();
 	}
+
+	private NotificationRecipient buildRecipient(String taxID, int noticeCode){
+		return NotificationRecipient.builder()
+				.payment( NotificationPaymentInfo.builder()
+						.creditorTaxId( "77777777777" )
+						.noticeCode("12345678901234567" + noticeCode)
+						.pagoPaForm( NotificationPaymentAttachment.builder()
+								.ref(NotificationAttachmentBodyRef.builder()
+										.key( KEY )
+										.versionToken( VERSION_TOKEN )
+										.build())
+								.contentType( "application/pdf" )
+								.digests( NotificationAttachmentDigests.builder()
+										.sha256( SHA256_BODY )
+										.build() )
+								.build() )
+						.build() )
+				.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+				.denomination( "Ada Lovelace" )
+				.taxId( taxID )
+				.digitalDomicile( NotificationDigitalAddress.builder()
+						.type( NotificationDigitalAddress.TypeEnum.PEC )
+						.address( "address@pec.it" )
+						.build() )
+				.physicalAddress( NotificationPhysicalAddress.builder()
+						.at( "at" )
+						.province( "province" )
+						.zip( "83100" )
+						.address( "address" )
+						.addressDetails( "addressDetail" )
+						.municipality( "municipality" )
+						.municipalityDetails( "municipalityDetail" )
+						.build() )
+				.build();
+	}
+
 
 }
 

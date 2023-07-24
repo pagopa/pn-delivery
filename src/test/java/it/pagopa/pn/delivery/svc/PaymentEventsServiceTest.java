@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.api.dto.events.PnDeliveryPaymentEvent;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.PaymentEventsProducer;
@@ -296,7 +296,7 @@ class PaymentEventsServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( Optional.of( createInternalNotification() ) );
 
-        Mockito.when( dataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) )
+        Mockito.when( dataVaultClient.ensureRecipientByExternalId( Mockito.any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) )
                         .thenReturn( RECIPIENT_INTERNAL_ID );
 
         AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(createRecipient(), 0);
@@ -361,7 +361,7 @@ class PaymentEventsServiceTest {
         Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
                 .thenReturn( Optional.of( createInternalNotification() ) );
 
-        Mockito.when( dataVaultClient.ensureRecipientByExternalId( Mockito.any(RecipientType.class), Mockito.anyString() ) )
+        Mockito.when( dataVaultClient.ensureRecipientByExternalId( Mockito.any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) )
                 .thenReturn( null );
 
         // Then

@@ -7,9 +7,11 @@ import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<Key, NotificationDelegationMetadataEntity> {
 
@@ -21,6 +23,7 @@ public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<K
                                                                             int size,
                                                                             PnLastEvaluatedKey lastEvaluatedKey);
     PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                     Set<String> groups,
                                                                                      int size,
                                                                                      PnLastEvaluatedKey lastEvaluatedKey);
 
@@ -29,4 +32,6 @@ public interface NotificationDelegationMetadataEntityDao extends KeyValueStore<K
     List<NotificationDelegationMetadataEntity> batchPutItems(List<NotificationDelegationMetadataEntity> items);
 
     Optional<NotificationDelegationMetadataEntity> deleteWithConditions(NotificationDelegationMetadataEntity entity);
+
+    Page<NotificationDelegationMetadataEntity> searchExactNotification(InputSearchNotificationDelegatedDto searchDto);
 }

@@ -57,7 +57,7 @@ class NotificationReceiverValidationTest {
     this.cfg = Mockito.mock(PnDeliveryConfigs.class);
     this.validateUtils = Mockito.mock( ValidateUtils.class );
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils);
+    validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils, cfg);
   }
 
   @Test
@@ -531,7 +531,7 @@ class NotificationReceiverValidationTest {
                 .noticeCodeAlternative("noticeCodeAlternative").build())
             .build());
     return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
-        .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject")
+        .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
         .senderTaxId("paId").recipients(recipients).build();
   }
 
@@ -556,7 +556,7 @@ class NotificationReceiverValidationTest {
         .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement
             .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatus.ACCEPTED)
             .relatedTimelineElements(Collections.emptyList()).build()))
-        .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject")
+        .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
         .sourceChannel(X_PAGOPA_PN_SRC_CH)
         .physicalCommunicationType(
             FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)

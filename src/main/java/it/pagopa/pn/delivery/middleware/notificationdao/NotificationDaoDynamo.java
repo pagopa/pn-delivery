@@ -2,7 +2,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.*;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -246,6 +247,10 @@ public class NotificationDaoDynamo implements NotificationDao {
 		return new PageSearchTrunk<>();
 	}
 
+	@Override
+	public Page<NotificationDelegationMetadataEntity> searchByPk(InputSearchNotificationDelegatedDto searchDto) {
+		return delegationMetadataEntityDao.searchExactNotification(searchDto);
+	}
 
 
 	Predicate<String> buildRegexpPredicate(String subjectRegExp) {

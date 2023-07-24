@@ -1,16 +1,34 @@
 const AWS = require('aws-sdk');
-var credentials = new AWS.SharedIniFileCredentials({profile: 'default'});
+/*var credentials = new AWS.SharedIniFileCredentials({profile: 'default'});
 AWS.config.credentials = credentials;
-AWS.config.update({region: 'us-east-1', endpoint: 'http://localhost:4566'});
+AWS.config.update({region: 'us-east-1', endpoint: 'http://localhost:4566'});*/
 
-// per lanciarlo in ambiente dev
-/*var credentials = new AWS.SharedIniFileCredentials({profile: 'dev'});
-AWS.config.credentials = credentials;
-AWS.config.update({region: 'eu-west-3'});*/
+const arguments = process.argv ;
+  
+if(arguments.length<=2){
+  console.error("Specify AWS profile as argument")
+  process.exit(1)
+}
+
+const awsProfile = arguments[2]
+
+console.log("Using profile "+awsProfile)
+
+let credentials = null
+
+process.env.AWS_SDK_LOAD_CONFIG=1
+if(awsProfile.indexOf('sso_')>=0){ // sso profile
+  credentials = new AWS.SsoCredentials({profile:awsProfile});
+  AWS.config.credentials = credentials;
+} else { // IAM profile
+  credentials = new AWS.SharedIniFileCredentials({profile: awsProfile});
+  AWS.config.credentials = credentials;
+}
+AWS.config.update({region: 'eu-south-1'});
 
 const docClient = new AWS.DynamoDB.DocumentClient();
 
-TABLE_NAME = 'Notifications'
+TABLE_NAME = 'pn-Notifications'
 SCAN_LIMIT = 2000 // max 2000
 DELAY_MS = 1000; //1 second
 

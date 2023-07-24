@@ -2,6 +2,9 @@
     "openapi": [
         {
             "intendedUsage": "IO",
+            "commonFiles": [
+                "schemas-pn-notification.yaml"
+            ],
             "openapiFiles": [
                 "api-internal-b2b-appio.yaml",
                 "api-internal-b2b-appio-v2.yaml"

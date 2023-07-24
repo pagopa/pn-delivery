@@ -32,6 +32,10 @@ Parameters:
     Type: String
     Description: 'Topic alarm'
 
+  LogRetention:
+    Type: Number
+    Default: 14
+
 Resources:
 
   # Dynamo Table
@@ -210,6 +214,7 @@ Resources:
         DelaySeconds: 1
         AlarmSNSTopicName: !Ref AlarmSNSTopicName
         HasDLQ:  "false"
+        OncallDLQLimit: '1'
         QueueHasAlarm:  "true"
 
   # Coda per inviare eventi di asseverazione, consumata da lambda per salvataggio su bucket s3
@@ -237,6 +242,7 @@ Resources:
       Parameters:
         LogGroupName: !Sub '${ProjectName}-delivery'
         LogsKinesisSourceStreamArn: !Ref LogsKinesisSourceStreamArn
+        LogGroupRetention: !Ref LogRetention
 
   PnDeliveryAsseverationLogGroup:
     Type: AWS::CloudFormation::Stack
@@ -247,6 +253,7 @@ Resources:
       Parameters:
         LogGroupName: !Sub "${ProjectName}-delivery-asseveration-lambda"
         LogGroupPrefix: '/aws/lambda'
+        LogGroupRetention: !Ref LogRetention
 
   PnDeliveryInsertTriggerLogGroup:
     Type: AWS::CloudFormation::Stack
@@ -257,6 +264,7 @@ Resources:
       Parameters:
         LogGroupName: !Sub "${ProjectName}-delivery-insert-trigger-lambda"
         LogGroupPrefix: '/aws/lambda'
+        LogGroupRetention: !Ref LogRetention
 
 Outputs:
 

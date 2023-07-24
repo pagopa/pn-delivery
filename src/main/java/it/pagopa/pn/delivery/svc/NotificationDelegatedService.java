@@ -3,8 +3,8 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnMandateEvent;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.DelegateType;
-import it.pagopa.pn.delivery.generated.openapi.clients.mandate.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.DelegateType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
@@ -21,8 +21,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
@@ -36,6 +36,7 @@ public class NotificationDelegatedService {
     private final PnMandateClientImpl mandateClient;
 
     private static final int DEFAULT_DYNAMO_QUERY_SIZE = 1000;
+    private static final int MAX_DYNAMO_QUERY_SIZE = 2000;
 
     public NotificationDelegatedService(NotificationMetadataEntityDao notificationMetadataEntityDao,
                                         NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao,
@@ -69,6 +70,10 @@ public class NotificationDelegatedService {
                 .build();
         log.debug("filters: {}", searchDto);
 
+        chooseIndexAndDuplicateNotifications(searchDto, mandate.getGroups(), mandate);
+    }
+
+    private void chooseIndexAndDuplicateNotifications(InputSearchNotificationDto searchDto, List<String> groups, InternalMandateDto mandate) {
         IndexNameAndPartitions indexAndPartitions = IndexNameAndPartitions.selectIndexAndPartitions(searchDto);
         if (IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_RECEIVER != indexAndPartitions.getIndexName()) {
             log.error("index must be on receiverId instead of {}", indexAndPartitions.getIndexName());
@@ -76,13 +81,13 @@ public class NotificationDelegatedService {
         }
         log.debug("accepted mandate indexAndPartitions: {}", indexAndPartitions);
 
-        duplicateNotifications(indexAndPartitions, mandate, searchDto);
+        duplicateNotifications(indexAndPartitions, groups, mandate, searchDto);
     }
 
     private void duplicateNotifications(IndexNameAndPartitions indexAndPartitions,
+                                        List<String> groups,
                                         InternalMandateDto mandate,
                                         InputSearchNotificationDto searchDto) {
-        List<InternalMandateDto> listOfOneMandate = List.of(mandate);
         int globalIterations = 0;
         int duplicationCounter = 0;
 
@@ -96,7 +101,7 @@ public class NotificationDelegatedService {
                         partition,
                         DEFAULT_DYNAMO_QUERY_SIZE,
                         lastEvaluatedKey);
-                List<NotificationDelegationMetadataEntity> entries = saveOnePageOfNotifications(page, listOfOneMandate);
+                List<NotificationDelegationMetadataEntity> entries = saveOnePageOfNotifications(page, groups, mandate);
                 duplicationCounter += entries.size();
                 lastEvaluatedKey = lastEvaluatedKeyFromPage(page, partition);
                 log.debug("last evaluated key: {}", lastEvaluatedKey);
@@ -110,9 +115,10 @@ public class NotificationDelegatedService {
     }
 
     private List<NotificationDelegationMetadataEntity> saveOnePageOfNotifications(PageSearchTrunk<NotificationMetadataEntity> page,
-                                                                                  List<InternalMandateDto> listOfOneMandate) {
+                                                                                  List<String> groups,
+                                                                                  InternalMandateDto mandate) {
         List<NotificationDelegationMetadataEntity> entries = page.getResults().stream()
-                .flatMap(metadata -> computeDelegationMetadataEntries(metadata, listOfOneMandate))
+                .flatMap(metadata -> computeDelegationMetadataEntries(metadata, groups, List.of(mandate)))
                 .toList();
         log.debug("saving {} delegation metadata entries", entries.size());
         List<NotificationDelegationMetadataEntity> unprocessed = notificationDelegationMetadataEntityDao.batchPutItems(entries);
@@ -121,6 +127,34 @@ public class NotificationDelegatedService {
             throw new PnInternalException("Can not save all delegation metadata entities", ERROR_CODE_DELIVERY_HANDLEEVENTFAILED);
         }
         return entries;
+    }
+
+    public void handleUpdatedMandate(PnMandateEvent.Payload event, EventType eventType) {
+        log.info("handling {} mandate: {}, delegator={}, delegate={}", eventType, event.getMandateId(), event.getDelegatorId(), event.getDelegateId());
+        InternalMandateDto mandate = getMandateByDelegator(event.getDelegatorId(), event.getMandateId())
+                .orElseThrow(() -> new PnInternalException("Mandate not found", ERROR_CODE_DELIVERY_MANDATENOTFOUND));
+        log.debug("mandate: {}", mandate);
+
+        if (!CollectionUtils.isEmpty(event.getAddedGroups()) && !CollectionUtils.isEmpty(mandate.getGroups())){
+            List<String> groups  = event.getAddedGroups().stream().filter(mandate.getGroups()::contains).toList();
+            log.info("mandate {} has new groups {} duplicating notifications", mandate.getMandateId(), groups);
+            var now = Instant.now();
+            InputSearchNotificationDto searchDto = InputSearchNotificationDto.builder()
+                    .senderReceiverId(event.getDelegatorId())
+                    .bySender(false)
+                    .startDate(now.minus(120, ChronoUnit.DAYS))
+                    .endDate(now) // duplico solo le notifiche ricevute fino ad adesso, quelle successive verranno duplicate tramite il flusso standard
+                    .size(DEFAULT_DYNAMO_QUERY_SIZE)
+                    .build();
+            log.debug("filters: {}", searchDto);
+
+            chooseIndexAndDuplicateNotifications(searchDto, groups, mandate);
+        }
+        if (!CollectionUtils.isEmpty(event.getRemovedGroups())) {
+            log.info("mandate {} has removed groups {}, duplicating notifications", mandate.getMandateId(), event.getRemovedGroups());
+
+            deleteNotificationDelegatedByMandateIdAndGroups(event.getMandateId(), event.getRemovedGroups());
+        }
     }
 
     /**
@@ -133,27 +167,7 @@ public class NotificationDelegatedService {
     public void deleteNotificationDelegatedByMandateId(String mandateId, EventType eventType) {
         log.info("handling {} mandate: {}", eventType, mandateId);
 
-        PnLastEvaluatedKey startEvaluatedKey = new PnLastEvaluatedKey();
-        PageSearchTrunk<NotificationDelegationMetadataEntity> oneQueryResult;
-
-        int iterations = 0;
-        int deleteCount = 0;
-        do {
-            log.debug("querying delegated notification by mandateId: {}, {} results at a time", mandateId, DEFAULT_DYNAMO_QUERY_SIZE);
-            oneQueryResult = notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(mandateId,
-                    DEFAULT_DYNAMO_QUERY_SIZE,
-                    startEvaluatedKey);
-
-            List<NotificationDelegationMetadataEntity> oneQueryResultList = oneQueryResult.getResults();
-            log.info("batch deleting queried delegated notification: {}", oneQueryResult.getResults().size());
-            deleteCount += oneQueryResult.getResults().size();
-
-            oneQueryResultList.forEach(notificationDelegationMetadataEntityDao::deleteWithConditions);
-
-            iterations++;
-            log.debug("last evaluated key: {}", oneQueryResult.getLastEvaluatedKey());
-        } while (oneQueryResult.getLastEvaluatedKey() != null);
-        log.info("mandateId={} deleteCount={} iterations={}", mandateId, deleteCount, iterations);
+        deleteNotificationDelegatedByMandateIdAndGroups(mandateId, Collections.emptySet());
     }
 
     /**
@@ -164,22 +178,52 @@ public class NotificationDelegatedService {
      */
     public List<NotificationDelegationMetadataEntity> computeDelegationMetadataEntries(NotificationMetadataEntity metadata) {
         List<InternalMandateDto> mandates = getMandatesByDelegator(metadata.getRecipientId(), null);
-        return computeDelegationMetadataEntries(metadata, mandates).toList();
+        return computeDelegationMetadataEntries(metadata, null, mandates).toList();
+    }
+
+    private void deleteNotificationDelegatedByMandateIdAndGroups(String mandateId, Set<String> group) {
+        PnLastEvaluatedKey startEvaluatedKey = new PnLastEvaluatedKey();
+        PageSearchTrunk<NotificationDelegationMetadataEntity> oneQueryResult;
+
+        int iterations = 0;
+        int deleteCount = 0;
+        int querySize = DEFAULT_DYNAMO_QUERY_SIZE;
+        do {
+            log.debug("querying delegated notification by mandateId: {}, {} results at a time", mandateId, DEFAULT_DYNAMO_QUERY_SIZE);
+            oneQueryResult = notificationDelegationMetadataEntityDao.searchDelegatedByMandateId(mandateId, group, querySize, startEvaluatedKey);
+
+            List<NotificationDelegationMetadataEntity> oneQueryResultList = oneQueryResult.getResults();
+            log.info("batch deleting queried delegated notification: {}", oneQueryResult.getResults().size());
+            deleteCount += oneQueryResult.getResults().size();
+
+            querySize = adjustQuerySize(querySize, oneQueryResult.getResults().size());
+
+            oneQueryResultList.forEach(notificationDelegationMetadataEntityDao::deleteWithConditions);
+
+            iterations++;
+            log.debug("last evaluated key: {}", oneQueryResult.getLastEvaluatedKey());
+            startEvaluatedKey.setInternalLastEvaluatedKey(oneQueryResult.getLastEvaluatedKey());
+
+        } while (oneQueryResult.getLastEvaluatedKey() != null && !oneQueryResult.getLastEvaluatedKey().isEmpty());
+        log.info("mandateId={} deleteCount={} iterations={}", mandateId, deleteCount, iterations);
     }
 
     private Stream<NotificationDelegationMetadataEntity> computeDelegationMetadataEntries(NotificationMetadataEntity metadata,
+                                                                                          List<String> groups,
                                                                                           List<InternalMandateDto> mandates) {
         String creationMonth = DataUtils.extractCreationMonth(metadata.getSentAt());
         return mandates.stream()
                 .filter(mandate -> CollectionUtils.isEmpty(mandate.getVisibilityIds())
                         || mandate.getVisibilityIds().contains(metadata.getSenderId()))
                 .flatMap(mandate -> {
-                    if (CollectionUtils.isEmpty(mandate.getGroups())) {
-                        return Stream.of(buildOneSearchDelegationMetadataEntry(metadata, mandate, null, creationMonth));
-                    } else {
-                        return mandate.getGroups().stream()
-                                .map(g -> buildOneSearchDelegationMetadataEntry(metadata, mandate, g, creationMonth));
+                    Stream<NotificationDelegationMetadataEntity> entries = Stream.empty();
+                    if (!CollectionUtils.isEmpty(groups)) {
+                        entries = groups.stream().map(g -> buildOneSearchDelegationMetadataEntry(metadata, mandate, g, creationMonth));
                     }
+                    // Alla duplicazione viene aggiunto sempre un elemento senza gruppo; questo è necessario per
+                    // consentire all'amministratore di vedere tutte le notifiche ricevute dall'inizio della delega.
+                    // Quando i gruppi variano nel tempo, questo elemento rimane e viene sempre aggiornato.
+                    return Stream.concat(entries, Stream.of(buildOneSearchDelegationMetadataEntry(metadata, mandate, null, creationMonth)));
                 });
     }
 
@@ -232,5 +276,11 @@ public class NotificationDelegatedService {
             return lastEvaluatedKey;
         }
         return null;
+    }
+
+    private int adjustQuerySize(int currentQuerySize, int resultSize) {
+        float multiplier = 2 - Math.min(resultSize / (float) DEFAULT_DYNAMO_QUERY_SIZE, 1);
+        int newQuerySize = Math.round(currentQuerySize * multiplier);
+        return Math.min(newQuerySize, MAX_DYNAMO_QUERY_SIZE);
     }
 }

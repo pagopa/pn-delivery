@@ -2,8 +2,8 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.BaseRecipientDto;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
@@ -22,9 +22,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +34,9 @@ import static org.mockito.Mockito.when;
         NotificationDelegationMetadataEntityDao.IMPLEMENTATION_TYPE_PROPERTY_NAME + "=" + MiddlewareTypes.DYNAMO,
         "pn.delivery.notification-dao.table-name=Notifications",
         "pn.delivery.notification-metadata-dao.table-name=NotificationsMetadata",
-        "pn.delivery.notification-delegation-metadata-dao.table-name=NotificationDelegationMetadata"
+        "pn.delivery.notification-delegation-metadata-dao.table-name=NotificationDelegationMetadata",
+        "pn.delivery.max-recipients-count=0",
+        "pn.delivery.max-attachments-count=0"
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
@@ -57,7 +57,8 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
 
     @Test
     void testSearchDelegatedByMandateId() {
-        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchDelegatedByMandateId("mandateId", 10, null);
+        Set<String> set = new HashSet<>(List.of("64425c8e8a0f4e1208fc0ec2", "64425c8e8a0f4e1208fc0ed1", "64425c8e8a0f4e1208fc0ee1"));
+        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchDelegatedByMandateId("mandateId", set, 10, null);
         assertNotNull(result);
     }
 

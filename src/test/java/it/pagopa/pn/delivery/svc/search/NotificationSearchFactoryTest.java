@@ -7,7 +7,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationM
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,18 +15,12 @@ import org.mockito.Mockito;
 import java.time.Instant;
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
+
 class NotificationSearchFactoryTest {
 
 
-    private NotificationDao notificationDao;
-
-    private EntityToDtoNotificationMetadataMapper entityToDto;
-
     private PnDeliveryConfigs cfg;
-
-    private PnDataVaultClientImpl dataVaultClient;
-
-    private PnMandateClientImpl mandateClient;
 
     NotificationSearchFactory notificationSearchFactory;
 
@@ -41,12 +34,12 @@ class NotificationSearchFactoryTest {
 
     @BeforeEach
     void setup() {
-        notificationDao = Mockito.mock(NotificationDao.class);
-        entityToDto = Mockito.mock(EntityToDtoNotificationMetadataMapper.class);
-        cfg = Mockito.mock(PnDeliveryConfigs.class);
-        dataVaultClient = Mockito.mock(PnDataVaultClientImpl.class);
-        mandateClient = Mockito.mock(PnMandateClientImpl.class);
-        notificationSearchFactory = new NotificationSearchFactory(notificationDao, entityToDto, cfg, dataVaultClient, mandateClient);
+        NotificationDao notificationDao = mock(NotificationDao.class);
+        EntityToDtoNotificationMetadataMapper entityToDto = mock(EntityToDtoNotificationMetadataMapper.class);
+        cfg = mock(PnDeliveryConfigs.class);
+        PnDataVaultClientImpl dataVaultClient = mock(PnDataVaultClientImpl.class);
+        NotificationDelegatedSearchUtils notificationDelegatedSearchUtils = mock(NotificationDelegatedSearchUtils.class);
+        notificationSearchFactory = new NotificationSearchFactory(notificationDao, entityToDto, cfg, dataVaultClient, notificationDelegatedSearchUtils);
     }
 
     @Test
@@ -162,5 +155,48 @@ class NotificationSearchFactoryTest {
 
         Assertions.assertNotNull(notificationSearch);
         Assertions.assertEquals(NotificationDelegatedSearchMultiPage.class, notificationSearch.getClass());
+    }
+
+    @Test
+    void getMultiPageDelegatedSearchTestWithIun() {
+        InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId("test")
+                .startDate(Instant.parse(START_DATE))
+                .endDate(Instant.parse(END_DATE))
+                .group(null)
+                .senderId(null)
+                .iun("iun")
+                .statuses(List.of(STATUS))
+                .size(null)
+                .nextPageKey("eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ")
+                .cxGroups(GROUPS)
+                .build();
+
+        NotificationDelegatedSearchWithIun notificationSearch = (NotificationDelegatedSearchWithIun) notificationSearchFactory.getMultiPageDelegatedSearch(inputSearchNotificationDelegatedDto,null);
+
+        Assertions.assertNotNull(notificationSearch);
+        Assertions.assertEquals(NotificationDelegatedSearchWithIun.class, notificationSearch.getClass());
+    }
+
+    @Test
+    void getMultiPageDelegatedSearchTestExact() {
+        InputSearchNotificationDelegatedDto inputSearchNotificationDelegatedDto = InputSearchNotificationDelegatedDto.builder()
+                .delegateId("test")
+                .startDate(Instant.parse(START_DATE))
+                .endDate(Instant.parse(END_DATE))
+                .group(null)
+                .senderId(null)
+                .receiverId(RECIPIENT_ID)
+                .statuses(List.of(STATUS))
+                .iun("iun")
+                .size(null)
+                .nextPageKey("eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ")
+                .cxGroups(GROUPS)
+                .build();
+
+        NotificationDelegatedSearchExact notificationSearch = (NotificationDelegatedSearchExact) notificationSearchFactory.getMultiPageDelegatedSearch(inputSearchNotificationDelegatedDto,null);
+
+        Assertions.assertNotNull(notificationSearch);
+        Assertions.assertEquals(NotificationDelegatedSearchExact.class, notificationSearch.getClass());
     }
 }

@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.validation;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.IOException;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,6 +53,25 @@ class ValidationsTest {
         Set<ConstraintViolation<NewNotificationRequest>> violations = validator.validate(newNotificationRequest);
 
         assertThat(violations).isEmpty();
+    }
+
+    @Test
+    void regexTest() {
+        String url1 = "https://api-app.io.pagopa.it/api/v1/third-party-messages/asdasd123qwasdasdasdvxvs23";
+        String url2 = "https://api-app.io.pagopa.it/api/v1/third-party-messages/asdasd123qwasdasdasdvxvs23/attachments/delivery/notifications/received/ENZE-EUJU-UMGL-202306-H-1/attachments/documents/0";
+
+        String regex = "https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}(?:/attachments/(?:\\w+|\\w+(?:/\\w+)*))?";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher1 = pattern.matcher(url1);
+        Matcher matcher2 = pattern.matcher(url2);
+
+        boolean match1 = matcher1.matches();
+        boolean match2 = matcher2.matches();
+
+        Assertions.assertTrue( match1 );
+        //Assertions.assertTrue( match2 );
+
     }
 
 

@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationProcessCostResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -92,7 +92,7 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.clients.deliverypush.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
                 .thenReturn( new NotificationProcessCostResponse()
                         .amount( 2000 )
                         .refinementDate( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) )

@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.clients.datavault.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
@@ -71,7 +71,7 @@ public class StatusService {
                                     notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
                                             .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCode())
                                             .build());
-                                    if(!r.getPayment().getNoticeCodeAlternative().isEmpty())
+                                    if(r.getPayment().getNoticeCodeAlternative() != null && !r.getPayment().getNoticeCodeAlternative().isEmpty())
                                         notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
                                                 .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCodeAlternative())
                                                 .build());

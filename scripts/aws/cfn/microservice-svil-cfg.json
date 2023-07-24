@@ -6,6 +6,11 @@
     "IsMvpDefaultValue": "false",
     "MaxDocumentsAvailableDays": "120",
     "PnDeliveryAsseverationLambdaEventSourceMappingBatchSize": "10000",
-    "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "300"
+    "PnDeliveryAsseverationEventSourceMappingMaximumBatchingWindowInSeconds": "300",
+    "IsLollipopActive": "false",
+    "MaxAttachmentsCount": "15",
+    "MaxRecipientsCount": "15",
+    "LollipopExpectedLcOriginalUrl": "https://api-app.io.pagopa.it/api/v1/third-party-messages/:messageId",
+    "LollipopEnableConsumerLogging": "true"
   }
 }

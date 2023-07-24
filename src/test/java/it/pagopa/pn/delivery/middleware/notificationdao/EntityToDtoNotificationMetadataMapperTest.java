@@ -106,6 +106,7 @@ class EntityToDtoNotificationMetadataMapperTest {
                 NotificationDelegationMetadataEntity.builder()
                         .iunRecipientIdDelegateIdGroupId("test##")
                         .senderId("senderId")
+                        .recipientId("recipientId1")
                         .recipientIds(List.of("recipientId1"))
                         .sentAt(OffsetDateTime.parse(SENT_AT).toInstant())
                         .notificationStatus(NotificationStatus.ACCEPTED.toString())

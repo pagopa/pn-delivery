@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
+import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_UNSUPPORTED_INDEX_NAME;
 
@@ -59,6 +61,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
     @Override
     public PageSearchTrunk<NotificationDelegationMetadataEntity> searchDelegatedByMandateId(String mandateId,
+                                                                                            Set<String> groups,
                                                                                             int size,
                                                                                             PnLastEvaluatedKey lastEvaluatedKey) {
         log.debug("START search by mandateId");
@@ -74,6 +77,14 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
         requestBuilder.queryConditional(equalToConditional)
                 .limit(size);
+
+        if (groups != null && !groups.isEmpty()) {
+            StringBuilder expression = new StringBuilder();
+            Expression.Builder expressionBuilder = Expression.builder();
+            addGroupFilterExpression(groups, expressionBuilder, expression);
+            expressionBuilder.expression(expression.toString());
+            requestBuilder.filterExpression(expressionBuilder.build());
+        }
 
         if (lastEvaluatedKey != null && lastEvaluatedKey.getInternalLastEvaluatedKey() != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
             requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
@@ -203,6 +214,19 @@ public class NotificationDelegationMetadataEntityDaoDynamo
         expressionBuilder.append(expressionBuilder.length() > 0 ? " AND (" : " (");
     }
 
+    private void addGroupFilterExpression(Set<String> groups, Expression.Builder expressionBuilder, StringBuilder expression) {
+        expressionBuilder.putExpressionName("#f", NotificationDelegationMetadataEntity.FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID);
+        int i = 0;
+        for (String group : groups) {
+            expression.append("contains(#f, :g").append(i).append(")");
+            if (i < groups.size() - 1) {
+                expression.append(" OR ");
+            }
+            expressionBuilder.putExpressionValue(":g" + i, AttributeValue.builder().s(group).build());
+            i++;
+        }
+    }
+
     private String retrieveAttributeName(IndexNameAndPartitions.SearchIndexEnum indexName) {
         return switch (indexName) {
             case INDEX_BY_DELEGATE -> NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_CREATION_MONTH;
@@ -312,5 +336,39 @@ public class NotificationDelegationMetadataEntityDaoDynamo
             log.warn("can not delete {} - conditional check failed", entity.getIunRecipientIdDelegateIdGroupId(), e);
             return Optional.empty();
         }
+    }
+
+    @Override
+    public Page<NotificationDelegationMetadataEntity> searchExactNotification(InputSearchNotificationDelegatedDto searchDto) {
+        log.debug("START search for one month");
+        Instant startDate = searchDto.getStartDate();
+        Instant endDate = searchDto.getEndDate();
+
+        Key.Builder builder = Key.builder().partitionValue(constructPk(searchDto));
+        Key key1 = builder.sortValue(startDate.toString()).build();
+        Key key2 = builder.sortValue(endDate.toString()).build();
+        log.debug("key building done pk={} start-sk={} end-sk={}", key1.partitionKeyValue(), key1.sortKeyValue(), key2.sortKeyValue());
+
+        QueryConditional betweenConditional = QueryConditional.sortBetween(key1, key2);
+
+        QueryEnhancedRequest.Builder requestBuilder = QueryEnhancedRequest.builder();
+
+        requestBuilder.queryConditional(betweenConditional)
+                .scanIndexForward(false);
+
+        addFilterExpression(searchDto, requestBuilder);
+
+        log.debug("START query execution");
+        SdkIterable<Page<NotificationDelegationMetadataEntity>> pages = table.query(requestBuilder.build());
+        log.debug("END query execution");
+
+        return pages.iterator().next();
+    }
+
+    private String constructPk(InputSearchNotificationDelegatedDto searchDto) {
+        if(!StringUtils.hasText(searchDto.getGroup())){
+            return DataUtils.createConcatenation(searchDto.getIun(), searchDto.getReceiverId(), searchDto.getDelegateId());
+        }
+        return DataUtils.createConcatenation(searchDto.getIun(), searchDto.getReceiverId(), searchDto.getDelegateId(), searchDto.getGroup());
     }
 }

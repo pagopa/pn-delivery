@@ -1,20 +1,22 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.clients.externalregistries.model.PaGroupStatus;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
-import lombok.extern.slf4j.Slf4j;
+import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -22,18 +24,21 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Objects;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_SEND_IS_DISABLED;
+import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy.DELIVERY_MODE;
 
 @Service
-@Slf4j
+@CustomLog
 public class NotificationReceiverService {
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;
 	private final NotificationReceiverValidator validator;
 	private final ModelMapper modelMapper;
+
+	private final SendActiveParameterConsumer parameterConsumer;
 
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 
@@ -45,11 +50,13 @@ public class NotificationReceiverService {
 			NotificationDao notificationDao,
 			NotificationReceiverValidator validator,
 			ModelMapper modelMapper,
+			SendActiveParameterConsumer parameterConsumer,
 			PnExternalRegistriesClientImpl pnExternalRegistriesClient) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
 		this.modelMapper = modelMapper;
+		this.parameterConsumer = parameterConsumer;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 	}
 
@@ -67,21 +74,33 @@ public class NotificationReceiverService {
 			String xPagopaPnCxId,
 			NewNotificationRequest newNotificationRequest,
 			String xPagopaPnSrcCh,
+			String xPagopaPnSrcChDetails,
 			List<String> xPagopaPnCxGroups
 	) throws PnIdConflictException {
 		log.info("New notification storing START");
+
+		if ( Boolean.FALSE.equals( parameterConsumer.isSendActive( newNotificationRequest.getSenderTaxId() ) )) {
+			throw new PnBadRequestException( "SEND non é abilitata", "Comunicazione notifiche disabilitata", ERROR_CODE_DELIVERY_SEND_IS_DISABLED,
+					"Piattaforma Notifiche non é abilitata alla comunicazione di notifiche." );
+		}
+
 		log.debug("New notification storing START paProtocolNumber={} idempotenceToken={}",
 				newNotificationRequest.getPaProtocolNumber(), newNotificationRequest.getIdempotenceToken());
+		log.logChecking("New notification request validation process");
 		validator.checkNewNotificationRequestBeforeInsertAndThrow(newNotificationRequest);
 		log.debug("Validation OK for paProtocolNumber={}", newNotificationRequest.getPaProtocolNumber() );
-
+		log.logCheckingOutcome("New notification request validation process", true, "");
 		String notificationGroup = newNotificationRequest.getGroup();
 		checkGroup(xPagopaPnCxId, notificationGroup, xPagopaPnCxGroups);
+
+		setPagoPaIntMode(newNotificationRequest);
 
 		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
 
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
+
+		internalNotification.setSourceChannelDetails( xPagopaPnSrcChDetails );
 
 		String iun = doSaveWithRethrow(internalNotification);
 
@@ -95,14 +114,14 @@ public class NotificationReceiverService {
 
 		if( StringUtils.hasText( notificationGroup ) ) {
 
-			List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId );
+			List<PaGroup> paGroups = pnExternalRegistriesClient.getGroups( senderId, true );
 			PaGroup paGroup = paGroups.stream().filter(elem -> {
 				assert elem.getId() != null;
 				return elem.getId().equals(notificationGroup);
 			}).findAny().orElse(null);
 
-			if( paGroup == null || Objects.equals(paGroup.getStatus(), PaGroupStatus.SUSPENDED)){
-				String logMessage = String.format("Group=%s not present or suspended in pa_groups=%s", notificationGroup, paGroup);
+			if( paGroup == null ){
+				String logMessage = String.format("Group=%s not present or suspended/deleted in pa_groups=%s", notificationGroup, paGroup);
 				throw new PnInvalidInputException(ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP, notificationGroup, logMessage);
 			}
 
@@ -117,6 +136,25 @@ public class NotificationReceiverService {
 			}
 		}
 
+	}
+
+	private void setPagoPaIntMode(NewNotificationRequest newNotificationRequest) {
+		 // controllo se non é stato settato il valore pagoPaIntMode dalla PA
+		if ( ObjectUtils.isEmpty( newNotificationRequest.getPagoPaIntMode() ) ) {
+			// verifico che nessun destinatario ha un pagamento
+			if ( newNotificationRequest.getRecipients().stream()
+					.noneMatch(notificationRecipient -> notificationRecipient.getPayment() != null )) {
+				// metto default a NONE
+				newNotificationRequest.setPagoPaIntMode(NewNotificationRequest.PagoPaIntModeEnum.NONE);
+			} else {
+				// qualche destinatario ha un pagamento
+				if (newNotificationRequest.getNotificationFeePolicy().equals( DELIVERY_MODE )) {
+					newNotificationRequest.setPagoPaIntMode(NewNotificationRequest.PagoPaIntModeEnum.SYNC);
+				} else {
+					newNotificationRequest.setPagoPaIntMode( NewNotificationRequest.PagoPaIntModeEnum.NONE );
+				}
+			}
+		}
 	}
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
