@@ -6,20 +6,17 @@
                 "schemas-pn-notification.yaml"
             ],
             "openapiFiles": [
-                "api-internal-b2b-appio.yaml",
-                "api-internal-b2b-appio-v2.yaml"
+                "api-internal-b2b-appio.yaml"
             ],
             "servicePath": "delivery"
         },
         {
             "intendedUsage": "B2B",
             "commonFiles": [
-                "schemas-pn-notification.yaml",
-                "schemas-pn-notification-v2.yaml"
+                "schemas-pn-notification.yaml"
             ],
             "openapiFiles": [
-                "api-internal-b2b-pa.yaml",
-                "api-internal-b2b-pa-v2.yaml"
+                "api-internal-b2b-pa.yaml"
             ],
             "servicePath": "delivery",
             "generateBundle": true
@@ -27,14 +24,11 @@
         {
             "intendedUsage": "WEB",
             "commonFiles": [
-                "schemas-pn-notification.yaml",
-                "schemas-pn-notification-v2.yaml"
+                "schemas-pn-notification.yaml"
             ],
             "openapiFiles": [
                 "api-internal-web-pa.yaml",
-                "api-internal-web-recipient.yaml",
-                "api-internal-web-pa-v2.yaml",
-                "api-internal-web-recipient-v2.yaml"
+                "api-internal-web-recipient.yaml"
             ],
             "servicePath": "delivery"
         }
