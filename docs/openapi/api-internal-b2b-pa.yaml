@@ -581,7 +581,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationV2                                      # NO EXTERNAL
-      #      operationId: retrieveSentNotificationV2                                # ONLY EXTERNAL
+#      operationId: retrieveSentNotificationV2                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -682,6 +682,7 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
       responses:
         '200':
           description: OK
@@ -994,7 +995,7 @@ components:
         format: int32
     pathRecipientIdx:
       name: recipientIdx
-      description: indice dei destinatario nella lista partendo da 0.
+      description: indice del destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
@@ -1007,19 +1008,17 @@ components:
       required: true
       schema:
         type: string
-        minLength: 6
-        maxLength: 12
-        pattern: "PAGOPA|F24_FLAT|F24_STANDARD"
-        #quella sottostante è quella corretta. Riscritta per problemi con tool usato
-        #oneOf:
-        #  - type: number
-        #  - type: string
-        #    enum:
-        #      - PAGOPA
-        #      - F24_FLAT
-        #      - F24_STANDARD
-    
-    
+        minLength: 3
+        maxLength: 6
+        pattern: "PAGOPA|F24"
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
     ############################################################################################

@@ -512,7 +512,7 @@ components:
           description: Titolo del documento pdf da mostrare all'utente
           type: string
         metadata:
-          $ref: './schema-f24.yaml#/components/schemas/F24Metadata'
+          $ref: './remote-refs.yaml#/components/schemas/F24Metadata'
 
 
     NotificationPaymentInfo:
