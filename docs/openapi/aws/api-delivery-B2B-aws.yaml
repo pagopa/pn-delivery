@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: rTtjV4q4KvVid1lr+B5wJawqScNKOSN1HQslHKO33dM=
+  version: ASiQcVSxBOdbi09xH5wqrFr3YvNDvs5v0oj0hrYbg18=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1860,6 +1860,8 @@ components:
           description: identification code
     IncludeNotificationCost:
       type: object
+      required:
+        - include
       properties:
         include:
           type: boolean

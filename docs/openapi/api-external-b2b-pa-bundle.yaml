@@ -1680,6 +1680,8 @@ components:
           description: identification code
     IncludeNotificationCost:
       type: object
+      required:
+        - include
       properties:
         include:
           type: boolean
