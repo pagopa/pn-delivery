@@ -1003,7 +1003,7 @@ components:
         format: int32
     pathAttachmentName:
       name: attachmentName
-      description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24_FLAT|F24_STANDARD
+      description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24
       in: path
       required: true
       schema:

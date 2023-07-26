@@ -285,6 +285,15 @@ components:
           description: >-
             Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
           default: "010101P"
+        paFee:
+          type: integer
+          description: Costo espresso in eurocent che la PA imputa per la notifica
+          format: int32
+          enum: [ 0, 100 ]
+        vat:
+          type: integer
+          format: int32
+          description: IVA espressa in percentuale imposta al mittente sulla notifica analogica
     SentNotificationV2:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
@@ -483,19 +492,19 @@ components:
         notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
-          - _applyCostFlg_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
+          - _applyCost_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
       type: object
       required:
         - noticeCode
         - creditorTaxId
-        - applyCostFlg
+        - applyCost
       properties:
         noticeCode:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
         creditorTaxId:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
-        applyCostFlg:
+        applyCost:
           type: boolean
           nullable: false
           description: Flag per indicare se l'avviso pagoPa deve contere i costi di notifica

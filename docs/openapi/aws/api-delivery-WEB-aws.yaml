@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 4TDtWXM8us9B3BmjUPotqmkNlGjUWXPXC1A8TcTYDO4=
+  version: hJL4fyyBAmW+ava9OzDN5qW2DC7RSFmwDojsTxAewLI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2458,19 +2458,19 @@ components:
         a seconda del canale di notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
-          - _applyCostFlg_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
+          - _applyCost_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
       type: object
       required:
         - noticeCode
         - creditorTaxId
-        - applyCostFlg
+        - applyCost
       properties:
         noticeCode:
           $ref: '#/components/schemas/noticeCode'
         creditorTaxId:
           $ref: '#/components/schemas/paTaxId'
-        applyCostFlg:
+        applyCost:
           type: boolean
           nullable: false
           description: >-
@@ -2567,9 +2567,9 @@ components:
     IncludeNotificationCost:
       type: object
       required:
-        - include
+        - applyCost
       properties:
-        include:
+        applyCost:
           type: boolean
           nullable: false
           description: to check if include notification cost
@@ -2708,6 +2708,9 @@ components:
       allOf:
         - $ref: '#/components/schemas/IncludeNotificationCost'
       type: object
+      required:
+        - municipality
+        - taxType
       properties:
         municipality:
           pattern: ^[0-9A-Z]{4}$
@@ -2783,7 +2786,7 @@ components:
           pattern: ^[0-9]{2}$
           type: string
           description: control identification code
-        referenceNumber:
+        refNumber:
           pattern: ^[0-9]{6}$
           type: string
           description: reference number
@@ -3012,8 +3015,6 @@ components:
           $ref: '#/components/schemas/LocalTaxSection'
         excise:
           $ref: '#/components/schemas/ExciseSection'
-        iban:
-          type: string
       description: F24 Excise (Accise) object
     TaxPayerElide:
       type: object
@@ -3086,15 +3087,6 @@ components:
           $ref: '#/components/schemas/TaxPayerElide'
         treasury:
           $ref: '#/components/schemas/TreasuryAndOtherSection'
-        bankAccountNumber:
-          type: string
-          description: IBAN bank account number
-        abi:
-          type: string
-          description: abi identification code
-        bankId:
-          type: string
-          description: identification code of the bank
     F24Metadata:
       type: object
       properties:
@@ -3267,6 +3259,17 @@ components:
             PIATTAFORMA NOTIFICHE
             DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
           default: 010101P
+        paFee:
+          type: number
+          description: Costo espresso in eurocent che la PA imputa per la notifica
+          enum:
+            - 0
+            - 100
+        vat:
+          type: number
+          description: >-
+            IVA espressa in percentuale imposta al mittente sulla notifica
+            analogica
     SentNotificationV2:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:

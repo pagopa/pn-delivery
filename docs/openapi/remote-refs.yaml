@@ -82,4 +82,4 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-downtime-logs/6e086075d1b7294e5b0dcbc59a226de321a7a1d3/docs/openapi/schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse'
 
     F24Metadata:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-data-vault/26c848de959d21fb45db0b7d6cf77aad292bef16/docs/openapi/schemas-datavault-f24.yaml#/components/schemas/F24Metadata'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-data-vault/40362e12b822147667afc4b53302dcd9ec0ecb6f/docs/openapi/schemas-datavault-f24.yaml#/components/schemas/F24Metadata'
