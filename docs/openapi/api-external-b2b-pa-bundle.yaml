@@ -1582,16 +1582,22 @@ components:
         Informazioni utili per effettuare il pagamento di una notifica, sono associate al destinatario perché le spese di notifica possono differire a seconda del canale di notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _applyCostFlg_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
       type: object
       required:
         - noticeCode
         - creditorTaxId
+        - applyCostFlg
       properties:
         noticeCode:
           $ref: '#/components/schemas/noticeCode'
         creditorTaxId:
           $ref: '#/components/schemas/paTaxId'
+        applyCostFlg:
+          type: boolean
+          nullable: false
+          description: Flag per indicare se l'avviso pagoPa deve contere i costi di notifica
         attachment:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
     PersonalData:

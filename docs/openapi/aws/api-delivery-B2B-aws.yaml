@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ASiQcVSxBOdbi09xH5wqrFr3YvNDvs5v0oj0hrYbg18=
+  version: slDcCYQZLz1SwngMk6tLnBo4tFmdK9eb28gD5mQsGEs=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1760,16 +1760,24 @@ components:
         a seconda del canale di notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _applyCostFlg_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
       type: object
       required:
         - noticeCode
         - creditorTaxId
+        - applyCostFlg
       properties:
         noticeCode:
           $ref: '#/components/schemas/noticeCode'
         creditorTaxId:
           $ref: '#/components/schemas/paTaxId'
+        applyCostFlg:
+          type: boolean
+          nullable: false
+          description: >-
+            Flag per indicare se l'avviso pagoPa deve contere i costi di
+            notifica
         attachment:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
     PersonalData:
