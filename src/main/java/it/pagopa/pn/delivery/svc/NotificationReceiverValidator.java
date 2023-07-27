@@ -79,6 +79,10 @@ public class NotificationReceiverValidator {
       int recIdx = 0;
       Set<String> distinctTaxIds = new HashSet<>();
       for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+
+          // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
+          onlyNumericalTaxIdForPG(errors, recIdx, recipient);
+
           if( !validateUtils.validate( recipient.getTaxId() ) ) {
               ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
               errors.add( constraintViolation );
@@ -101,6 +105,14 @@ public class NotificationReceiverValidator {
       }
       errors.addAll(validator.validate( internalNotification ));
       return errors;
+    }
+
+    private static void onlyNumericalTaxIdForPG(Set<ConstraintViolation<NewNotificationRequest>> errors, int recIdx, NotificationRecipient recipient) {
+        if (NotificationRecipient.RecipientTypeEnum.PG.equals( recipient.getRecipientType() ) &&
+                ( !recipient.getTaxId().matches("^\\d+$") )) {
+                ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "SEND accepts only numerical taxId for PG recipient " + recIdx);
+                errors.add( constraintViolation );
+        }
     }
 
     private static void checkProvince(Set<ConstraintViolation<NewNotificationRequest>> errors, NotificationPhysicalAddress physicalAddress) {
