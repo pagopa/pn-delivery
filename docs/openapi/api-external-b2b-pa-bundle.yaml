@@ -680,6 +680,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/events/payment/f24:
     post:
+      deprecated: true
       operationId: paymentEventsRequestF24
       description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo F24. <br/>
       tags:

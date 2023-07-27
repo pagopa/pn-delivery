@@ -753,6 +753,7 @@ paths:
 
   '/delivery/events/payment/f24':
     post:
+      deprecated: true
       operationId: paymentEventsRequestF24
       description: >-
         Questa API è a disposizione della Pubblica Amministrazione per inviare eventi

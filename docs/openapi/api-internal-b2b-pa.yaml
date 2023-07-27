@@ -870,6 +870,7 @@ paths:
 
   '/delivery/events/payment/f24':
     post:
+      deprecated: true
       operationId: paymentEventsRequestF24
       parameters:                                                  # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 01jIUuBtrEION46zEgktXM+jt7LHmfUmCHELEpoZskI=
+  version: fGST3uknoA774m6zj4ynTNLc6Mp9O2ppwntyBpvCL7o=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -763,6 +763,7 @@ paths:
         type: http_proxy
   /events/payment/f24:
     post:
+      deprecated: true
       operationId: paymentEventsRequestF24
       description: >-
         Questa API è a disposizione della Pubblica Amministrazione per inviare
