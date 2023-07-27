@@ -669,6 +669,7 @@ class NotificationReceiverTest {
 										.at( "presso" )
 										.zip( "83100" )
 										.municipality( "municipality" )
+										.province( "province" )
 										.build()
 								)
 								.build()
