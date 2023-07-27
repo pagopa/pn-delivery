@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hJL4fyyBAmW+ava9OzDN5qW2DC7RSFmwDojsTxAewLI=
+  version: 8D0Mfcl6EJRWuMzCsrJTLXpPlj3x/KSQCF59bzRVT2s=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3262,9 +3262,8 @@ components:
         paFee:
           type: number
           description: Costo espresso in eurocent che la PA imputa per la notifica
-          enum:
-            - 0
-            - 100
+          minimum: 0
+          maximum: 100
         vat:
           type: number
           description: >-

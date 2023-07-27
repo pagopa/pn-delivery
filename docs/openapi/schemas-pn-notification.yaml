@@ -289,7 +289,8 @@ components:
           type: integer
           description: Costo espresso in eurocent che la PA imputa per la notifica
           format: int32
-          enum: [ 0, 100 ]
+          minimum: 0
+          maximum: 100
         vat:
           type: integer
           format: int32
