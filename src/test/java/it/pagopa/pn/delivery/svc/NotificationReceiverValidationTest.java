@@ -134,6 +134,22 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
+  void invalidRecipientPGTaxId() {
+    // Given
+    NewNotificationRequest n = newNotification();
+    n.addRecipientsItem(
+            NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PG)
+                    .taxId("1234c56").denomination("recipientDenomination").build());
+
+    // When
+    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // Then
+    assertConstraintViolationPresentByMessage(errors, "SEND accepts only numerical taxId for PG recipient 1");
+  }
+
+  @Test
   void invalidRecipient() {
 
     // GIVEN
