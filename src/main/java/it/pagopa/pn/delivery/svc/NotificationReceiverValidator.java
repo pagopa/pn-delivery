@@ -117,8 +117,8 @@ public class NotificationReceiverValidator {
 
     private static void checkProvince(Set<ConstraintViolation<NewNotificationRequest>> errors, NotificationPhysicalAddress physicalAddress) {
         if( Objects.nonNull(physicalAddress) &&
-                !StringUtils.hasText( physicalAddress.getForeignState() ) &&
-                ( !StringUtils.hasText( physicalAddress.getProvince() ) ) ) {
+                ( !StringUtils.hasText( physicalAddress.getForeignState() ) || physicalAddress.getForeignState().toUpperCase().trim().startsWith("ITAL") )  &&
+                !StringUtils.hasText( physicalAddress.getProvince() )  ) {
                 ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No province provided in physical address" );
                 errors.add( constraintViolation );
         }

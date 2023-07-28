@@ -460,6 +460,25 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
+  void newNotificationRequestWhitInvalidPhysicalAddressForeignStateItaly() {
+    // GIVEN
+    NewNotificationRequest n = newNotification();
+    n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
+            .foreignState("Italia")
+            .municipality( "municipality" )
+            .address( "address" )
+            .build()
+    );
+
+    // WHEN
+    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // THEN
+    assertConstraintViolationPresentByMessage(errors, "No province provided in physical address");
+  }
+
+  @Test
   @Disabled("Since PN-2401")
   // pass all mvp checks
   void newNotificationRequestForValidDontCheckAddress() {
