@@ -8,10 +8,12 @@ import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -77,6 +79,10 @@ public class NotificationReceiverValidator {
       int recIdx = 0;
       Set<String> distinctTaxIds = new HashSet<>();
       for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+
+          // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
+          onlyNumericalTaxIdForPG(errors, recIdx, recipient);
+
           if( !validateUtils.validate( recipient.getTaxId() ) ) {
               ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
               errors.add( constraintViolation );
@@ -93,10 +99,29 @@ public class NotificationReceiverValidator {
                   errors.add( constraintViolation );
               }
           }
+          NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+          checkProvince(errors, physicalAddress);
           recIdx++;
       }
       errors.addAll(validator.validate( internalNotification ));
       return errors;
+    }
+
+    private static void onlyNumericalTaxIdForPG(Set<ConstraintViolation<NewNotificationRequest>> errors, int recIdx, NotificationRecipient recipient) {
+        if (NotificationRecipient.RecipientTypeEnum.PG.equals( recipient.getRecipientType() ) &&
+                ( !recipient.getTaxId().matches("^\\d+$") )) {
+                ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "SEND accepts only numerical taxId for PG recipient " + recIdx);
+                errors.add( constraintViolation );
+        }
+    }
+
+    private static void checkProvince(Set<ConstraintViolation<NewNotificationRequest>> errors, NotificationPhysicalAddress physicalAddress) {
+        if( Objects.nonNull(physicalAddress) &&
+                ( !StringUtils.hasText( physicalAddress.getForeignState() ) || physicalAddress.getForeignState().toUpperCase().trim().startsWith("ITAL") )  &&
+                !StringUtils.hasText( physicalAddress.getProvince() )  ) {
+                ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No province provided in physical address" );
+                errors.add( constraintViolation );
+        }
     }
 
     public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestForMVP( NewNotificationRequest notificationRequest ) {

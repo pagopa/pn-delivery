@@ -134,6 +134,22 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
+  void invalidRecipientPGTaxId() {
+    // Given
+    NewNotificationRequest n = newNotification();
+    n.addRecipientsItem(
+            NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PG)
+                    .taxId("1234c56").denomination("recipientDenomination").build());
+
+    // When
+    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // Then
+    assertConstraintViolationPresentByMessage(errors, "SEND accepts only numerical taxId for PG recipient 1");
+  }
+
+  @Test
   void invalidRecipient() {
 
     // GIVEN
@@ -423,6 +439,43 @@ class NotificationReceiverValidationTest {
     assertConstraintViolationPresentByField(errors, "documents[0].ref");
     assertConstraintViolationPresentByField(errors, "documents[0].contentType");
     Assertions.assertEquals(3, errors.size());
+  }
+
+  @Test
+  void newNotificationRequestWhitInvalidPhysicalAddress() {
+    // GIVEN
+    NewNotificationRequest n = newNotification();
+    n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
+                    .municipality( "municipality" )
+                    .address( "address" )
+                    .build()
+    );
+
+    // WHEN
+    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // THEN
+    assertConstraintViolationPresentByMessage(errors, "No province provided in physical address");
+  }
+
+  @Test
+  void newNotificationRequestWhitInvalidPhysicalAddressForeignStateItaly() {
+    // GIVEN
+    NewNotificationRequest n = newNotification();
+    n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
+            .foreignState("Italia")
+            .municipality( "municipality" )
+            .address( "address" )
+            .build()
+    );
+
+    // WHEN
+    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // THEN
+    assertConstraintViolationPresentByMessage(errors, "No province provided in physical address");
   }
 
   @Test
