@@ -11,6 +11,7 @@ import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationRequest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
@@ -292,8 +293,7 @@ public class NotificationAttachmentService {
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
             fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
             if (!StringUtils.hasText( fileKey )) {
-                String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
-                throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);
+                throw new PnNotFoundException("FileInfo not found", "exMessage", ERROR_CODE_DELIVERY_FILEINFONOTFOUND);
             }
             name = attachmentName;
         }
@@ -314,20 +314,6 @@ public class NotificationAttachmentService {
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, boolean isMVPTria){
-        NotificationPaymentInfo payment = doc.getPayment();
-        if ( !Objects.nonNull( payment ) ) {
-          String exMessage =  String.format("Notification without payment attachment - iun=%s", iun);
-            log.error(exMessage);
-            if(isMVPTria) {
-              throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
-            } else {
-              throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);              
-            }
-           
-        }
-        if (attachmentName.equals(ATTACHMENT_TYPE_PAGO_PA)) {
-            return getKey( payment.getPagoPaForm() );
-        }
         return null;
     }
 

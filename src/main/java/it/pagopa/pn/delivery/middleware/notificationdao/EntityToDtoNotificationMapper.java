@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -49,18 +50,9 @@ public class EntityToDtoNotificationMapper {
                 .amount(entity.getAmount())
                 .paymentExpirationDate(entity.getPaymentExpirationDate())
                 .taxonomyCode( entity.getTaxonomyCode() )
-                .pagoPaIntMode(  getSafePagoPaIntMode( entity.getPagoPaIntMode() ) )
                 .sourceChannel( entity.getSourceChannel() )
-                .sourceChannelDetails( entity.getSourceChannelDetails() )
                 .recipientIds(recipientIds )
                 .build());
-    }
-
-    private FullSentNotification.PagoPaIntModeEnum getSafePagoPaIntMode(String pagoPaIntMode) {
-        if(StringUtils.hasText( pagoPaIntMode )) {
-          return FullSentNotification.PagoPaIntModeEnum.fromValue( pagoPaIntMode );
-        }
-        return FullSentNotification.PagoPaIntModeEnum.NONE;
     }
 
     private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {
@@ -73,7 +65,6 @@ public class EntityToDtoNotificationMapper {
         return NotificationRecipient.builder()
                 .internalId( entity.getRecipientId() )
                 .recipientType( NotificationRecipient.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
-                .payment( entity2PaymentInfo( entity.getPayments() ) )
                 .build();
     }
 
@@ -83,8 +74,6 @@ public class EntityToDtoNotificationMapper {
             notificationPaymentInfo = NotificationPaymentInfo.builder()
                     .creditorTaxId( paymentList.get( 0 ).getCreditorTaxId() )
                     .noticeCode( paymentList.get( 0 ).getNoticeCode() )
-                    .noticeCodeAlternative( paymentList.size() > 1 ? paymentList.get( 1 ).getNoticeCode() : null )
-                    .pagoPaForm( entity2PaymentAttachment( paymentList.get( 0 ).getPagoPaForm() ) )
                     .build();
         }
         return notificationPaymentInfo;

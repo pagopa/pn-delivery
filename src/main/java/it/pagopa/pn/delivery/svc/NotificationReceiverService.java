@@ -100,7 +100,6 @@ public class NotificationReceiverService {
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
 
-		internalNotification.setSourceChannelDetails( xPagopaPnSrcChDetails );
 
 		String iun = doSaveWithRethrow(internalNotification);
 
@@ -139,22 +138,7 @@ public class NotificationReceiverService {
 	}
 
 	private void setPagoPaIntMode(NewNotificationRequest newNotificationRequest) {
-		 // controllo se non é stato settato il valore pagoPaIntMode dalla PA
-		if ( ObjectUtils.isEmpty( newNotificationRequest.getPagoPaIntMode() ) ) {
-			// verifico che nessun destinatario ha un pagamento
-			if ( newNotificationRequest.getRecipients().stream()
-					.noneMatch(notificationRecipient -> notificationRecipient.getPayment() != null )) {
-				// metto default a NONE
-				newNotificationRequest.setPagoPaIntMode(NewNotificationRequest.PagoPaIntModeEnum.NONE);
-			} else {
-				// qualche destinatario ha un pagamento
-				if (newNotificationRequest.getNotificationFeePolicy().equals( DELIVERY_MODE )) {
-					newNotificationRequest.setPagoPaIntMode(NewNotificationRequest.PagoPaIntModeEnum.SYNC);
-				} else {
-					newNotificationRequest.setPagoPaIntMode( NewNotificationRequest.PagoPaIntModeEnum.NONE );
-				}
-			}
-		}
+
 	}
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {

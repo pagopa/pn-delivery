@@ -31,11 +31,6 @@ class EntityToDtoNotificationMapperTest {
 
         // Then
         Assertions.assertNotNull( internalNotification );
-        Assertions.assertEquals( "noticeCode" ,internalNotification.getRecipients().get( 0 ).getPayment().getNoticeCode() );
-        Assertions.assertEquals( "noticeCode_opt" ,internalNotification.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayment().getPagoPaForm() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayment().getPagoPaForm() );
     }
 
     private NotificationEntity newNotificationEntity() {
@@ -112,7 +107,6 @@ class EntityToDtoNotificationMapperTest {
                 .group( "Group_1" )
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.NONE.getValue() )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
                 .version( 1 )
                 .build();

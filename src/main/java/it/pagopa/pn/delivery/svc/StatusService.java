@@ -64,19 +64,6 @@ public class StatusService {
                     acceptedAt = dto.getTimestamp();
                     putNotificationMetadata(dto, notification, acceptedAt);
                 }
-                case REFUSED ->
-                        notification.getRecipients().stream()
-                                .filter(r -> Objects.nonNull(r.getPayment()))
-                                .forEach(r -> {
-                                    notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
-                                            .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCode())
-                                            .build());
-                                    if(r.getPayment().getNoticeCodeAlternative() != null && !r.getPayment().getNoticeCodeAlternative().isEmpty())
-                                        notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
-                                                .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCodeAlternative())
-                                                .build());
-
-                                });
                 default -> {
                     Key key = Key.builder()
                             .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )

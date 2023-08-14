@@ -13,6 +13,7 @@ import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import it.pagopa.pn.commons.utils.ValidateUtils;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -455,8 +456,6 @@ class NotificationReceiverValidationTest {
         NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
             .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
             .digitalDomicile(NotificationDigitalAddress.builder().build()).build());
-    String noticeCode = n.getRecipients().get(0).getPayment().getNoticeCode();
-    n.getRecipients().get(0).getPayment().setNoticeCodeAlternative(noticeCode);
 
     // WHEN
     Set<ConstraintViolation<NewNotificationRequest>> errors;
@@ -475,7 +474,6 @@ class NotificationReceiverValidationTest {
 
     // GIVEN
     NewNotificationRequest n = newNotification();
-    n.getRecipients().get(0).setPayment(null);
 
     // WHEN
     Set<ConstraintViolation<NewNotificationRequest>> errors;
@@ -527,8 +525,6 @@ class NotificationReceiverValidationTest {
                 .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
             .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
                 .province("province").municipality("municipality").at("at").build())
-            .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
-                .noticeCodeAlternative("noticeCodeAlternative").build())
             .build());
     return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
         .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
@@ -593,15 +589,6 @@ class NotificationReceiverValidationTest {
                 .denomination("Ada Lovelace")
                 .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
                     .type(NotificationDigitalAddress.TypeEnum.PEC).build())
-                .payment(NotificationPaymentInfo.builder()
-                    .creditorTaxId("12345678901").noticeCode("123456789012345678")
-                    .pagoPaForm(NotificationPaymentAttachment.builder()
-                        .digests(
-                            NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                        .build().contentType("application/pdf")
-                        .ref(NotificationAttachmentBodyRef.builder().key(KEY)
-                            .versionToken(VERSION_TOKEN).build()))
-                    .build())
                 .physicalAddress( createPhysicalAddress() )
                 .build())));
   }

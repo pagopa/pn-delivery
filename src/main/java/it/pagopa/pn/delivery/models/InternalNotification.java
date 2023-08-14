@@ -11,35 +11,7 @@ import lombok.*;
 @ToString
 public class InternalNotification extends FullSentNotification {
     public InternalNotification(FullSentNotification fsn) {
-        super(
-                fsn.getIdempotenceToken(),
-                fsn.getPaProtocolNumber(),
-                fsn.getSubject(),
-                fsn.getAbstract(),
-                fsn.getRecipients(),
-                fsn.getDocuments(),
-                fsn.getNotificationFeePolicy(),
-                fsn.getCancelledIun(),
-                fsn.getPhysicalCommunicationType(),
-                fsn.getSenderDenomination(),
-                fsn.getSenderTaxId(),
-                fsn.getGroup(),
-                fsn.getAmount(),
-                fsn.getPaymentExpirationDate(),
-                fsn.getTaxonomyCode(),
-                fsn.getPagoPaIntMode(),
-                fsn.getSenderPaId(),
-                fsn.getIun(),
-                fsn.getSentAt(),
-                fsn.getCancelledByIun(),
-                fsn.getDocumentsAvailable(),
-                fsn.getNotificationStatus(),
-                fsn.getNotificationStatusHistory(),
-                fsn.getTimeline(),
-                fsn.getRecipientIds(),
-                fsn.getSourceChannel(),
-                fsn.getSourceChannelDetails()
-            );
+ 
     }
 
     @Override

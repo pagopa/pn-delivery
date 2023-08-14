@@ -82,7 +82,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 		return NotificationRecipient.builder()
 				.recipientType( recipient.getRecipientType() )
 				.taxId( recipient.getTaxId() )
-				.payment( recipient.getPayment() )
 				.build();
 	}
 

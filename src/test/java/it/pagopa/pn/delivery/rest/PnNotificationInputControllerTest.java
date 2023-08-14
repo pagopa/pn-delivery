@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
@@ -152,20 +153,6 @@ class PnNotificationInputControllerTest {
 										.municipality( "municipality" )
 										.address( "address" )
 										.build() )
-								.payment( NotificationPaymentInfo.builder()
-										.creditorTaxId( "12345678901" )
-										.noticeCode("123456789012345678")
-										.pagoPaForm( NotificationPaymentAttachment.builder()
-												.digests( NotificationAttachmentDigests.builder()
-														.sha256( FILE_SHA_256 )
-														.build() )
-												.contentType( "application/pdf" )
-												.ref( NotificationAttachmentBodyRef.builder()
-														.key( "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG" ) // or also "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"
-														.versionToken( "version_token" )
-														.build() )
-												.build() )
-										.build() )
 						.build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder()
 								.digests( NotificationAttachmentDigests.builder()
@@ -278,20 +265,6 @@ class PnNotificationInputControllerTest {
 								.zip( "83100" )
 								.municipality( "municipality" )
 								.address( "address" )
-								.build() )
-						.payment( NotificationPaymentInfo.builder()
-								.creditorTaxId( "12345678901" )
-								.noticeCode("123456789012345678")
-								.pagoPaForm( NotificationPaymentAttachment.builder()
-										.digests( NotificationAttachmentDigests.builder()
-												.sha256( FILE_SHA_256 )
-												.build() )
-										.contentType( "application/pdf" )
-										.ref( NotificationAttachmentBodyRef.builder()
-												.key( "PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG" )
-												.versionToken( "version_token" )
-												.build() )
-										.build() )
 								.build() )
 						.build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder()

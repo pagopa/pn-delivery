@@ -143,11 +143,6 @@ class StatusServiceTest {
                                 .taxId("CodiceFiscale")
                                 .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                                 .internalId("recipientInternalId")
-                                .payment(NotificationPaymentInfo.builder()
-                                        .noticeCode("1234")
-                                        .noticeCodeAlternative("5678")
-                                        .build()
-                                )
                                 .build()))
                 .build());
     }

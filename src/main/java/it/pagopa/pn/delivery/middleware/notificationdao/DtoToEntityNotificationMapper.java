@@ -34,9 +34,7 @@ public class DtoToEntityNotificationMapper {
                 .amount(dto.getAmount())
                 .paymentExpirationDate(dto.getPaymentExpirationDate())
                 .taxonomyCode(dto.getTaxonomyCode())
-                .pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
                 .sourceChannel( dto.getSourceChannel() )
-                .sourceChannelDetails( dto.getSourceChannelDetails() )
                 .version( NOTIFICATION_VERSION );
 
         return builder.build();
@@ -54,28 +52,19 @@ public class DtoToEntityNotificationMapper {
         return NotificationRecipientEntity.builder()
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
-                .payments( dto2PaymentList( recipient.getPayment() ) )
                 .build();
     }
 
-    private List<NotificationPaymentInfoEntity> dto2PaymentList(NotificationPaymentInfo dto) {
+    private List<NotificationPaymentInfoEntity> dto2PaymentList(PagoPaPayment dto) {
         List<NotificationPaymentInfoEntity> paymentInfoEntityList = null;
         if ( dto != null) {
             paymentInfoEntityList = new ArrayList<>();
             paymentInfoEntityList.add( NotificationPaymentInfoEntity.builder()
                     .creditorTaxId( dto.getCreditorTaxId() )
                     .noticeCode( dto.getNoticeCode() )
-                    .pagoPaForm( dto2PaymentAttachment( dto.getPagoPaForm() ) )
                     .build()
             );
-            if ( StringUtils.hasText( dto.getNoticeCodeAlternative() ) ) {
-                paymentInfoEntityList.add( NotificationPaymentInfoEntity.builder()
-                        .creditorTaxId( dto.getCreditorTaxId() )
-                        .noticeCode( dto.getNoticeCodeAlternative() )
-                        .pagoPaForm( dto2PaymentAttachment( dto.getPagoPaForm() ) )
-                        .build()
-                );
-            }
+
         }
         return paymentInfoEntityList;
     }

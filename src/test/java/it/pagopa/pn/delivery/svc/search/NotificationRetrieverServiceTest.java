@@ -16,6 +16,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.mo
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
@@ -445,7 +446,6 @@ class NotificationRetrieverServiceTest {
         
         //Then
         Assertions.assertNotNull( result );
-        Assertions.assertNull( result.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
     }
 
     @Test
@@ -579,11 +579,6 @@ class NotificationRetrieverServiceTest {
                 .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                        .payment( NotificationPaymentInfo.builder()
-                                .creditorTaxId( "77777777777" )
-                                .noticeCode( NOTICE_CODE )
-                                .noticeCodeAlternative( NOTICE_CODE_ALTERNATIVE )
-                                .build() )
                         .taxId("77777777777")
                         .digitalDomicile(NotificationDigitalAddress.builder().address("recipient0@pec.it").build())
                         .physicalAddress(NotificationPhysicalAddress.builder().address("via Roma").zip("80100").build())
@@ -1008,8 +1003,6 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
 
     }
 
@@ -1047,8 +1040,6 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-02-11T00:00:00.00Z" ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
     }
 
     @Test
@@ -1086,8 +1077,6 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertEquals( NOTICE_CODE_ALTERNATIVE, internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
     }
 
     @Test
@@ -1126,13 +1115,6 @@ class NotificationRetrieverServiceTest {
 
             //Then
             Mockito.verify(notificationViewedProducer).sendNotificationViewed(IUN, Instant.parse(nowTestInstant), 0, null);
-            if(internalNotificationResult.getRecipients().get(0).getPayment() == null){
-                Assertions.assertNull(internalNotificationResult.getRecipients().get(0).getPayment());
-                Assertions.assertEquals(null, internalNotificationResult.getRecipients().get(0).getPayment());
-            }else{
-                Assertions.assertNull(internalNotificationResult.getRecipients().get(0).getPayment().getNoticeCodeAlternative());
-                Assertions.assertEquals(NOTICE_CODE, internalNotificationResult.getRecipients().get(0).getPayment().getNoticeCode());
-            }
 
 
     }
@@ -1173,8 +1155,6 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
     }
 
     @Test
@@ -1207,8 +1187,6 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-05-11T00:00:00.00Z" ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
     }
 
     @Test
@@ -1241,8 +1219,6 @@ class NotificationRetrieverServiceTest {
         InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-03-11T00:00:00.00Z" ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCode() );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
     }
 
     @Test
@@ -1270,7 +1246,6 @@ class NotificationRetrieverServiceTest {
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayment().getPagoPaForm() );
     }
 
     @Test
@@ -1329,7 +1304,6 @@ class NotificationRetrieverServiceTest {
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayment().getPagoPaForm() );
 
     }
 
@@ -1373,7 +1347,6 @@ class NotificationRetrieverServiceTest {
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getTaxId());
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getDenomination());
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getDigitalDomicile());
-        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPayment());
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPhysicalAddress());
         //e mi aspetto che possa vedere i suoi dati di recipient
         Assertions.assertEquals(internalNotificationResult.getRecipients().get(0), internalNotificationResult.getRecipients().get(0));
@@ -1418,7 +1391,6 @@ class NotificationRetrieverServiceTest {
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getTaxId());
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getDenomination());
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getDigitalDomicile());
-        Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPayment());
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getPhysicalAddress());
         //e mi aspetto che possa vedere i suoi dati di recipient
         Assertions.assertEquals(internalNotificationResult.getRecipients().get(0), internalNotificationResult.getRecipients().get(0));
@@ -1428,11 +1400,6 @@ class NotificationRetrieverServiceTest {
         ArrayList<NotificationRecipient> notificationRecipients = new ArrayList<>(internalNotification.getRecipients());
         notificationRecipients.add(NotificationRecipient.builder()
                 .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-                .payment(NotificationPaymentInfo.builder()
-                        .creditorTaxId("88888888")
-                        .noticeCode(NOTICE_CODE + 1)
-                        .noticeCodeAlternative(NOTICE_CODE_ALTERNATIVE + 1)
-                        .build())
                 .taxId("88888888")
                 .digitalDomicile(NotificationDigitalAddress.builder().address("recipient1@pec.it").build())
                 .physicalAddress(NotificationPhysicalAddress.builder().address("via Milano").zip("80100").build())

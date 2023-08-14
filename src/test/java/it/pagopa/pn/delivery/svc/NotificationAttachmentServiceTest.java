@@ -20,6 +20,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.Interna
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachm
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentAttachment;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
@@ -532,10 +532,7 @@ class NotificationAttachmentServiceTest {
     notificationAttachmentBodyRef.setKey("filekey");
     notificationPaymentAttachment.setRef(notificationAttachmentBodyRef);
 
-    if (channel.equals(PAGOPA))
-      notificationPaymentInfo.setPagoPaForm(notificationPaymentAttachment);
 
-    notificationRecipient.setPayment(notificationPaymentInfo);
     notification.addRecipientsItem(notificationRecipient);
 
     NotificationDocument documentItem = new NotificationDocument();

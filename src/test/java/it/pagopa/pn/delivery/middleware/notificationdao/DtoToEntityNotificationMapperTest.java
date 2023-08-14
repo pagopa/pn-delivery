@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -42,7 +43,6 @@ class DtoToEntityNotificationMapperTest {
     private InternalNotification newInternalNotification() {
         return new InternalNotification(FullSentNotification.builder()
                 .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
-                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.SYNC )
                 .iun( "iun" )
                 .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
                 .senderPaId( "senderPaId" )
@@ -51,24 +51,6 @@ class DtoToEntityNotificationMapperTest {
                         .physicalAddress(NotificationPhysicalAddress.builder()
                                 .foreignState( "Italia" )
                                 .build())
-                        .payment( NotificationPaymentInfo.builder()
-                                .creditorTaxId( CREDITOR_TAX_ID )
-                                .noticeCode( NOTICE_CODE )
-                                .noticeCodeAlternative( NOTICE_CODE_ALTERNATIVE )
-                                .pagoPaForm( NotificationPaymentAttachment.builder()
-                                        .ref( NotificationAttachmentBodyRef.builder()
-                                                .key( "KEY" )
-                                                .versionToken( "VERSION_TOKEN" )
-                                                .build()
-                                        )
-                                        .digests( NotificationAttachmentDigests.builder()
-                                                .sha256( "SHA_256" )
-                                                .build()
-                                        )
-                                        .contentType( "CONTENT_TYPE" )
-                                        .build()
-                                )
-                                .build() )
                         .build()
                         )
                 )

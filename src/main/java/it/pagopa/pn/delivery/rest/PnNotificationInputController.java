@@ -36,29 +36,6 @@ public class PnNotificationInputController implements NewNotificationApi {
         this.notificationAttachmentService = notificationAttachmentService;
     }
 
-    @Override
-    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
-        String paIdempotenceToken = newNotificationRequest.getIdempotenceToken();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(PnAuditLogEventType.AUD_NT_INSERT, "sendNewNotification for protocolNumber={}, idempotenceToken={}", paProtocolNumber, paIdempotenceToken)
-                .build();
-        logEvent.log();
-        NewNotificationResponse svcRes;
-        try {
-            svcRes = svc.receiveNotification(xPagopaPnCxId, newNotificationRequest, xPagopaPnSrcCh, xPagopaPnSrcChDetails, xPagopaPnCxGroups);
-        } catch (PnRuntimeException ex) {
-            logEvent.generateFailure("[protocolNumber={}, idempotenceToken={}] " + ex.getProblem(),
-                    newNotificationRequest.getPaProtocolNumber(), paIdempotenceToken).log();
-            throw ex;
-        }
-        @NotNull String requestId = svcRes.getNotificationRequestId();
-        @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
-        String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
-        logEvent.getMdc().put("iun", iun);
-        logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
-        return ResponseEntity.accepted().body( svcRes );
-    }
 
     @Override
     public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(

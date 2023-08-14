@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -602,7 +603,6 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequest newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup(null);
-		newNotificationRequest.setPagoPaIntMode( NewNotificationRequest.PagoPaIntModeEnum.SYNC );
 
 		// When
 		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY );
@@ -685,14 +685,7 @@ class NotificationReceiverTest {
 	private NewNotificationRequest newNotificationWithPaymentsDeliveryMode( ) {
 		NewNotificationRequest notification = newNotificationWithoutPayments( );
 		notification.notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
-
-		for( NotificationRecipient recipient : notification.getRecipients()) {
-			recipient.payment( NotificationPaymentInfo.builder()
-					.noticeCode( "123456789012345678" )
-					.creditorTaxId( "12345678901" )
-					.build()
-			);
-		}
+		
 		return notification;
 	}
 
@@ -710,20 +703,7 @@ class NotificationReceiverTest {
 						.type( NotificationDigitalAddress.TypeEnum.PEC )
 						.address( "digitalAddressPec" )
 						.build() )
-				.payment( NotificationPaymentInfo.builder()
-						.creditorTaxId( "creditorTaxId" )
-						.pagoPaForm( NotificationPaymentAttachment.builder()
-								.ref( NotificationAttachmentBodyRef.builder()
-										.key( KEY )
-										.versionToken( VERSION_TOKEN )
-										.build() )
-								.digests( NotificationAttachmentDigests.builder()
-										.sha256( SHA256_BODY )
-										.build() )
-								.contentType( "application/pdf" )
-								.build() )
-						.build()
-				).build();
+				.build();
 		return NewNotificationRequest.builder()
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")
@@ -747,20 +727,6 @@ class NotificationReceiverTest {
 
 	private NotificationRecipient buildRecipient(String taxID, int noticeCode){
 		return NotificationRecipient.builder()
-				.payment( NotificationPaymentInfo.builder()
-						.creditorTaxId( "77777777777" )
-						.noticeCode("12345678901234567" + noticeCode)
-						.pagoPaForm( NotificationPaymentAttachment.builder()
-								.ref(NotificationAttachmentBodyRef.builder()
-										.key( KEY )
-										.versionToken( VERSION_TOKEN )
-										.build())
-								.contentType( "application/pdf" )
-								.digests( NotificationAttachmentDigests.builder()
-										.sha256( SHA256_BODY )
-										.build() )
-								.build() )
-						.build() )
 				.recipientType( NotificationRecipient.RecipientTypeEnum.PF )
 				.denomination( "Ada Lovelace" )
 				.taxId( taxID )

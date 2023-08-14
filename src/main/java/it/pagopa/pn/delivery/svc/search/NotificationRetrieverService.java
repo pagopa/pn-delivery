@@ -13,6 +13,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.mo
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
@@ -484,11 +485,12 @@ public class NotificationRetrieverService {
 
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
 		for ( NotificationRecipient recipient : recipientList ) {
-			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
-			if ( notificationPaymentInfo != null) {
-    			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
-    			String noticeCode = notificationPaymentInfo.getNoticeCode();
-    			if ( notificationPaymentInfo.getNoticeCodeAlternative() != null ) {
+			List<NotificationPaymentItem> notificationPaymentItemList = recipient.getPayments();
+			
+			if ( notificationPaymentItemList != null) {
+    			String creditorTaxId = notificationPaymentItemList.get(0).getPagoPa().getCreditorTaxId();
+    			String noticeCode = notificationPaymentItemList.get(0).getPagoPa().getNoticeCode();
+    			if ( notificationPaymentItemList.get(1).getPagoPa() != null ) {
     				switch (noticeCodeToReturn) {
     					case FIRST_NOTICE_CODE: {
     						break;
@@ -496,11 +498,10 @@ public class NotificationRetrieverService {
     					// - se devo restituire il notice code alternativo...
     					case SECOND_NOTICE_CODE: {
     						// - ...verifico che il primo notice code non è stato già pagato
-    						setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
+    						setNoticeCodePayment(iun, notificationPaymentItemList.get(0).getPagoPa(), creditorTaxId, noticeCode);
     						break;
     					}
     					case NO_NOTICE_CODE: {
-    						notificationPaymentInfo.setNoticeCode( null );
     						break;
     					}
     					default: {
@@ -508,13 +509,12 @@ public class NotificationRetrieverService {
     					}
     				}
     				// in ogni caso non restituisco il noticeCode opzionale
-    				notificationPaymentInfo.setNoticeCodeAlternative( null );
     			}
 			}
 		}
 	}
 
-	private void setNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
+	private void setNoticeCodePayment(String iun, PagoPaPayment notificationPaymentInfo, String creditorTaxId, String noticeCode) {
 		log.debug( "Start getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
 		try {
 			PaymentInfo paymentInfo = this.pnExternalRegistriesClient.getPaymentInfo(creditorTaxId, noticeCode);
@@ -523,8 +523,6 @@ public class NotificationRetrieverService {
 				// - se il primo notice code NON è stato già pagato
 				if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
 					// - restituisco il notice code alternativo
-					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getNoticeCodeAlternative() );
-					notificationPaymentInfo.setNoticeCode( notificationPaymentInfo.getNoticeCodeAlternative() );
 				}
 				// - il primo notice code è stato già pagato quindi lo restituisco
 			} else {
@@ -716,12 +714,7 @@ public class NotificationRetrieverService {
 	private void removeDocuments(InternalNotification notification) {
 		notification.setDocumentsAvailable( false );
 		notification.setDocuments( Collections.emptyList() );
-		for ( NotificationRecipient recipient : notification.getRecipients() ) {
-			NotificationPaymentInfo payment = recipient.getPayment();
-			if ( payment != null ) {
-				payment.setPagoPaForm( null );
-			}
-		}
+
 	}
 
 	public InternalNotification enrichWithTimelineAndStatusHistory(String iun, InternalNotification notification) {

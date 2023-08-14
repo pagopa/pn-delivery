@@ -245,9 +245,5 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
       return ResponseEntity.ok(qrService.getQRByIun(iun));
     }
 
-    @Override
-    public ResponseEntity<Void> paymentEventPagoPaPrivate(PaymentEventPagoPaPrivate paymentEventPagoPaPrivate) {
-        paymentEventsService.handlePaymentEventPagoPaPrivate( paymentEventPagoPaPrivate );
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
+
 }

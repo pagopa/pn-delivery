@@ -7,7 +7,7 @@ import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentItem;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
@@ -85,14 +85,7 @@ public class NotificationReceiverValidator {
               ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
               errors.add( constraintViolation );
           }
-          if(recipient.getPayment() != null){
-              String noticeCode = recipient.getPayment().getNoticeCode();
-              String noticeCodeAlternative = recipient.getPayment().getNoticeCodeAlternative();
-              if ( noticeCode.equals(noticeCodeAlternative) ) {
-                  ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
-                  errors.add( constraintViolation );
-              }
-          }
+
           recIdx++;
       }
       errors.addAll(validator.validate( internalNotification ));
@@ -106,8 +99,8 @@ public class NotificationReceiverValidator {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "Max one recipient" );
             errors.add( constraintViolation );
         }
-        
-        NotificationPaymentInfo payment = notificationRequest.getRecipients().get(0).getPayment();
+
+        NotificationPaymentItem payment = notificationRequest.getRecipients().get(0).getPayments().get(0);
         if (Objects.isNull( payment )) {
             ConstraintViolationImpl<NewNotificationRequest> constraintViolation = new ConstraintViolationImpl<>( "No recipient payment" );
             errors.add( constraintViolation );

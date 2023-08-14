@@ -79,8 +79,6 @@ class NotificationReceiverValidationTestIT {
                                 .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
                         .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("zip")
                                 .province("province").municipality("municipality").at("at").build())
-                        .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
-                                .noticeCodeAlternative("noticeCodeAlternative").build())
                         .build());
         return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
                 .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject")

@@ -7,6 +7,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.Analo
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
@@ -424,7 +425,6 @@ class NotificationDaoDynamoTest {
                 .iun("IUN_01")
                 .paProtocolNumber( "protocol_01" )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.NONE )
                 .subject("Subject 01")
                 .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
                 .cancelledByIun("IUN_05")
@@ -526,7 +526,6 @@ class NotificationDaoDynamoTest {
                 .iun("IUN_01")
                 .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.NONE )
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")
@@ -537,11 +536,6 @@ class NotificationDaoDynamoTest {
                 .recipients(Collections.singletonList(
                         NotificationRecipient.builder()
                                 .internalId( "recipientInternalId" )
-                                .payment( NotificationPaymentInfo.builder()
-                                        .noticeCode( "noticeCode" )
-                                        .noticeCodeAlternative( "noticeCodeAlternative" )
-                                        .pagoPaForm( null )
-                                        .build() )
                                 .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                                 .build()
                 ))
