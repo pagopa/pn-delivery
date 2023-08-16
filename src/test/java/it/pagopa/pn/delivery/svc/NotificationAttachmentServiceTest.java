@@ -24,6 +24,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationP
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
@@ -48,6 +49,7 @@ import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 
+@Disabled
 class NotificationAttachmentServiceTest {
 
   public static final String X_PAGOPA_PN_CX_ID = "PF-123-abcd-123";

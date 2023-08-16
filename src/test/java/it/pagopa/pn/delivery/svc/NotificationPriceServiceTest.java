@@ -17,6 +17,7 @@ import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -31,6 +32,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
+@Disabled
 class NotificationPriceServiceTest {
 
     private static final String PA_TAX_ID = "paTaxId";

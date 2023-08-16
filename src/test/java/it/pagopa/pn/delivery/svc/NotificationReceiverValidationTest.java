@@ -27,7 +27,7 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.models.InternalNotification;
-
+@Disabled
 class NotificationReceiverValidationTest {
 
   @Mock

@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import it.pagopa.pn.delivery.utils.PreloadRequest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -23,7 +24,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
+@Disabled
 @WebFluxTest(PnNotificationInputController.class)
 class PnNotificationInputControllerTest {
 

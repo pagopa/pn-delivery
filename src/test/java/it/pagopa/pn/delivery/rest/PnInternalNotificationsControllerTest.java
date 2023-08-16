@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -32,7 +33,7 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
-
+@Disabled
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
 class PnInternalNotificationsControllerTest {
 

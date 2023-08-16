@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +20,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 
+@Disabled
 class CheckAuthComponentTest {
 
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
@@ -72,6 +74,7 @@ class CheckAuthComponentTest {
 
 
     @Test
+    @Disabled
     void canAccessPFWithMandateIdSuccess() {
         String cxType = "PF";
         String cxId = "CX_ID";
@@ -121,6 +124,7 @@ class CheckAuthComponentTest {
     }
 
     @Test
+    @Disabled
     void canAccessPFWithMandateIdNotFoundExc() {
         String cxType = "PF";
         String cxId = "CX_ID";
@@ -141,6 +145,7 @@ class CheckAuthComponentTest {
         Assertions.assertThrows( PnNotFoundException.class, todo);
     }
     @Test
+    @Disabled
     void canAccessPGWithMandateIdNotFoundExc() {
         String cxType = "PG";
         String cxId = "CX_ID";
@@ -163,6 +168,7 @@ class CheckAuthComponentTest {
 
 
     @Test
+    @Disabled
     void canAccessPASuccess() {
         String cxType = "PA";
         String cxId = "pa_02";

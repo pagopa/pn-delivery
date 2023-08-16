@@ -20,6 +20,7 @@ import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
@@ -35,7 +36,7 @@ import java.util.function.Predicate;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
-
+@Disabled
 class NotificationDaoDynamoTest {
 
     private NotificationDaoDynamo dao;

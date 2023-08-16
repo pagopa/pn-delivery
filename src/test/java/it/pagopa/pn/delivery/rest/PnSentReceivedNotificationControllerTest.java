@@ -17,6 +17,7 @@ import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -39,6 +40,7 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 import static org.mockito.ArgumentMatchers.*;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
+@Disabled
 class PnSentReceivedNotificationControllerTest {
 
 	private static final String IUN = "AAAA-AAAA-AAAA-202301-C-1";

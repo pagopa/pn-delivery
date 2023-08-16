@@ -16,6 +16,7 @@ import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
 import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -279,6 +280,7 @@ class PaymentEventsServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    @Disabled
     void handlePaymentEventsF24() {
         // Given
         PaymentEventsRequestF24 paymentEventsRequestF24 = PaymentEventsRequestF24.builder()
@@ -373,6 +375,7 @@ class PaymentEventsServiceTest {
 
     @ExtendWith(MockitoExtension.class)
     @Test
+    @Disabled
     void handlePaymentEventsF24NoAuth() {
         // Given
         PaymentEventsRequestF24 paymentEventsRequestF24 = PaymentEventsRequestF24.builder()

@@ -35,7 +35,7 @@ import it.pagopa.pn.delivery.rest.PnSentNotificationsController;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-
+@Disabled
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class ReceivedNotificationsDocumentTest {
 

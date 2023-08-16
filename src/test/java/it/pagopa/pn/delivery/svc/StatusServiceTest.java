@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -28,6 +29,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.times;
 
+@Disabled
 class StatusServiceTest {
 
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";

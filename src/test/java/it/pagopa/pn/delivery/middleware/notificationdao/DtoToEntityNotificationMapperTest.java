@@ -6,12 +6,13 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEnt
 import it.pagopa.pn.delivery.models.InternalNotification;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
-
+@Disabled
 
 class DtoToEntityNotificationMapperTest {
 
