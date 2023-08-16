@@ -27,8 +27,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED;
 
@@ -49,20 +48,121 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
 
     @Override
     public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
-        InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_VIEW_SND, "getSenderNotification")
                 .iun(iun)
                 .build();
         logEvent.log();
+/*
         if ( NotificationStatus.IN_VALIDATION.equals( internalNotification.getNotificationStatus() )
                 || NotificationStatus.REFUSED.equals( internalNotification.getNotificationStatus() ) ) {
             logEvent.generateFailure("Unable to find notification with iun={} cause status={}", internalNotification.getIun(), internalNotification.getNotificationStatus()).log();
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        FullSentNotification result = modelMapper.map( internalNotification, FullSentNotification.class );
+*/
+
+        List<NotificationPaymentItem> listNotificationPayment = new ArrayList<>();
+
+        NotificationPaymentItem item = NotificationPaymentItem.builder()
+                .pagoPa(PagoPaPayment.builder()
+                        .creditorTaxId("firstCreditorTaxId")
+                        .noticeCode("firstNoticeCode")
+                        .applyCost(true)
+                        .attachment(
+                                NotificationPaymentAttachment.builder()
+                                        .ref( NotificationAttachmentBodyRef.builder().key("k1").versionToken("v1").build())
+                                        .contentType("application/pdf")
+                                        .digests( NotificationAttachmentDigests.builder().sha256("sha").build())
+                                        .build()
+                        )
+                        .build())
+                .build();
+
+        NotificationPaymentItem item2 = NotificationPaymentItem.builder()
+                .pagoPa(PagoPaPayment.builder()
+                        .creditorTaxId("SecondCreditorTaxId")
+                        .noticeCode("SecondNoticeCode")
+                        .applyCost(false)
+                        .attachment(
+                                NotificationPaymentAttachment.builder()
+                                        .ref( NotificationAttachmentBodyRef.builder().key("k2").versionToken("v2").build())
+                                        .contentType("application/pdf")
+                                        .digests( NotificationAttachmentDigests.builder().sha256("sha2").build())
+                                        .build()
+                        )
+                        .build())
+                .build();
+
+        listNotificationPayment.add(item);
+        listNotificationPayment.add(item2);
+        
+        FullSentNotification result = FullSentNotification.builder()
+                .iun("IUN_01")
+                .paProtocolNumber( "protocol_01" )
+                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
+                .paFee(100)
+                .vat(200)
+                .subject("Subject 01")
+                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
+                .cancelledByIun("IUN_05")
+                .cancelledIun("IUN_00")
+                .group( "Group_1" )
+                .senderPaId( "pa_02" )
+                .recipientIds(Collections.singletonList("Codice Fiscale 01"))
+                .sourceChannel("sourceChannel")
+                .sentAt( OffsetDateTime.now() )
+                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
+                .recipients( Collections.singletonList(NotificationRecipient.builder()
+                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .digitalDomicile(NotificationDigitalAddress.builder()
+                                .type(NotificationDigitalAddress.TypeEnum.PEC)
+                                .address("account@dominio.it")
+                                .build())
+                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                        .physicalAddress( NotificationPhysicalAddress.builder()
+                                .address( "address" )
+                                .zip( "zip" )
+                                .municipality( "municipality" )
+                                .at( "at" )
+                                .addressDetails( "addressDetails" )
+                                .province( "province" )
+                                .foreignState( "foreignState" )
+                                .build() )
+                        .payments(listNotificationPayment)
+                        .build()
+                ))
+                .documents(Arrays.asList(
+                        NotificationDocument.builder()
+                                .ref( NotificationAttachmentBodyRef.builder()
+                                        .key("key_doc00")
+                                        .versionToken("v01_doc00")
+                                        .build()
+                                )
+                                .digests(NotificationAttachmentDigests.builder()
+                                        .sha256("sha256_doc00")
+                                        .build()
+                                )
+                                .contentType( "application/pdf" )
+                                .build(),
+                        NotificationDocument.builder()
+                                .ref( NotificationAttachmentBodyRef.builder()
+                                        .key("key_doc01")
+                                        .versionToken("v01_doc01")
+                                        .build()
+                                )
+                                .digests(NotificationAttachmentDigests.builder()
+                                        .sha256("sha256_doc01")
+                                        .build()
+                                )
+                                .contentType( "application/pdf" )
+                                .build()
+                ))
+                .build();
+        
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
@@ -183,40 +283,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         ).toList();
         response.setErrors( problemErrorList );
     }
-
-    @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups, Integer attachmentIdx) {
-        InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
-        PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        PnAuditLogEvent logEvent = auditLogBuilder
-                .before(PnAuditLogEventType.AUD_NT_ATCHOPEN_SND, "getSentNotificationAttachment={}", attachmentName)
-                .iun(iun)
-                .build();
-        logEvent.log();
-        try {
-            InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
-            internalAttachmentWithFileKey = notificationAttachmentService.downloadAttachmentWithRedirectWithFileKey(
-                    iun,
-                    internalAuthHeader,
-                    null,
-                    recipientIdx,
-                    attachmentName,
-                    false
-            );
-            if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
-                logEvent.generateSuccess().log();
-            }else{
-                logEvent.getMdc().put("dockey", internalAttachmentWithFileKey.getFileKey());
-                logEvent.generateSuccess().log();
-            }
-        } catch (PnRuntimeException exc) {
-            logEvent.generateFailure("" + exc.getProblem()).log();
-            throw exc;
-        }
-     
-        return ResponseEntity.ok( internalAttachmentWithFileKey == null ? null : internalAttachmentWithFileKey.getDownloadMetadataResponse() );
-    }
-
+    
     @Override
     public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationDocument(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer docIdx, List<String> xPagopaPnCxGroups) {
         InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
