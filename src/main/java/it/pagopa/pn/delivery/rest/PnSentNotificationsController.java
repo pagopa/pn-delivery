@@ -49,6 +49,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     @Override
     public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
+        log.info("sono nel nuovo metodo getSentNotification");
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_VIEW_SND, "getSenderNotification")
                 .iun(iun)
