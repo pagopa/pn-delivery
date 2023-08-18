@@ -36,6 +36,13 @@ public class PnNotificationInputController implements NewNotificationApi {
         this.notificationAttachmentService = notificationAttachmentService;
     }
 
+    @Override
+    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups){
+        log.info("Nuova notifica ricevuta {}", newNotificationRequest);
+        
+        return ResponseEntity.ok(NewNotificationResponse.builder()
+                .notificationRequestId("test").build());
+    }
 
     @Override
     public ResponseEntity<List<PreLoadResponse>> presignedUploadRequest(
