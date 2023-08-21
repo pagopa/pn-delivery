@@ -37,7 +37,7 @@ public class PnNotificationInputController implements NewNotificationApi {
     }
 
     @Override
-    public ResponseEntity<NewNotificationResponse> sendNewNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, NewNotificationRequest newNotificationRequest, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
+    public ResponseEntity<NewNotificationResponse> sendNewNotificationV2(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String xPagopaPnSrcCh, NewNotificationRequestV2 newNotificationRequest, List<String> xPagopaPnCxGroups, String xPagopaPnSrcChDetails) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         @NotNull String paProtocolNumber = newNotificationRequest.getPaProtocolNumber();
         String paIdempotenceToken = newNotificationRequest.getIdempotenceToken();

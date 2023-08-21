@@ -134,9 +134,9 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
     }
 
     @Override
-    public ResponseEntity<FullReceivedNotification> getReceivedNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups, String mandateId) {
+    public ResponseEntity<FullReceivedNotificationV2> getReceivedNotificationV2(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups, String mandateId) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
-        FullReceivedNotification result = null;
+        FullReceivedNotificationV2 result = null;
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_VIEW_RCP;
         String logMsg = "getReceivedNotification";
         if (StringUtils.hasText( mandateId )) {
@@ -152,7 +152,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             InternalNotification internalNotification = retrieveSvc.getNotificationAndNotifyViewedEvent(iun, internalAuthHeader, mandateId);
             InternalFieldsCleaner.cleanInternalFields( internalNotification );
-            result = modelMapper.map(internalNotification, FullReceivedNotification.class);
+            result = modelMapper.map(internalNotification, FullReceivedNotificationV2.class);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();

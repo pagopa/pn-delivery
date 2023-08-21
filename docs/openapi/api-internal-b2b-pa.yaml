@@ -331,120 +331,6 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/requests":
-    post:
-      deprecated: true
-      summary: Richiesta invio notifica
-      description: |-
-        Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
-
-        La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
-        valida, non che la richiesta sia stata validata ed accettata. <br/>
-        Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
-        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
-        
-        <details no-external>
-        <summary><b> Attributi progettazione di alto livello </b></summary>
-        | Proprietà                | Valore             |
-        | -----------------------: | :----------------- |
-        | __Intended usage__       | B2B, WEB           |
-        | __Modalità interazione__ | Sincrona           |
-        | __TPS (stimato)__        | 5 richieste/sec    |
-        | __Idempotenza__          | No                 |
-        | __Read/Write intensive__ | Write              |
-        | __Cachable__             | No                 |
-        </details>
-      tags:
-        - NewNotification
-      operationId: sendNewNotification
-      parameters:                                                     # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
-        - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
-        required: true
-      responses:
-        '202':
-          description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NewNotificationResponse"
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '409':
-          description: Conflict
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-    
-
-    ###########################################################################################
-    ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
-    ###########################################################################################
-    get:
-      operationId: getNotificationRequestStatus                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatus                 # ONLY EXTERNAL
-      tags:
-        - SenderReadB2B
-      summary: Verifica accettazione richiesta notifica
-      description: >-
-        Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
-        lo IUN associato a tale richiesta. <br/>
-        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
-        _paProtocolNumber_ e _idempotenceToken_. <br/>
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/notificationRequestId'
-        - $ref: '#/components/parameters/paProtocolNumber'
-        - $ref: '#/components/parameters/idempotenceToken'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NewNotificationRequestStatusResponse"
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-
   "/delivery/v2/requests":
     post:
       summary: Richiesta invio notifica
@@ -471,11 +357,12 @@ paths:
         - NewNotification
       operationId: sendNewNotificationV2
       parameters: # NO EXTERNAL
-        - $ref: '#/components/parameters/uidAuthFleet'             # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'          # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'        # NO EXTERNAL
-        - $ref: '#/components/parameters/headerSourceChannel'      # NO EXTERNAL
+        - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'               # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
+        - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
       requestBody:
         content:
           application/json:
@@ -508,48 +395,44 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     
-    
     ###########################################################################################
-    ###                             RICERCA NOTIFICHE ACCETTATE                             ###
+    ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
-  
-  "/delivery/notifications/sent/{iun}":
     get:
       deprecated: true
-      summary: 'Mittente: lettura dettagli notifica'
-      description: |-
-        Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
-
-        <details no-external>
-        <summary><b> Attributi progettazione di alto livello </b></summary>
-        | Proprietà                | Valore             |
-        | -----------------------: | :----------------- |
-        | __Intended usage__       | B2B, WEB           |
-        | __Modalità interazione__ | Sincrona           |
-        | __TPS (stimato)__        |                    |
-        | __Idempotenza__          | Si                 |
-        | __Read/Write intensive__ | Read               |
-        | __Cachable__             | No                 |
-        </details>
+      operationId: getNotificationRequestStatusV2                       # NO EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV2                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
-      operationId: getSentNotification                                      # NO EXTERNAL
-#      operationId: retrieveSentNotification                                # ONLY EXTERNAL
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere
+        lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri 
+        _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
+        - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
+        - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
       responses:
         '200':
           description: OK
           content:
-            "application/json":
+            application/json:
               schema:
-                $ref: "#/components/schemas/FullSentNotification"
+                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV2"
         '400':
           description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
           content:
             application/problem+json:
               schema:
@@ -560,7 +443,12 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-
+  
+    
+    ###########################################################################################
+    ###                             RICERCA NOTIFICHE ACCETTATE                             ###
+    ###########################################################################################
+  
   "/delivery/v2/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica'
@@ -1112,6 +1000,7 @@ components:
             di notifica.
           example: 'PN_NOTIFICATION_ATTACHMENTS-0001-301W-B9CB-9U72-WIKD'
           type: string
+
     NotificationPriceResponse:
       title: Notification price Response
       description: >-
@@ -1162,9 +1051,9 @@ components:
             effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
     
-    NewNotificationRequestStatusResponse:
+    NewNotificationRequestStatusResponseV2:
       allOf:
-        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV2"
         - type: object
           required:
             - notificationRequestId
@@ -1205,40 +1094,6 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotification:
-      description: >-
-        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
-        processo di inoltro della notifica verso il cittadino.
-      allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
-        - type: object
-          required:
-            - notificationStatus
-            - notificationStatusHistory
-            - timeline
-          properties:
-            notificationStatus:
-              $ref: '#/components/schemas/NotificationStatus'
-            notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistory'
-            timeline:
-              description: >-
-                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
-              type: array
-              items:
-                $ref: '#/components/schemas/TimelineElement'
-            recipientIds:                                                               # NO EXTERNAL
-              description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
-              type: array                                                               # NO EXTERNAL
-              items:                                                                    # NO EXTERNAL
-                type: string                                                            # NO EXTERNAL
-            sourceChannel:                                                              # NO EXTERNAL
-              type: string                                                              # NO EXTERNAL
-              description: Canale sorgente della richiesta di notifica                  # NO EXTERNAL
-            sourceChannelDetails:                                                       # NO EXTERNAL
-              type: string                                                              # NO EXTERNAL
-              description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
-
     FullSentNotificationV2:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
@@ -1269,6 +1124,10 @@ components:
             sourceChannel: # NO EXTERNAL
               type: string                                                              # NO EXTERNAL
               description: Canale sorgente della richiesta di notifica                  # NO EXTERNAL
+            sourceChannelDetails:                                                       # NO EXTERNAL
+              type: string                                                              # NO EXTERNAL
+              description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
+
 
 
     ###########################################################################################

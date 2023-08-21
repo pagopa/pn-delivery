@@ -482,8 +482,8 @@ public class NotificationRetrieverService {
 		return noticeCodeToReturn;
 	}
 
-	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
-		for ( NotificationRecipient recipient : recipientList ) {
+	private void setNoticeCodeToReturn(List<NotificationRecipientV2> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
+		for ( NotificationRecipientV2 recipient : recipientList ) {
 			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
 			if ( notificationPaymentInfo != null) {
     			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
@@ -634,11 +634,11 @@ public class NotificationRetrieverService {
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
 
 			//"pulisco gli altri destinatari"
-			var filteredNotificationRecipients = new ArrayList<NotificationRecipient>();
+			var filteredNotificationRecipients = new ArrayList<NotificationRecipientV2>();
 			for(int i = 0; i< internalNotification.getRecipients().size(); i ++) {
-				NotificationRecipient recipient = internalNotification.getRecipients().get(i);
+				NotificationRecipientV2 recipient = internalNotification.getRecipients().get(i);
 				if(i != recipientIndex) {
-					recipient = NotificationRecipient.builder()
+					recipient = NotificationRecipientV2.builder()
 							.recipientType(recipient.getRecipientType())
 							.internalId(recipient.getInternalId())
 							.build();
@@ -716,8 +716,8 @@ public class NotificationRetrieverService {
 	private void removeDocuments(InternalNotification notification) {
 		notification.setDocumentsAvailable( false );
 		notification.setDocuments( Collections.emptyList() );
-		for ( NotificationRecipient recipient : notification.getRecipients() ) {
-			NotificationPaymentInfo payment = recipient.getPayment();
+		for ( NotificationRecipientV2 recipient : notification.getRecipients() ) {
+			NotificationPaymentInfoV2 payment = recipient.getPayment();
 			if ( payment != null ) {
 				payment.setPagoPaForm( null );
 			}

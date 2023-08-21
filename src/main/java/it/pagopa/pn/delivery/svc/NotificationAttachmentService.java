@@ -289,7 +289,7 @@ public class NotificationAttachmentService {
         else
         {
             String attachmentName = fileDownloadIdentify.attachmentName;
-            NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
+            NotificationRecipientV2 effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
             fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
             if (!StringUtils.hasText( fileKey )) {
                 String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
@@ -313,8 +313,8 @@ public class NotificationAttachmentService {
         }
     }
 
-    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, boolean isMVPTria){
-        NotificationPaymentInfo payment = doc.getPayment();
+    private String getFileKeyOfAttachment(String iun, NotificationRecipientV2 doc, String attachmentName, boolean isMVPTria){
+        NotificationPaymentInfo payment = doc.getPayments();
         if ( !Objects.nonNull( payment ) ) {
           String exMessage =  String.format("Notification without payment attachment - iun=%s", iun);
             log.error(exMessage);

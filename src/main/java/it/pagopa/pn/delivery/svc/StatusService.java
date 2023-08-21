@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV2;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -112,7 +113,7 @@ public class StatusService {
         String creationMonth = DataUtils.extractCreationMonth( notification.getSentAt().toInstant() );
 
         List<String> opaqueTaxIds = new ArrayList<>();
-        for (NotificationRecipient recipient : notification.getRecipients()) {
+        for (NotificationRecipientV2 recipient : notification.getRecipients()) {
             opaqueTaxIds.add( dataVaultClient.ensureRecipientByExternalId( RecipientType.fromValue(recipient.getRecipientType().getValue()), recipient.getTaxId() ));
         }
 

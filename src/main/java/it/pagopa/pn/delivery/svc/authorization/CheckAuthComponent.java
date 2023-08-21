@@ -4,7 +4,7 @@ import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV2;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +62,7 @@ public class CheckAuthComponent {
             log.info("pgCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
         }
 
-        NotificationRecipient effectiveRecipient = null;
+        NotificationRecipientV2 effectiveRecipient = null;
         if (recipientIdx != null && (mandateId != null || CollectionUtils.isEmpty(action.getCxGroups()))) {
             effectiveRecipient = notification.getRecipients().get( recipientIdx );
             log.info("pgCanAccess iun={} effectiveRecipient={} recipient_size={}", notification.getIun(), effectiveRecipient==null?"NULL effective recipient":effectiveRecipient.getInternalId(), notification.getRecipients().size());
@@ -100,7 +100,7 @@ public class CheckAuthComponent {
             log.info("pfCanAccess iun={} delegatorId={} recipiendIdx={}", notification.getIun(), delegatedCxId, recipientIdx);
         }
 
-        NotificationRecipient effectiveRecipient = null;
+        NotificationRecipientV2 effectiveRecipient = null;
         if (recipientIdx != null ) {
             effectiveRecipient = notification.getRecipients().get( recipientIdx );
             log.info("pfCanAccess iun={} effectiveRecipient={} recipient_size={}", notification.getIun(), effectiveRecipient==null?"NULL effective recipient":effectiveRecipient.getInternalId(), notification.getRecipients().size());
@@ -126,7 +126,7 @@ public class CheckAuthComponent {
         AuthorizationOutcome result;
         if ( authorized ) {
             Integer recipientIdx = action.getRecipientIdx();
-            NotificationRecipient effectiveRecipient = null;
+            NotificationRecipientV2 effectiveRecipient = null;
             if ( recipientIdx != null && recipientIdx >= 0 ) {
                 effectiveRecipient = notification.getRecipients().get(recipientIdx);
             }

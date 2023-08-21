@@ -159,11 +159,11 @@ components:
             Modalitá di integrazione pagoPA per l'attualizazione del costo della notifica. <br/>
             - _NONE_: nessuna attualizzazione. <br/>
             - _SYNC_: modalitá sincrona. <br/>
-#            - _ASYNC_: modalitá asincrona. <br/>
+            - _ASYNC_: modalitá asincrona. (Non ancora supportata) <br/>
           enum:
             - NONE
             - SYNC
-            - ASYNC  # NO EXTERNAL
+            - ASYNC 
     SentNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
@@ -295,6 +295,17 @@ components:
           type: integer
           format: int32
           description: IVA espressa in percentuale imposta al mittente sulla notifica analogica
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della notifica. <br/>
+            - _NONE_: nessuna attualizzazione. <br/>
+            - _SYNC_: modalitá sincrona. <br/>
+            - _ASYNC_: modalitá asincrona. (non ancora supportata)<br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC
     SentNotificationV2:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata

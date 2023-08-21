@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.models;
 
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV2;
 import lombok.*;
 
 @AllArgsConstructor
@@ -9,8 +9,8 @@ import lombok.*;
 @Setter
 @Builder(toBuilder = true, builderMethodName = "fullSentNotificationBuilder")
 @ToString
-public class InternalNotification extends FullSentNotification {
-    public InternalNotification(FullSentNotification fsn) {
+public class InternalNotification extends FullSentNotificationV2 {
+    public InternalNotification(FullSentNotificationV2 fsn) {
         super(
                 fsn.getIdempotenceToken(),
                 fsn.getPaProtocolNumber(),
@@ -27,6 +27,8 @@ public class InternalNotification extends FullSentNotification {
                 fsn.getAmount(),
                 fsn.getPaymentExpirationDate(),
                 fsn.getTaxonomyCode(),
+                fsn.getPaFee(),
+                fsn.getVat(),
                 fsn.getPagoPaIntMode(),
                 fsn.getSenderPaId(),
                 fsn.getIun(),

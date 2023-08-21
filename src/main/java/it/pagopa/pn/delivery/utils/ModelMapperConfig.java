@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV2;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElement;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationRecipientEntity;
@@ -21,10 +21,10 @@ public class ModelMapperConfig {
                 .addMapping( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement::getActiveFrom, NotificationStatusHistoryElement::setActiveFrom );
         modelMapper.createTypeMap( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement.class, TimelineElement.class )
                 .addMapping(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement::getTimestamp, TimelineElement::setTimestamp );
-        modelMapper.createTypeMap( NotificationRecipient.class, NotificationRecipientEntity.class )
-                .addMapping( NotificationRecipient::getTaxId, NotificationRecipientEntity::setRecipientId );
-        modelMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipient.class )
-                .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipient::setInternalId );
+        modelMapper.createTypeMap( NotificationRecipientV2.class, NotificationRecipientEntity.class )
+                .addMapping( NotificationRecipientV2::getTaxId, NotificationRecipientEntity::setRecipientId );
+        modelMapper.createTypeMap( NotificationRecipientEntity.class, NotificationRecipientV2.class )
+                .addMapping( NotificationRecipientEntity::getRecipientId, NotificationRecipientV2::setInternalId );
         return modelMapper;
     }
 

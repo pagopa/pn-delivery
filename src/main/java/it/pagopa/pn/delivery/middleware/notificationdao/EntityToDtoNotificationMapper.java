@@ -29,7 +29,7 @@ public class EntityToDtoNotificationMapper {
     	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
                 .toList();
 
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationV2.builder()
                 .senderDenomination( entity.getSenderDenomination() )
                 ._abstract( entity.getNotificationAbstract() )
                 .senderTaxId( entity.getSenderTaxId() )
@@ -56,23 +56,23 @@ public class EntityToDtoNotificationMapper {
                 .build());
     }
 
-    private FullSentNotification.PagoPaIntModeEnum getSafePagoPaIntMode(String pagoPaIntMode) {
+    private FullSentNotificationV2.PagoPaIntModeEnum getSafePagoPaIntMode(String pagoPaIntMode) {
         if(StringUtils.hasText( pagoPaIntMode )) {
-          return FullSentNotification.PagoPaIntModeEnum.fromValue( pagoPaIntMode );
+          return FullSentNotificationV2.PagoPaIntModeEnum.fromValue( pagoPaIntMode );
         }
-        return FullSentNotification.PagoPaIntModeEnum.NONE;
+        return FullSentNotificationV2.PagoPaIntModeEnum.NONE;
     }
 
-    private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {
+    private List<NotificationRecipientV2> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {
         return recipients.stream()
                 .map(this::entity2Recipient)
                 .toList();
     }
 
-    private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
-        return NotificationRecipient.builder()
+    private NotificationRecipientV2 entity2Recipient(NotificationRecipientEntity entity) {
+        return NotificationRecipientV2.builder()
                 .internalId( entity.getRecipientId() )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
+                .recipientType( NotificationRecipientV2.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
                 .payment( entity2PaymentInfo( entity.getPayments() ) )
                 .build();
     }

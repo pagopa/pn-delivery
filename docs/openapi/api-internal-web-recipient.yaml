@@ -132,47 +132,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/notifications/received/{iun}":
-    get:
-      deprecated: true
-      summary: Accesso notifiche ricevute
-      description: >-
-        Utilizzato da Persone Fisiche e Persone Giuridiche per accedere ai dettagli delle 
-        notifiche ricevute.
-      tags:
-        - RecipientRead
-      operationId: getReceivedNotification
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
-      parameters:
-        - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
-        - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
-        - $ref: '#/components/parameters/cxIdAuthFleet'           # NO EXTERNAL
-        - $ref: '#/components/parameters/cxGroupsAuthFleet'       # NO EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
-        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
-      responses:
-        '200':
-          description: OK
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/FullReceivedNotification"
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not Found - PN_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-
   "/delivery/v2/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
@@ -447,29 +406,7 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotification:
-      description: >-
-        Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
-        inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
-      allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
-        - type: object
-          required:
-            - notificationStatus
-            - notificationStatusHistory
-            - timeline
-          properties:
-            notificationStatus:
-              $ref: '#/components/schemas/NotificationStatus'
-            notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistory'
-            timeline:
-              description: >-
-                elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
-              type: array
-              items:
-                $ref: '#/components/schemas/TimelineElement'
-
+    
     FullReceivedNotificationV2:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 

@@ -43,14 +43,14 @@ public class DtoToEntityNotificationMapper {
     }
 
     private List<NotificationRecipientEntity> dto2RecipientsEntity(
-            List<NotificationRecipient> recipients
+            List<NotificationRecipientV2> recipients
     ) {
         return recipients.stream()
                 .map( this::dto2RecipientEntity )
                 .toList();
     }
 
-    private NotificationRecipientEntity dto2RecipientEntity( NotificationRecipient recipient ) {
+    private NotificationRecipientEntity dto2RecipientEntity( NotificationRecipientV2 recipient ) {
         return NotificationRecipientEntity.builder()
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
