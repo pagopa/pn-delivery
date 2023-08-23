@@ -195,6 +195,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  "/delivery-private/notification-cost/{iun}":
+    delete:
+      summary: servizio per cancellare gli IUV dato uno <iun>
+      tags:
+        - internal-only
+      operationId: deleteNotificationCosts
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: Cancelled
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
     ###########################################################################################
     ###                     RICEZIONE DATI AVVENUTO PAGAMENTO DA EXTERNAL REGISTRY          ###
     ###########################################################################################
