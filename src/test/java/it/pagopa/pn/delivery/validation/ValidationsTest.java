@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 class ValidationsTest {
-
+  
     private static Validator validator;
 
     private static ValidatorFactory validatorFactory;
