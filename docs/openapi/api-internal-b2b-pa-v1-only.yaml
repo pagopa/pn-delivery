@@ -4,7 +4,7 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-    "/delivery/requests":
+  "/delivery/requests":
     post:
       deprecated: true
       summary: Richiesta invio notifica
