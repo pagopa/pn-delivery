@@ -419,6 +419,26 @@ components:
         ref:
           $ref: "#/components/schemas/NotificationAttachmentBodyRef"
 
+    NotificationMetadataAttachment:
+      description: >-
+        Un metadato allegato della notifica.
+      type: object
+      required:
+        - digests
+        - contentType
+        - ref
+      properties:
+        digests:
+          $ref: "#/components/schemas/NotificationAttachmentDigests"
+        contentType:
+          type: string
+          description: tipo di contenuto dell'allegato, supportato application/json
+          minLength: 16
+          maxLength: 16
+          pattern: ^application\/json$
+        ref:
+          $ref: "#/components/schemas/NotificationAttachmentBodyRef"
+
     NotificationPaymentAttachment:
       description: >-
         Un modulo di pagamento allegato alla notifica
@@ -524,22 +544,29 @@ components:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
 
     F24Payment:
-      title: Informazioni per effettuare il pagamento
+      title: Informazioni per effettuare il pagamento tramite modello F24
       description: >-
         Informazioni utili per effettuare il pagamento di una notifica, sono associate al
         destinatario perché le spese di notifica possono differire a seconda del canale di
         notifica utilizzato. <br/>
-          - _metadata_: dati contenuti del F24<br/>
+          - _title_: titolo del documento pdf da mostrare all'utente .<br/>
+          - _applyCost_: flag per indicare se il modello F24 deve contenere i costi di notifica.<br/>
+          - _metadataAttachment_: riferimento ai metadati per la generazione del modello F24.<br/>
       type: object
       required:
-        - metadata
         - title
+        - applyCost
+        - metadataAttachment
       properties:
         title:
           description: Titolo del documento pdf da mostrare all'utente
           type: string
-        metadata:
-          $ref: './remote-refs.yaml#/components/schemas/F24Metadata'
+        applyCost:
+          type: boolean
+          nullable: false
+          description: Flag per indicare se il modello F24 deve contere i costi di notifica
+        metadataAttachment:
+          $ref: "#/components/schemas/NotificationMetadataAttachment"
 
 
     NotificationPaymentInfo:

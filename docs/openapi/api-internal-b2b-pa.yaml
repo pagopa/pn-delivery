@@ -399,7 +399,6 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      deprecated: true
       operationId: getNotificationRequestStatusV2                       # NO EXTERNAL
 #      operationId: retrieveNotificationRequestStatusV2                 # ONLY EXTERNAL
       tags:
@@ -945,12 +944,13 @@ components:
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
-            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente sono supportati
               - application/pdf
+              - application/json
           type: string
           minLength: 15
-          maxLength: 15
-          pattern: ^application\/pdf$
+          maxLength: 16
+          pattern: ^application\/(pdf|json)$
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
