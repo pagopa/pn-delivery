@@ -1093,4 +1093,34 @@ class PnSentReceivedNotificationControllerTest {
 				.isBadRequest();
 
 	}
+
+	@Test
+	void getReceivedNotificationDocumentWithNotificationCancelledTest() {
+		Mockito.doThrow(new PnNotificationNotFoundException("Notification with iun: a-iun has a request for cancellation"))
+				.when(svc)
+				.checkIfNotificationIsNotCancelled(IUN);
+
+		webTestClient.get()
+				.uri("/delivery/notifications/received/{iun}/attachments/documents/{docIdx}", IUN, 1)
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, UID)
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
+				.exchange()
+				.expectStatus().isNotFound();
+	}
+
+	@Test
+	void getReceivedNotificationAttachmentWithNotificationCancelledTest() {
+		Mockito.doThrow(new PnNotificationNotFoundException("Notification with iun: a-iun has a request for cancellation"))
+				.when(svc)
+				.checkIfNotificationIsNotCancelled(IUN);
+
+		webTestClient.get()
+				.uri("/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}", IUN, "PAGOPA")
+				.header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, UID)
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
+				.exchange()
+				.expectStatus().isNotFound();
+	}
 }
