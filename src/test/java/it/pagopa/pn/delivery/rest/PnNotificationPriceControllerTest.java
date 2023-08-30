@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.svc.NotificationPriceService;
@@ -61,6 +62,23 @@ class PnNotificationPriceControllerTest {
     void getPriceFailure() {
 
         Mockito.when( service.getNotificationPrice( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(new PnNotFoundException("test", "test", "test"));
+
+        webTestClient.get()
+                .uri( "/delivery/price/{paTaxId}/{noticeCode}"
+                        .replace( "{paTaxId}", PA_TAX_ID )
+                        .replace( "{noticeCode}", NOTICE_CODE ))
+                .accept( MediaType.APPLICATION_JSON )
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+
+    }
+
+
+    @Test
+    void getPriceFailure_404FromDeliveryPushGetNotificationPrice() {
+
+        Mockito.when( service.getNotificationPrice( Mockito.anyString(), Mockito.anyString() ) ).thenThrow(new PnNotificationCancelledException("test", new Exception()));
 
         webTestClient.get()
                 .uri( "/delivery/price/{paTaxId}/{noticeCode}"

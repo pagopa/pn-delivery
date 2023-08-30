@@ -1,6 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
@@ -18,6 +20,7 @@ import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
@@ -40,6 +43,9 @@ public class NotificationPriceService {
 
     private final AsseverationEventsProducer asseverationEventsProducer;
     private final RefinementLocalDate refinementLocalDateUtils;
+
+
+    public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
 
     public NotificationPriceService(Clock clock, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, NotificationMetadataEntityDao notificationMetadataEntityDao, PnDeliveryPushClientImpl deliveryPushClient, AsseverationEventsProducer asseverationEventsProducer, RefinementLocalDate refinementLocalDateUtils) {
         this.clock = clock;
@@ -115,7 +121,20 @@ public class NotificationPriceService {
 
         // contatto delivery-push per farmi calcolare tramite iun, recipientIdx, notificationFeePolicy costo della notifica
         // delivery-push mi risponde con amount, data perfezionamento presa visione, data perfezionamento decorrenza termini
-        return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy);
+        try {
+            return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy);
+        } catch (Exception exc) {
+            // nel caso in cui la risposta da parte di delivery push è un 404, devo controllare che la causale
+            // sia per colpa della notifica cancellata. Se si, ritorno a mia volta un 404, altrimenti ritorno
+            // direttamente l'exception originale
+            if (exc instanceof PnHttpResponseException pnHttpResponseException
+                    && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                if (((PnHttpResponseException) exc).getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED))
+                    throw new PnNotificationCancelledException("Cannot retrive price for cancelled notification", exc);
+            }
+
+            throw exc;
+        }
     }
 
     private void getNotificationMetadataEntity(String iun, String recipientId, OffsetDateTime sentAt) {
