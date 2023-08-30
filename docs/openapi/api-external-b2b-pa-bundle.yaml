@@ -42,7 +42,7 @@ info:
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
       di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus)
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV2)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
       >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
@@ -83,7 +83,7 @@ info:
       
       #### 1. Caricamento dei documenti della notifica
       
-      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini di pagamento).
+      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadati di pagamento).
       
       #### 1.a. Richiesta presigned Url
       
@@ -120,7 +120,7 @@ info:
       #### 2. Richiesta di invio della notifica
 
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotification) utilizzando i riferimenti dei file 
+      [sendNewNotification](#/NewNotification/sendNewNotificationV2) utilizzando i riferimenti dei file 
       caricati ottenuti al punto (1.b).
       
       </br>
@@ -143,8 +143,8 @@ info:
 
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
       identificata dalla IUN restituito dall'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus).</br> 
-      A tal punto si potranno utilizzare l'operazione _GET /delivery/notifications/sent/{iun}_ per 
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV2).</br> 
+      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2/notifications/sent/{iun}_ per 
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
@@ -173,7 +173,7 @@ info:
     </br> <h3>Le FAQ possono essere consultate al seguente link: <a href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
-    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li> <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li> <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li> </ul>   </details></br>
+    <ul>   <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di collaudo</li> <li><strong>https://api.test.notifichedigitali.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li> <li><strong>https://api.dev.notifichedigitali.it:</strong></br>Ambiente di sviluppo</li> </ul>   </details></br>
       
   contact:
     email: pn-supporto-enti@pagopa.it
@@ -181,13 +181,13 @@ info:
     name: Licenza di PN
     url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
 servers:
-  - url: https://api.pn.pagopa.it
+  - url: https://api.notifichedigitali.it
     description: Ambiente di produzione
-  - url: https://api.coll.pn.pagopa.it
+  - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
-  - url: https://api.svil.pn.pagopa.it
+  - url: https://api.test.notifichedigitali.it
     description: Ambiente di test
-  - url: https://api.dev.pn.pagopa.it
+  - url: https://api.dev.notifichedigitali.it
     description: Ambiente di sviluppo
 security:
   - ApiKeyAuth: []
