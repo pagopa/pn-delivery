@@ -46,6 +46,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -1551,5 +1553,53 @@ class NotificationRetrieverServiceTest {
         ResultPaginationDto<NotificationSearchRow, String> result = svc.searchNotificationDelegated(inputSearchNotificationDelegatedDto);
         Assertions.assertNotNull( result );
         Assertions.assertEquals( 3, results.getResultsPage().size());
+    }
+
+    @Test
+    void checkIfNotificationIsNotCancelledWithNotificationNotCancelledTest() {
+        String iun = "a-iun";
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        notification.setSentAt(OffsetDateTime.now());
+        notification.setRecipients(List.of(new NotificationRecipient()));
+        NotificationHistoryResponse deliveryPushResponse = new NotificationHistoryResponse();
+        deliveryPushResponse.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED);
+        deliveryPushResponse.setNotificationStatusHistory(List.of());
+        deliveryPushResponse.setTimeline(List.of(
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.VALIDATE_NORMALIZE_ADDRESSES_REQUEST),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NORMALIZED_ADDRESS),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.SENDER_ACK_CREATION_REQUEST),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED)
+        ));
+
+        when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
+        when(pnDeliveryPushClient.getTimelineAndStatusHistory(iun, notification.getRecipients().size(), notification.getSentAt())).thenReturn(deliveryPushResponse);
+
+        assertDoesNotThrow(() -> svc.checkIfNotificationIsNotCancelled(iun));
+    }
+
+    @Test
+    void checkIfNotificationIsNotCancelledWithNotificationCancelledTest() {
+        String iun = "a-iun";
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        notification.setSentAt(OffsetDateTime.now());
+        notification.setRecipients(List.of(new NotificationRecipient()));
+        NotificationHistoryResponse deliveryPushResponse = new NotificationHistoryResponse();
+        deliveryPushResponse.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED);
+        deliveryPushResponse.setNotificationStatusHistory(List.of());
+        deliveryPushResponse.setTimeline(List.of(
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.VALIDATE_NORMALIZE_ADDRESSES_REQUEST),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NORMALIZED_ADDRESS),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.SENDER_ACK_CREATION_REQUEST),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_CANCELLATION_REQUEST)
+
+        ));
+
+        when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
+        when(pnDeliveryPushClient.getTimelineAndStatusHistory(iun, notification.getRecipients().size(), notification.getSentAt())).thenReturn(deliveryPushResponse);
+
+        assertThrows(PnNotificationNotFoundException.class, () -> svc.checkIfNotificationIsNotCancelled(iun));
     }
 }
