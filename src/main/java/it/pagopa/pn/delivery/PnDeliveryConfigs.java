@@ -60,6 +60,8 @@ public class PnDeliveryConfigs {
 
     private Integer maxAttachmentsCount;
 
+    private boolean physicalAddressValidation = false;
+
     @Data
     public static class Topics {
         private String newNotifications;

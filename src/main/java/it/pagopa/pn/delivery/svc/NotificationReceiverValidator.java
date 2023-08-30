@@ -34,7 +34,7 @@ public class NotificationReceiverValidator {
         this.pnDeliveryConfigs = pnDeliveryConfigs;
     }
 
-    public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
+    protected void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
         Set<ConstraintViolation<InternalNotification>> errors = checkNewNotificationBeforeInsert(internalNotification);
         if( ! errors.isEmpty() ) {
             List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
@@ -42,7 +42,7 @@ public class NotificationReceiverValidator {
         }
     }
 
-    public Set<ConstraintViolation<InternalNotification>> checkNewNotificationBeforeInsert(InternalNotification internalNotification) {
+    protected Set<ConstraintViolation<InternalNotification>> checkNewNotificationBeforeInsert(InternalNotification internalNotification) {
         return validator.validate( internalNotification );
     }
 
@@ -57,7 +57,7 @@ public class NotificationReceiverValidator {
         }
     }
 
-    public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
       Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
 
       // check del numero massimo di documenti allegati
@@ -104,7 +104,23 @@ public class NotificationReceiverValidator {
           recIdx++;
       }
       errors.addAll(validator.validate( internalNotification ));
+
+      errors.addAll( this.checkPhishicalAddress( internalNotification ));
       return errors;
+    }
+
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkPhishicalAddress (NewNotificationRequest internalNotification) {
+
+        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+
+        if( this.pnDeliveryConfigs.isPhysicalAddressValidation() ) {
+            /**
+             * TODO: Implement Validation Physical Validation
+             */
+        }
+
+        return errors;
+
     }
 
     private static void onlyNumericalTaxIdForPG(Set<ConstraintViolation<NewNotificationRequest>> errors, int recIdx, NotificationRecipient recipient) {
