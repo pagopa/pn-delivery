@@ -109,14 +109,22 @@ public class NotificationReceiverValidator {
       return errors;
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequest>> checkPhishicalAddress (NewNotificationRequest internalNotification) {
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkPhysicalAddress (NewNotificationRequest internalNotification) {
 
         Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
 
         if( this.pnDeliveryConfigs.isPhysicalAddressValidation() ) {
-            /**
-             * TODO: Implement Validation Physical Validation
-             */
+
+            for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+
+                String denomination = recipient.getDenomination();
+
+                NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+                /**
+                 * TODO: Implement Validation Physical Validation
+                 */
+
+            }
         }
 
         return errors;
