@@ -173,7 +173,7 @@ info:
     </br> <h3>Le FAQ possono essere consultate al seguente link: <a href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
-    <ul>   <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di collaudo</li> <li><strong>https://api.test.notifichedigitali.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li> <li><strong>https://api.dev.notifichedigitali.it:</strong></br>Ambiente di sviluppo</li> </ul>   </details></br>
+    <ul>   <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retrocompatibilità</li> </ul>   </details></br>
       
   contact:
     email: pn-supporto-enti@pagopa.it
@@ -185,10 +185,6 @@ servers:
     description: Ambiente di produzione
   - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
-  - url: https://api.test.notifichedigitali.it
-    description: Ambiente di test
-  - url: https://api.dev.notifichedigitali.it
-    description: Ambiente di sviluppo
 security:
   - ApiKeyAuth: []
 tags:
