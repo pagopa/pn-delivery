@@ -449,7 +449,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
   
-  "/delivery/notifications/sent/{iun}":
+  "/delivery/v1.1/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: |-
@@ -468,8 +468,8 @@ paths:
         </details>
       tags:
         - SenderReadB2B
-      operationId: getSentNotification                                      # NO EXTERNAL
-#      operationId: retrieveSentNotification                                # ONLY EXTERNAL
+      operationId: getSentNotificationV1_1                                      # NO EXTERNAL
+#      operationId: retrieveSentNotificationV1_1                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -482,7 +482,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotification"
+                $ref: "#/components/schemas/FullSentNotificationV1_1"
         '400':
           description: Bad request
           content:
@@ -1093,7 +1093,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotification:
+    FullSentNotificationV1_1:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
@@ -1114,7 +1114,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElementV1_1'
             recipientIds:                                                               # NO EXTERNAL
               description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
               type: array                                                               # NO EXTERNAL
@@ -1230,8 +1230,8 @@ components:
           type: integer
           format: int32
     
-    TimelineElement:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+    TimelineElementV1_1:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV1_1'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
