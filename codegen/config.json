@@ -16,7 +16,8 @@
                 "schemas-pn-notification.yaml"
             ],
             "openapiFiles": [
-                "api-internal-b2b-pa.yaml"
+                "api-internal-b2b-pa.yaml",
+                "api-internal-b2b-pa-older-versions.yaml"
             ],
             "servicePath": "delivery",
             "generateBundle": true
@@ -32,6 +33,7 @@
         }
     ],
     "openapiBundlePresenceCheck": [
-        "api-external-b2b-pa-bundle.yaml"
+        "api-external-b2b-pa-bundle.yaml",
+        "api-external-b2b-pa-older-versions-bundle.yaml"
     ]
 }

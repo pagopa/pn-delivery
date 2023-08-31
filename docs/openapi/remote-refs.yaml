@@ -56,10 +56,10 @@ components:
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
-    TimelineElementV1_1: 
+    TimelineElementV1_1:
       # - Lo so che non vanno fatte referenze a branch. Mi serve solo per rendere l'idea
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/feature/PN-7527/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
-    TimelineElement: 
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/feature/PN-7527/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV1_1'
+    TimelineElement:
       # DO NOT CHANGE: this is timeline V1 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
     NotificationStatus:

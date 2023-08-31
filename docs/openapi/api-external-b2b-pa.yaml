@@ -410,7 +410,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
   
-  "/delivery/notifications/sent/{iun}":
+  "/delivery/v1.1/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: |-
@@ -418,7 +418,7 @@ paths:
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotification                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV1_1                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
@@ -427,7 +427,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotification"
+                $ref: "#/components/schemas/FullSentNotificationV1_1"
         '400':
           description: Bad request
           content:
@@ -980,7 +980,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotification:
+    FullSentNotificationV1_1:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
@@ -1001,7 +1001,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElementV1_1'
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -1106,8 +1106,8 @@ components:
           type: integer
           format: int32
     
-    TimelineElement:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+    TimelineElementV1_1:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV1_1'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
