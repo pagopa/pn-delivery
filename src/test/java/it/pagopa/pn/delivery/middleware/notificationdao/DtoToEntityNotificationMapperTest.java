@@ -40,9 +40,9 @@ class DtoToEntityNotificationMapperTest {
     }
 
     private InternalNotification newInternalNotification() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationV11.builder()
                 .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
-                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.SYNC )
+                .pagoPaIntMode( FullSentNotificationV11.PagoPaIntModeEnum.SYNC )
                 .iun( "iun" )
                 .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
                 .senderPaId( "senderPaId" )

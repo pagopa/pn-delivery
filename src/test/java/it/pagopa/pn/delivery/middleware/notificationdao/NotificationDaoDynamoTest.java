@@ -420,13 +420,13 @@ class NotificationDaoDynamoTest {
     }
 
     private InternalNotification newNotificationWithoutPayments() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationV11.builder()
                 .iun("IUN_01")
                 .paProtocolNumber( "protocol_01" )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.NONE )
+                .pagoPaIntMode( FullSentNotificationV11.PagoPaIntModeEnum.NONE )
                 .subject("Subject 01")
-                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
+                .physicalCommunicationType( FullSentNotificationV11.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .group( "Group_1" )
@@ -522,11 +522,11 @@ class NotificationDaoDynamoTest {
     }*/
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationV11.builder()
                 .iun("IUN_01")
-                .physicalCommunicationType( FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+                .physicalCommunicationType( FullSentNotificationV11.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.NONE )
+                .pagoPaIntMode( FullSentNotificationV11.PagoPaIntModeEnum.NONE )
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
                 .cancelledByIun("IUN_05")

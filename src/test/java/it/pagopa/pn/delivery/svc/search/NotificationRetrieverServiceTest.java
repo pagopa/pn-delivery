@@ -568,7 +568,7 @@ class NotificationRetrieverServiceTest {
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationV11.builder()
                 .iun( IUN )
                 .idempotenceToken( IDEMPOTENCE_TOKEN )
                 .paProtocolNumber( PA_PROTOCOL_NUMBER )
@@ -662,11 +662,11 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkRefinementDateOraSolare() {
         // Given
-        List<TimelineElement> timelineElementList = List.of( TimelineElement.builder()
+        List<TimelineElementV11> timelineElementList = List.of( TimelineElementV11.builder()
                         .category( TimelineElementCategory.REFINEMENT )
                         .timestamp( OffsetDateTime.parse( "2022-10-05T12:23:15.123456Z" ) )
                 .build(),
-                TimelineElement.builder()
+                TimelineElementV11.builder()
                         .category( TimelineElementCategory.NOTIFICATION_VIEWED )
                         .timestamp( OffsetDateTime.parse( "2022-10-03T10:10:15.123456Z" ) )
                         .build()
@@ -683,11 +683,11 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkRefinementDateOraLegale() {
         // Given
-        List<TimelineElement> timelineElementList = List.of( TimelineElement.builder()
+        List<TimelineElementV11> timelineElementList = List.of( TimelineElementV11.builder()
                         .category( TimelineElementCategory.REFINEMENT )
                         .timestamp( OffsetDateTime.parse( "2022-12-05T12:23:15.123456Z" ) )
                         .build(),
-                TimelineElement.builder()
+                TimelineElementV11.builder()
                         .category( TimelineElementCategory.NOTIFICATION_VIEWED )
                         .timestamp( OffsetDateTime.parse( "2022-12-03T10:10:15.123456Z" ) )
                         .build()

@@ -96,7 +96,7 @@ class PnSentReceivedNotificationControllerTest {
 				
 		// Then		
 		webTestClient.get()
-			.uri( "/delivery/notifications/sent/" + IUN  )
+			.uri( "/delivery/v1.1/notifications/sent/" + IUN  )
 			.accept( MediaType.ALL )
 			.header(HttpHeaders.ACCEPT, "application/json")
 			.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -107,7 +107,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotification.class);
+			.expectBody(FullSentNotificationV11.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -123,7 +123,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/notifications/sent/" + IUN  )
+				.uri( "/delivery/v1.1/notifications/sent/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -150,7 +150,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/notifications/sent/" + IUN  )
+				.uri( "/delivery/v1.1/notifications/sent/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -200,7 +200,7 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 						.status( NotificationStatus.REFUSED )
 				.build() ) );
-		notification.setTimeline( Collections.singletonList( TimelineElement.builder()
+		notification.setTimeline( Collections.singletonList( TimelineElementV11.builder()
 						.category( TimelineElementCategory.REQUEST_REFUSED )
 						.details( TimelineElementDetails.builder()
 								.refusalReasons( Collections.singletonList( NotificationRefusedError.builder()
@@ -990,7 +990,7 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	private InternalNotification newNotification() {
-		return new InternalNotification(FullSentNotification.builder()
+		return new InternalNotification(FullSentNotificationV11.builder()
 				.iun("IUN_01")
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")
@@ -1033,7 +1033,7 @@ class PnSentReceivedNotificationControllerTest {
 								)
 								.build()
 				))
-				.timeline( Collections.singletonList(TimelineElement.builder().build()))
+				.timeline( Collections.singletonList(TimelineElementV11.builder().build()))
 				.notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 						.status( NotificationStatus.ACCEPTED )
 						.build() ) )
