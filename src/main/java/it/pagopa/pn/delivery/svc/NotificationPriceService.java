@@ -128,8 +128,9 @@ public class NotificationPriceService {
             // sia per colpa della notifica cancellata. Se si, ritorno a mia volta un 404, altrimenti ritorno
             // direttamente l'exception originale
             if (exc instanceof PnHttpResponseException pnHttpResponseException
-                    && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                if (((PnHttpResponseException) exc).getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED))
+                    && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
+                    && (((PnHttpResponseException) exc).getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED))) {
+
                     throw new PnNotificationCancelledException("Cannot retrive price for cancelled notification", exc);
             }
 
