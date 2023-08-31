@@ -1,6 +1,9 @@
 package it.pagopa.pn.delivery.svc;
 
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.commons.exceptions.mapper.DtoProblemToProblemErrorMapper;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
@@ -40,6 +43,8 @@ class NotificationPriceServiceTest {
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     public static final String SENT_AT_DATE = "2023-03-08T14:35:39.214793Z";
     public static final String EVENT_DATE = "2023-03-08T15:45:39.753534Z";
+
+    public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
 
     @Mock
     private NotificationDao notificationDao;
@@ -154,6 +159,123 @@ class NotificationPriceServiceTest {
         Assertions.assertThrows(PnNotFoundException.class, todo);
     }
 
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationPriceFailureNotFound() {
+        //Given
+        InternalNotification internalNotification = getNewInternalNotification();
+        internalNotification.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
+
+        InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
+                .recipientIdx( 0 )
+                .iun( "iun" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
+                .recipientType( RecipientType.PF.getValue() )
+                .build();
+
+        //When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
+                .thenReturn( Optional.of(internalNotificationCost) );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( Optional.of( internalNotification ) );
+
+        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
+                .iunRecipientId( "iun##recipientInternalId0" )
+                .build())
+        );
+
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+                .thenThrow(new PnHttpResponseException("err", 404));
+
+
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
+
+        //Then
+        Assertions.assertThrows(PnHttpResponseException.class, todo);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationPriceFailureNotFoundCancelled() {
+        //Given
+        InternalNotification internalNotification = getNewInternalNotification();
+        internalNotification.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
+
+        InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
+                .recipientIdx( 0 )
+                .iun( "iun" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
+                .recipientType( RecipientType.PF.getValue() )
+                .build();
+
+        //When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
+                .thenReturn( Optional.of(internalNotificationCost) );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( Optional.of( internalNotification ) );
+
+        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
+                .iunRecipientId( "iun##recipientInternalId0" )
+                .build())
+        );
+
+        PnHttpResponseException exception =  new PnHttpResponseException("errore", "detail", 404, List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
+                        .code(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED)
+                .build()), null);
+
+
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+                .thenThrow(exception);
+
+
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
+
+        //Then
+        Assertions.assertThrows(PnNotificationCancelledException.class, todo);
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void getNotificationPriceFailureNotFoundOther() {
+        //Given
+        InternalNotification internalNotification = getNewInternalNotification();
+        internalNotification.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
+
+        InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
+                .recipientIdx( 0 )
+                .iun( "iun" )
+                .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
+                .recipientType( RecipientType.PF.getValue() )
+                .build();
+
+        //When
+        Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
+                .thenReturn( Optional.of(internalNotificationCost) );
+
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+                .thenReturn( Optional.of( internalNotification ) );
+
+        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
+                .iunRecipientId( "iun##recipientInternalId0" )
+                .build())
+        );
+
+        PnHttpResponseException exception =  new PnHttpResponseException("errore", "detail", 404, List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
+                .code("altro_CODICE_ERRORE")
+                .build()), null);
+
+
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+                .thenThrow(exception);
+
+
+        Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
+
+        //Then
+        Assertions.assertThrows(PnHttpResponseException.class, todo);
+    }
 
 
     @ExtendWith(MockitoExtension.class)
