@@ -175,7 +175,7 @@ class ReceivedNotificationsDocumentTest {
 	}
 
 	private InternalNotification createDocumentsNotification() {
-		return new InternalNotification(FullSentNotification.builder()
+		return new InternalNotification(FullSentNotificationV11.builder()
 				.iun("IUN_DOCUMENT_01")
 				.subject("Subject 01")
 				.senderPaId( "pa_03" )
@@ -230,7 +230,7 @@ class ReceivedNotificationsDocumentTest {
 	}
 
 	private InternalNotification createNoDocumentsNotification() {
-		return new InternalNotification(FullSentNotification.builder()
+		return new InternalNotification(FullSentNotificationV11.builder()
 				.sourceChannel(X_PAGOPA_PN_SRC_CH)
 				.iun("IUN_DOCUMENT_01")
 				.subject("Subject 01")

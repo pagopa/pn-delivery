@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: aZ5Wcn3QQ6rbsYBGMtyI2T1QTI+FPby051X4XYAE4Ic=
+  version: qP8J5jQIkWVYMn7Pjvzezbg2KwQuSqmnBTKBW2/1uZA=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -229,7 +229,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /notifications/sent/{iun}:
+  /v1.1/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: >-
@@ -237,7 +237,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotification
+      operationId: retrieveSentNotificationV1_1
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -246,7 +246,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotification'
+                $ref: '#/components/schemas/FullSentNotificationV1_1'
         '400':
           description: Bad request
           content:
@@ -263,7 +263,7 @@ paths:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1.1/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -281,10 +281,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /notifications/sent/{iun} API CORS
+      operationId: Options for /v1.1/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1.1/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -1587,7 +1587,7 @@ components:
           type: string
       required:
         - code
-    FullSentNotification:
+    FullSentNotificationV1_1:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
@@ -1609,7 +1609,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElementV1_1'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1698,7 +1698,7 @@ components:
           pattern: PF|PG
         amount:
           type: number
-    TimelineElement:
+    TimelineElementV1_1:
       type: object
       additionalProperties: false
       properties:
@@ -2244,6 +2244,8 @@ components:
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
+          * `NOTIFICATION_CANCELLED` - Notifica annullata
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -2283,6 +2285,8 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+        - NOTIFICATION_CANCELLATION_REQUEST
+        - NOTIFICATION_CANCELLED
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -3205,6 +3209,31 @@ components:
           type: string
           format: date-time
           description: Data probabile di inizio del flusso analogico
+    NotificationCancellationRequestDetails:
+      type: object
+      required:
+        - cancellationRequestId
+      properties:
+        cancellationRequestId:
+          type: string
+          description: Id della richiesta
+    NotificationCancelledDetails:
+      type: object
+      required:
+        - notificationCost
+        - notRefinedRecipientIndexes
+      properties:
+        notificationCost:
+          description: >-
+            costo notifica in euro cents, vale 100 * numero di recipient not
+            refined
+          example: 1220
+          type: number
+        notRefinedRecipientIndexes:
+          type: array
+          items:
+            description: indice del recipient non perfezionato
+            type: number
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:
@@ -3245,6 +3274,8 @@ components:
         - $ref: '#/components/schemas/SendAnalogProgressDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
         - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
+        - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
+        - $ref: '#/components/schemas/NotificationCancelledDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
@@ -3427,7 +3458,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElementV1_1'
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object

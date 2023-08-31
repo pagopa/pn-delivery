@@ -222,7 +222,7 @@ class NotificationPriceServiceTest {
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationV11.builder()
                 .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
                 .iun( "iun" )
                 .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
@@ -239,11 +239,11 @@ class NotificationPriceServiceTest {
                                 .noticeCode( NOTICE_CODE )
                                 .build() )
                         .build()) )
-                .timeline( List.of( TimelineElement.builder()
+                .timeline( List.of( TimelineElementV11.builder()
                                 .category( TimelineElementCategory.REFINEMENT )
                                 .timestamp( OffsetDateTime.parse( REFINEMENT_DATE ) )
                                 .build(),
-                        TimelineElement.builder()
+                        TimelineElementV11.builder()
                                 .category( TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER )
                                 .details( TimelineElementDetails.builder()
                                         .recIndex( 0 )
