@@ -4,13 +4,18 @@ import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.DeleteItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 
 import java.util.Optional;
 
@@ -30,7 +35,7 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
     public Optional<InternalNotificationCost> getNotificationByPaymentInfo(String paTaxId, String noticeCode) {
 
         Key key = Key.builder()
-                .partitionValue( paTaxId+"##"+noticeCode )
+                .partitionValue( buildKey(paTaxId, noticeCode) )
                 .build();
 
         NotificationCostEntity notificationCostEntity = table.getItem( key );
@@ -58,5 +63,26 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
     @Override
     public void deleteItem(NotificationCostEntity notificationCostEntity) {
         table.deleteItem(notificationCostEntity);
+    }
+
+    @Override
+    public void deleteItem(String paTaxId, String noticeCode, String iun) {
+        Expression expression = Expression.builder()
+                .expression(NotificationCostEntity.FIELD_IUN + " = :iun")
+                .putExpressionValue(":iun", AttributeValue.builder().s(iun).build())
+                .build();
+
+        DeleteItemEnhancedRequest request = DeleteItemEnhancedRequest.builder()
+                .key(k -> k
+                        .partitionValue(buildKey(paTaxId, noticeCode))
+                        .build())
+                .conditionExpression(expression)
+                .build();
+
+        table.deleteItem(request);
+    }
+
+    private String buildKey(String paTaxId, String noticeCode) {
+        return paTaxId+"##"+noticeCode;
     }
 }

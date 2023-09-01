@@ -251,4 +251,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         paymentEventsService.handlePaymentEventPagoPaPrivate( paymentEventPagoPaPrivate );
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @Override
+    public ResponseEntity<Void> removeAllNotificationCostsByIun(String iun) {
+        priceService.removeAllNotificationCostsByIun(iun);
+        return ResponseEntity.noContent().build();
+    }
 }
