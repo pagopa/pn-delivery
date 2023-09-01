@@ -138,7 +138,7 @@ class PnReceivedIONotificationsControllerTest {
                                 )
                                 .build()
                 ))
-                .timeline( Collections.singletonList(TimelineElementV11.builder().build()))
+                .timeline( Collections.singletonList(TimelineElementV20.builder().build()))
                 .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
                         .status( NotificationStatus.ACCEPTED )
                         .build() ) )

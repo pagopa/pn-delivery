@@ -662,11 +662,11 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkRefinementDateOraSolare() {
         // Given
-        List<TimelineElementV11> timelineElementList = List.of( TimelineElementV11.builder()
+        List<TimelineElementV20> timelineElementList = List.of( TimelineElementV20.builder()
                         .category( TimelineElementCategory.REFINEMENT )
                         .timestamp( OffsetDateTime.parse( "2022-10-05T12:23:15.123456Z" ) )
                 .build(),
-                TimelineElementV11.builder()
+                TimelineElementV20.builder()
                         .category( TimelineElementCategory.NOTIFICATION_VIEWED )
                         .timestamp( OffsetDateTime.parse( "2022-10-03T10:10:15.123456Z" ) )
                         .build()
@@ -683,11 +683,11 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkRefinementDateOraLegale() {
         // Given
-        List<TimelineElementV11> timelineElementList = List.of( TimelineElementV11.builder()
+        List<TimelineElementV20> timelineElementList = List.of( TimelineElementV20.builder()
                         .category( TimelineElementCategory.REFINEMENT )
                         .timestamp( OffsetDateTime.parse( "2022-12-05T12:23:15.123456Z" ) )
                         .build(),
-                TimelineElementV11.builder()
+                TimelineElementV20.builder()
                         .category( TimelineElementCategory.NOTIFICATION_VIEWED )
                         .timestamp( OffsetDateTime.parse( "2022-12-03T10:10:15.123456Z" ) )
                         .build()

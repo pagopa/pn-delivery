@@ -691,7 +691,7 @@ class PnInternalNotificationsControllerTest {
                 ))
                 .recipientIds(Collections.singletonList("recipientId"))
                 .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .timeline(Collections.singletonList(TimelineElementV11.builder().build()))
+                .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))
