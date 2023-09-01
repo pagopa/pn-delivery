@@ -449,7 +449,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
   
-  "/delivery/v2_0/notifications/sent/{iun}":
+  "/delivery/v2.0/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: |-

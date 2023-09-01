@@ -647,7 +647,7 @@ class PnInternalNotificationsControllerTest {
     }
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotificationV11.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
