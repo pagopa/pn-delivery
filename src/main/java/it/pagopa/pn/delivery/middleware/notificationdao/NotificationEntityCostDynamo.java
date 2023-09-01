@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,6 +14,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.DeleteItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 
 import java.util.Optional;
@@ -66,7 +66,7 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
     }
 
     @Override
-    public void deleteItem(String paTaxId, String noticeCode, String iun) {
+    public void deleteWithCheckIun(String paTaxId, String noticeCode, String iun) {
         Expression expression = Expression.builder()
                 .expression(NotificationCostEntity.FIELD_IUN + " = :iun")
                 .putExpressionValue(":iun", AttributeValue.builder().s(iun).build())
@@ -79,7 +79,12 @@ public class NotificationEntityCostDynamo extends AbstractDynamoKeyValueStore<No
                 .conditionExpression(expression)
                 .build();
 
-        table.deleteItem(request);
+        try {
+            table.deleteItem(request);
+        }
+        catch (ConditionalCheckFailedException e) {
+            log.warn("Check iun failed during deleteWithCheckItem, with paTaxId: {}, noticeCode: {}", paTaxId, noticeCode);
+        }
     }
 
     private String buildKey(String paTaxId, String noticeCode) {

@@ -159,12 +159,10 @@ public class NotificationPriceService {
 
     public void removeAllNotificationCostsByIun(String iun) {
         InternalNotification notification = notificationDao.getNotificationByIun(iun)
-                .orElseThrow(() -> new PnNotificationNotFoundException(String.format("Notification with IUN: %s not found")));
+                .orElseThrow(() -> new PnNotificationNotFoundException(String.format("Notification with IUN: %s not found", iun)));
 
         notification.getRecipients().stream()
                 .filter(recipient -> recipient.getPayment() != null)
-                .map(recipient -> notificationCostEntityDao.getNotificationByPaymentInfo(recipient.getPayment().getCreditorTaxId(), recipient.getPayment().getNoticeCode()))
-                .filter(Optional::isPresent)
-                .peek(internalNotificationCost -> notificationCostEntityDao)
+                .forEach(recipient -> notificationCostEntityDao.deleteWithCheckIun(recipient.getPayment().getCreditorTaxId(), recipient.getPayment().getNoticeCode(), iun));
     }
 }

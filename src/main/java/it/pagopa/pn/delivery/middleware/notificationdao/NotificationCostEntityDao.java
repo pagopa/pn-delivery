@@ -11,6 +11,5 @@ public interface NotificationCostEntityDao extends KeyValueStore<Key, Notificati
     String IMPLEMENTATION_TYPE_PROPERTY_NAME = "pn.middleware.impl.notification-dao";
     Optional<InternalNotificationCost> getNotificationByPaymentInfo(String paTaxId, String noticeCode );
     void deleteItem(NotificationCostEntity notificationCostEntity);
-
-    void deleteItem(String paTaxId, String noticeCode, String iun);
+    void deleteWithCheckIun(String paTaxId, String noticeCode, String iun);
 }
