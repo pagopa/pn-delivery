@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: qP8J5jQIkWVYMn7Pjvzezbg2KwQuSqmnBTKBW2/1uZA=
+  version: cnaZwimkSr4LrTulF3gEV5hNDmdh+IWyqKro5+BZnOE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1609,7 +1609,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV1_1'
+                $ref: '#/components/schemas/TimelineElementV2_0'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1698,7 +1698,7 @@ components:
           pattern: PF|PG
         amount:
           type: number
-    TimelineElementV1_1:
+    TimelineElementV2_0:
       type: object
       additionalProperties: false
       properties:
@@ -3458,7 +3458,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV1_1'
+                $ref: '#/components/schemas/TimelineElementV2_0'
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object

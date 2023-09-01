@@ -239,11 +239,11 @@ class NotificationPriceServiceTest {
                                 .noticeCode( NOTICE_CODE )
                                 .build() )
                         .build()) )
-                .timeline( List.of( TimelineElementV11.builder()
+                .timeline( List.of( TimelineElementV20.builder()
                                 .category( TimelineElementCategory.REFINEMENT )
                                 .timestamp( OffsetDateTime.parse( REFINEMENT_DATE ) )
                                 .build(),
-                        TimelineElementV11.builder()
+                        TimelineElementV20.builder()
                                 .category( TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER )
                                 .details( TimelineElementDetails.builder()
                                         .recIndex( 0 )
