@@ -21,7 +21,7 @@
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
         <ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
-        <pagopa.codegen.version>v01.02.05</pagopa.codegen.version>
+        <pagopa.codegen.version>v01.03.00</pagopa.codegen.version>
     </properties>
 
     <dependencies>

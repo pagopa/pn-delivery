@@ -958,7 +958,7 @@ components:
               description: elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV1_1'
+                $ref: '#/components/schemas/TimelineElementV2_0'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: Richiesta contenente un array di eventi di pagamento di tipo PagoPA di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
@@ -1044,7 +1044,7 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV1_1:
+    TimelineElementV2_0:
       type: object
       additionalProperties: false
       properties:

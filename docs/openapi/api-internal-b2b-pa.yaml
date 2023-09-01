@@ -1114,7 +1114,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV1_1'
+                $ref: '#/components/schemas/TimelineElementV2_0'
             recipientIds:                                                               # NO EXTERNAL
               description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
               type: array                                                               # NO EXTERNAL
@@ -1230,8 +1230,8 @@ components:
           type: integer
           format: int32
     
-    TimelineElementV1_1:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV1_1'
+    TimelineElementV2_0:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV2_0'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:

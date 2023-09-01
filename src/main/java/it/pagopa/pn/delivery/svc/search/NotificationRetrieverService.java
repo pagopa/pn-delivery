@@ -436,15 +436,15 @@ public class NotificationRetrieverService {
 		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
-	protected OffsetDateTime findRefinementDate(List<TimelineElementV11> timeline, String iun) {
+	protected OffsetDateTime findRefinementDate(List<TimelineElementV20> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
 		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
-		Optional<TimelineElementV11> optionalMin = timeline
+		Optional<TimelineElementV20> optionalMin = timeline
 				.stream()
 				.filter(tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory() )
 						|| TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.min( Comparator.comparing(TimelineElementV11::getTimestamp) );
+				.min( Comparator.comparing(TimelineElementV20::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
 			refinementDate = refinementLocalDateUtils.setLocalRefinementDate(optionalMin.get());
@@ -615,10 +615,10 @@ public class NotificationRetrieverService {
 		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
 			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
-			List<TimelineElementV11> timeline = internalNotification.getTimeline();
+			List<TimelineElementV20> timeline = internalNotification.getTimeline();
 			log.debug("Timelines size before filter: {}", timeline.size());
 
-			List<TimelineElementV11> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
+			List<TimelineElementV20> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
 							timelineElement.getDetails().getRecIndex() == null ||
 							timelineElement.getDetails().getRecIndex() == recipientIndex)
 					.toList();
@@ -741,7 +741,7 @@ public class NotificationRetrieverService {
 
 		FullSentNotificationV11 resultFullSent = notification
 				.timeline( timelineList.stream()
-						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV11.class ) )
+						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV20.class ) )
 						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> modelMapper.map( el, NotificationStatusHistoryElement.class ))
