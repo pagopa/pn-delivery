@@ -606,6 +606,38 @@ class PnInternalNotificationsControllerTest {
     }
 
     @Test
+    void removeAllNotificationCostsByIunOKest() {
+        Mockito.doNothing()
+                .when( priceService )
+                .removeAllNotificationCostsByIun( IUN);
+
+        webTestClient.delete()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notification-cost/"+ IUN)
+                                .build())
+                .exchange()
+                .expectStatus()
+                .isNoContent();
+    }
+
+    @Test
+    void removeAllNotificationCostsByIunWithNotificationNotPresentTest() {
+        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+                .when( priceService )
+                .removeAllNotificationCostsByIun( IUN);
+
+        webTestClient.delete()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notification-cost/"+ IUN)
+                                .build())
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
     void paymentEventPagoPaPrivateSuccess() {
         PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
                 .paymentDate( "2023-01-16T15:30:00.234Z" )
