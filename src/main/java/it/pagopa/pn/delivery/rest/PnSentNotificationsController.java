@@ -48,7 +48,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<FullSentNotificationV11> _getSentNotificationV11(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<FullSentNotificationV20> _getSentNotificationV20(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -62,7 +62,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        FullSentNotificationV11 result = modelMapper.map( internalNotification, FullSentNotificationV11.class );
+        FullSentNotificationV20 result = modelMapper.map( internalNotification, FullSentNotificationV20.class );
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
@@ -163,7 +163,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                 response.setNotificationRequestStatus("REFUSED");
                 response.setIun(null);
                 Optional<TimelineElementV20> timelineElement = internalNotification.getTimeline().stream().filter(
-                        tle -> TimelineElementCategory.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
+                        tle -> TimelineElementCategoryV20.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
                 timelineElement.ifPresent(element -> setRefusedErrors(response, element));
             }
             default -> response.setNotificationRequestStatus("ACCEPTED");
