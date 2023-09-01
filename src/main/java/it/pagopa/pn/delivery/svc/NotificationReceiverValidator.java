@@ -12,12 +12,14 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysica
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Component
 public class NotificationReceiverValidator {
@@ -26,6 +28,7 @@ public class NotificationReceiverValidator {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final ValidateUtils validateUtils;
     private final PnDeliveryConfigs pnDeliveryConfigs;
+    private static final String PHYSICAL_ADDRESS_PATTERN = "[0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./' -]+";
 
     public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs) {
         this.validator = validator;
@@ -104,26 +107,41 @@ public class NotificationReceiverValidator {
           recIdx++;
       }
       errors.addAll(validator.validate( internalNotification ));
-
-      errors.addAll( this.checkPhishicalAddress( internalNotification ));
+      errors.addAll( this.checkPhysicalAddress( internalNotification ));
       return errors;
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequest>> checkPhysicalAddress (NewNotificationRequest internalNotification) {
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkPhysicalAddress(NewNotificationRequest internalNotification) {
 
         Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
 
-        if( this.pnDeliveryConfigs.isPhysicalAddressValidation() ) {
+        if (this.pnDeliveryConfigs.isPhysicalAddressValidation()) {
 
-            for (NotificationRecipient recipient : internalNotification.getRecipients() ) {
+            int recIdx = 0;
 
-                String denomination = recipient.getDenomination();
+            for (NotificationRecipient recipient : internalNotification.getRecipients()) {
 
                 NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-                /**
-                 * TODO: Implement Validation Physical Validation
-                 */
 
+                Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
+                Pair<String, String> address = Pair.of("address", physicalAddress.getAddress());
+                Pair<String, String> addressDetails = Pair.of("addressDetails", physicalAddress.getAddressDetails());
+                Pair<String, String> province = Pair.of("province", physicalAddress.getProvince());
+                Pair<String, String> foreignState = Pair.of("foreignState", physicalAddress.getForeignState());
+                Pair<String, String> at = Pair.of("at", physicalAddress.getAt());
+                Pair<String, String> zip = Pair.of("zip", physicalAddress.getZip());
+                Pair<String, String> municipality = Pair.of("municipality", physicalAddress.getMunicipality());
+                Pair<String, String> municipalityDetails = Pair.of("municipalityDetails", physicalAddress.getMunicipalityDetails());
+
+                int finalRecIdx = recIdx;
+                Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
+                        .filter(field -> field.getValue() != null)
+                        .forEach(field -> {
+                            if (!field.getValue().matches(PHYSICAL_ADDRESS_PATTERN))
+                                errors.add(new ConstraintViolationImpl<>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)));
+                        });
+
+                recIdx++;
             }
         }
 
