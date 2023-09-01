@@ -55,7 +55,7 @@ class NotificationReceiverValidationTest {
       "invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars";
   public static final String INVALID_SUBJECT =
       "invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars";
-
+  public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
 
   private NotificationReceiverValidator validator;
 
@@ -552,6 +552,7 @@ class NotificationReceiverValidationTest {
 
     //WHEN
     when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+    when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
     var errors = validator.checkPhysicalAddress(newNotification());
 
     //THEN
@@ -563,6 +564,7 @@ class NotificationReceiverValidationTest {
   void physicalAddressValidationKo() {
     //WHEN
     when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+    when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification());
 
     //THEN
@@ -577,6 +579,7 @@ class NotificationReceiverValidationTest {
   void PhysicalAddressMoreRecipientsValidationKo() {
     //WHEN
     when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+    when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
     var errors = validator.checkPhysicalAddress(moreBadRecipientsNewNotification());
 
     //THEN

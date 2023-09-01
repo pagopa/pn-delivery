@@ -136,7 +136,7 @@ public class NotificationReceiverValidator {
                 Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
                         .filter(field -> field.getValue() != null)
                         .forEach(field -> {
-                            if (!field.getValue().matches("["+this.pnDeliveryConfigs.physicalAddressValidationPattern+"]*"))
+                            if (!field.getValue().matches("[" + this.pnDeliveryConfigs.getPhysicalAddressValidationPattern() + "]*"))
                                 errors.add(new ConstraintViolationImpl<>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)));
                         });
 
