@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.pnclient.datavault;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.pn.delivery.MockAWSObjectsTest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,7 +29,7 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery.max-recipients-count=0",
         "pn.delivery.max-attachments-count=0"
 })
-class PnDataVaultClientImplTestIT {
+class PnDataVaultClientImplTestIT extends MockAWSObjectsTest {
 
     @Autowired
     private PnDataVaultClientImpl dataVaultClient;
