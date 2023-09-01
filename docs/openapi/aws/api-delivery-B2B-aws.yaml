@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: YewES14LSNtrrlBPzFUbvhI6fWtON8K2rN77rVVtBN0=
+  version: SBKetthocPzZBybvFAxL0SM3S+xpgBbYMahXPW3o01k=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -232,7 +232,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v1.1/notifications/sent/{iun}:
+  /v2_0/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: >-
@@ -240,7 +240,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV1_1
+      operationId: retrieveSentNotificationV2_0
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -249,7 +249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV1_1'
+                $ref: '#/components/schemas/FullSentNotificationV2_0'
         '400':
           description: Bad request
           content:
@@ -267,7 +267,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1.1/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2_0/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -285,10 +285,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v1.1/notifications/sent/{iun} API CORS
+      operationId: Options for /v2_0/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1.1/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2_0/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -1085,7 +1085,7 @@ components:
           type: string
       required:
         - code
-    FullSentNotificationV1_1:
+    FullSentNotificationV2_0:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.

@@ -363,13 +363,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v1.1/notifications/sent/{iun}:
+  /delivery/v2_0/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV1_1
+      operationId: retrieveSentNotificationV2_0
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -378,7 +378,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV1_1'
+                $ref: '#/components/schemas/FullSentNotificationV2_0'
         '400':
           description: Bad request
           content:
@@ -940,7 +940,7 @@ components:
           type: string
       required:
         - code
-    FullSentNotificationV1_1:
+    FullSentNotificationV2_0:
       description: Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
         - $ref: '#/components/schemas/SentNotification'
