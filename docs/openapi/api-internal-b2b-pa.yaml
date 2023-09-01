@@ -49,7 +49,7 @@ info:
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
       di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV2)
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV2_1)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
       >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
@@ -128,7 +128,7 @@ info:
       #### 2. Richiesta di invio della notifica
     
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotificationV2) utilizzando i riferimenti dei file 
+      [sendNewNotification](#/NewNotification/sendNewNotificationV2_1) utilizzando i riferimenti dei file 
       caricati ottenuti al punto (1.b).
       
       </br>
@@ -152,8 +152,8 @@ info:
     
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
       identificata dalla IUN restituito dall'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV2).</br> 
-      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2/notifications/sent/{iun}_ per 
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV2_1).</br> 
+      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.1/notifications/sent/{iun}_ per 
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
@@ -325,7 +325,7 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/v2/requests":
+  "/delivery/v2.1/requests":
     post:
       summary: Richiesta invio notifica
       description: |-
@@ -349,7 +349,7 @@ paths:
         </details>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV2
+      operationId: sendNewNotificationV2_1
       parameters: # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
@@ -361,7 +361,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV2"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV2_1"
         required: true
       responses:
         '202':
@@ -393,8 +393,8 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: getNotificationRequestStatusV2                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatusV2                 # ONLY EXTERNAL
+      operationId: getNotificationRequestStatusV2_1                       # NO EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV2_1                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -417,7 +417,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV2"
+                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV2_1"
         '400':
           description: Bad request
           content:
@@ -442,7 +442,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
   
-  "/delivery/v2/notifications/sent/{iun}":
+  "/delivery/v2.1/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: |-
@@ -461,8 +461,8 @@ paths:
         </details>
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationV2                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV2                                # ONLY EXTERNAL
+      operationId: getSentNotificationV2_1                                      # NO EXTERNAL
+#      operationId: retrieveSentNotificationV2_1                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -475,7 +475,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV2"
+                $ref: "#/components/schemas/FullSentNotificationV2_1"
         '400':
           description: Bad request
           content:
@@ -1045,9 +1045,9 @@ components:
             effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
     
-    NewNotificationRequestStatusResponseV2:
+    NewNotificationRequestStatusResponseV2_1:
       allOf:
-        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV2"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV2_1"
         - type: object
           required:
             - notificationRequestId
@@ -1088,12 +1088,12 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV2:
+    FullSentNotificationV2_1:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV2'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV2_1'
         - type: object
           required:
             - notificationStatus

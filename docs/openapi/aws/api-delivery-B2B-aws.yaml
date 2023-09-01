@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: BOpm7C7hLW6nqdVTL92/bDtugVxjw/lWnLGl6eg8pQw=
+  version: lgJ9sN7XHPu99Iiqp4TW6NOPtTj++rBrYxS/OYuSGw0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -86,7 +86,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2/requests:
+  /v2.1/requests:
     post:
       summary: Richiesta invio notifica
       description: >-
@@ -106,12 +106,12 @@ paths:
         prevista dai webhook. <br/>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV2
+      operationId: sendNewNotificationV2_1
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewNotificationRequestV2'
+              $ref: '#/components/schemas/NewNotificationRequestV2_1'
         required: true
       responses:
         '202':
@@ -143,7 +143,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -161,7 +161,7 @@ paths:
         type: http_proxy
       parameters: []
     get:
-      operationId: retrieveNotificationRequestStatusV2
+      operationId: retrieveNotificationRequestStatusV2_1
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -180,7 +180,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV2'
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV2_1'
         '400':
           description: Bad request
           content:
@@ -204,7 +204,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -221,10 +221,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2/requests API CORS
+      operationId: Options for /v2.1/requests API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
@@ -232,7 +232,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2/notifications/sent/{iun}:
+  /v2.1/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: >-
@@ -240,7 +240,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV2
+      operationId: retrieveSentNotificationV2_1
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -249,7 +249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV2'
+                $ref: '#/components/schemas/FullSentNotificationV2_1'
         '400':
           description: Bad request
           content:
@@ -267,7 +267,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -285,10 +285,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2/notifications/sent/{iun} API CORS
+      operationId: Options for /v2.1/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -941,9 +941,9 @@ components:
             notificazione"  effettuate con lo stesso numero di protocollo (campo
             _paProtocolNumber_).
           type: string
-    NewNotificationRequestStatusResponseV2:
+    NewNotificationRequestStatusResponseV2_1:
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV2'
+        - $ref: '#/components/schemas/NewNotificationRequestV2_1'
         - type: object
           required:
             - notificationRequestId
@@ -1042,12 +1042,12 @@ components:
           type: string
       required:
         - code
-    FullSentNotificationV2:
+    FullSentNotificationV2_1:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: '#/components/schemas/SentNotificationV2'
+        - $ref: '#/components/schemas/SentNotificationV2_1'
         - type: object
           required:
             - notificationStatus
@@ -1480,7 +1480,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationPaymentItem'
-    NotificationRecipientV2:
+    NotificationRecipientV2_1:
       description: Informazioni sui destinatari
       required:
         - denomination
@@ -1541,7 +1541,7 @@ components:
       minLength: 25
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-    NewNotificationRequestV2:
+    NewNotificationRequestV2_1:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -1583,7 +1583,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: '#/components/schemas/NotificationRecipientV2'
+            $ref: '#/components/schemas/NotificationRecipientV2_1'
         documents:
           type: array
           description: Documenti notificati
@@ -1652,10 +1652,10 @@ components:
             - NONE
             - SYNC
             - ASYNC
-    SentNotificationV2:
+    SentNotificationV2_1:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV2'
+        - $ref: '#/components/schemas/NewNotificationRequestV2_1'
         - type: object
           required:
             - iun

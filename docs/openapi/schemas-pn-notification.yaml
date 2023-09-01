@@ -192,7 +192,7 @@ components:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
 
-    NewNotificationRequestV2:
+    NewNotificationRequestV2_1:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -239,7 +239,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: "#/components/schemas/NotificationRecipientV2"
+            $ref: "#/components/schemas/NotificationRecipientV2_1"
         documents:
           type: array
           description: Documenti notificati
@@ -306,11 +306,11 @@ components:
             - NONE
             - SYNC
             - ASYNC
-    SentNotificationV2:
+    SentNotificationV2_1:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV2'
+        - $ref: '#/components/schemas/NewNotificationRequestV2_1'
         - type: object
           required:
             - iun
@@ -369,7 +369,7 @@ components:
         payment:
           $ref: "#/components/schemas/NotificationPaymentInfo"
 
-    NotificationRecipientV2:
+    NotificationRecipientV2_1:
       description: Informazioni sui destinatari
       required:
         - denomination
