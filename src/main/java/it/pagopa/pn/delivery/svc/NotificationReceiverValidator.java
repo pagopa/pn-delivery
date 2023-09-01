@@ -28,7 +28,6 @@ public class NotificationReceiverValidator {
     private final MVPParameterConsumer mvpParameterConsumer;
     private final ValidateUtils validateUtils;
     private final PnDeliveryConfigs pnDeliveryConfigs;
-    private static final String PHYSICAL_ADDRESS_PATTERN = "[0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./' -]+";
 
     public NotificationReceiverValidator(Validator validator, MVPParameterConsumer mvpParameterConsumer, ValidateUtils validateUtils, PnDeliveryConfigs pnDeliveryConfigs) {
         this.validator = validator;
@@ -137,7 +136,7 @@ public class NotificationReceiverValidator {
                 Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
                         .filter(field -> field.getValue() != null)
                         .forEach(field -> {
-                            if (!field.getValue().matches(PHYSICAL_ADDRESS_PATTERN))
+                            if (!field.getValue().matches("["+this.pnDeliveryConfigs.physicalAddressValidationPattern+"]*"))
                                 errors.add(new ConstraintViolationImpl<>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)));
                         });
 

@@ -61,6 +61,8 @@ public class PnDeliveryConfigs {
     private Integer maxAttachmentsCount;
 
     private boolean physicalAddressValidation = false;
+    
+    private String physicalAddressValidationPattern;
 
     @Data
     public static class Topics {
