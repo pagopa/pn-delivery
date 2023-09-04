@@ -34,7 +34,6 @@
         }
     ],
     "openapiBundlePresenceCheck": [
-        "api-external-b2b-pa-bundle.yaml",
-        "api-external-b2b-pa-older-versions-bundle.yaml"
+        "api-external-b2b-pa-bundle.yaml"
     ]
 }

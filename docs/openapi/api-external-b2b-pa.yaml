@@ -412,7 +412,7 @@ paths:
   
   "/delivery/v2.0/notifications/sent/{iun}":
     get:
-      summary: 'Mittente: lettura dettagli notifica'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
