@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 8ktdMi2XgdxA8phTTASvEYEbi6XxOOBF7Wo3jw9+NW0=
+  version: UzS6Fl2jCBYjHEvM45QsJzkNLrF+zOd4G8M+uWXvdjU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -231,7 +231,7 @@ paths:
         type: http_proxy
   /v2.0/notifications/sent/{iun}:
     get:
-      summary: 'Mittente: lettura dettagli notifica'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>
@@ -1785,6 +1785,22 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.
+    RequestStatus:
+      description: Response to cancellation async call
+      type: object
+      properties:
+        status:
+          description: |
+            Cancellation request status:
+              - OK
+          type: string
+        details:
+          type: array
+          maxItems: 9999
+          items:
+            $ref: '#/components/schemas/StatusDetail'
+      required:
+        - status
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
       type: string
@@ -3393,6 +3409,28 @@ components:
           type: string
         fileAvailable:
           type: boolean
+    StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        detail:
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Parameter not valid
+          type: string
     NotificationSearchRow:
       type: object
       properties:
