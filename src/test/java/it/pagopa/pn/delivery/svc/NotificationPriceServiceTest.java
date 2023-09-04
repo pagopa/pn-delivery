@@ -260,7 +260,7 @@ class NotificationPriceServiceTest {
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotificationV11.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
                 .iun( "iun" )
                 .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
@@ -278,12 +278,12 @@ class NotificationPriceServiceTest {
                                 .build() )
                         .build()) )
                 .timeline( List.of( TimelineElementV20.builder()
-                                .category( TimelineElementCategory.REFINEMENT )
+                                .category( TimelineElementCategoryV20.REFINEMENT )
                                 .timestamp( OffsetDateTime.parse( REFINEMENT_DATE ) )
                                 .build(),
                         TimelineElementV20.builder()
-                                .category( TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER )
-                                .details( TimelineElementDetails.builder()
+                                .category( TimelineElementCategoryV20.SEND_SIMPLE_REGISTERED_LETTER )
+                                .details( TimelineElementDetailsV20.builder()
                                         .recIndex( 0 )
                                         .physicalAddress( PhysicalAddress.builder()
                                                 .foreignState( "Italia" )

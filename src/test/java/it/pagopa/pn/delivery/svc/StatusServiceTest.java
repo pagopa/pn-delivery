@@ -129,7 +129,7 @@ class StatusServiceTest {
 
     @NotNull
     private static InternalNotification newInternalNotification(String iun, NotificationStatus inValidation) {
-        return new InternalNotification(FullSentNotificationV11.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .iun(iun)
                 .sentAt(OffsetDateTime.parse("2021-09-16T15:00:00.00Z"))
                 .subject("Subject")

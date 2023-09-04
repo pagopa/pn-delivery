@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.pnclient.mandate;
 
+import it.pagopa.pn.delivery.MockAWSObjectsTest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import org.junit.jupiter.api.AfterAll;
@@ -24,7 +25,7 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery.max-recipients-count=0",
         "pn.delivery.max-attachments-count=0"
 })
-class PnMandateClientImplTestIT {
+class PnMandateClientImplTestIT extends MockAWSObjectsTest {
 
     private static final String DELEGATE = "delegate";
     private static final String DELEGATOR = "delegator";

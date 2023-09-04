@@ -449,7 +449,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
   
-  "/delivery/v1.1/notifications/sent/{iun}":
+  "/delivery/v2.0/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: |-
@@ -468,8 +468,8 @@ paths:
         </details>
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationV1_1                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV1_1                                # ONLY EXTERNAL
+      operationId: getSentNotificationV2_0                                      # NO EXTERNAL
+#      operationId: retrieveSentNotificationV2_0                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -482,7 +482,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV1_1"
+                $ref: "#/components/schemas/FullSentNotificationV2_0"
         '400':
           description: Bad request
           content:
@@ -1093,7 +1093,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV1_1:
+    FullSentNotificationV2_0:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.

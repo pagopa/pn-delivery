@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV11;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV20;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
@@ -57,7 +57,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS)})) private List<NotificationRecipientEntity> recipients;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DOCUMENTS)})) private List<DocumentAttachmentEntity> documents;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTIFICATION_FEE_POLICY)})) private NotificationFeePolicy notificationFeePolicy;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV11.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV20.PhysicalCommunicationTypeEnum physicalCommunicationType;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_GROUP)})) private String group;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_DENOMINATION)})) private String senderDenomination;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_TAX_ID)})) private String senderTaxId;

@@ -29,7 +29,7 @@ public class EntityToDtoNotificationMapper {
     	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
                 .toList();
 
-        return new InternalNotification(FullSentNotificationV11.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .senderDenomination( entity.getSenderDenomination() )
                 ._abstract( entity.getNotificationAbstract() )
                 .senderTaxId( entity.getSenderTaxId() )
@@ -56,11 +56,11 @@ public class EntityToDtoNotificationMapper {
                 .build());
     }
 
-    private FullSentNotificationV11.PagoPaIntModeEnum getSafePagoPaIntMode(String pagoPaIntMode) {
+    private FullSentNotificationV20.PagoPaIntModeEnum getSafePagoPaIntMode(String pagoPaIntMode) {
         if(StringUtils.hasText( pagoPaIntMode )) {
-          return FullSentNotificationV11.PagoPaIntModeEnum.fromValue( pagoPaIntMode );
+          return FullSentNotificationV20.PagoPaIntModeEnum.fromValue( pagoPaIntMode );
         }
-        return FullSentNotificationV11.PagoPaIntModeEnum.NONE;
+        return FullSentNotificationV20.PagoPaIntModeEnum.NONE;
     }
 
     private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {

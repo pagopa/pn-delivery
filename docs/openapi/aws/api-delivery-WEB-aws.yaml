@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: cnaZwimkSr4LrTulF3gEV5hNDmdh+IWyqKro5+BZnOE=
+  version: 8ktdMi2XgdxA8phTTASvEYEbi6XxOOBF7Wo3jw9+NW0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -229,7 +229,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v1.1/notifications/sent/{iun}:
+  /v2.0/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica'
       description: >-
@@ -237,7 +237,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV1_1
+      operationId: retrieveSentNotificationV2_0
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -246,7 +246,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV1_1'
+                $ref: '#/components/schemas/FullSentNotificationV2_0'
         '400':
           description: Bad request
           content:
@@ -263,7 +263,7 @@ paths:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1.1/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -281,10 +281,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v1.1/notifications/sent/{iun} API CORS
+      operationId: Options for /v2.0/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v1.1/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -1587,7 +1587,7 @@ components:
           type: string
       required:
         - code
-    FullSentNotificationV1_1:
+    FullSentNotificationV2_0:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
@@ -1721,9 +1721,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategory'
+          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
         details:
-          $ref: '#/components/schemas/TimelineElementDetails'
+          $ref: '#/components/schemas/TimelineElementDetailsV2_0'
     NotificationStatus:
       type: string
       description: |
@@ -2202,7 +2202,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
-    TimelineElementCategory:
+    TimelineElementCategoryV2_0:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -2246,6 +2246,7 @@ components:
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
           * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -2287,6 +2288,7 @@ components:
         - PROBABLE_SCHEDULING_ANALOG_DATE
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -3234,7 +3236,27 @@ components:
           items:
             description: indice del recipient non perfezionato
             type: number
-    TimelineElementDetails:
+    PrepareAnalogDomicileFailureDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        foundAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        failureCause:
+          type: string
+          description: |
+            __Motivazione fallimento prepare
+              - __D00__ Indirizzo non trovato
+              - __D01__ Indirizzo non valido
+              - __D02__ Indirizzo coincidente con quello del primo tentativo
+        prepareRequestId:
+          type: string
+          description: RequestId della richiesta di prepare
+    TimelineElementDetailsV2_0:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
@@ -3276,6 +3298,7 @@ components:
         - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
         - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
         - $ref: '#/components/schemas/NotificationCancelledDetails'
+        - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-

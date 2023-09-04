@@ -96,7 +96,7 @@ class PnSentReceivedNotificationControllerTest {
 				
 		// Then		
 		webTestClient.get()
-			.uri( "/delivery/v1.1/notifications/sent/" + IUN  )
+			.uri( "/delivery/v2.0/notifications/sent/" + IUN  )
 			.accept( MediaType.ALL )
 			.header(HttpHeaders.ACCEPT, "application/json")
 			.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -107,7 +107,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotificationV11.class);
+			.expectBody(FullSentNotificationV20.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -123,7 +123,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v1.1/notifications/sent/" + IUN  )
+				.uri( "/delivery/v2.0/notifications/sent/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -150,7 +150,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v1.1/notifications/sent/" + IUN  )
+				.uri( "/delivery/v2.0/notifications/sent/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -201,8 +201,8 @@ class PnSentReceivedNotificationControllerTest {
 						.status( NotificationStatus.REFUSED )
 				.build() ) );
 		notification.setTimeline( Collections.singletonList( TimelineElementV20.builder()
-						.category( TimelineElementCategory.REQUEST_REFUSED )
-						.details( TimelineElementDetails.builder()
+						.category( TimelineElementCategoryV20.REQUEST_REFUSED )
+						.details( TimelineElementDetailsV20.builder()
 								.refusalReasons( Collections.singletonList( NotificationRefusedError.builder()
 												.errorCode( "FILE_NOTFOUND" )
 												.detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )
@@ -990,7 +990,7 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	private InternalNotification newNotification() {
-		return new InternalNotification(FullSentNotificationV11.builder()
+		return new InternalNotification(FullSentNotificationV20.builder()
 				.iun("IUN_01")
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")

@@ -442,8 +442,8 @@ public class NotificationRetrieverService {
 		// cerco elemento timeline con category refinement o notificationView
 		Optional<TimelineElementV20> optionalMin = timeline
 				.stream()
-				.filter(tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory() )
-						|| TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.filter(tle -> TimelineElementCategoryV20.REFINEMENT.equals(tle.getCategory() )
+						|| TimelineElementCategoryV20.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
 				.min( Comparator.comparing(TimelineElementV20::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
@@ -739,7 +739,7 @@ public class NotificationRetrieverService {
 
 		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		FullSentNotificationV11 resultFullSent = notification
+		FullSentNotificationV20 resultFullSent = notification
 				.timeline( timelineList.stream()
 						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV20.class ) )
 						.toList()  )
