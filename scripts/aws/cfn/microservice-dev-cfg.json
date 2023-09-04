@@ -18,6 +18,8 @@
     "MaxRecipientsCount": "15",
     "LollipopExpectedLcOriginalUrl": "^https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}$",
     "LollipopEnableConsumerLogging": "true",
-    "IsSendActiveDefaultValue": "true"
+    "IsSendActiveDefaultValue": "true",
+    "PhysicalAddressValidationValue": "true",
+    "PhysicalAddressValidationChars": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-"
   }
 }

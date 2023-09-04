@@ -163,11 +163,16 @@ Parameters:
     Type: String
     Description: 'maximum number of days in which documents are available from refinement'
 
-  physicalAddressValidationValue:
+  PhysicalAddressValidationValue:
     Type: String
     Description: 'Flag to activate the physical address validation. Default: false'
-    default: false
+    Default: 'false'
     AllowedValues: [ true,false ]
+  
+  PhysicalAddressValidationChars:
+    Type: String
+    Description: 'Physical address validation. Allowed Characters'
+    Default: "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-"
 
   LogsKinesisSourceStreamArn:
     Type: String
@@ -430,9 +435,8 @@ Resources:
         ContainerEnvEntry28: !Sub 'LOLLIPOP_EXPECTED_LC_ORIGINAL_URL=${LollipopExpectedLcOriginalUrl}'
         ContainerEnvEntry29: !Sub 'LOLLIPOP_ENABLE_CONSUMER_LOGGING=${LollipopEnableConsumerLogging}'
         ContainerEnvEntry30: !Sub 'PN_DELIVERY_FEATURES_ISSENDACTIVEDEFAULTVALUE=${IsSendActiveDefaultValue}'
-        ContainerEnvEntry31: !Sub 'PN_DELIVERY_FEATURES_PHYSICALADDRESSVALIDATION=${physicalAddressValidationValue}'
-        ConatinerEnvEntry32: >
-           PN_DELIVERY_FEATURES_PHYSICALADDRESSVALIDATION_PATTERN="01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-"
+        ContainerEnvEntry31: !Sub 'PN_DELIVERY_FEATURES_PHYSICALADDRESSVALIDATION=${PhysicalAddressValidationValue}'
+        ConatinerEnvEntry32: !Sub 'PN_DELIVERY_FEATURES_PHYSICALADDRESSVALIDATION_PATTERN=${PhysicalAddressValidationChars}'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
