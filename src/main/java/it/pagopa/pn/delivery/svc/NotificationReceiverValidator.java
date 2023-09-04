@@ -12,12 +12,14 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysica
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Component
 public class NotificationReceiverValidator {
@@ -34,7 +36,7 @@ public class NotificationReceiverValidator {
         this.pnDeliveryConfigs = pnDeliveryConfigs;
     }
 
-    public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
+    protected void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
         Set<ConstraintViolation<InternalNotification>> errors = checkNewNotificationBeforeInsert(internalNotification);
         if( ! errors.isEmpty() ) {
             List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
@@ -42,7 +44,7 @@ public class NotificationReceiverValidator {
         }
     }
 
-    public Set<ConstraintViolation<InternalNotification>> checkNewNotificationBeforeInsert(InternalNotification internalNotification) {
+    protected Set<ConstraintViolation<InternalNotification>> checkNewNotificationBeforeInsert(InternalNotification internalNotification) {
         return validator.validate( internalNotification );
     }
 
@@ -57,7 +59,7 @@ public class NotificationReceiverValidator {
         }
     }
 
-    public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
       Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
 
       // check del numero massimo di documenti allegati
@@ -104,7 +106,46 @@ public class NotificationReceiverValidator {
           recIdx++;
       }
       errors.addAll(validator.validate( internalNotification ));
+      errors.addAll( this.checkPhysicalAddress( internalNotification ));
       return errors;
+    }
+
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkPhysicalAddress(NewNotificationRequest internalNotification) {
+
+        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+
+        if (this.pnDeliveryConfigs.isPhysicalAddressValidation()) {
+
+            int recIdx = 0;
+
+            for (NotificationRecipient recipient : internalNotification.getRecipients()) {
+
+                NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+
+                Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
+                Pair<String, String> address = Pair.of("address", physicalAddress.getAddress());
+                Pair<String, String> addressDetails = Pair.of("addressDetails", physicalAddress.getAddressDetails());
+                Pair<String, String> province = Pair.of("province", physicalAddress.getProvince());
+                Pair<String, String> foreignState = Pair.of("foreignState", physicalAddress.getForeignState());
+                Pair<String, String> at = Pair.of("at", physicalAddress.getAt());
+                Pair<String, String> zip = Pair.of("zip", physicalAddress.getZip());
+                Pair<String, String> municipality = Pair.of("municipality", physicalAddress.getMunicipality());
+                Pair<String, String> municipalityDetails = Pair.of("municipalityDetails", physicalAddress.getMunicipalityDetails());
+
+                int finalRecIdx = recIdx;
+                Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
+                        .filter(field -> field.getValue() != null)
+                        .forEach(field -> {
+                            if (!field.getValue().matches("[" + this.pnDeliveryConfigs.getPhysicalAddressValidationPattern() + "]*"))
+                                errors.add(new ConstraintViolationImpl<>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)));
+                        });
+
+                recIdx++;
+            }
+        }
+
+        return errors;
+
     }
 
     private static void onlyNumericalTaxIdForPG(Set<ConstraintViolation<NewNotificationRequest>> errors, int recIdx, NotificationRecipient recipient) {

@@ -14,6 +14,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import lombok.extern.slf4j.Slf4j;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -27,6 +29,11 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.models.InternalNotification;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.AdditionalMatchers.and;
+import static org.mockito.Mockito.when;
+@Slf4j
 class NotificationReceiverValidationTest {
 
   @Mock
@@ -48,7 +55,7 @@ class NotificationReceiverValidationTest {
       "invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars";
   public static final String INVALID_SUBJECT =
       "invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars";
-
+  public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
 
   private NotificationReceiverValidator validator;
 
@@ -539,6 +546,57 @@ class NotificationReceiverValidationTest {
     assertConstraintViolationPresentByMessage(errors, "No recipient payment");
   }
 
+  @Test
+  //positive check.
+  void physicalAddressValidationOk() {
+
+    //WHEN
+    when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+    when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+    var errors = validator.checkPhysicalAddress(newNotification());
+
+    //THEN
+    assertThat(errors, empty());
+  }
+
+  @Test
+  //negative check with invalid denomination field.
+  void physicalAddressValidationKo() {
+    //WHEN
+    when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+    when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+    var errors = validator.checkPhysicalAddress(badRecipientsNewNotification());
+
+    //THEN
+      assertThat(errors, hasSize(1));
+      assertThat(errors, hasItems(
+              hasProperty("message", Matchers.containsString("denomination"))
+      ));
+  }
+
+  @Test
+  //negative check with all invalid fields from two different recipients.
+  void PhysicalAddressMoreRecipientsValidationKo() {
+    //WHEN
+    when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+    when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+    var errors = validator.checkPhysicalAddress(moreBadRecipientsNewNotification());
+
+    //THEN
+    assertThat(errors, hasSize(9));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("address"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("province"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("zip"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("foreignState"), Matchers.containsString("recipient 1"))),
+            hasProperty("message", allOf(Matchers.containsString("addressDetails"), Matchers.containsString("recipient 1"))),
+            hasProperty("message", allOf(Matchers.containsString("municipality"), Matchers.containsString("recipient 1"))),
+            hasProperty("message", allOf(Matchers.containsString("at"), Matchers.containsString("recipient 1"))),
+            hasProperty("message", allOf(Matchers.containsString("municipalityDetails"), Matchers.containsString("recipient 1")))
+      ));
+  }
+
   private <T> void assertConstraintViolationPresentByMessage(Set<ConstraintViolation<T>> set,
       String message) {
     long actual = set.stream().filter(cv -> cv.getMessage().equals(message)).count();
@@ -614,6 +672,50 @@ class NotificationReceiverValidationTest {
         .physicalCommunicationType(
             FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
         .build();
+  }
+
+  private NewNotificationRequest badRecipientsNewNotification() {
+    List<NotificationRecipient> recipients = new ArrayList<>();
+    recipients.add(
+            NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+                    .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
+                    .digitalDomicile(NotificationDigitalAddress.builder()
+                            .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
+                    .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
+                            .province("province").municipality("municipality").at("at").build())
+                    .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
+                            .noticeCodeAlternative("noticeCodeAlternative").build())
+                    .build());
+    return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(recipients).build();
+  }
+
+  private NewNotificationRequest moreBadRecipientsNewNotification() {
+    List<NotificationRecipient> recipients = new ArrayList<>();
+    recipients.add(NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+                    .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
+                    .digitalDomicile(NotificationDigitalAddress.builder()
+                            .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
+                    .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo?").zip("83100*")
+                            .province("province_").municipality("municipality-").municipalityDetails("municipalityDetails/")
+                            .at("at.").addressDetails("addressDetails0").foreignState("foreignState ").build())
+                    .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
+                            .noticeCodeAlternative("noticeCodeAlternative").build())
+                    .build());
+    recipients.add(NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+                    .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
+                    .digitalDomicile(NotificationDigitalAddress.builder()
+                            .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
+                    .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
+                    .province("province").municipality("municipality!").municipalityDetails("municipalityDetails?")
+                    .at("at_").addressDetails("addressDetails$").foreignState("foreignState%").build())
+                    .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
+                            .noticeCodeAlternative("noticeCodeAlternative").build())
+                    .build());
+    return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(recipients).build();
   }
 
   private InternalNotification newInternalNotification() {
