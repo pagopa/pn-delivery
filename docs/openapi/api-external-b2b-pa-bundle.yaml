@@ -521,6 +521,42 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery-push/v2.0/notifications/cancel/{iun}:
+    put:
+      summary: Annullamento notifica
+      description: |-
+        Permette l'annullamento di una notifica restituendo una presa in carico,
+          il processo di annullamento si completa poi in maniera asincrona
+      tags:
+        - notificationCancellation
+      operationId: notificationCancellation
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '202':
+          description: Accepted - Richiesta annullamento presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestStatus'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /delivery/price/{paTaxId}/{noticeCode}:
     get:
       operationId: retrieveNotificationPrice
@@ -1120,6 +1156,22 @@ components:
           type: number
           format: decimal32
           description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia scaricabile.
+    RequestStatus:
+      description: Response to cancellation async call
+      type: object
+      properties:
+        status:
+          description: |
+            Cancellation request status:
+              - OK
+          type: string
+        details:
+          type: array
+          maxItems: 9999
+          items:
+            $ref: '#/components/schemas/StatusDetail'
+      required:
+        - status
     PnFunctionality:
       title: Funzionalità di PN
       description: |-
@@ -2717,6 +2769,26 @@ components:
           type: integer
           format: int32
           description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia disponibile per il download.
+    StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        detail:
+          description: A human readable explanation specific to this occurrence of the problem.
+          example: Parameter not valid
+          type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
