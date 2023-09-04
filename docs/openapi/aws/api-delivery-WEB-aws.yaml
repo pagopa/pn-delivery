@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: NSVHuZd7nrBKadvIfogM2orzdGzly2/Iwf4UAyICOzc=
+  version: UzS6Fl2jCBYjHEvM45QsJzkNLrF+zOd4G8M+uWXvdjU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -231,7 +231,7 @@ paths:
         type: http_proxy
   /v2.0/notifications/sent/{iun}:
     get:
-      summary: 'Mittente: lettura dettagli notifica'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>

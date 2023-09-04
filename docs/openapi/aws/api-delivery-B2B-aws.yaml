@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Xz7G9PqLlzFvM/SYNMGYoUp0K5k9I5XlhRo6z6Htne0=
+  version: MCWI4ScIo8iQDjwQ0A8UbQWbF2vFCX992/H5wvfy3II=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -234,7 +234,7 @@ paths:
         type: http_proxy
   /v2.0/notifications/sent/{iun}:
     get:
-      summary: 'Mittente: lettura dettagli notifica'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>
@@ -3135,6 +3135,7 @@ tags:
     description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
+  - null
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:
