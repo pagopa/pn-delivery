@@ -181,7 +181,7 @@ class CheckAuthComponentTest {
     }
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
@@ -226,7 +226,7 @@ class CheckAuthComponentTest {
                 ))
                 .recipientIds(Collections.singletonList( "recipientId" ))
                 .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .timeline( Collections.singletonList(TimelineElement.builder().build()))
+                .timeline( Collections.singletonList(TimelineElementV20.builder().build()))
                 .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
                         .status( NotificationStatus.ACCEPTED )
                         .build() ) )

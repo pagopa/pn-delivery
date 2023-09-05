@@ -48,7 +48,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<FullSentNotification> getSentNotification(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<FullSentNotificationV20> _getSentNotificationV20(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -62,7 +62,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        FullSentNotification result = modelMapper.map( internalNotification, FullSentNotification.class );
+        FullSentNotificationV20 result = modelMapper.map( internalNotification, FullSentNotificationV20.class );
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
@@ -162,8 +162,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             case REFUSED -> {
                 response.setNotificationRequestStatus("REFUSED");
                 response.setIun(null);
-                Optional<TimelineElement> timelineElement = internalNotification.getTimeline().stream().filter(
-                        tle -> TimelineElementCategory.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
+                Optional<TimelineElementV20> timelineElement = internalNotification.getTimeline().stream().filter(
+                        tle -> TimelineElementCategoryV20.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
                 timelineElement.ifPresent(element -> setRefusedErrors(response, element));
             }
             default -> response.setNotificationRequestStatus("ACCEPTED");
@@ -173,7 +173,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return ResponseEntity.ok( response );
     }
 
-    private void setRefusedErrors(NewNotificationRequestStatusResponse response, TimelineElement timelineElement) {
+    private void setRefusedErrors(NewNotificationRequestStatusResponse response, TimelineElementV20 timelineElement) {
         List<NotificationRefusedError> refusalReasons = timelineElement.getDetails().getRefusalReasons();
         List<ProblemError> problemErrorList = refusalReasons.stream().map(
                 reason -> ProblemError.builder()

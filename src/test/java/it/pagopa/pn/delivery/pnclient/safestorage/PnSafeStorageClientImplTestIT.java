@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.pnclient.safestorage;
 
+import it.pagopa.pn.delivery.MockAWSObjectsTest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationRequest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
@@ -26,7 +27,7 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery.max-recipients-count=0",
         "pn.delivery.max-attachments-count=0"
 })
-class PnSafeStorageClientImplTestIT {
+class PnSafeStorageClientImplTestIT extends MockAWSObjectsTest {
 
     @Autowired
     private PnSafeStorageClientImpl safeStorageClient;

@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.pnclient.externalregistries;
 
+import it.pagopa.pn.delivery.MockAWSObjectsTest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
@@ -28,7 +29,7 @@ import static org.mockserver.model.HttpResponse.response;
         "pn.delivery.max-recipients-count=0",
         "pn.delivery.max-attachments-count=0"
 })
-class PnExternalRegistriesClientImplTestIT {
+class PnExternalRegistriesClientImplTestIT extends MockAWSObjectsTest {
 
     private static final String PA_TAX_ID = "paTaxId";
     private static final String NOTICE_CODE = "noticeCode";

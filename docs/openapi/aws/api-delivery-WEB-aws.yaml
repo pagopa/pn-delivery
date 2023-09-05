@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: aZ5Wcn3QQ6rbsYBGMtyI2T1QTI+FPby051X4XYAE4Ic=
+  version: UzS6Fl2jCBYjHEvM45QsJzkNLrF+zOd4G8M+uWXvdjU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -229,15 +229,15 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /notifications/sent/{iun}:
+  /v2.0/notifications/sent/{iun}:
     get:
-      summary: 'Mittente: lettura dettagli notifica'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotification
+      operationId: retrieveSentNotificationV2_0
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -246,7 +246,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotification'
+                $ref: '#/components/schemas/FullSentNotificationV2_0'
         '400':
           description: Bad request
           content:
@@ -263,7 +263,7 @@ paths:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -281,10 +281,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /notifications/sent/{iun} API CORS
+      operationId: Options for /v2.0/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -1587,7 +1587,7 @@ components:
           type: string
       required:
         - code
-    FullSentNotification:
+    FullSentNotificationV2_0:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
@@ -1609,7 +1609,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElementV2_0'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1698,7 +1698,7 @@ components:
           pattern: PF|PG
         amount:
           type: number
-    TimelineElement:
+    TimelineElementV2_0:
       type: object
       additionalProperties: false
       properties:
@@ -1721,9 +1721,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategory'
+          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
         details:
-          $ref: '#/components/schemas/TimelineElementDetails'
+          $ref: '#/components/schemas/TimelineElementDetailsV2_0'
     NotificationStatus:
       type: string
       description: |
@@ -1785,6 +1785,22 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.
+    RequestStatus:
+      description: Response to cancellation async call
+      type: object
+      properties:
+        status:
+          description: |
+            Cancellation request status:
+              - OK
+          type: string
+        details:
+          type: array
+          maxItems: 9999
+          items:
+            $ref: '#/components/schemas/StatusDetail'
+      required:
+        - status
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
       type: string
@@ -2202,7 +2218,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
-    TimelineElementCategory:
+    TimelineElementCategoryV2_0:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -2244,6 +2260,9 @@ components:
           * `PAYMENT` - Ricezione pagamento della notifica
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+          * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
+          * `NOTIFICATION_CANCELLED` - Notifica annullata
+          * `PREPARE_ANALOG_DOMICILE_FAILURE` - Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel
       enum:
         - SENDER_ACK_CREATION_REQUEST
         - VALIDATE_NORMALIZE_ADDRESSES_REQUEST
@@ -2283,6 +2302,9 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+        - NOTIFICATION_CANCELLATION_REQUEST
+        - NOTIFICATION_CANCELLED
+        - PREPARE_ANALOG_DOMICILE_FAILURE
     SenderAckCreationRequestDetails:
       type: object
       properties:
@@ -3205,7 +3227,52 @@ components:
           type: string
           format: date-time
           description: Data probabile di inizio del flusso analogico
-    TimelineElementDetails:
+    NotificationCancellationRequestDetails:
+      type: object
+      required:
+        - cancellationRequestId
+      properties:
+        cancellationRequestId:
+          type: string
+          description: Id della richiesta
+    NotificationCancelledDetails:
+      type: object
+      required:
+        - notificationCost
+        - notRefinedRecipientIndexes
+      properties:
+        notificationCost:
+          description: >-
+            costo notifica in euro cents, vale 100 * numero di recipient not
+            refined
+          example: 1220
+          type: number
+        notRefinedRecipientIndexes:
+          type: array
+          items:
+            description: indice del recipient non perfezionato
+            type: number
+    PrepareAnalogDomicileFailureDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        foundAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
+        failureCause:
+          type: string
+          description: |
+            __Motivazione fallimento prepare
+              - __D00__ Indirizzo non trovato
+              - __D01__ Indirizzo non valido
+              - __D02__ Indirizzo coincidente con quello del primo tentativo
+        prepareRequestId:
+          type: string
+          description: RequestId della richiesta di prepare
+    TimelineElementDetailsV2_0:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
@@ -3245,6 +3312,9 @@ components:
         - $ref: '#/components/schemas/SendAnalogProgressDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
         - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
+        - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
+        - $ref: '#/components/schemas/NotificationCancelledDetails'
+        - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
     NotificationAttachmentDownloadMetadataResponse:
       title: Url e metadati per il download di un allegato di una notifica
       description: |-
@@ -3339,6 +3409,28 @@ components:
           type: string
         fileAvailable:
           type: boolean
+    StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        detail:
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Parameter not valid
+          type: string
     NotificationSearchRow:
       type: object
       properties:
@@ -3427,7 +3519,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElementV2_0'
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object

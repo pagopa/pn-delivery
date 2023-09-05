@@ -404,7 +404,7 @@ class PaymentEventsServiceTest {
 
     private InternalNotification createInternalNotification() {
         NotificationRecipient notificationRecipient = createRecipient();
-        return new InternalNotification(FullSentNotification.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .iun( IUN )
                 .subject("Subject 01")
                 .senderPaId( SENDER_PA_ID )

@@ -156,4 +156,13 @@ public class NotificationPriceService {
             throw new PnNotFoundException("Notification cost not found", String.format( "No notification cost info by paTaxId=%s noticeCode=%s", paTaxId, noticeCode ) , ERROR_CODE_DELIVERY_NOTIFICATIONCOSTNOTFOUND );
         }
     }
+
+    public void removeAllNotificationCostsByIun(String iun) {
+        InternalNotification notification = notificationDao.getNotificationByIun(iun)
+                .orElseThrow(() -> new PnNotificationNotFoundException(String.format("Notification with IUN: %s not found", iun)));
+
+        notification.getRecipients().stream()
+                .filter(recipient -> recipient.getPayment() != null)
+                .forEach(recipient -> notificationCostEntityDao.deleteWithCheckIun(recipient.getPayment().getCreditorTaxId(), recipient.getPayment().getNoticeCode(), iun));
+    }
 }

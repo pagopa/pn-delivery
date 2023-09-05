@@ -410,15 +410,15 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
   
-  "/delivery/notifications/sent/{iun}":
+  "/delivery/v2.0/notifications/sent/{iun}":
     get:
-      summary: 'Mittente: lettura dettagli notifica'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotification                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV2_0                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
@@ -427,7 +427,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotification"
+                $ref: "#/components/schemas/FullSentNotificationV2_0"
         '400':
           description: Bad request
           content:
@@ -582,6 +582,43 @@ paths:
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+
+  '/delivery-push/v2.0/notifications/cancel/{iun}':                                 # ONLY EXTERNAL
+    put:                                                                            # ONLY EXTERNAL
+      summary: Annullamento notifica                                                # ONLY EXTERNAL
+      description: >-                                                               # ONLY EXTERNAL
+        Permette l'annullamento di una notifica restituendo una presa in carico,
+          il processo di annullamento si completa poi in maniera asincrona
+      tags:                                                                         # ONLY EXTERNAL
+        - notificationCancellation                                                  # ONLY EXTERNAL
+      operationId: notificationCancellation                                         # ONLY EXTERNAL
+      parameters:                                                                   # ONLY EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
+      responses:                                                                    # ONLY EXTERNAL
+        '202':                                                                      # ONLY EXTERNAL
+          description: Accepted - Richiesta annullamento presa in carico            # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/json:                                                       # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: "#/components/schemas/RequestStatus"                          # ONLY EXTERNAL
+        '400':                                                                      # ONLY EXTERNAL
+          description: Bad request                                                  # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
+        '404':                                                                      # ONLY EXTERNAL
+          description: Not found                                                    # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
+        '500':                                                                      # ONLY EXTERNAL
+          description: Internal Server Error                                        # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
@@ -980,7 +1017,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotification:
+    FullSentNotificationV2_0:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
@@ -1001,7 +1038,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElementV2_0'
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -1106,14 +1143,16 @@ components:
           type: integer
           format: int32
     
-    TimelineElement:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+    TimelineElementV2_0:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV2_0'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+    RequestStatus:
+      $ref: './remote-refs.yaml#/components/schemas/RequestStatus'
 
   securitySchemes:        # ONLY EXTERNAL
     ApiKeyAuth:           # ONLY EXTERNAL
