@@ -105,7 +105,7 @@ class IOMapperTest {
     }
 
     private InternalNotification internalNotification() {
-        FullSentNotificationV11 fullSentNotification = FullSentNotificationV11.builder()
+        FullSentNotificationV20 fullSentNotification = FullSentNotificationV20.builder()
                 .subject("SUBJECT")
                 .iun("IUN")
                 ._abstract("ABSTRACT")

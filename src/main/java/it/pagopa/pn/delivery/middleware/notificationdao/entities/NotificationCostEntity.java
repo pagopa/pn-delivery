@@ -15,7 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 public class NotificationCostEntity {
 
     public static final String FIELD_CREDITOR_TAX_ID_NOTICE_CODE = "creditorTaxId_noticeCode";
-    private static final String FIELD_IUN = "iun";
+    public static final String FIELD_IUN = "iun";
     private static final String FIELD_RECIPIENT_IDX = "recipientIdx";
 
     private static final String FIELD_RECIPIENT_TYPE = "recipientType";

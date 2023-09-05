@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery;
 
 import io.awspring.cloud.autoconfigure.messaging.SqsAutoConfiguration;
+import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.middleware.PaymentEventsProducer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -14,5 +15,8 @@ public abstract class MockAWSObjectsTest {
 
     @MockBean
     private PaymentEventsProducer pnDeliveryPaymentEventMomProducer;
+
+    @MockBean
+    private AsseverationEventsProducer asseverationEventsProducer;
 
 }

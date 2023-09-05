@@ -606,6 +606,38 @@ class PnInternalNotificationsControllerTest {
     }
 
     @Test
+    void removeAllNotificationCostsByIunOKest() {
+        Mockito.doNothing()
+                .when( priceService )
+                .removeAllNotificationCostsByIun( IUN);
+
+        webTestClient.delete()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notification-cost/"+ IUN)
+                                .build())
+                .exchange()
+                .expectStatus()
+                .isNoContent();
+    }
+
+    @Test
+    void removeAllNotificationCostsByIunWithNotificationNotPresentTest() {
+        Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
+                .when( priceService )
+                .removeAllNotificationCostsByIun( IUN);
+
+        webTestClient.delete()
+                .uri( uriBuilder ->
+                        uriBuilder
+                                .path("/delivery-private/notification-cost/"+ IUN)
+                                .build())
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
     void paymentEventPagoPaPrivateSuccess() {
         PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
                 .paymentDate( "2023-01-16T15:30:00.234Z" )
@@ -647,7 +679,7 @@ class PnInternalNotificationsControllerTest {
     }
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotificationV11.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
@@ -691,7 +723,7 @@ class PnInternalNotificationsControllerTest {
                 ))
                 .recipientIds(Collections.singletonList("recipientId"))
                 .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .timeline(Collections.singletonList(TimelineElementV11.builder().build()))
+                .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))

@@ -61,7 +61,7 @@ class InternalFieldsCleanerTest {
     }
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotificationV11.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
                 .subject("Subject 01")
@@ -106,7 +106,7 @@ class InternalFieldsCleanerTest {
                 ))
                 .recipientIds(Collections.singletonList("recipientId"))
                 .sourceChannel( "B2B" )
-                .timeline(Collections.singletonList(TimelineElementV11.builder().build()))
+                .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
                 .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()))

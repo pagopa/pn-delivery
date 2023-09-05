@@ -570,7 +570,7 @@ class NotificationRetrieverServiceTest {
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotificationV11.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .iun( IUN )
                 .idempotenceToken( IDEMPOTENCE_TOKEN )
                 .paProtocolNumber( PA_PROTOCOL_NUMBER )
@@ -664,12 +664,12 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkRefinementDateOraSolare() {
         // Given
-        List<TimelineElementV11> timelineElementList = List.of( TimelineElementV11.builder()
-                        .category( TimelineElementCategory.REFINEMENT )
+        List<TimelineElementV20> timelineElementList = List.of( TimelineElementV20.builder()
+                        .category( TimelineElementCategoryV20.REFINEMENT )
                         .timestamp( OffsetDateTime.parse( "2022-10-05T12:23:15.123456Z" ) )
                 .build(),
-                TimelineElementV11.builder()
-                        .category( TimelineElementCategory.NOTIFICATION_VIEWED )
+                TimelineElementV20.builder()
+                        .category( TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp( OffsetDateTime.parse( "2022-10-03T10:10:15.123456Z" ) )
                         .build()
         );
@@ -685,12 +685,12 @@ class NotificationRetrieverServiceTest {
     @Test
     void checkRefinementDateOraLegale() {
         // Given
-        List<TimelineElementV11> timelineElementList = List.of( TimelineElementV11.builder()
-                        .category( TimelineElementCategory.REFINEMENT )
+        List<TimelineElementV20> timelineElementList = List.of( TimelineElementV20.builder()
+                        .category( TimelineElementCategoryV20.REFINEMENT )
                         .timestamp( OffsetDateTime.parse( "2022-12-05T12:23:15.123456Z" ) )
                         .build(),
-                TimelineElementV11.builder()
-                        .category( TimelineElementCategory.NOTIFICATION_VIEWED )
+                TimelineElementV20.builder()
+                        .category( TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp( OffsetDateTime.parse( "2022-12-03T10:10:15.123456Z" ) )
                         .build()
         );
@@ -1369,7 +1369,7 @@ class NotificationRetrieverServiceTest {
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
         //mi aspetto che il destinatario che invoca il servizio (cxid, con indice 0), non "veda" la timeline di VIEWD poiché "appartiene" al destinatario another-recipient con indice 1
         Assertions.assertEquals(1, internalNotificationResult.getTimeline().size());
-        Assertions.assertEquals(TimelineElementCategory.REFINEMENT, internalNotificationResult.getTimeline().get(0).getCategory());
+        Assertions.assertEquals(TimelineElementCategoryV20.REFINEMENT, internalNotificationResult.getTimeline().get(0).getCategory());
         //mi aspetto che il destinatario che invoca il servizio (cxid, con indice 0), non "veda" nella lista di recipient i dati del recipient con indice 1
         Assertions.assertEquals(2, internalNotificationResult.getRecipients().size()); //la dimensione dell'array non deve cambiare
         Assertions.assertNull(internalNotificationResult.getRecipients().get(1).getTaxId());

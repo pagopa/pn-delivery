@@ -31,6 +31,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
+import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.RecipientTypeEnum.PF;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class NotificationPriceServiceTest {
 
     private static final String PA_TAX_ID = "paTaxId";
@@ -151,7 +155,7 @@ class NotificationPriceServiceTest {
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
-        Assertions.assertThrows(PnNotFoundException.class, todo);
+        assertThrows(PnNotFoundException.class, todo);
     }
 
 
@@ -165,7 +169,7 @@ class NotificationPriceServiceTest {
 
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
-        Assertions.assertThrows(PnNotFoundException.class, todo);
+        assertThrows(PnNotFoundException.class, todo);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -186,7 +190,7 @@ class NotificationPriceServiceTest {
 
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
-        Assertions.assertThrows(PnNotFoundException.class, todo);
+        assertThrows(PnNotFoundException.class, todo);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -217,12 +221,46 @@ class NotificationPriceServiceTest {
 
         Executable todo = () -> svc.getNotificationCost( PA_TAX_ID, NOTICE_CODE );
 
-        Assertions.assertThrows( PnNotFoundException.class, todo );
+        assertThrows( PnNotFoundException.class, todo );
     }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void removeAllNotificationCostsByIunTest() {
+        String iun = "a-iun";
+        String paTaxId = "creditor-tax-id";
+        String noticeCode = "a-notice-code";
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        notification.setRecipients(List.of(new NotificationRecipient()
+                .recipientType(PF)
+                .payment(new NotificationPaymentInfo().noticeCode(noticeCode).creditorTaxId(paTaxId))));
+        Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
+
+        assertDoesNotThrow(() -> svc.removeAllNotificationCostsByIun(iun));
+
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void removeAllNotificationCostsByIunWithNotificationNotFoundTest() {
+        String iun = "a-iun";
+        String paTaxId = "creditor-tax-id";
+        String noticeCode = "a-notice-code";
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        notification.setRecipients(List.of(new NotificationRecipient()
+                .recipientType(PF)
+                .payment(new NotificationPaymentInfo().noticeCode(noticeCode).creditorTaxId(paTaxId))));
+        Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.empty());
+
+        assertThrows(PnNotFoundException.class, () -> svc.removeAllNotificationCostsByIun(iun));
+    }
+
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotificationV11.builder()
+        return new InternalNotification(FullSentNotificationV20.builder()
                 .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
                 .iun( "iun" )
                 .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
@@ -230,7 +268,7 @@ class NotificationPriceServiceTest {
                 .recipientIds(List.of( "recipientInternalId0" ))
                 .sourceChannel(X_PAGOPA_PN_SRC_CH)
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
-                        .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                        .recipientType( PF )
                         .physicalAddress(NotificationPhysicalAddress.builder()
                                 .foreignState( "Italia" )
                                 .build())
@@ -239,13 +277,13 @@ class NotificationPriceServiceTest {
                                 .noticeCode( NOTICE_CODE )
                                 .build() )
                         .build()) )
-                .timeline( List.of( TimelineElementV11.builder()
-                                .category( TimelineElementCategory.REFINEMENT )
+                .timeline( List.of( TimelineElementV20.builder()
+                                .category( TimelineElementCategoryV20.REFINEMENT )
                                 .timestamp( OffsetDateTime.parse( REFINEMENT_DATE ) )
                                 .build(),
-                        TimelineElementV11.builder()
-                                .category( TimelineElementCategory.SEND_SIMPLE_REGISTERED_LETTER )
-                                .details( TimelineElementDetails.builder()
+                        TimelineElementV20.builder()
+                                .category( TimelineElementCategoryV20.SEND_SIMPLE_REGISTERED_LETTER )
+                                .details( TimelineElementDetailsV20.builder()
                                         .recIndex( 0 )
                                         .physicalAddress( PhysicalAddress.builder()
                                                 .foreignState( "Italia" )
@@ -254,4 +292,5 @@ class NotificationPriceServiceTest {
                                 .build()) )
                 .build());
     }
+
 }

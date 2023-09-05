@@ -65,7 +65,7 @@ class NotificationReceiverValidationTest {
 
     // GIVEN
     InternalNotification n =
-        new InternalNotification(FullSentNotificationV11.builder().build());
+        new InternalNotification(FullSentNotificationV20.builder().build());
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
@@ -93,7 +93,7 @@ class NotificationReceiverValidationTest {
 
     // GIVEN
     InternalNotification n =
-        new InternalNotification(FullSentNotificationV11.builder().build());
+        new InternalNotification(FullSentNotificationV20.builder().build());
 
     // WHEN
     Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(n);
@@ -588,10 +588,10 @@ class NotificationReceiverValidationTest {
         .senderTaxId("paId").recipients(recipients).build();
   }
 
-  private FullSentNotificationV11 newFullSentNotification() {
-    return FullSentNotificationV11.builder().sentAt(OffsetDateTime.now()).iun(IUN)
+  private FullSentNotificationV20 newFullSentNotification() {
+    return FullSentNotificationV20.builder().sentAt(OffsetDateTime.now()).iun(IUN)
         .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
-        .timeline(Collections.singletonList(TimelineElementV11.builder().build()))
+        .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
         .notificationStatus(NotificationStatus.ACCEPTED)
         .documents(Collections.singletonList(NotificationDocument.builder()
             .contentType("application/pdf")
@@ -612,7 +612,7 @@ class NotificationReceiverValidationTest {
         .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
         .sourceChannel(X_PAGOPA_PN_SRC_CH)
         .physicalCommunicationType(
-                FullSentNotificationV11.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
         .build();
   }
 
@@ -623,7 +623,7 @@ class NotificationReceiverValidationTest {
   private InternalNotification notificationWithPhysicalCommunicationType() {
     return new InternalNotification(
         newFullSentNotification().physicalCommunicationType(
-            FullSentNotificationV11.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890));
+                FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890));
   }
 
   private InternalNotification validDocumentWithoutPayments() {
