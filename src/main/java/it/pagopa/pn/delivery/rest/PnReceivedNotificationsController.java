@@ -170,13 +170,14 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             eventType = PnAuditLogEventType.AUD_NT_DOCOPEN_DEL;
             logMsg = "getDelegateNotificationDocument from documents array with index={} with mandateId={}";
         }
-        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        NotificationAttachmentDownloadMetadataResponse response;
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(eventType, logMsg, docIdx, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
         try {
+            retrieveSvc.checkIfNotificationIsNotCancelled(iun);
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
@@ -190,12 +191,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             String retryAfter = String.valueOf( response.getRetryAfter() );
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationDocument {}", message).log();
+            return ResponseEntity.ok(response);
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
-
-        return ResponseEntity.ok(response);
     }
 
 
@@ -208,12 +208,13 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
             logMsg = "getReceivedAndDelegatedNotificationAttachment attachment name={} and mandateId={}";
         }
-        NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
+        NotificationAttachmentDownloadMetadataResponse response;
         PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
         try {
+            retrieveSvc.checkIfNotificationIsNotCancelled(iun);
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
@@ -229,11 +230,11 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
             logEvent.generateSuccess("getReceivedNotificationAttachment attachment name={}, {}",
                     attachmentName, message).log();
+            return ResponseEntity.ok(response);
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;
         }
-        return ResponseEntity.ok(response);
     }
 
     @Override
