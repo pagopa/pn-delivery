@@ -84,6 +84,7 @@ info:
       #### 1. Caricamento dei documenti della notifica
       
       Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadati di pagamento).
+      [Schema Metadata F24](#/components/schemas/F24Metadata)
       
       #### 1.a. Richiesta presigned Url
       
@@ -1127,6 +1128,26 @@ components:
           type: number
           format: decimal32
           description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia scaricabile.
+    F24Metadata:
+      type: object
+      description: è richiesto uno e uno solo tra le propeties f24Standard, f24Simplified, f24Excise, f24Elid
+      properties:
+        f24Standard:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/F24Standard'
+        f24Simplified:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/F24Simplified'
+        f24Excise:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/F24Excise'
+        f24Elid:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/F24Elid'
     PnFunctionality:
       title: Funzionalità di PN
       description: |-
@@ -2736,6 +2757,607 @@ components:
           type: integer
           format: int32
           description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia disponibile per il download.
+    PersonalData:
+      type: object
+      properties:
+        surname:
+          pattern: ^[A-Z\\s]{1,24}$
+          type: string
+          description: surname of the person
+        name:
+          pattern: ^[A-Z\\s]{1,20}$
+          type: string
+          description: name of the person
+        birthDate:
+          pattern: ^\d{2}-\d{2}-\d{4}$
+          type: string
+          description: birthdate of the person
+        sex:
+          pattern: ^[FM]$
+          type: string
+          description: indicate if is (F)emale or (M)ale
+        birthPlace:
+          pattern: ^[A-Z\s]{1,40}$
+          type: string
+          description: birth place of the person
+        birthProvince:
+          pattern: ^[A-Z]{2}$
+          type: string
+          description: birth province of the person
+      description: Personal Data (Dati Anagrafici) object
+    TaxAddress:
+      type: object
+      properties:
+        municipality:
+          pattern: ^[A-Z]{1,40}$
+          type: string
+          description: municipality of the tax address
+        province:
+          pattern: ^[A-Z]{2}$
+          type: string
+          description: province of the tax address
+        address:
+          pattern: ^[A-Z0-9\s.]{1,35}$
+          type: string
+          description: street and house number of the tax address
+      description: Tax Residence (Domicilio Fiscale) object
+    PersonData:
+      type: object
+      properties:
+        personalData:
+          $ref: '#/components/schemas/PersonalData'
+        taxAddress:
+          $ref: '#/components/schemas/TaxAddress'
+      description: Person Data (Dati Anagrafici PF) object
+    CompanyData:
+      type: object
+      properties:
+        name:
+          pattern: ^[A-Z\s]{1,60}$
+          type: string
+          description: Company name
+        taxAddress:
+          $ref: '#/components/schemas/TaxAddress'
+      description: Company Data (Dati Anagrafici PNF) object
+    TaxPayerStandard:
+      type: object
+      properties:
+        taxCode:
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: Tax Payer Tax Code
+        isNotTaxYear:
+          type: boolean
+          description: field that show if the current year is included
+        person:
+          $ref: '#/components/schemas/PersonData'
+        company:
+          $ref: '#/components/schemas/CompanyData'
+        relativePersonTaxCode:
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: It is the tax code of a relative of the main tax payer
+        id:
+          pattern: ^[A-Z0-9]{2}$
+          type: string
+          description: identification code
+    IncludeNotificationCost:
+      type: object
+      required:
+        - applyCost
+      properties:
+        applyCost:
+          type: boolean
+          nullable: false
+          description: to check if include notification cost
+    Tax:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        taxType:
+          pattern: ^[A-Z0-9]{4}$
+          type: string
+          description: identification code of the type of tax
+        installment:
+          pattern: ^[A-Z0-9]{0,4}$
+          type: string
+          description: identification code of the ente
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: reference year of the tax
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the tax
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the tax
+      description: Tax object
+    TreasurySection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tax'
+          description: list of the taxes
+        office:
+          pattern: ^[A-Z0-9]{3}$
+          type: string
+          description: identification code of the office
+        document:
+          pattern: ^\d{11}$
+          type: string
+          description: identification code of the document
+      description: Treasury Section (Sezione Erario) object
+    Period:
+      type: object
+      properties:
+        startDate:
+          pattern: ^[0-9]{6}$
+          type: string
+          description: start date of the period
+        endDate:
+          pattern: ^[0-9]{6}$
+          type: string
+          description: end date of the period
+      description: Reporting Period (Sezione INPS) object
+    InpsRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        office:
+          pattern: ^[0-9]{3,4}$
+          type: string
+          description: identification code of the office
+        reason:
+          pattern: ^[A-Z-]{3,4}$
+          type: string
+          description: contribution reason for the record
+        inps:
+          pattern: ^[A-Za-z0-9\s]{0,17}$
+          type: string
+          description: INPS identification code
+        period:
+          $ref: '#/components/schemas/Period'
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: INPS Record object
+    InpsSection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/InpsRecord'
+          description: INPS Record List
+      description: INPS Section (Sezione INPS) object
+    RegionRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        region:
+          pattern: ^[0-9]{2}$
+          type: string
+          description: region identification code
+        taxType:
+          pattern: ^[0-9A-Z]{4}$
+          type: string
+          description: identification code of the type of tax
+        installment:
+          pattern: ^[A-Z0-9]{0,4}$
+          type: string
+          description: identification code of the ente
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: reference year
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: Region Record object
+    RegionSection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegionRecord'
+          description: Region Record List
+      description: Region Section (Sezione Regioni) object
+    LocalTaxRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      required:
+        - municipality
+        - taxType
+      properties:
+        municipality:
+          pattern: ^[0-9A-Z]{4}$
+          type: string
+          description: identification code of the municipality
+        reconsideration:
+          type: boolean
+          description: to check if it is a reconsideration act
+        propertiesChanges:
+          type: boolean
+          description: to check if there are some changes in properties list
+        advancePayment:
+          type: boolean
+          description: to check if it is a payment in advance
+        fullPayment:
+          type: boolean
+          description: to check if it a full payment
+        numberOfProperties:
+          pattern: ^[0-9]{3}$
+          type: string
+          description: number of properties
+        taxType:
+          pattern: ^[0-9]{4}$
+          type: string
+          description: identification code of the type of tax
+        installment:
+          pattern: ^[A-Z0-9]{0,4}$
+          type: string
+          description: identification code of the ente
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: reference year
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: LocalTax Record object
+    LocalTaxSection:
+      type: object
+      properties:
+        operationId:
+          pattern: ^[A-Z0-9]{18}$
+          type: string
+          description: identification code of the operation
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocalTaxRecord'
+        deduction:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: if there are any deduction
+      description: LocalTax Section (Sezione LocalTax e Altri Tributi Locali) object
+    InailRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        office:
+          pattern: ^[0-9]{5}$
+          type: string
+          description: identification code of the office
+        company:
+          pattern: ^[0-9]{8}$
+          type: string
+          description: identification code of the company
+        control:
+          pattern: ^[0-9]{2}$
+          type: string
+          description: control identification code
+        refNumber:
+          pattern: ^[0-9]{6}$
+          type: string
+          description: reference number
+        reason:
+          pattern: ^[A-Z0-9]$
+          type: string
+          description: reason of the record
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: INAIL Record object
+    SocialSecurityRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        institution:
+          pattern: ^[0-9]{4}$
+          type: string
+          description: identification code of the institution
+        office:
+          pattern: ^[0-9A-Z]{5}$
+          type: string
+          description: identification code of the office
+        reason:
+          pattern: ^[0-9A-Z]{3,4}$
+          type: string
+          description: reason of the contribution
+        position:
+          pattern: ^[0-9]{9}$
+          type: string
+          description: identification code of the position
+        period:
+          $ref: '#/components/schemas/Period'
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: Social Security Record object
+    SocialSecuritySection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/InailRecord'
+        socSecRecords:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialSecurityRecord'
+          description: Social Security Record List
+      description: Social Security Section (Sezione Altri Enti Previdenziali) object
+    F24Standard:
+      type: object
+      properties:
+        taxPayer:
+          $ref: '#/components/schemas/TaxPayerStandard'
+        treasury:
+          $ref: '#/components/schemas/TreasurySection'
+        inps:
+          $ref: '#/components/schemas/InpsSection'
+        region:
+          $ref: '#/components/schemas/RegionSection'
+        localTax:
+          $ref: '#/components/schemas/LocalTaxSection'
+        socialSecurity:
+          $ref: '#/components/schemas/SocialSecuritySection'
+    TaxPayerSimplified:
+      type: object
+      properties:
+        taxCode:
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: Tax Payer Tax Code
+        personalData:
+          $ref: '#/components/schemas/PersonalData'
+        relativePersonTaxCode:
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: It is the tax code of a relative of the main tax payer
+        id:
+          pattern: ^[A-Z0-9]{2}$
+          type: string
+          description: identification code
+        document:
+          pattern: ^\d{11}$
+          type: string
+          description: identification code of the document
+        office:
+          pattern: ^[A-Z0-9]{3}$
+          type: string
+          description: identification code of the office
+    SimplifiedPaymentRecord:
+      allOf:
+        - $ref: '#/components/schemas/LocalTaxRecord'
+      required:
+        - section
+      properties:
+        section:
+          pattern: ^(ER|RG|EL)$
+          type: string
+          description: section code (ER|RG|EL)
+      description: Payment Reason Record object
+    SimplifiedPaymentSection:
+      type: object
+      properties:
+        operationId:
+          pattern: ^[A-Z0-9]{18}$
+          type: string
+          description: identification code of the operation
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimplifiedPaymentRecord'
+          description: Payments Record List
+      description: Payment Reason Section (Motivo del Pagamento) object
+    F24Simplified:
+      type: object
+      properties:
+        taxPayer:
+          $ref: '#/components/schemas/TaxPayerSimplified'
+        payments:
+          $ref: '#/components/schemas/SimplifiedPaymentSection'
+    TaxPayerExcise:
+      type: object
+      properties:
+        taxCode:
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: Tax Payer Tax Code
+        isNotTaxYear:
+          type: boolean
+          description: field that show if the current year is included
+        person:
+          $ref: '#/components/schemas/PersonData'
+        company:
+          $ref: '#/components/schemas/CompanyData'
+        relativePersonTaxCode:
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: It is the tax code of a relative of the main tax payer
+        id:
+          pattern: ^[A-Z0-9]{2}$
+          type: string
+          description: identification code
+    ExciseTax:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        institution:
+          pattern: ^[A-Z]{2}$
+          type: string
+          description: institution of the tax
+        province:
+          pattern: ^[A-Z]{2}$
+          type: string
+          description: province of the tax
+        id:
+          pattern: ^[A-Z0-9]{17}$
+          type: string
+          description: identification code
+        taxType:
+          pattern: ^[0-9A-Z]{4}$
+          type: string
+          description: identification code of the type of tax
+        installment:
+          pattern: ^[A-Z0-9]{0,4}$
+          type: string
+          description: identification code of the ente
+        month:
+          pattern: ^[0-1][0-9]$
+          type: string
+          description: month reference
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: reference year
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount
+      description: Excise Tax object
+    ExciseSection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExciseTax'
+          description: Excise Tax List
+        office:
+          pattern: ^[A-Z0-9]{3}$
+          type: string
+          description: identification code of the office
+        document:
+          pattern: ^\d{11}$
+          type: string
+          description: identification code of the document
+      description: Excise Section (Accise) object
+    F24Excise:
+      type: object
+      properties:
+        taxPayer:
+          $ref: '#/components/schemas/TaxPayerExcise'
+        treasury:
+          $ref: '#/components/schemas/TreasurySection'
+        inps:
+          $ref: '#/components/schemas/InpsSection'
+        region:
+          $ref: '#/components/schemas/RegionSection'
+        localTax:
+          $ref: '#/components/schemas/LocalTaxSection'
+        excise:
+          $ref: '#/components/schemas/ExciseSection'
+      description: F24 Excise (Accise) object
+    TaxPayerElide:
+      type: object
+      properties:
+        taxCode:
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: Tax Payer Tax Code
+        person:
+          $ref: '#/components/schemas/PersonData'
+        company:
+          $ref: '#/components/schemas/CompanyData'
+        relativePersonTaxCode:
+          pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: It is the tax code of a relative of the main tax payer
+        id:
+          pattern: ^[A-Z0-9]{2}$
+          type: string
+          description: identification code
+    TreasuryRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        type:
+          pattern: ^[A-Z]$
+          type: string
+          description: type of treasury
+        id:
+          pattern: ^[A-Z0-9]{17}$
+          type: string
+          description: identification code of the element
+        taxType:
+          pattern: ^[A-Z0-9]{4}$
+          type: string
+          description: identification code of the type of tax
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: referance year
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+      description: Treasury Record object
+    TreasuryAndOtherSection:
+      type: object
+      properties:
+        office:
+          pattern: ^[A-Z0-9]{3}$
+          type: string
+          description: identification code of the office
+        document:
+          pattern: ^\d{11}$
+          type: string
+          description: identification code of the document
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreasuryRecord'
+          description: Treasury Records
+      description: Treasury ans Other Section (Sezione Erario e Altro) object
+    F24Elid:
+      type: object
+      properties:
+        taxPayer:
+          $ref: '#/components/schemas/TaxPayerElide'
+        treasury:
+          $ref: '#/components/schemas/TreasuryAndOtherSection'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

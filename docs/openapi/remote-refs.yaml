@@ -80,3 +80,7 @@ components:
 
     PnStatusResponse:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-downtime-logs/6e086075d1b7294e5b0dcbc59a226de321a7a1d3/docs/openapi/schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse'
+
+
+    F24Metadata:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-f24/0abcbdf4d949be4d8da4573c255e262ff0e81913/docs/openapi/schemas-f24.yaml#/components/schemas/F24Metadata'
