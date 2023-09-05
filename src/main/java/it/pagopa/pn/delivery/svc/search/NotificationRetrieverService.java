@@ -13,7 +13,9 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.mo
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategory;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
@@ -21,6 +23,10 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
+import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
@@ -288,7 +294,7 @@ public class NotificationRetrieverService {
 	 *
 	 */
 	private boolean adjustSearchDatesAndReceiverAndAllowedPaIds(InputSearchNotificationDto searchDto,
-											  InternalMandateDto mandate) {
+																InternalMandateDto mandate) {
 		Instant searchStartDate = searchDto.getStartDate();
 		Instant searchEndDate = searchDto.getEndDate();
 		Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
@@ -306,8 +312,8 @@ public class NotificationRetrieverService {
 
 		// filtro sugli ID della PA che può visualizzare
 		if (StringUtils.hasText(searchDto.getFilterId())
-			&& !CollectionUtils.isEmpty(mandate.getVisibilityIds())
-			&& !mandate.getVisibilityIds().contains(searchDto.getFilterId()))
+				&& !CollectionUtils.isEmpty(mandate.getVisibilityIds())
+				&& !mandate.getVisibilityIds().contains(searchDto.getFilterId()))
 		{
 			// questo è il caso in cui c'è un filtro per PA e la delega è solo per alcune PA e la PA non è nella delega
 			// Da notare che per ora, lato GUI, non c'è possibilità di filtrare per PA, quindi qui dentro non dovrebbe entrarci mai finchè non verrà eventualmente implementata la funzionalità
@@ -417,7 +423,7 @@ public class NotificationRetrieverService {
 		if ( StringUtils.hasText( notificationGroup ) && !CollectionUtils.isEmpty( groups )
 				&& !groups.contains( notificationGroup ) ) {
 			throw new PnNotificationNotFoundException(
-				String.format("Unable to find notification with iun=%s for senderId=%s in groups=%s", iun, senderId, groups )
+					String.format("Unable to find notification with iun=%s for senderId=%s in groups=%s", iun, senderId, groups )
 			);
 		}
 	}
@@ -484,32 +490,34 @@ public class NotificationRetrieverService {
 
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
 		for ( NotificationRecipient recipient : recipientList ) {
-			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
-			if ( notificationPaymentInfo != null) {
-    			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
-    			String noticeCode = notificationPaymentInfo.getNoticeCode();
-    			if ( notificationPaymentInfo.getNoticeCodeAlternative() != null ) {
-    				switch (noticeCodeToReturn) {
-    					case FIRST_NOTICE_CODE: {
-    						break;
-    					}
-    					// - se devo restituire il notice code alternativo...
-    					case SECOND_NOTICE_CODE: {
-    						// - ...verifico che il primo notice code non è stato già pagato
-    						setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
-    						break;
-    					}
-    					case NO_NOTICE_CODE: {
-    						notificationPaymentInfo.setNoticeCode( null );
-    						break;
-    					}
-    					default: {
-    						throw new UnsupportedOperationException( "Unable to compute notice code to return for iun="+ iun );
-    					}
-    				}
-    				// in ogni caso non restituisco il noticeCode opzionale
-    				notificationPaymentInfo.setNoticeCodeAlternative( null );
-    			}
+			List<NotificationPaymentInfo> notificationPaymentInfoList = recipient.getPayments();
+			if (!CollectionUtils.isEmpty(notificationPaymentInfoList)) {
+				notificationPaymentInfoList.forEach(notificationPaymentInfo -> {
+					String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
+					String noticeCode = notificationPaymentInfo.getNoticeCode();
+					if (notificationPaymentInfo.getNoticeCodeAlternative() != null) {
+						switch (noticeCodeToReturn) {
+							case FIRST_NOTICE_CODE: {
+								break;
+							}
+							// - se devo restituire il notice code alternativo...
+							case SECOND_NOTICE_CODE: {
+								// - ...verifico che il primo notice code non è stato già pagato
+								setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
+								break;
+							}
+							case NO_NOTICE_CODE: {
+								notificationPaymentInfo.setNoticeCode(null);
+								break;
+							}
+							default: {
+								throw new UnsupportedOperationException("Unable to compute notice code to return for iun=" + iun);
+							}
+						}
+						// in ogni caso non restituisco il noticeCode opzionale
+						notificationPaymentInfo.setNoticeCodeAlternative(null);
+					}
+				});
 			}
 		}
 	}
@@ -717,9 +725,13 @@ public class NotificationRetrieverService {
 		notification.setDocumentsAvailable( false );
 		notification.setDocuments( Collections.emptyList() );
 		for ( NotificationRecipient recipient : notification.getRecipients() ) {
-			NotificationPaymentInfo payment = recipient.getPayment();
-			if ( payment != null ) {
-				payment.setPagoPaForm( null );
+			List<NotificationPaymentInfo> payments = recipient.getPayments();
+			if (!CollectionUtils.isEmpty(payments)) {
+				payments.forEach(notificationPaymentInfo -> {
+					notificationPaymentInfo.setPagoPaForm( null );
+					//TODO: CAPIRE PER F24 COME GESTIRE LA REMOVE DOCUMENT
+					notificationPaymentInfo.getF24().setIndex( null );
+				});
 			}
 		}
 	}
@@ -739,7 +751,11 @@ public class NotificationRetrieverService {
 
 		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		FullSentNotification resultFullSent = notification
+		//TODO: VEDERE SE IL RETURN FUNZIONA CORRETTAMENTE
+		assert statusHistory != null;
+		assert timelineList != null;
+		assert timelineStatusHistoryDto.getNotificationStatus() != null;
+		return notification
 				.timeline( timelineList.stream()
 						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElement.class ) )
 						.toList()  )
@@ -748,8 +764,6 @@ public class NotificationRetrieverService {
 						.toList()
 				)
 				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
-
-		return modelMapper.map( resultFullSent, InternalNotification.class );
 	}
 
 
@@ -810,7 +824,7 @@ public class NotificationRetrieverService {
 
 		if( recIndex == -1 ) {
 			log.debug("Recipient not found for iun={} and recipientId={} ", internalNotification.getIun(), recipientId );
-		throw new PnNotFoundException("Notification not found" ,"Notification with iun=" +
+			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" +
 					internalNotification.getIun() + " do not have recipient/delegator=" + recipientId,
 					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
 		}

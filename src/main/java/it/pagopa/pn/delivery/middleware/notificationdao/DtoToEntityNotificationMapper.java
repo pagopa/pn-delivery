@@ -1,9 +1,11 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -34,9 +36,9 @@ public class DtoToEntityNotificationMapper {
                 .amount(dto.getAmount())
                 .paymentExpirationDate(dto.getPaymentExpirationDate())
                 .taxonomyCode(dto.getTaxonomyCode())
-                .pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
+                //.pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
                 .sourceChannel( dto.getSourceChannel() )
-                .sourceChannelDetails( dto.getSourceChannelDetails() )
+                .sourceChannelDetails( dto.getSourceChannel() )
                 .version( NOTIFICATION_VERSION );
 
         return builder.build();
@@ -54,31 +56,39 @@ public class DtoToEntityNotificationMapper {
         return NotificationRecipientEntity.builder()
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
-                .payments( dto2PaymentList( recipient.getPayment() ) )
+                .payments( dto2PaymentList( recipient.getPayments() ) )
                 .build();
     }
 
-    private List<NotificationPaymentInfoEntity> dto2PaymentList(NotificationPaymentInfo dto) {
-        List<NotificationPaymentInfoEntity> paymentInfoEntityList = null;
-        if ( dto != null) {
-            paymentInfoEntityList = new ArrayList<>();
-            paymentInfoEntityList.add( NotificationPaymentInfoEntity.builder()
-                    .creditorTaxId( dto.getCreditorTaxId() )
-                    .noticeCode( dto.getNoticeCode() )
-                    .pagoPaForm( dto2PaymentAttachment( dto.getPagoPaForm() ) )
-                    .build()
-            );
-            if ( StringUtils.hasText( dto.getNoticeCodeAlternative() ) ) {
-                paymentInfoEntityList.add( NotificationPaymentInfoEntity.builder()
-                        .creditorTaxId( dto.getCreditorTaxId() )
-                        .noticeCode( dto.getNoticeCodeAlternative() )
-                        .pagoPaForm( dto2PaymentAttachment( dto.getPagoPaForm() ) )
-                        .build()
-                );
-            }
+    private List<NotificationPaymentInfoEntity> dto2PaymentList(List<NotificationPaymentInfo> notificationPaymentInfos) {
+        List<NotificationPaymentInfoEntity> paymentInfoEntityList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(notificationPaymentInfos)) {
+            notificationPaymentInfos.forEach(item ->
+                    paymentInfoEntityList.addAll(toNotificationPaymentInfoEntityList(item)));
         }
         return paymentInfoEntityList;
     }
+
+    private List<NotificationPaymentInfoEntity> toNotificationPaymentInfoEntityList(NotificationPaymentInfo item) {
+        List<NotificationPaymentInfoEntity> notificationPaymentInfoEntities = new ArrayList<>();
+        notificationPaymentInfoEntities.add(NotificationPaymentInfoEntity.builder()
+                .creditorTaxId( item.getCreditorTaxId() )
+                .noticeCode( item.getNoticeCode() )
+                .pagoPaForm( dto2PaymentAttachment( item.getPagoPaForm() ) )
+                .build());
+
+        if ( StringUtils.hasText( item.getNoticeCodeAlternative() ) ) {
+            notificationPaymentInfoEntities.add( NotificationPaymentInfoEntity.builder()
+                    .creditorTaxId( item.getCreditorTaxId() )
+                    .noticeCode( item.getNoticeCodeAlternative() )
+                    .pagoPaForm( dto2PaymentAttachment( item.getPagoPaForm() ) )
+                    .build()
+            );
+        }
+        return notificationPaymentInfoEntities;
+    }
+
+
 
     private PaymentAttachmentEntity dto2PaymentAttachment( NotificationPaymentAttachment dto ) {
         PaymentAttachmentEntity paymentAttachmentEntity = null;

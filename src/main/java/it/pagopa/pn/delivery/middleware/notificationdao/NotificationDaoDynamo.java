@@ -3,10 +3,6 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
@@ -15,6 +11,10 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
@@ -82,11 +82,11 @@ public class NotificationDaoDynamo implements NotificationDao {
 		return NotificationRecipient.builder()
 				.recipientType( recipient.getRecipientType() )
 				.taxId( recipient.getTaxId() )
-				.payment( recipient.getPayment() )
+				.payments( recipient.getPayments() )
 				.build();
 	}
 
-	private AnalogDomicile createAnalogDomicile(NotificationPhysicalAddress notificationPhysicalAddress ) {
+	private AnalogDomicile createAnalogDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress notificationPhysicalAddress ) {
 		return notificationPhysicalAddress == null ? null : new AnalogDomicile()
 				.address( notificationPhysicalAddress.getAddress() )
 				.addressDetails( notificationPhysicalAddress.getAddressDetails() )
@@ -98,7 +98,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 				.municipalityDetails( notificationPhysicalAddress.getMunicipalityDetails() );
 	}
 
-	private AddressDto createDigitalDomicile(NotificationDigitalAddress digitalAddress) {
+	private AddressDto createDigitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress digitalAddress) {
 		return digitalAddress == null ? null : new AddressDto()
 				.value( digitalAddress.getAddress() );
 	}
@@ -182,14 +182,14 @@ public class NotificationDaoDynamo implements NotificationDao {
 		}
 	}
 
-	private NotificationDigitalAddress setNotificationDigitalAddress( AddressDto addressDto ) {
+	private NotificationDigitalAddress setNotificationDigitalAddress(AddressDto addressDto ) {
 		return addressDto == null ? null : NotificationDigitalAddress.builder()
-				.type( NotificationDigitalAddress.TypeEnum.PEC )
+				.type( it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress.TypeEnum.PEC )
 				.address( addressDto.getValue() )
 				.build();
 	}
 
-	private NotificationPhysicalAddress setNotificationPhysicalAddress( AnalogDomicile analogDomicile ) {
+	private NotificationPhysicalAddress setNotificationPhysicalAddress(AnalogDomicile analogDomicile ) {
 		return analogDomicile == null ? null : NotificationPhysicalAddress.builder()
 				.foreignState( analogDomicile.getState() )
 				.address( analogDomicile.getAddress() )

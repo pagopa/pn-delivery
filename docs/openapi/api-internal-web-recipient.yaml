@@ -54,8 +54,8 @@ paths:
       tags:
         - RecipientRead
       operationId: searchReceivedNotification
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
@@ -132,7 +132,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/notifications/received/{iun}":
+  "/delivery/v2.1/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
       description: >-
@@ -140,9 +140,9 @@ paths:
         notifiche ricevute.
       tags:
         - RecipientRead
-      operationId: getReceivedNotification
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      operationId: getReceivedNotificationV2_1
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -156,7 +156,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullReceivedNotification"
+                $ref: "#/components/schemas/FullReceivedNotificationV2_1"
         '400':
           description: Bad request
           content:
@@ -182,8 +182,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationDocument
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
@@ -220,8 +220,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
@@ -230,6 +230,7 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
+        - $ref: '#/components/parameters/attachmentIdx'
       responses:
         '200':
           description: OK
@@ -276,8 +277,8 @@ paths:
       tags:
         - RecipientRead
       operationId: checkAarQrCode
-#      security:                                      # ONLY EXTERNAL
-#        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:                                                   # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
@@ -313,8 +314,8 @@ paths:
       tags:                                                                               # ONLY EXTERNAL
         - LegalFacts                                                                      # ONLY EXTERNAL
       operationId: getLegalFact                                                           # ONLY EXTERNAL
-#      security:                                                                           # ONLY EXTERNAL
-#        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
+      #      security:                                                                           # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
       parameters:                                                                         # ONLY EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'                                    # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'                                 # NO EXTERNAL
@@ -378,13 +379,6 @@ components:
         minLength: 3
         maxLength: 6
         pattern: "PAGOPA|F24"
-        # quella sottostante è quella corretta. Riscritta per problemi con tool usato
-        #    oneOf:
-        #      - type: number
-        #      - type: string
-        #        enum:
-        #          - PAGOPA
-        #          - F24
     queryMandateId:
       name: mandateId
       in: query
@@ -392,6 +386,14 @@ components:
       schema:
         type: string
         format: uuid
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
 
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
@@ -404,12 +406,13 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotification:
+
+    FullReceivedNotificationV2_1:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV2_1'
         - type: object
           required:
             - notificationStatus

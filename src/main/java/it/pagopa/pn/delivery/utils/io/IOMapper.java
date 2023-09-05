@@ -4,8 +4,8 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.IOReceivedNot
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

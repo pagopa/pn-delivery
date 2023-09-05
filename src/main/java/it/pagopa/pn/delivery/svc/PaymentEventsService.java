@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDa
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.models.InternalPaymentEvent;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
@@ -191,7 +192,7 @@ public class PaymentEventsService {
                     .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
                     .paymentDate( paymentEventF24.getPaymentDate().toInstant() )
                     .uncertainPaymentDate( false )
-                    .paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
+                    //.paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
                     .paymentAmount( paymentEventF24.getAmount() )
                     .build()
             );

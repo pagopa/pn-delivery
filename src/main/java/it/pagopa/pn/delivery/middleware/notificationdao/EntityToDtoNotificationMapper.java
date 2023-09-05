@@ -1,12 +1,13 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -29,38 +30,29 @@ public class EntityToDtoNotificationMapper {
     	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
                 .toList();
 
-        return new InternalNotification(FullSentNotification.builder()
-                .senderDenomination( entity.getSenderDenomination() )
-                ._abstract( entity.getNotificationAbstract() )
-                .senderTaxId( entity.getSenderTaxId() )
-                .notificationFeePolicy( NotificationFeePolicy.fromValue( entity.getNotificationFeePolicy().getValue() ))
-                .iun( entity.getIun() )
-                .subject( entity.getSubject() )
-                .sentAt( entity.getSentAt().atOffset( ZoneOffset.UTC ) )
-                .paProtocolNumber( entity.getPaNotificationId() )
-                .idempotenceToken( entity.getIdempotenceToken() )
-                .cancelledByIun( entity.getCancelledByIun() )
-                .cancelledIun( entity.getCancelledIun() )
-                .physicalCommunicationType( entity.getPhysicalCommunicationType() )
-                .group( entity.getGroup() )
-                .senderPaId( entity.getSenderPaId() )
-                .recipients( entity2RecipientsDto( entity.getRecipients() ) )
-                .documents( buildDocumentsList( entity ) )
-                .amount(entity.getAmount())
-                .paymentExpirationDate(entity.getPaymentExpirationDate())
-                .taxonomyCode( entity.getTaxonomyCode() )
-                .pagoPaIntMode(  getSafePagoPaIntMode( entity.getPagoPaIntMode() ) )
-                .sourceChannel( entity.getSourceChannel() )
-                .sourceChannelDetails( entity.getSourceChannelDetails() )
-                .recipientIds(recipientIds )
-                .build());
-    }
-
-    private FullSentNotification.PagoPaIntModeEnum getSafePagoPaIntMode(String pagoPaIntMode) {
-        if(StringUtils.hasText( pagoPaIntMode )) {
-          return FullSentNotification.PagoPaIntModeEnum.fromValue( pagoPaIntMode );
-        }
-        return FullSentNotification.PagoPaIntModeEnum.NONE;
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setSenderDenomination(entity.getSenderDenomination());
+        internalNotification.set_abstract(entity.getNotificationAbstract());
+        internalNotification.senderTaxId(entity.getSenderTaxId());
+        internalNotification.setNotificationFeePolicy(NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()));
+        internalNotification.setIun(entity.getIun());
+        internalNotification.setSubject(entity.getSubject());
+        internalNotification.setSentAt(entity.getSentAt().atOffset(ZoneOffset.UTC));
+        internalNotification.setPaProtocolNumber(entity.getPaNotificationId());
+        internalNotification.setIdempotenceToken(entity.getIdempotenceToken());
+        internalNotification.setCancelledByIun(entity.getCancelledByIun());
+        internalNotification.setCancelledIun(entity.getCancelledIun());
+        internalNotification.setPhysicalCommunicationType(entity.getPhysicalCommunicationType());
+        internalNotification.setGroup(entity.getGroup());
+        internalNotification.setSenderPaId(entity.getSenderPaId());
+        internalNotification.setRecipients(entity2RecipientsDto(entity.getRecipients()));
+        internalNotification.setDocuments(buildDocumentsList(entity));
+        internalNotification.setAmount(entity.getAmount());
+        internalNotification.setPaymentExpirationDate(entity.getPaymentExpirationDate());
+        internalNotification.setTaxonomyCode(entity.getTaxonomyCode());
+        internalNotification.setSourceChannel(entity.getSourceChannel());
+        internalNotification.setRecipientIds(recipientIds);
+        return internalNotification;
     }
 
     private List<NotificationRecipient> entity2RecipientsDto(List<NotificationRecipientEntity> recipients) {
@@ -72,22 +64,22 @@ public class EntityToDtoNotificationMapper {
     private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
         return NotificationRecipient.builder()
                 .internalId( entity.getRecipientId() )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
-                .payment( entity2PaymentInfo( entity.getPayments() ) )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
+                .payments( entity2PaymentInfo( entity.getPayments() ) )
                 .build();
     }
 
-    private NotificationPaymentInfo entity2PaymentInfo(List<NotificationPaymentInfoEntity> paymentList) {
-        NotificationPaymentInfo notificationPaymentInfo = null;
+    private List<NotificationPaymentInfo> entity2PaymentInfo(List<NotificationPaymentInfoEntity> paymentList) {
+        List<NotificationPaymentInfo> notificationPaymentItems = new ArrayList<>();
         if ( !CollectionUtils.isEmpty( paymentList ) ) {
-            notificationPaymentInfo = NotificationPaymentInfo.builder()
-                    .creditorTaxId( paymentList.get( 0 ).getCreditorTaxId() )
-                    .noticeCode( paymentList.get( 0 ).getNoticeCode() )
-                    .noticeCodeAlternative( paymentList.size() > 1 ? paymentList.get( 1 ).getNoticeCode() : null )
-                    .pagoPaForm( entity2PaymentAttachment( paymentList.get( 0 ).getPagoPaForm() ) )
-                    .build();
+            notificationPaymentItems.add(NotificationPaymentInfo.builder()
+                    .creditorTaxId(paymentList.get(0).getCreditorTaxId())
+                    .noticeCode(paymentList.get(0).getNoticeCode())
+                    .noticeCodeAlternative(paymentList.size() > 1 ? paymentList.get(1).getNoticeCode() : null)
+                    .pagoPaForm(entity2PaymentAttachment(paymentList.get(0).getPagoPaForm()))
+                    .build());
         }
-        return notificationPaymentInfo;
+        return notificationPaymentItems;
     }
 
     private NotificationPaymentAttachment entity2PaymentAttachment(PaymentAttachmentEntity pagoPaForm) {

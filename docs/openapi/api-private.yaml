@@ -4,7 +4,7 @@ info:
   x-api-id: api-private
   title: OpenAPI servizi ad uso solo interno
   x-summary: OpenAPI servizi ad uso solo interno
-  description: >- 
+  description: >-
     API accessibili solo da microservizi interni
   version: '1.0.0'
   contact:
@@ -13,9 +13,9 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 servers:
-- url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080
-  description: Generated server url
-  x-sandbox: true
+  - url: http://internal-pn-in-appli-em20o634urpg-965454854.eu-central-1.elb.amazonaws.com:8080
+    description: Generated server url
+    x-sandbox: true
 tags:
   - name: HealthCheck
     description: >-
@@ -54,7 +54,7 @@ paths:
         </details>
       summary: servizio per l'aggiornamento dello stato di invio della notifica
       tags:
-      - internal-only
+        - internal-only
       operationId: updateStatus
       requestBody:
         content:
@@ -82,6 +82,7 @@ paths:
   
   "/delivery-private/notifications/{iun}":
     get:
+      deprecated: true
       summary: servizio per cercare una notifica dato <iun>
       tags:
         - internal-only
@@ -94,7 +95,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotification"
+                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV2_1"
         '400':
           description: Bad request
           content:
@@ -113,6 +114,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+
   "/delivery-private/search":
     get:
       summary: servizio per cercare le notifiche in base ad alcuni parametri di ricerca
@@ -200,6 +202,7 @@ paths:
     ###########################################################################################
   "/delivery-private/events/payment/pagopa":
     post:
+      deprecated: true
       operationId: paymentEventPagoPaPrivate
       description: >-
         Questa API è a disposizione di external registry per inviare eventi
@@ -210,8 +213,8 @@ paths:
         required: true
         content:
           application/json:
-              schema:
-                $ref: "#/components/schemas/PaymentEventPagoPaPrivate"
+            schema:
+              $ref: "#/components/schemas/PaymentEventPagoPaPrivate"
       responses:
         '204':
           description: OK
@@ -238,7 +241,7 @@ paths:
     post:
       summary: servizio per la verifica del qr code
       tags:
-      - internal-only
+        - internal-only
       operationId: checkAarQrCode
       requestBody:
         content:
@@ -303,7 +306,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'           
+                $ref: '#/components/schemas/Problem'
 
   "/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:
@@ -336,11 +339,11 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'     
+                $ref: '#/components/schemas/Problem'
 
   "/delivery-private/notifications/{iun}/quick-access-link-tokens":
     get:
-      summary: servizio che dato uno <iun> restituisce per ogni destinatario il token per l'accesso rapido al dettaglio notifica  
+      summary: servizio che dato uno <iun> restituisce per ogni destinatario il token per l'accesso rapido al dettaglio notifica
       tags:
         - internal-only
       operationId: getQuickAccessLinkTokensPrivate
@@ -370,9 +373,9 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'                
-                
-                         
+                $ref: '#/components/schemas/Problem'
+
+
 
 components:
   parameters:
@@ -414,7 +417,7 @@ components:
       description: Access token is missing or invalid
 
   schemas:
-    
+
     RequestCheckAarDto:
       type: object
       required:
@@ -422,7 +425,7 @@ components:
         - recipientInternalId
         - aarQrCodeValue
       properties:
-        recipientType: 
+        recipientType:
           type: string
           description: |
             tipo del destinatario <br/>
@@ -436,7 +439,7 @@ components:
           description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
           minLength: 1
           maxLength: 2048
-          
+
     ResponseCheckAarDto:
       type: object
       required:
@@ -444,7 +447,7 @@ components:
       properties:
         iun:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
-        
+
 
     RequestUpdateStatusDto:
       type: object
@@ -467,6 +470,14 @@ components:
           type: integer
           format: int32
           description: indice del destinatario
+
+    PaymentEventsPagoPaPrivate:
+      title: Lista di eventi di pagamento PagoPa
+      description: Lista di eventi di pagamento PagoPa
+      type: array
+      items:
+        $ref: '#/components/schemas/PaymentEventPagoPaPrivate'
+
 
     PaymentEventPagoPaPrivate:
       title: Evento di pagamento PagoPa
