@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 1qf0pAIfFGsHIUod+VM8BXlYAnr3jR1i+7gN7Jihawk=
+  version: VcAv8YvDR1Qr+NK2QfSbwn99RDr0RgCzf5mICTyvmng=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -246,7 +246,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV2_0'
+                $ref: '#/components/schemas/FullSentNotificationV20'
         '400':
           description: Bad request
           content:
@@ -1587,7 +1587,7 @@ components:
           type: string
       required:
         - code
-    FullSentNotificationV2_0:
+    FullSentNotificationV20:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
@@ -1609,7 +1609,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV2_0'
+                $ref: '#/components/schemas/TimelineElementV20'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1698,7 +1698,7 @@ components:
           pattern: PF|PG
         amount:
           type: number
-    TimelineElementV2_0:
+    TimelineElementV20:
       type: object
       additionalProperties: false
       properties:
@@ -1721,9 +1721,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
+          $ref: '#/components/schemas/TimelineElementCategoryV20'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV2_0'
+          $ref: '#/components/schemas/TimelineElementDetailsV20'
     NotificationStatus:
       type: string
       description: |
@@ -2220,7 +2220,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
-    TimelineElementCategoryV2_0:
+    TimelineElementCategoryV20:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -3274,7 +3274,7 @@ components:
         prepareRequestId:
           type: string
           description: RequestId della richiesta di prepare
-    TimelineElementDetailsV2_0:
+    TimelineElementDetailsV20:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
@@ -3521,7 +3521,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV2_0'
+                $ref: '#/components/schemas/TimelineElementV20'
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object

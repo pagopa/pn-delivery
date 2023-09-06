@@ -427,7 +427,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV2_0"
+                $ref: "#/components/schemas/FullSentNotificationV20"
         '400':
           description: Bad request
           content:
@@ -1017,7 +1017,7 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV2_0:
+    FullSentNotificationV20:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
@@ -1038,7 +1038,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV2_0'
+                $ref: '#/components/schemas/TimelineElementV20'
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -1143,8 +1143,8 @@ components:
           type: integer
           format: int32
     
-    TimelineElementV2_0:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV2_0'
+    TimelineElementV20:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV20'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
