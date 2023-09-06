@@ -406,7 +406,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV2_0
+      operationId: retrieveSentNotificationV20
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
       responses:

@@ -468,8 +468,8 @@ paths:
         </details>
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationV2_0                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV2_0                                # ONLY EXTERNAL
+      operationId: getSentNotificationV20                                      # NO EXTERNAL
+#      operationId: retrieveSentNotificationV20                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL

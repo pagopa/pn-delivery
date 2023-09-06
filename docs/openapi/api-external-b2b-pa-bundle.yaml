@@ -369,7 +369,7 @@ paths:
       description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV2_0
+      operationId: retrieveSentNotificationV20
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
