@@ -134,11 +134,10 @@ public class NotificationReceiverValidator {
 
                 int finalRecIdx = recIdx;
                 Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
-                        .filter(field -> field.getValue() != null)
-                        .forEach(field -> {
-                            if (!field.getValue().matches("[" + this.pnDeliveryConfigs.getPhysicalAddressValidationPattern() + "]*"))
-                                errors.add(new ConstraintViolationImpl<>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)));
-                        });
+                        .filter(field -> field.getValue() != null &&
+                                (!field.getValue().matches("[" + this.pnDeliveryConfigs.getPhysicalAddressValidationPattern() + "]*")))
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
+                        .forEach(errors::add);
 
                 recIdx++;
             }
