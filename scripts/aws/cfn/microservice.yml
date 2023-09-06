@@ -174,6 +174,11 @@ Parameters:
     Description: 'Physical address validation. Allowed Characters'
     Default: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-"
 
+  PhysicalAddressValidationLength:
+    Type: Number
+    Description: 'Physical address validation length.'
+    Default: 44
+
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
@@ -437,6 +442,7 @@ Resources:
         ContainerEnvEntry30: !Sub 'PN_DELIVERY_FEATURES_ISSENDACTIVEDEFAULTVALUE=${IsSendActiveDefaultValue}'
         ContainerEnvEntry31: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATION=${PhysicalAddressValidationValue}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONPATTERN=${PhysicalAddressValidationCharsValue}'
+        ContainerEnvEntry32: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONLENGTH=${PhysicalAddressValidationLength}'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'

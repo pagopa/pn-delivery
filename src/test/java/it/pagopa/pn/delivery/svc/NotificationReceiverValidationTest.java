@@ -56,6 +56,7 @@ class NotificationReceiverValidationTest {
   public static final String INVALID_SUBJECT =
       "invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars";
   public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
+  public static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
 
   private NotificationReceiverValidator validator;
 
@@ -553,6 +554,7 @@ class NotificationReceiverValidationTest {
     //WHEN
     when(cfg.isPhysicalAddressValidation()).thenReturn(true);
     when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+    when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
     var errors = validator.checkPhysicalAddress(newNotification());
 
     //THEN
@@ -565,14 +567,17 @@ class NotificationReceiverValidationTest {
     //WHEN
     when(cfg.isPhysicalAddressValidation()).thenReturn(true);
     when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+    when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification());
 
     //THEN
-      assertThat(errors, hasSize(1));
+      assertThat(errors, hasSize(2));
       assertThat(errors, hasItems(
-              hasProperty("message", Matchers.containsString("denomination"))
+              hasProperty("message", Matchers.containsString("denomination")),
+              hasProperty("message", Matchers.containsString("exceed"))
       ));
   }
+
 
   @Test
   //negative check with all invalid fields from two different recipients.
@@ -580,15 +585,17 @@ class NotificationReceiverValidationTest {
     //WHEN
     when(cfg.isPhysicalAddressValidation()).thenReturn(true);
     when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+    when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
     var errors = validator.checkPhysicalAddress(moreBadRecipientsNewNotification());
 
     //THEN
-    assertThat(errors, hasSize(9));
+    assertThat(errors, hasSize(10));
     assertThat(errors, hasItems(
             hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("address"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("province"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("zip"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("exceed"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("foreignState"), Matchers.containsString("recipient 1"))),
             hasProperty("message", allOf(Matchers.containsString("addressDetails"), Matchers.containsString("recipient 1"))),
             hasProperty("message", allOf(Matchers.containsString("municipality"), Matchers.containsString("recipient 1"))),
@@ -682,7 +689,7 @@ class NotificationReceiverValidationTest {
                     .digitalDomicile(NotificationDigitalAddress.builder()
                             .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
                     .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
-                            .province("province").municipality("municipality").at("at").build())
+                            .province("province").municipality("municipalitymorethan40characters").at("at").build())
                     .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
                             .noticeCodeAlternative("noticeCodeAlternative").build())
                     .build());
@@ -698,7 +705,7 @@ class NotificationReceiverValidationTest {
                     .digitalDomicile(NotificationDigitalAddress.builder()
                             .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
                     .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo?").zip("83100*")
-                            .province("province_").municipality("municipality-").municipalityDetails("municipalityDetails/")
+                            .province("province_").municipality("municipalitymorethan40characters-").municipalityDetails("municipalityDetails/")
                             .at("at.").addressDetails("addressDetails0").foreignState("foreignState ").build())
                     .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
                             .noticeCodeAlternative("noticeCodeAlternative").build())

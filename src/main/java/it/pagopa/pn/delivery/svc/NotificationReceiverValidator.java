@@ -142,8 +142,8 @@ public class NotificationReceiverValidator {
                         .forEach(errors::add);
 
                 Stream.of(denomination, row2, addressDetails, address, row5, foreignState)
-                        .filter(field -> field.getValue() != null && field.getValue().trim().length() > 44 )
-                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s exceed max length of 44 chars", field.getKey(), finalRecIdx)))
+                        .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getPhysicalAddressValidationLength() )
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getPhysicalAddressValidationLength())))
                         .forEach(errors::add);
 
                 recIdx++;

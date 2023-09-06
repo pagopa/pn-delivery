@@ -64,6 +64,8 @@ public class PnDeliveryConfigs {
     
     private String physicalAddressValidationPattern;
 
+    private Integer physicalAddressValidationLength;
+
     @Data
     public static class Topics {
         private String newNotifications;
