@@ -131,6 +131,8 @@ public class NotificationReceiverValidator {
                 Pair<String, String> zip = Pair.of("zip", physicalAddress.getZip());
                 Pair<String, String> municipality = Pair.of("municipality", physicalAddress.getMunicipality());
                 Pair<String, String> municipalityDetails = Pair.of("municipalityDetails", physicalAddress.getMunicipalityDetails());
+                Pair<String, String> row2 = buildPair("at and municipalityDetails", at, municipalityDetails);
+                Pair<String, String> row5 = buildPair("zip, municipality and Province", zip, municipality, province);
 
                 int finalRecIdx = recIdx;
                 Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
@@ -139,11 +141,30 @@ public class NotificationReceiverValidator {
                         .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
                         .forEach(errors::add);
 
+                Stream.of(denomination, row2, addressDetails, address, row5, foreignState)
+                        .filter(field -> field.getValue() != null && field.getValue().trim().length() > 44 )
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s exceed max length of 44 chars", field.getKey(), finalRecIdx)))
+                        .forEach(errors::add);
+
                 recIdx++;
             }
         }
 
         return errors;
+
+    }
+
+    private static Pair<String, String> buildPair(String name, Pair<String, String>... pairs){
+        List<String> rowElem = new ArrayList<>();
+
+        Stream.of(pairs).
+                filter(field -> field.getValue() != null)
+                .forEach( field -> {
+                            rowElem.add(field.getValue().trim());
+                        }
+                );
+
+        return Pair.of(name, String.join(" ", rowElem));
 
     }
 
