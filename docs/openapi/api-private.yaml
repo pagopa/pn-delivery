@@ -375,6 +375,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  "/delivery-private/notification-cost/{iun}":
+    delete:
+      summary: servizio che elimina eventuali IUV della notifica con IUN dato in input
+      tags:
+        - internal-only
+      operationId: removeAllNotificationCostsByIun
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: IUN not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
 
 
 components:
@@ -447,7 +477,6 @@ components:
       properties:
         iun:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
-
 
     RequestUpdateStatusDto:
       type: object

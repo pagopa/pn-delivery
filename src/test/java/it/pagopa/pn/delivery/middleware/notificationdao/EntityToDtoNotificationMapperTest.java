@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotification;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV20;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -105,14 +105,14 @@ class EntityToDtoNotificationMapperTest {
                 .idempotenceToken( "idempotenceToken" )
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .physicalCommunicationType(FullSentNotification.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId( "pa_02" )
                 .group( "Group_1" )
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotification.PagoPaIntModeEnum.NONE.getValue() )
+                .pagoPaIntMode( FullSentNotificationV20.PagoPaIntModeEnum.NONE.getValue() )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
                 .version( 1 )
                 .build();

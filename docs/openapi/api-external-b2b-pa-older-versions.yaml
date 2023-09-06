@@ -1,0 +1,88 @@
+openapi: 3.0.3
+paths:
+  # Implementata con una lambda utilizzando il meccanismo che sta preparando Fabrizio D.
+  #  con la issue PN-7255
+  "/delivery/notifications/sent/{iun}":
+    get:
+      summary: 'Mittente: lettura dettagli notifica'
+      description: |-
+        Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotification                                # ONLY EXTERNAL
+      x-pagopa-lambda-name: ilNomeDellaLambda
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/FullSentNotification"
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  
+
+components:  
+
+  parameters:
+
+    ############################################################################################
+    ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
+    ############################################################################################
+
+  schemas:
+
+    ###########################################################################################
+    ###                             DTO STATUS PN                                           ###
+    ###########################################################################################
+    PnStatusResponse:
+      $ref: './remote-refs.yaml#/components/schemas/PnStatusResponse'
+
+    FullSentNotification:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
+        processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElement'
+        
+    TimelineElement:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+    NotificationStatus:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
+    NotificationStatusHistory:
+      $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
+    
+    Problem:
+      $ref: './remote-refs.yaml#/components/schemas/Problem'
+    ProblemError:
+      $ref: './remote-refs.yaml#/components/schemas/ProblemError'

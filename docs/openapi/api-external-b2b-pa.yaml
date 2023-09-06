@@ -137,7 +137,7 @@ info:
 
        <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/e6f1db9eac9ace7fc2ad0fe6de241ab4525b6b6a/docs/openapi/images/verifica-accettazione-richiesta-invio.png" height="731" width="489" alt="Verifica accettazione richiesta" />
     </td>
-    
+      
     </tr>
     
     </table>
@@ -406,7 +406,7 @@ paths:
 
   "/delivery/v2.1/notifications/sent/{iun}":
     get:
-      summary: 'Mittente: lettura dettagli notifica'
+      summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
         Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
 
@@ -577,6 +577,43 @@ paths:
             application/problem+json:                                               # ONLY EXTERNAL
               schema:                                                               # ONLY EXTERNAL
                 $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+
+  '/delivery-push/v2.0/notifications/cancel/{iun}':                                 # ONLY EXTERNAL
+    put:                                                                            # ONLY EXTERNAL
+      summary: Annullamento notifica                                                # ONLY EXTERNAL
+      description: >-                                                               # ONLY EXTERNAL
+        Permette l'annullamento di una notifica restituendo una presa in carico,
+          il processo di annullamento si completa poi in maniera asincrona
+      tags:                                                                         # ONLY EXTERNAL
+        - notificationCancellation                                                  # ONLY EXTERNAL
+      operationId: notificationCancellation                                         # ONLY EXTERNAL
+      parameters:                                                                   # ONLY EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
+      responses:                                                                    # ONLY EXTERNAL
+        '202':                                                                      # ONLY EXTERNAL
+          description: Accepted - Richiesta annullamento presa in carico            # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/json:                                                       # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: "#/components/schemas/RequestStatus"                          # ONLY EXTERNAL
+        '400':                                                                      # ONLY EXTERNAL
+          description: Bad request                                                  # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
+        '404':                                                                      # ONLY EXTERNAL
+          description: Not found                                                    # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
+        '500':                                                                      # ONLY EXTERNAL
+          description: Internal Server Error                                        # ONLY EXTERNAL
+          content:                                                                  # ONLY EXTERNAL
+            application/problem+json:                                               # ONLY EXTERNAL
+              schema:                                                               # ONLY EXTERNAL
+                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
@@ -997,7 +1034,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElement'
+                $ref: '#/components/schemas/TimelineElementV2_1'
 
 
 
@@ -1106,6 +1143,9 @@ components:
 
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
+
+    TimelineElementV2_1:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV2_1'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
@@ -1114,6 +1154,8 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
     F24Metadata:
       $ref: './remote-refs.yaml#/components/schemas/F24Metadata'
+    RequestStatus:
+      $ref: './remote-refs.yaml#/components/schemas/RequestStatus'
 
   securitySchemes:        # ONLY EXTERNAL
     ApiKeyAuth:           # ONLY EXTERNAL
