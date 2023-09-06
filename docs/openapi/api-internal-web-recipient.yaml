@@ -425,13 +425,13 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV2_0'
+                $ref: '#/components/schemas/TimelineElementV20'
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
 
-    TimelineElementV2_0:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV2_0'
+    TimelineElementV20:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV20'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
