@@ -733,7 +733,7 @@ public class NotificationRetrieverService {
 
 
 		// la lista arriva già ordinata correttamente
-		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> timelineList = timelineStatusHistoryDto.getTimeline();
+		var timelineList = timelineStatusHistoryDto.getTimeline();
 
 		log.debug( "Retrieve status history for notification created at={}", createdAt );
 
