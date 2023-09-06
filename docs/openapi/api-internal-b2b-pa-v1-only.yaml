@@ -120,7 +120,7 @@ paths:
     ###########################################################################################
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
-  
+
   "/delivery/notifications/sent/{iun}":
     get:
       deprecated: true
@@ -172,7 +172,7 @@ paths:
 
 
 components:
-  
+
   parameters:
     ############################################################################################
     ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
@@ -234,7 +234,7 @@ components:
       name: idempotenceToken
       description: >-
         token usato per disambiguare "richieste di notificazione" effettuate con lo stesso 
-        numero di protocollo. 
+        numero di protocollo.
       in: query
       required: false
       schema:
@@ -242,8 +242,8 @@ components:
         # ASCII printable characters
         pattern: ^[ -~]*$
         maxLength: 256
-    
-    
+
+
     ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
     ############################################################################################
@@ -296,7 +296,7 @@ components:
     ###########################################################################################
     PnStatusResponse:
       $ref: './remote-refs.yaml#/components/schemas/PnStatusResponse'
-    
+
     ###########################################################################################
     ###                             DTO PRECARICAMENTO ALLEGATI                             ###
     ###########################################################################################
@@ -422,7 +422,7 @@ components:
             Ripetizione del token usato per disambiguare "richieste di notificazione" 
             effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
-    
+
     NewNotificationRequestStatusResponse:
       allOf:
         - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
@@ -505,7 +505,7 @@ components:
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV2_1'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV2'
         - type: object
           required:
             - notificationStatus
@@ -535,7 +535,7 @@ components:
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
     ###########################################################################################
-    
+
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -634,7 +634,7 @@ components:
         amount:
           type: integer
           format: int32
-    
+
     TimelineElement:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
     NotificationStatus:

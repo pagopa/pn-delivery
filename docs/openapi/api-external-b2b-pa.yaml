@@ -91,6 +91,7 @@ info:
       #### 1. Caricamento dei documenti della notifica
     
       Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadati di pagamento).
+      [Schema Metadata F24](#/components/schemas/F24Metadata)
     
       #### 1.a. Richiesta presigned Url
     
@@ -1111,6 +1112,8 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+    F24Metadata:
+      $ref: './remote-refs.yaml#/components/schemas/F24Metadata'
 
   securitySchemes:        # ONLY EXTERNAL
     ApiKeyAuth:           # ONLY EXTERNAL
@@ -1120,6 +1123,7 @@ components:
 
 security:                 # ONLY EXTERNAL
   - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+
 
 
 

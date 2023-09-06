@@ -40,11 +40,11 @@ components:
     lollipopSignature:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-auth-fleet/a1f457ddc112983ec79be0be93256476dd11102c/docs/openapi/authenticationParameters-v1.yaml#/components/parameters/lollipopSignature'
 
-    
+
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
     ############################################################################################
-    
+
     pathLegalFactType:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactType'
     pathLegalFactId:
@@ -52,7 +52,7 @@ components:
 
 
   schemas:
-    
+
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
@@ -80,3 +80,7 @@ components:
 
     PnStatusResponse:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-downtime-logs/6e086075d1b7294e5b0dcbc59a226de321a7a1d3/docs/openapi/schemas-pn-components-v1.yaml#/components/schemas/PnStatusResponse'
+
+
+    F24Metadata:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-f24/0abcbdf4d949be4d8da4573c255e262ff0e81913/docs/openapi/schemas-f24.yaml#/components/schemas/F24Metadata'
