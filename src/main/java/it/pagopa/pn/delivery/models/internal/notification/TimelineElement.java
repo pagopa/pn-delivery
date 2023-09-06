@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.models.internal.notification;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import lombok.*;
 
 import java.time.OffsetDateTime;
@@ -17,6 +17,6 @@ public class TimelineElement {
     private String elementId;
     private OffsetDateTime timestamp;
     private List<LegalFactsId> legalFactsIds = null;
-    private TimelineElementCategory category;
+    private TimelineElementCategoryV20 category;
     private TimelineElementDetails details;
 }

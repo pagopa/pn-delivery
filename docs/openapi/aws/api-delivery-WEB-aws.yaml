@@ -1378,7 +1378,7 @@ components:
               items:
                 $ref: '#/components/schemas/TimelineElement'
     TimelineElement:
-                $ref: '#/components/schemas/TimelineElementV2_1'
+                $ref: '#/components/schemas/TimelineElementV2_0'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1467,7 +1467,7 @@ components:
           pattern: PF|PG
         amount:
           type: number
-    TimelineElementV2_1:
+    TimelineElementV2_0:
       type: object
       additionalProperties: false
       properties:
@@ -1490,9 +1490,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV2_1'
+          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV2_1'
+          $ref: '#/components/schemas/TimelineElementDetailsV2_0'
     NotificationStatus:
       type: string
       description: |
@@ -2058,7 +2058,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
-    TimelineElementCategoryV2_1:
+    TimelineElementCategoryV2_0:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -3112,7 +3112,7 @@ components:
         prepareRequestId:
           type: string
           description: RequestId della richiesta di prepare
-    TimelineElementDetailsV2_1:
+    TimelineElementDetailsV2_0:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'
@@ -3359,7 +3359,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV2_1'
+                $ref: '#/components/schemas/TimelineElementV2_0'
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object

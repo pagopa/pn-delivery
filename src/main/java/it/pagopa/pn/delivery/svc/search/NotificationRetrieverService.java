@@ -3,7 +3,9 @@ package it.pagopa.pn.delivery.svc.search;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.exceptions.*;
+import it.pagopa.pn.commons.exceptions.ExceptionHelper;
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.*;
@@ -15,14 +17,10 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeA
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategory;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
@@ -46,7 +44,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -448,8 +448,8 @@ public class NotificationRetrieverService {
 		// cerco elemento timeline con category refinement o notificationView
 		Optional<TimelineElement> optionalMin = timeline
 				.stream()
-				.filter(tle -> TimelineElementCategory.REFINEMENT.equals(tle.getCategory() )
-						|| TimelineElementCategory.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.filter(tle -> TimelineElementCategoryV20.REFINEMENT.equals(tle.getCategory() )
+						|| TimelineElementCategoryV20.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
 				.min( Comparator.comparing(TimelineElement::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {

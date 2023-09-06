@@ -162,7 +162,9 @@ public class NotificationPriceService {
                 .orElseThrow(() -> new PnNotificationNotFoundException(String.format("Notification with IUN: %s not found", iun)));
 
         notification.getRecipients().stream()
-                .filter(recipient -> recipient.getPayment() != null)
-                .forEach(recipient -> notificationCostEntityDao.deleteWithCheckIun(recipient.getPayment().getCreditorTaxId(), recipient.getPayment().getNoticeCode(), iun));
+                .filter(recipient -> recipient.getPayments() != null)
+                .forEach(recipient ->
+                        recipient.getPayments()
+                                .forEach(notificationPaymentInfo -> notificationCostEntityDao.deleteWithCheckIun(notificationPaymentInfo.getCreditorTaxId(), notificationPaymentInfo.getNoticeCode(), iun)));
     }
 }
