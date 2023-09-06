@@ -425,10 +425,10 @@ class NotificationRetrieverServiceTest {
         InternalNotification notification = getNewInternalNotification();
 
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 //.iun( IUN )
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REQUEST_ACCEPTED )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -455,9 +455,9 @@ class NotificationRetrieverServiceTest {
         // Given
         InternalNotification notification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REQUEST_ACCEPTED )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -498,9 +498,9 @@ class NotificationRetrieverServiceTest {
     void getNotificationInformationWithSenderIdCheckSuccess() {
         InternalNotification notification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REQUEST_ACCEPTED )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -546,9 +546,9 @@ class NotificationRetrieverServiceTest {
     void getNotificationInfoReturnFirstNoticeCode() {
         InternalNotification notification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REQUEST_ACCEPTED )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -709,9 +709,9 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -741,9 +741,9 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -790,9 +790,9 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -838,9 +838,9 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -879,9 +879,9 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-06-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -925,9 +925,9 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-06-30T00:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp( OffsetDateTime.parse( "2022-03-01T12:00:00.00Z" ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -955,9 +955,9 @@ class NotificationRetrieverServiceTest {
         //Given
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  Instant.now()
                         .atOffset(ZoneOffset.UTC) ));
 
@@ -984,13 +984,13 @@ class NotificationRetrieverServiceTest {
     void getNotificationWith2IUVBeforeTerms() {
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1019,13 +1019,13 @@ class NotificationRetrieverServiceTest {
     void getNotificationWith2IUVWithFirstIUVPayedAfterTerms() {
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1058,13 +1058,13 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-01-17T13:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T12:37:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1098,13 +1098,13 @@ class NotificationRetrieverServiceTest {
 
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-03-01T12:37:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-03-02T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1145,13 +1145,13 @@ class NotificationRetrieverServiceTest {
 
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-03-01T12:37:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-03-02T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1183,13 +1183,13 @@ class NotificationRetrieverServiceTest {
     void getNotificationWith2IUVAfterMaxTerms() {
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1217,13 +1217,13 @@ class NotificationRetrieverServiceTest {
     void getNotificationWith2IUVWithExtRegistryException() {
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) ));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1252,9 +1252,9 @@ class NotificationRetrieverServiceTest {
         // Given
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC )));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1281,9 +1281,9 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-06-29T18:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-03-01T17:00:00.00Z" ), ZoneOffset.UTC )));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1309,9 +1309,9 @@ class NotificationRetrieverServiceTest {
         String nowTestInstant = "2022-06-30T00:00:00.00Z";
         InternalNotification internalNotification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                 .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-03-01T17:00:00.00Z" ), ZoneOffset.UTC )));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
@@ -1340,15 +1340,15 @@ class NotificationRetrieverServiceTest {
         InternalNotification internalNotification = getNewInternalNotification();
         enrichInternalNotificationWithAnotherRecipient(internalNotification, "another-recipient");
 
-        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) )
-                        .details(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetails().recIndex(1)));
+                        .details(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetailsV20().recIndex(1)));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
                 .timeline( tle )
@@ -1386,15 +1386,15 @@ class NotificationRetrieverServiceTest {
         InternalNotification internalNotification = getNewInternalNotification();
         enrichInternalNotificationWithAnotherRecipient(internalNotification, "another-recipient");
 
-        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        var tle = List.of( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REFINEMENT )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REFINEMENT )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC )),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
                         .elementId( "elementId_1" )
-                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_VIEWED )
+                        .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_VIEWED )
                         .timestamp(  OffsetDateTime.ofInstant( Instant.parse( "2022-01-12T00:00:00.00Z" ), ZoneOffset.UTC ) )
-                        .details(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetails().recIndex(0)));
+                        .details(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementDetailsV20().recIndex(0)));
 
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
                 .timeline( tle )
@@ -1566,10 +1566,10 @@ class NotificationRetrieverServiceTest {
         deliveryPushResponse.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED);
         deliveryPushResponse.setNotificationStatusHistory(List.of());
         deliveryPushResponse.setTimeline(List.of(
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.VALIDATE_NORMALIZE_ADDRESSES_REQUEST),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NORMALIZED_ADDRESS),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.SENDER_ACK_CREATION_REQUEST),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED)
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.VALIDATE_NORMALIZE_ADDRESSES_REQUEST),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NORMALIZED_ADDRESS),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.SENDER_ACK_CREATION_REQUEST),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REQUEST_ACCEPTED)
         ));
 
         when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
@@ -1589,11 +1589,11 @@ class NotificationRetrieverServiceTest {
         deliveryPushResponse.setNotificationStatus(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED);
         deliveryPushResponse.setNotificationStatusHistory(List.of());
         deliveryPushResponse.setTimeline(List.of(
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.VALIDATE_NORMALIZE_ADDRESSES_REQUEST),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NORMALIZED_ADDRESS),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.SENDER_ACK_CREATION_REQUEST),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED),
-                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.NOTIFICATION_CANCELLATION_REQUEST)
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.VALIDATE_NORMALIZE_ADDRESSES_REQUEST),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NORMALIZED_ADDRESS),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.SENDER_ACK_CREATION_REQUEST),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REQUEST_ACCEPTED),
+                new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST)
 
         ));
 
