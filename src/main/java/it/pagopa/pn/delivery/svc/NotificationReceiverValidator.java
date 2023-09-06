@@ -131,8 +131,8 @@ public class NotificationReceiverValidator {
                 Pair<String, String> zip = Pair.of("zip", physicalAddress.getZip());
                 Pair<String, String> municipality = Pair.of("municipality", physicalAddress.getMunicipality());
                 Pair<String, String> municipalityDetails = Pair.of("municipalityDetails", physicalAddress.getMunicipalityDetails());
-                Pair<String, String> row2 = buildPair("at and municipalityDetails", at, municipalityDetails);
-                Pair<String, String> row5 = buildPair("zip, municipality and Province", zip, municipality, province);
+                Pair<String, String> row2 = buildPair("at and municipalityDetails", List.of(at, municipalityDetails));
+                Pair<String, String> row5 = buildPair("zip, municipality and Province", List.of(zip, municipality, province));
 
                 int finalRecIdx = recIdx;
                 Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
@@ -154,15 +154,12 @@ public class NotificationReceiverValidator {
 
     }
 
-    private static Pair<String, String> buildPair(String name, Pair<String, String>... pairs){
+    private static Pair<String, String> buildPair(String name, List<Pair<String, String>> pairs){
         List<String> rowElem = new ArrayList<>();
 
-        Stream.of(pairs).
+        pairs.stream().
                 filter(field -> field.getValue() != null)
-                .forEach( field -> {
-                            rowElem.add(field.getValue().trim());
-                        }
-                );
+                .forEach( field -> rowElem.add(field.getValue().trim()));
 
         return Pair.of(name, String.join(" ", rowElem));
 
