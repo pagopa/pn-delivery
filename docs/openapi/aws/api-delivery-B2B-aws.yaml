@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: kILoLs3r/fg/NWQNyzLugoOtl6Zza5QzcFiMS9sgyMg=
+  version: aVxHUQkZAtFybzy+abzrOUFVtv9Dm949VZz59lqRmUA=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -240,7 +240,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV2_0
+      operationId: retrieveSentNotificationV20
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:

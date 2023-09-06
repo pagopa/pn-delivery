@@ -418,7 +418,7 @@ paths:
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV2_0                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV20                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
