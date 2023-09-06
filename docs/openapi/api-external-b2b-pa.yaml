@@ -226,6 +226,9 @@ tags:
   - name: PaymentEvents
     description: >-
       Invocazioni per comunicare eventi di pagamento dalla PA
+  - name: NotificationCancellation
+    description: >-
+      Annullamento di una notifica
 
 paths:
   ###########################################################################################
@@ -590,7 +593,7 @@ paths:
         Permette l'annullamento di una notifica restituendo una presa in carico,
           il processo di annullamento si completa poi in maniera asincrona
       tags:                                                                         # ONLY EXTERNAL
-        - notificationCancellation                                                  # ONLY EXTERNAL
+        - NotificationCancellation                                                  # ONLY EXTERNAL
       operationId: notificationCancellation                                         # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL

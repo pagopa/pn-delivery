@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: PK3TPIr6gUfpnXZ74K0s1Qp7ZLkId7ZnQuSsh21SUh8=
+  version: u7lnx+0sYtuN6JAtYmWLR5i0bTY7QzUMNIL5vAcGfgI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3581,6 +3581,8 @@ tags:
     description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
+  - name: NotificationCancellation
+    description: Annullamento di una notifica
   - name: SenderReadWeb
     description: >-
       Invocazioni utilizzabili dai mittenti per verificare lo stato delle

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: aVxHUQkZAtFybzy+abzrOUFVtv9Dm949VZz59lqRmUA=
+  version: ZcoflEy0Dj0L+1iUTZOXObFxJhLT6BaYhFMRwxRHvYk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3137,7 +3137,8 @@ tags:
     description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
-  - null
+  - name: NotificationCancellation
+    description: Annullamento di una notifica
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:
