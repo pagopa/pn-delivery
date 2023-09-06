@@ -12,6 +12,8 @@ import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.jetbrains.annotations.NotNull;
@@ -29,9 +31,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.RecipientTypeEnum.PF;
+import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21.RecipientTypeEnum.PF;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -232,9 +236,12 @@ class NotificationPriceServiceTest {
         String noticeCode = "a-notice-code";
         InternalNotification notification = new InternalNotification();
         notification.setIun(iun);
+        NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
+        notificationPaymentInfo.setNoticeCode(noticeCode);
+        notificationPaymentInfo.setCreditorTaxId(paTaxId);
         notification.setRecipients(List.of(new NotificationRecipient()
                 .recipientType(PF)
-                .payment(new NotificationPaymentInfo().noticeCode(noticeCode).creditorTaxId(paTaxId))));
+                .payment(List.of(notificationPaymentInfo))));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
 
         assertDoesNotThrow(() -> svc.removeAllNotificationCostsByIun(iun));
@@ -247,11 +254,14 @@ class NotificationPriceServiceTest {
         String iun = "a-iun";
         String paTaxId = "creditor-tax-id";
         String noticeCode = "a-notice-code";
+        NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
+        notificationPaymentInfo.setNoticeCode(noticeCode);
+        notificationPaymentInfo.setCreditorTaxId(paTaxId);
         InternalNotification notification = new InternalNotification();
         notification.setIun(iun);
         notification.setRecipients(List.of(new NotificationRecipient()
                 .recipientType(PF)
-                .payment(new NotificationPaymentInfo().noticeCode(noticeCode).creditorTaxId(paTaxId))));
+                .payment(List.of(notificationPaymentInfo))));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.empty());
 
         assertThrows(PnNotFoundException.class, () -> svc.removeAllNotificationCostsByIun(iun));
@@ -260,37 +270,24 @@ class NotificationPriceServiceTest {
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
-                .iun( "iun" )
-                .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
-                .senderPaId( "senderPaId" )
-                .recipientIds(List.of( "recipientInternalId0" ))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .recipients(Collections.singletonList(NotificationRecipient.builder()
-                        .recipientType( PF )
-                        .physicalAddress(NotificationPhysicalAddress.builder()
-                                .foreignState( "Italia" )
-                                .build())
-                        .payment( NotificationPaymentInfo.builder()
-                                .creditorTaxId( PA_TAX_ID )
-                                .noticeCode( NOTICE_CODE )
-                                .build() )
-                        .build()) )
-                .timeline( List.of( TimelineElementV20.builder()
-                                .category( TimelineElementCategoryV20.REFINEMENT )
-                                .timestamp( OffsetDateTime.parse( REFINEMENT_DATE ) )
-                                .build(),
-                        TimelineElementV20.builder()
-                                .category( TimelineElementCategoryV20.SEND_SIMPLE_REGISTERED_LETTER )
-                                .details( TimelineElementDetailsV20.builder()
-                                        .recIndex( 0 )
-                                        .physicalAddress( PhysicalAddress.builder()
-                                                .foreignState( "Italia" )
-                                                .build() )
-                                        .build() )
-                                .build()) )
-                .build());
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setIun("IUN_01");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 
 }

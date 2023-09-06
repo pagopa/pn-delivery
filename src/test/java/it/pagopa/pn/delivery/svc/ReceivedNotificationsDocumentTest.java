@@ -1,18 +1,22 @@
 package it.pagopa.pn.delivery.svc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.NotificationRecipientAddressesDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMapper;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDaoDynamo;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.rest.PnReceivedNotificationsController;
+import it.pagopa.pn.delivery.rest.PnSentNotificationsController;
+import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -21,20 +25,17 @@ import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMapper;
-import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDaoDynamo;
-import it.pagopa.pn.delivery.middleware.notificationdao.NotificationEntityDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
-import it.pagopa.pn.delivery.rest.PnReceivedNotificationsController;
-import it.pagopa.pn.delivery.rest.PnSentNotificationsController;
-import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
 class ReceivedNotificationsDocumentTest {
@@ -102,7 +103,7 @@ class ReceivedNotificationsDocumentTest {
 
 		// Then
 
-		List<NotificationDocument> documents = results.get().getDocuments();
+		List<it.pagopa.pn.delivery.models.internal.notification.NotificationDocument> documents = results.get().getDocuments();
 		for (Integer i=0; i<documents.size(); i++) {
 			assertEquals(documents.get(i).getDocIdx(), i.toString());			
 		}
@@ -124,7 +125,7 @@ class ReceivedNotificationsDocumentTest {
 
 		// Then
 
-		List<NotificationDocument> documents = results.get().getDocuments();
+		List<it.pagopa.pn.delivery.models.internal.notification.NotificationDocument> documents = results.get().getDocuments();
 		assertEquals(documents.get(DOCUMENT_INDEX).getDocIdx(), DOCUMENT_INDEX+"");			
 	}
 
@@ -144,7 +145,7 @@ class ReceivedNotificationsDocumentTest {
 		Optional<InternalNotification> results = notificationDao.getNotificationByIun(Mockito.anyString());
 
 		// Then
-		List<NotificationDocument> documents = results.get().getDocuments();
+		List<it.pagopa.pn.delivery.models.internal.notification.NotificationDocument> documents = results.get().getDocuments();
 		assertNull(documents);
 	}
 
@@ -175,78 +176,45 @@ class ReceivedNotificationsDocumentTest {
 	}
 
 	private InternalNotification createDocumentsNotification() {
-		return new InternalNotification(FullSentNotificationV20.builder()
-				.iun("IUN_DOCUMENT_01")
-				.subject("Subject 01")
-				.senderPaId( "pa_03" )
-				.sourceChannel(X_PAGOPA_PN_SRC_CH)
-				.notificationStatus( NotificationStatus.ACCEPTED )
-				.recipients( Collections.singletonList(
-						NotificationRecipient.builder()
+		InternalNotification internalNotification = new InternalNotification();
+		internalNotification.setIun("iun");
+		internalNotification.setPaProtocolNumber("protocol_01");
+		internalNotification.setSubject("Subject 01");
+		internalNotification.setCancelledIun("IUN_05");
+		internalNotification.setCancelledIun("IUN_00");
+		internalNotification.setSenderPaId("PA_ID");
+		internalNotification.setNotificationStatus(NotificationStatus.IN_VALIDATION);
+		internalNotification.setRecipients(Collections.singletonList(
+				NotificationRecipient.builder()
 						.taxId("Codice Fiscale 01")
-						.denomination("Denomination_TEST")
-						.digitalDomicile(NotificationDigitalAddress.builder()
+						.denomination("Nome Cognome/Ragione Sociale")
+						.internalId( "recipientInternalId" )
+						.digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
 								.type( NotificationDigitalAddress.TypeEnum.PEC )
 								.address("account@dominio.it")
-								.build())
-						.build()
-						))
-				.documents(Arrays.asList(
-						NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder()
-								.key("doc00")
-								.versionToken("v01_doc00")
-								.build()
-								)
-						.digests(NotificationAttachmentDigests.builder()
-								.sha256("sha256_doc00")
-								.build()
-								)
-						.build(),
-						NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder()
-								.key("doc01")
-								.versionToken("v01_doc01")
-								.build()
-								)
-						.digests(NotificationAttachmentDigests.builder()
-								.sha256("sha256_doc01")
-								.build()
-								)
-						.build(),
-						NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder()
-								.key("doc02")
-								.versionToken("v01_doc02")
-								.build()
-								)
-						.digests(NotificationAttachmentDigests.builder()
-								.sha256("sha256_doc01")
-								.build()
-								)
-						.build()
-						))
-				.build());
+								.build()).build()));
+		return internalNotification;
 	}
 
 	private InternalNotification createNoDocumentsNotification() {
-		return new InternalNotification(FullSentNotificationV20.builder()
-				.sourceChannel(X_PAGOPA_PN_SRC_CH)
-				.iun("IUN_DOCUMENT_01")
-				.subject("Subject 01")
-				.senderPaId( "pa_03" )
-				.notificationStatus( NotificationStatus.ACCEPTED )
-				.recipients( Collections.singletonList(
-						NotificationRecipient.builder()
+		InternalNotification internalNotification = new InternalNotification();
+		internalNotification.setIun("iun");
+		internalNotification.setPaProtocolNumber("protocol_01");
+		internalNotification.setSubject("Subject 01");
+		internalNotification.setCancelledIun("IUN_05");
+		internalNotification.setCancelledIun("IUN_00");
+		internalNotification.setSenderPaId("PA_ID");
+		internalNotification.setNotificationStatus(NotificationStatus.IN_VALIDATION);
+		internalNotification.setRecipients(Collections.singletonList(
+				NotificationRecipient.builder()
 						.taxId("Codice Fiscale 01")
-						.denomination("Denomination_TEST")
-						.digitalDomicile(NotificationDigitalAddress.builder()
+						.denomination("Nome Cognome/Ragione Sociale")
+						.internalId( "recipientInternalId" )
+						.digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
 								.type( NotificationDigitalAddress.TypeEnum.PEC )
 								.address("account@dominio.it")
-								.build())
-						.build()
-						))
-				.build());
+								.build()).build()));
+		return internalNotification;
 	}
 
 }

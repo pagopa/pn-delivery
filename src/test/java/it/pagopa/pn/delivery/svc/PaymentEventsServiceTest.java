@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDa
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.models.InternalPaymentEvent;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
@@ -404,16 +405,15 @@ class PaymentEventsServiceTest {
 
     private InternalNotification createInternalNotification() {
         NotificationRecipient notificationRecipient = createRecipient();
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .iun( IUN )
-                .subject("Subject 01")
-                .senderPaId( SENDER_PA_ID )
-                .notificationStatus( NotificationStatus.ACCEPTED )
-                .recipients( Collections.singletonList(notificationRecipient))
-                .recipientIds(List.of(RECIPIENT_INTERNAL_ID))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .build()
-        );
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setIun(IUN);
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setSenderPaId(SENDER_PA_ID);
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setRecipients(Collections.singletonList(notificationRecipient));
+        internalNotification.setRecipientIds(List.of(RECIPIENT_INTERNAL_ID));
+        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
+        return internalNotification;
     }
 
     private NotificationRecipient createRecipient() {
@@ -421,8 +421,8 @@ class PaymentEventsServiceTest {
                 .internalId( RECIPIENT_INTERNAL_ID )
                 .taxId( RECIPIENT_TAX_ID )
                 .denomination("Mario Rossi")
-                .recipientType( NotificationRecipient.RecipientTypeEnum.valueOf( RECIPIENT_TYPE_PF ) )
-                .digitalDomicile(NotificationDigitalAddress.builder()
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.valueOf( RECIPIENT_TYPE_PF ) )
+                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                         .type(NotificationDigitalAddress.TypeEnum.PEC)
                         .address("account@dominio.it")
                         .build())

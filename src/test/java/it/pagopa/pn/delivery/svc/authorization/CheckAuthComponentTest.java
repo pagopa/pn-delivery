@@ -5,6 +5,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeA
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -138,7 +139,7 @@ class CheckAuthComponentTest {
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertThrows( PnNotFoundException.class, todo);
+        Assertions.assertThrows( IllegalArgumentException.class, todo);
     }
     @Test
     void canAccessPGWithMandateIdNotFoundExc() {
@@ -181,55 +182,23 @@ class CheckAuthComponentTest {
     }
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .iun("IUN_01")
-                .paProtocolNumber("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .senderPaId( "pa_02" )
-                .notificationStatus( NotificationStatus.ACCEPTED )
-                .sentAt( OffsetDateTime.parse( "2022-08-26T00:00Z" ) )
-                .recipients( Collections.singletonList(
-                        NotificationRecipient.builder()
-                                .taxId("Codice Fiscale 01")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(NotificationDigitalAddress.builder()
-                                        .type( NotificationDigitalAddress.TypeEnum.PEC )
-                                        .address("account@dominio.it")
-                                        .build())
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NotificationDocument.builder()
-                                .ref( NotificationAttachmentBodyRef.builder()
-                                        .key("doc00")
-                                        .versionToken("v01_doc00")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .build(),
-                        NotificationDocument.builder()
-                                .ref( NotificationAttachmentBodyRef.builder()
-                                        .key("doc01")
-                                        .versionToken("v01_doc01")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .build()
-                ))
-                .recipientIds(Collections.singletonList( "recipientId" ))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .timeline( Collections.singletonList(TimelineElementV20.builder().build()))
-                .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
-                        .status( NotificationStatus.ACCEPTED )
-                        .build() ) )
-                .build());
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setIun("IUN");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 }

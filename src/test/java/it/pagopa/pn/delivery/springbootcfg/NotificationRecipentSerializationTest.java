@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.springbootcfg;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -15,18 +15,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 class NotificationRecipentSerializationTest {
 
     @Autowired
-    private JacksonTester<NotificationRecipient> jacksonTester;
+    private JacksonTester<NotificationRecipientV21> jacksonTester;
 
 
     @Test
     void notificationRecipientSerializationTest() throws IOException {
-        NotificationRecipient recipient = new NotificationRecipient()
-                .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+        NotificationRecipientV21 recipient = new NotificationRecipientV21()
+                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
                 .denomination("Mario Rossi")
                 .taxId("CCCCCCCC")
                 .internalId(null);
 
-        JsonContent<NotificationRecipient> json = jacksonTester.write(recipient);
+        JsonContent<NotificationRecipientV21> json = jacksonTester.write(recipient);
 
         System.out.println(json.getJson());
 

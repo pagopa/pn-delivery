@@ -1,19 +1,13 @@
 package it.pagopa.pn.delivery.svc;
 
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Path;
-import javax.validation.Valid;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.ValidateUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -21,11 +15,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
-import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.models.InternalNotification;
+
+import javax.validation.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 class NotificationReceiverValidationTest {
 
@@ -45,9 +43,9 @@ class NotificationReceiverValidationTest {
   public static final String VERSION_TOKEN = "version_token";
   public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
   public static final String INVALID_ABSTRACT =
-      "invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars";
+          "invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars";
   public static final String INVALID_SUBJECT =
-      "invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars";
+          "invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars";
 
 
   private NotificationReceiverValidator validator;
@@ -64,12 +62,28 @@ class NotificationReceiverValidationTest {
   void invalidEmptyNotification() {
 
     // GIVEN
-    InternalNotification n =
-        new InternalNotification(FullSentNotificationV20.builder().build());
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
+
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "recipients");
@@ -91,12 +105,25 @@ class NotificationReceiverValidationTest {
   @Test
   void checkThrowMechanism() {
 
-    // GIVEN
-    InternalNotification n =
-        new InternalNotification(FullSentNotificationV20.builder().build());
-
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
     // WHEN
-    Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(n);
+    Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(internalNotification);
 
     // THEN
     PnValidationException validationException;
@@ -136,13 +163,13 @@ class NotificationReceiverValidationTest {
   @Test
   void invalidRecipientPGTaxId() {
     // Given
-    NewNotificationRequest n = newNotification();
+    NewNotificationRequestV21 n = newNotification();
     n.addRecipientsItem(
-            NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PG)
+            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PG)
                     .taxId("1234c56").denomination("recipientDenomination").build());
 
     // When
-    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -152,14 +179,26 @@ class NotificationReceiverValidationTest {
   @Test
   void invalidRecipient() {
 
-    // GIVEN
-    InternalNotification n = new InternalNotification(
-        notificationWithPhysicalCommunicationType().senderTaxId("01199250158").sourceChannel(X_PAGOPA_PN_SRC_CH)
-            .recipients(Collections.singletonList(NotificationRecipient.builder().build())));
-
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "recipients[0].recipientType");
@@ -173,20 +212,27 @@ class NotificationReceiverValidationTest {
   @Test
   void validRecipientTaxIdOmocode() {
     // GIVEN
-    InternalNotification n = new InternalNotification(
-        validDocumentWithPayments().senderTaxId("01199250158")
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-            .recipients(Collections.singletonList(NotificationRecipient.builder()
-                .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-                // C.F. Omocodice 0=L 1=M 2=N 3=P 4=Q 5=R 6=S 7=T 8=U 9=V
-                .taxId("MRNLCU00A01H50MJ")
-                    .denomination("valid Denomination")
-                    .physicalAddress( createPhysicalAddress() )
-                    .build())));
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     Assertions.assertEquals(0, errors.size());
@@ -203,20 +249,27 @@ class NotificationReceiverValidationTest {
   @Test
   void invalidRecipientTaxId() {
 
-    // GIVEN
-    InternalNotification n = new InternalNotification(
-        notificationWithPhysicalCommunicationType().senderTaxId("01199250158")
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-            .recipients(Collections.singletonList(NotificationRecipient.builder()
-                .recipientType(NotificationRecipient.RecipientTypeEnum.PF).taxId("invalidTaxId")
-                .denomination("valid Denomination")
-                    .physicalAddress( createPhysicalAddress() )
-                    .build()
-            )));
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "recipients[0].taxId");
@@ -226,15 +279,27 @@ class NotificationReceiverValidationTest {
 
   @Test
   void invalidSenderTaxId() {
-    // GIVEN
-    InternalNotification n = new InternalNotification(notificationWithPhysicalCommunicationType()
-        .senderTaxId("invalidSenderTaxId")
-            .senderDenomination("Valid Sender Denomination")
-            .sourceChannel(X_PAGOPA_PN_SRC_CH));
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByFieldWithExpected(errors, "senderTaxId", 2);
@@ -244,14 +309,26 @@ class NotificationReceiverValidationTest {
 
   @Test
   void invalidAbstract() {
-    // GIVEN
-    InternalNotification n = new InternalNotification(
-        notificationWithPhysicalCommunicationType()._abstract(INVALID_ABSTRACT)
-            .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE));
-
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "abstract"); // this is a validator too, that checks what props have errors in constructor (at the moment are 2 more than the normal(3) but expect1)
@@ -261,14 +338,27 @@ class NotificationReceiverValidationTest {
   @Test
   void invalidSubject() {
     // GIVEN
-    InternalNotification n =
-        new InternalNotification(
-            notificationWithPhysicalCommunicationType().subject(INVALID_SUBJECT)
-                .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE));
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "subject");
@@ -278,13 +368,13 @@ class NotificationReceiverValidationTest {
   @Test
   void duplicatedRecipientTaxId() {
     // Given
-    NewNotificationRequest n = newNotification();
+    NewNotificationRequestV21 n = newNotification();
     n.addRecipientsItem(
-        NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-            .taxId("FiscalCode").denomination("recipientDenomination").build());
+            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                    .taxId("FiscalCode").denomination("recipientDenomination").build());
 
     // When
-    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -295,14 +385,26 @@ class NotificationReceiverValidationTest {
   @Test
   @Disabled("Documents field required in NewNotificationRequest")
   void invalidNullValuesInCollections() {
-
-    // GIVEN
-    InternalNotification n = new InternalNotification(notificationWithPhysicalCommunicationType()
-        .recipients(Collections.singletonList(null)).documents(Collections.singletonList(null)));
-
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "documents[0]");
@@ -313,16 +415,29 @@ class NotificationReceiverValidationTest {
   @Test
   void invalidDocumentAndRecipientWithEmptyFields() {
 
-    // GIVEN
-    InternalNotification n = new InternalNotification(
-        notificationWithPhysicalCommunicationType()
-            .recipients(Collections.singletonList(NotificationRecipient.builder().build()))
-            .documents(Collections.singletonList(NotificationDocument.builder().build())));
-    n.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
+
+    internalNotification.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "documents[0].digests");
@@ -339,22 +454,27 @@ class NotificationReceiverValidationTest {
   void invalidDocumentAndRecipientWithEmptyDigestsAndDigitalDomicile() {
 
     // GIVEN
-    InternalNotification n =
-        new InternalNotification(
-            notificationWithPhysicalCommunicationType()
-                .recipients(Collections.singletonList(NotificationRecipient
-                    .builder().taxId("LVLDAA85T50G702B").denomination("Ada Lovelace")
-                    .digitalDomicile(NotificationDigitalAddress.builder().build())
-                        .physicalAddress( createPhysicalAddress() )
-                        .build()))
-                .documents(Collections.singletonList(NotificationDocument.builder()
-                    // .body( BASE64_BODY )
-                    .contentType("application/pdf")
-                    .digests(NotificationAttachmentDigests.builder().build()).build())));
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(n);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "documents[0].digests.sha256");
@@ -403,17 +523,26 @@ class NotificationReceiverValidationTest {
 
   @Test
   void invalidPecAddress() {
-
-    // GIVEN
-    InternalNotification n = validDocumentWithoutPayments();
-    n.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
-    InternalNotification wrongEmail = new InternalNotification(
-        n.recipients(Collections.singletonList(n.getRecipients().get(0)
-            .digitalDomicile(n.getRecipients().get(0).getDigitalDomicile().address(null)))));
-
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(wrongEmail);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "recipients[0].digitalDomicile.address");
@@ -424,15 +553,29 @@ class NotificationReceiverValidationTest {
   @Test
   void testCheckNotificationDocumentFail() {
 
-    InternalNotification notification = new InternalNotification(
-        validDocumentWithoutPayments()
-            .documents(Collections.singletonList(NotificationDocument.builder().build())));
-    notification
-        .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
+    internalNotification
+            .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
 
     // WHEN
     Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(notification);
+    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
 
     // THEN
     assertConstraintViolationPresentByField(errors, "documents[0].digests");
@@ -444,15 +587,15 @@ class NotificationReceiverValidationTest {
   @Test
   void newNotificationRequestWhitInvalidPhysicalAddress() {
     // GIVEN
-    NewNotificationRequest n = newNotification();
+    NewNotificationRequestV21 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
-                    .municipality( "municipality" )
-                    .address( "address" )
-                    .build()
+            .municipality( "municipality" )
+            .address( "address" )
+            .build()
     );
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -462,7 +605,7 @@ class NotificationReceiverValidationTest {
   @Test
   void newNotificationRequestWhitInvalidPhysicalAddressForeignStateItaly() {
     // GIVEN
-    NewNotificationRequest n = newNotification();
+    NewNotificationRequestV21 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
             .foreignState("Italia")
             .municipality( "municipality" )
@@ -471,7 +614,7 @@ class NotificationReceiverValidationTest {
     );
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -480,15 +623,15 @@ class NotificationReceiverValidationTest {
 
   @Test
   @Disabled("Since PN-2401")
-  // pass all mvp checks
+    // pass all mvp checks
   void newNotificationRequestForValidDontCheckAddress() {
 
     // GIVEN
-    NewNotificationRequest n = newNotification();
+    NewNotificationRequestV21 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(null);
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -498,40 +641,38 @@ class NotificationReceiverValidationTest {
 
 
   @Test
-  // doesn't pass mvp checks
+    // doesn't pass mvp checks
   void newNotificationRequestForMVPInvalid() {
 
     // GIVEN
-    NewNotificationRequest n = newNotification();
+    NewNotificationRequestV21 n = newNotification();
     n.setSenderDenomination(null);
     n.addRecipientsItem(
-        NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-            .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
-            .digitalDomicile(NotificationDigitalAddress.builder().build()).build());
-    String noticeCode = n.getRecipients().get(0).getPayment().getNoticeCode();
-    n.getRecipients().get(0).getPayment().setNoticeCodeAlternative(noticeCode);
+            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                    .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
+                    .digitalDomicile(NotificationDigitalAddress.builder().build()).build());
+    String noticeCode = n.getRecipients().get(0).getPayments().get(0).getPagoPa().getNoticeCode();
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
-    Assertions.assertEquals(1, errors.size()); 
+    Assertions.assertEquals(1, errors.size());
 
     assertConstraintViolationPresentByMessage(errors, "Max one recipient");
 
   }
 
   @Test
-  // doesn't pass mvp checks
+    // doesn't pass mvp checks
   void newNotificationRequestForMVP() {
 
     // GIVEN
-    NewNotificationRequest n = newNotification();
-    n.getRecipients().get(0).setPayment(null);
+    NewNotificationRequestV21 n = newNotification();
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequest>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
@@ -540,30 +681,30 @@ class NotificationReceiverValidationTest {
   }
 
   private <T> void assertConstraintViolationPresentByMessage(Set<ConstraintViolation<T>> set,
-      String message) {
+                                                             String message) {
     long actual = set.stream().filter(cv -> cv.getMessage().equals(message)).count();
     Assertions.assertEquals(1, actual);
   }
 
   private <T> void assertConstraintViolationPresentByField(Set<ConstraintViolation<T>> set,
-      String propertyPath) {
+                                                           String propertyPath) {
     long actual = set.stream()
-        .filter(cv -> propertyPathToString(cv.getPropertyPath()).equals(propertyPath)).count();
+            .filter(cv -> propertyPathToString(cv.getPropertyPath()).equals(propertyPath)).count();
     Assertions.assertEquals(1, actual, "expected validation errors on " + propertyPath);
   }
 
   private <T> void assertConstraintViolationPresentByFieldWithExpected(
-      Set<ConstraintViolation<T>> set, String propertyPath, long expected) {
+          Set<ConstraintViolation<T>> set, String propertyPath, long expected) {
     long actual = set.stream()
-        .filter(cv -> propertyPathToString(cv.getPropertyPath()).equals(propertyPath)).count();
+            .filter(cv -> propertyPathToString(cv.getPropertyPath()).equals(propertyPath)).count();
     Assertions.assertEquals(expected, actual, "expected validation errors on " + propertyPath);
   }
 
 
   private void assertProblemErrorConstraintViolationPresentByField(List<ProblemError> set,
-      String propertyPath) {
+                                                                   String propertyPath) {
     long actual = set.stream()
-        .filter(cv -> cv.getElement() != null && cv.getElement().equals(propertyPath)).count();
+            .filter(cv -> cv.getElement() != null && cv.getElement().equals(propertyPath)).count();
     Assertions.assertEquals(1, actual, "expected validation errors on " + propertyPath);
   }
 
@@ -571,92 +712,132 @@ class NotificationReceiverValidationTest {
     return propertyPath.toString().replaceFirst(".<[^>]*>$", "");
   }
 
-  private NewNotificationRequest newNotification() {
-    List<NotificationRecipient> recipients = new ArrayList<>();
+  private NewNotificationRequestV21 newNotification() {
+    List<NotificationRecipientV21> recipients = new ArrayList<>();
     recipients.add(
-        NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-            .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
-            .digitalDomicile(NotificationDigitalAddress.builder()
-                .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
-            .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
-                .province("province").municipality("municipality").at("at").build())
-            .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
-                .noticeCodeAlternative("noticeCodeAlternative").build())
-            .build());
-    return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
-        .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
-        .senderTaxId("paId").recipients(recipients).build();
+            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                    .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
+                    .digitalDomicile(NotificationDigitalAddress.builder()
+                            .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
+                    .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
+                            .province("province").municipality("municipality").at("at").build())
+                    .payments(List.of(NotificationPaymentItem.builder().build()))
+                    .build());
+    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(recipients).build();
   }
 
-  private FullSentNotificationV20 newFullSentNotification() {
-    return FullSentNotificationV20.builder().sentAt(OffsetDateTime.now()).iun(IUN)
-        .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
-        .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
-        .notificationStatus(NotificationStatus.ACCEPTED)
-        .documents(Collections.singletonList(NotificationDocument.builder()
-            .contentType("application/pdf")
-            .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
-                .build())
-            .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
-        .recipients(Collections.singletonList(NotificationRecipient.builder()
-            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-            .denomination("Ada Lovelace")
-            .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
-                .type(NotificationDigitalAddress.TypeEnum.PEC).build())
-                .physicalAddress( createPhysicalAddress() )
-                .build())
-        )
-        .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement
-            .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatus.ACCEPTED)
-            .relatedTimelineElements(Collections.emptyList()).build()))
-        .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
-        .sourceChannel(X_PAGOPA_PN_SRC_CH)
-        .physicalCommunicationType(
-                FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
-        .build();
+  private FullSentNotificationV21 newFullSentNotification() {
+    return FullSentNotificationV21.builder().sentAt(OffsetDateTime.now()).iun(IUN)
+            .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
+            .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
+            .notificationStatus(NotificationStatus.ACCEPTED)
+            .documents(Collections.singletonList(NotificationDocument.builder()
+                    .contentType("application/pdf")
+                    .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                            .build())
+                    .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
+            .recipients(Collections.singletonList(NotificationRecipientV21.builder()
+                    .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                    .denomination("Ada Lovelace")
+                    .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
+                            .type(NotificationDigitalAddress.TypeEnum.PEC).build())
+                    .physicalAddress( createPhysicalAddress() )
+                    .build())
+            )
+            .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement
+                    .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatus.ACCEPTED)
+                    .relatedTimelineElements(Collections.emptyList()).build()))
+            .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
+            .sourceChannel(X_PAGOPA_PN_SRC_CH)
+            .physicalCommunicationType(
+                    FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+            .build();
   }
 
   private InternalNotification newInternalNotification() {
-    return new InternalNotification(newFullSentNotification());
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
+    return internalNotification;
   }
 
   private InternalNotification notificationWithPhysicalCommunicationType() {
-    return new InternalNotification(
-        newFullSentNotification().physicalCommunicationType(
-                FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890));
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
+    return internalNotification;
   }
 
   private InternalNotification validDocumentWithoutPayments() {
-    return new InternalNotification(
-        newFullSentNotification().documents(Collections.singletonList(NotificationDocument.builder()
-            .contentType("application/pdf")
-            .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
-                .build())
-            .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build())));
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
+    return internalNotification;
   }
 
   private InternalNotification validDocumentWithPayments() {
-    return new InternalNotification(
-        newFullSentNotification()
-                .recipientIds(Collections.emptyList())
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-            .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
-            .recipients(Collections.singletonList(NotificationRecipient.builder()
-                .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipient.RecipientTypeEnum.PF)
-                .denomination("Ada Lovelace")
-                .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
-                    .type(NotificationDigitalAddress.TypeEnum.PEC).build())
-                .payment(NotificationPaymentInfo.builder()
-                    .creditorTaxId("12345678901").noticeCode("123456789012345678")
-                    .pagoPaForm(NotificationPaymentAttachment.builder()
-                        .digests(
-                            NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                        .build().contentType("application/pdf")
-                        .ref(NotificationAttachmentBodyRef.builder().key(KEY)
-                            .versionToken(VERSION_TOKEN).build()))
-                    .build())
-                .physicalAddress( createPhysicalAddress() )
-                .build())));
+    InternalNotification internalNotification = new InternalNotification();
+    internalNotification.setIun("IUN");
+    internalNotification.setPaProtocolNumber("protocol_01");
+    internalNotification.setSubject("Subject 01");
+    internalNotification.setCancelledIun("IUN_05");
+    internalNotification.setCancelledIun("IUN_00");
+    internalNotification.setSenderPaId("PA_ID");
+    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+    internalNotification.setRecipients(Collections.singletonList(
+            NotificationRecipient.builder()
+                    .taxId("Codice Fiscale 01")
+                    .denomination("Nome Cognome/Ragione Sociale")
+                    .internalId( "recipientInternalId" )
+                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                            .type( NotificationDigitalAddress.TypeEnum.PEC )
+                            .address("account@dominio.it")
+                            .build()).build()));
+    return internalNotification;
   }
 
 }

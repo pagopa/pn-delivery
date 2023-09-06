@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV20;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -31,11 +31,11 @@ class EntityToDtoNotificationMapperTest {
 
         // Then
         Assertions.assertNotNull( internalNotification );
-        Assertions.assertEquals( "noticeCode" ,internalNotification.getRecipients().get( 0 ).getPayment().getNoticeCode() );
-        Assertions.assertEquals( "noticeCode_opt" ,internalNotification.getRecipients().get( 0 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayment().getPagoPaForm() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayment().getNoticeCodeAlternative() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayment().getPagoPaForm() );
+        Assertions.assertEquals( "noticeCode" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
+        Assertions.assertEquals( "noticeCode_opt" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
+        Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPaForm() );
+        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getNoticeCodeAlternative() );
+        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getPagoPaForm() );
     }
 
     private NotificationEntity newNotificationEntity() {
@@ -105,14 +105,14 @@ class EntityToDtoNotificationMapperTest {
                 .idempotenceToken( "idempotenceToken" )
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .physicalCommunicationType(FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId( "pa_02" )
                 .group( "Group_1" )
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotificationV20.PagoPaIntModeEnum.NONE.getValue() )
+                .pagoPaIntMode( FullSentNotificationV21.PagoPaIntModeEnum.NONE.getValue() )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
                 .version( 1 )
                 .build();

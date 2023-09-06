@@ -1,10 +1,37 @@
 package it.pagopa.pn.delivery.svc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
+import it.pagopa.pn.commons.configs.MVPParameterConsumer;
+import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.exception.PnBadRequestException;
+import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
+import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
+import it.pagopa.pn.delivery.models.InternalAuthHeader;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
+import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
+import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
+import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
+import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
+
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -14,39 +41,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationResponse;
-import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
-import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.exception.PnBadRequestException;
-import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentBodyRef;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentAttachment;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
-import it.pagopa.pn.delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
-import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
-import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
-import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
-import it.pagopa.pn.delivery.svc.authorization.ReadAccessAuth;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class NotificationAttachmentServiceTest {
 
@@ -116,7 +113,7 @@ class NotificationAttachmentServiceTest {
         Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
     NotificationRecipient recipient =
-        NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
+            NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
@@ -525,22 +522,21 @@ class NotificationAttachmentServiceTest {
     NotificationRecipient notificationRecipient = new NotificationRecipient();
     notificationRecipient.setTaxId(taxid);
     NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
-    NotificationPaymentAttachment notificationPaymentAttachment =
-        new NotificationPaymentAttachment();
-    NotificationAttachmentBodyRef notificationAttachmentBodyRef =
-        new NotificationAttachmentBodyRef();
+    NotificationPaymentAttachment notificationPaymentAttachment = new NotificationPaymentAttachment();
+    it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef notificationAttachmentBodyRef = new it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef();
+
     notificationAttachmentBodyRef.setKey("filekey");
     notificationPaymentAttachment.setRef(notificationAttachmentBodyRef);
 
     if (channel.equals(PAGOPA))
       notificationPaymentInfo.setPagoPaForm(notificationPaymentAttachment);
 
-    notificationRecipient.setPayment(notificationPaymentInfo);
+    notificationRecipient.setPayment(List.of(notificationPaymentInfo));
     notification.addRecipientsItem(notificationRecipient);
 
-    NotificationDocument documentItem = new NotificationDocument();
-    NotificationAttachmentBodyRef notificationAttachmentBodyRef1 =
-        new NotificationAttachmentBodyRef();
+    it.pagopa.pn.delivery.models.internal.notification.NotificationDocument documentItem = new it.pagopa.pn.delivery.models.internal.notification.NotificationDocument();
+    it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef notificationAttachmentBodyRef1 =
+            new it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef();
     notificationAttachmentBodyRef1.setKey("filekey");
     documentItem.setRef(notificationAttachmentBodyRef1);
     documentItem.setTitle("titolo");

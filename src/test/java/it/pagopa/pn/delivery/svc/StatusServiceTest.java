@@ -2,28 +2,33 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
+import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDelegationMetadataEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCostEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
-import it.pagopa.pn.delivery.middleware.NotificationDao;
-import it.pagopa.pn.delivery.middleware.notificationdao.NotificationMetadataEntityDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.function.Executable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.times;
@@ -129,27 +134,24 @@ class StatusServiceTest {
 
     @NotNull
     private static InternalNotification newInternalNotification(String iun, NotificationStatus inValidation) {
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .iun(iun)
-                .sentAt(OffsetDateTime.parse("2021-09-16T15:00:00.00Z"))
-                .subject("Subject")
-                .recipientIds(Collections.singletonList("recipientId"))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .paProtocolNumber("123")
-                .senderPaId("PAID")
-                .senderDenomination("senderDenomination")
-                .notificationStatus(inValidation)
-                .recipients(Collections.singletonList( NotificationRecipient.builder()
-                                .taxId("CodiceFiscale")
-                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                                .internalId("recipientInternalId")
-                                .payment(NotificationPaymentInfo.builder()
-                                        .noticeCode("1234")
-                                        .noticeCodeAlternative("5678")
-                                        .build()
-                                )
-                                .build()))
-                .build());
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setIun(iun);
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setNotificationStatus(inValidation);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 
     @ExtendWith(MockitoExtension.class)

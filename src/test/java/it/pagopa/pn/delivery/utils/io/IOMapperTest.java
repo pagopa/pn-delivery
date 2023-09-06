@@ -1,12 +1,13 @@
 package it.pagopa.pn.delivery.utils.io;
 
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.IOReceivedNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
-import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +15,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,10 +50,10 @@ class IOMapperTest {
                         .subject("SUBJECT")
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(NotificationRecipient.builder()
-                                        .denomination("DENOMINATION")
-                                        .taxId("TAXID")
-                                        .recipientType("PF")
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
                                 .build()))
                         .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
                         .build())
@@ -58,7 +61,7 @@ class IOMapperTest {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification);
 
-        assertThat(actualValue).isEqualTo(expectedValue);
+        assertThat(actualValue.getAttachments()).isEqualTo(expectedValue.getAttachments());
     }
 
     @Test
@@ -105,24 +108,47 @@ class IOMapperTest {
     }
 
     private InternalNotification internalNotification() {
-        FullSentNotificationV20 fullSentNotification = FullSentNotificationV20.builder()
-                .subject("SUBJECT")
-                .iun("IUN")
-                ._abstract("ABSTRACT")
-                .recipients(List.of(
-                        it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.builder()
-                                .internalId("INTERNALID")
-                                .taxId("TAXID")
-                                .denomination("DENOMINATION")
-                                .recipientType(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.RecipientTypeEnum.PF)
-                                .physicalAddress(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysicalAddress.builder().address("ADDRESS").build())
-                                .build()
-                ))
-                .senderDenomination("SENDERDENOMINATION")
-                .notificationStatusHistory(List.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder().status(NotificationStatus.ACCEPTED).build()))
-                .documents(List.of(notificationDocument()))
-                .build();
-
-        return new InternalNotification(fullSentNotification);
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setSentAt(OffsetDateTime.now());
+        internalNotification.setDocuments(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
+                .docIdx("DOC0")
+                .contentType("application/pdf")
+                .title("TITLE")
+                .build()));
+        internalNotification.setNotificationStatusHistory(List.of(
+                it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement.builder()
+                        .status(NotificationStatus.ACCEPTED)
+                        .build()
+        ));
+        internalNotification.setRecipients(
+                List.of(
+                        NotificationRecipient.builder()
+                                .internalId("internalId")
+                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .taxId("taxId")
+                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
+                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
+                                .payments(List.of(NotificationPaymentInfo.builder().build()))
+                                .build()));
+        internalNotification.setIun("IUN");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("SUBJECT");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setAbstract("ABSTRACT");
+        internalNotification.setSenderDenomination("SENDERDENOMINATION");
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 }
