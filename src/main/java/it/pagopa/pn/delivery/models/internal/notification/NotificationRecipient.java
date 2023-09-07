@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.models.internal.notification;
 
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
 import lombok.*;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21.RecipientTypeEnum;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationRecipient {
-    private RecipientTypeEnum recipientType;
+    private NotificationRecipientV21.RecipientTypeEnum recipientType;
     private String taxId;
     private String internalId;
     private String denomination;
@@ -22,16 +22,16 @@ public class NotificationRecipient {
     private NotificationPhysicalAddress physicalAddress;
     private List<NotificationPaymentInfo> payments = null;
 
-    public NotificationRecipient recipientType(RecipientTypeEnum recipientType) {
+    public NotificationRecipient recipientType(NotificationRecipientV21.RecipientTypeEnum recipientType) {
         this.recipientType = recipientType;
         return this;
     }
 
-    public RecipientTypeEnum getRecipientType() {
+    public NotificationRecipientV21.RecipientTypeEnum getRecipientType() {
         return recipientType;
     }
 
-    public void setRecipientType(RecipientTypeEnum recipientType) {
+    public void setRecipientType(NotificationRecipientV21.RecipientTypeEnum recipientType) {
         this.recipientType = recipientType;
     }
 

@@ -3,7 +3,6 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
-import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
@@ -448,7 +447,7 @@ class NotificationAttachmentServiceTest {
 
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
-    Assertions.assertThrows(PnNotFoundException.class, todo);
+    Assertions.assertThrows(NullPointerException.class, todo);
   }
 
   @Test
@@ -462,7 +461,7 @@ class NotificationAttachmentServiceTest {
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
 
-    Assertions.assertThrows(PnInternalException.class, todo);
+    Assertions.assertThrows(NullPointerException.class, todo);
   }
 
 

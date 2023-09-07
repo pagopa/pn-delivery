@@ -4,12 +4,15 @@ import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Item;
+import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Request;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
+import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +44,7 @@ public class NotificationReceiverService {
 	private final SendActiveParameterConsumer parameterConsumer;
 
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
+	private final PnF24ClientImpl f24Client;
 
 	private final IunGenerator iunGenerator = new IunGenerator();
 
@@ -51,13 +55,15 @@ public class NotificationReceiverService {
 			NotificationReceiverValidator validator,
 			ModelMapper modelMapper,
 			SendActiveParameterConsumer parameterConsumer,
-			PnExternalRegistriesClientImpl pnExternalRegistriesClient) {
+			PnExternalRegistriesClientImpl pnExternalRegistriesClient,
+			PnF24ClientImpl f24Client) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
 		this.modelMapper = modelMapper;
 		this.parameterConsumer = parameterConsumer;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
+		this.f24Client = f24Client;
 	}
 
 	/**
@@ -102,9 +108,21 @@ public class NotificationReceiverService {
 
 		internalNotification.setSourceChannel(xPagopaPnSrcChDetails);
 
-		String iun = doSaveWithRethrow(internalNotification);
+		SaveF24Request saveF24Request = new SaveF24Request();
+		List<SaveF24Item> saveF24Items = internalNotification.getDocuments()
+				.stream().map(notificationDocument -> {
+					SaveF24Item saveF24Item = new SaveF24Item();
+					saveF24Item.setFileKey(notificationDocument.getRef().getKey());
+					saveF24Item.setPathTokens(List.of(notificationDocument.getRef().getVersionToken()));
+					return saveF24Item;
+				}).toList();
+		saveF24Request.setF24Items(saveF24Items);
+		saveF24Request.setId(internalNotification.getIdempotenceToken());
+		saveF24Request.setSetId(internalNotification.getSenderTaxId());
 
-		//TO-DO saveMetadata
+		f24Client.saveMetadata(xPagopaPnCxId, internalNotification.getSenderTaxId(), saveF24Request);
+
+		String iun = doSaveWithRethrow(internalNotification);
 
 		NewNotificationResponse response = generateResponse(internalNotification, iun);
 
@@ -141,7 +159,7 @@ public class NotificationReceiverService {
 	}
 
 	private void setPagoPaIntMode(NewNotificationRequestV21 newNotificationRequest) {
-		 // controllo se non é stato settato il valore pagoPaIntMode dalla PA
+		// controllo se non é stato settato il valore pagoPaIntMode dalla PA
 		if ( ObjectUtils.isEmpty( newNotificationRequest.getPagoPaIntMode() ) ) {
 			// verifico che nessun destinatario ha un pagamento
 			if ( newNotificationRequest.getRecipients().stream()
@@ -161,7 +179,7 @@ public class NotificationReceiverService {
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
 		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
-		
+
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
 				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
@@ -179,13 +197,13 @@ public class NotificationReceiverService {
 		doSave(internalNotification, createdAt, iun);
 		return iun;
 	}
-	
+
 
 	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws PnIdConflictException {
 
 		internalNotification.iun( iun );
 		internalNotification.sentAt( createdAt.atOffset( ZoneOffset.UTC ) );
-		
+
 		log.info("Store the notification metadata for iun={}", iun);
 		notificationDao.addNotification(internalNotification);
 	}
