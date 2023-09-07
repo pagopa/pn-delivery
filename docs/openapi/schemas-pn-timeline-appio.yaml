@@ -42,6 +42,11 @@ components:
           items:
             $ref: "#/components/schemas/TimelineElementId"
 
+    CompletedPayments:
+      description: elenco dei pagamenti completati
+      type: array
+      items:
+        $ref: '#/components/schemas/noticeCode'
 
     ############################################################################################
     ###                           DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
@@ -713,6 +718,8 @@ components:
           type: string
         senderDenomination:
           type: string
+        completedPayments:
+          $ref: '#/components/schemas/CompletedPayments'
       required:
         - subject
         - iun
