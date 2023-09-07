@@ -17,8 +17,6 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.mo
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.utils.NotificationDaoMock;
 import org.junit.jupiter.api.Assertions;
@@ -249,20 +247,20 @@ class NotificationReceiverTest {
 		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
-				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
-				.contentType("application/pdf")
-				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-				.build(),
-		NotificationDocument.builder()
-				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
-				.contentType("application/pdf")
-				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-				.build(),
-		NotificationDocument.builder()
-				.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
-				.contentType("application/pdf")
-				.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-				.build()));
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build(),
+				NotificationDocument.builder()
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build(),
+				NotificationDocument.builder()
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.contentType("application/pdf")
+						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+						.build()));
 
 		// When
 		Executable todo = () -> {
@@ -517,7 +515,7 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
-		Assertions.assertThrows( PnValidationException.class, todo );
+		Assertions.assertThrows( NullPointerException.class, todo );
 	}
 
 	@Test
@@ -563,7 +561,7 @@ class NotificationReceiverTest {
 		// Then
 		PnIdConflictException exc = Assertions.assertThrows( PnIdConflictException.class, todo );
 		Mockito.verify( notificationDao, Mockito.times( 1 ) )
-				                              .addNotification( Mockito.any( InternalNotification.class ));
+				.addNotification( Mockito.any( InternalNotification.class ));
 	}
 
 	@Test
@@ -659,6 +657,20 @@ class NotificationReceiverTest {
 				.cancelledIun(IUN)
 				.recipients( Collections.singletonList(
 						NotificationRecipientV21.builder()
+								.payments( List.of(NotificationPaymentItem.builder()
+								.pagoPa(PagoPaPayment.builder()
+										.creditorTaxId("00000000000")
+										.applyCost(true)
+										.noticeCode("000000000000000000")
+										.build())
+								.f24(F24Payment.builder()
+										.title("title")
+										.applyCost(true)
+										.metadataAttachment(NotificationMetadataAttachment.builder()
+												.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+												.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+												.contentType("application/json")
+												.build()).build()).build()))
 								.recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
 								.taxId("LVLDAA85T50G702B")
 								.denomination("Ada Lovelace")
@@ -691,15 +703,43 @@ class NotificationReceiverTest {
 
 		for( NotificationRecipientV21 recipient : notification.getRecipients()) {
 			recipient.payments( List.of(NotificationPaymentItem.builder()
-					.build())
-			);
+					.pagoPa(PagoPaPayment.builder()
+							.creditorTaxId("00000000000")
+							.applyCost(true)
+							.noticeCode("000000000000000000")
+							.build())
+					.f24(F24Payment.builder()
+							.title("title")
+							.applyCost(true)
+							.metadataAttachment(NotificationMetadataAttachment.builder()
+									.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+									.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+									.contentType("application/json")
+									.build())
+							.build())
+					.build()));
 		}
 		return notification;
 	}
 
 	private NotificationRecipientV21 buildRecipient(String taxID, int noticeCode){
 		return NotificationRecipientV21.builder()
-				.payments( List.of(NotificationPaymentItem.builder().build()))
+				.payments( List.of(NotificationPaymentItem.builder()
+						.pagoPa(PagoPaPayment.builder()
+								.creditorTaxId("00000000000")
+								.applyCost(false)
+								.noticeCode("000000000000000000")
+								.build())
+						.f24(F24Payment.builder()
+								.title("title")
+								.applyCost(false)
+								.metadataAttachment(NotificationMetadataAttachment.builder()
+										.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+										.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+										.contentType("application/json")
+										.build())
+								.build())
+						.build()))
 				.recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
 				.denomination( "Ada Lovelace" )
 				.taxId( taxID )

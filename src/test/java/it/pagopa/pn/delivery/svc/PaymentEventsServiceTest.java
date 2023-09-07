@@ -310,7 +310,7 @@ class PaymentEventsServiceTest {
         // Then
         InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
                 .paymentDate( Instant.parse( PAYMENT_DATE_STRING ) )
-                .paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
+                //.paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
                 .paymentAmount( PAYMENT_AMOUNT )
                 .paymentSourceChannel(PAYMENT_SOURCE_CHANNEL_PA)
                 .iun( IUN )

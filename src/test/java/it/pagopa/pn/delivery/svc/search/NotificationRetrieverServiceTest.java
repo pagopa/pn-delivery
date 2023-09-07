@@ -11,6 +11,7 @@ import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
@@ -27,6 +28,7 @@ import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
+import it.pagopa.pn.delivery.models.internal.notification.TimelineElementDetails;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
@@ -501,13 +503,14 @@ class NotificationRetrieverServiceTest {
     void getNotificationInformationWithSenderIdCheckSuccess() {
         InternalNotification notification = getNewInternalNotification();
 
-        List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement> tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()
+        List<TimelineElement> tle = Collections.singletonList( new TimelineElement()
+                        .toBuilder()
                 .elementId( "elementId" )
-                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory.REQUEST_ACCEPTED )
+                .category(TimelineElementCategoryV20.REQUEST_ACCEPTED )
                 .timestamp(  Instant.now()
-                        .atOffset(ZoneOffset.UTC) ));
+                        .atOffset(ZoneOffset.UTC) ).build());
         NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
-                .timeline( tle )
+                .timeline(List.of(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElement()))
                 .notificationStatus( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED )
                 .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement()
                         .status(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED)
@@ -574,12 +577,12 @@ class NotificationRetrieverServiceTest {
     @NotNull
     private InternalNotification getNewInternalNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setIun("IUN");
+        internalNotification.setIun(IUN);
         internalNotification.setPaProtocolNumber("protocol_01");
         internalNotification.setSubject("Subject 01");
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
-        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setSenderPaId(SENDER_ID);
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()

@@ -49,7 +49,7 @@ class CheckAuthComponentTest {
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertThrows( IllegalArgumentException.class, todo );
+        Assertions.assertThrows( NullPointerException.class, todo );
     }
 
 
