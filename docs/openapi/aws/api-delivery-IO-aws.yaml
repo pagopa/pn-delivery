@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ae8pXcsxU9BZ6zOGB2GPZz1oRHmfxQKuDmXCdVuXwQ4=
+  version: lB4O3E1yA7Hh39jZTbZ4bBxSUSSOEXWwKgLak2Zu2S4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -470,6 +470,11 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationStatusHistoryElement'
+    CompletedPayments:
+      description: elenco dei pagamenti completati
+      type: array
+      items:
+        $ref: '#/components/schemas/noticeCode'
     IOReceivedNotification:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il
@@ -491,6 +496,8 @@ components:
           type: string
         senderDenomination:
           type: string
+        completedPayments:
+          $ref: '#/components/schemas/CompletedPayments'
       required:
         - subject
         - iun

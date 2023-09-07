@@ -5,6 +5,8 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationR
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -40,6 +42,7 @@ public class IOMapper {
     public IOReceivedNotification mapToDetails(InternalNotification internalNotification) {
         if(internalNotification == null) return null;
 
+
         IOReceivedNotification ioReceivedNotification = modelMapper.map(internalNotification, IOReceivedNotification.class);
         List<NotificationRecipient> filteredNotificationRecipients = ioReceivedNotification.getRecipients()
                 .stream()
@@ -48,6 +51,14 @@ public class IOMapper {
         if(!CollectionUtils.isEmpty( filteredNotificationRecipients )) {
             ioReceivedNotification.setRecipients( filteredNotificationRecipients );
         }
+
+        // NB: la timeline è GIA' FILTRATA per recipientIndex
+        ioReceivedNotification.setCompletedPayments(internalNotification.getTimeline()
+                .stream()
+                .filter(x -> x.getCategory().equals(TimelineElementCategoryV20.PAYMENT))
+                .map(x -> x.getDetails().getNoticeCode())
+                .toList());
+
 
         return ioReceivedNotification;
     }

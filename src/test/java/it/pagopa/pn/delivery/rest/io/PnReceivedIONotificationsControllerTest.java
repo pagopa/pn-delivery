@@ -20,6 +20,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 
@@ -49,7 +50,35 @@ class PnReceivedIONotificationsControllerTest {
     @Test
     void getReceivedNotificationSuccess() {
         // Given
-        InternalNotification notification = newNotification();
+        InternalNotification notification = newNotification(false);
+        String expectedValueJson = newThirdPartyMessage(notification);
+        System.out.println(expectedValueJson);
+
+        // When
+        Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null )) )
+                .thenReturn( notification );
+
+        // Then
+        webTestClient.get()
+                .uri( "/delivery/notifications/received/" + IUN  )
+                .header(HttpHeaders.ACCEPT, "application/io+json")
+                .header("x-pagopa-pn-cx-id", "IO-" +USER_ID )
+                .header("x-pagopa-pn-cx-type", "PF" )
+                .header("x-pagopa-pn-uid", USER_ID )
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .json(expectedValueJson);
+
+        Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, new InternalAuthHeader("PF", "IO-" + USER_ID, USER_ID, null), null);
+    }
+
+
+    @Test
+    void getReceivedNotificationSuccessWithPayments() {
+        // Given
+        InternalNotification notification = newNotification(true);
         String expectedValueJson = newThirdPartyMessage(notification);
         System.out.println(expectedValueJson);
 
@@ -92,7 +121,7 @@ class PnReceivedIONotificationsControllerTest {
                 .isNotFound();
     }
 
-    private InternalNotification newNotification() {
+    private InternalNotification newNotification(boolean withPayment) {
         return new InternalNotification(FullSentNotificationV20.builder()
                 .iun("IUN_01")
                 .paProtocolNumber("protocol_01")
@@ -138,7 +167,30 @@ class PnReceivedIONotificationsControllerTest {
                                 )
                                 .build()
                 ))
-                .timeline( Collections.singletonList(TimelineElementV20.builder().build()))
+                .timeline(List.of(TimelineElementV20.builder()
+                                .category(TimelineElementCategoryV20.REQUEST_ACCEPTED)
+                                .details(TimelineElementDetailsV20.builder().build())
+                                .build(),
+                        TimelineElementV20.builder()
+                                .category(TimelineElementCategoryV20.NOTIFICATION_VIEWED)
+                                .details(TimelineElementDetailsV20.builder()
+                                        .recIndex(0)
+                                        .build())
+                                .build(),
+                        withPayment?TimelineElementV20.builder()
+                                .category(TimelineElementCategoryV20.PAYMENT)
+                                .details(TimelineElementDetailsV20.builder()
+                                        .recIndex(0)
+                                        .noticeCode("302000100000019421")
+                                        .creditorTaxId("1234567890")
+                                        .build())
+                                .build():
+                                TimelineElementV20.builder()
+                                        .category(TimelineElementCategoryV20.REFINEMENT)
+                                        .details(TimelineElementDetailsV20.builder()
+                                                .recIndex(0)
+                                                .build())
+                                        .build()))
                 .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
                         .status( NotificationStatus.ACCEPTED )
                         .build() ) )
