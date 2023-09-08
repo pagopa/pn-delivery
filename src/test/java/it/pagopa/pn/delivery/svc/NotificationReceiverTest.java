@@ -18,6 +18,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
+import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.utils.NotificationDaoMock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,6 +76,7 @@ class NotificationReceiverTest {
 	private ValidateUtils validateUtils;
 	private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private PnDeliveryConfigs pnDeliveryConfigs;
+	private PnF24ClientImpl pnF24Client;
 
 	@BeforeEach
 	public void setup() {
@@ -88,6 +90,7 @@ class NotificationReceiverTest {
 		pnExternalRegistriesClient = Mockito.mock( PnExternalRegistriesClientImpl.class );
 		validateUtils = Mockito.mock( ValidateUtils.class );
 		pnDeliveryConfigs = Mockito.mock(PnDeliveryConfigs.class);
+		pnF24Client = Mockito.mock(PnF24ClientImpl.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -102,7 +105,8 @@ class NotificationReceiverTest {
 				validator,
 				modelMapper,
 				sendActiveParameterConsumer,
-				pnExternalRegistriesClient);
+				pnExternalRegistriesClient,
+				pnF24Client);
 	}
 
 	@Test

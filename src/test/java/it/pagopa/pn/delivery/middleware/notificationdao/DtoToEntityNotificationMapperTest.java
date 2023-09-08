@@ -1,10 +1,12 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,8 @@ class DtoToEntityNotificationMapperTest {
     public static final String CREDITOR_TAX_ID = "77777777777";
     public static final String SENT_AT_DATE = "2023-03-14T15:30:23.123Z";
     public static final String NOTICE_CODE_ALTERNATIVE = "302351677498380984";
+    private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
+
     private DtoToEntityNotificationMapper mapper;
 
     @BeforeEach
@@ -51,12 +55,28 @@ class DtoToEntityNotificationMapperTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+        internalNotification.setDocuments(List.of(NotificationDocument
+                .builder()
+                .digests(NotificationAttachmentDigests.builder()
+                        .sha256(FILE_SHA_256)
+                        .build())
+                .ref(NotificationAttachmentBodyRef.builder()
+                        .key("KEY")
+                        .versionToken("versioneToken")
+                        .build())
+                .build()));
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
                         .payments(List.of(NotificationPaymentInfo.builder()
+                                .f24(F24Payment.builder().build())
+                                .pagoPaForm(NotificationPaymentAttachment.builder()
+                                        .ref(NotificationAttachmentBodyRef.builder().build())
+                                        .contentType("application/json")
+                                        .digests(NotificationAttachmentDigests.builder().build())
+                                        .build())
                                 .noticeCode("302211675775915057")
                                 .noticeCodeAlternative("302351677498380984")
                                 .creditorTaxId("77777777777")

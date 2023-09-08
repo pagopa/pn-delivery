@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 class EntityToDtoNotificationMapperTest {
 
@@ -19,6 +22,13 @@ class EntityToDtoNotificationMapperTest {
     @BeforeEach
     void setup() {
         this.mapper = new EntityToDtoNotificationMapper();
+    }
+
+    @Test
+    void throwEmptyDocument(){
+        NotificationEntity notificationEntity = newNotificationEntity();
+        notificationEntity.setPhysicalCommunicationType(null);
+        assertThrows(PnInternalException.class, () -> mapper.entity2Dto(notificationEntity));
     }
 
     @Test
@@ -100,6 +110,16 @@ class EntityToDtoNotificationMapperTest {
                 .recipientId( "fakeRecipientId" )
                 .build();
         return NotificationEntity.builder()
+                .documents((List.of(DocumentAttachmentEntity
+                        .builder()
+                        .digests(AttachmentDigestsEntity.builder()
+                                .sha256("jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=")
+                                .build())
+                        .ref(AttachmentRefEntity.builder()
+                                .key("KEY")
+                                .versionToken("versioneToken")
+                                .build())
+                        .build())))
                 .iun("IUN_01")
                 .notificationAbstract( "Abstract" )
                 .idempotenceToken( "idempotenceToken" )
