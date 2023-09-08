@@ -42,6 +42,11 @@ components:
           items:
             $ref: "#/components/schemas/TimelineElementId"
 
+    CompletedPayments:
+      description: elenco dei pagamenti completati
+      type: array
+      items:
+        $ref: '#/components/schemas/noticeCode'
 
     ############################################################################################
     ###                           DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
@@ -713,6 +718,11 @@ components:
           type: string
         senderDenomination:
           type: string
+        completedPayments:
+          $ref: '#/components/schemas/CompletedPayments'
+        isCancelled:
+          type: boolean
+          description: indica se la notifica è stata annullata
       required:
         - subject
         - iun
@@ -779,8 +789,8 @@ components:
   ###########################################################
 
     DigitalAddress:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/2998bad11c862b9c260eda2925f5736386654124/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/DigitalAddress'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/DigitalAddress'
 
     PhysicalAddress:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/2998bad11c862b9c260eda2925f5736386654124/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/schemas-addresses-v1.yaml#/components/schemas/PhysicalAddress'
 

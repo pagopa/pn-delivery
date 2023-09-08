@@ -4,6 +4,8 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.IOReceivedNot
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +26,10 @@ public class IOMapper {
 
     private final ModelMapper modelMapper;
 
-    public ThirdPartyMessage mapToThirdPartMessage(InternalNotification internalNotification) {
+    public ThirdPartyMessage mapToThirdPartMessage(InternalNotification internalNotification, boolean isCancelled) {
         if(internalNotification == null) return null;
 
-        IOReceivedNotification details = mapToDetails(internalNotification);
+        IOReceivedNotification details = mapToDetails(internalNotification, isCancelled);
         List<ThirdPartyAttachment> attachments = mapToThirdPartyAttachment(internalNotification.getDocuments(),
                 internalNotification.getIun());
 
@@ -37,8 +39,9 @@ public class IOMapper {
                 .build();
     }
 
-    public IOReceivedNotification mapToDetails(InternalNotification internalNotification) {
+    public IOReceivedNotification mapToDetails(InternalNotification internalNotification, boolean isCancelled) {
         if(internalNotification == null) return null;
+
 
         IOReceivedNotification ioReceivedNotification = modelMapper.map(internalNotification, IOReceivedNotification.class);
         List<NotificationRecipient> filteredNotificationRecipients = ioReceivedNotification.getRecipients()
@@ -47,6 +50,18 @@ public class IOMapper {
                 .toList();
         if(!CollectionUtils.isEmpty( filteredNotificationRecipients )) {
             ioReceivedNotification.setRecipients( filteredNotificationRecipients );
+        }
+
+        if (isCancelled) {
+            ioReceivedNotification.setIsCancelled(true);
+
+            // solo se la notifica è annullata, ritorno eventuali record di pagamento completati
+            // NB: la timeline è GIA' FILTRATA per recipientIndex
+            ioReceivedNotification.setCompletedPayments(internalNotification.getTimeline()
+                    .stream()
+                    .filter(x -> x.getCategory().equals(TimelineElementCategoryV20.PAYMENT))
+                    .map(x -> x.getDetails().getNoticeCode())
+                    .toList());
         }
 
         return ioReceivedNotification;

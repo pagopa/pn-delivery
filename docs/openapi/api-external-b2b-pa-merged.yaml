@@ -223,6 +223,8 @@ tags:
     description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
+  - name: NotificationCancellation
+    description: Annullamento di una notifica
 paths:
   /status:
     get:
@@ -567,7 +569,7 @@ paths:
         Permette l'annullamento di una notifica restituendo una presa in carico,
           il processo di annullamento si completa poi in maniera asincrona
       tags:
-        - notificationCancellation
+        - NotificationCancellation
       operationId: notificationCancellation
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun

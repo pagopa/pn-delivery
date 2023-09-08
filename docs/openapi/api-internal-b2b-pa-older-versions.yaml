@@ -1,4 +1,9 @@
 openapi: 3.0.3
+tags:
+  - name: SenderReadB2B
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste 
+      di notifica inviate e delle notifiche accettate.
 paths:
   # Implementata con una lambda utilizzando il meccanismo che sta preparando Fabrizio D.
   #  con la issue PN-7255

@@ -33,10 +33,11 @@ class IOMapperTest {
 
 
     @Test
-    void mapToThirdPartyMessage() {
+    void mapToThirdPartyMessageNoCanceledPayments() {
         int indexDocument = 0;
         String iun = "IUN";
-        InternalNotification internalNotification = internalNotification();
+        boolean isCancelled = false;
+        InternalNotification internalNotification = internalNotification(isCancelled, true);
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -55,11 +56,116 @@ class IOMapperTest {
                                 .taxId("TAXID")
                                 .recipientType("PF")
                                 .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
                         .build())
                 .build();
 
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification);
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
+
+        assertThat(actualValue).isEqualTo(expectedValue);
+    }
+
+    @Test
+    void mapToThirdPartyMessageCancelledPayments() {
+        int indexDocument = 0;
+        String iun = "IUN";
+        boolean isCancelled = true;
+        InternalNotification internalNotification = internalNotification(isCancelled, true);
+
+        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
+                .attachments(List.of(ThirdPartyAttachment.builder()
+                        .contentType("application/pdf")
+                        .id(iun + "_DOC" + indexDocument)
+                        .name("TITLE")
+                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
+                        .build()))
+                .details(IOReceivedNotification.builder()
+                        .iun("IUN")
+                        .subject("SUBJECT")
+                        ._abstract("ABSTRACT")
+                        .senderDenomination("SENDERDENOMINATION")
+                        .recipients(List.of(NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
+                                .build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("CANCELLED").build()))
+                        .completedPayments(List.of("302000100000019421"))
+                        .isCancelled(true)
+                        .build())
+                .build();
+
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
+
+        assertThat(actualValue).isEqualTo(expectedValue);
+    }
+
+
+    @Test
+    void mapToThirdPartyMessageCancelledNoPayment() {
+        int indexDocument = 0;
+        String iun = "IUN";
+        boolean isCancelled = true;
+        InternalNotification internalNotification = internalNotification(isCancelled, false);
+
+        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
+                .attachments(List.of(ThirdPartyAttachment.builder()
+                        .contentType("application/pdf")
+                        .id(iun + "_DOC" + indexDocument)
+                        .name("TITLE")
+                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
+                        .build()))
+                .details(IOReceivedNotification.builder()
+                        .iun("IUN")
+                        .subject("SUBJECT")
+                        ._abstract("ABSTRACT")
+                        .senderDenomination("SENDERDENOMINATION")
+                        .recipients(List.of(NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
+                                .build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("CANCELLED").build()))
+                        .completedPayments(List.of())
+                        .isCancelled(true)
+                        .build())
+                .build();
+
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
+
+        assertThat(actualValue).isEqualTo(expectedValue);
+    }
+
+
+    @Test
+    void mapToThirdPartyMessageNoCancelledNoPayment() {
+        int indexDocument = 0;
+        String iun = "IUN";
+        boolean isCancelled = false;
+        InternalNotification internalNotification = internalNotification(isCancelled, false);
+
+        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
+                .attachments(List.of(ThirdPartyAttachment.builder()
+                        .contentType("application/pdf")
+                        .id(iun + "_DOC" + indexDocument)
+                        .name("TITLE")
+                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
+                        .build()))
+                .details(IOReceivedNotification.builder()
+                        .iun("IUN")
+                        .subject("SUBJECT")
+                        ._abstract("ABSTRACT")
+                        .senderDenomination("SENDERDENOMINATION")
+                        .recipients(List.of(NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
+                                .build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
+                        .build())
+                .build();
+
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
         assertThat(actualValue.getAttachments()).isEqualTo(expectedValue.getAttachments());
     }
@@ -67,7 +173,7 @@ class IOMapperTest {
     @Test
     void mapToThirdPartyMessageNotificationNull() {
 
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(null);
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(null, false);
 
         assertThat(actualValue).isNull();
     }
@@ -75,7 +181,7 @@ class IOMapperTest {
     @Test
     void mapToDetailsNotificationNull() {
 
-        IOReceivedNotification actualValue = ioMapper.mapToDetails(null);
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(null, false);
 
         assertThat(actualValue).isNull();
     }

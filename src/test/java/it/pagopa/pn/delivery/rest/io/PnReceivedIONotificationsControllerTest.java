@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -114,9 +115,9 @@ class PnReceivedIONotificationsControllerTest {
         return internalNotification;
     }
 
-    private String newThirdPartyMessage(InternalNotification notification) {
+    private String newThirdPartyMessage(InternalNotification notification, boolean isCancelled) {
         try {
-            ThirdPartyMessage thirdPartMessage = ioMapper.mapToThirdPartMessage(notification);
+            ThirdPartyMessage thirdPartMessage = ioMapper.mapToThirdPartMessage(notification, isCancelled);
             return objectMapper.writeValueAsString(thirdPartMessage);
         }
         catch (Exception e) {

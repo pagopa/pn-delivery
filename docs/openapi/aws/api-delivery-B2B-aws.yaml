@@ -3858,7 +3858,8 @@ tags:
     description: Invocazioni per effettuare il download degli atti opponibili a terzi
   - name: PaymentEvents
     description: Invocazioni per comunicare eventi di pagamento dalla PA
-  - null
+  - name: NotificationCancellation
+    description: Annullamento di una notifica
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:

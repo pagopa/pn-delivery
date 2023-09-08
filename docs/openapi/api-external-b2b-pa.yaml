@@ -221,6 +221,9 @@ tags:
   - name: PaymentEvents
     description: >-
       Invocazioni per comunicare eventi di pagamento dalla PA
+  - name: NotificationCancellation
+    description: >-
+      Annullamento di una notifica
 
 paths:
   ###########################################################################################
@@ -1140,9 +1143,6 @@ components:
         amount:
           type: integer
           format: int32
-
-    TimelineElement:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElement'
 
     TimelineElementV2_0:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElementV2_0'
