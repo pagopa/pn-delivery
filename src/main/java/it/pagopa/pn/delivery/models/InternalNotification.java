@@ -137,7 +137,7 @@ public class InternalNotification {
         return this;
     }
 
-    public List<NotificationDocument> getDocuments() {
+    public List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument> getDocuments() {
         return documents;
     }
 

@@ -7,7 +7,6 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMes
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

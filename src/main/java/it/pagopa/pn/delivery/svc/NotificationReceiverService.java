@@ -11,6 +11,8 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequ
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import lombok.CustomLog;
@@ -27,6 +29,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_SEND_IS_DISABLED;
@@ -109,16 +114,26 @@ public class NotificationReceiverService {
 		internalNotification.setSourceChannel(xPagopaPnSrcChDetails);
 
 		SaveF24Request saveF24Request = new SaveF24Request();
-		List<SaveF24Item> saveF24Items = internalNotification.getDocuments()
-				.stream().map(notificationDocument -> {
-					SaveF24Item saveF24Item = new SaveF24Item();
-					saveF24Item.setFileKey(notificationDocument.getRef().getKey());
-					saveF24Item.setPathTokens(List.of(notificationDocument.getRef().getVersionToken()));
-					return saveF24Item;
-				}).toList();
+		List<SaveF24Item> saveF24Items = IntStream.range(0, internalNotification.getRecipients().size())
+				.boxed()
+				.flatMap(recipientIndex -> {
+					NotificationRecipient notificationRecipient = internalNotification.getRecipients().get(recipientIndex);
+					return IntStream.range(0, notificationRecipient.getPayments().size())
+							.boxed()
+							.flatMap(paymentIndex -> {
+								NotificationPaymentInfo notificationPaymentInfo = notificationRecipient.getPayments().get(paymentIndex);
+								SaveF24Item saveF24Item = new SaveF24Item();
+								saveF24Item.setApplyCost(notificationPaymentInfo.getApplyCost());
+								saveF24Item.setSha256(notificationPaymentInfo.getPagoPaForm().getDigests().getSha256());
+								saveF24Item.setFileKey(notificationPaymentInfo.getPagoPaForm().getRef().getKey());
+								saveF24Item.setPathTokens(List.of(Integer.toString(recipientIndex), Integer.toString(paymentIndex)));
+								return Stream.of(saveF24Item);
+							});
+				})
+				.collect(Collectors.toList());
+
 		saveF24Request.setF24Items(saveF24Items);
-		saveF24Request.setId(internalNotification.getIdempotenceToken());
-		saveF24Request.setSetId(internalNotification.getSenderTaxId());
+		saveF24Request.setId(internalNotification.getIun());
 
 		f24Client.saveMetadata(xPagopaPnCxId, internalNotification.getSenderTaxId(), saveF24Request);
 
