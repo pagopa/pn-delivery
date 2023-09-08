@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.utils.io;
 
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.IOReceivedNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
