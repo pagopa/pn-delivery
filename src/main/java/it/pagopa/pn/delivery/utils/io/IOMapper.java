@@ -26,10 +26,10 @@ public class IOMapper {
 
     private final ModelMapper modelMapper;
 
-    public ThirdPartyMessage mapToThirdPartMessage(InternalNotification internalNotification) {
+    public ThirdPartyMessage mapToThirdPartMessage(InternalNotification internalNotification, boolean isCancelled) {
         if(internalNotification == null) return null;
 
-        IOReceivedNotification details = mapToDetails(internalNotification);
+        IOReceivedNotification details = mapToDetails(internalNotification, isCancelled);
         List<ThirdPartyAttachment> attachments = mapToThirdPartyAttachment(internalNotification.getDocuments(),
                 internalNotification.getIun());
 
@@ -39,7 +39,7 @@ public class IOMapper {
                 .build();
     }
 
-    public IOReceivedNotification mapToDetails(InternalNotification internalNotification) {
+    public IOReceivedNotification mapToDetails(InternalNotification internalNotification, boolean isCancelled) {
         if(internalNotification == null) return null;
 
 
@@ -52,10 +52,7 @@ public class IOMapper {
             ioReceivedNotification.setRecipients( filteredNotificationRecipients );
         }
 
-        // per ora il check sul fatto che la notifica sia annullata, viene fatto sulla presenza dello stato CANCELLED.
-        // in futuro, il check andrebbe migliorato analizzando la timeline. Ma va valutato se riprodurre in pn-delivery il check dell'annullamento
-        // o se chiederlo a delivery-push
-        if (ioReceivedNotification.getNotificationStatusHistory().stream().anyMatch(x -> x.getStatus().equals(NotificationStatus.CANCELLED.getValue()))) {
+        if (isCancelled) {
             ioReceivedNotification.setIsCancelled(true);
 
             // solo se la notifica è annullata, ritorno eventuali record di pagamento completati

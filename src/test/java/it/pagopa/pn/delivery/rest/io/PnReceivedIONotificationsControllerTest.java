@@ -51,13 +51,14 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationSuccess() {
         // Given
         InternalNotification notification = newNotification(false);
-        String expectedValueJson = newThirdPartyMessage(notification);
+        String expectedValueJson = newThirdPartyMessage(notification, false);
         System.out.println(expectedValueJson);
 
         // When
         Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null )) )
                 .thenReturn( notification );
-
+        Mockito.when( svc.isNotificationCancelled( Mockito.any()))
+                .thenReturn( false );
         // Then
         webTestClient.get()
                 .uri( "/delivery/notifications/received/" + IUN  )
@@ -79,12 +80,14 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationSuccessWithPayments() {
         // Given
         InternalNotification notification = newNotification(true);
-        String expectedValueJson = newThirdPartyMessage(notification);
+        String expectedValueJson = newThirdPartyMessage(notification, true);
         System.out.println(expectedValueJson);
 
         // When
         Mockito.when( svc.getNotificationAndNotifyViewedEvent( Mockito.anyString(), Mockito.any( InternalAuthHeader.class ), eq( null )) )
                 .thenReturn( notification );
+        Mockito.when( svc.isNotificationCancelled( Mockito.any()))
+                .thenReturn( true );
 
         // Then
         webTestClient.get()
@@ -178,6 +181,17 @@ class PnReceivedIONotificationsControllerTest {
                                         .build())
                                 .build(),
                         withPayment?TimelineElementV20.builder()
+                                .category(TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST)
+                                .details(TimelineElementDetailsV20.builder()
+                                        .build())
+                                .build():
+                                TimelineElementV20.builder()
+                                        .category(TimelineElementCategoryV20.SCHEDULE_REFINEMENT)
+                                        .details(TimelineElementDetailsV20.builder()
+                                                .recIndex(0)
+                                                .build())
+                                        .build(),
+                        withPayment?TimelineElementV20.builder()
                                 .category(TimelineElementCategoryV20.PAYMENT)
                                 .details(TimelineElementDetailsV20.builder()
                                         .recIndex(0)
@@ -191,15 +205,19 @@ class PnReceivedIONotificationsControllerTest {
                                                 .recIndex(0)
                                                 .build())
                                         .build()))
-                .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
+                .notificationStatusHistory( List.of( NotificationStatusHistoryElement.builder()
                         .status( NotificationStatus.ACCEPTED )
+                        .build() , withPayment? NotificationStatusHistoryElement.builder()
+                        .status( NotificationStatus.CANCELLED )
+                        .build() : NotificationStatusHistoryElement.builder()
+                        .status( NotificationStatus.VIEWED )
                         .build() ) )
                 .build());
     }
 
-    private String newThirdPartyMessage(InternalNotification notification) {
+    private String newThirdPartyMessage(InternalNotification notification, boolean isCancelled) {
         try {
-            ThirdPartyMessage thirdPartMessage = ioMapper.mapToThirdPartMessage(notification);
+            ThirdPartyMessage thirdPartMessage = ioMapper.mapToThirdPartMessage(notification, isCancelled);
             return objectMapper.writeValueAsString(thirdPartMessage);
         }
         catch (Exception e) {

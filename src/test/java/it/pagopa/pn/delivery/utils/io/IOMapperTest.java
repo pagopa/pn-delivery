@@ -33,7 +33,8 @@ class IOMapperTest {
     void mapToThirdPartyMessageNoCanceledPayments() {
         int indexDocument = 0;
         String iun = "IUN";
-        InternalNotification internalNotification = internalNotification(false, true);
+        boolean isCancelled = false;
+        InternalNotification internalNotification = internalNotification(isCancelled, true);
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -56,7 +57,7 @@ class IOMapperTest {
                         .build())
                 .build();
 
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification);
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
         assertThat(actualValue).isEqualTo(expectedValue);
     }
@@ -65,7 +66,8 @@ class IOMapperTest {
     void mapToThirdPartyMessageCancelledPayments() {
         int indexDocument = 0;
         String iun = "IUN";
-        InternalNotification internalNotification = internalNotification(true, true);
+        boolean isCancelled = true;
+        InternalNotification internalNotification = internalNotification(isCancelled, true);
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -90,7 +92,7 @@ class IOMapperTest {
                         .build())
                 .build();
 
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification);
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
         assertThat(actualValue).isEqualTo(expectedValue);
     }
@@ -100,7 +102,8 @@ class IOMapperTest {
     void mapToThirdPartyMessageCancelledNoPayment() {
         int indexDocument = 0;
         String iun = "IUN";
-        InternalNotification internalNotification = internalNotification(true, false);
+        boolean isCancelled = true;
+        InternalNotification internalNotification = internalNotification(isCancelled, false);
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -125,7 +128,7 @@ class IOMapperTest {
                         .build())
                 .build();
 
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification);
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
         assertThat(actualValue).isEqualTo(expectedValue);
     }
@@ -135,7 +138,8 @@ class IOMapperTest {
     void mapToThirdPartyMessageNoCancelledNoPayment() {
         int indexDocument = 0;
         String iun = "IUN";
-        InternalNotification internalNotification = internalNotification(false, false);
+        boolean isCancelled = false;
+        InternalNotification internalNotification = internalNotification(isCancelled, false);
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -158,7 +162,7 @@ class IOMapperTest {
                         .build())
                 .build();
 
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification);
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
         assertThat(actualValue).isEqualTo(expectedValue);
     }
@@ -166,7 +170,7 @@ class IOMapperTest {
     @Test
     void mapToThirdPartyMessageNotificationNull() {
 
-        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(null);
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(null, false);
 
         assertThat(actualValue).isNull();
     }
@@ -174,7 +178,7 @@ class IOMapperTest {
     @Test
     void mapToDetailsNotificationNull() {
 
-        IOReceivedNotification actualValue = ioMapper.mapToDetails(null);
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(null, false);
 
         assertThat(actualValue).isNull();
     }
