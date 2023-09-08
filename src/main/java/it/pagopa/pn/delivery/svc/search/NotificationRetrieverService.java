@@ -819,20 +819,20 @@ public class NotificationRetrieverService {
 	}
 
 	public void checkIfNotificationIsNotCancelled(String iun) {
-		if(isNotificationCancelled(iun)) {
+		// recuperare tutta la timeline per controllare lo stato di richiesta è inefficente
+		if(isNotificationCancelled(getNotificationInformation(iun))) {
 			throw new PnNotificationNotFoundException(String.format("Notification with iun: %s has a request for cancellation", iun));
 		}
  	}
 
-	public boolean isNotificationCancelled(String iun) {
-		InternalNotification notification = getNotificationInformation(iun);
+	public boolean isNotificationCancelled(InternalNotification notification) {
 		var cancellationRequestCategory = TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST;
 		Optional<TimelineElementV20> cancellationRequestTimeline = notification.getTimeline().stream()
 				.filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
 				.findFirst();
 		boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();
 		if(cancellationTimelineIsPresent) {
-			log.warn("Notification with iun: {} has a request for cancellation", iun);
+			log.warn("Notification with iun: {} has a request for cancellation", notification.getIun());
 		}
 		return cancellationTimelineIsPresent;
 	}
