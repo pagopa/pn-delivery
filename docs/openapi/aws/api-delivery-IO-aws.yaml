@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: lB4O3E1yA7Hh39jZTbZ4bBxSUSSOEXWwKgLak2Zu2S4=
+  version: DCbK4ppKFzr0Qa71Iay453vDcXRC+Ua/BJIO22Aeed4=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -498,6 +498,9 @@ components:
           type: string
         completedPayments:
           $ref: '#/components/schemas/CompletedPayments'
+        isCancelled:
+          type: boolean
+          description: indica se la notifica è stata annullata
       required:
         - subject
         - iun

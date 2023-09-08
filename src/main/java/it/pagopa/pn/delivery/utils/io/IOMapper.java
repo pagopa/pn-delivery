@@ -1,11 +1,11 @@
 package it.pagopa.pn.delivery.utils.io;
 
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.IOReceivedNotification;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import lombok.RequiredArgsConstructor;
@@ -52,13 +52,20 @@ public class IOMapper {
             ioReceivedNotification.setRecipients( filteredNotificationRecipients );
         }
 
-        // NB: la timeline è GIA' FILTRATA per recipientIndex
-        ioReceivedNotification.setCompletedPayments(internalNotification.getTimeline()
-                .stream()
-                .filter(x -> x.getCategory().equals(TimelineElementCategoryV20.PAYMENT))
-                .map(x -> x.getDetails().getNoticeCode())
-                .toList());
+        // per ora il check sul fatto che la notifica sia annullata, viene fatto sulla presenza dello stato CANCELLED.
+        // in futuro, il check andrebbe migliorato analizzando la timeline. Ma va valutato se riprodurre in pn-delivery il check dell'annullamento
+        // o se chiederlo a delivery-push
+        if (ioReceivedNotification.getNotificationStatusHistory().stream().anyMatch(x -> x.getStatus().equals(NotificationStatus.CANCELLED.getValue()))) {
+            ioReceivedNotification.setIsCancelled(true);
 
+            // solo se la notifica è annullata, ritorno eventuali record di pagamento completati
+            // NB: la timeline è GIA' FILTRATA per recipientIndex
+            ioReceivedNotification.setCompletedPayments(internalNotification.getTimeline()
+                    .stream()
+                    .filter(x -> x.getCategory().equals(TimelineElementCategoryV20.PAYMENT))
+                    .map(x -> x.getDetails().getNoticeCode())
+                    .toList());
+        }
 
         return ioReceivedNotification;
     }

@@ -30,10 +30,10 @@ class IOMapperTest {
 
 
     @Test
-    void mapToThirdPartyMessage() {
+    void mapToThirdPartyMessageNoCanceledPayments() {
         int indexDocument = 0;
         String iun = "IUN";
-        InternalNotification internalNotification = internalNotification(true);
+        InternalNotification internalNotification = internalNotification(false, true);
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -52,8 +52,7 @@ class IOMapperTest {
                                         .taxId("TAXID")
                                         .recipientType("PF")
                                 .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
-                        .completedPayments(List.of("302000100000019421"))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
                         .build())
                 .build();
 
@@ -63,10 +62,10 @@ class IOMapperTest {
     }
 
     @Test
-    void mapToThirdPartyMessageNoPayment() {
+    void mapToThirdPartyMessageCancelledPayments() {
         int indexDocument = 0;
         String iun = "IUN";
-        InternalNotification internalNotification = internalNotification(false);
+        InternalNotification internalNotification = internalNotification(true, true);
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -85,8 +84,77 @@ class IOMapperTest {
                                 .taxId("TAXID")
                                 .recipientType("PF")
                                 .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("CANCELLED").build()))
+                        .completedPayments(List.of("302000100000019421"))
+                        .isCancelled(true)
+                        .build())
+                .build();
+
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification);
+
+        assertThat(actualValue).isEqualTo(expectedValue);
+    }
+
+
+    @Test
+    void mapToThirdPartyMessageCancelledNoPayment() {
+        int indexDocument = 0;
+        String iun = "IUN";
+        InternalNotification internalNotification = internalNotification(true, false);
+
+        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
+                .attachments(List.of(ThirdPartyAttachment.builder()
+                        .contentType("application/pdf")
+                        .id(iun + "_DOC" + indexDocument)
+                        .name("TITLE")
+                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
+                        .build()))
+                .details(IOReceivedNotification.builder()
+                        .iun("IUN")
+                        .subject("SUBJECT")
+                        ._abstract("ABSTRACT")
+                        .senderDenomination("SENDERDENOMINATION")
+                        .recipients(List.of(NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
+                                .build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("CANCELLED").build()))
                         .completedPayments(List.of())
+                        .isCancelled(true)
+                        .build())
+                .build();
+
+        ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification);
+
+        assertThat(actualValue).isEqualTo(expectedValue);
+    }
+
+
+    @Test
+    void mapToThirdPartyMessageNoCancelledNoPayment() {
+        int indexDocument = 0;
+        String iun = "IUN";
+        InternalNotification internalNotification = internalNotification(false, false);
+
+        ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
+                .attachments(List.of(ThirdPartyAttachment.builder()
+                        .contentType("application/pdf")
+                        .id(iun + "_DOC" + indexDocument)
+                        .name("TITLE")
+                        .url("/delivery/notifications/received/IUN/attachments/documents/0")
+                        .build()))
+                .details(IOReceivedNotification.builder()
+                        .iun("IUN")
+                        .subject("SUBJECT")
+                        ._abstract("ABSTRACT")
+                        .senderDenomination("SENDERDENOMINATION")
+                        .recipients(List.of(NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
+                                .build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
                         .build())
                 .build();
 
@@ -138,7 +206,7 @@ class IOMapperTest {
                 .build();
     }
 
-    private InternalNotification internalNotification(boolean withPayment) {
+    private InternalNotification internalNotification(boolean isCancelled, boolean withPayment) {
         FullSentNotificationV20 fullSentNotification = FullSentNotificationV20.builder()
                 .subject("SUBJECT")
                 .iun("IUN")
@@ -153,7 +221,8 @@ class IOMapperTest {
                                 .build()
                 ))
                 .senderDenomination("SENDERDENOMINATION")
-                .notificationStatusHistory(List.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder().status(NotificationStatus.ACCEPTED).build()))
+                .notificationStatusHistory(List.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder().status(NotificationStatus.ACCEPTED).build(),
+                        isCancelled?it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder().status(NotificationStatus.CANCELLED).build():it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder().status(NotificationStatus.VIEWED).build()))
                 .documents(List.of(notificationDocument()))
                 .timeline(List.of(TimelineElementV20.builder()
                                 .category(TimelineElementCategoryV20.REQUEST_ACCEPTED)
