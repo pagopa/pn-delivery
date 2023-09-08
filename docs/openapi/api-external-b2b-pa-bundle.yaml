@@ -5,7 +5,7 @@ info:
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   version: 1.0.0
-  description: |-
+  description: >-
 
     ## Abstract
       API utilizzate dalle pubbliche amministrazioni per __inviare richieste di notifiche__ e 
@@ -14,8 +14,11 @@ info:
       sulle comunicazioni effettuate, o solo tentate, nei confronti dei destinatari della notifica.
 
     ## Operazioni utilizzate, in sequenza temporale
+
     <table>
+
     <tr>
+
     <td>
 
      <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/e6f1db9eac9ace7fc2ad0fe6de241ab4525b6b6a/docs/openapi/images/invio-notifica.png" height="790" width="515" alt="Invio notifica" />
@@ -77,6 +80,7 @@ info:
       </br>
       
     </td>
+
     <td>
 
       ### Ciclo di vita della notifica lato mittente
@@ -131,6 +135,7 @@ info:
     </td>
       
     </tr>
+
     </table>
 
 
@@ -170,10 +175,20 @@ info:
 
       E' possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [dowload Legal Fact](#/SenderReadB2B/getSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/getSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
       
-    </br> <h3>Le FAQ possono essere consultate al seguente link: <a href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
+    </br> <h3>Le FAQ possono essere consultate al seguente link: <a
+    href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
+
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
-    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li> <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li> <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li> <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li> </ul>   </details></br>
+    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di
+    produzione</li>
+    <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di
+    collaudo</li>
+    <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test.
+    Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque
+    non-bloccante e rispettando il principio di retro-attività</li>
+    <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di
+    sviluppo</li> </ul>   </details></br>
       
   contact:
     email: pn-supporto-enti@pagopa.it
@@ -193,11 +208,17 @@ security:
   - ApiKeyAuth: []
 tags:
   - name: HealthCheck
-    description: 'Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è ancora in fase di sviluppo'
+    description: >-
+      Invocazioni per sapere lo stato di Piattaforma Notifiche # il servizio è
+      ancora in fase di sviluppo
   - name: NewNotification
-    description: Invocazioni per effettuare il pre-caricamento dei documenti della notifica e inviare notifiche
+    description: >-
+      Invocazioni per effettuare il pre-caricamento dei documenti della notifica
+      e inviare notifiche
   - name: SenderReadB2B
-    description: Invocazioni utilizzabili dai mittenti per verificare lo stato delle richieste  di notifica inviate e delle notifiche accettate.
+    description: >-
+      Invocazioni utilizzabili dai mittenti per verificare lo stato delle
+      richieste  di notifica inviate e delle notifiche accettate.
   - name: NotificationPrice
     description: Invocazioni per determinare il costo della notifica per il destinatario.
   - name: LegalFacts
@@ -206,6 +227,12 @@ tags:
     description: Invocazioni per comunicare eventi di pagamento dalla PA
   - name: NotificationCancellation
     description: Annullamento di una notifica
+  - name: TimelineAndStatus
+    description: Recupera le informazioni storiche di una notifica
+  - name: Streams
+    description: Gestione degli stream di eventi che PN mette a disposizione
+  - name: Events
+    description: Metodi per la lettura degli eventi dagli stream
 paths:
   /status:
     get:
@@ -251,7 +278,10 @@ paths:
   /delivery/attachments/preload:
     post:
       summary: Richiesta di pre-caricamento dei documenti della notifica
-      description: Operazione che richiede a Piattaforma Notifica le informazioni e le autorizzazioni necessarie  a precaricare uno o più file da allegare a una notifica. <br/>
+      description: >-
+        Operazione che richiede a Piattaforma Notifica le informazioni e le
+        autorizzazioni necessarie  a precaricare uno o più file da allegare a
+        una notifica. <br/>
       tags:
         - NewNotification
       operationId: presignedUploadRequest
@@ -289,13 +319,21 @@ paths:
   /delivery/requests:
     post:
       summary: Richiesta invio notifica
-      description: |-
-        Operazione utilizzata dalla Pubblica Amministrazione per richiedere l'invio di una notifica.
+      description: >-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere
+        l'invio di una notifica.
 
-        La restituzione di uno stato HTTP 202 significa solo che la richiesta è sintatticamente
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è
+        sintatticamente
+
         valida, non che la richiesta sia stata validata ed accettata. <br/>
-        Per conoscere lo stato di accettazione della richiesta di notifica bisogna utilizzare l'operazione
-        _getNotificationRequestStatus_ oppure utilizzare la modalità push prevista dai webhook. <br/>
+
+        Per conoscere lo stato di accettazione della richiesta di notifica
+        bisogna utilizzare l'operazione
+
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push
+        prevista dai webhook. <br/>
       tags:
         - NewNotification
       operationId: sendNewNotification
@@ -335,7 +373,11 @@ paths:
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
-      description: Questa operazione serve per verificare se la richiesta di notifica è stata accettata e ottenere lo IUN associato a tale richiesta. <br/> Bisogna specificare il parametro _requestId_ oppure la coppia costituita dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è
+        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
+        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
       parameters:
         - $ref: '#/components/parameters/notificationRequestId'
         - $ref: '#/components/parameters/paProtocolNumber'
@@ -368,7 +410,9 @@ paths:
   /delivery/v2.0/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
-      description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV20
@@ -409,7 +453,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
         '400':
           description: Bad request
           content:
@@ -445,7 +490,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
         '400':
           description: Bad request
           content:
@@ -460,101 +506,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
         '500':
           description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}:
-    get:
-      summary: Download atto opponibile a terzi
-      description: Permette di scaricare un atto opponibile a terzi
-      tags:
-        - LegalFacts
-      operationId: retrieveLegalFact
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathLegalFactType'
-        - $ref: '#/components/parameters/pathLegalFactId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/download/legal-facts/{legalFactId}:
-    get:
-      summary: Download atto opponibile a terzi
-      description: Permette di scaricare un atto opponibile a terzi
-      tags:
-        - LegalFacts
-      operationId: downloadLegalFactById
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathLegalFactId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery-push/v2.0/notifications/cancel/{iun}:
-    put:
-      summary: Annullamento notifica
-      description: |-
-        Permette l'annullamento di una notifica restituendo una presa in carico,
-          il processo di annullamento si completa poi in maniera asincrona
-      tags:
-        - NotificationCancellation
-      operationId: notificationCancellation
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-      responses:
-        '202':
-          description: Accepted - Richiesta annullamento presa in carico
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RequestStatus'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
           content:
             application/problem+json:
               schema:
@@ -611,7 +562,10 @@ paths:
   /delivery/events/payment/pagopa:
     post:
       operationId: paymentEventsRequestPagoPa
-      description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo PagoPA. <br/>
+      description: >-
+        Questa API è a disposizione della Pubblica Amministrazione per inviare
+        eventi di chiusura di una o più posizioni debitorie di tipo PagoPA.
+        <br/>
       tags:
         - PaymentEvents
       requestBody:
@@ -644,7 +598,9 @@ paths:
   /delivery/events/payment/f24:
     post:
       operationId: paymentEventsRequestF24
-      description: Questa API è a disposizione della Pubblica Amministrazione per inviare eventi di chiusura di una o più posizioni debitorie di tipo F24. <br/>
+      description: >-
+        Questa API è a disposizione della Pubblica Amministrazione per inviare
+        eventi di chiusura di una o più posizioni debitorie di tipo F24. <br/>
       tags:
         - PaymentEvents
       requestBody:
@@ -677,7 +633,9 @@ paths:
   /delivery/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica'
-      description: Questa operazione permette di leggere tutti i dettagli di una notifica accettata. <br/>
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotification
@@ -704,6 +662,412 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery-push/v2.0/notifications/cancel/{iun}:
+    put:
+      summary: Annullamento notifica
+      description: >-
+        Permette l'annullamento di una notifica restituendo una presa in carico,
+        il processo di annullamento si completa poi in maniera asincrona
+      tags:
+        - NotificationCancellation
+      operationId: notificationCancellation
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '202':
+          description: Accepted - Richiesta annullamento presa in carico
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestStatus'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/legal-facts:
+    get:
+      summary: Elenco atti opponibili a terzi
+      description: >-
+        Elenca le informazione di categorizzazione di tutti gli atti opponibili
+        a terzi  registrati durante il processo di notifica. <br/> L'unico
+        valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getNotificationLegalFacts
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFactList'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}:
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi <br/> L'unico valore
+        ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getLegalFact
+      parameters:
+        - $ref: '#/components/parameters/lollipopOriginalUrl'
+        - $ref: '#/components/parameters/lollipopOriginalMethod'
+        - $ref: '#/components/parameters/lollipopPublicKey'
+        - $ref: '#/components/parameters/lollipopAssertionRef'
+        - $ref: '#/components/parameters/lollipopAssertionType'
+        - $ref: '#/components/parameters/lollipopAuthJwt'
+        - $ref: '#/components/parameters/lollipopUserId'
+        - $ref: '#/components/parameters/lollipopSignatureInput'
+        - $ref: '#/components/parameters/lollipopSignature'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactType'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/download/legal-facts/{legalFactId}:
+    get:
+      summary: Singolo atto opponibile a terzi
+      description: >-
+        Permette di scaricare un atto opponibile a terzi <br/> L'unico valore
+        ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      tags:
+        - LegalFacts
+      operationId: getLegalFactById
+      parameters:
+        - $ref: '#/components/parameters/lollipopOriginalUrl'
+        - $ref: '#/components/parameters/lollipopOriginalMethod'
+        - $ref: '#/components/parameters/lollipopPublicKey'
+        - $ref: '#/components/parameters/lollipopAssertionRef'
+        - $ref: '#/components/parameters/lollipopAssertionType'
+        - $ref: '#/components/parameters/lollipopAuthJwt'
+        - $ref: '#/components/parameters/lollipopUserId'
+        - $ref: '#/components/parameters/lollipopSignatureInput'
+        - $ref: '#/components/parameters/lollipopSignature'
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/document/{documentType}:
+    get:
+      summary: Restituisce il singolo documento identificato dalla documentKey
+      description: Permette di scaricare un documento correlato alla notificazione
+      tags:
+        - DocumentsWeb
+      operationId: getDocumentsWeb
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/pathDocumentType'
+        - $ref: '#/components/parameters/queryDocumentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/streams:
+    post:
+      summary: Crea nuovo stream di eventi
+      description: >-
+        Viene richiesta la creazione di un flusso di eventi specificando se gli
+        eventi saranno  relativi ai cambi di stato o agli eventi di timeline.
+        <br/> In risposta, Piattaforma Notifiche, comunicherà un identificativo
+        dello stream e il  timestamp di effettiva attivazione del flusso,
+        tipicamente pochi secondi dopo che è stata  invocata l'operazione.
+      tags:
+        - Streams
+      operationId: createEventStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      summary: Elenca stream di eventi
+      description: Elenca gli stream di eventi
+      tags:
+        - Streams
+      operationId: listEventStreams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamListResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/streams/{streamId}:
+    parameters:
+      - $ref: '#/components/parameters/pathStreamId'
+    get:
+      summary: Leggi metadati dello stream
+      description: Permette di leggere le configurazioni di uno stream di eventi.
+      tags:
+        - Streams
+      operationId: retrieveEventStream
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    put:
+      summary: Update Stream metadata
+      description: >-
+        Permette di cambiare le configurazioni dei filtri associati a uno stream
+        di eventi
+      tags:
+        - Streams
+      operationId: updateEventStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamCreationRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    delete:
+      summary: Remove Event Stream
+      description: >-
+        Elimina uno steam di eventi: elimina sia le configurazioni sia tutti gli
+        eventi  associati allo stream e non ancora consumati.
+      tags:
+        - Streams
+      operationId: removeEventStream
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-progresses/streams/{streamId}/events:
+    get:
+      summary: Leggi progressi notifiche
+      description: >-
+        Permette di leggere gli eventi presenti nello stream di aggiornamenti e
+        indica che  la P.A. ha ricevuto e memorizzato l'evento identificato dal
+        parametro _lastEventId_ e tutti gli eventi precedenti. Tali eventi
+        potranno essere cancellati dallo stream.
+      tags:
+        - Events
+      operationId: consumeEventStream
+      parameters:
+        - $ref: '#/components/parameters/pathStreamId'
+        - $ref: '#/components/parameters/queryLastEventId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova
+                lettura di eventi. <br/> Sarà valorizzato a zero se ci sono
+                eventi in coda che non sono stati forniti per  raggiunta
+                dimensione massima della risposta. <br/> Sarà maggiore di zero
+                se gli eventi in coda sono stati tutti inviati.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          description: Too Many Requests
+          headers:
+            retry-after:
+              schema:
+                type: integer
+                format: int32
+              description: >-
+                Numero di millisecondi di attesa prima di effettuare una nuova
+                lettura di eventi.
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     notificationRequestId:
@@ -719,14 +1083,18 @@ components:
       name: paProtocolNumber
       in: query
       required: false
-      description: Numero di protocollo associato alla notifica, può essere riutilizzato per rettifiche.
+      description: >-
+        Numero di protocollo associato alla notifica, può essere riutilizzato
+        per rettifiche.
       schema:
         type: string
         pattern: ^.*$
         maxLength: 256
     idempotenceToken:
       name: idempotenceToken
-      description: 'token usato per disambiguare "richieste di notificazione" effettuate con lo stesso  numero di protocollo. '
+      description: >-
+        token usato per disambiguare "richieste di notificazione" effettuate con
+        lo stesso  numero di protocollo. 
       in: query
       required: false
       schema:
@@ -751,7 +1119,9 @@ components:
         format: int32
     pathAttachmentName:
       name: attachmentName
-      description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24_FLAT|F24_STANDARD
+      description: >-
+        Tipologia del pagamento allegato alla notifica. Valori possibili
+        PAGOPA|F24_FLAT|F24_STANDARD
       in: path
       required: true
       schema:
@@ -785,10 +1155,122 @@ components:
         minLength: 25
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    lollipopOriginalUrl:
+      name: x-pagopa-lollipop-original-url
+      in: header
+      description: lollipop expected lc original url
+      required: false
+      schema:
+        type: string
+    lollipopOriginalMethod:
+      name: x-pagopa-lollipop-original-method
+      in: header
+      description: lollipop expected lc original method
+      required: false
+      schema:
+        type: string
+    lollipopPublicKey:
+      name: x-pagopa-lollipop-public-key
+      in: header
+      description: lollipop public key
+      required: false
+      schema:
+        type: string
+    lollipopAssertionRef:
+      name: x-pagopa-lollipop-assertion-ref
+      in: header
+      description: lollipop assertion reference
+      required: false
+      schema:
+        type: string
+    lollipopAssertionType:
+      name: x-pagopa-lollipop-assertion-type
+      in: header
+      description: lollipop assertion type (SAML)
+      required: false
+      schema:
+        type: string
+    lollipopAuthJwt:
+      name: x-pagopa-lollipop-auth-jwt
+      in: header
+      description: lollipop authentication jwt
+      required: false
+      schema:
+        type: string
+    lollipopUserId:
+      name: x-pagopa-lollipop-user-id
+      in: header
+      description: lollipop user id
+      required: false
+      schema:
+        type: string
+    lollipopSignatureInput:
+      name: signature-input
+      in: header
+      description: lollipop signature input
+      required: false
+      schema:
+        type: string
+    lollipopSignature:
+      name: signature
+      in: header
+      description: lollipop signature
+      required: false
+      schema:
+        type: string
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
+        format: uuid
+    pathDocumentType:
+      description: Categoria documento
+      name: documentType
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/DocumentCategory'
+    queryDocumentId:
+      description: Identificativo del documento
+      name: documentId
+      in: query
+      required: true
+      schema:
+        type: string
+        pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+        maxLength: 512
+    queryLastEventId:
+      description: >-
+        Identificativo dell'ultimo evento memorizzato dal chiamante, se non
+        passato si intende dal primo evento presente nello stream. Numero in una
+        stringa di 38 caratteri con padding iniziale composto da '0'.
+      name: lastEventId
+      in: query
+      required: false
+      schema:
+        type: string
+        minLength: 38
+        maxLength: 38
+        pattern: ^0\d{37}$
+    pathStreamId:
+      description: Identificativo dello stream di eventi
+      name: streamId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     PnStatusResponse:
       title: Stato attuale di PN
-      description: Elenco delle funzionalità della piattaforma ed elenco dei disservizi noti e attivi  al momento della richiesta. I disservizi (_openIncidents_) segnalati sono al più uno  per funzionalità; gli attributi _endDate_ e _legalFactId_ non saranno valorizzati.
+      description: >-
+        Elenco delle funzionalità della piattaforma ed elenco dei disservizi
+        noti e attivi  al momento della richiesta. I disservizi
+        (_openIncidents_) segnalati sono al più uno  per funzionalità; gli
+        attributi _endDate_ e _legalFactId_ non saranno valorizzati.
       type: object
       required:
         - functionalities
@@ -816,7 +1298,9 @@ components:
           type: string
         functionalities:
           title: elenco funzionalità di PN
-          description: Un array che comprende tutti i possibili valori dell'enum _PnFunctionality_
+          description: >-
+            Un array che comprende tutti i possibili valori dell'enum
+            _PnFunctionality_
           type: array
           items:
             $ref: '#/components/schemas/PnFunctionality'
@@ -834,15 +1318,19 @@ components:
       properties:
         preloadIdx:
           title: Id della richiesta di precaricamento di un file
-          description: Identificativo univoco all'interno della request HTTP, serve per correlare la risposta. Stringa alfanumerica con caratteri utilizzabili in un nome file.
+          description: >-
+            Identificativo univoco all'interno della request HTTP, serve per
+            correlare la risposta. Stringa alfanumerica con caratteri
+            utilizzabili in un nome file.
           type: string
           minLength: 1
           maxLength: 512
           pattern: ^[a-zA-Z0-9._-]{1,512}$
         contentType:
           title: MIME type del file che verrà caricato
-          description: |-
-            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
+          description: >-
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è
+            supportato solo
               - application/pdf
           type: string
           minLength: 15
@@ -850,7 +1338,9 @@ components:
           pattern: ^application\/pdf$
         sha256:
           title: checksum sha256 del file che verrà caricato
-          description: checksum sha256, codificato in base 64, del contenuto binario del file che verrà caricato
+          description: >-
+            checksum sha256, codificato in base 64, del contenuto binario del
+            file che verrà caricato
           type: string
           example: jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=
           minLength: 44
@@ -858,21 +1348,29 @@ components:
           pattern: ^[A-Za-z0-9+\/]{43}=|[A-Za-z0-9+\/]{44}$
     PreLoadResponse:
       title: Informazioni per il caricamento file
-      description: Per ogni richiesta che è stata fatta viene fornito un presigned URL e le  informazioni per usarlo.
+      description: >-
+        Per ogni richiesta che è stata fatta viene fornito un presigned URL e
+        le  informazioni per usarlo.
       type: object
       properties:
         preloadIdx:
-          description: per correlazione con la richiesta. Stringa alfanumerica con caratteri utilizzabili in un file.
+          description: >-
+            per correlazione con la richiesta. Stringa alfanumerica con
+            caratteri utilizzabili in un file.
           type: string
           minLength: 1
           maxLength: 512
           pattern: ^[a-zA-Z0-9._-]{1,512}$
         secret:
-          description: Token aggiuntivo per far si che sia necessario intercettare anche gli  header e non solo l'URL di upload del contenuto del documento.
+          description: >-
+            Token aggiuntivo per far si che sia necessario intercettare anche
+            gli  header e non solo l'URL di upload del contenuto del documento.
           example: AZ23RF12
           type: string
         httpMethod:
-          description: Indica se per l'upload del contenuto file bisogna utilizzare il metodo PUT o POST
+          description: >-
+            Indica se per l'upload del contenuto file bisogna utilizzare il
+            metodo PUT o POST
           type: string
           example: PUT
           enum:
@@ -883,7 +1381,9 @@ components:
           type: string
           example: https://preloadpn.aws.amazon.......
         key:
-          description: la chiave restituita sarà globalmente unica e andrà utilizzata nella richiesta  di notifica.
+          description: >-
+            la chiave restituita sarà globalmente unica e andrà utilizzata nella
+            richiesta  di notifica.
           example: PN_NOTIFICATION_ATTACHMENTS-0001-301W-B9CB-9U72-WIKD
           type: string
     NotificationPriceResponse:
@@ -898,16 +1398,22 @@ components:
           type: integer
           format: int32
         refinementDate:
-          description: data di perfezionamento per decorrenza termini localizzata espressa alla mezzanotte del giorno in cui si verifica l'evento
+          description: >-
+            data di perfezionamento per decorrenza termini localizzata espressa
+            alla mezzanotte del giorno in cui si verifica l'evento
           type: string
           format: date-time
         notificationViewDate:
-          description: data di perfezionamento per presa visione espressa alla mezzanotte del giorno in cui si verifica l'evento
+          description: >-
+            data di perfezionamento per presa visione espressa alla mezzanotte
+            del giorno in cui si verifica l'evento
           type: string
           format: date-time
     NewNotificationResponse:
       title: Identificativi della richiesta di notifica
-      description: Contiene le informazioni per identificare una richiesta di invio notifica che non è ancora stata accettata da Piattaforma notifiche.
+      description: >-
+        Contiene le informazioni per identificare una richiesta di invio
+        notifica che non è ancora stata accettata da Piattaforma notifiche.
       type: object
       required:
         - notificationRequestId
@@ -915,14 +1421,19 @@ components:
       properties:
         notificationRequestId:
           type: string
-          description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
+          description: >-
+            identificativo univoco di una richiesta di invio notifica, non è lo
+            IUN
           maxLength: 36
           pattern: ^[A-Za-z0-9+/=]{36}$
         paProtocolNumber:
           type: string
           description: Identificativo inviato dalla pubblica amministrazione
         idempotenceToken:
-          description: Ripetizione del token usato per disambiguare "richieste di notificazione"  effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
+          description: >-
+            Ripetizione del token usato per disambiguare "richieste di
+            notificazione"  effettuate con lo stesso numero di protocollo (campo
+            _paProtocolNumber_).
           type: string
     NewNotificationRequestStatusResponse:
       allOf:
@@ -933,19 +1444,30 @@ components:
             - notificationRequestStatus
           properties:
             notificationRequestId:
-              description: identificativo univoco di una richiesta di invio notifica, non è lo IUN
+              description: >-
+                identificativo univoco di una richiesta di invio notifica, non è
+                lo IUN
               type: string
             notificationRequestStatus:
-              description: '- __WAITING__: in attesa di essere valutata - __ACCEPTED__: richiesta di notifica accettata, lo IUN è valorizzato - __REFUSED__: richiesta di notifica rifiutata, è valorizzato il campo _errors_'
+              description: >-
+                - __WAITING__: in attesa di essere valutata - __ACCEPTED__:
+                richiesta di notifica accettata, lo IUN è valorizzato -
+                __REFUSED__: richiesta di notifica rifiutata, è valorizzato il
+                campo _errors_
               type: string
             retryAfter:
               type: integer
               format: int32
-              description: Numero di secondi da attendere prima di effettuare una nuova richiesta per  la stessa entità; valorizzato quando lo status è __WAITING__.
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova
+                richiesta per  la stessa entità; valorizzato quando lo status è
+                __WAITING__.
             iun:
               $ref: '#/components/schemas/IUN'
             errors:
-              description: Elenco degli errori che hanno causato il rifiuto della richiesta di notifica
+              description: >-
+                Elenco degli errori che hanno causato il rifiuto della richiesta
+                di notifica
               type: array
               items:
                 $ref: '#/components/schemas/ProblemError'
@@ -955,7 +1477,9 @@ components:
           description: URI reference of type definition
           type: string
         status:
-          description: The HTTP status code generated by the origin server for this occurrence of the problem.
+          description: >-
+            The HTTP status code generated by the origin server for this
+            occurrence of the problem.
           type: integer
           format: int32
           example: 503
@@ -963,7 +1487,9 @@ components:
           minimum: 100
           exclusiveMaximum: true
         title:
-          description: A short, summary of the problem type. Written in english and readable
+          description: >-
+            A short, summary of the problem type. Written in english and
+            readable
           example: Service Unavailable
           maxLength: 64
           pattern: ^[ -~]{0,64}$
@@ -995,21 +1521,27 @@ components:
       properties:
         code:
           description: Internal code of the error, in human-readable format
-          example: PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY | etc...
+          example: >-
+            PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY
+            | etc...
           type: string
         element:
           description: Parameter or request body field name for validation error
           example: body.order.item[2].quantity
           type: string
         detail:
-          description: A human readable explanation specific to this occurrence of the problem.
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
           example: Parameter not valid
           maxLength: 1024
           type: string
       required:
         - code
     FullSentNotificationV20:
-      description: Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il  processo di inoltro della notifica verso il cittadino.
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
         - $ref: '#/components/schemas/SentNotification'
         - type: object
@@ -1023,13 +1555,17 @@ components:
             notificationStatusHistory:
               $ref: '#/components/schemas/NotificationStatusHistory'
             timeline:
-              description: elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElementV20'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
-      description: Richiesta contenente un array di eventi di pagamento di tipo PagoPA di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
+      description: >-
+        Richiesta contenente un array di eventi di pagamento di tipo PagoPA di
+        cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
       type: object
       required:
         - events
@@ -1041,7 +1577,9 @@ components:
             $ref: '#/components/schemas/PaymentEventPagoPa'
     PaymentEventsRequestF24:
       title: Invio eventi di pagamento da PA a PN
-      description: Richiesta contenente un array di eventi di pagamento di tipo F24 di cui una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
+      description: >-
+        Richiesta contenente un array di eventi di pagamento di tipo F24 di cui
+        una Pubblica Amministrazione deve avvisare Piattaforma Notifiche.
       type: object
       required:
         - events
@@ -1072,7 +1610,8 @@ components:
           $ref: '#/components/schemas/paTaxId'
         paymentDate:
           type: string
-          pattern: ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|([+\-][0-9]{2}):([0-9]{2}))$
+          pattern: >-
+            ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\.[0-9]+)?(Z|([+\-][0-9]{2}):([0-9]{2}))$
           description: data e ora in formato ISO 8601
         amount:
           type: integer
@@ -1118,16 +1657,22 @@ components:
       properties:
         elementId:
           type: string
-          description: 'Identificativo dell''elemento di timeline: insieme allo IUN della notifica definisce in  maniera univoca l''elemento di timeline'
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica definisce in  maniera univoca l'elemento di timeline
         timestamp:
           type: string
-          description: Momento in cui avviene l'evento descritto in questo elemento di timeline
+          description: >-
+            Momento in cui avviene l'evento descritto in questo elemento di
+            timeline
           format: date-time
         legalFactsIds:
           type: array
           items:
             $ref: '#/components/schemas/LegalFactsId'
-          description: Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline. Questo elemento
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
+            descritto in timeline. Questo elemento
         category:
           $ref: '#/components/schemas/TimelineElementCategoryV20'
         details:
@@ -1183,11 +1728,16 @@ components:
           description: dimensione, in byte, del contenuto.
         url:
           type: string
-          description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
         retryAfter:
           type: number
           format: decimal32
-          description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia scaricabile.
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
     RequestStatus:
       description: Response to cancellation async call
       type: object
@@ -1205,7 +1755,9 @@ components:
       required:
         - status
     FullSentNotification:
-      description: Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il  processo di inoltro della notifica verso il cittadino.
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
         - $ref: '#/components/schemas/SentNotification'
         - type: object
@@ -1219,7 +1771,9 @@ components:
             notificationStatusHistory:
               $ref: '#/components/schemas/NotificationStatusHistory'
             timeline:
-              description: elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
@@ -1229,25 +1783,34 @@ components:
       properties:
         elementId:
           type: string
-          description: 'Identificativo dell''elemento di timeline: insieme allo IUN della notifica definisce in  maniera univoca l''elemento di timeline'
+          description: >-
+            Identificativo dell'elemento di timeline: insieme allo IUN della
+            notifica definisce in  maniera univoca l'elemento di timeline
         timestamp:
           type: string
-          description: Momento in cui avviene l'evento descritto in questo elemento di timeline
+          description: >-
+            Momento in cui avviene l'evento descritto in questo elemento di
+            timeline
           format: date-time
         legalFactsIds:
           type: array
           items:
             $ref: '#/components/schemas/LegalFactsId'
-          description: Chiavi dei documenti che provano l'effettivo accadimento dell'evento descritto in timeline. Questo elemento
+          description: >-
+            Chiavi dei documenti che provano l'effettivo accadimento dell'evento
+            descritto in timeline. Questo elemento
         category:
           $ref: '#/components/schemas/TimelineElementCategory'
         details:
           $ref: '#/components/schemas/TimelineElementDetails'
     PnFunctionality:
       title: Funzionalità di PN
-      description: |-
+      description: >-
         - __NOTIFICATION_CREATE__: la possibilità di creare nuove notifiche.
-        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le notifiche e scaricare gli atti. 
+
+        - __NOTIFICATION_VISUALIZATION__: la possibilità di visualizzare le
+        notifiche e scaricare gli atti. 
+
         - __NOTIFICATION_WORKFLOW__: l'avanzamento del processo di notifica. 
       type: string
       enum:
@@ -1281,12 +1844,19 @@ components:
           format: date-time
         endDate:
           title: data fine disservizio
-          description: se il disservizio è ancora attivo questo campo sarà assente o con valore _null_
+          description: >-
+            se il disservizio è ancora attivo questo campo sarà assente o con
+            valore _null_
           type: string
           format: date-time
         legalFactId:
           title: id dell'atto opponibile a terzi
-          description: Se assente o valorizzato _null_ indica che l'atto opponibile a terzi non è ancora disponibile. Questo avviene per i disservizi ancora aperti e per i disservizi  terminati da pochi minuti. <br/> Questo valore è da utilizzare con l'API _getLegalFact_ di questo stesso servizio.
+          description: >-
+            Se assente o valorizzato _null_ indica che l'atto opponibile a terzi
+            non è ancora disponibile. Questo avviene per i disservizi ancora
+            aperti e per i disservizi  terminati da pochi minuti. <br/> Questo
+            valore è da utilizzare con l'API _getLegalFact_ di questo stesso
+            servizio.
           type: string
         fileAvailable:
           type: boolean
@@ -1295,7 +1865,8 @@ components:
       type: string
       minLength: 11
       maxLength: 16
-      pattern: ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+      pattern: >-
+        ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
     Denomination:
       description: Denominazione ente o persona fisica / ragione sociale
       type: string
@@ -1317,8 +1888,11 @@ components:
         address:
           type: string
           example: account@domain.it
-          description: Indirizzo PEC o REM che il mittente della notifica intende utilizzare per  raggiungere il destinatario.
-          pattern: ^([a-zA-Z0-9]+(?:[.\-_][a-zA-Z0-9]+){0,10}@[a-zA-Z0-9]+(?:[.-][a-zA-Z0-9]+){0,10}(?:\.[a-zA-Z0-9]{2,10}))$
+          description: >-
+            Indirizzo PEC o REM che il mittente della notifica intende
+            utilizzare per  raggiungere il destinatario.
+          pattern: >-
+            ^([a-zA-Z0-9]+(?:[.\-_][a-zA-Z0-9]+){0,10}@[a-zA-Z0-9]+(?:[.-][a-zA-Z0-9]+){0,10}(?:\.[a-zA-Z0-9]{2,10}))$
           maxLength: 320
     NotificationPhysicalAddress:
       description: Indirizzo fisico
@@ -1345,7 +1919,9 @@ components:
           maxLength: 1024
         zip:
           type: string
-          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
+          description: >-
+            Codice di avviamento postale. In caso di invio estero diventa
+            facoltativo
           minLength: 0
           maxLength: 15
           pattern: ^(\w|\ |\-)*$
@@ -1411,7 +1987,10 @@ components:
           pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
         versionToken:
           type: string
-          description: Token per recuperare l'esatta istanza dell'allegato, che dovrà coincidere con l'__x-amz-version-id__ ottenuto nell'header della response in fase di upload del documento ad esso associato.
+          description: >-
+            Token per recuperare l'esatta istanza dell'allegato, che dovrà
+            coincidere con l'__x-amz-version-id__ ottenuto nell'header della
+            response in fase di upload del documento ad esso associato.
           pattern: ^.*$
           maxLength: 256
     NotificationAttachment:
@@ -1438,8 +2017,10 @@ components:
         - $ref: '#/components/schemas/NotificationAttachment'
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
-      description: |-
-        Informazioni utili per effettuare il pagamento di una notifica, sono associate al destinatario perché le spese di notifica possono differire a seconda del canale di notifica utilizzato. <br/>
+      description: >-
+        Informazioni utili per effettuare il pagamento di una notifica, sono
+        associate al destinatario perché le spese di notifica possono differire
+        a seconda del canale di notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
@@ -1467,7 +2048,9 @@ components:
       properties:
         recipientType:
           type: string
-          description: 'Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica (PG)'
+          description: >-
+            Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)
           enum:
             - PF
             - PG
@@ -1489,7 +2072,9 @@ components:
           properties:
             title:
               type: string
-              description: Titolo del documento allegato. Stringa alfanumerica con caratteri utilizzabili in un nome file.
+              description: >-
+                Titolo del documento allegato. Stringa alfanumerica con
+                caratteri utilizzabili in un nome file.
               minLength: 1
               maxLength: 512
               pattern: ^.*$
@@ -1500,7 +2085,10 @@ components:
               pattern: ^\d+$
     NotificationFeePolicy:
       type: string
-      description: 'Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_: costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in base all''effettivo percorso di notifica. <br/>'
+      description: >-
+        Politica di addebitamento dei costi di notifica. <br/> - _FLAT_RATE_:
+        costo forfettario fisso. <br/> - _DELIVERY_MODE_: costo calcolato in
+        base all'effettivo percorso di notifica. <br/>
       enum:
         - FLAT_RATE
         - DELIVERY_MODE
@@ -1524,7 +2112,12 @@ components:
         - senderTaxId
       properties:
         idempotenceToken:
-          description: Identificativo utilizzabile dal chiamante per disambiguare differenti  "richieste di notificazione" effettuate con lo stesso numero di protocollo  (campo _paProtocolNumber_). Questo può essere necessario in caso di  "richiesta di notifica" rifiutata per errori nei codici di verifica degli allegati.
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare
+            differenti  "richieste di notificazione" effettuate con lo stesso
+            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
+            necessario in caso di  "richiesta di notifica" rifiutata per errori
+            nei codici di verifica degli allegati.
           type: string
           pattern: ^[ -~]*$
           maxLength: 256
@@ -1541,7 +2134,9 @@ components:
           pattern: ^.*$
         abstract:
           type: string
-          description: descrizione sintetica della notifica, NON inserire dati personali/sensibili
+          description: >-
+            descrizione sintetica della notifica, NON inserire dati
+            personali/sensibili
           pattern: ^.*$
           maxLength: 1024
         recipients:
@@ -1583,17 +2178,26 @@ components:
           minLength: 10
           maxLength: 10
           pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
-          description: Data di scadenza del pagamento nel formato YYYY-MM-DD riferito all'Italia
+          description: >-
+            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
+            all'Italia
         taxonomyCode:
           type: string
           minLength: 7
           maxLength: 7
           pattern: ^([0-9]{6}[A-Z]{1})$
-          description: 'Codice tassonomico della notifica basato sulla definizione presente nell''allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      '
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente
+            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
+            PIATTAFORMA NOTIFICHE
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
           default: 010101P
         pagoPaIntMode:
           type: string
-          description: 'Modalitá di integrazione pagoPA per l''attualizazione del costo della notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_: modalitá sincrona. <br/>'
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della
+            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
+            modalitá sincrona. <br/>
           enum:
             - NONE
             - SYNC
@@ -1608,7 +2212,9 @@ components:
           properties:
             senderPaId:
               type: string
-              description: Identificativo (non IPA) della PA mittente che ha eseguito l'onboarding su SelfCare.
+              description: >-
+                Identificativo (non IPA) della PA mittente che ha eseguito
+                l'onboarding su SelfCare.
               pattern: ^.*$
               maxLength: 256
             iun:
@@ -1645,8 +2251,9 @@ components:
             $ref: '#/components/schemas/TimelineElementId'
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
-      description: |-
-        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a disposizione dei suoi utenti.
+      description: >-
+        Tipi di atti opponibili a terzi che Piattaforma Notifiche mette a
+        disposizione dei suoi utenti.
           - _SENDER_ACK_: atto di "presa in carico" di una notifica
           - _DIGITAL_DELIVERY_: ...
       type: string
@@ -1665,7 +2272,9 @@ components:
         - category
       properties:
         key:
-          description: Chiave dell'atto opponibile a terzi generato durante il processo di consegna
+          description: >-
+            Chiave dell'atto opponibile a terzi generato durante il processo di
+            consegna
           type: string
           pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
           maxLength: 512
@@ -1763,7 +2372,9 @@ components:
       properties:
         legalFactId:
           type: string
-          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
     PhysicalAddress:
       type: object
       required:
@@ -1785,7 +2396,9 @@ components:
         zip:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
-          description: Codice di avviamento postale. In caso di invio estero diventa facoltativo
+          description: >-
+            Codice di avviamento postale. In caso di invio estero diventa
+            facoltativo
         municipality:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
@@ -1866,7 +2479,9 @@ components:
           format: int32
         legalfactId:
           type: string
-          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
         endWorkflowStatus:
           $ref: '#/components/schemas/EndWorkflowStatus'
         completionWorkflowDate:
@@ -1921,7 +2536,9 @@ components:
           format: date-time
         legalfactId:
           type: string
-          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
     DigitalFailureWorkflowDetails:
       type: object
       required:
@@ -2012,7 +2629,9 @@ components:
           format: int32
         legalfactId:
           type: string
-          description: Identificativo dell'atto opponibile a terzi del quale è stata richiesta la creazione
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
         eventTimestamp:
           type: string
           description: Data ricezione richiesta visualizzazione notifica
@@ -2033,7 +2652,9 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         notificationCost:
-          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per decorrenza termini
+          description: >-
+            costo notifica in euro cents, può essere nullo se la notifica si è
+            perfezionata prima per decorrenza termini
           example: 1220
           type: integer
           format: int64
@@ -2103,7 +2724,9 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         notificationCost:
-          description: costo notifica in euro cents, può essere nullo se la notifica si è perfezionata prima per visualizzazione
+          description: >-
+            costo notifica in euro cents, può essere nullo se la notifica si è
+            perfezionata prima per visualizzazione
           example: 1220
           type: integer
           format: int64
@@ -2424,8 +3047,10 @@ components:
           type: string
         documentType:
           type: string
-          description: |
-            Codici documentType: - Plico: Indica il plico cartaceo - AR: Indica la ricevuta di ritorno - Indagine: Indica la ricevuta dell'analisi dell'indagine - 23L: Indica la ricevuta 23L
+          description: >
+            Codici documentType: - Plico: Indica il plico cartaceo - AR: Indica
+            la ricevuta di ritorno - Indagine: Indica la ricevuta dell'analisi
+            dell'indagine - 23L: Indica la ricevuta 23L
         url:
           type: string
         date:
@@ -2461,8 +3086,9 @@ components:
           format: date-time
         deliveryFailureCause:
           type: string
-          description: |
-            __Motivazione di mancata consegna__ obbligatorie negli stati di mancata consegna
+          description: >
+            __Motivazione di mancata consegna__ obbligatorie negli stati di
+            mancata consegna
               - __M01__ destinatario irreperibile
               - __M02__ destinatario deceduto
               - __M03__ destinatario sconosciuto
@@ -2476,8 +3102,9 @@ components:
               - __F03__ - in caso di deterioramento
         deliveryDetailCode:
           type: string
-          description: |
-            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] - statusDescription
+          description: >
+            Formato: - __deliveryDetailCode__- [prodotto] - [statusCode] -
+            statusDescription
               - __CON080__- [ALL] - [PROGRESS] - Stampato ed Imbustato
               - __RECRS001C__- [RS] - [OK] - Consegnato - Fascicolo Chiuso
               - __RECRS002C__- [RS] - [KO] - Mancata consegna - Fascicolo Chiuso
@@ -2732,7 +3359,9 @@ components:
         - notRefinedRecipientIndexes
       properties:
         notificationCost:
-          description: costo notifica in euro cents, vale 100 * numero di recipient not refined
+          description: >-
+            costo notifica in euro cents, vale 100 * numero di recipient not
+            refined
           example: 1220
           type: integer
           format: int64
@@ -2835,31 +3464,16 @@ components:
           description: SHA256 del contenuto del file.
         url:
           type: string
-          description: URL preautorizzato a cui effettuare una richiesta GET per ottenere il  contenuto del documento. Presente solo se il documento è pronto per il download.
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
         retryAfter:
           type: integer
           format: int32
-          description: Stima del numero di secondi da aspettare prima che il contenuto del  documento sia disponibile per il download.
-    StatusDetail:
-      description: Detail of response to cancellation async call
-      type: object
-      required:
-        - code
-      properties:
-        code:
-          description: Internal code of the error or warning, in human-readable format
-          example: NOTIFICATION_ALREADY_CANCELLED
-          type: string
-        level:
-          description: |
-            informational level of status detail: WARN, ERR, ...
-            ERR (error) by default
-          example: NOTIFICATION_ALREADY_CANCELLED
-          type: string
-        detail:
-          description: A human readable explanation specific to this occurrence of the problem.
-          example: Parameter not valid
-          type: string
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia disponibile per il download.
     TimelineElementCategory:
       type: string
       description: |
@@ -2981,6 +3595,231 @@ components:
         - $ref: '#/components/schemas/SendAnalogProgressDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
         - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
+    StatusDetail:
+      description: Detail of response to cancellation async call
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: Internal code of the error or warning, in human-readable format
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        level:
+          description: |
+            informational level of status detail: WARN, ERR, ...
+            ERR (error) by default
+          example: NOTIFICATION_ALREADY_CANCELLED
+          type: string
+        detail:
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Parameter not valid
+          type: string
+    LegalFactListElement:
+      description: Informazioni relative ad un atto opponibile a terzi
+      type: object
+      required:
+        - iun
+        - legalFactsId
+      properties:
+        taxId:
+          description: Valorizzato se l'atto si riferisce a uno specifico destinatario
+          type: string
+          minLength: 11
+          maxLength: 16
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+        iun:
+          description: Identificativo Univoco Notifica a cui l'atto è associato
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        legalFactsId:
+          $ref: '#/components/schemas/LegalFactsId'
+    LegalFactList:
+      title: Elenco atti opponibili
+      description: Elenco degli atti opponibili a terzi correlati a una notifica
+      type: array
+      items:
+        $ref: '#/components/schemas/LegalFactListElement'
+    DocumentCategory:
+      title: Tipi di documenti
+      description: Tipologie di documenti
+      type: string
+      enum:
+        - AAR
+    DocumentDownloadMetadataResponse:
+      title: Url e metadati per il download di un documento correlato alla notifica
+      description: |-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentLength
+      properties:
+        filename:
+          type: string
+        contentLength:
+          type: number
+          format: decimal32
+          example: 54092
+          description: dmensione, in byte, del contenuto.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
+        retryAfter:
+          type: number
+          format: decimal32
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
+    StreamCreationRequest:
+      description: >-
+        Richiesta di creazione di uno stream di eventi di avanzamento delle
+        notifiche.
+      type: object
+      required:
+        - title
+        - eventType
+      properties:
+        title:
+          description: Nome sintetico dello stream
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+        eventType:
+          description: |-
+            Tipo di eventi presenti nel flusso:
+              - _STATUS_: cambiamenti di stato delle notifiche
+              - _TIMELINE_: eventi a granularità fine
+          type: string
+          enum:
+            - STATUS
+            - TIMELINE
+        filterValues:
+          description: >-
+            rappresenta l'elenco degli stati o elementi di timeline che si
+            vogliono filtrare; inserendo un array vuoto [] si riceveranno solo
+            gli elementi relativi a v1
+          type: array
+          items:
+            type: string
+            minLength: 5
+            maxLength: 256
+            pattern: ^[A-Z_]+$
+    StreamMetadataResponse:
+      description: Configurazioni di un flusso di eventi
+      allOf:
+        - $ref: '#/components/schemas/StreamCreationRequest'
+        - type: object
+          required:
+            - streamId
+            - activationDate
+          properties:
+            streamId:
+              description: Identificativo del flusso di eventi
+              type: string
+              format: uuid
+            activationDate:
+              description: Timestamp in cui il flusso di eventi è stato attivato
+              type: string
+              format: date-time
+    StreamListResponse:
+      description: Elenco di flussi di eventi
+      type: array
+      items:
+        $ref: '#/components/schemas/StreamListElement'
+    StreamListElement:
+      type: object
+      required:
+        - title
+        - streamId
+      properties:
+        streamId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 256
+          pattern: ^.*$
+    ProgressResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProgressResponseElement'
+    ProgressResponseElement:
+      type: object
+      required:
+        - eventId
+        - timestamp
+      properties:
+        eventId:
+          description: >-
+            Elemento che garantisce univocità e ordinamento temporale
+            all'interno dello stream
+          type: string
+        timestamp:
+          description: Istante a cui è avvenuto l'evento
+          type: string
+          format: date-time
+        notificationRequestId:
+          description: Identificativo della richiesta di notifica
+          type: string
+        iun:
+          description: >-
+            Identificativo della notifica, presente solo se la richiesta di
+            notifica è  stata accettata.
+          type: string
+          maxLength: 25
+          pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+        newStatus:
+          $ref: '#/components/schemas/NotificationStatus'
+        timelineEventCategory:
+          $ref: '#/components/schemas/TimelineElementCategoryV20'
+        recipientIndex:
+          type: integer
+          format: int32
+          minimum: 0
+          description: Indice del destinatario al quale si riferisce l'evento
+        analogCost:
+          type: integer
+          format: int32
+          description: Eventuale costo in eurocent associato all'evento
+        channel:
+          type: string
+          description: >-
+            Canale a cui si riferisce l'evento. I valori previsti sono: - Per
+            eventi legati a messaggi di cortesia: APPIO, SMS, EMAIL - Per eventi
+            legati all'invio digitale: PEC - Per eventi legati all'invio
+            analogico: AR_REGISTERED_LETTER, REGISTERED_LETTER_890 - Per eventi
+            legati all'invio di raccomandate semplici: SIMPLE_REGISTERED_LETTER
+        legalfactIds:
+          type: array
+          items:
+            type: string
+          example:
+            - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q
+            - PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E
+          description: chiavi degli eventuali allegati associati all'evento
+        validationErrors:
+          type: array
+          description: eventuali errori di validazione associati all'evento
+          items:
+            $ref: '#/components/schemas/RefusedReason'
+    RefusedReason:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

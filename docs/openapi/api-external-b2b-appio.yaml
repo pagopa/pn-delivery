@@ -74,7 +74,7 @@ paths:
       operationId: getReceivedNotificationDocument
       parameters:
         - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
-        - $ref: 'api-external-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
+        - $ref: 'api-internal-b2b-pa.yaml#/components/parameters/pathDocumentIdx'
         - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
