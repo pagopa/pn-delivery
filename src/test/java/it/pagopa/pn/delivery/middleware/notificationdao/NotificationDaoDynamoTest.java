@@ -459,6 +459,7 @@ class NotificationDaoDynamoTest {
 
     private InternalNotification newNotificationWithoutPayments() {
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -520,6 +521,7 @@ class NotificationDaoDynamoTest {
 
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         internalNotification.setIun("IUN_01");

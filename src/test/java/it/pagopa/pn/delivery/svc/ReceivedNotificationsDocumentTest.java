@@ -10,8 +10,14 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.EntityToDtoNotificationMapper;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationDaoDynamo;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationEntityDao;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.AttachmentDigestsEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.AttachmentRefEntity;
+import it.pagopa.pn.delivery.middleware.notificationdao.entities.DocumentAttachmentEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.rest.PnReceivedNotificationsController;
@@ -170,6 +176,12 @@ class ReceivedNotificationsDocumentTest {
 				.paymentExpirationDate( PAYMENT_EXPIRE_DATE )
 				.senderPaId( PA_ID )
 				.amount( AMOUNT )
+				.documents(List.of(DocumentAttachmentEntity.builder()
+						.contentType("application/pdf")
+						.digests(AttachmentDigestsEntity.builder()
+								.sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=").build())
+								.ref(AttachmentRefEntity.builder().key("KEY").versionToken("version").build())
+						.build()))
 				.build(); //new NotificationEntity(IUN, ABSTRACT, IDEMPOTENCE_TOKEN, PA_PROTOCOL_NUMBER , null, IUN, IUN, PA_ID, null, null, null, null, IUN, FILENAME, ATTACHMENT_BODY_STR, AMOUNT, PAYMENT_EXPIRE_DATE, REQUEST_ID);
 		Optional<NotificationEntity> result = Optional.ofNullable(ne);
 		return result;
@@ -184,6 +196,14 @@ class ReceivedNotificationsDocumentTest {
 		internalNotification.setCancelledIun("IUN_00");
 		internalNotification.setSenderPaId("PA_ID");
 		internalNotification.setNotificationStatus(NotificationStatus.IN_VALIDATION);
+		internalNotification.setDocuments(List.of(NotificationDocument.builder()
+				.docIdx("doc")
+						.title("title")
+						.contentType("application/pdf")
+						.digests(NotificationAttachmentDigests.builder()
+								.sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=").build())
+						.ref(NotificationAttachmentBodyRef.builder().key("key").versionToken("version").build())
+				.build()));
 		internalNotification.setRecipients(Collections.singletonList(
 				NotificationRecipient.builder()
 						.taxId("Codice Fiscale 01")

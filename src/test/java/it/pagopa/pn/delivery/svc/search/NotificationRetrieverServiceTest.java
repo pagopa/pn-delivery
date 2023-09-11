@@ -575,6 +575,9 @@ class NotificationRetrieverServiceTest {
     @NotNull
     private InternalNotification getNewInternalNotification() {
         InternalNotification internalNotification = new InternalNotification();
+        TimelineElement timelineElement = new TimelineElement();
+        timelineElement.setCategory(TimelineElementCategoryV20.AAR_CREATION_REQUEST);
+        internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun(IUN);
         internalNotification.setPaProtocolNumber("protocol_01");
         internalNotification.setSubject("Subject 01");

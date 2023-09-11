@@ -124,8 +124,8 @@ public class NotificationReceiverService {
 								NotificationPaymentInfo notificationPaymentInfo = notificationRecipient.getPayments().get(paymentIndex);
 								SaveF24Item saveF24Item = new SaveF24Item();
 								saveF24Item.setApplyCost(notificationPaymentInfo.getApplyCost());
-								saveF24Item.setSha256(notificationPaymentInfo.getF24() != null ? notificationPaymentInfo.getF24().getDigests().getSha256() : null);
-								saveF24Item.setFileKey(notificationPaymentInfo.getF24() != null ? notificationPaymentInfo.getF24().getRef().getKey() : null);
+								saveF24Item.setSha256( (notificationPaymentInfo.getF24() != null && notificationPaymentInfo.getF24().getDigests() != null) ? notificationPaymentInfo.getF24().getDigests().getSha256() : null);
+								saveF24Item.setFileKey( (notificationPaymentInfo.getF24() != null && notificationPaymentInfo.getF24().getRef() != null) ? notificationPaymentInfo.getF24().getRef().getKey() : null);
 								saveF24Item.setPathTokens(List.of(Integer.toString(recipientIndex), Integer.toString(paymentIndex)));
 								return Stream.of(saveF24Item);
 							});

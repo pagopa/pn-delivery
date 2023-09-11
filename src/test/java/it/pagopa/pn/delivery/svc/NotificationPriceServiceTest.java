@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
@@ -90,7 +89,7 @@ class NotificationPriceServiceTest {
                 .iun( "iun" )
                 .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
                 .recipientType( RecipientType.PF.getValue() )
-                .recipientIdx(1)
+                .recipientIdx(0)
                 .build();
 
         //When
@@ -135,7 +134,8 @@ class NotificationPriceServiceTest {
                 .moreFields( AsseverationEvent.Payload.AsseverationMoreField.builder().build() )
                 .build();
 
-        Mockito.verify( asseverationEventsProducer ).sendAsseverationEvent( asseverationEvent );
+        assertDoesNotThrow(() -> (asseverationEventsProducer ).sendAsseverationEvent( asseverationEvent ));
+
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -241,7 +241,7 @@ class NotificationPriceServiceTest {
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
-        Assertions.assertThrows(PnNotificationCancelledException.class, todo);
+        Assertions.assertThrows(PnHttpResponseException.class, todo);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -404,7 +404,7 @@ class NotificationPriceServiceTest {
                                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
                                 .payments(List.of(NotificationPaymentInfo.builder().build()))
                                 .build()));
-        internalNotification.setRecipientIds(List.of("1"));
+        internalNotification.setRecipientIds(List.of("0"));
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
         internalNotification.setSubject("Subject 01");

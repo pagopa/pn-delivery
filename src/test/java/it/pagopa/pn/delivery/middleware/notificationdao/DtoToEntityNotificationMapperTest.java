@@ -1,12 +1,15 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
+import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentAttachment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +49,7 @@ class DtoToEntityNotificationMapperTest {
 
     private InternalNotification newInternalNotification() {
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -71,7 +75,11 @@ class DtoToEntityNotificationMapperTest {
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
                         .payments(List.of(NotificationPaymentInfo.builder()
-                                .f24(F24Payment.builder().build())
+                                .f24(F24Payment.builder()
+                                        .ref(NotificationAttachmentBodyRef.builder().build())
+                                        .contentType("application/json")
+                                        .digests(NotificationAttachmentDigests.builder().build())
+                                        .build())
                                 .pagoPaForm(NotificationPaymentAttachment.builder()
                                         .ref(NotificationAttachmentBodyRef.builder().build())
                                         .contentType("application/json")

@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 class CheckAuthComponentTest {
 
@@ -183,7 +184,9 @@ class CheckAuthComponentTest {
 
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setIun("IUN");
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setRecipientIds(List.of("IUN_01"));
+        internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
         internalNotification.setSubject("Subject 01");
         internalNotification.setCancelledIun("IUN_05");

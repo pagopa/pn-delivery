@@ -3,11 +3,14 @@ package it.pagopa.pn.delivery.rest.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import org.junit.jupiter.api.Test;
@@ -52,7 +55,7 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationSuccess() {
         // Given
         InternalNotification notification = newNotification();
-        String expectedValueJson = newThirdPartyMessage(notification, true);
+        String expectedValueJson = newThirdPartyMessage(notification, false);
         System.out.println(expectedValueJson);
 
         // When
@@ -95,7 +98,11 @@ class PnReceivedIONotificationsControllerTest {
     }
 
     private InternalNotification newNotification() {
+        TimelineElement timelineElement = new TimelineElement();
+        timelineElement.setCategory(TimelineElementCategoryV20.AAR_CREATION_REQUEST);
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun("iun");
         internalNotification.setPaProtocolNumber("protocol_01");
         internalNotification.setSubject("Subject 01");

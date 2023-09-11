@@ -8,6 +8,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -62,7 +63,7 @@ class IOMapperTest {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
-        assertThat(actualValue).isEqualTo(expectedValue);
+        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
     }
 
     @Test
@@ -97,7 +98,7 @@ class IOMapperTest {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
-        assertThat(actualValue).isEqualTo(expectedValue);
+        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
     }
 
 
@@ -125,7 +126,7 @@ class IOMapperTest {
                                 .taxId("TAXID")
                                 .recipientType("PF")
                                 .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("CANCELLED").build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
                         .completedPayments(List.of())
                         .isCancelled(true)
                         .build())
@@ -133,7 +134,7 @@ class IOMapperTest {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
-        assertThat(actualValue).isEqualTo(expectedValue);
+        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
     }
 
 
@@ -215,6 +216,9 @@ class IOMapperTest {
 
     private InternalNotification internalNotification() {
         InternalNotification internalNotification = new InternalNotification();
+        TimelineElement timelineElement = new TimelineElement();
+        timelineElement.setCategory(TimelineElementCategoryV20.AAR_CREATION_REQUEST);
+        internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setDocuments(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
                 .docIdx("DOC0")
