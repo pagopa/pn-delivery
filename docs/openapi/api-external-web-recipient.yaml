@@ -53,8 +53,8 @@ paths:
       tags:
         - RecipientRead
       operationId: searchReceivedNotification
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
@@ -169,8 +169,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationDocument
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -203,8 +203,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
@@ -245,8 +245,8 @@ paths:
       tags:
         - RecipientRead
       operationId: checkAarQrCode
-      security:                                      # ONLY EXTERNAL
-        - bearerAuth: [ ]                            # ONLY EXTERNAL
+      #      security:                                      # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       requestBody:
         content:
           application/json:
@@ -277,8 +277,8 @@ paths:
       tags:                                                                               # ONLY EXTERNAL
         - LegalFacts                                                                      # ONLY EXTERNAL
       operationId: getLegalFact                                                           # ONLY EXTERNAL
-      security:                                                                           # ONLY EXTERNAL
-        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
+      #      security:                                                                           # ONLY EXTERNAL
+      #        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
       parameters:                                                                         # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'    # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                               # ONLY EXTERNAL
@@ -426,4 +426,4 @@ components:
       scheme: bearer                                    # ONLY EXTERNAL
       bearerFormat: JWT                                 # ONLY EXTERNAL
 security:                                               # ONLY EXTERNAL
-  - bearerAuth: []                                       # ONLY EXTERNAL
+ - bearerAuth: []                                       # ONLY EXTERNAL

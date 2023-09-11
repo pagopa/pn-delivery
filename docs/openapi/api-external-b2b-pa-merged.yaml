@@ -1,7 +1,6 @@
 openapi: 3.0.3
 info:
   termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
-  x-api-id: api-external-b2b-pa
   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
   version: 1.0.0
@@ -26,26 +25,26 @@ info:
        </br>
        </br>
        </br>
-      
+
       #### 3. Verifica accettazione richiesta di invio notifica
 
       Per questa verifica possono essere utilizzate due modalità:
-      
+
       1. __richiesta puntale__: consigliato solo ai fini di test
       2. __lettura da stream configurato__: consigliato per ambienti di produzione
-      
+
       La differenza tra le due modalità è nell'interazione e nell'efficienza.
-      
+
       Con la modalità _"richiesta puntuale"_ è necessario l'invocazione per ogni notifica,
       mentre con la modalità _"stream"_ è possibile avere gli aggiornamenti
       di stato di più notifiche con una sola invocazione.
-      
+
       #### 3.1 Richiesta puntuale di verifica accettazione
 
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
       di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus)
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV21)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
       >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
@@ -69,28 +68,29 @@ info:
       }
       ``</br></br>
       Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Events/consumeEventStream)
-      
-      
+
+
       __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
       dello stream.
-      
+
       </br>
       </br>
       </br>
       </br>
-      
+
     </td>
 
     <td>
 
       ### Ciclo di vita della notifica lato mittente
-      
+
       #### 1. Caricamento dei documenti della notifica
-      
-      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini di pagamento).
-      
+
+      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadati di pagamento).
+      [Schema Metadata F24](#/components/schemas/F24Metadata)
+
       #### 1.a. Richiesta presigned Url
-      
+
       Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
       con cui prenotare il caricamento. Possono essere effettuate un massimo di <span id="numberOfPresignedRequest">15</span> prenotazioni di caricamento
       per ogni richiesta.</br>
@@ -99,11 +99,11 @@ info:
       \- secret <br/>
       \- url <br/>
       L'url restituito ha una validità di 1h.
-      
+
       </br>
 
       #### 1.b Upload documenti della notifica
-      
+
       Per ogni documento utilizzare un richiesta HTTP con metodo _httpMethod_ (POST o PUT) 
       all'url indicato dal campo _url_. <br/>
       In tale richiesta vanno aggiunti i seguenti header: <br/>
@@ -116,24 +116,24 @@ info:
         Nell'header di questa risposta, si otterrà il campo __x-amz-version-id__ che dovrà essere utilizzato durante <br/> 
         l'inserimento della notifica, nel campo ref.__versionToken__ in corrispondenza del documento ad esso associato.
 
-     
+
       </br>
       </br>
       </br>
-      
+
       #### 2. Richiesta di invio della notifica
 
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotification) utilizzando i riferimenti dei file 
+      [sendNewNotification](#/NewNotification/sendNewNotificationV21) utilizzando i riferimenti dei file 
       caricati ottenuti al punto (1.b).
-      
+
       </br>
       </br>
       </br>
 
        <img src="https://raw.githubusercontent.com/pagopa/pn-delivery/e6f1db9eac9ace7fc2ad0fe6de241ab4525b6b6a/docs/openapi/images/verifica-accettazione-richiesta-invio.png" height="731" width="489" alt="Verifica accettazione richiesta" />
     </td>
-      
+
     </tr>
 
     </table>
@@ -143,16 +143,16 @@ info:
 
       Allo stesso modo del monitoraggio dell'accettazione della notifica da parte della Piattaforma sono 
       disponibili le due modalità.
-      
+
       #### 4.1 Monitoraggio puntuale
 
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
       identificata dalla IUN restituito dall'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus).</br> 
-      A tal punto si potranno utilizzare l'operazione _GET /delivery/notifications/sent/{iun}_ per 
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV21).</br> 
+      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.1/notifications/sent/{iun}_ per 
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
-      
+
       #### 4.1 Monitoraggio tramite stream
 
       Questa modalità è consigliata in produzione. Per essere fruita è necessaria una operazione preliminare
@@ -174,36 +174,28 @@ info:
       ### 5. Download dei Legal Facts
 
       E' possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [dowload Legal Fact](#/SenderReadB2B/getSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/getSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
-      
+
     </br> <h3>Le FAQ possono essere consultate al seguente link: <a
     href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
 
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
-    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di
-    produzione</li>
-    <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di
-    collaudo</li>
-    <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test.
-    Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque
-    non-bloccante e rispettando il principio di retro-attività</li>
-    <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di
-    sviluppo</li> </ul>   </details></br>
-      
+    <ul>   <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente
+    di produzione</li>
+    <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di
+    collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendo
+    comunque non-bloccante e rispettando il principio di retrocompatibilità</li>
+    </ul>   </details></br>
   contact:
     email: pn-supporto-enti@pagopa.it
   license:
     name: Licenza di PN
     url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
 servers:
-  - url: https://api.pn.pagopa.it
+  - url: https://api.notifichedigitali.it
     description: Ambiente di produzione
-  - url: https://api.coll.pn.pagopa.it
+  - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
-  - url: https://api.svil.pn.pagopa.it
-    description: Ambiente di test
-  - url: https://api.dev.pn.pagopa.it
-    description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
     description: >-
@@ -308,7 +300,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/requests:
+  /delivery/v2.1/requests:
     post:
       summary: Richiesta invio notifica
       description: >-
@@ -328,13 +320,13 @@ paths:
         prevista dai webhook. <br/>
       tags:
         - NewNotification
-      operationId: sendNewNotification
+      operationId: sendNewNotificationV21
       requestBody:
         content:
           application/json:
             schema:
               $ref: >-
-                ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest
+                ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV21
         required: true
       responses:
         '202':
@@ -362,7 +354,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      operationId: retrieveNotificationRequestStatus
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -381,7 +372,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NewNotificationRequestStatusResponse'
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV21'
         '400':
           description: Bad request
           content:
@@ -400,7 +391,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v2.0/notifications/sent/{iun}:
+  /delivery/v2.1/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
@@ -408,7 +399,6 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV21
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
       responses:
@@ -436,7 +426,6 @@ paths:
       summary: Download documento notificato
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationDocument
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -472,11 +461,11 @@ paths:
       summary: Download allegato per pagamento
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationAttachment
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
       responses:
         '200':
           description: OK
@@ -509,7 +498,6 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi
       tags:
         - LegalFacts
-      operationId: retrieveLegalFact
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathLegalFactType'
@@ -539,7 +527,6 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi
       tags:
         - LegalFacts
-      operationId: downloadLegalFactById
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathLegalFactId'
@@ -600,7 +587,6 @@ paths:
                 $ref: remote-refs.yaml#/components/schemas/Problem
   /delivery/price/{paTaxId}/{noticeCode}:
     get:
-      operationId: retrieveNotificationPrice
       summary: Retrieve notification price and effective date
       description: |-
         Usata dalla PA per recuperare il costo di notificazione tramite
@@ -685,6 +671,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/events/payment/f24:
     post:
+      deprecated: true
       operationId: paymentEventsRequestF24
       description: >-
         Questa API è a disposizione della Pubblica Amministrazione per inviare
@@ -776,7 +763,7 @@ components:
       name: idempotenceToken
       description: >-
         token usato per disambiguare "richieste di notificazione" effettuate con
-        lo stesso  numero di protocollo. 
+        lo stesso  numero di protocollo.
       in: query
       required: false
       schema:
@@ -793,7 +780,7 @@ components:
         format: int32
     pathRecipientIdx:
       name: recipientIdx
-      description: indice dei destinatario nella lista partendo da 0.
+      description: indice del destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
@@ -803,14 +790,22 @@ components:
       name: attachmentName
       description: >-
         Tipologia del pagamento allegato alla notifica. Valori possibili
-        PAGOPA|F24_FLAT|F24_STANDARD
+        PAGOPA|F24
       in: path
       required: true
       schema:
         type: string
-        minLength: 6
-        maxLength: 12
-        pattern: PAGOPA|F24_FLAT|F24_STANDARD
+        minLength: 3
+        maxLength: 6
+        pattern: PAGOPA|F24
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
     pathLegalFactType:
       $ref: ./remote-refs.yaml#/components/parameters/pathLegalFactType
     pathLegalFactId:
@@ -837,13 +832,14 @@ components:
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
-            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è
-            supportato solo
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente
+            sono supportati
               - application/pdf
+              - application/json
           type: string
           minLength: 15
-          maxLength: 15
-          pattern: ^application\/pdf$
+          maxLength: 16
+          pattern: ^application\/(pdf|json)$
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -943,10 +939,10 @@ components:
             notificazione"  effettuate con lo stesso numero di protocollo (campo
             _paProtocolNumber_).
           type: string
-    NewNotificationRequestStatusResponse:
+    NewNotificationRequestStatusResponseV21:
       allOf:
         - $ref: >-
-            ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest
+            ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV21
         - type: object
           required:
             - notificationRequestId
@@ -989,7 +985,8 @@ components:
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: ./schemas-pn-notification.yaml#/components/schemas/SentNotification
+        - $ref: >-
+            ./schemas-pn-notification.yaml#/components/schemas/SentNotificationV21
         - type: object
           required:
             - notificationStatus
@@ -1105,6 +1102,8 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatusHistory
     LegalFactDownloadMetadataResponse:
       $ref: ./remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse
+    F24Metadata:
+      $ref: ./remote-refs.yaml#/components/schemas/F24Metadata
     RequestStatus:
       $ref: ./remote-refs.yaml#/components/schemas/RequestStatus
     FullSentNotification:
@@ -1132,10 +1131,3 @@ components:
                 $ref: '#/components/schemas/TimelineElement'
     TimelineElement:
       $ref: ./remote-refs.yaml#/components/schemas/TimelineElement
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: x-api-key
-security:
-  - ApiKeyAuth: []
