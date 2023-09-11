@@ -36,7 +36,7 @@ public class DtoToEntityNotificationMapper {
                 .amount(dto.getAmount())
                 .paymentExpirationDate(dto.getPaymentExpirationDate())
                 .taxonomyCode(dto.getTaxonomyCode())
-                //.pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
+                .pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
                 .sourceChannel( dto.getSourceChannel() )
                 .sourceChannelDetails( dto.getSourceChannel() )
                 .version( NOTIFICATION_VERSION );
@@ -75,6 +75,7 @@ public class DtoToEntityNotificationMapper {
                 .creditorTaxId( item.getCreditorTaxId() )
                 .noticeCode( item.getNoticeCode() )
                 .pagoPaForm( dto2PaymentAttachment( item.getPagoPaForm() ) )
+                .f24(dto2PaymentAttachment(item.getF24()))
                 .build());
 
         if ( StringUtils.hasText( item.getNoticeCodeAlternative() ) ) {
@@ -82,6 +83,7 @@ public class DtoToEntityNotificationMapper {
                     .creditorTaxId( item.getCreditorTaxId() )
                     .noticeCode( item.getNoticeCodeAlternative() )
                     .pagoPaForm( dto2PaymentAttachment( item.getPagoPaForm() ) )
+                    .f24(dto2PaymentAttachment(item.getF24()))
                     .build()
             );
         }
@@ -89,6 +91,24 @@ public class DtoToEntityNotificationMapper {
     }
 
 
+    private PaymentAttachmentEntity dto2PaymentAttachment( F24Payment dto ) {
+        PaymentAttachmentEntity paymentAttachmentEntity = null;
+        if (dto != null) {
+            paymentAttachmentEntity = PaymentAttachmentEntity.builder()
+                    .ref( AttachmentRefEntity.builder()
+                            .key( dto.getRef().getKey() )
+                            .versionToken( dto.getRef().getVersionToken() )
+                            .build()
+                    )
+                    .contentType( dto.getContentType() )
+                    .digests( AttachmentDigestsEntity.builder()
+                            .sha256( dto.getDigests().getSha256() )
+                            .build()
+                    )
+                    .build();
+        }
+        return paymentAttachmentEntity;
+    }
 
     private PaymentAttachmentEntity dto2PaymentAttachment( NotificationPaymentAttachment dto ) {
         PaymentAttachmentEntity paymentAttachmentEntity = null;

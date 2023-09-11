@@ -52,7 +52,7 @@ class PnReceivedIONotificationsControllerTest {
     void getReceivedNotificationSuccess() {
         // Given
         InternalNotification notification = newNotification();
-        String expectedValueJson = newThirdPartyMessage(notification);
+        String expectedValueJson = newThirdPartyMessage(notification, true);
         System.out.println(expectedValueJson);
 
         // When

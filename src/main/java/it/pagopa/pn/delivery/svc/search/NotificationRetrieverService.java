@@ -841,7 +841,7 @@ public class NotificationRetrieverService {
 
 	public boolean isNotificationCancelled(InternalNotification notification) {
 		var cancellationRequestCategory = TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST;
-		Optional<TimelineElementV20> cancellationRequestTimeline = notification.getTimeline().stream()
+		Optional<TimelineElement> cancellationRequestTimeline = notification.getTimeline().stream()
 				.filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
 				.findFirst();
 		boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();

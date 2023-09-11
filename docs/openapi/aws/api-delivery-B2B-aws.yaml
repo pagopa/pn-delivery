@@ -106,12 +106,12 @@ paths:
         prevista dai webhook. <br/>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV2_1
+      operationId: sendNewNotificationV21
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewNotificationRequestV2_1'
+              $ref: '#/components/schemas/NewNotificationRequestV21'
         required: true
       responses:
         '202':
@@ -161,7 +161,7 @@ paths:
         type: http_proxy
       parameters: []
     get:
-      operationId: retrieveNotificationRequestStatusV2_1
+      operationId: retrieveNotificationRequestStatusV21
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -180,7 +180,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV2_1'
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV21'
         '400':
           description: Bad request
           content:
@@ -240,7 +240,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV2_1
+      operationId: retrieveSentNotificationV21
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -249,7 +249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV2_1'
+                $ref: '#/components/schemas/FullSentNotificationV21'
         '400':
           description: Bad request
           content:
@@ -994,9 +994,9 @@ components:
             notificazione"  effettuate con lo stesso numero di protocollo (campo
             _paProtocolNumber_).
           type: string
-    NewNotificationRequestStatusResponseV2_1:
+    NewNotificationRequestStatusResponseV21:
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV2_1'
+        - $ref: '#/components/schemas/NewNotificationRequestV21'
         - type: object
           required:
             - notificationRequestId
@@ -1095,12 +1095,12 @@ components:
           type: string
       required:
         - code
-    FullSentNotificationV2_1:
+    FullSentNotificationV21:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: '#/components/schemas/SentNotificationV2_1'
+        - $ref: '#/components/schemas/SentNotificationV21'
         - type: object
           required:
             - notificationStatus
@@ -1117,7 +1117,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV2_0'
+                $ref: '#/components/schemas/TimelineElementV20'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1206,7 +1206,7 @@ components:
           pattern: PF|PG
         amount:
           type: number
-    TimelineElementV2_0:
+    TimelineElementV20:
       type: object
       additionalProperties: false
       properties:
@@ -1229,9 +1229,9 @@ components:
             Chiavi dei documenti che provano l'effettivo accadimento dell'evento
             descritto in timeline. Questo elemento
         category:
-          $ref: '#/components/schemas/TimelineElementCategoryV2_0'
+          $ref: '#/components/schemas/TimelineElementCategoryV20'
         details:
-          $ref: '#/components/schemas/TimelineElementDetailsV2_0'
+          $ref: '#/components/schemas/TimelineElementDetailsV20'
     NotificationStatus:
       type: string
       description: |
@@ -1575,7 +1575,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationPaymentItem'
-    NotificationRecipientV2_1:
+    NotificationRecipientV21:
       description: Informazioni sui destinatari
       required:
         - denomination
@@ -1636,7 +1636,7 @@ components:
       minLength: 25
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-    NewNotificationRequestV2_1:
+    NewNotificationRequestV21:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -1682,7 +1682,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: '#/components/schemas/NotificationRecipientV2_1'
+            $ref: '#/components/schemas/NotificationRecipientV21'
         documents:
           type: array
           description: Documenti notificati
@@ -1751,10 +1751,10 @@ components:
             - NONE
             - SYNC
             - ASYNC
-    SentNotificationV2_1:
+    SentNotificationV21:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV2_1'
+        - $ref: '#/components/schemas/NewNotificationRequestV21'
         - type: object
           required:
             - iun
@@ -1830,7 +1830,7 @@ components:
           maxLength: 512
         category:
           $ref: '#/components/schemas/LegalFactCategory'
-    TimelineElementCategoryV2_0:
+    TimelineElementCategoryV20:
       type: string
       description: |
         stato di avanzamento del processo di notifica:`
@@ -2884,7 +2884,7 @@ components:
         prepareRequestId:
           type: string
           description: RequestId della richiesta di prepare
-    TimelineElementDetailsV2_0:
+    TimelineElementDetailsV20:
       description: The raw event payload that will be different based on the event.
       oneOf:
         - $ref: '#/components/schemas/SenderAckCreationRequestDetails'

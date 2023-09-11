@@ -56,7 +56,7 @@ components:
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
-    TimelineElementV2_0:
+    TimelineElementV20:
       # - Lo so che non vanno fatte referenze a branch. Mi serve solo per rendere l'idea
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/develop/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
     TimelineElement:

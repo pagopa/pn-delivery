@@ -13,4 +13,7 @@ public class F24Payment {
     private String title;
     private boolean costFlag;
     private Integer index;
+    private NotificationAttachmentDigests digests;
+    private String contentType;
+    private NotificationAttachmentBodyRef ref;
 }

@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
-import it.pagopa.pn.commons.exceptions.mapper.DtoProblemToProblemErrorMapper;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
@@ -230,10 +229,10 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        PnHttpResponseException exception =  new PnHttpResponseException("errore", "detail", 404, List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
+        /*PnHttpResponseException exception =  new PnHttpResponseException("errore", "detail", 404, List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
                         .code(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED)
-                .build()), null);
-
+                .build()), null);*/
+        PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
         Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
                 .thenThrow(exception);
@@ -271,10 +270,10 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        PnHttpResponseException exception =  new PnHttpResponseException("errore", "detail", 404, List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
+        /*PnHttpResponseException exception =  new PnHttpResponseException("errore", "detail", 404, List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
                 .code("altro_CODICE_ERRORE")
-                .build()), null);
-
+                .build()), null);*/
+        PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
         Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
                 .thenThrow(exception);

@@ -131,7 +131,7 @@ paths:
         notifiche ricevute.
       tags:
         - RecipientRead
-      operationId: getReceivedNotificationV2_1
+      operationId: getReceivedNotificationV21
       #      security:                                      # ONLY EXTERNAL
       #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
@@ -143,7 +143,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullReceivedNotificationV2_1"
+                $ref: "#/components/schemas/FullReceivedNotificationV21"
         '400':
           description: Bad request
           content:
@@ -358,12 +358,12 @@ components:
       description: Access token is missing or invalid
   schemas:
 
-    FullReceivedNotificationV2_1:
+    FullReceivedNotificationV21:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV2_1'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV21'
         - type: object
           required:
             - notificationStatus
@@ -379,13 +379,13 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV2_0'
+                $ref: '#/components/schemas/TimelineElementV20'
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
 
-    TimelineElementV2_0:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV2_0'
+    TimelineElementV20:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV20'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:

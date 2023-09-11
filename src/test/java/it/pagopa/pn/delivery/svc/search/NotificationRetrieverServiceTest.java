@@ -11,7 +11,6 @@ import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
-import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategory;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;

@@ -15,6 +15,7 @@ public class NotificationPaymentInfoEntity {
     private String noticeCode;
     private String creditorTaxId;
     private PaymentAttachmentEntity pagoPaForm;
+    private PaymentAttachmentEntity f24;
 
     @DynamoDbAttribute(value = "noticeCode")
     public String getNoticeCode() {

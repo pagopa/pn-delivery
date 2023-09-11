@@ -408,7 +408,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV2_1
+      operationId: retrieveSentNotificationV21
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
       responses:
@@ -417,7 +417,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV2_1'
+                $ref: '#/components/schemas/FullSentNotificationV21'
         '400':
           description: Bad request
           content:
@@ -984,7 +984,7 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/Problem
     ProblemError:
       $ref: ./remote-refs.yaml#/components/schemas/ProblemError
-    FullSentNotificationV2_1:
+    FullSentNotificationV21:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
@@ -1006,7 +1006,7 @@ components:
                 processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV2_0'
+                $ref: '#/components/schemas/TimelineElementV20'
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >-
@@ -1097,8 +1097,8 @@ components:
         amount:
           type: integer
           format: int32
-    TimelineElementV2_0:
-      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV2_0
+    TimelineElementV20:
+      $ref: ./remote-refs.yaml#/components/schemas/TimelineElementV20
     NotificationStatus:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatus
     NotificationStatusHistory:

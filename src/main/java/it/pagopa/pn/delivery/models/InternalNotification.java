@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.models;
 
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
@@ -50,6 +51,7 @@ public class InternalNotification {
     private List<TimelineElement> timeline;
     private List<String> recipientIds;
     private String sourceChannel;
+    private NewNotificationRequestV21.PagoPaIntModeEnum pagoPaIntMode;
 
     public InternalNotification idempotenceToken(String idempotenceToken) {
         this.idempotenceToken = idempotenceToken;
@@ -137,7 +139,7 @@ public class InternalNotification {
         return this;
     }
 
-    public List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDocument> getDocuments() {
+    public List<NotificationDocument> getDocuments() {
         return documents;
     }
 

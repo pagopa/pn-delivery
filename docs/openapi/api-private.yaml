@@ -95,7 +95,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV2_1"
+                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV21"
         '400':
           description: Bad request
           content:

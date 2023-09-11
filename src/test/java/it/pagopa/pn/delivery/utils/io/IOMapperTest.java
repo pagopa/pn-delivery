@@ -37,7 +37,7 @@ class IOMapperTest {
         int indexDocument = 0;
         String iun = "IUN";
         boolean isCancelled = false;
-        InternalNotification internalNotification = internalNotification(isCancelled, true);
+        InternalNotification internalNotification = internalNotification();
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -70,7 +70,7 @@ class IOMapperTest {
         int indexDocument = 0;
         String iun = "IUN";
         boolean isCancelled = true;
-        InternalNotification internalNotification = internalNotification(isCancelled, true);
+        InternalNotification internalNotification = internalNotification();
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -84,7 +84,7 @@ class IOMapperTest {
                         .subject("SUBJECT")
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(NotificationRecipient.builder()
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
                                 .denomination("DENOMINATION")
                                 .taxId("TAXID")
                                 .recipientType("PF")
@@ -106,7 +106,7 @@ class IOMapperTest {
         int indexDocument = 0;
         String iun = "IUN";
         boolean isCancelled = true;
-        InternalNotification internalNotification = internalNotification(isCancelled, false);
+        InternalNotification internalNotification = internalNotification();
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -120,7 +120,7 @@ class IOMapperTest {
                         .subject("SUBJECT")
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(NotificationRecipient.builder()
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
                                 .denomination("DENOMINATION")
                                 .taxId("TAXID")
                                 .recipientType("PF")
@@ -142,7 +142,7 @@ class IOMapperTest {
         int indexDocument = 0;
         String iun = "IUN";
         boolean isCancelled = false;
-        InternalNotification internalNotification = internalNotification(isCancelled, false);
+        InternalNotification internalNotification = internalNotification();
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -156,7 +156,7 @@ class IOMapperTest {
                         .subject("SUBJECT")
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(NotificationRecipient.builder()
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
                                 .denomination("DENOMINATION")
                                 .taxId("TAXID")
                                 .recipientType("PF")
