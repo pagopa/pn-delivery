@@ -661,6 +661,69 @@ class NotificationRetrieverServiceTest {
         Assertions.assertEquals("group-code-fake", result.getGroup());
     }
 
+
+    @Test
+    void getNotificationCancelledFromPA() {
+        //Given
+        String nowTestInstant = "2022-06-17T13:00:00.00Z";
+        InternalNotification internalNotification = getNewInternalNotification();
+
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
+                .elementId( "elementId" )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST )
+                .timestamp(  Instant.now()
+                        .atOffset(ZoneOffset.UTC) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.CANCELLED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.CANCELLED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+
+        //When
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+
+        InternalNotification internalNotificationResult = svc.getNotificationInformation(IUN, true, true);
+
+        //Then
+        Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
+    }
+
+    @Test
+    void getNotificationCancelledFromRecipient() {
+        //Given
+        String nowTestInstant = "2022-06-17T13:00:00.00Z";
+        InternalNotification internalNotification = getNewInternalNotification();
+
+        var tle = Collections.singletonList( new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20()
+                .elementId( "elementId" )
+                .category( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST )
+                .timestamp(  Instant.now()
+                        .atOffset(ZoneOffset.UTC) ));
+
+        NotificationHistoryResponse timelineStatusHistoryDto = new NotificationHistoryResponse()
+                .timeline( tle )
+                .notificationStatus( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.CANCELLED )
+                .notificationStatusHistory( Collections.singletonList(new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement()
+                        .status(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.CANCELLED)
+                        .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
+
+
+        //When
+        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+
+        InternalNotification internalNotificationResult = svc.getNotificationInformation(IUN, true, false);
+
+        //Then
+        Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
+    }
+
     @Test
     void checkRefinementDateOraSolare() {
         // Given
@@ -1267,6 +1330,7 @@ class NotificationRetrieverServiceTest {
         //When
         when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( clock.instant()).thenReturn(Instant.now());
 
         InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
 
