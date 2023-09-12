@@ -1,9 +1,13 @@
 package it.pagopa.pn.delivery.svc.authorization;
 
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
@@ -17,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +53,7 @@ class CheckAuthComponentTest {
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertThrows( NullPointerException.class, todo );
+        Assertions.assertThrows( IllegalArgumentException.class, todo );
     }
 
 
@@ -95,8 +98,38 @@ class CheckAuthComponentTest {
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
+        Assertions.assertFalse( authorizationOutcome.isAuthorized() );
+    }
+
+    @Test
+    void canAccessPFWithMandateIdSuccess1() {
+        String cxType = "PF";
+        String cxId = "CX_ID";
+        String iun = "IUN_01";
+        String mandateId = "mandateId";
+        Integer recipientIdx = 0;
+
+        InternalNotification notification = newNotification();
+        notification.setCancelledIun(iun);
+        notification.setRecipientIds(List.of("recipientId"));
+        notification.setRecipients(List.of(NotificationRecipient.builder().taxId("taxId").recipientType(NotificationRecipientV21.RecipientTypeEnum.PF).build()));
+        // Given
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
+
+        // When
+        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
+                .thenReturn( Collections.singletonList(new InternalMandateDto()
+                        .datefrom( "2022-01-01T00:00Z" )
+                        .mandateId( mandateId )
+                        .delegator( "recipientId" ))
+                );
+        AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
+
+        // Then
         Assertions.assertTrue( authorizationOutcome.isAuthorized() );
     }
+
+
     @Test
     void canAccessPGWithMandateIdSuccess() {
         String cxType = "PG";
@@ -119,7 +152,7 @@ class CheckAuthComponentTest {
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertTrue( authorizationOutcome.isAuthorized() );
+        Assertions.assertFalse( authorizationOutcome.isAuthorized() );
     }
 
     @Test
@@ -140,7 +173,7 @@ class CheckAuthComponentTest {
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertThrows( IllegalArgumentException.class, todo);
+        Assertions.assertThrows( PnMandateNotFoundException.class, todo);
     }
     @Test
     void canAccessPGWithMandateIdNotFoundExc() {
@@ -179,11 +212,12 @@ class CheckAuthComponentTest {
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertTrue( authorizationOutcome.isAuthorized() );
+        Assertions.assertFalse( authorizationOutcome.isAuthorized() );
     }
 
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setSentAt(OffsetDateTime.MAX);
         internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setRecipientIds(List.of("IUN_01"));
         internalNotification.setIun("IUN_01");

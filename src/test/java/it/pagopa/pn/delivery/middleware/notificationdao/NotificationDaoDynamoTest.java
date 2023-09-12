@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
@@ -50,11 +51,11 @@ class NotificationDaoDynamoTest {
     private static final String VERSION_TOKEN = "VERSION_TOKEN";
     private static final String KEY = "KEY";
     public static final NotificationDocument NOTIFICATION_REFERRED_ATTACHMENT = NotificationDocument.builder()
-            .ref( NotificationAttachmentBodyRef.builder()
+            .ref( it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
                     .versionToken( VERSION_TOKEN )
                     .key( KEY )
                     .build() )
-            .digests( NotificationAttachmentDigests.builder()
+            .digests( it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder()
                     .sha256(SHA256_BODY)
                     .build() )
             .contentType("application/pdf")
@@ -249,6 +250,17 @@ class NotificationDaoDynamoTest {
     }
 
     @Test
+    void searchForOneMonth() {
+        InputSearchNotificationDto dto = new InputSearchNotificationDto();
+        PageSearchTrunk<NotificationDelegationMetadataEntity> page = new PageSearchTrunk<>();
+        page.setResults(Collections.singletonList(new NotificationDelegationMetadataEntity()));
+        when(delegationMetadataEntityDao.searchForOneMonth(any(), any(), any(), anyInt(), any())).thenReturn(page);
+        Assertions.assertDoesNotThrow(() -> {
+            this.dao.searchForOneMonth(dto, "indexName", "partitionValue", 1, null);
+        });
+    }
+
+    @Test
     void findByPk() {
         InputSearchNotificationDelegatedDto dto = new InputSearchNotificationDelegatedDto();
         Page<NotificationDelegationMetadataEntity> page = Page.create(Collections.singletonList(new NotificationDelegationMetadataEntity()), null);
@@ -267,10 +279,10 @@ class NotificationDaoDynamoTest {
         InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto();
         inputSearchNotificationDto.setIunMatch(iun);
         entityDao.put(NotificationEntity.builder()
-                        .iun(iun)
-                        .sentAt(Instant.now())
-                        .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
-                        .senderPaId(senderId)
+                .iun(iun)
+                .sentAt(Instant.now())
+                .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
+                .senderPaId(senderId)
                 .build());
 
 
@@ -533,6 +545,13 @@ class NotificationDaoDynamoTest {
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setRecipientIds(List.of("ids"));
+        internalNotification.setDocuments(List.of(NotificationDocument.builder()
+                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder().key("key").versionToken("version").build())
+                .title("title")
+                .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder().sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=").build())
+                .contentType("application/pdf")
+                .docIdx("docId")
+                .build()));
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")

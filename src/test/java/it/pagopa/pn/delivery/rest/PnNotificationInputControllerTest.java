@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationReceiverService;
@@ -22,6 +23,8 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static org.mockito.Mockito.mock;
 
 @WebFluxTest(PnNotificationInputController.class)
 class PnNotificationInputControllerTest {
@@ -316,6 +319,33 @@ class PnNotificationInputControllerTest {
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyList());
+	}
+
+	@Test
+	void postPresignedUploadNotSuccess() {
+		// Given
+		List<PreLoadRequest> requests = new ArrayList<>();
+		requests.add( PreLoadRequest.builder()
+				.sha256( FILE_SHA_256 )
+				.build());
+		PnInvalidInputException pn = mock(PnInvalidInputException.class);
+
+		// When
+		Mockito.when(cfg.getNumberOfPresignedRequest()).thenReturn( 0 );
+
+		// Then
+		webTestClient.post()
+				.uri("/delivery/attachments/preload")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(requests), PreLoadRequest.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, "asdasd" )
+				.exchange()
+				.expectStatus().isBadRequest();
+
 	}
 
 	@Test
