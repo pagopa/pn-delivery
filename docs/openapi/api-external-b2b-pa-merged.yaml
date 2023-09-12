@@ -354,6 +354,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
+      operationId: retrieveNotificationRequestStatusV21
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -399,6 +400,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationV21
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
       responses:
@@ -426,6 +428,7 @@ paths:
       summary: Download documento notificato
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationDocument
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -461,6 +464,7 @@ paths:
       summary: Download allegato per pagamento
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationAttachment
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathRecipientIdx'
@@ -498,6 +502,7 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi
       tags:
         - LegalFacts
+      operationId: retrieveLegalFact
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathLegalFactType'
@@ -527,6 +532,7 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi
       tags:
         - LegalFacts
+      operationId: downloadLegalFactById
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathLegalFactId'
@@ -587,6 +593,7 @@ paths:
                 $ref: remote-refs.yaml#/components/schemas/Problem
   /delivery/price/{paTaxId}/{noticeCode}:
     get:
+      operationId: retrieveNotificationPrice
       summary: Retrieve notification price and effective date
       description: |-
         Usata dalla PA per recuperare il costo di notificazione tramite

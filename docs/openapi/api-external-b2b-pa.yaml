@@ -363,7 +363,7 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      #      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
+      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -415,7 +415,7 @@ paths:
         
       tags:
         - SenderReadB2B
-      #      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
@@ -450,7 +450,7 @@ paths:
       summary: Download documento notificato
       tags:
         - SenderReadB2B
-      #      operationId: retrieveSentNotificationDocument                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationDocument                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -486,7 +486,7 @@ paths:
       summary: Download allegato per pagamento
       tags:
         - SenderReadB2B
-      #      operationId: retrieveSentNotificationAttachment                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationAttachment                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
@@ -527,7 +527,7 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
       tags:                                                                         # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
-      #      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
+      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
@@ -557,7 +557,7 @@ paths:
       description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
       tags:                                                                         # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
-      #      operationId: downloadLegalFactById                                           # ONLY EXTERNAL
+      operationId: downloadLegalFactById                                           # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
@@ -619,7 +619,7 @@ paths:
                 $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
   '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
-      #      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
+      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
         Usata dalla PA per recuperare il costo di notificazione tramite
