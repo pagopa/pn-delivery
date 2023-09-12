@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: vTd+mqIzsxvFVommR2vMHMH04sYeqQpttgfjJokqFTw=
+  version: TTAXvINUXtuKnGINQ2g+bWylK+y34v6l9Pp4UxbaM2s=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -161,6 +161,7 @@ paths:
         type: http_proxy
       parameters: []
     get:
+      operationId: retrieveNotificationRequestStatusV21
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -239,6 +240,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationV21
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -301,6 +303,7 @@ paths:
       summary: Download documento notificato
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationDocument
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -375,6 +378,7 @@ paths:
       summary: Download allegato per pagamento
       tags:
         - SenderReadB2B
+      operationId: retrieveSentNotificationAttachment
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
@@ -450,6 +454,7 @@ paths:
         type: http_proxy
   /price/{paTaxId}/{noticeCode}:
     get:
+      operationId: retrieveNotificationPrice
       summary: Retrieve notification price and effective date
       description: |-
         Usata dalla PA per recuperare il costo di notificazione tramite

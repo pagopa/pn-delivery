@@ -398,7 +398,7 @@ paths:
     ###########################################################################################
     get:
       operationId: getNotificationRequestStatusV21                       # NO EXTERNAL
-      #      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -466,7 +466,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationV21                                      # NO EXTERNAL
-      #      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
+#      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -517,7 +517,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationDocument                                      # NO EXTERNAL
-      #      operationId: retrieveSentNotificationDocument                                # ONLY EXTERNAL
+#      operationId: retrieveSentNotificationDocument                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
@@ -558,7 +558,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: getSentNotificationAttachment                                      # NO EXTERNAL
-      #      operationId: retrieveSentNotificationAttachment                                # ONLY EXTERNAL
+#      operationId: retrieveSentNotificationAttachment                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
@@ -604,7 +604,7 @@ paths:
       tags:                                                                         # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
       operationId: getLegalFact                                                     # NO EXTERNAL
-      #      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
+#      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
@@ -635,7 +635,7 @@ paths:
       tags:                                                                         # ONLY EXTERNAL
         - LegalFacts                                                                # ONLY EXTERNAL
       operationId: getLegalFactById                                                 # NO EXTERNAL
-      #      operationId: downloadLegalFactById                                           # ONLY EXTERNAL
+#      operationId: downloadLegalFactById                                           # ONLY EXTERNAL
       parameters:                                                                   # ONLY EXTERNAL
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
         - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
@@ -702,7 +702,7 @@ paths:
   '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: getNotificationPrice                                             # NO EXTERNAL
-      #      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
+#      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
       summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
       description: >-                                                               # ONLY EXTERNAL
         Usata dalla PA per recuperare il costo di notificazione tramite
