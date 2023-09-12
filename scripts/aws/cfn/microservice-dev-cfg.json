@@ -20,6 +20,6 @@
     "LollipopEnableConsumerLogging": "true",
     "IsSendActiveDefaultValue": "true",
     "PhysicalAddressValidationValue": "true",
-    "PhysicalAddressValidationCharsValue": "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-"
+    "PhysicalAddressValidationCharsValue": "@_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '\\-"
   }
 }
