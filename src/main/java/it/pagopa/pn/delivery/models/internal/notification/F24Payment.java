@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 public class F24Payment {
     private String title;
-    private boolean costFlag;
+    private boolean applyCost;
     private Integer index;
     private NotificationAttachmentDigests digests;
     private String contentType;

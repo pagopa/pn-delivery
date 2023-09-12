@@ -6,7 +6,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +76,7 @@ public class DtoToEntityNotificationMapper {
                 .pagoPaForm( dto2PaymentAttachment( item.getPagoPaForm() ) )
                 .f24(dto2PaymentAttachment(item.getF24()))
                 .build());
-
+        /*
         if ( StringUtils.hasText( item.getNoticeCodeAlternative() ) ) {
             notificationPaymentInfoEntities.add( NotificationPaymentInfoEntity.builder()
                     .creditorTaxId( item.getCreditorTaxId() )
@@ -86,28 +85,34 @@ public class DtoToEntityNotificationMapper {
                     .f24(dto2PaymentAttachment(item.getF24()))
                     .build()
             );
-        }
+        }*/
         return notificationPaymentInfoEntities;
     }
 
 
-    private PaymentAttachmentEntity dto2PaymentAttachment( F24Payment dto ) {
-        PaymentAttachmentEntity paymentAttachmentEntity = null;
+    private F24PaymentEntity dto2PaymentAttachment( F24Payment dto ) {
+        F24PaymentEntity f24PaymentEntity = null;
         if (dto != null) {
-            paymentAttachmentEntity = PaymentAttachmentEntity.builder()
-                    .ref( AttachmentRefEntity.builder()
-                            .key( dto.getRef().getKey() )
-                            .versionToken( dto.getRef().getVersionToken() )
-                            .build()
-                    )
-                    .contentType( dto.getContentType() )
-                    .digests( AttachmentDigestsEntity.builder()
-                            .sha256( dto.getDigests().getSha256() )
-                            .build()
+            f24PaymentEntity = F24PaymentEntity.builder()
+                    .title(dto.getTitle())
+                    .applyCost(dto.isApplyCost())
+                    .index(dto.getIndex())
+                    .paymentAttachmentEntity(
+                            PaymentAttachmentEntity.builder()
+                                    .ref( AttachmentRefEntity.builder()
+                                            .key( dto.getRef().getKey() )
+                                            .versionToken( dto.getRef().getVersionToken() )
+                                            .build()
+                                    )
+                                    .contentType( dto.getContentType() )
+                                    .digests( AttachmentDigestsEntity.builder()
+                                            .sha256( dto.getDigests().getSha256() )
+                                            .build()
+                                    ).build()
                     )
                     .build();
         }
-        return paymentAttachmentEntity;
+        return f24PaymentEntity;
     }
 
     private PaymentAttachmentEntity dto2PaymentAttachment( NotificationPaymentAttachment dto ) {

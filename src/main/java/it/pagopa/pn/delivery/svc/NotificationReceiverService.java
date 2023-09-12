@@ -29,7 +29,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -122,20 +121,24 @@ public class NotificationReceiverService {
 							.boxed()
 							.flatMap(paymentIndex -> {
 								NotificationPaymentInfo notificationPaymentInfo = notificationRecipient.getPayments().get(paymentIndex);
-								SaveF24Item saveF24Item = new SaveF24Item();
-								saveF24Item.setApplyCost(notificationPaymentInfo.getApplyCost());
-								saveF24Item.setSha256( (notificationPaymentInfo.getF24() != null && notificationPaymentInfo.getF24().getDigests() != null) ? notificationPaymentInfo.getF24().getDigests().getSha256() : null);
-								saveF24Item.setFileKey( (notificationPaymentInfo.getF24() != null && notificationPaymentInfo.getF24().getRef() != null) ? notificationPaymentInfo.getF24().getRef().getKey() : null);
-								saveF24Item.setPathTokens(List.of(Integer.toString(recipientIndex), Integer.toString(paymentIndex)));
-								return Stream.of(saveF24Item);
+								if (notificationPaymentInfo.getF24() != null) {
+									SaveF24Item saveF24Item = new SaveF24Item();
+									saveF24Item.setApplyCost(notificationPaymentInfo.getF24().isApplyCost());
+									saveF24Item.setSha256(notificationPaymentInfo.getF24().getDigests() != null ? notificationPaymentInfo.getF24().getDigests().getSha256() : null);
+									saveF24Item.setFileKey(notificationPaymentInfo.getF24().getRef() != null ? notificationPaymentInfo.getF24().getRef().getKey() : null);
+									saveF24Item.setPathTokens(List.of(Integer.toString(recipientIndex), Integer.toString(paymentIndex)));
+									return Stream.of(saveF24Item);
+								} else {
+									return Stream.empty();
+								}
 							});
 				})
-				.collect(Collectors.toList());
+				.toList();
 
 		saveF24Request.setF24Items(saveF24Items);
 		saveF24Request.setId(internalNotification.getIun());
 
-		if(saveF24Items.size() != 0){
+		if(!saveF24Items.isEmpty()){
 			f24Client.saveMetadata(xPagopaPnCxId, internalNotification.getSenderTaxId(), saveF24Request);
 		}
 
