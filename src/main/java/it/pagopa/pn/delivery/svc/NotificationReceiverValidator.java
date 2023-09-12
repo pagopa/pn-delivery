@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysica
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -21,6 +22,7 @@ import javax.validation.Validator;
 import java.util.*;
 import java.util.stream.Stream;
 
+@Slf4j
 @Component
 public class NotificationReceiverValidator {
 
@@ -34,6 +36,10 @@ public class NotificationReceiverValidator {
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.validateUtils = validateUtils;
         this.pnDeliveryConfigs = pnDeliveryConfigs;
+
+        log.info("Validation enabled={}", pnDeliveryConfigs.isPhysicalAddressValidation());
+        log.info("Validation pattern={}", pnDeliveryConfigs.getPhysicalAddressValidationPattern());
+        log.info("Validation length={}", pnDeliveryConfigs.getPhysicalAddressValidationLength());
     }
 
     protected void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
