@@ -189,7 +189,324 @@ info:
     non-bloccante e rispettando il principio di retro-attività</li>
     <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di
     sviluppo</li> </ul>   </details></br>
+      <br/>
+
+
+    # Piattaforma Notifiche: API B2B avanzamento notifiche
+
+
+    I mittenti di notifica possono seguire il flusso di avanzamento delle
+    notifiche in modo  automatico. E' possibile definire fino ad un <font
+    color="red"><strong>massimo di <span id="webhookMaxStreams">5</span>
+    configurazioni di flussi per singola PA</strong></font> su  informazioni
+    relative a: <br/>
+      - cambiamento di stato della notifica;  <br/>
+      - inserimento di elementi nella timeline. <br/>
+
+    Per ognuno di questi elementi è possibile definire un filtro per ricevere
+    solo alcuni  cambiamenti di stato o determinati eventi di timeline di
+    maggiore interesse.</br><strong>In assenza del filtro verranno restituiti
+    tutti gli elementi relativi alla v1.</strong> </br>Si consiglia di creare
+    gli stream prima dell'invio delle notifiche perché gli stati o gli eventi
+    di  timeline vengono registrati solo successivamente alla creazione dello
+    stream.</br> </br> __Esempio:__ - Stream contenente tutte le notifiche in
+    stato Cancellato: </br></br> `` {
+      "title": "NotificationCancelled",
+      "eventType": "STATUS",
+      "filterValues": [
+        "CANCELLED"
+      ]
+    } `` </br></br> __Esempio:__ - Stream contenente tutte le notifiche in stato
+    Accettato o Consegnato: </br></br> `` {
+      "title": "NotificationAcceptedOrDelivered",
+      "eventType": "STATUS",
+      "filterValues": [
+        "ACCEPTED","DELIVERED"
+      ]
+    } `` </br></br> __Esempio:__ - Stream contenente tutti gli eventi di
+    timeline NOTIFICATION_VIEWED: </br></br> `` {
+      "title": "TimelineNotificationViewed",
+      "eventType": "TIMELINE",
+      "filterValues": [
+        "NOTIFICATION_VIEWED"
+      ]
+    } `` </br></br>
+
+    Gli stati della notifica che possono essere inseriti come __filterValues__
+    sono i seguenti: 
+      <details>
+        <summary>Stati - v1</summary>
+        <ul>
+          <li><strong>ACCEPTED </strong><em>L'ente ha depositato la notifica con successo.</em></li>
+          <li><strong>REFUSED </strong><em>Notifica rifiutata a seguito della validazione.</em></li>
+          <li><strong>DELIVERING </strong><em>L'invio della notifica è in corso.</em></li>
+          <li><strong>DELIVERED </strong><em>La notifica è stata consegnata a tutti i destinatari.</em></li>
+          <li><strong>VIEWED </strong><em>Il destinatario ha letto la notifica entro il termine stabilito.</em></li>
+          <li><strong>EFFECTIVE_DATE </strong><em>Il destinatario non ha letto la notifica entro il termine stabilito.</em></li>
+          <li><strong>UNREACHABLE </strong><em>Il destinatario non è reperibile.</em></li>
+          <li><strong>CANCELLED </strong><em>L'ente ha annullato l'invio della notifica.</em></li>
+        </ul>
+      </details>
+    </br>
+
+    Le categorie degli eventi di timeline che possono essere inseriti come
+    __filterValues__ sono i seguenti: 
+
+      <details>
+        <summary>Eventi di timeline - v1</summary>
+        <ul>
+          <li><strong>SENDER_ACK_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto opponibile a terzi di presa in carico per il mittente a safe storage</em></li>
+          <li><strong>VALIDATE_NORMALIZE_ADDRESSES_REQUEST </strong><em>Invio della richiesta di validazione e normalizzazione indirizzi fisici presenti nella richiesta di notifica</em></li>
+          <li><strong>NORMALIZED_ADDRESS </strong><em>Ricezione esito normalizzazione indirizzo</em></li>
+          <li><strong>REQUEST_ACCEPTED </strong><em>Richiesta di notifica accettata a seguito dei controlli di validazione.</em></li>
+          <li><strong>AAR_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage</em></li>
+          <li><strong>SEND_COURTESY_MESSAGE </strong><em>Invio di un messaggio di cortesia.</em></li>
+          <li><strong>GET_ADDRESS </strong><em>Disponibilità dell’indirizzo specifico (domicilio digitale di piattaforma, domicilio digitale speciale, domicilio digitale generale, indirizzo fisico sulla notifica o sui registri nazionali).</em></li>
+          <li><strong>PUBLIC_REGISTRY_CALL </strong><em>Richiesta ai registri pubblici per ottenere domicilio digitale generale o per ottenere indirizzo fisico da ANPR, da registro della imprese, da anagrafe tributaria.</em></li>
+          <li><strong>PUBLIC_REGISTRY_RESPONSE </strong><em>Ricevuta la risposta dei registri pubblici.</em></li>
+          <li><strong>SCHEDULE_ANALOG_WORKFLOW </strong><em>Pianificazione del workflow per invio cartaceo</em></li>
+          <li><strong>SCHEDULE_DIGITAL_WORKFLOW </strong><em>Pianificazione del workflow per invio digitale (PEC) del secondo tentativo in caso di fallimento del primo.</em></li>
+          <li><strong>PREPARE_DIGITAL_DOMICILE </strong><em>Preparazione per l’invio dell’avviso digitale.Va a valutare la timeline per capire quale sarà il prossimo indirizzo da usare.</em></li>
+          <li><strong>SEND_DIGITAL_PROGRESS </strong><em>Tentativo di Invio PEC ad un determinato indirizzo.</em></li>
+          <li><strong>SEND_DIGITAL_DOMICILE </strong><em>Invio digitale dell’avviso di notifica</em></li>
+          <li><strong>SEND_DIGITAL_FEEDBACK </strong><em>Ottenuto esito ad un invio digitale</em></li>
+          <li><strong>REFINEMENT </strong><em>Perfezionamento per decorrenza termini</em></li>
+          <li><strong>SCHEDULE_REFINEMENT </strong><em>Pianificato il perfezionamento per decorrenza termini</em></li>
+          <li><strong>DIGITAL_SUCCESS_WORKFLOW </strong><em>Completato con successo il workflow di invio digitale.</em></li>
+          <li><strong>DIGITAL_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio digitale: <strong>tutti i tentativi di invio ai domicili digitali sono falliti.</strong></em></li>
+          <li><strong>ANALOG_SUCCESS_WORKFLOW </strong><em>Completato con successo il workflow di invio cartaceo.</em></li>
+          <li><strong>ANALOG_FAILURE_WORKFLOW </strong><em>Completato con fallimento il workflow di invio cartaceo. NOTA: se per tutti i destinatari si conclude il workflow con fallimento verrà scatenato l’evento COMPLETELY_UNREACHABLE</em></li>
+          <li><strong>PREPARE_SIMPLE_REGISTERED_LETTER </strong><em>Invio richiesta di prepare (preparazione ad invio) raccomandata semplice a paperChannel</em></li>
+          <li><strong>SEND_SIMPLE_REGISTERED_LETTER </strong><em>Invio di raccomandata semplice</em></li>
+          <li><strong>SIMPLE_REGISTERED_LETTER_PROGRESS </strong><em>Ricezione informazioni intermedia relative ad una notificazione cartacea semplice</em></li>
+          <li><strong>NOTIFICATION_VIEWED_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto opponibile a terzi di presa visione a safe storage</em></li>
+          <li><strong>NOTIFICATION_VIEWED </strong><em>Visualizzazione della notifica (perfeziona la notifica se non già perfezionata per decorrenza termini o da altro destinatario)</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE </strong><em>Invio richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
+          <li><strong>SEND_ANALOG_PROGRESS </strong><em>Ricezione informazioni intermedia relative ad una notificazione cartacea</em></li>
+          <li><strong>SEND_ANALOG_FEEDBACK </strong><em>Ricezione esito dell'invio cartaceo.
+            </br>Il valore del campo details.responseStatus contiene l’esito della notifica digitale.Può assumere i valori di OK o KO .</em></li>
+          <li><strong>SEND_ANALOG_DOMICILE </strong><em>Invio cartaceo dell’avviso di notifica</em></li>
+          <li><strong>COMPLETELY_UNREACHABLE_CREATION_REQUEST </strong><em>Invio della richiesta di creazione dell'atto (simile a opponibile a terzi) di completamento con fallimento del workflow di invio cartaceo</em></li>
+          <li><strong>COMPLETELY_UNREACHABLE </strong><em>Tutti i destinatari risultano irraggiungibili</em></li>
+          <li><strong>REQUEST_REFUSED </strong><em>Richiesta di notifica rifiutata per fallimento di validazione.</em></li>
+          <li><strong>AAR_GENERATION </strong><em>Generazione dell’AAR (Avviso di Avvenuta Ricezione)</em></li>
+          <li><strong>PROBABLE_SCHEDULING_ANALOG_DATE</strong><em>Data probabile di inizio del flusso analogico</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE_FAILURE</strong><em>Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
+        </ul>
+      </details>
+      <details>
+        <summary>Eventi di timeline - v2 (tutti gli elementi v1 + gli elementi seguenti)</summary>
+        <ul>
+          <li><strong>NOTIFICATION_CANCELLATION_REQUEST</strong><em>Richiesta di annullamento di una notifica</em></li>
+          <li><strong>NOTIFICATION_CANCELLED</strong><em>Notifica annullata: completamento della richiesta di annullamento di una notifica</em></li>
+          <li><strong>PREPARE_ANALOG_DOMICILE_FAILURE</strong><em>Fallimento della richiesta di prepare (preparazione ad invio) cartaceo a paperChannel</em></li>
+        </ul>
+      </details>
+    </br> Di seguito un esempio di creazione e successiva interrogazione dello
+    stream: 
+
+      <details>
+        <summary>Esempio dello stream</summary>
       
+      <table>
+      
+      <tr>
+      
+      <td>
+      
+      </br>
+      
+      ### 1) Creazione dello stream ed inserimento notifica
+      In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni limitatamente agli eventi della v1, non bisogna inserire alcun filtro: 
+      <code>"filterValues": []</code></br>      
+      Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
+      
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      
+      ### 2) Prima interrogazione degli stream appena creati
+      
+      Col passare del tempo, potremo interrogare gli stream appena creati per leggere</br> gli eventi registrati, a partire già dall'evento di accettazione della notifica.</br> Si possono interrogare gli eventi registrati all'interno di uno stream con il servizio</br> di [lettura degli eventi](#/Events/consumeEventStream) passando il valore desiderato nello <code>{streamId}</code> ed otterremo</br> la response <big><strong>c)</strong></big> che contiene un array con un numero massimo di <span id="webhookMaxLength">50</span> eventi corrispondenti</br> a quelli che impattano tutte le notifiche inserite dalla creazione dello stream in poi</br> e che potranno essere salvati sul database del client chiamante.</br> Da notare che ogni evento contiene l'<code>eventId</code> ad esso associato.</br>
+      
+      A questo punto bisogna controllare il parametro <code>retry-after</code> contenuto nell'header</br> della response per capire quanto tempo attendere prima di richiamare lo stream</br> ed ottenere nuovi risultati: 
+      <ul>
+      <li>Se <code>retry-after = 0</code> significa che lo stream contiene ulteriori eventi rispetto</br> a quelli che ho appena ottenuto nella response e quindi posso richiamare subito</br> il servizio e consumare gli eventi successivi</li></br>
+      <li>se <code>retry-after ≠ 0</code> significa che lo stream NON contiene altri eventi rispetto</br> a quelli che ottenuti in questa chiamata e quindi dovrò attendere la quantità</br> di tempo indicata nel <code>retry-after</code> prima di effettuare un'altra chiamata</br> per consumare ulteriori eventi</li>
+      </ul>
+      
+      <font color="red"><strong>NOTA:</strong> 
+      è importante consumare <strong>SEMPRE</strong> gli eventi che vengono restituiti dallo stream, anche se il <code>retry-after ≠ 0</code>; infatti tale parametro regola la cadenza di chiamata al servizio, mentre il consumo degli eventi deve avvenire in ogni chiamata nella quale si ottengono eventi in risposta.</font>
+      
+      </br>
+      </br>
+      </br>
+
+      ### 3) Successive interrogazioni degli stream appena creati
+
+      Se la response della prima interrogazione degli stream restituisce nell'header: <code>retry-after = 0</code></br> significa che lo stream contiene altri eventi che possono essere consumati subito con</br> un'ulteriore chiamata al servizio di [lettura degli eventi](#/Events/consumeEventStream), ma questa volta per consumare</br> gli eventi successivi, bisogna valorizzare nei query params della request</br> il parametro <code>lastEventId</code> con l'eventId ottenuto nella precedente chiamata.</br> Così facendo il servizio eliminerà dallo stream tutti gli eventi precedenti a quello inserito</br> nel <code>lastEventId</code> e restituirà nella response <big><strong>d)</big></strong> solamente quelli successivi.</br>
+
+      A questo punto si potrà capire, sempre dal valore del <code>retry-after</code> contenuto nell'header</br> se chiamare subito il servizio ed inserire il <code>lastEventId</code> di questa ulteriore chiamata</br> o attendere il tempo indicato nell'header</br>
+
+      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveSentNotification) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
+
+      </td>
+      <td>
+      
+      #### a) Request di POST /delivery-progresses/streams
+      
+        {                                           {
+          "title": "stream-status-prova",             "title": "stream-timeline-prova",
+          "eventType": "STATUS",                      "eventType": "TIMELINE",
+          "filterValues": [                           "filterValues": [
+              "ACCEPTED"                                  "REQUEST_ACCEPTED"
+          ]                                           ]
+        }                                           }
+        
+      #### b) Response di POST /delivery-progresses/streams
+        
+        {                                           {
+            "title": "stream-status-prova",           "title": "stream-timeline-prova",
+            "eventType": "STATUS",                    "eventType": "TIMELINE",
+            "filterValues": [                         "filterValues": [
+                "ACCEPTED"                                "REQUEST_ACCEPTED"
+            ],                                        ],
+            "streamId":                               "streamId": 
+            "4e6d5e59-85fc-4ef7-bad8",                "6d87ree59-31ff-2rr7-lok1",
+            "activationDate":                         "activationDate": 
+            "2022-12-12T14:52:23.362454Z"             "2022-12-12T14:53:23.362454Z"
+        }                                           }  
+      
+      </br>
+      </br>
+
+      #### c) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events
+      
+        Headers: { "retry-after": "60000" }
+
+        [
+            {
+                "eventId": "0000000000000000000001",
+                "timestamp": "2022-12-06T08:14:26.140041Z",
+                "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
+                "iun": "ABCD-ABCD-ABCD-202212-V-1",
+                "newStatus": "ACCEPTED",
+                "timelineEventCategory": "REQUEST_ACCEPTED",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
+            }, 
+            ... // altri eventi nell'array
+        ]
+
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+      </br>
+
+      #### d) Response di GET /delivery-progresses/streams/<code>{streamId}</code>/events</br> chiamato valorizzando nei query params il parametro <code>lastEventId</code> con l'eventId</br> dell'ultimo evento nella precedente chiamata.</br>
+      
+        Headers: { "retry-after": "60000" }
+
+        [
+            {
+                "eventId": "0000000000000000000011",
+                "timestamp": "2022-12-07T10:13:22.158041Z",
+                "notificationRequestId": "QUJDRC1BQkNELUFCQ0QtMjAyMjEyLVYtMQ==",
+                "iun": "ABCD-ABCD-ABCD-202212-V-1",
+                "newStatus": "DELIVERED",
+                "timelineEventCategory": "DIGITAL_SUCCESS_WORKFLOW",
+                "recipientIndex": "0",
+                "analogCost": "0",
+                "channel": "PEC",
+                "legalfactIds": [
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9Q",
+                  "PN_LEGAL_FACTS-0002-9G2S-RK3M-JI62-JK9E"
+                ]
+            }, 
+            ... // altri eventi nell'array
+        ]
+      
+      </td>
+      
+      </tr>
+      
+      </table>
+
+      </br>
+      </br>
+      
+      </details>  
+
+    Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
+      - [Creazione](#/Streams/createEventStream) <br/>
+      - [Elencare la lista degli stream creati](#/Streams/listEventStreams) <br/>
+      - [Leggere i metadati dello stream](#/Streams/getEventStream) <br/>
+      - [Modifica](#/Streams/updateEventStream) <br/>
+      - [Cancellazione](#/Streams/deleteEventStream) <br/>
+
+    Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura
+    degli eventi](#/Events/consumeEventStream)  filtrati in base alla
+    configurazione impostata negli streams.
+
+    La api restituisce un massimo di <span id="webhookMaxLength">50</span>
+    elementi. Se <u>esistono</u> ulteriori eventi nello stream, allora la
+    response del servizio  restituice l'elemento `retryAfter = 0`; ed è quindi
+    possibile richiamare immediatamente il servizio per ottenere gli eventi
+    successivi, utilizzando  il parametro _lastEventId_ valorizzato con l'ultimo
+    _eventId_ della richiesta precedente. Si evidenzia che ogni nuova chiamata
+    al servizio con _lastEventId_ implica la cancellazione degli eventi
+    precedenti. Tuttavia, in fase di implementazione del client che consumerà i
+    servizi, bisogna considerare il fattore della __non univocità degli
+    eventi__: è possibile che se in un dato secondo avvengano più eventi
+    contemporaneamente, nella chiamata successiva allo stream dove si inserisce
+    l'_eventId_, non vengano cancellati gli altri eventi contemporanei avvenuti
+    nello stesso secondo dell'_eventId_ indicato; ottenendo quindi una
+    riproposizione di eventi già ottenuti dalla chiamata precedente.</br> Se
+    <u>non esistono</u> ulteriori eventi nello stream, allora la response del
+    servizio restituisce il valore di `retryAfter ≠ 0` ed è quindi necessario
+    attendere il tempo indicato dalla retryAfter per consumare eventualmente
+    nuovi eventi nello stream.</br> <font color="red"><strong>Nella prima
+    versione di Piattaforma Notifiche non verrà implementata la segregazione dei
+    gruppi e pertanto le informazioni presenti all'interno di uno stream saranno
+    accessibili a tutte le apiKey della stessa PA; Si evidenzia comunque che gli
+    eventi esposti dalle stream sono anonimizzati e non contengono informazioni
+    personali o sensibili dei soggetti impattati dagli
+    eventi.</font></strong></br> <font color="red">__Gli eventi sono mantenuti
+    per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono
+    automaticamente cancellati anche se non sono stati prelevati dallo stream, e
+    sarà possibile ottenere lo stato della notifica solo attraverso il servizio
+    [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__
+    </font> 
+
+    </br> </br>
+
+    <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link:<a
+    href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
+
+    <details>
+      <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
+    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di
+    produzione</li>
+    <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di
+    collaudo</li>
+    <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test.
+    Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque
+    non-bloccante e rispettando il principio di retro-attività</li>
+    <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di
+    sviluppo</li> </ul>   </details></br>
   contact:
     email: pn-supporto-enti@pagopa.it
   license:
@@ -227,8 +544,6 @@ tags:
     description: Invocazioni per comunicare eventi di pagamento dalla PA
   - name: NotificationCancellation
     description: Annullamento di una notifica
-  - name: TimelineAndStatus
-    description: Recupera le informazioni storiche di una notifica
   - name: Streams
     description: Gestione degli stream di eventi che PN mette a disposizione
   - name: Events
