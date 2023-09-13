@@ -44,6 +44,8 @@ public class NotificationEntity {
     public static final String FIELD_SOURCE_CHANNEL = "sourceChannel";
     public static final String FIELD_SOURCE_CHANNEL_DETAILS = "sourceChannelDetails";
     public static final String FIELD_VERSION = "version";
+    public static final String FIELD_PA_FEE = "paFee";
+    public static final String FIELD_VAT = "vat";
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String notificationAbstract;
@@ -70,6 +72,6 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL)})) private String sourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL_DETAILS)})) private String sourceChannelDetails;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int version;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int paFee;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int vat;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private int paFee;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private int vat;
 }
