@@ -46,33 +46,6 @@ public class PaymentEventsService {
         this.dataVaultClient = dataVaultClient;
         this.checkAuthComponent = checkAuthComponent;
     }
-
-    public void handlePaymentEventPagoPaPrivate( PaymentEventPagoPaPrivate paymentEventPagoPaPrivate ) {
-        String creditorTaxId = paymentEventPagoPaPrivate.getCreditorTaxId();
-        String noticeCode = paymentEventPagoPaPrivate.getNoticeCode();
-        log.debug( "Handle payment event pagoPa private for creditorTaxId={} noticeCode={}", creditorTaxId, noticeCode );
-
-        InternalNotificationCost internalNotificationCost = getInternalNotificationCost(creditorTaxId, noticeCode);
-
-        String iun = internalNotificationCost.getIun();
-        int recipientIdx = internalNotificationCost.getRecipientIdx();
-        InternalPaymentEvent internalPaymentEvent = InternalPaymentEvent.builder()
-                .iun( iun )
-                .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY )
-                .paymentAmount( paymentEventPagoPaPrivate.getAmount() )
-                .paymentType( PnDeliveryPaymentEvent.PaymentType.PAGOPA )
-                .paymentDate( Instant.parse( paymentEventPagoPaPrivate.getPaymentDate() ))
-                .uncertainPaymentDate( paymentEventPagoPaPrivate.getUncertainPaymentDate() )
-                .creditorTaxId( creditorTaxId )
-                .noticeCode( noticeCode )
-                .recipientIdx( recipientIdx )
-                .recipientType(  PnDeliveryPaymentEvent.RecipientType.valueOf( internalNotificationCost.getRecipientType() ) )
-                .build();
-
-        log.debug( "Send payment event iun={} sourceChannel={} creditorTaxId={} noticeCode={} recipientIdx={}",
-                iun, PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY, creditorTaxId, noticeCode, recipientIdx );
-        paymentEventsProducer.sendPaymentEvents( List.of( internalPaymentEvent ) );
-    }
     public String handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, PaymentEventsRequestPagoPa paymentEventsRequest) {
         List<PaymentEventPagoPa> paymentRequests = paymentEventsRequest.getEvents();
         List<InternalPaymentEvent> paymentEvents = new ArrayList<>( paymentRequests.size() );

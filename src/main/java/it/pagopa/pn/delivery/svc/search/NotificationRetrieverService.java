@@ -384,7 +384,7 @@ public class NotificationRetrieverService {
 	private void completeInternalNotificationWithTimeline(String iun, boolean requestBySender, InternalNotification notification) {
 		notification = enrichWithTimelineAndStatusHistory(iun, notification);
 		OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
-		checkDocumentsAvailability(notification, refinementDate );
+		checkDocumentsAvailability(notification, refinementDate , requestBySender);
 		if ( !requestBySender && Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) ) {
 			computeNoticeCodeToReturn(notification, refinementDate );
 		}
@@ -695,10 +695,10 @@ public class NotificationRetrieverService {
 		throw new PnMandateNotFoundException(message);
 	}
 
-	private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate) {
+	private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate, boolean requestBySender) {
 		log.debug( "Check if documents are available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
-		if ( !NotificationStatus.CANCELLED.equals( notification.getNotificationStatus() ) ) {
+		if ( requestBySender || !isNotificationCancelled(notification) ) {
 			if ( refinementDate != null ) {
 				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo( ChronoUnit.DAYS ),
 						clock.instant().truncatedTo( ChronoUnit.DAYS ) );
