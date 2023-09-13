@@ -21,7 +21,7 @@ import it.pagopa.pn.delivery.models.InputDownloadDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
@@ -334,15 +334,15 @@ public class NotificationAttachmentService {
 
         }
         if (attachmentName.equals(ATTACHMENT_TYPE_PAGO_PA)) {
-            return getKey( payment.getPagoPaForm() );
+            return getKey( payment.getPagoPa() );
         }
         return null;
     }
 
-    private String getKey(NotificationPaymentAttachment payment) {
+    private String getKey(PagoPaPayment payment) {
         String key = null;
         if (Objects.nonNull( payment ) ) {
-            key = payment.getRef().getKey();
+            key = payment.getAttachment().getRef().getKey();
         }
         return key;
     }

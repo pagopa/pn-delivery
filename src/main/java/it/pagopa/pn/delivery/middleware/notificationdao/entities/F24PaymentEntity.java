@@ -15,7 +15,7 @@ public class F24PaymentEntity {
     private String title;
     private boolean applyCost;
     private Integer index;
-    private PaymentAttachmentEntity paymentAttachmentEntity;
+    private MetadataAttachmentEntity metadataAttachment;
 
 
     @DynamoDbAttribute(value = "title")
@@ -33,9 +33,9 @@ public class F24PaymentEntity {
         return index;
     }
 
-    @DynamoDbAttribute(value = "paymentAttachmentEntity")
-    public PaymentAttachmentEntity getPaymentAttachmentEntity() {
-        return paymentAttachmentEntity;
+    @DynamoDbAttribute(value = "metadataAttachment")
+    public MetadataAttachmentEntity getMetadataAttachment() {
+        return metadataAttachment;
     }
 
     public void setTitle(String title) {
@@ -50,7 +50,7 @@ public class F24PaymentEntity {
         this.index = index;
     }
 
-    public void setPaymentAttachmentEntity(PaymentAttachmentEntity paymentAttachmentEntity) {
-        this.paymentAttachmentEntity = paymentAttachmentEntity;
+    public void setPagoPaPaymentEntity(MetadataAttachmentEntity metadataAttachment) {
+        this.metadataAttachment = metadataAttachment;
     }
 }

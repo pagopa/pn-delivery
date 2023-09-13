@@ -187,12 +187,12 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
             List<NotificationPaymentInfoEntity> payments = rec.getPayments();
             if (!CollectionUtils.isEmpty(payments)) {
                 for (NotificationPaymentInfoEntity payment : payments) {
-                    if (Objects.nonNull(payment)) {
+                    if (Objects.nonNull(payment) && Objects.nonNull(payment.getPagoPaForm())) {
                         NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
                                 .recipientType(rec.getRecipientType().getValue())
                                 .recipientIdx(notificationEntity.getRecipients().indexOf(rec))
                                 .iun(notificationEntity.getIun())
-                                .creditorTaxIdNoticeCode(payment.getCreditorTaxId() + "##" + payment.getNoticeCode())
+                                .creditorTaxIdNoticeCode(payment.getPagoPaForm().getCreditorTaxId() + "##" + payment.getPagoPaForm().getNoticeCode())
                                 .build();
                         notificationCostEntityList.add(notificationCostEntity);
                     }

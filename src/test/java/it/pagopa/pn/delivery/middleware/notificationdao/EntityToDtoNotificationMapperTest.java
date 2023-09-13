@@ -43,9 +43,9 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNotNull( internalNotification );
         Assertions.assertEquals( "noticeCode" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
         Assertions.assertEquals( "noticeCode_opt" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
-        Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPaForm() );
+        Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa() );
         Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getNoticeCodeAlternative() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getPagoPaForm() );
+        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getPagoPa() );
     }
 
     private NotificationEntity newNotificationEntity() {
@@ -61,12 +61,12 @@ class EntityToDtoNotificationMapperTest {
                                 NotificationPaymentInfoEntity.builder()
                                         .creditorTaxId("creditorTaxId")
                                         .noticeCode("noticeCode")
-                                        .pagoPaForm(PaymentAttachmentEntity.builder()
+                                        .pagoPaForm(PagoPaPaymentEntity.builder()
                                                 .contentType("application/pdf")
-                                                .digests(AttachmentDigestsEntity.builder()
+                                                .digests(NotificationAttachmentDigestsEntity.builder()
                                                         .sha256("sha256")
                                                         .build())
-                                                .ref(AttachmentRefEntity.builder()
+                                                .ref(NotificationAttachmentBodyRefEntity.builder()
                                                         .key("key")
                                                         .versionToken("versionToken")
                                                         .build())
@@ -112,10 +112,10 @@ class EntityToDtoNotificationMapperTest {
         return NotificationEntity.builder()
                 .documents((List.of(DocumentAttachmentEntity
                         .builder()
-                        .digests(AttachmentDigestsEntity.builder()
+                        .digests(NotificationAttachmentDigestsEntity.builder()
                                 .sha256("jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=")
                                 .build())
-                        .ref(AttachmentRefEntity.builder()
+                        .ref(NotificationAttachmentBodyRefEntity.builder()
                                 .key("KEY")
                                 .versionToken("versioneToken")
                                 .build())

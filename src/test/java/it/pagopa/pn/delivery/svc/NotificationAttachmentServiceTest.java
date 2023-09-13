@@ -16,7 +16,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
@@ -521,14 +521,14 @@ class NotificationAttachmentServiceTest {
     NotificationRecipient notificationRecipient = new NotificationRecipient();
     notificationRecipient.setTaxId(taxid);
     NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
-    NotificationPaymentAttachment notificationPaymentAttachment = new NotificationPaymentAttachment();
+    PagoPaPayment pagoPaPayment = new PagoPaPayment();
     it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef notificationAttachmentBodyRef = new it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef();
 
     notificationAttachmentBodyRef.setKey("filekey");
-    notificationPaymentAttachment.setRef(notificationAttachmentBodyRef);
+    pagoPaPayment.setRef(notificationAttachmentBodyRef);
 
     if (channel.equals(PAGOPA))
-      notificationPaymentInfo.setPagoPaForm(notificationPaymentAttachment);
+      notificationPaymentInfo.setPagoPa(pagoPaPayment);
 
     notificationRecipient.setPayment(List.of(notificationPaymentInfo));
     notification.addRecipientsItem(notificationRecipient);

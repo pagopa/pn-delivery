@@ -9,9 +9,10 @@ import lombok.*;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class F24Payment {
-    private String title;
+public class PagoPaPayment {
+    private String noticeCode;
+    private String creditorTaxId;
     private boolean applyCost;
-    private Integer index;
-    private MetadataAttachment metadataAttachment;
+    private String noticeCodeAlternative;
+    private MetadataAttachment attachment;
 }

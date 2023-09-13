@@ -9,7 +9,7 @@ import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,7 +80,7 @@ class DtoToEntityNotificationMapperTest {
                                         .contentType("application/json")
                                         .digests(NotificationAttachmentDigests.builder().build())
                                         .build())
-                                .pagoPaForm(NotificationPaymentAttachment.builder()
+                                .pagoPa(PagoPaPayment.builder()
                                         .ref(NotificationAttachmentBodyRef.builder().build())
                                         .contentType("application/json")
                                         .digests(NotificationAttachmentDigests.builder().build())

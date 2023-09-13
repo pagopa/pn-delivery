@@ -10,10 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationPaymentInfo {
-    private String noticeCode;
-    private String creditorTaxId;
-    private Boolean applyCost;
-    private String noticeCodeAlternative;
-    private NotificationPaymentAttachment pagoPaForm;
+    private PagoPaPayment pagoPa;
     private F24Payment f24;
 }

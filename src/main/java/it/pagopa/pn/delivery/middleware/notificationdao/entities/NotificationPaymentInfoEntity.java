@@ -11,36 +11,24 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @ToString
 @DynamoDbBean
 public class NotificationPaymentInfoEntity {
-
-    private String noticeCode;
-    private String creditorTaxId;
-    private PaymentAttachmentEntity pagoPaForm;
+    private PagoPaPaymentEntity pagoPaForm;
     private F24PaymentEntity f24;
 
-    @DynamoDbAttribute(value = "noticeCode")
-    public String getNoticeCode() {
-        return noticeCode;
+    @DynamoDbAttribute(value = "f24")
+    public F24PaymentEntity getF24() {
+        return f24;
     }
 
-    public void setNoticeCode(String noticeCode) {
-        this.noticeCode = noticeCode;
-    }
-
-    @DynamoDbAttribute(value = "creditorTaxId")
-    public String getCreditorTaxId() {
-        return creditorTaxId;
-    }
-
-    public void setCreditorTaxId(String creditorTaxId) {
-        this.creditorTaxId = creditorTaxId;
+    public void setF24(F24PaymentEntity f24) {
+        this.f24 = f24;
     }
 
     @DynamoDbAttribute(value = "pagoPaForm")
-    public PaymentAttachmentEntity getPagoPaForm() {
+    public PagoPaPaymentEntity getPagoPaForm() {
         return pagoPaForm;
     }
 
-    public void setPagoPaForm(PaymentAttachmentEntity pagoPaForm) {
+    public void setPagoPaForm(PagoPaPaymentEntity pagoPaForm) {
         this.pagoPaForm = pagoPaForm;
     }
 }

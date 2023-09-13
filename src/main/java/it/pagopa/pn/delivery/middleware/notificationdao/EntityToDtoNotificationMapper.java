@@ -20,14 +20,14 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 public class EntityToDtoNotificationMapper {
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
-    	if ( entity.getPhysicalCommunicationType() == null ) {
+        if ( entity.getPhysicalCommunicationType() == null ) {
             throw new PnInternalException(" Notification entity with iun "
                     + entity.getIun()
                     + " hash invalid physicalCommunicationType value",
                     ERROR_CODE_DELIVERY_UNSUPPORTED_PHYSICALCOMMUNICATIONTYPE);
         }
 
-    	List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
+        List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
                 .toList();
 
         InternalNotification internalNotification = new InternalNotification();
@@ -73,28 +73,58 @@ public class EntityToDtoNotificationMapper {
         List<NotificationPaymentInfo> notificationPaymentItems = new ArrayList<>();
         if ( !CollectionUtils.isEmpty( paymentList ) ) {
             notificationPaymentItems.add(NotificationPaymentInfo.builder()
-                    .creditorTaxId(paymentList.get(0).getCreditorTaxId())
-                    .noticeCode(paymentList.get(0).getNoticeCode())
-                    .noticeCodeAlternative(paymentList.size() > 1 ? paymentList.get(1).getNoticeCode() : null)
-                    .pagoPaForm(entity2PaymentAttachment(paymentList.get(0).getPagoPaForm()))
+                    .f24(entity2PaymentAttachment(paymentList.get(0).getF24()))
+                    .pagoPa(entity2PaymentAttachment(paymentList.get(0).getPagoPaForm(),paymentList.size() > 1 ? paymentList.get(1).getPagoPaForm().getNoticeCode() : null))
                     .build());
         }
         return notificationPaymentItems;
     }
 
-    private NotificationPaymentAttachment entity2PaymentAttachment(PaymentAttachmentEntity pagoPaForm) {
-        NotificationPaymentAttachment paymentAttachment = null;
-        if ( Objects.nonNull( pagoPaForm ) ) {
-            paymentAttachment = NotificationPaymentAttachment.builder()
-                    .contentType( pagoPaForm.getContentType() )
-                    .digests( NotificationAttachmentDigests.builder()
-                            .sha256( pagoPaForm.getDigests().getSha256() )
-                            .build()
+    private F24Payment entity2PaymentAttachment(F24PaymentEntity f24) {
+        F24Payment paymentAttachment = null;
+        if ( Objects.nonNull( f24 ) ) {
+            paymentAttachment = F24Payment.builder()
+                    .applyCost(f24.getApplyCost())
+                    .index(f24.getIndex())
+                    .title(f24.getTitle())
+                    .metadataAttachment(
+                            MetadataAttachment.builder()
+                                    .contentType( f24.getMetadataAttachment().getContentType() )
+                                    .digests( NotificationAttachmentDigests.builder()
+                                            .sha256( f24.getMetadataAttachment().getNotificationAttachmentDigestsEntity().getSha256() )
+                                            .build()
+                                    )
+                                    .ref( NotificationAttachmentBodyRef.builder()
+                                            .key( f24.getMetadataAttachment().getNotificationAttachmentBodyRefEntity().getKey() )
+                                            .versionToken( f24.getMetadataAttachment().getNotificationAttachmentBodyRefEntity().getVersionToken() )
+                                            .build()
+                                    ).build()
                     )
-                    .ref( NotificationAttachmentBodyRef.builder()
-                            .key( pagoPaForm.getRef().getKey() )
-                            .versionToken( pagoPaForm.getRef().getVersionToken() )
-                            .build()
+                    .build();
+        }
+        return paymentAttachment;
+    }
+
+    private PagoPaPayment entity2PaymentAttachment(PagoPaPaymentEntity pagoPaForm, String noticeCodeAlternative) {
+        PagoPaPayment paymentAttachment = null;
+        if ( Objects.nonNull( pagoPaForm ) ) {
+            paymentAttachment = PagoPaPayment.builder()
+                    .creditorTaxId(pagoPaForm.getCreditorTaxId())
+                    .noticeCode(pagoPaForm.getNoticeCode())
+                    .noticeCodeAlternative(noticeCodeAlternative)
+                    .applyCost(pagoPaForm.getApplyCost())
+                    .attachment(
+                            MetadataAttachment.builder()
+                                    .contentType( pagoPaForm.getAttachment().getContentType() )
+                                    .digests( NotificationAttachmentDigests.builder()
+                                            .sha256( pagoPaForm.getAttachment().getNotificationAttachmentDigestsEntity().getSha256() )
+                                            .build()
+                                    )
+                                    .ref( NotificationAttachmentBodyRef.builder()
+                                            .key( pagoPaForm.getAttachment().getNotificationAttachmentBodyRefEntity().getKey() )
+                                            .versionToken( pagoPaForm.getAttachment().getNotificationAttachmentBodyRefEntity().getVersionToken() )
+                                            .build()
+                                    ).build()
                     )
                     .build();
         }

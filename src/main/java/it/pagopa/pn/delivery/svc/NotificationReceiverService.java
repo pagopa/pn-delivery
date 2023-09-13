@@ -123,8 +123,8 @@ public class NotificationReceiverService {
 								if (notificationPaymentInfo.getF24() != null) {
 									SaveF24Item saveF24Item = new SaveF24Item();
 									saveF24Item.setApplyCost(notificationPaymentInfo.getF24().isApplyCost());
-									saveF24Item.setSha256(notificationPaymentInfo.getF24().getDigests() != null ? notificationPaymentInfo.getF24().getDigests().getSha256() : null);
-									saveF24Item.setFileKey(notificationPaymentInfo.getF24().getRef() != null ? notificationPaymentInfo.getF24().getRef().getKey() : null);
+									saveF24Item.setSha256(notificationPaymentInfo.getF24().getMetadataAttachment().getDigests() != null ? notificationPaymentInfo.getF24().getMetadataAttachment().getDigests().getSha256() : null);
+									saveF24Item.setFileKey(notificationPaymentInfo.getF24().getMetadataAttachment().getRef() != null ? notificationPaymentInfo.getF24().getMetadataAttachment().getRef().getKey() : null);
 									saveF24Item.setPathTokens(List.of(Integer.toString(recipientIndex), Integer.toString(paymentIndex)));
 									return Stream.of(saveF24Item);
 								} else {
@@ -137,11 +137,11 @@ public class NotificationReceiverService {
 		saveF24Request.setF24Items(saveF24Items);
 		saveF24Request.setId(internalNotification.getIun());
 
+		String iun = doSaveWithRethrow(internalNotification);
+
 		if(!saveF24Items.isEmpty()){
 			f24Client.saveMetadata("PN-DELIVERY", internalNotification.getIun(), saveF24Request);
 		}
-
-		String iun = doSaveWithRethrow(internalNotification);
 
 		NewNotificationResponse response = generateResponse(internalNotification, iun);
 

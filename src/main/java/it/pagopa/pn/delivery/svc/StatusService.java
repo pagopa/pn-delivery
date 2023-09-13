@@ -70,14 +70,14 @@ public class StatusService {
                         notification.getRecipients().stream()
                                 .filter(r -> Objects.nonNull(r.getPayments()))
                                 .forEach(r -> r.getPayments().forEach(notificationPaymentInfo -> {
-                                    if(StringUtils.hasText(notificationPaymentInfo.getNoticeCode())){
+                                    if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCode())){
                                         notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
-                                                .creditorTaxIdNoticeCode(notificationPaymentInfo.getCreditorTaxId() +"##"+ notificationPaymentInfo.getNoticeCode())
+                                                .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCode())
                                                 .build());
                                     }
-                                    if(StringUtils.hasText(notificationPaymentInfo.getNoticeCodeAlternative()))
+                                    if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative()))
                                         notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
-                                                .creditorTaxIdNoticeCode(notificationPaymentInfo.getCreditorTaxId() +"##"+ notificationPaymentInfo.getNoticeCodeAlternative())
+                                                .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative())
                                                 .build());
                                 }));
                 default -> {

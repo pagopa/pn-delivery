@@ -10,10 +10,20 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @EqualsAndHashCode
 @ToString
 @DynamoDbBean
-public class PaymentAttachmentEntity {
+public class MetadataAttachmentEntity {
+
+    private NotificationAttachmentDigestsEntity digests;
     private String contentType;
-    private AttachmentDigestsEntity digests;
-    private AttachmentRefEntity ref;
+    private NotificationAttachmentBodyRefEntity ref;
+
+    @DynamoDbAttribute(value = "ref")
+    public NotificationAttachmentBodyRefEntity getNotificationAttachmentBodyRefEntity() {
+        return ref;
+    }
+
+    public void setNotificationAttachmentBodyRefEntity(NotificationAttachmentBodyRefEntity ref) {
+        this.ref = ref;
+    }
 
     @DynamoDbAttribute(value = "contentType")
     public String getContentType() {
@@ -25,20 +35,14 @@ public class PaymentAttachmentEntity {
     }
 
     @DynamoDbAttribute(value = "digests")
-    public AttachmentDigestsEntity getDigests() {
+    public NotificationAttachmentDigestsEntity getNotificationAttachmentDigestsEntity() {
         return digests;
     }
 
-    public void setDigests(AttachmentDigestsEntity digests) {
+    public void setNotificationAttachmentDigestsEntity(NotificationAttachmentDigestsEntity digests) {
         this.digests = digests;
     }
 
-    @DynamoDbAttribute(value = "ref")
-    public AttachmentRefEntity getRef() {
-        return ref;
-    }
 
-    public void setRef(AttachmentRefEntity ref) {
-        this.ref = ref;
-    }
+
 }

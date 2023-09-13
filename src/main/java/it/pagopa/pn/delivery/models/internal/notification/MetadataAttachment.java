@@ -9,7 +9,7 @@ import lombok.*;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class NotificationPaymentAttachment {
+public class MetadataAttachment {
     private NotificationAttachmentDigests digests;
     private String contentType;
     private NotificationAttachmentBodyRef ref;

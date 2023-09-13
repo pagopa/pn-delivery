@@ -492,32 +492,33 @@ public class NotificationRetrieverService {
 		for ( NotificationRecipient recipient : recipientList ) {
 			List<NotificationPaymentInfo> notificationPaymentInfoList = recipient.getPayments();
 			if (!CollectionUtils.isEmpty(notificationPaymentInfoList)) {
-				notificationPaymentInfoList.forEach(notificationPaymentInfo -> {
-					String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
-					String noticeCode = notificationPaymentInfo.getNoticeCode();
-					if (notificationPaymentInfo.getNoticeCodeAlternative() != null) {
-						switch (noticeCodeToReturn) {
-							case FIRST_NOTICE_CODE: {
-								break;
+				notificationPaymentInfoList.stream().filter(notificationPaymentInfo -> Objects.nonNull(notificationPaymentInfo.getPagoPa()))
+						.forEach(notificationPaymentInfo -> {
+							String creditorTaxId = notificationPaymentInfo.getPagoPa().getCreditorTaxId();
+							String noticeCode = notificationPaymentInfo.getPagoPa().getNoticeCode();
+							if (notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() != null) {
+								switch (noticeCodeToReturn) {
+									case FIRST_NOTICE_CODE: {
+										break;
+									}
+									// - se devo restituire il notice code alternativo...
+									case SECOND_NOTICE_CODE: {
+										// - ...verifico che il primo notice code non è stato già pagato
+										setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
+										break;
+									}
+									case NO_NOTICE_CODE: {
+										notificationPaymentInfo.getPagoPa().setNoticeCode(null);
+										break;
+									}
+									default: {
+										throw new UnsupportedOperationException("Unable to compute notice code to return for iun=" + iun);
+									}
+								}
+								// in ogni caso non restituisco il noticeCode opzionale
+								notificationPaymentInfo.getPagoPa().setNoticeCodeAlternative(null);
 							}
-							// - se devo restituire il notice code alternativo...
-							case SECOND_NOTICE_CODE: {
-								// - ...verifico che il primo notice code non è stato già pagato
-								setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
-								break;
-							}
-							case NO_NOTICE_CODE: {
-								notificationPaymentInfo.setNoticeCode(null);
-								break;
-							}
-							default: {
-								throw new UnsupportedOperationException("Unable to compute notice code to return for iun=" + iun);
-							}
-						}
-						// in ogni caso non restituisco il noticeCode opzionale
-						notificationPaymentInfo.setNoticeCodeAlternative(null);
-					}
-				});
+						});
 			}
 		}
 	}
@@ -531,19 +532,19 @@ public class NotificationRetrieverService {
 				// - se il primo notice code NON è stato già pagato
 				if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
 					// - restituisco il notice code alternativo
-					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getNoticeCodeAlternative() );
-					notificationPaymentInfo.setNoticeCode( notificationPaymentInfo.getNoticeCodeAlternative() );
+					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() );
+					notificationPaymentInfo.getPagoPa().setNoticeCode( notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() );
 				}
 				// - il primo notice code è stato già pagato quindi lo restituisco
 			} else {
 				// - External-registries non risponde quindi non restituisco nessun notice code
 				log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
-				notificationPaymentInfo.setNoticeCode( null );
+				notificationPaymentInfo.getPagoPa().setNoticeCode( null );
 			}
 		} catch ( PnHttpResponseException ex ) {
 			// - External-registries non risponde quindi non restituisco nessun notice code
 			log.error( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
-			notificationPaymentInfo.setNoticeCode( null );
+			notificationPaymentInfo.getPagoPa().setNoticeCode( null );
 		}
 
 	}
@@ -728,7 +729,7 @@ public class NotificationRetrieverService {
 			List<NotificationPaymentInfo> payments = recipient.getPayments();
 			if (!CollectionUtils.isEmpty(payments)) {
 				payments.forEach(notificationPaymentInfo -> {
-					notificationPaymentInfo.setPagoPaForm( null );
+					notificationPaymentInfo.setPagoPa( null );
 					//TODO: CAPIRE PER F24 COME GESTIRE LA REMOVE DOCUMENT
 					notificationPaymentInfo.getF24().setIndex( null );
 				});
@@ -837,7 +838,7 @@ public class NotificationRetrieverService {
 		if(isNotificationCancelled(getNotificationInformation(iun))) {
 			throw new PnNotificationNotFoundException(String.format("Notification with iun: %s has a request for cancellation", iun));
 		}
- 	}
+	}
 
 	public boolean isNotificationCancelled(InternalNotification notification) {
 		var cancellationRequestCategory = TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST;
