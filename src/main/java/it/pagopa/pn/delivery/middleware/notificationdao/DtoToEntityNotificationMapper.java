@@ -38,6 +38,8 @@ public class DtoToEntityNotificationMapper {
                 .pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
                 .sourceChannel( dto.getSourceChannel() )
                 .sourceChannelDetails( dto.getSourceChannel() )
+                .paFee(dto.getPaFee())
+                .vat(dto.getVat())
                 .version( NOTIFICATION_VERSION );
 
         return builder.build();

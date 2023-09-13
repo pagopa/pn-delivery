@@ -109,8 +109,7 @@ public class NotificationReceiverService {
 
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
-
-		internalNotification.setSourceChannel(xPagopaPnSrcChDetails);
+		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
 
 		SaveF24Request saveF24Request = new SaveF24Request();
 		List<SaveF24Item> saveF24Items = IntStream.range(0, internalNotification.getRecipients().size())
@@ -139,7 +138,7 @@ public class NotificationReceiverService {
 		saveF24Request.setId(internalNotification.getIun());
 
 		if(!saveF24Items.isEmpty()){
-			f24Client.saveMetadata(xPagopaPnCxId, internalNotification.getSenderTaxId(), saveF24Request);
+			f24Client.saveMetadata("PN-DELIVERY", internalNotification.getIun(), saveF24Request);
 		}
 
 		String iun = doSaveWithRethrow(internalNotification);

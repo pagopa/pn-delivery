@@ -70,5 +70,6 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL)})) private String sourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL_DETAILS)})) private String sourceChannelDetails;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int version;
-
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int paFee;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int vat;
 }
