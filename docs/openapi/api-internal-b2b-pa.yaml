@@ -160,14 +160,15 @@ info:
       #### 4.1 Monitoraggio tramite stream
     
       Questa modalità è consigliata in produzione. Per essere fruita è necessaria una operazione preliminare
-      tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/createEventStream)
+      tramite la chiamata alla API _Streams/createEventStream_
       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload di esempio:</br></br>``
       {
         "title": "NotificationAccepted",
         "eventType": "STATUS"
       }
-      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio della stream appena creata chiamando la 
-      API [getEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/getEventStream), mentre si possono ottenere i dati degli eventi richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Events/consumeEventStream)
+      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio 
+      dello stream appena creato chiamando la API _Streams/getEventStream_), mentre si possono ottenere i dati degli 
+      eventi richiamando la API _Streams/consumeEventStream_
   
   
       __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
