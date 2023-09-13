@@ -86,7 +86,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 				.build();
 	}
 
-	private AnalogDomicile createAnalogDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress notificationPhysicalAddress ) {
+	private AnalogDomicile createAnalogDomicile(NotificationPhysicalAddress notificationPhysicalAddress ) {
 		return notificationPhysicalAddress == null ? null : new AnalogDomicile()
 				.address( notificationPhysicalAddress.getAddress() )
 				.addressDetails( notificationPhysicalAddress.getAddressDetails() )
@@ -98,7 +98,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 				.municipalityDetails( notificationPhysicalAddress.getMunicipalityDetails() );
 	}
 
-	private AddressDto createDigitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress digitalAddress) {
+	private AddressDto createDigitalDomicile(NotificationDigitalAddress digitalAddress) {
 		return digitalAddress == null ? null : new AddressDto()
 				.value( digitalAddress.getAddress() );
 	}
