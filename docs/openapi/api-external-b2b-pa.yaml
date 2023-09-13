@@ -159,14 +159,15 @@ info:
       #### 4.1 Monitoraggio tramite stream
     
       Questa modalità è consigliata in produzione. Per essere fruita è necessaria una operazione preliminare
-      tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/createEventStream)
+      tramite la chiamata alla API [createEventStream](#/Streams/createEventStream)
       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload di esempio:</br></br>``
       {
         "title": "NotificationAccepted",
         "eventType": "STATUS"
       }
-      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio della stream appena creata chiamando la 
-      API [getEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/getEventStream), mentre si possono ottenere i dati degli eventi richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Events/consumeEventStream)
+      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio 
+      dello stream appena creato chiamando la API [getEventStream](#/Streams/getEventStream)), mentre si possono 
+      ottenere i dati degli eventi richiamando la API [consumeEventStream](#/Streams/consumeEventStream)
   
   
       __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
@@ -523,105 +524,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem' 
 
-    ###########################################################################################
-    ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
-    ###########################################################################################
-  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':                 # ONLY EXTERNAL
-    get:                                                                            # ONLY EXTERNAL
-      summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
-      description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
-      tags:                                                                         # ONLY EXTERNAL
-        - LegalFacts                                                                # ONLY EXTERNAL
-      operationId: retrieveLegalFact                                               # ONLY EXTERNAL
-      parameters:                                                                   # ONLY EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
-        - $ref: '#/components/parameters/pathLegalFactType'                         # ONLY EXTERNAL
-        - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
-      responses:                                                                    # ONLY EXTERNAL
-        '200':                                                                      # ONLY EXTERNAL
-          description: OK                                                           # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      # ONLY EXTERNAL
-        '400':                                                                      # ONLY EXTERNAL
-          description: Bad request                                                  # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-        '500':                                                                      # ONLY EXTERNAL
-          description: Internal error                                               # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-  '/delivery-push/{iun}/download/legal-facts/{legalFactId}':                        # ONLY EXTERNAL
-    get:                                                                            # ONLY EXTERNAL
-      summary: Download atto opponibile a terzi                                     # ONLY EXTERNAL
-      description: Permette di scaricare un atto opponibile a terzi                 # ONLY EXTERNAL
-      tags:                                                                         # ONLY EXTERNAL
-        - LegalFacts                                                                # ONLY EXTERNAL
-      operationId: downloadLegalFactById                                           # ONLY EXTERNAL
-      parameters:                                                                   # ONLY EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
-        - $ref: '#/components/parameters/pathLegalFactId'                           # ONLY EXTERNAL
-      responses:                                                                    # ONLY EXTERNAL
-        '200':                                                                      # ONLY EXTERNAL
-          description: OK                                                           # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"      # ONLY EXTERNAL
-        '400':                                                                      # ONLY EXTERNAL
-          description: Bad request                                                  # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-        '500':                                                                      # ONLY EXTERNAL
-          description: Internal error                                               # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-
-  '/delivery-push/v2.0/notifications/cancel/{iun}':                                 # ONLY EXTERNAL
-    put:                                                                            # ONLY EXTERNAL
-      summary: Annullamento notifica                                                # ONLY EXTERNAL
-      description: >-                                                               # ONLY EXTERNAL
-        Permette l'annullamento di una notifica restituendo una presa in carico,
-          il processo di annullamento si completa poi in maniera asincrona
-      tags:                                                                         # ONLY EXTERNAL
-        - NotificationCancellation                                                  # ONLY EXTERNAL
-      operationId: notificationCancellation                                         # ONLY EXTERNAL
-      parameters:                                                                   # ONLY EXTERNAL
-        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun' # ONLY EXTERNAL
-      responses:                                                                    # ONLY EXTERNAL
-        '202':                                                                      # ONLY EXTERNAL
-          description: Accepted - Richiesta annullamento presa in carico            # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: "#/components/schemas/RequestStatus"                          # ONLY EXTERNAL
-        '400':                                                                      # ONLY EXTERNAL
-          description: Bad request                                                  # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
-        '404':                                                                      # ONLY EXTERNAL
-          description: Not found                                                    # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
-        '500':                                                                      # ONLY EXTERNAL
-          description: Internal Server Error                                        # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: 'remote-refs.yaml#/components/schemas/Problem'                # ONLY EXTERNAL
+  
   '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
