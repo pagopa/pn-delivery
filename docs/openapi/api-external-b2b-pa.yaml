@@ -159,15 +159,15 @@ info:
       #### 4.1 Monitoraggio tramite stream
     
       Questa modalità è consigliata in produzione. Per essere fruita è necessaria una operazione preliminare
-      tramite la chiamata alla API _Streams/createEventStream_
+      tramite la chiamata alla API [createEventStream](#/Streams/createEventStream)
       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload di esempio:</br></br>``
       {
         "title": "NotificationAccepted",
         "eventType": "STATUS"
       }
       ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio 
-      dello stream appena creato chiamando la API _Streams/getEventStream_), mentre si possono ottenere i dati degli 
-      eventi richiamando la API _Streams/consumeEventStream_
+      dello stream appena creato chiamando la API [getEventStream](#/Streams/getEventStream)), mentre si possono 
+      ottenere i dati degli eventi richiamando la API [consumeEventStream](#/Streams/consumeEventStream)
   
   
       __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
