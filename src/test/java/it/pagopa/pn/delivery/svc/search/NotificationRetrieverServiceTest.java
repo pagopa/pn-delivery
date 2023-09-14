@@ -47,8 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 class NotificationRetrieverServiceTest {
@@ -685,13 +684,13 @@ class NotificationRetrieverServiceTest {
         //When
         when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( anyString(), anyInt(), any() ) ).thenReturn( timelineStatusHistoryDto );
 
         InternalNotification internalNotificationResult = svc.getNotificationInformation(IUN, true, true);
 
         //Then
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
-        Assertions.assertEquals(1, internalNotificationResult.getDocuments().size() );
+        Assertions.assertNull(internalNotificationResult.getDocuments());
     }
 
     @Test
@@ -717,13 +716,13 @@ class NotificationRetrieverServiceTest {
         //When
         when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
-        when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
+        when( pnDeliveryPushClient.getTimelineAndStatusHistory( anyString(), anyInt(), any() ) ).thenReturn( timelineStatusHistoryDto );
 
         InternalNotification internalNotificationResult = svc.getNotificationInformation(IUN, true, false);
 
         //Then
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
-        Assertions.assertEquals(1, internalNotificationResult.getDocuments().size() );
+        Assertions.assertNull( internalNotificationResult.getDocuments() );
     }
 
     @Test

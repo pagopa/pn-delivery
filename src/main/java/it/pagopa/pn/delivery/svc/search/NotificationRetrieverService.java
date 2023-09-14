@@ -388,7 +388,7 @@ public class NotificationRetrieverService {
 	private void completeInternalNotificationWithTimeline(String iun, boolean requestBySender, InternalNotification notification) {
 		notification = enrichWithTimelineAndStatusHistory(iun, notification);
 		OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
-		checkDocumentsAvailability(notification, refinementDate );
+		checkDocumentsAvailability(notification, refinementDate , requestBySender);
 		/*
 		checkDocumentsAvailability(notification, refinementDate , requestBySender);
 		if ( !requestBySender && Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) ) {

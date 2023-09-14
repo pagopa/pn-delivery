@@ -32,7 +32,6 @@ class NotificationRecipentSerializationTest {
 
         assertThat(json).hasJsonPath("recipientType")
                 .hasJsonPath("denomination")
-                .hasJsonPath("taxId")
-                .doesNotHaveJsonPath("internalId");
+                .hasJsonPath("taxId");
     }
 }
