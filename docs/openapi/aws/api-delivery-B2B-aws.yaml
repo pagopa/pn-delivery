@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ZcoflEy0Dj0L+1iUTZOXObFxJhLT6BaYhFMRwxRHvYk=
+  version: k3IRWjTlrQAyNtPZNVyBHr+W6ASfRSnUqJrTJ3WE+xE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2917,13 +2917,13 @@ components:
       properties:
         code:
           description: Internal code of the error or warning, in human-readable format
-          example: NOTIFICATION_ALREADY_CANCELLED
+          example: NOTIFICATION_CANCELLATION_ACCEPTED, NOTIFICATION_ALREADY_CANCELLED
           type: string
         level:
           description: |
-            informational level of status detail: WARN, ERR, ...
+            informational level of status detail: INFO,WARN, ERR
             ERR (error) by default
-          example: NOTIFICATION_ALREADY_CANCELLED
+          example: INFO
           type: string
         detail:
           description: >-
