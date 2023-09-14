@@ -1,0 +1,66 @@
+{
+  "idempotenceToken": "arbThmv-h(LjMMv/Wk",
+  "paProtocolNumber": "0DLhRpCai-b%1e@w^Y#}_j?=:<Jm7{*u:7oXfZn`D,u9J>2NM}",
+  "subject": "{d#xpip2<o&a1eD|^-g,Br+?p[s!$a!1n<UJ*rxhTLA]-<^Ln)Xh_}yZN{u4UlfVy)D2cW}j0+3v^>ijEr+mGA;:/[+[{$rh",
+  "abstract": "@r^JXoS1nK;kN9=FhU1uYTq;<+#S974_2Jn;IF`W2(ljWQ'&4ZI=dGa*4D/ie",
+  "recipients": [
+    {
+      "recipientType": "PF",
+      "taxId": "WZCJOF34IPRDRURH",
+      "denomination": "}v0RjS;Q[9npSI^8wI:>D(]B)>};h[OcOI$Mio@a",
+      "digitalDomicile": {
+        "type": "PEC",
+        "address": "account@domain.it"
+      },
+      "physicalAddress": {
+        "at": "",
+        "address": "N(+Su9De!1A2wK6O%\\]jfoX,G-M}]vGK&j~{C>F_G}mC`YYPswf-ytFYA`v[:/r!60Ln|",
+        "addressDetails": "z28o\\Fm+'9guz$l^B:q}Sb%\\225Fe%,;sv[N:]hr%ySU7#3(UP>\\{o`-n$2\\%D:\\Ck53u2Q{w>'%%+",
+        "zip": " c2X--a     a--",
+        "municipality": ")q7uuin&Cb )mHR_RBX$!(g'PNzMjmQ)i1\"uo616/1GY)\"|k_-Uu!t?Qe%P0'dbT%Iil>/\\?A.dT",
+        "municipalityDetails": "Ls!~V(Aa`YM:dJ((!jG\\T`n{nk_Y'y9]{,1ct{j)eX;8iA mzaE^=chwCxaWo",
+        "province": "\"C~PLC!MOmSal/:X,vB'%8OW.vC!o_x}-4lM`6`ikD&)SFLw6G@",
+        "foreignState": "I7\\^!mpsM*yEkl%.x06SNZOa9^S>O-U7:J/Rj~pj*juL[]$03`Wa5lS'"
+      },
+      "payment": {
+        "noticeCode": "302000100000019421",
+        "creditorTaxId": "77777777777",
+        "noticeCodeAlternative": "302000100000019421",
+        "pagoPaForm": {
+          "digests": {
+            "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+          },
+          "contentType": "application/pdf",
+          "ref": {
+            "key": "safestorage://JUYQdw-aIcVRiFjnG1Yl_0cYydyM",
+            "versionToken": "l]"
+          }
+        }
+      }
+    }
+  ],
+  "documents": [
+    {
+      "digests": {
+        "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+      },
+      "contentType": "application/pdf",
+      "ref": {
+        "key": "9uAq8ImKYQl0yE",
+        "versionToken": "J.):@[OJjhXW-@wpYy2qU]r._ZoDn{*U5|0P_2"
+      },
+      "title": "0#OdPk0oo#ht!?B1tj3#>Cp 43K[eu*eVFa2q(#uC~d(ayn\"-+k",
+      "docIdx": "797"
+    }
+  ],
+  "notificationFeePolicy": "FLAT_RATE",
+  "cancelledIun": "BOJO-ZDKM-LIQK-910987-C-9",
+  "physicalCommunicationType": "AR_REGISTERED_LETTER",
+  "senderDenomination": "PNVW/YoKr*kPKr686Wb\"[-OR~-C5K&",
+  "senderTaxId": "77777777777",
+  "group": "lMzGgW=F~^DSo~YS6r]lh2R2CAJK4Xb3oV$A* YP:PB2=.a1erGYl* pH0y6{Dy?F<PXQY@8q~",
+  "amount": 0,
+  "paymentExpirationDate": "3490-12-20",
+  "taxonomyCode": "010101P",
+  "pagoPaIntMode": "NONE"
+}
