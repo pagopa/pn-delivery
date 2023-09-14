@@ -579,6 +579,9 @@ class NotificationRetrieverServiceTest {
                 .senderPaId( SENDER_ID )
                 .recipientIds(Collections.singletonList( CX_ID ))
                 .sourceChannel(X_PAGOPA_PN_SRC_CH)
+                .documents(List.of(NotificationDocument.builder()
+                                .title("doc1")
+                        .build()))
                 .recipients(Collections.singletonList(NotificationRecipient.builder()
                         .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
                         .payment( NotificationPaymentInfo.builder()
@@ -691,6 +694,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
+        Assertions.assertEquals(1, internalNotificationResult.getDocuments().size() );
     }
 
     @Test
@@ -722,6 +726,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
+        Assertions.assertEquals(1, internalNotificationResult.getDocuments().size() );
     }
 
     @Test
@@ -796,6 +801,7 @@ class NotificationRetrieverServiceTest {
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
+        Assertions.assertEquals(1, internalNotificationResult.getDocuments().size() );
     }
 
     @Test
@@ -845,6 +851,7 @@ class NotificationRetrieverServiceTest {
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, delegateInfo );
         Assertions.assertTrue( internalNotificationResult.getDocumentsAvailable() );
+        Assertions.assertEquals(1, internalNotificationResult.getDocuments().size() );
     }
 
     @Test
@@ -1011,6 +1018,7 @@ class NotificationRetrieverServiceTest {
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
+        Assertions.assertEquals(0, internalNotificationResult.getDocuments().size() );
     }
 
     @Test
