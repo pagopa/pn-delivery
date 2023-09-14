@@ -544,6 +544,8 @@ class NotificationDaoDynamoTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+        internalNotification.setPaFee(0);
+        internalNotification.setVat(0);
         internalNotification.setDocuments(List.of(NotificationDocument
                 .builder()
                 .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder()
