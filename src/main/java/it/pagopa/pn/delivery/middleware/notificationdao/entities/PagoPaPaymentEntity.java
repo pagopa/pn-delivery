@@ -15,7 +15,7 @@ public class PagoPaPaymentEntity {
     private String noticeCode;
     private String creditorTaxId;
     private boolean applyCost;
-    private String noticeCodeAlternative;
+    //private String noticeCodeAlternative;
     private MetadataAttachmentEntity attachment;
 
     public void setNoticeCode(String noticeCode) {
@@ -30,25 +30,24 @@ public class PagoPaPaymentEntity {
         this.applyCost = applyCost;
     }
 
+    /*
     public void setNoticeCodeAlternative(String noticeCodeAlternative) {
         this.noticeCodeAlternative = noticeCodeAlternative;
     }
+    @DynamoDbAttribute(value = "noticeCodeAlternative")
+    public String getNoticeCodeAlternative() {
+        return noticeCodeAlternative;
+    }
+    */
+
 
     public void setAttachment(MetadataAttachmentEntity attachment) {
         this.attachment = attachment;
     }
 
-
-
-
     @DynamoDbAttribute(value = "noticeCode")
     public String getNoticeCode() {
         return noticeCode;
-    }
-
-    @DynamoDbAttribute(value = "noticeCodeAlternative")
-    public String getNoticeCodeAlternative() {
-        return noticeCodeAlternative;
     }
 
     @DynamoDbAttribute(value = "creditorTaxId")

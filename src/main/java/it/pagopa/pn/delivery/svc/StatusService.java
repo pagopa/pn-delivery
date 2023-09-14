@@ -75,10 +75,10 @@ public class StatusService {
                                                 .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCode())
                                                 .build());
                                     }
-                                    if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative()))
+                                    /*if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative()))
                                         notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
                                                 .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative())
-                                                .build());
+                                                .build());*/
                                 }));
                 default -> {
                     Key key = Key.builder()

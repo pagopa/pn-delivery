@@ -137,11 +137,13 @@ public class NotificationReceiverService {
 		saveF24Request.setF24Items(saveF24Items);
 		saveF24Request.setId(internalNotification.getIun());
 
-		String iun = doSaveWithRethrow(internalNotification);
+		String iun = generateIun(internalNotification);
 
 		if(!saveF24Items.isEmpty()){
 			f24Client.saveMetadata("PN-DELIVERY", internalNotification.getIun(), saveF24Request);
 		}
+
+		doSaveWithRethrow(internalNotification);
 
 		NewNotificationResponse response = generateResponse(internalNotification, iun);
 
@@ -206,24 +208,24 @@ public class NotificationReceiverService {
 				.build();
 	}
 
-	private String doSaveWithRethrow( InternalNotification internalNotification) throws PnIdConflictException {
-		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
-				internalNotification.getPaProtocolNumber() );
-
+	private String generateIun(InternalNotification internalNotification){
 		Instant createdAt = clock.instant();
 		String iun = iunGenerator.generatePredictedIun( createdAt );
 		log.debug( "Generated iun={}", iun );
-		doSave(internalNotification, createdAt, iun);
+		internalNotification.iun( iun );
+		internalNotification.sentAt( createdAt.atOffset( ZoneOffset.UTC ) );
 		return iun;
 	}
 
+	private void doSaveWithRethrow( InternalNotification internalNotification) throws PnIdConflictException {
+		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
+				internalNotification.getPaProtocolNumber() );
+		doSave(internalNotification);
+	}
 
-	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws PnIdConflictException {
 
-		internalNotification.iun( iun );
-		internalNotification.sentAt( createdAt.atOffset( ZoneOffset.UTC ) );
-
-		log.info("Store the notification metadata for iun={}", iun);
+	private void doSave(InternalNotification internalNotification) throws PnIdConflictException {
+		log.info("Store the notification metadata for iun={}", internalNotification.getIun());
 		notificationDao.addNotification(internalNotification);
 	}
 

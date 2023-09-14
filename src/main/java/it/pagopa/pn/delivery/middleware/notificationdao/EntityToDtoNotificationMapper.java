@@ -74,7 +74,7 @@ public class EntityToDtoNotificationMapper {
         if ( !CollectionUtils.isEmpty( paymentList ) ) {
             notificationPaymentItems.add(NotificationPaymentInfo.builder()
                     .f24(entity2PaymentAttachment(paymentList.get(0).getF24()))
-                    .pagoPa(entity2PaymentAttachment(paymentList.get(0).getPagoPaForm(),paymentList.size() > 1 ? paymentList.get(1).getPagoPaForm().getNoticeCode() : null))
+                    .pagoPa(entity2PaymentAttachment(paymentList.get(0).getPagoPaForm()))
                     .build());
         }
         return notificationPaymentItems;
@@ -105,13 +105,12 @@ public class EntityToDtoNotificationMapper {
         return paymentAttachment;
     }
 
-    private PagoPaPayment entity2PaymentAttachment(PagoPaPaymentEntity pagoPaForm, String noticeCodeAlternative) {
+    private PagoPaPayment entity2PaymentAttachment(PagoPaPaymentEntity pagoPaForm) {
         PagoPaPayment paymentAttachment = null;
         if ( Objects.nonNull( pagoPaForm ) ) {
             paymentAttachment = PagoPaPayment.builder()
                     .creditorTaxId(pagoPaForm.getCreditorTaxId())
                     .noticeCode(pagoPaForm.getNoticeCode())
-                    .noticeCodeAlternative(noticeCodeAlternative)
                     .applyCost(pagoPaForm.getApplyCost())
                     .attachment(
                             MetadataAttachment.builder()

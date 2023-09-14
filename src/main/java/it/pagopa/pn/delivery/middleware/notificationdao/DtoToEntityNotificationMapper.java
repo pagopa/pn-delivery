@@ -77,7 +77,7 @@ public class DtoToEntityNotificationMapper {
                         PagoPaPaymentEntity.builder()
                                 .creditorTaxId(item.getPagoPa().getCreditorTaxId())
                                 .noticeCode(item.getPagoPa().getNoticeCode())
-                                .noticeCodeAlternative(item.getPagoPa().getNoticeCodeAlternative())
+                                //.noticeCodeAlternative(item.getPagoPa().getNoticeCodeAlternative())
                                 .applyCost(item.getPagoPa().isApplyCost())
                                 .attachment(dto2PaymentAttachment( item.getPagoPa() ) )
                                 .build()

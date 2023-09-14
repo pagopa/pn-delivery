@@ -4,15 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
-import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
@@ -387,14 +384,18 @@ public class NotificationRetrieverService {
 		return notification;
 	}
 
+
 	private void completeInternalNotificationWithTimeline(String iun, boolean requestBySender, InternalNotification notification) {
 		notification = enrichWithTimelineAndStatusHistory(iun, notification);
 		OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 		checkDocumentsAvailability(notification, refinementDate );
+		/*
 		if ( !requestBySender && Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) ) {
 			computeNoticeCodeToReturn(notification, refinementDate );
 		}
+		 */
 	}
+
 
 	/**
 	 * Get the full detail of a notification by IUN with senderId check
@@ -460,12 +461,16 @@ public class NotificationRetrieverService {
 		return refinementDate;
 	}
 
+	/*
 	private void computeNoticeCodeToReturn(InternalNotification notification, OffsetDateTime refinementDate) {
 		log.debug( "Compute notice code to return for iun={}", notification.getIun() );
 		NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
 		setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
 	}
+	 */
 
+
+	/*
 	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, OffsetDateTime refinementDate) {
 		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
 		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
@@ -487,7 +492,9 @@ public class NotificationRetrieverService {
 		}
 		return noticeCodeToReturn;
 	}
+	 */
 
+	/*
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
 		for ( NotificationRecipient recipient : recipientList ) {
 			List<NotificationPaymentInfo> notificationPaymentInfoList = recipient.getPayments();
@@ -521,8 +528,9 @@ public class NotificationRetrieverService {
 						});
 			}
 		}
-	}
+	}*/
 
+	/*
 	private void setNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
 		log.debug( "Start getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
 		try {
@@ -546,8 +554,7 @@ public class NotificationRetrieverService {
 			log.error( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
 			notificationPaymentInfo.getPagoPa().setNoticeCode( null );
 		}
-
-	}
+	}*/
 
 	public enum NoticeCodeToReturn {
 		FIRST_NOTICE_CODE("FIRST_NOTICE_CODE"),
