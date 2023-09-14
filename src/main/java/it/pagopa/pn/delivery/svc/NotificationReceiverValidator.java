@@ -109,6 +109,7 @@ public class NotificationReceiverValidator {
 
                 //Verifica presenza del campo descrizione contenente il nome del file PDF per ogni F24. Nota: riportare nella documentazione openAPI
                 //che tale campo dovrà indicare il nome del file visualizzato dal destinatario per lo scaricamento del relativo file PDF
+
                 if(!StringUtils.hasText(paymentInfo.getF24().getTitle())){
                     ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("F24 description is mandatory");
                     errors.add(constraintViolation);
