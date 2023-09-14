@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.commons.exceptions.PnRuntimeException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
@@ -637,47 +636,6 @@ class PnInternalNotificationsControllerTest {
                 .exchange()
                 .expectStatus()
                 .isNotFound();
-    }
-
-    @Test
-    void paymentEventPagoPaPrivateSuccess() {
-        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
-                .paymentDate( "2023-01-16T15:30:00.234Z" )
-                .uncertainPaymentDate( true )
-                .creditorTaxId("77777777777")
-                .noticeCode("123456789123456789")
-                .amount( 1200 )
-                .build();
-
-        webTestClient.post()
-                .uri("/delivery-private/events/payment/pagopa")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(paymentEventPagoPa), PaymentEventPagoPa.class)
-                .exchange()
-                .expectStatus().isNoContent();
-
-        Mockito.verify( paymentEventsService ).handlePaymentEventPagoPaPrivate( paymentEventPagoPa );
-    }
-
-    @Test
-    void paymentEventPagoPaPrivateFailure() {
-        PaymentEventPagoPaPrivate paymentEventPagoPa = PaymentEventPagoPaPrivate.builder()
-                .paymentDate( "2023-01-16T15:30:00Z")
-                .uncertainPaymentDate( true )
-                .creditorTaxId("77777777777")
-                .noticeCode("123456789123456789")
-                .build();
-
-        Mockito.doThrow( new PnRuntimeException( "test", "description", 400, "errorCode", "element", "detail" ) )
-                .when( paymentEventsService )
-                .handlePaymentEventPagoPaPrivate( Mockito.any( PaymentEventPagoPaPrivate.class ) );
-
-        webTestClient.post()
-                .uri("/delivery-private/events/payment/pagopa")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(paymentEventPagoPa), PaymentEventPagoPaPrivate.class)
-                .exchange()
-                .expectStatus().isBadRequest();
     }
 
     private InternalNotification newNotification() {

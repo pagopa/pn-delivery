@@ -156,14 +156,15 @@ info:
       #### 4.1 Monitoraggio tramite stream
 
       Questa modalità è consigliata in produzione. Per essere fruita è necessaria una operazione preliminare
-      tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/createEventStream)
+      tramite la chiamata alla API [createEventStream](#/Streams/createEventStream)
       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload di esempio:</br></br>``
       {
         "title": "NotificationAccepted",
         "eventType": "STATUS"
       }
-      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio della stream appena creata chiamando la 
-      API [getEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/getEventStream), mentre si possono ottenere i dati degli eventi richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Events/consumeEventStream)
+      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio 
+      dello stream appena creato chiamando la API [getEventStream](#/Streams/getEventStream)), mentre si possono 
+      ottenere i dati degli eventi richiamando la API [consumeEventStream](#/Streams/consumeEventStream)
 
 
       __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
@@ -496,101 +497,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}:
-    get:
-      summary: Download atto opponibile a terzi
-      description: Permette di scaricare un atto opponibile a terzi
-      tags:
-        - LegalFacts
-      operationId: retrieveLegalFact
-      parameters:
-        - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
-        - $ref: '#/components/parameters/pathLegalFactType'
-        - $ref: '#/components/parameters/pathLegalFactId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/download/legal-facts/{legalFactId}:
-    get:
-      summary: Download atto opponibile a terzi
-      description: Permette di scaricare un atto opponibile a terzi
-      tags:
-        - LegalFacts
-      operationId: downloadLegalFactById
-      parameters:
-        - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
-        - $ref: '#/components/parameters/pathLegalFactId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery-push/v2.0/notifications/cancel/{iun}:
-    put:
-      summary: Annullamento notifica
-      description: |-
-        Permette l'annullamento di una notifica restituendo una presa in carico,
-          il processo di annullamento si completa poi in maniera asincrona
-      tags:
-        - NotificationCancellation
-      operationId: notificationCancellation
-      parameters:
-        - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
-      responses:
-        '202':
-          description: Accepted - Richiesta annullamento presa in carico
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RequestStatus'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: remote-refs.yaml#/components/schemas/Problem
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: remote-refs.yaml#/components/schemas/Problem
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: remote-refs.yaml#/components/schemas/Problem
   /delivery/price/{paTaxId}/{noticeCode}:
     get:
       operationId: retrieveNotificationPrice

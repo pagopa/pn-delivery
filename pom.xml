@@ -21,7 +21,7 @@
     <properties>
         <default.package>it.pagopa.pn.delivery</default.package>
         <ant.windows_bash_exe>c:\Program Files\Git\bin\bash.exe</ant.windows_bash_exe>
-        <pagopa.codegen.version>v01.03.01-SNAPSHOT</pagopa.codegen.version>
+        <pagopa.codegen.version>v01.03.01</pagopa.codegen.version>
     </properties>
 
     <dependencies>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>it.pagopa.pn</groupId>
             <artifactId>pn-commons</artifactId>
-            <version>2.1.12-SNAPSHOT</version>
+            <version>2.1.12</version>
         </dependency>
         <dependency>
             <groupId>it.pagopa.pn</groupId>

@@ -15,7 +15,6 @@ import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,18 +32,15 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     private final NotificationPriceService priceService;
     private final NotificationQRService qrService;
     private final NotificationAttachmentService notificationAttachmentService;
-    private final PaymentEventsService paymentEventsService;
-
     private final ModelMapper modelMapper;
 
 
-    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, PaymentEventsService paymentEventsService, ModelMapper modelMapper) {
+    public PnInternalNotificationsController(NotificationRetrieverService retrieveSvc, StatusService statusService, NotificationPriceService priceService, NotificationQRService qrService, NotificationAttachmentService notificationAttachmentService, ModelMapper modelMapper) {
         this.retrieveSvc = retrieveSvc;
         this.statusService = statusService;
         this.priceService = priceService;
         this.qrService = qrService;
         this.notificationAttachmentService = notificationAttachmentService;
-        this.paymentEventsService = paymentEventsService;
         this.modelMapper = modelMapper;
     }
 
@@ -244,12 +240,6 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     @Override
     public ResponseEntity<Map<String, String>> getQuickAccessLinkTokensPrivate(String iun) {
       return ResponseEntity.ok(qrService.getQRByIun(iun));
-    }
-
-    @Override
-    public ResponseEntity<Void> paymentEventPagoPaPrivate(PaymentEventPagoPaPrivate paymentEventPagoPaPrivate) {
-        paymentEventsService.handlePaymentEventPagoPaPrivate( paymentEventPagoPaPrivate );
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
