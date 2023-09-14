@@ -447,7 +447,6 @@ class NotificationRetrieverServiceTest {
         
         //Then
         Assertions.assertNotNull( result );
-        Assertions.assertNull( result.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
     }
 
     @Test
@@ -1015,8 +1014,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-01-15T00:00:00.00Z" ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
-        Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
+        Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
 
     }
 
@@ -1055,8 +1053,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-02-11T00:00:00.00Z" ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
-        Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
+        Assertions.assertEquals( NOTICE_CODE, internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
     }
 
     @Test
@@ -1095,8 +1092,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
-        Assertions.assertEquals( NOTICE_CODE_ALTERNATIVE, internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
+        Assertions.assertEquals( NOTICE_CODE_ALTERNATIVE, internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
     }
 
     @Test
@@ -1140,8 +1136,7 @@ class NotificationRetrieverServiceTest {
                 Assertions.assertNull(internalNotificationResult.getRecipients().get(0).getPayments());
                 Assertions.assertEquals(null, internalNotificationResult.getRecipients().get(0).getPayments());
             }else{
-                Assertions.assertNull(internalNotificationResult.getRecipients().get(0).getPayments().get(0).getNoticeCodeAlternative());
-                Assertions.assertEquals(NOTICE_CODE, internalNotificationResult.getRecipients().get(0).getPayments().get(0).getNoticeCode());
+                Assertions.assertEquals(NOTICE_CODE, internalNotificationResult.getRecipients().get(0).getPayments().get(0).getPagoPa().getNoticeCode());
             }
 
 
@@ -1184,8 +1179,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( nowTestInstant ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
     }
 
     @Test
@@ -1219,8 +1213,7 @@ class NotificationRetrieverServiceTest {
 
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-05-11T00:00:00.00Z" ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
     }
 
     @Test
@@ -1254,8 +1247,7 @@ class NotificationRetrieverServiceTest {
         InternalNotification internalNotificationResult = svc.getNotificationAndNotifyViewedEvent(IUN, INTERNAL_AUTH_HEADER, null);
         //Then
         Mockito.verify( notificationViewedProducer ).sendNotificationViewed( IUN, Instant.parse( "2022-03-11T00:00:00.00Z" ), 0, null );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
-        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
+        Assertions.assertNull( internalNotificationResult.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
     }
 
     @Test

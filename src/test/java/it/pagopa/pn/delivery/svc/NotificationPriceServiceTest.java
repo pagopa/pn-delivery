@@ -359,8 +359,12 @@ class NotificationPriceServiceTest {
         InternalNotification notification = new InternalNotification();
         notification.setIun(iun);
         NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
-        notificationPaymentInfo.setNoticeCode(noticeCode);
-        notificationPaymentInfo.setCreditorTaxId(paTaxId);
+        notificationPaymentInfo.setPagoPa(
+                it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                        .noticeCode(noticeCode)
+                        .creditorTaxId(paTaxId)
+                        .build()
+        );
         notification.setRecipients(List.of(new NotificationRecipient()
                 .recipientType(PF)
                 .payment(List.of(notificationPaymentInfo))));
@@ -377,8 +381,11 @@ class NotificationPriceServiceTest {
         String paTaxId = "creditor-tax-id";
         String noticeCode = "a-notice-code";
         NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
-        notificationPaymentInfo.setNoticeCode(noticeCode);
-        notificationPaymentInfo.setCreditorTaxId(paTaxId);
+        notificationPaymentInfo.setPagoPa(
+                it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                        .creditorTaxId(paTaxId)
+                        .noticeCode(noticeCode).build()
+        );
         InternalNotification notification = new InternalNotification();
         notification.setIun(iun);
         notification.setRecipients(List.of(new NotificationRecipient()

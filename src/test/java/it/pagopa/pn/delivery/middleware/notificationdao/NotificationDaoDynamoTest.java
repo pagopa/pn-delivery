@@ -10,6 +10,7 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
+import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
@@ -535,7 +536,6 @@ class NotificationDaoDynamoTest {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
-        internalNotification.setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
         internalNotification.setSubject("Subject 01");
@@ -544,13 +544,15 @@ class NotificationDaoDynamoTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
-        internalNotification.setRecipientIds(List.of("ids"));
-        internalNotification.setDocuments(List.of(NotificationDocument.builder()
-                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder().key("key").versionToken("version").build())
-                .title("title")
-                .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder().sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=").build())
-                .contentType("application/pdf")
-                .docIdx("docId")
+        internalNotification.setDocuments(List.of(NotificationDocument
+                .builder()
+                .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder()
+                        .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
+                        .build())
+                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
+                        .key("KEY")
+                        .versionToken("versioneToken")
+                        .build())
                 .build()));
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
@@ -558,18 +560,28 @@ class NotificationDaoDynamoTest {
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
                         .payments(List.of(NotificationPaymentInfo.builder()
-                                .noticeCode("302211675775915057")
-                                .noticeCodeAlternative("302351677498380984")
-                                .creditorTaxId("77777777777")
+                                .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder()
+                                        .title("title")
+                                        .applyCost(false)
+                                        .metadataAttachment(MetadataAttachment.builder()
+                                                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder().build())
+                                                .contentType("application/json")
+                                                .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder().build())
+                                                .build())
+                                        .build())
+                                .pagoPa(it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                                        .applyCost(false)
+                                        .noticeCode("302211675775915057")
+                                        .creditorTaxId("77777777777")
+                                        .attachment(MetadataAttachment.builder()
+                                                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder().build())
+                                                .contentType("application/json")
+                                                .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder().build())
+                                                .build())
+                                        .build())
                                 .build())
                         )
                         .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
-                        .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder()
-                                .address("address")
-                                .zip("zip")
-                                .at("at")
-                                .addressDetails("addressDetails")
-                                .municipality("municipality").build())
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")

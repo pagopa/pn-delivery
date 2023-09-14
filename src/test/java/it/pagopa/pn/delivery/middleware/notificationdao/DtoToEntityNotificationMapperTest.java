@@ -42,8 +42,8 @@ class DtoToEntityNotificationMapperTest {
 
         Assertions.assertNotNull( notificationEntity );
         Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
-        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
-        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
+        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getPagoPaForm().getNoticeCode() );
+        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getPagoPaForm().getCreditorTaxId() );
 
     }
 
@@ -76,18 +76,24 @@ class DtoToEntityNotificationMapperTest {
                         .internalId( "recipientInternalId" )
                         .payments(List.of(NotificationPaymentInfo.builder()
                                 .f24(F24Payment.builder()
-                                        .ref(NotificationAttachmentBodyRef.builder().build())
-                                        .contentType("application/json")
-                                        .digests(NotificationAttachmentDigests.builder().build())
+                                        .title("title")
+                                        .applyCost(false)
+                                        .metadataAttachment(MetadataAttachment.builder()
+                                                .ref(NotificationAttachmentBodyRef.builder().build())
+                                                .contentType("application/json")
+                                                .digests(NotificationAttachmentDigests.builder().build())
+                                                .build())
                                         .build())
                                 .pagoPa(PagoPaPayment.builder()
-                                        .ref(NotificationAttachmentBodyRef.builder().build())
-                                        .contentType("application/json")
-                                        .digests(NotificationAttachmentDigests.builder().build())
+                                        .applyCost(false)
+                                        .noticeCode("302211675775915057")
+                                        .creditorTaxId("77777777777")
+                                        .attachment(MetadataAttachment.builder()
+                                                .ref(NotificationAttachmentBodyRef.builder().build())
+                                                .contentType("application/json")
+                                                .digests(NotificationAttachmentDigests.builder().build())
+                                                .build())
                                         .build())
-                                .noticeCode("302211675775915057")
-                                .noticeCodeAlternative("302351677498380984")
-                                .creditorTaxId("77777777777")
                                 .build())
                         )
                         .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)

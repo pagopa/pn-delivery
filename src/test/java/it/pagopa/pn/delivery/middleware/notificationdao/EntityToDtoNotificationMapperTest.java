@@ -41,10 +41,8 @@ class EntityToDtoNotificationMapperTest {
 
         // Then
         Assertions.assertNotNull( internalNotification );
-        Assertions.assertEquals( "noticeCode" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getNoticeCode() );
-        Assertions.assertEquals( "noticeCode_opt" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getNoticeCodeAlternative() );
+        Assertions.assertEquals( "noticeCode" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
         Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getNoticeCodeAlternative() );
         Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getPagoPa() );
     }
 
@@ -59,22 +57,35 @@ class EntityToDtoNotificationMapperTest {
                 .denomination("recipientDenomination")
                 .payments( List.of(
                                 NotificationPaymentInfoEntity.builder()
-                                        .creditorTaxId("creditorTaxId")
-                                        .noticeCode("noticeCode")
+                                        .f24(
+                                                F24PaymentEntity.builder()
+                                                        .title("title")
+                                                        .applyCost(false)
+                                                        .metadataAttachment(
+                                                                MetadataAttachmentEntity.builder()
+                                                                        .contentType("application/pdf")
+                                                                        .digests(NotificationAttachmentDigestsEntity.builder()
+                                                                                .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
+                                                                                .build())
+                                                                        .build()
+                                                        )
+                                                        .build()
+                                        )
                                         .pagoPaForm(PagoPaPaymentEntity.builder()
-                                                .contentType("application/pdf")
-                                                .digests(NotificationAttachmentDigestsEntity.builder()
-                                                        .sha256("sha256")
-                                                        .build())
-                                                .ref(NotificationAttachmentBodyRefEntity.builder()
-                                                        .key("key")
-                                                        .versionToken("versionToken")
-                                                        .build())
+                                                .applyCost(false)
+                                                .noticeCode("noticeCode")
+                                                .attachment(MetadataAttachmentEntity.builder()
+                                                        .contentType("application/pdf")
+                                                        .digests(NotificationAttachmentDigestsEntity.builder()
+                                                                .sha256("sha256")
+                                                                .build())
+                                                        .ref(NotificationAttachmentBodyRefEntity.builder()
+                                                                .key("key")
+                                                                .versionToken("versionToken")
+                                                                .build())
+                                                        .build()
+                                                )
                                                 .build())
-                                        .build(),
-                                NotificationPaymentInfoEntity.builder()
-                                        .creditorTaxId("creditorTaxId")
-                                        .noticeCode("noticeCode_opt")
                                         .build()
                         )
                 )
@@ -92,9 +103,35 @@ class EntityToDtoNotificationMapperTest {
                 .recipientType(RecipientTypeEntity.PF)
                 .payments( List.of(
                                 NotificationPaymentInfoEntity.builder()
-                                        .creditorTaxId("77777777777")
-                                        .noticeCode("002720356512737953")
-                                        .build()
+                                        .f24(
+                                                F24PaymentEntity.builder()
+                                                        .title("title")
+                                                        .applyCost(false)
+                                                        .metadataAttachment(
+                                                                MetadataAttachmentEntity.builder()
+                                                                        .contentType("application/pdf")
+                                                                        .digests(NotificationAttachmentDigestsEntity.builder()
+                                                                                .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
+                                                                                .build())
+                                                                        .build()
+                                                        )
+                                                        .build()
+                                        )
+                                        .pagoPaForm(PagoPaPaymentEntity.builder()
+                                                .applyCost(false)
+                                                .noticeCode("noticeCode")
+                                                .attachment(MetadataAttachmentEntity.builder()
+                                                        .contentType("application/pdf")
+                                                        .digests(NotificationAttachmentDigestsEntity.builder()
+                                                                .sha256("sha256")
+                                                                .build())
+                                                        .ref(NotificationAttachmentBodyRefEntity.builder()
+                                                                .key("key")
+                                                                .versionToken("versionToken")
+                                                                .build())
+                                                        .build()
+                                                )
+                                                .build()).build()
                         )
                 )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
@@ -110,16 +147,6 @@ class EntityToDtoNotificationMapperTest {
                 .recipientId( "fakeRecipientId" )
                 .build();
         return NotificationEntity.builder()
-                .documents((List.of(DocumentAttachmentEntity
-                        .builder()
-                        .digests(NotificationAttachmentDigestsEntity.builder()
-                                .sha256("jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=")
-                                .build())
-                        .ref(NotificationAttachmentBodyRefEntity.builder()
-                                .key("KEY")
-                                .versionToken("versioneToken")
-                                .build())
-                        .build())))
                 .iun("IUN_01")
                 .notificationAbstract( "Abstract" )
                 .idempotenceToken( "idempotenceToken" )
@@ -132,9 +159,9 @@ class EntityToDtoNotificationMapperTest {
                 .group( "Group_1" )
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotificationV21.PagoPaIntModeEnum.NONE.getValue() )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
                 .version( 1 )
+                //.recipientsJson(Collections.emptyMap())
                 .build();
     }
 

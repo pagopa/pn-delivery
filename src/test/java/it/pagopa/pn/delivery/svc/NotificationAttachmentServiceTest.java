@@ -525,7 +525,7 @@ class NotificationAttachmentServiceTest {
     it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef notificationAttachmentBodyRef = new it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef();
 
     notificationAttachmentBodyRef.setKey("filekey");
-    pagoPaPayment.setRef(notificationAttachmentBodyRef);
+    pagoPaPayment.getAttachment().setRef(notificationAttachmentBodyRef);
 
     if (channel.equals(PAGOPA))
       notificationPaymentInfo.setPagoPa(pagoPaPayment);
