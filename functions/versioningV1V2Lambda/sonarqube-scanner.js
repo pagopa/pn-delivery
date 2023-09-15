@@ -1,7 +1,7 @@
 let options = {
   "sonar.organization": "pagopa",
   "sonar.projectKey":
-    "pagopa_pn-delivery-versioning-v1v2-lambda",
+    "pagopa_pn-delivery-versioningV1V2Lambda",
 };
 
 if (process.env.PR_NUM) {

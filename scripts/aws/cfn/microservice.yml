@@ -986,3 +986,64 @@ Resources:
                   await putObjectToS3(BUCKET_NAME, fullPath, response);
                   return response;
               };
+
+  #########################################################
+  ###              VersioningV1V2Lambda                 ###
+  #########################################################
+  VersioningV1V2LambdaSecGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: !Sub 'VersioningV1V2Lambda-sec-group'
+    VpcId: !Ref VpcId
+
+  # Lambda function
+  VersioningV1V2Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref VersioningV1V2Lambda
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2Lambda.zip"
+      Role: !GetAtt VersioningV1V2LambdaRole.Arn
+      VpcConfig: # required for mock connection but useful also for the future addition of network firewall
+        SecurityGroupIds:
+          - !GetAtt VersioningV1V2LambdaSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  VersioningV1V2LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-versioningV1V2LambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  VersioningV1V2LambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref VersioningV1V2Lambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+
