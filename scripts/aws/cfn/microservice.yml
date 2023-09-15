@@ -1009,7 +1009,7 @@ Resources:
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2Lambda.zip"
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2.zip"
       Role: !GetAtt VersioningV1V2LambdaRole.Arn
       VpcConfig: # required for mock connection but useful also for the future addition of network firewall
         SecurityGroupIds:
