@@ -92,7 +92,7 @@ Parameters:
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
 
   SubnetsIds:
-    Type: String
+    Type: CommaDelimitedList
     Description: 'subnets ids comma separated list. Where to deploy the microservice'
 
   VpcEgressSubnetsIds:
@@ -136,7 +136,7 @@ Parameters:
     Type: String
     Description: 'lollipop authorization activation flag'
     AllowedValues: [true, false]
-    Default: "false"
+    Default: false
 
   IsSendActiveDefaultValue:
     Type: String
@@ -365,6 +365,10 @@ Parameters:
   IOBackendCidrs:
     Type: String
     Default: ''
+
+  VersioningV1V2LambdaName:
+    Type: String
+    Description: 'VersioningV1V2LambdaName'
 
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
@@ -986,3 +990,65 @@ Resources:
                   await putObjectToS3(BUCKET_NAME, fullPath, response);
                   return response;
               };
+
+  #########################################################
+  ###              VersioningV1V2Lambda                 ###
+  #########################################################
+  VersioningV1V2LambdaSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub 'VersioningV1V2Lambda-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  VersioningV1V2Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref VersioningV1V2LambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2Lambda.zip"
+      Role: !GetAtt VersioningV1V2LambdaRole.Arn
+      VpcConfig: # required for mock connection but useful also for the future addition of network firewall
+        SecurityGroupIds:
+          - !GetAtt VersioningV1V2LambdaSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.0"
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+
+  # Lambda function role
+  VersioningV1V2LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-versioningV1V2LambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  VersioningV1V2LambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref VersioningV1V2Lambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+
