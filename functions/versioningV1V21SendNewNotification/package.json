@@ -1,10 +1,10 @@
 {
-    "name": "send-new-notification",
+    "name": "versioning-v1v21-send-new-notification",
     "version": "0.0.1",
     "main": "index.js",
     "scripts": {
         "test-build": "npm run-script test && npm run-script coverage && npm run-script sonar && npm run-script build",
-        "build": "npm update send-new-notification && npm prune --production && rm -f ./function.zip && zip -r ./function.zip . -x './src/test/*' -x '*.md' -x '*.env'  -x './coverage/*' -x './.nyc_output/*' -x './.scannerwork/*'",
+        "build": "npm update versioning-v1v21-send-new-notification && npm prune --production && rm -f ./function.zip && zip -r ./function.zip . -x './src/test/*' -x '*.md' -x '*.env'  -x './coverage/*' -x './.nyc_output/*' -x './.scannerwork/*'",
         "test": "nyc --reporter=html --reporter=text mocha './src/test/**/*.test.js' --recursive --timeout=3000 --exit -r dotenv/config",
         "coverage": "nyc report --reporter=lcov",
         "sonar": "node sonarqube-scanner.js -Dsonar.login=${SONAR_TOKEN}"
