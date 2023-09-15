@@ -352,5 +352,5 @@ Outputs:
   PnDeliveryInsertTriggerLambdaName:
     Value: !Sub "${ProjectName}-delivery-insert-trigger-lambda"
 
-  VersioningV1V2LambdaName:
-    Value: !Sub "${ProjectName}-delivery-versioning-v1v2-lambda"
+  VersioningV1V2GetNotificationName:
+    Value: !Sub "${ProjectName}-delivery-versioning-v1v2-getnotification-lambda"
