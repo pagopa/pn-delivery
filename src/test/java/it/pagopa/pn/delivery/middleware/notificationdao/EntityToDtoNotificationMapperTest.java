@@ -43,7 +43,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNotNull( internalNotification );
         Assertions.assertEquals( "noticeCode" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
         Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getPagoPa() );
+        Assertions.assertNotNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getPagoPa() );
     }
 
     private NotificationEntity newNotificationEntity() {
@@ -66,6 +66,10 @@ class EntityToDtoNotificationMapperTest {
                                                                         .contentType("application/pdf")
                                                                         .digests(NotificationAttachmentDigestsEntity.builder()
                                                                                 .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
+                                                                                .build())
+                                                                        .ref(NotificationAttachmentBodyRefEntity.builder()
+                                                                                .key("key")
+                                                                                .versionToken("versionToken")
                                                                                 .build())
                                                                         .build()
                                                         )
@@ -112,6 +116,10 @@ class EntityToDtoNotificationMapperTest {
                                                                         .contentType("application/pdf")
                                                                         .digests(NotificationAttachmentDigestsEntity.builder()
                                                                                 .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
+                                                                                .build())
+                                                                        .ref(NotificationAttachmentBodyRefEntity.builder()
+                                                                                .key("key")
+                                                                                .versionToken("versionToken")
                                                                                 .build())
                                                                         .build()
                                                         )

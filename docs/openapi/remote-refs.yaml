@@ -46,9 +46,9 @@ components:
     ############################################################################################
 
     pathLegalFactType:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactType'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/486d682991a2e7098002263339c632076f64c286/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactType'
     pathLegalFactId:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactId'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/486d682991a2e7098002263339c632076f64c286/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactId'
 
 
   schemas:
@@ -57,19 +57,18 @@ components:
     ###                          STRUTTURE DATI DI PN-DELIVERY_PUSH                          ###
     ############################################################################################
     TimelineElementV20:
-      # - Lo so che non vanno fatte referenze a branch. Mi serve solo per rendere l'idea
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/develop/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/ebfa65bc4cc10f7ab0a2f28985361666a2826155/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
     TimelineElement:
       # DO NOT CHANGE: this is timeline V1 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
     NotificationStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/ebfa65bc4cc10f7ab0a2f28985361666a2826155/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/ebfa65bc4cc10f7ab0a2f28985361666a2826155/docs/openapi/schemas-pn-status.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/ebfa65bc4cc10f7ab0a2f28985361666a2826155/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
     RequestStatus:
-      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/29559ab37f8a7b92e6edb463c4cee49b473ea189/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/ebfa65bc4cc10f7ab0a2f28985361666a2826155/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################

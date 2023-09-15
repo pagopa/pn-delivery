@@ -525,6 +525,7 @@ class NotificationAttachmentServiceTest {
     it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef notificationAttachmentBodyRef = new it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef();
 
     notificationAttachmentBodyRef.setKey("filekey");
+    pagoPaPayment.setAttachment(new it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment());
     pagoPaPayment.getAttachment().setRef(notificationAttachmentBodyRef);
 
     if (channel.equals(PAGOPA))
@@ -541,6 +542,7 @@ class NotificationAttachmentServiceTest {
     documentItem.setTitle("titolo");
     notification.addDocumentsItem(documentItem);
     notification.setRecipientIds(List.of(taxid));
+
 
 
     return notification;

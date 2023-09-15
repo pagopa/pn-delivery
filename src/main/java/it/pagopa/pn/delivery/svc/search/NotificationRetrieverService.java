@@ -388,8 +388,9 @@ public class NotificationRetrieverService {
 	private void completeInternalNotificationWithTimeline(String iun, boolean requestBySender, InternalNotification notification) {
 		notification = enrichWithTimelineAndStatusHistory(iun, notification);
 		OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
-		checkDocumentsAvailability(notification, refinementDate );
+		checkDocumentsAvailability(notification, refinementDate , requestBySender);
 		/*
+		checkDocumentsAvailability(notification, refinementDate , requestBySender);
 		if ( !requestBySender && Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) ) {
 			computeNoticeCodeToReturn(notification, refinementDate );
 		}
@@ -711,21 +712,28 @@ public class NotificationRetrieverService {
 		throw new PnMandateNotFoundException(message);
 	}
 
-	private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate) {
+	private void checkDocumentsAvailability(InternalNotification notification, OffsetDateTime refinementDate, boolean requestBySender) {
 		log.debug( "Check if documents are available for iun={}", notification.getIun() );
 		notification.setDocumentsAvailable( true );
-		if ( !NotificationStatus.CANCELLED.equals( notification.getNotificationStatus() ) ) {
-			if ( refinementDate != null ) {
-				long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo( ChronoUnit.DAYS ),
-						clock.instant().truncatedTo( ChronoUnit.DAYS ) );
-				if ( daysBetween > Long.parseLong( cfg.getMaxDocumentsAvailableDays() ) ) {
-					log.debug("Documents not more available for iun={} from={}", notification.getIun(), refinementDate);
-					removeDocuments( notification );
-				}
-			}
+		if ( requestBySender || !isNotificationCancelled(notification) ) {
+			checkDocumentsRemove(notification, refinementDate);
 		} else {
 			log.debug("Documents not more available for iun={} because is cancelled", notification.getIun());
-			removeDocuments(notification);
+			notification.setDocumentsAvailable( false );
+			// i documenti vanno rimossi solo se trascorso il tempo
+			checkDocumentsRemove(notification, refinementDate);
+		}
+	}
+
+	private void checkDocumentsRemove(InternalNotification notification, OffsetDateTime refinementDate) {
+		log.debug( "Check if documents should be removed for iun={}", notification.getIun() );
+		if ( refinementDate != null ) {
+			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo( ChronoUnit.DAYS ),
+					clock.instant().truncatedTo( ChronoUnit.DAYS ) );
+			if ( daysBetween > Long.parseLong( cfg.getMaxDocumentsAvailableDays() ) ) {
+				log.debug("Documents not more available for iun={} from={}", notification.getIun(), refinementDate);
+				removeDocuments( notification );
+			}
 		}
 	}
 

@@ -134,10 +134,9 @@ public class NotificationReceiverService {
 				})
 				.toList();
 
+		String iun = generateIun(internalNotification);
 		saveF24Request.setF24Items(saveF24Items);
 		saveF24Request.setId(internalNotification.getIun());
-
-		String iun = generateIun(internalNotification);
 
 		if(!saveF24Items.isEmpty()){
 			f24Client.saveMetadata("PN-DELIVERY", internalNotification.getIun(), saveF24Request);

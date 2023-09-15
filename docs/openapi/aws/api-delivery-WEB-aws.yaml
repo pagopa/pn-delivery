@@ -4137,13 +4137,13 @@ components:
       properties:
         code:
           description: Internal code of the error or warning, in human-readable format
-          example: NOTIFICATION_ALREADY_CANCELLED
+          example: NOTIFICATION_CANCELLATION_ACCEPTED, NOTIFICATION_ALREADY_CANCELLED
           type: string
         level:
           description: |
-            informational level of status detail: WARN, ERR, ...
+            informational level of status detail: INFO,WARN, ERR
             ERR (error) by default
-          example: NOTIFICATION_ALREADY_CANCELLED
+          example: INFO
           type: string
         detail:
           description: >-
