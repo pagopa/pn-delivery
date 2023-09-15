@@ -10,6 +10,8 @@ target/
 
 # Node.js
 node_modules/
+.nyc_output/
+coverage/
 
 ### STS ###
 .apt_generated
@@ -38,3 +40,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Lambda ###
+function.zip
