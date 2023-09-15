@@ -1018,6 +1018,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.0"
       TracingConfig:
         Mode: Active
       Layers:
