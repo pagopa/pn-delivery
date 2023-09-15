@@ -366,9 +366,9 @@ Parameters:
     Type: String
     Default: ''
 
-  VersioningV1V2LambdaName:
+  VersioningV1V2GetNotificationName:
     Type: String
-    Description: 'VersioningV1V2LambdaName'
+    Description: 'VersioningV1V2GetNotificationName'
 
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
@@ -992,28 +992,28 @@ Resources:
               };
 
   #########################################################
-  ###              VersioningV1V2Lambda                 ###
+  ###              VersioningV1V2GetNotification        ###
   #########################################################
-  VersioningV1V2LambdaSecGroup:
+  VersioningV1V2GetNotificationSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: !Sub 'VersioningV1V2Lambda-sec-group'
+      GroupDescription: !Sub 'VersioningV1V2GetNotification-sec-group'
       VpcId: !Ref VpcId
 
   # Lambda function
-  VersioningV1V2Lambda:
+  VersioningV1V2GetNotification:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Ref VersioningV1V2LambdaName
+      FunctionName: !Ref VersioningV1V2GetNotificationName
       Runtime: nodejs18.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2.zip"
-      Role: !GetAtt VersioningV1V2LambdaRole.Arn
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2GetNotification.zip"
+      Role: !GetAtt VersioningV1V2GetNotificationRole.Arn
       VpcConfig: # required for mock connection but useful also for the future addition of network firewall
         SecurityGroupIds:
-          - !GetAtt VersioningV1V2LambdaSecGroup.GroupId
+          - !GetAtt VersioningV1V2GetNotificationSecGroup.GroupId
         SubnetIds: !Ref SubnetsIds
       Environment:
         Variables:
@@ -1026,10 +1026,10 @@ Resources:
       Timeout: 10
 
   # Lambda function role
-  VersioningV1V2LambdaRole:
+  VersioningV1V2GetNotificationRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${ProjectName}-versioningV1V2LambdaRole
+      RoleName: !Sub ${ProjectName}-VersioningV1V2GetNotificationRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1043,12 +1043,12 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
-  VersioningV1V2LambdaAlarms:
+  VersioningV1V2GetNotificationAlarms:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
-        FunctionName: !Ref VersioningV1V2Lambda
+        FunctionName: !Ref VersioningV1V2GetNotification
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
 
