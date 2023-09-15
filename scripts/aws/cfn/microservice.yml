@@ -1011,7 +1011,7 @@ Resources:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2GetNotification.zip"
       Role: !GetAtt VersioningV1V2GetNotificationRole.Arn
-      VpcConfig: # required for mock connection but useful also for the future addition of network firewall
+      VpcConfig:
         SecurityGroupIds:
           - !GetAtt VersioningV1V2GetNotificationSecGroup.GroupId
         SubnetIds: !Ref SubnetsIds
