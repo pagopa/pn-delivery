@@ -500,37 +500,6 @@ components:
               type: string                                                              # NO EXTERNAL
               description: Dettagli del canale sorgente della richiesta di notifica     # NO EXTERNAL
 
-    FullSentNotificationV2:
-      description: >-
-        Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
-        processo di inoltro della notifica verso il cittadino.
-      allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV2'
-        - type: object
-          required:
-            - notificationStatus
-            - notificationStatusHistory
-            - timeline
-          properties:
-            notificationStatus:
-              $ref: '#/components/schemas/NotificationStatus'
-            notificationStatusHistory:
-              $ref: '#/components/schemas/NotificationStatusHistory'
-            timeline:
-              description: >-
-                elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
-              type: array
-              items:
-                $ref: '#/components/schemas/TimelineElement'
-            recipientIds: # NO EXTERNAL
-              description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
-              type: array                                                               # NO EXTERNAL
-              items: # NO EXTERNAL
-                type: string                                                            # NO EXTERNAL
-            sourceChannel: # NO EXTERNAL
-              type: string                                                              # NO EXTERNAL
-              description: Canale sorgente della richiesta di notifica                  # NO EXTERNAL
-
 
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
@@ -644,14 +613,14 @@ components:
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
 
-        #  securitySchemes:        # ONLY EXTERNAL
-        #    ApiKeyAuth:           # ONLY EXTERNAL
-        #      type: apiKey        # ONLY EXTERNAL
-        #      in: header          # ONLY EXTERNAL
-        #      name: x-api-key     # ONLY EXTERNAL
+#  securitySchemes:        # ONLY EXTERNAL
+#    ApiKeyAuth:           # ONLY EXTERNAL
+#      type: apiKey        # ONLY EXTERNAL
+#      in: header          # ONLY EXTERNAL
+#      name: x-api-key     # ONLY EXTERNAL
 
-        #security:                 # ONLY EXTERNAL
-        #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
+#security:                 # ONLY EXTERNAL
+#  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
               
 
 
