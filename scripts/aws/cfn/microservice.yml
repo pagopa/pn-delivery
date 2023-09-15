@@ -1029,7 +1029,7 @@ Resources:
   VersioningV1V2GetNotificationLambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${ProjectName}-VersioningV1V2GetNotificationRole
+      RoleName: !Sub ${ProjectName}-versioningV1V2GetNotificationLambdaRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
