@@ -73,34 +73,46 @@ public class DtoToEntityNotificationMapper {
     private List<NotificationPaymentInfoEntity> toNotificationPaymentInfoEntityList(NotificationPaymentInfo item) {
         List<NotificationPaymentInfoEntity> notificationPaymentInfoEntities = new ArrayList<>();
         notificationPaymentInfoEntities.add(NotificationPaymentInfoEntity.builder()
+                .creditorTaxId(item.getPagoPa() != null ? item.getPagoPa().getCreditorTaxId() : null)
+                .noticeCode(item.getPagoPa() != null ? item.getPagoPa().getNoticeCode() : null)
+                .applyCost(item.getPagoPa() != null ? item.getPagoPa().isApplyCost() : null)
                 .pagoPaForm(
-                        PagoPaPaymentEntity.builder()
-                                .creditorTaxId(item.getPagoPa().getCreditorTaxId())
-                                .noticeCode(item.getPagoPa().getNoticeCode())
-                                //.noticeCodeAlternative(item.getPagoPa().getNoticeCodeAlternative())
-                                .applyCost(item.getPagoPa().isApplyCost())
-                                .attachment(dto2PaymentAttachment( item.getPagoPa() ) )
-                                .build()
+                        dto2PagoPaPaymentEntity(item.getPagoPa())
                 )
                 .f24(
-                        F24PaymentEntity.builder()
-                                .applyCost(item.getF24().isApplyCost())
-                                .title(item.getF24().getTitle())
-                                .index(item.getF24().getIndex())
-                                .metadataAttachment(dto2PaymentAttachment(item.getF24()))
-                                .build())
-                .build());
-        /*
-        if ( StringUtils.hasText( item.getNoticeCodeAlternative() ) ) {
-            notificationPaymentInfoEntities.add( NotificationPaymentInfoEntity.builder()
-                    .creditorTaxId( item.getCreditorTaxId() )
-                    .noticeCode( item.getNoticeCodeAlternative() )
-                    .pagoPaForm( dto2PaymentAttachment( item.getPagoPaForm() ) )
-                    .f24(dto2PaymentAttachment(item.getF24()))
-                    .build()
-            );
-        }*/
+                        dto2F24PaymentEntity(item.getF24())
+                ).build());
         return notificationPaymentInfoEntities;
+    }
+
+    private F24PaymentEntity dto2F24PaymentEntity(F24Payment f24Payment){
+        F24PaymentEntity f24PaymentEntity = null;
+        if(f24Payment != null){
+            f24PaymentEntity =  F24PaymentEntity.builder()
+                    .applyCost(f24Payment.isApplyCost())
+                    .title(f24Payment.getTitle())
+                    .index(f24Payment.getIndex())
+                    .metadataAttachment(dto2PaymentAttachment(f24Payment))
+                    .build();
+        }
+        return f24PaymentEntity;
+    }
+
+    private PagoPaPaymentEntity dto2PagoPaPaymentEntity(PagoPaPayment pagoPaPayment){
+        PagoPaPaymentEntity pagoPaPaymentEntity = null;
+        if(pagoPaPayment != null){
+            pagoPaPaymentEntity = PagoPaPaymentEntity.builder()
+                    .contentType(pagoPaPayment.getAttachment().getContentType())
+                    .ref(NotificationAttachmentBodyRefEntity.builder()
+                            .key(pagoPaPayment.getAttachment().getRef().getKey())
+                            .versionToken(pagoPaPayment.getAttachment().getRef().getVersionToken())
+                            .build())
+                    .digests(NotificationAttachmentDigestsEntity.builder()
+                            .sha256(pagoPaPayment.getAttachment().getDigests().getSha256())
+                            .build())
+                    .build();
+        }
+        return pagoPaPaymentEntity;
     }
 
     private MetadataAttachmentEntity dto2PaymentAttachment(F24Payment dto ) {

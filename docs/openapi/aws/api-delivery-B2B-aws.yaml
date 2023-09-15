@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: TTAXvINUXtuKnGINQ2g+bWylK+y34v6l9Pp4UxbaM2s=
+  version: 0RwvYRJ4UjAEkkSdDogbCLkEungjWW+skt23drq83us=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -687,7 +687,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotification
-      x-pagopa-lambda-name: ilNomeDellaLambda
+      x-pagopa-lambda-name: VersioningV1V2Lambda
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -715,7 +715,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ilNomeDellaLambda/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:VersioningV1V2Lambda/invocations
         httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
@@ -3837,7 +3837,7 @@ components:
             Codice tassonomico della notifica basato sulla definizione presente
             nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
             PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
           default: 010101P
         pagoPaIntMode:
           type: string

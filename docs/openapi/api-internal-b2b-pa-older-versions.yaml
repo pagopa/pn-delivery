@@ -28,7 +28,7 @@ paths:
         - SenderReadB2B
       operationId: getSentNotification                                      # NO EXTERNAL
 #      operationId: retrieveSentNotification                                # ONLY EXTERNAL
-      x-pagopa-lambda-name: ilNomeDellaLambda
+      x-pagopa-lambda-name: VersioningV1V2Lambda
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL

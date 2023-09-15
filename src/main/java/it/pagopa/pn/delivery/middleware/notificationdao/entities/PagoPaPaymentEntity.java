@@ -12,57 +12,35 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @DynamoDbBean
 public class PagoPaPaymentEntity {
 
-    private String noticeCode;
-    private String creditorTaxId;
-    private boolean applyCost;
-    //private String noticeCodeAlternative;
-    private MetadataAttachmentEntity attachment;
+    private NotificationAttachmentDigestsEntity digests;
+    private String contentType;
+    private NotificationAttachmentBodyRefEntity ref;
 
-    public void setNoticeCode(String noticeCode) {
-        this.noticeCode = noticeCode;
+    @DynamoDbAttribute(value = "ref")
+    public NotificationAttachmentBodyRefEntity getNotificationAttachmentBodyRefEntity() {
+        return ref;
     }
 
-    public void setCreditorTaxId(String creditorTaxId) {
-        this.creditorTaxId = creditorTaxId;
+    public void setNotificationAttachmentBodyRefEntity(NotificationAttachmentBodyRefEntity ref) {
+        this.ref = ref;
     }
 
-    public void setApplyCost(boolean applyCost) {
-        this.applyCost = applyCost;
+    @DynamoDbAttribute(value = "contentType")
+    public String getContentType() {
+        return contentType;
     }
 
-    /*
-    public void setNoticeCodeAlternative(String noticeCodeAlternative) {
-        this.noticeCodeAlternative = noticeCodeAlternative;
-    }
-    @DynamoDbAttribute(value = "noticeCodeAlternative")
-    public String getNoticeCodeAlternative() {
-        return noticeCodeAlternative;
-    }
-    */
-
-
-    public void setAttachment(MetadataAttachmentEntity attachment) {
-        this.attachment = attachment;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
-    @DynamoDbAttribute(value = "noticeCode")
-    public String getNoticeCode() {
-        return noticeCode;
+    @DynamoDbAttribute(value = "digests")
+    public NotificationAttachmentDigestsEntity getNotificationAttachmentDigestsEntity() {
+        return digests;
     }
 
-    @DynamoDbAttribute(value = "creditorTaxId")
-    public String getCreditorTaxId() {
-        return creditorTaxId;
-    }
-
-    @DynamoDbAttribute(value = "applyCost")
-    public boolean getApplyCost() {
-        return applyCost;
-    }
-
-    @DynamoDbAttribute(value = "attachment")
-    public MetadataAttachmentEntity getAttachment() {
-        return attachment;
+    public void setNotificationAttachmentDigestsEntity(NotificationAttachmentDigestsEntity digests) {
+        this.digests = digests;
     }
 
 }

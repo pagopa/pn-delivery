@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: fkD9DPZiDBZYvFJujTPud6dyoqUIPIeWe64QhT8j9Xw=
+  version: pfMN2XMwHGIeHWT9ykmQHU4I+ueCSPEfWuLETzUgSDI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -747,6 +747,8 @@ paths:
       tags:
         - RecipientRead
       operationId: searchReceivedNotification
+      security:
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
         - $ref: '#/components/parameters/notificationSearchStartDate'
         - $ref: '#/components/parameters/notificationSearchEndDate'
@@ -776,8 +778,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received
@@ -885,6 +885,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationV21
+      security:
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/notificationSearchMandateId'
@@ -909,8 +911,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/received/{iun}
@@ -949,6 +949,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationDocument
+      security:
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathDocumentIdx'
@@ -975,8 +977,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/documents/{docIdx}
@@ -1019,6 +1019,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
+      security:
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
@@ -1046,8 +1048,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/payment/{attachmentName}
@@ -1092,6 +1092,8 @@ paths:
       tags:
         - RecipientRead
       operationId: checkAarQrCode
+      security:
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
       requestBody:
         content:
           application/json:
@@ -1111,8 +1113,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/check-aar-qr-code

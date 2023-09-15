@@ -54,8 +54,8 @@ paths:
       tags:
         - RecipientRead
       operationId: searchReceivedNotification
-      #      security:                                      # ONLY EXTERNAL
-      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'         # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'      # NO EXTERNAL
@@ -141,8 +141,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationV21
-      #      security:                                      # ONLY EXTERNAL
-      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -182,8 +182,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationDocument
-      #      security:                                      # ONLY EXTERNAL
-      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'        # NO EXTERNAL
@@ -220,8 +220,8 @@ paths:
       tags:
         - RecipientRead
       operationId: getReceivedNotificationAttachment
-      #      security:                                      # ONLY EXTERNAL
-      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
@@ -277,8 +277,8 @@ paths:
       tags:
         - RecipientRead
       operationId: checkAarQrCode
-      #      security:                                      # ONLY EXTERNAL
-      #        - bearerAuth: [ ]                            # ONLY EXTERNAL
+#      security:                                      # ONLY EXTERNAL
+#        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:                                                   # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
@@ -314,8 +314,8 @@ paths:
       tags:                                                                               # ONLY EXTERNAL
         - LegalFacts                                                                      # ONLY EXTERNAL
       operationId: getLegalFact                                                           # ONLY EXTERNAL
-      #      security:                                                                           # ONLY EXTERNAL
-      #        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
+#      security:                                                                           # ONLY EXTERNAL
+#        - bearerAuth: [ ]                                                                 # ONLY EXTERNAL
       parameters:                                                                         # ONLY EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'                                    # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'                                 # NO EXTERNAL
@@ -406,7 +406,6 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-
     FullReceivedNotificationV21:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 

@@ -387,7 +387,7 @@ components:
             - PG
         taxId:
           $ref: '#/components/schemas/TaxId'
-        internalId: # NO EXTERNAL
+        internalId:  # NO EXTERNAL
           type: string # NO EXTERNAL
           description: id interno anonimizzato # NO EXTERNAL
         denomination:
@@ -572,12 +572,12 @@ components:
     NotificationPaymentInfo:
       title: Informazioni per effettuare il pagamento
       description: >-
-        Informazioni utili per effettuare il pagamento di una notifica, sono associate al
-        destinatario perché le spese di notifica possono differire a seconda del canale di
-        notifica utilizzato. <br/>
-          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
-          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
-          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+       Informazioni utili per effettuare il pagamento di una notifica, sono associate al
+       destinatario perché le spese di notifica possono differire a seconda del canale di
+       notifica utilizzato. <br/>
+         - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+         - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+         - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
       type: object
       required:
         - noticeCode
