@@ -366,7 +366,7 @@ Parameters:
     Type: String
     Default: ''
 
-  VersioningV1V2GetNotificationName:
+  VersioningV1V2GetNotificationLambdaName:
     Type: String
     Description: 'VersioningV1V2GetNotificationName'
 
@@ -997,20 +997,20 @@ Resources:
   VersioningV1V2GetNotificationSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: !Sub 'VersioningV1V2GetNotification-sec-group'
+      GroupDescription: !Sub '${VersioningV1V2GetNotificationLambdaName}-sec-group'
       VpcId: !Ref VpcId
 
   # Lambda function
-  VersioningV1V2GetNotification:
+  VersioningV1V2GetNotificationLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Ref VersioningV1V2GetNotificationName
+      FunctionName: !Ref VersioningV1V2GetNotificationLambdaName
       Runtime: nodejs18.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
         S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2GetNotification.zip"
-      Role: !GetAtt VersioningV1V2GetNotificationRole.Arn
+      Role: !GetAtt VersioningV1V2GetNotificationLambdaRole.Arn
       VpcConfig:
         SecurityGroupIds:
           - !GetAtt VersioningV1V2GetNotificationSecGroup.GroupId
@@ -1026,7 +1026,7 @@ Resources:
       Timeout: 10
 
   # Lambda function role
-  VersioningV1V2GetNotificationRole:
+  VersioningV1V2GetNotificationLambdaRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub ${ProjectName}-VersioningV1V2GetNotificationRole
@@ -1043,12 +1043,12 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
-  VersioningV1V2GetNotificationAlarms:
+  VersioningV1V2GetNotificatioLambdaAlarms:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
-        FunctionName: !Ref VersioningV1V2GetNotification
+        FunctionName: !Ref VersioningV1V2GetNotificationLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
 
