@@ -92,7 +92,7 @@ Parameters:
     Description: 'The name of the ECS cluster where the microservice is going to be deployed'
 
   SubnetsIds:
-    Type: String
+    Type: CommaDelimitedList
     Description: 'subnets ids comma separated list. Where to deploy the microservice'
 
   VpcEgressSubnetsIds:
@@ -136,7 +136,7 @@ Parameters:
     Type: String
     Description: 'lollipop authorization activation flag'
     AllowedValues: [true, false]
-    Default: "false"
+    Default: false
 
   IsSendActiveDefaultValue:
     Type: String
@@ -365,6 +365,10 @@ Parameters:
   IOBackendCidrs:
     Type: String
     Default: ''
+
+  VersioningV1V2LambdaName:
+    Type: String
+    Description: 'VersioningV1V2LambdaName'
 
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
@@ -991,16 +995,16 @@ Resources:
   ###              VersioningV1V2Lambda                 ###
   #########################################################
   VersioningV1V2LambdaSecGroup:
-  Type: AWS::EC2::SecurityGroup
-  Properties:
-    GroupDescription: !Sub 'VersioningV1V2Lambda-sec-group'
-    VpcId: !Ref VpcId
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub 'VersioningV1V2Lambda-sec-group'
+      VpcId: !Ref VpcId
 
   # Lambda function
   VersioningV1V2Lambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Ref VersioningV1V2Lambda
+      FunctionName: !Ref VersioningV1V2LambdaName
       Runtime: nodejs18.x
       Handler: "index.handler"
       Code:
