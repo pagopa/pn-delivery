@@ -43,8 +43,8 @@ class DtoToEntityNotificationMapperTest {
 
         Assertions.assertNotNull( notificationEntity );
         Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
-        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getPagoPaForm().getNoticeCode() );
-        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getPagoPaForm().getCreditorTaxId() );
+        Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
+        Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
 
     }
 

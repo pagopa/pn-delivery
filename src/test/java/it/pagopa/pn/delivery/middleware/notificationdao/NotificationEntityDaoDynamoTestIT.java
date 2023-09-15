@@ -31,7 +31,7 @@ import java.util.Optional;
         "pn.delivery.notification-qr-dao.table-name=NotificationsQR",
         "pn.delivery.max-recipients-count=0",
         "pn.delivery.max-attachments-count=0"
-    })
+})
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
 class NotificationEntityDaoDynamoTestIT {
@@ -127,7 +127,7 @@ class NotificationEntityDaoDynamoTestIT {
         Assertions.assertEquals( token, result.get().getAarQRCodeValue() );
     }
 
-    
+
     @Test
     void getRequestIdByPaProtocolNumberAndIdempotenceToken() {
         //GIVEN
@@ -168,21 +168,20 @@ class NotificationEntityDaoDynamoTestIT {
                                                         )
                                                         .build()
                                         )
+                                        .noticeCode("noticeCode")
+                                        .creditorTaxId("creditorTaxId")
+                                        .applyCost(false)
                                         .pagoPaForm(PagoPaPaymentEntity.builder()
-                                                .applyCost(false)
-                                                .noticeCode("noticeCode")
-                                                .attachment(MetadataAttachmentEntity.builder()
-                                                        .contentType("application/pdf")
-                                                        .digests(NotificationAttachmentDigestsEntity.builder()
-                                                                .sha256("sha256")
-                                                                .build())
-                                                        .ref(NotificationAttachmentBodyRefEntity.builder()
-                                                                .key("key")
-                                                                .versionToken("versionToken")
-                                                                .build())
-                                                        .build()
-                                                )
-                                                .build())
+                                                .contentType("application/pdf")
+                                                .digests(NotificationAttachmentDigestsEntity.builder()
+                                                        .sha256("sha256")
+                                                        .build())
+                                                .ref(NotificationAttachmentBodyRefEntity.builder()
+                                                        .key("key")
+                                                        .versionToken("versionToken")
+                                                        .build())
+                                                .build()
+                                        )
                                         .build()
                         )
                 )
@@ -199,25 +198,25 @@ class NotificationEntityDaoDynamoTestIT {
         NotificationRecipientEntity notificationRecipientEntity1 = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
                 .payments( List.of(
-                        NotificationPaymentInfoEntity.builder()
-                                .f24(
-                                        F24PaymentEntity.builder()
-                                                .title("title")
-                                                .applyCost(false)
-                                                .metadataAttachment(
-                                                        MetadataAttachmentEntity.builder()
-                                                                .contentType("application/pdf")
-                                                                .digests(NotificationAttachmentDigestsEntity.builder()
-                                                                        .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
-                                                                        .build())
-                                                                .build()
-                                                )
-                                                .build()
-                                )
-                                .pagoPaForm(PagoPaPaymentEntity.builder()
-                                        .applyCost(false)
+                                NotificationPaymentInfoEntity.builder()
+                                        .f24(
+                                                F24PaymentEntity.builder()
+                                                        .title("title")
+                                                        .applyCost(false)
+                                                        .metadataAttachment(
+                                                                MetadataAttachmentEntity.builder()
+                                                                        .contentType("application/pdf")
+                                                                        .digests(NotificationAttachmentDigestsEntity.builder()
+                                                                                .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
+                                                                                .build())
+                                                                        .build()
+                                                        )
+                                                        .build()
+                                        )
                                         .noticeCode("noticeCode")
-                                        .attachment(MetadataAttachmentEntity.builder()
+                                        .creditorTaxId("creditorTaxId")
+                                        .applyCost(false)
+                                        .pagoPaForm(PagoPaPaymentEntity.builder()
                                                 .contentType("application/pdf")
                                                 .digests(NotificationAttachmentDigestsEntity.builder()
                                                         .sha256("sha256")
@@ -226,10 +225,8 @@ class NotificationEntityDaoDynamoTestIT {
                                                         .key("key")
                                                         .versionToken("versionToken")
                                                         .build())
-                                                .build()
-                                        )
-                                        .build()).build()
-                    )
+                                                .build()).build()
+                        )
                 )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
                         .foreignState("Svizzera")
@@ -271,15 +268,15 @@ class NotificationEntityDaoDynamoTestIT {
     }
 
     private void removeFromNotificationQRDb(String iun) {
-      
-      notificationQREntityDao.getQRByIun("IUN_01").values().forEach(token ->{
-        Key QRkey = Key.builder()
-            .partitionValue(token)
-            .build();
-        
-          notificationQREntityDao.delete( QRkey );
-      });
-      
- 
+
+        notificationQREntityDao.getQRByIun("IUN_01").values().forEach(token ->{
+            Key QRkey = Key.builder()
+                    .partitionValue(token)
+                    .build();
+
+            notificationQREntityDao.delete( QRkey );
+        });
+
+
     }
 }

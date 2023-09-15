@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
 import software.amazon.awssdk.enhanced.dynamodb.*;
-import software.amazon.awssdk.enhanced.dynamodb.model.*;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.TransactionCanceledException;
 
 import java.nio.charset.StandardCharsets;
@@ -192,7 +193,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
                                 .recipientType(rec.getRecipientType().getValue())
                                 .recipientIdx(notificationEntity.getRecipients().indexOf(rec))
                                 .iun(notificationEntity.getIun())
-                                .creditorTaxIdNoticeCode(payment.getPagoPaForm().getCreditorTaxId() + "##" + payment.getPagoPaForm().getNoticeCode())
+                                .creditorTaxIdNoticeCode(payment.getCreditorTaxId() + "##" + payment.getNoticeCode())
                                 .build();
                         notificationCostEntityList.add(notificationCostEntity);
                     }

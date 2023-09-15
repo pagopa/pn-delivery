@@ -72,10 +72,10 @@ public class EntityToDtoNotificationMapper {
     private List<NotificationPaymentInfo> entity2PaymentInfo(List<NotificationPaymentInfoEntity> paymentList) {
         List<NotificationPaymentInfo> notificationPaymentItems = new ArrayList<>();
         if ( !CollectionUtils.isEmpty( paymentList ) ) {
-            notificationPaymentItems.add(NotificationPaymentInfo.builder()
-                    .f24(entity2PaymentAttachment(paymentList.get(0).getF24()))
-                    .pagoPa(entity2PaymentAttachment(paymentList.get(0).getPagoPaForm()))
-                    .build());
+            paymentList.forEach(notificationPaymentInfoEntity -> notificationPaymentItems.add(NotificationPaymentInfo.builder()
+                    .f24(entity2PaymentAttachment(notificationPaymentInfoEntity.getF24()))
+                    .pagoPa(entity2PaymentAttachment(notificationPaymentInfoEntity))
+                    .build()));
         }
         return notificationPaymentItems;
     }
@@ -105,6 +105,32 @@ public class EntityToDtoNotificationMapper {
         return paymentAttachment;
     }
 
+    private PagoPaPayment entity2PaymentAttachment(NotificationPaymentInfoEntity pagoPaForm) {
+        PagoPaPayment paymentAttachment = null;
+        if ( Objects.nonNull( pagoPaForm.getPagoPaForm() ) ) {
+            paymentAttachment = PagoPaPayment.builder()
+                    .creditorTaxId(pagoPaForm.getCreditorTaxId())
+                    .noticeCode(pagoPaForm.getNoticeCode())
+                    .applyCost(pagoPaForm.isApplyCost())
+                    .attachment(
+                            MetadataAttachment.builder()
+                                    .contentType( pagoPaForm.getPagoPaForm().getContentType() )
+                                    .digests( NotificationAttachmentDigests.builder()
+                                            .sha256( pagoPaForm.getPagoPaForm().getNotificationAttachmentDigestsEntity().getSha256() )
+                                            .build()
+                                    )
+                                    .ref( NotificationAttachmentBodyRef.builder()
+                                            .key( pagoPaForm.getPagoPaForm().getNotificationAttachmentBodyRefEntity().getKey() )
+                                            .versionToken( pagoPaForm.getPagoPaForm().getNotificationAttachmentBodyRefEntity().getVersionToken() )
+                                            .build()
+                                    ).build()
+                    )
+                    .build();
+        }
+        return paymentAttachment;
+    }
+
+    /*
     private PagoPaPayment entity2PaymentAttachment(PagoPaPaymentEntity pagoPaForm) {
         PagoPaPayment paymentAttachment = null;
         if ( Objects.nonNull( pagoPaForm ) ) {
@@ -129,6 +155,7 @@ public class EntityToDtoNotificationMapper {
         }
         return paymentAttachment;
     }
+     */
 
     private List<NotificationDocument> buildDocumentsList(NotificationEntity entity ) {
         List<NotificationDocument> result = new ArrayList<>();
