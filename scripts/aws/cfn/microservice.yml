@@ -250,6 +250,9 @@ Parameters:
     Type: String
     Description: 'Application load balancer security group'
 
+  PnCoreAwsAccountId:
+    Type: String
+
   # Log group parameters
   EcsLogGroup:
     Type: String
@@ -1051,4 +1054,11 @@ Resources:
         FunctionName: !Ref VersioningV1V2GetNotificationLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
-
+  # Lambda access right
+  VersioningV1V2GetNotificationLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VersioningV1V2GetNotificationLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${PnCoreAwsAccountId}:*/*'
