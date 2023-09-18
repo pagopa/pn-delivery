@@ -273,7 +273,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
       Parameters:
-        LogGroupName: !Sub "${ProjectName}-versioningV1V2GetNotificationLambda"
+        LogGroupName: !Sub "${ProjectName}-delivery-versioning-v1v2-getnotification-lambda"
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
