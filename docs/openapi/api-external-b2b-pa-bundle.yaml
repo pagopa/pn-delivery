@@ -1023,7 +1023,7 @@ paths:
         valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getNotificationLegalFacts
+      operationId: retrieveNotificationLegalFacts
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/legalFactsSearchMandateId'
@@ -1060,7 +1060,7 @@ paths:
         ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFact
+      operationId: retrieveLegalFact
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
@@ -1099,7 +1099,7 @@ paths:
         ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFactById
+      operationId: downloadLegalFactById
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
