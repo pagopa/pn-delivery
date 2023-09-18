@@ -992,7 +992,7 @@ Resources:
               };
 
   #########################################################
-  ###              VersioningV1V2GetNotification        ###
+  ###              VersioningV1V2GetNotification        ### # converte la risposta V2.0 a V1 e verrà estesa per convertire V2.1 a V1
   #########################################################
   VersioningV1V2GetNotificationSecGroup:
     Type: AWS::EC2::SecurityGroup

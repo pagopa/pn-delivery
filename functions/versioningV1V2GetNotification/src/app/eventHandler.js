@@ -1,4 +1,4 @@
-import http from "http";
+// converte la risposta V2.0 a V1 e verrà estesa per convertire V2.1 a V1
 
 exports.versioning = async (event, context) => {
   console.log(
@@ -52,11 +52,6 @@ exports.versioning = async (event, context) => {
     "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS",
   ].split(",");
 
-  /*
-  for(let index = 0; index < CATEGORIES.length; index ++){
-    console.log("Elemento ", CATEGORIES[index]);
-  };*/
-
   const headers =
     //event.headers;
     {
@@ -72,11 +67,6 @@ exports.versioning = async (event, context) => {
       "x-pagopa-pn-src-ch-details": "test",
       "x-pagopa-pn-uid": "e9e4a9c7-9586-4b92-a7dd-ee1a0e77d398",
     };
-
-  const options = {
-    method: "GET",
-    headers,
-  };
 
   console.log("calling ", url);
   return fetch(url, {
@@ -102,11 +92,8 @@ exports.versioning = async (event, context) => {
         statusCode: response.status,
         body: response.statusText,
       };
-      //throw new Error(JSON.stringify(err));
-      //context.fail(JSON.stringify(err));
 
       return err;
-      //context.fail(JSON.stringify(err))
     }
   });
 
