@@ -52,22 +52,31 @@ exports.versioning = async (event, context) => {
     "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS",
   ];
 
-  const headers =
-    //event.headers;
-    {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "x-pagopa-pn-cx-groups":
-        "63f359bc72337440a40f537e,63f35a3d72337440a40f537f,642d7dfa76f10c7617353c78,642d7e9e76f10c7617353c7a",
-      "x-pagopa-pn-cx-id": "5b994d4a-0fa8-47ac-9c7b-354f1d44a1ce",
-      "x-pagopa-pn-cx-role": "admin",
-      "x-pagopa-pn-cx-type": "PA",
-      "x-pagopa-pn-jti": "58d0f32d-f760-43ff-b615-9ec7d88f4a67",
-      "x-pagopa-pn-src-ch": "WEB",
-      "x-pagopa-pn-src-ch-details": "test",
-      "x-pagopa-pn-uid": "e9e4a9c7-9586-4b92-a7dd-ee1a0e77d398",
-    };
-
+  const headers = JSON.parse(JSON.stringify(event["headers"]));
+  headers['x-pagopa-pn-src-ch'] = 'B2B';
+  
+  if(event.requestContext.authorizer["cx_groups"]){
+    headers['x-pagopa-pn-cx-groups'] =  event.requestContext.authorizer["cx_groups"];
+  }
+  if(event.requestContext.authorizer["cx_id"]){
+    headers['x-pagopa-pn-cx-id'] = event.requestContext.authorizer["cx_id"];
+  }
+  if(event.requestContext.authorizer["cx_role"]){
+    headers['x-pagopa-pn-cx-role'] =  event.requestContext.authorizer["cx_role"];
+  }
+  if(event.requestContext.authorizer["cx_type"]){
+    headers['x-pagopa-pn-cx-type'] = event.requestContext.authorizer["cx_type"];
+  }
+  if(event.requestContext.authorizer["cx_jti"]){
+    headers['x-pagopa-pn-jti'] = event.requestContext.authorizer["cx_jti"];
+  }
+  if(event.requestContext.authorizer["sourceChannelDetails"]){
+    headers['x-pagopa-pn-src-ch-detail'] = event.requestContext.authorizer["sourceChannelDetails"];
+  }
+  if(event.requestContext.authorizer["uid"]){
+     headers['x-pagopa-pn-uid'] = event.requestContext.authorizer["uid"];
+  }
+  
   console.log("calling ", url);
   return fetch(url, {
     method: "GET",
