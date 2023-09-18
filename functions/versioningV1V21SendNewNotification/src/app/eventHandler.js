@@ -57,6 +57,32 @@ exports.handleEvent = async (event) => {
 
     };
 
+    function createNewNotificationRequesV21(v1) {
+
+      const NewNotificationRequestV21 = {
+        idempotenceToken: v1.idempotenceToken,
+        paProtocolNumber: v1.paProtocolNumber,
+        subject: v1.subject,
+        abstract: v1.abstract,
+        recipients: recipients,
+        documents: v1.documents,
+        notificationFeePolicy: v1.notificationFeePolicy,
+        cancelledIun: v1.cancelledIun,
+        physicalCommunicationType: v1.physicalCommunicationType,
+        senderDenomination: v1.senderDenomination,
+        senderTaxId: v1.senderTaxId,
+        group: v1.group,
+        amount: v1.amount,
+        paymentExpirationDate: v1.paymentExpirationDate,
+        taxonomyCode: v1.taxonomyCode,
+        paFee: v1.paFee,
+        vat: v1.vat,
+        pagoPaIntMode: v1.pagoPaIntMode
+      }
+
+      return NewNotificationRequestV21
+    };
+
 
     class NewNotificationRequestV21 {
         constructor() {
