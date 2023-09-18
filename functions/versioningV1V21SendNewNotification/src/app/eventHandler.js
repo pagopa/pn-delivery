@@ -14,11 +14,43 @@ exports.handleEvent = async (event) => {
     }
 
     // creazione oggetto NewNotificationRequestV21
-    var newNotificationRequestOutPutVersion = new newNotificationRequesV21();
-
     // mapping tra NewNotificationRequest e NewNotificationRequestV21
+    var newNotificationRequestV21 = new createNewNotificationRequesV21(event.body);
+
+    
 
     // post verso pn-delivery
+    const url = process.env.PN_DELIVERY_URL.concat('/requests');
+    console.log ('calling ',url);
+    return fetch(url, {
+        method: "POST",
+        body: JSON.stringify(newNotificationRequestV21),
+        headers: headers
+    })
+      .then(response => {
+          console.log('risposta da fetch');
+
+          if (response.ok){
+            return response.json().then(res => {
+                const transformedObject = transformObject(res);
+                console.log('ritorno risposta trasformata ',transformedObject);
+
+                const ret = {
+                  statusCode: 200,
+                  body: JSON.stringify(transformedObject)
+                };
+                return ret;
+              });
+          }else{
+            console.log('risposta negativa: ', response);
+            const err = {
+              statusCode: response.status,
+              body: response.statusText
+            };
+            return err;
+          }
+
+      });
 
     // creazione della response
 
