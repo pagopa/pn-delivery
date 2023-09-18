@@ -98,7 +98,7 @@ exports.versioning = async (event, context) => {
   });
 
   function transformObject(rest) {
-    console.log("transformin object", JSON.stringify(rest));
+    console.log("transforming object", JSON.stringify(rest));
 
     const notificationStatus_ENUM = [
       "IN_VALIDATION",
