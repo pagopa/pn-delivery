@@ -50,7 +50,7 @@ exports.versioning = async (event, context) => {
     "AAR_GENERATION",
     "NOT_HANDLED",
     "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS",
-  ].split(",");
+  ];
 
   const headers =
     //event.headers;
