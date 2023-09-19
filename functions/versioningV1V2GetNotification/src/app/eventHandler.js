@@ -23,9 +23,7 @@ exports.versioning = async (event, context) => {
   }
 
   console.log(
-    "Versioning_V1-V2_GetNotification_Lambda function started:",
-    JSON.stringify(event),
-    JSON.stringify(context)
+    "Versioning_V1-V2_GetNotification_Lambda function started"
   );
 
   const IUN = event.pathParameters["iun"];
@@ -100,33 +98,32 @@ exports.versioning = async (event, context) => {
   }
 
   console.log("calling ", url);
-  return fetch(url, {
-    method: "GET",
-    headers: headers,
-  }).then((response) => {
-    console.log("risposta da fetch");
-
-    if (response.ok) {
-      return response.json().then((responseV2) => {
-        const transformedObject = transformObject(responseV2);
-        console.log("ritorno risposta trasformata ", transformedObject);
-
-        const ret = {
-          statusCode: 200,
-          body: JSON.stringify(transformedObject),
-        };
-        return ret;
-      });
-    } else {
-      console.log("risposta negativa: ", response);
-      const err = {
+  let response;
+  try{
+    response = await fetch(url, { method: "GET", headers: headers });
+    let responseV2 = await response.json();
+    if(response.ok){
+      const transformedObject = transformObject(responseV2);
+      console.log("ritorno risposta trasformata ", transformedObject);
+      const ret = {
         statusCode: response.status,
-        body: response.statusText,
+        body: JSON.stringify(transformedObject),
       };
-
-      return err;
+      return ret;
     }
-  });
+    console.log("risposta negativa: ", response);
+    const ret = {
+      statusCode: response.status,
+      body: JSON.stringify(responseV2),
+    };
+    return ret;
+  }catch(error){
+    const ret = {
+      statusCode: response?.status ?? 502,
+      body: response?.statusText ?? 'problem calling fetch',
+    };
+    return ret;
+  }
 
   function transformObject(responseV2) {
     console.log("transforming object", JSON.stringify(responseV2));
@@ -235,10 +232,10 @@ exports.versioning = async (event, context) => {
     const taxId = recipient.taxId;
     const denomination = recipient.denomination;
     const digitalDomicile = recipient.digitalDomicile
-      ? transormDigitalAddress(recipient.digitalDomicile)
+      ? transformDigitalAddress(recipient.digitalDomicile)
       : null;
     const physicalAddress = recipient.physicalAddress
-      ? transormPhysicalAddress(recipient.physicalAddress)
+      ? transformPhysicalAddress(recipient.physicalAddress)
       : {};
     const payment = transformPayment(recipient.payment);
 
@@ -259,9 +256,9 @@ exports.versioning = async (event, context) => {
     return ret;
   }
 
-  function transormDigitalAddress(address) {
+  function transformDigitalAddress(address) {
     if (!address.type || address.type != "PEC") {
-      console.log("ERROR transormDigitalAddress ", address);
+      console.log("ERROR transformDigitalAddress ", address);
       throw Error("address type not supported ");
     }
 
@@ -271,7 +268,7 @@ exports.versioning = async (event, context) => {
     };
   }
 
-  function transormPhysicalAddress(address) {
+  function transformPhysicalAddress(address) {
     return {
       at: address.at,
       address: address.address,

@@ -136,7 +136,7 @@ describe("eventHandler tests", function () {
 
     fetchMock.mock(url, {
       status: 500,
-      body: "ERROR",
+      body: JSON.stringify({error: "ERROR"}),
       headers: { "Content-Type": "application/json" },
     });
 
