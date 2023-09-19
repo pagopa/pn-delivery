@@ -1,17 +1,25 @@
 // converte la risposta V2.0 a V1 e verrà estesa per convertire V2.1 a V1
 
 exports.versioning = async (event, context) => {
+  const path = "/notifications/sent/";
 
-  const path = '/notifications/sent/';
+  if (
+    event["resource"] !== `${path}{iun}` ||
+    !event["path"].startsWith("/delivery/") ||
+    event["httpMethod"].toUpperCase() !== "GET"
+  ) {
+    console.log(
+      "ERROR ENDPOINT ERRATO: {resource, path, httpMethod} ",
+      event["resource"],
+      event["path"],
+      event["httpMethod"]
+    );
+    const err = {
+      statusCode: 502,
+      body: "ENDPOINT ERRATO",
+    };
 
-  if(event['resource'] !== `${path}/{iun}` || !event['path'].startsWith('/delivery') || event['httpMethod'].toUpperCase() !== 'GET'){
-    console.log("ERROR ENDPOINT ERRATO: {resource, path, httpMethod} ",event['resource'], event['path'], event['httpMethod'] );
-      const err = {
-        statusCode: 502,
-        body: "ENDPOINT ERRATO",
-      };
-
-      return err;
+    return err;
   }
 
   console.log(
@@ -20,7 +28,6 @@ exports.versioning = async (event, context) => {
     JSON.stringify(context)
   );
 
-  
   const IUN = event.pathParameters["iun"];
 
   const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
@@ -66,30 +73,32 @@ exports.versioning = async (event, context) => {
   ];
 
   const headers = JSON.parse(JSON.stringify(event["headers"]));
-  headers['x-pagopa-pn-src-ch'] = 'B2B';
-  
-  if(event.requestContext.authorizer["cx_groups"]){
-    headers['x-pagopa-pn-cx-groups'] =  event.requestContext.authorizer["cx_groups"];
+  headers["x-pagopa-pn-src-ch"] = "B2B";
+
+  if (event.requestContext.authorizer["cx_groups"]) {
+    headers["x-pagopa-pn-cx-groups"] =
+      event.requestContext.authorizer["cx_groups"];
   }
-  if(event.requestContext.authorizer["cx_id"]){
-    headers['x-pagopa-pn-cx-id'] = event.requestContext.authorizer["cx_id"];
+  if (event.requestContext.authorizer["cx_id"]) {
+    headers["x-pagopa-pn-cx-id"] = event.requestContext.authorizer["cx_id"];
   }
-  if(event.requestContext.authorizer["cx_role"]){
-    headers['x-pagopa-pn-cx-role'] =  event.requestContext.authorizer["cx_role"];
+  if (event.requestContext.authorizer["cx_role"]) {
+    headers["x-pagopa-pn-cx-role"] = event.requestContext.authorizer["cx_role"];
   }
-  if(event.requestContext.authorizer["cx_type"]){
-    headers['x-pagopa-pn-cx-type'] = event.requestContext.authorizer["cx_type"];
+  if (event.requestContext.authorizer["cx_type"]) {
+    headers["x-pagopa-pn-cx-type"] = event.requestContext.authorizer["cx_type"];
   }
-  if(event.requestContext.authorizer["cx_jti"]){
-    headers['x-pagopa-pn-jti'] = event.requestContext.authorizer["cx_jti"];
+  if (event.requestContext.authorizer["cx_jti"]) {
+    headers["x-pagopa-pn-jti"] = event.requestContext.authorizer["cx_jti"];
   }
-  if(event.requestContext.authorizer["sourceChannelDetails"]){
-    headers['x-pagopa-pn-src-ch-detail'] = event.requestContext.authorizer["sourceChannelDetails"];
+  if (event.requestContext.authorizer["sourceChannelDetails"]) {
+    headers["x-pagopa-pn-src-ch-detail"] =
+      event.requestContext.authorizer["sourceChannelDetails"];
   }
-  if(event.requestContext.authorizer["uid"]){
-     headers['x-pagopa-pn-uid'] = event.requestContext.authorizer["uid"];
+  if (event.requestContext.authorizer["uid"]) {
+    headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
   }
-  
+
   console.log("calling ", url);
   return fetch(url, {
     method: "GET",
