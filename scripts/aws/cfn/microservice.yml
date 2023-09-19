@@ -166,7 +166,7 @@ Parameters:
   PhysicalAddressValidationValue:
     Type: String
     Description: 'Flag to activate the physical address validation. Default: false'
-    Default: 'false'
+    Default: false
     AllowedValues: [ true,false ]
   
   PhysicalAddressValidationCharsValue:
@@ -1049,7 +1049,7 @@ Resources:
     Type: "AWS::Lambda::Version"
     Properties:
       FunctionName: !GetAtt VersioningV1V2GetNotificationLambda.Arn
-      Description: "v1"
+      Description: "$LATEST"
       ProvisionedConcurrencyConfig: 
         ProvisionedConcurrentExecutions: 1
 
