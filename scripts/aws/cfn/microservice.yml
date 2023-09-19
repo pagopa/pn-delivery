@@ -163,6 +163,22 @@ Parameters:
     Type: String
     Description: 'maximum number of days in which documents are available from refinement'
 
+  PhysicalAddressValidationValue:
+    Type: String
+    Description: 'Flag to activate the physical address validation. Default: false'
+    Default: 'false'
+    AllowedValues: [ true,false ]
+  
+  PhysicalAddressValidationCharsValue:
+    Type: String
+    Description: 'Physical address validation. Allowed Characters'
+    Default: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-"
+
+  PhysicalAddressValidationLength:
+    Type: Number
+    Description: 'Physical address validation length.'
+    Default: 44
+
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
@@ -428,6 +444,9 @@ Resources:
         ContainerEnvEntry28: !Sub 'LOLLIPOP_EXPECTED_LC_ORIGINAL_URL=${LollipopExpectedLcOriginalUrl}'
         ContainerEnvEntry29: !Sub 'LOLLIPOP_ENABLE_CONSUMER_LOGGING=${LollipopEnableConsumerLogging}'
         ContainerEnvEntry30: !Sub 'PN_DELIVERY_FEATURES_ISSENDACTIVEDEFAULTVALUE=${IsSendActiveDefaultValue}'
+        ContainerEnvEntry31: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATION=${PhysicalAddressValidationValue}'
+        ContainerEnvEntry32: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONPATTERN=${PhysicalAddressValidationCharsValue}'
+        ContainerEnvEntry33: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONLENGTH=${PhysicalAddressValidationLength}'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
@@ -992,7 +1011,7 @@ Resources:
               };
 
   #########################################################
-  ###              VersioningV1V2GetNotification        ###
+  ###              VersioningV1V2GetNotification        ### # converte la risposta V2.0 a V1 e verrà estesa per convertire V2.1 a V1
   #########################################################
   VersioningV1V2GetNotificationSecGroup:
     Type: AWS::EC2::SecurityGroup
@@ -1051,4 +1070,11 @@ Resources:
         FunctionName: !Ref VersioningV1V2GetNotificationLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
-
+  # Lambda access right
+  VersioningV1V2GetNotificationLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VersioningV1V2GetNotificationLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
