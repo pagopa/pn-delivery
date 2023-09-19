@@ -163,6 +163,22 @@ Parameters:
     Type: String
     Description: 'maximum number of days in which documents are available from refinement'
 
+  PhysicalAddressValidationValue:
+    Type: String
+    Description: 'Flag to activate the physical address validation. Default: false'
+    Default: 'false'
+    AllowedValues: [ true,false ]
+  
+  PhysicalAddressValidationCharsValue:
+    Type: String
+    Description: 'Physical address validation. Allowed Characters'
+    Default: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-"
+
+  PhysicalAddressValidationLength:
+    Type: Number
+    Description: 'Physical address validation length.'
+    Default: 44
+
   LogsKinesisSourceStreamArn:
     Type: String
     Description: 'Kinesis stream that receive logs'
@@ -366,9 +382,9 @@ Parameters:
     Type: String
     Default: ''
 
-  VersioningV1V2LambdaName:
+  VersioningV1V2GetNotificationLambdaName:
     Type: String
-    Description: 'VersioningV1V2LambdaName'
+    Description: 'VersioningV1V2GetNotificationName'
 
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
@@ -428,6 +444,9 @@ Resources:
         ContainerEnvEntry28: !Sub 'LOLLIPOP_EXPECTED_LC_ORIGINAL_URL=${LollipopExpectedLcOriginalUrl}'
         ContainerEnvEntry29: !Sub 'LOLLIPOP_ENABLE_CONSUMER_LOGGING=${LollipopEnableConsumerLogging}'
         ContainerEnvEntry30: !Sub 'PN_DELIVERY_FEATURES_ISSENDACTIVEDEFAULTVALUE=${IsSendActiveDefaultValue}'
+        ContainerEnvEntry31: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATION=${PhysicalAddressValidationValue}'
+        ContainerEnvEntry32: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONPATTERN=${PhysicalAddressValidationCharsValue}'
+        ContainerEnvEntry33: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONLENGTH=${PhysicalAddressValidationLength}'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
@@ -992,28 +1011,28 @@ Resources:
               };
 
   #########################################################
-  ###              VersioningV1V2Lambda                 ###
+  ###              VersioningV1V2GetNotification        ### # converte la risposta V2.0 a V1 e verrà estesa per convertire V2.1 a V1
   #########################################################
-  VersioningV1V2LambdaSecGroup:
+  VersioningV1V2GetNotificationSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: !Sub 'VersioningV1V2Lambda-sec-group'
+      GroupDescription: !Sub '${VersioningV1V2GetNotificationLambdaName}-sec-group'
       VpcId: !Ref VpcId
 
   # Lambda function
-  VersioningV1V2Lambda:
+  VersioningV1V2GetNotificationLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Ref VersioningV1V2LambdaName
+      FunctionName: !Ref VersioningV1V2GetNotificationLambdaName
       Runtime: nodejs18.x
       Handler: "index.handler"
       Code:
         S3Bucket: !Ref MicroserviceBucketName
-        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2.zip"
-      Role: !GetAtt VersioningV1V2LambdaRole.Arn
-      VpcConfig: # required for mock connection but useful also for the future addition of network firewall
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V2GetNotification.zip"
+      Role: !GetAtt VersioningV1V2GetNotificationLambdaRole.Arn
+      VpcConfig:
         SecurityGroupIds:
-          - !GetAtt VersioningV1V2LambdaSecGroup.GroupId
+          - !GetAtt VersioningV1V2GetNotificationSecGroup.GroupId
         SubnetIds: !Ref SubnetsIds
       Environment:
         Variables:
@@ -1026,10 +1045,10 @@ Resources:
       Timeout: 10
 
   # Lambda function role
-  VersioningV1V2LambdaRole:
+  VersioningV1V2GetNotificationLambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${ProjectName}-versioningV1V2LambdaRole
+      RoleName: !Sub ${ProjectName}-versioningV1V2GetNotificationLambdaRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -1043,12 +1062,19 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
 
-  VersioningV1V2LambdaAlarms:
+  VersioningV1V2GetNotificationLambdaAlarms:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
-        FunctionName: !Ref VersioningV1V2Lambda
+        FunctionName: !Ref VersioningV1V2GetNotificationLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
-
+  # Lambda access right
+  VersioningV1V2GetNotificationLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VersioningV1V2GetNotificationLambda
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'

@@ -266,6 +266,17 @@ Resources:
         LogGroupPrefix: '/aws/lambda'
         LogGroupRetention: !Ref LogRetention
 
+  VersioningV1V2GetNotificationLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-versioning-v1v2-getnotification-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
 Outputs:
 
   # Dynamo table
@@ -352,5 +363,5 @@ Outputs:
   PnDeliveryInsertTriggerLambdaName:
     Value: !Sub "${ProjectName}-delivery-insert-trigger-lambda"
 
-  VersioningV1V2LambdaName:
-    Value: !Sub "${ProjectName}-delivery-versioning-v1v2-lambda"
+  VersioningV1V2GetNotificationLambdaName:
+    Value: !Sub "${ProjectName}-delivery-versioning-v1v2-getnotification-lambda"

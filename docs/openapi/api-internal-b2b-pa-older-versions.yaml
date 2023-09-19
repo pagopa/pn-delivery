@@ -149,7 +149,7 @@ paths:
         - SenderReadB2B
       operationId: getSentNotification                                      # NO EXTERNAL
 #      operationId: retrieveSentNotification                                # ONLY EXTERNAL
-      x-pagopa-lambda-name: VersioningV1V2GetNotificationLambda
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
@@ -638,7 +638,6 @@ components:
 
 #security:                 # ONLY EXTERNAL
 #  - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
-              
 
 
-  
+
