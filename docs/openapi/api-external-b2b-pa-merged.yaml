@@ -45,7 +45,7 @@ info:
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
       di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus)
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV21)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
       >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
@@ -86,9 +86,10 @@ info:
       ### Ciclo di vita della notifica lato mittente
       
       #### 1. Caricamento dei documenti della notifica
-      
-      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini di pagamento).
-      
+
+      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadati di pagamento).
+      [Schema Metadata F24](#/components/schemas/F24Metadata)
+
       #### 1.a. Richiesta presigned Url
       
       Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
@@ -124,7 +125,7 @@ info:
       #### 2. Richiesta di invio della notifica
 
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotification) utilizzando i riferimenti dei file 
+      [sendNewNotification](#/NewNotification/sendNewNotificationV21) utilizzando i riferimenti dei file 
       caricati ottenuti al punto (1.b).
       
       </br>
@@ -148,8 +149,8 @@ info:
 
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
       identificata dalla IUN restituito dall'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus).</br> 
-      A tal punto si potranno utilizzare l'operazione _GET /delivery/notifications/sent/{iun}_ per 
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV21).</br> 
+      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.1/notifications/sent/{iun}_ per 
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
@@ -162,6 +163,10 @@ info:
         "title": "NotificationAccepted",
         "eventType": "STATUS"
       }
+      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio della stream appena creata chiamando la 
+      API [getEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/getEventStream), mentre si possono ottenere i dati degli eventi richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Events/consumeEventStream)
+
+
       ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio 
       dello stream appena creato chiamando la API [getEventStream](#/Streams/getEventStream)), mentre si possono 
       ottenere i dati degli eventi richiamando la API [consumeEventStream](#/Streams/consumeEventStream)
@@ -181,30 +186,22 @@ info:
 
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
-    <ul>   <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di
-    produzione</li>
-    <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di
-    collaudo</li>
-    <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test.
-    Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque
-    non-bloccante e rispettando il principio di retro-attività</li>
-    <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di
-    sviluppo</li> </ul>   </details></br>
-      
+    <ul>   <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente
+    di produzione</li>
+    <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di
+    collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendo
+    comunque non-bloccante e rispettando il principio di retrocompatibilità</li>
+    </ul>   </details></br>
   contact:
     email: pn-supporto-enti@pagopa.it
   license:
     name: Licenza di PN
     url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
 servers:
-  - url: https://api.pn.pagopa.it
+  - url: https://api.notifichedigitali.it
     description: Ambiente di produzione
-  - url: https://api.coll.pn.pagopa.it
+  - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
-  - url: https://api.svil.pn.pagopa.it
-    description: Ambiente di test
-  - url: https://api.dev.pn.pagopa.it
-    description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
     description: >-
@@ -309,7 +306,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/requests:
+  /delivery/v2.1/requests:
     post:
       summary: Richiesta invio notifica
       description: >-
@@ -329,13 +326,13 @@ paths:
         prevista dai webhook. <br/>
       tags:
         - NewNotification
-      operationId: sendNewNotification
+      operationId: sendNewNotificationV21
       requestBody:
         content:
           application/json:
             schema:
               $ref: >-
-                ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest
+                ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV21
         required: true
       responses:
         '202':
@@ -363,7 +360,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
-      operationId: retrieveNotificationRequestStatus
+      operationId: retrieveNotificationRequestStatusV21
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -382,7 +379,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NewNotificationRequestStatusResponse'
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV21'
         '400':
           description: Bad request
           content:
@@ -401,7 +398,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery/v2.0/notifications/sent/{iun}:
+  /delivery/v2.1/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
@@ -409,7 +406,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV20
+      operationId: retrieveSentNotificationV21
       parameters:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
       responses:
@@ -418,7 +415,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV20'
+                $ref: '#/components/schemas/FullSentNotificationV21'
         '400':
           description: Bad request
           content:
@@ -478,6 +475,7 @@ paths:
         - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
       responses:
         '200':
           description: OK
@@ -591,6 +589,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/events/payment/f24:
     post:
+      deprecated: true
       operationId: paymentEventsRequestF24
       description: >-
         Questa API è a disposizione della Pubblica Amministrazione per inviare
@@ -624,8 +623,103 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery/requests:
+    post:
+      deprecated: true
+      summary: Richiesta invio notifica
+      description: >-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere
+        l'invio di una notifica.
+
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è
+        sintatticamente
+
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+
+        Per conoscere lo stato di accettazione della richiesta di notifica
+        bisogna utilizzare l'operazione
+
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push
+        prevista dai webhook. <br/>
+      tags:
+        - NewNotification
+      operationId: sendNewNotification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: >-
+                ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      deprecated: true
+      operationId: retrieveNotificationRequestStatus
+      tags:
+        - SenderReadB2B
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è
+        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
+        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+      parameters:
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /delivery/notifications/sent/{iun}:
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
@@ -644,6 +738,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FullSentNotification'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery/v2.0/notifications/sent/{iun}:
+    get:
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationV20
+      parameters:
+        - $ref: ./parameters-notification-search.yaml#/components/parameters/pathIun
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullSentNotificationV20'
         '400':
           description: Bad request
           content:
@@ -682,7 +806,7 @@ components:
       name: idempotenceToken
       description: >-
         token usato per disambiguare "richieste di notificazione" effettuate con
-        lo stesso  numero di protocollo. 
+        lo stesso  numero di protocollo.
       in: query
       required: false
       schema:
@@ -699,7 +823,7 @@ components:
         format: int32
     pathRecipientIdx:
       name: recipientIdx
-      description: indice dei destinatario nella lista partendo da 0.
+      description: indice del destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
@@ -709,14 +833,22 @@ components:
       name: attachmentName
       description: >-
         Tipologia del pagamento allegato alla notifica. Valori possibili
-        PAGOPA|F24_FLAT|F24_STANDARD
+        PAGOPA|F24
       in: path
       required: true
       schema:
         type: string
-        minLength: 6
-        maxLength: 12
-        pattern: PAGOPA|F24_FLAT|F24_STANDARD
+        minLength: 3
+        maxLength: 6
+        pattern: PAGOPA|F24
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
     pathLegalFactType:
       $ref: ./remote-refs.yaml#/components/parameters/pathLegalFactType
     pathLegalFactId:
@@ -743,13 +875,14 @@ components:
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
-            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è
-            supportato solo
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente
+            sono supportati
               - application/pdf
+              - application/json
           type: string
           minLength: 15
-          maxLength: 15
-          pattern: ^application\/pdf$
+          maxLength: 16
+          pattern: ^application\/(pdf|json)$
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -849,10 +982,10 @@ components:
             notificazione"  effettuate con lo stesso numero di protocollo (campo
             _paProtocolNumber_).
           type: string
-    NewNotificationRequestStatusResponse:
+    NewNotificationRequestStatusResponseV21:
       allOf:
         - $ref: >-
-            ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest
+            ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV21
         - type: object
           required:
             - notificationRequestId
@@ -890,12 +1023,13 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/Problem
     ProblemError:
       $ref: ./remote-refs.yaml#/components/schemas/ProblemError
-    FullSentNotificationV20:
+    FullSentNotificationV21:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: ./schemas-pn-notification.yaml#/components/schemas/SentNotification
+        - $ref: >-
+            ./schemas-pn-notification.yaml#/components/schemas/SentNotificationV21
         - type: object
           required:
             - notificationStatus
@@ -1011,8 +1145,47 @@ components:
       $ref: ./remote-refs.yaml#/components/schemas/NotificationStatusHistory
     LegalFactDownloadMetadataResponse:
       $ref: ./remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse
+    F24Metadata:
+      $ref: ./remote-refs.yaml#/components/schemas/F24Metadata
     RequestStatus:
       $ref: ./remote-refs.yaml#/components/schemas/RequestStatus
+    NewNotificationRequestStatusResponse:
+      allOf:
+        - $ref: >-
+            ./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest
+        - type: object
+          required:
+            - notificationRequestId
+            - notificationRequestStatus
+          properties:
+            notificationRequestId:
+              description: >-
+                identificativo univoco di una richiesta di invio notifica, non è
+                lo IUN
+              type: string
+            notificationRequestStatus:
+              description: >-
+                - __WAITING__: in attesa di essere valutata - __ACCEPTED__:
+                richiesta di notifica accettata, lo IUN è valorizzato -
+                __REFUSED__: richiesta di notifica rifiutata, è valorizzato il
+                campo _errors_
+              type: string
+            retryAfter:
+              type: integer
+              format: int32
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova
+                richiesta per  la stessa entità; valorizzato quando lo status è
+                __WAITING__.
+            iun:
+              $ref: ./schemas-pn-notification.yaml#/components/schemas/IUN
+            errors:
+              description: >-
+                Elenco degli errori che hanno causato il rifiuto della richiesta
+                di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/ProblemError'
     FullSentNotification:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
@@ -1036,6 +1209,29 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
+    FullSentNotificationV20:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: ./schemas-pn-notification.yaml#/components/schemas/SentNotification
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV20'
     TimelineElement:
       $ref: ./remote-refs.yaml#/components/schemas/TimelineElement
   securitySchemes:

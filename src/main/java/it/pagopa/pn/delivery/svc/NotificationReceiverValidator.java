@@ -95,32 +95,32 @@ public class NotificationReceiverValidator {
               ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
               errors.add(constraintViolation);
           }
-          if(recipient.getPayment() != null){
+          /*if(recipient.getPayment() != null){
               String noticeCode = recipient.getPayment().getNoticeCode();
               String noticeCodeAlternative = recipient.getPayment().getNoticeCodeAlternative();
               if ( noticeCode.equals(noticeCodeAlternative) ) {
                   ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
                   errors.add(constraintViolation);
               }
-          }
+          }*/
           NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-          checkProvince(errors, physicalAddress);
+          checkProvinceV2(errors, physicalAddress);
           recIdx++;
       }
-      errors.addAll(validator.validate(internalNotification));
-      errors.addAll( this.checkPhysicalAddress(internalNotification));
+      errors.addAll(validator.validate(newNotificationRequestV2));
+      errors.addAll( this.checkPhysicalAddress(newNotificationRequestV2));
       return errors;
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequest>> checkPhysicalAddress(NewNotificationRequest internalNotification) {
+    protected Set<ConstraintViolation<NewNotificationRequestV21>> checkPhysicalAddress(NewNotificationRequestV21 internalNotification) {
 
-        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+        Set<ConstraintViolation<NewNotificationRequestV21>> errors = new HashSet<>();
 
         if (this.pnDeliveryConfigs.isPhysicalAddressValidation()) {
 
             int recIdx = 0;
 
-            for (NotificationRecipient recipient : internalNotification.getRecipients()) {
+            for (NotificationRecipientV21 recipient : internalNotification.getRecipients()) {
 
                 NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
@@ -140,12 +140,12 @@ public class NotificationReceiverValidator {
                 Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
                         .filter(field -> field.getValue() != null &&
                                 (!field.getValue().matches("[" + this.pnDeliveryConfigs.getPhysicalAddressValidationPattern() + "]*")))
-                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequestV21>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
                         .forEach(errors::add);
 
                 Stream.of(denomination, row2, addressDetails, address, row5, foreignState)
                         .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getPhysicalAddressValidationLength() )
-                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getPhysicalAddressValidationLength())))
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequestV21>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getPhysicalAddressValidationLength())))
                         .forEach(errors::add);
 
                 recIdx++;

@@ -6,6 +6,8 @@ import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
@@ -69,7 +71,7 @@ class NotificationReceiverValidationTest {
   void invalidEmptyNotification() {
 
     // GIVEN
-    InternalNotification internalNotification = new InternalNotification();
+    InternalNotification internalNotification = newInternalNotification();
     internalNotification.setIun("IUN");
     internalNotification.setPaProtocolNumber("protocol_01");
     internalNotification.setSubject("Subject 01");
@@ -976,46 +978,63 @@ class NotificationReceiverValidationTest {
             .build();
   }
 
-  private NewNotificationRequest badRecipientsNewNotification() {
-    List<NotificationRecipient> recipients = new ArrayList<>();
+  private NewNotificationRequestV21 badRecipientsNewNotification() {
+    List<NotificationRecipientV21> recipients = new ArrayList<>();
     recipients.add(
-            NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
                     .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
                     .digitalDomicile(NotificationDigitalAddress.builder()
                             .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
                     .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
                             .province("province").municipality("municipalitymorethan40characters").at("at").build())
-                    .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
-                            .noticeCodeAlternative("noticeCodeAlternative").build())
+                    .payments(List.of(NotificationPaymentItem.builder()
+                                    .pagoPa(PagoPaPayment.builder()
+                                            .noticeCode("noticeCode")
+                                            .build()
+                                    ).build()
+                            )
+                    )
+                    //.payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
+                            //.noticeCodeAlternative("noticeCodeAlternative").build())
                     .build());
-    return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
   }
 
-  private NewNotificationRequest moreBadRecipientsNewNotification() {
-    List<NotificationRecipient> recipients = new ArrayList<>();
-    recipients.add(NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+  private NewNotificationRequestV21 moreBadRecipientsNewNotification() {
+    List<NotificationRecipientV21> recipients = new ArrayList<>();
+    recipients.add(NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
                     .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
                     .digitalDomicile(NotificationDigitalAddress.builder()
                             .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
                     .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo?").zip("83100*")
                             .province("province_").municipality("municipalitymorethan40characters-").municipalityDetails("municipalityDetails/")
                             .at("at.").addressDetails("addressDetails0").foreignState("foreignState ").build())
-                    .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
-                            .noticeCodeAlternative("noticeCodeAlternative").build())
+                    .payments(List.of(NotificationPaymentItem.builder()
+                                    .pagoPa(PagoPaPayment.builder()
+                                            .noticeCode("noticeCode")
+                                            .build()
+                                    ).build()
+                            )
+                    )
                     .build());
-    recipients.add(NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+    recipients.add(NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
                     .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
                     .digitalDomicile(NotificationDigitalAddress.builder()
                             .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
                     .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
                     .province("province").municipality("municipality!").municipalityDetails("municipalityDetails?")
                     .at("at_").addressDetails("addressDetails$").foreignState("foreignState%").build())
-                    .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
-                            .noticeCodeAlternative("noticeCodeAlternative").build())
+                    .payments(List.of(NotificationPaymentItem.builder()
+                                    .pagoPa(PagoPaPayment.builder()
+                                            .noticeCode("noticeCode")
+                                            .build()
+                                    ).build()
+                            )
+                    )
                     .build());
-    return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
   }

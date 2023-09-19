@@ -519,7 +519,7 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
-		Assertions.assertThrows( NullPointerException.class, todo );
+		Assertions.assertThrows( PnInvalidInputException.class, todo );
 	}
 
 	@Test
