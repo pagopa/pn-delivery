@@ -1043,15 +1043,13 @@ Resources:
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 10
-      
-  # version, with provisioned concurrency
+
   VersioningV1V2GetNotificationLambdaVersion:
     Type: "AWS::Lambda::Version"
     Properties:
-      FunctionName: !GetAtt VersioningV1V2GetNotificationLambda.Arn
-      Description: "$LATEST"
-      ProvisionedConcurrencyConfig: 
-        ProvisionedConcurrentExecutions: 1
+      FunctionName: !Ref VersioningV1V2GetNotificationLambda
+      ProvisionedConcurrencyConfig:
+           ProvisionedConcurrentExecutions: 1
 
   # Lambda function role
   VersioningV1V2GetNotificationLambdaRole:
