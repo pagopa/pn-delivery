@@ -386,6 +386,11 @@ Parameters:
     Type: String
     Description: 'VersioningV1V2GetNotificationName'
 
+  VersioningV1V2GetNotificationLambdaProvisionedConcurrency:
+    Type: Number
+    Description: 'VersioningV1V2GetNotificationProvisionedConcurrency'
+    Default: 1
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -1043,13 +1048,15 @@ Resources:
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 10
+      MemorySize: 512
 
+  # a new version at each deploy, with provisioned concurrency set
   VersioningV1V2GetNotificationLambdaVersion:
     Type: "AWS::Lambda::Version"
     Properties:
       FunctionName: !Ref VersioningV1V2GetNotificationLambda
       ProvisionedConcurrencyConfig:
-           ProvisionedConcurrentExecutions: 1
+           ProvisionedConcurrentExecutions: !Ref VersioningV1V2GetNotificationLambdaProvisionedConcurrency
 
   # Lambda function role
   VersioningV1V2GetNotificationLambdaRole:
