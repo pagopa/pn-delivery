@@ -107,8 +107,8 @@ exports.versioning = async (event, context) => {
     console.log("risposta da fetch");
 
     if (response.ok) {
-      return response.json().then((res) => {
-        const transformedObject = transformObject(res);
+      return response.json().then((responseV2) => {
+        const transformedObject = transformObject(responseV2);
         console.log("ritorno risposta trasformata ", transformedObject);
 
         const ret = {
@@ -128,8 +128,8 @@ exports.versioning = async (event, context) => {
     }
   });
 
-  function transformObject(rest) {
-    console.log("transforming object", JSON.stringify(rest));
+  function transformObject(responseV2) {
+    console.log("transforming object", JSON.stringify(responseV2));
 
     const notificationStatus_ENUM = [
       "IN_VALIDATION",
@@ -144,34 +144,34 @@ exports.versioning = async (event, context) => {
       "CANCELLED",
     ];
 
-    if (!notificationStatus_ENUM.includes(rest.notificationStatus)) {
+    if (!notificationStatus_ENUM.includes(responseV2.notificationStatus)) {
       throw new Error("Status not supported");
     }
 
-    const iun = rest.iun;
-    const sentAt = rest.sentAt;
-    const senderPaId = rest.senderPaId;
-    const cancelledByIun = rest.cancelledByIun;
-    const documentsAvailable = rest.documentsAvailable;
-    const idempotenceToken = rest.idempotenceToken;
+    const iun = responseV2.iun;
+    const sentAt = responseV2.sentAt;
+    const senderPaId = responseV2.senderPaId;
+    const cancelledByIun = responseV2.cancelledByIun;
+    const documentsAvailable = responseV2.documentsAvailable;
+    const idempotenceToken = responseV2.idempotenceToken;
     const recipients = [];
-    rest.recipients.forEach((r) => recipients.push(transformRecipient(r)));
+    responseV2.recipients.forEach((r) => recipients.push(transformRecipient(r)));
 
-    const notificationStatus = rest.notificationStatus;
+    const notificationStatus = responseV2.notificationStatus;
     const documents = [];
-    rest.documents.forEach((d) =>
+    responseV2.documents.forEach((d) =>
       documents.push(transformNotificationDocument(d))
     );
 
     const notificationFeePolicy = transformNotificationFeePolicy(
-      rest.notificationFeePolicy
+      responseV2.notificationFeePolicy
     );
     const physicalCommunicationType = transformPhysicalCommunicationType(
-      rest.physicalCommunicationType
+      responseV2.physicalCommunicationType
     );
-    const pagoPaIntMode = transformPagoPaIntMode(rest.pagoPaIntMode);
+    const pagoPaIntMode = transformPagoPaIntMode(responseV2.pagoPaIntMode);
 
-    const timeline = rest.timeline.filter((tl) =>
+    const timeline = responseV2.timeline.filter((tl) =>
       CATEGORIES.includes(tl.category)
     );
     const timelineIds = [];
@@ -179,7 +179,7 @@ exports.versioning = async (event, context) => {
 
     // elimina dalla status hostory tutti gli elementi che includono come related timeline
     // elements elementi non sono presenti nella timeline
-    const notificationStatusHistory = rest.notificationStatusHistory.filter(
+    const notificationStatusHistory = responseV2.notificationStatusHistory.filter(
       (nsh) => {
         let keep = true;
         for (const timelineElement of nsh.relatedTimelineElements) {
@@ -193,37 +193,37 @@ exports.versioning = async (event, context) => {
     );
 
     // Crea il nuovo oggetto risultante senza payments
-    const newObject = {
-      abstract: rest.abstract,
-      subject: rest.subject,
+    const responseV1 = {
+      abstract: responseV2.abstract,
+      subject: responseV2.subject,
       senderPaId: senderPaId,
       iun: iun,
       sentAt: sentAt,
       cancelledByIun: cancelledByIun,
       idempotenceToken: idempotenceToken,
-      paProtocolNumber: rest.paProtocolNumber,
+      paProtocolNumber: responseV2.paProtocolNumber,
       documentsAvailable: documentsAvailable,
       notificationStatus: notificationStatus,
       recipients: recipients,
       documents: documents,
       notificationFeePolicy: notificationFeePolicy,
-      cancelledIun: rest.cancelledIun,
+      cancelledIun: responseV2.cancelledIun,
       notificationStatusHistory: notificationStatusHistory,
       timeline: timeline,
       physicalCommunicationType: physicalCommunicationType,
-      senderDenomination: rest.senderDenomination,
-      sourceChannelDetails: rest.sourceChannelDetails,
-      senderTaxId: rest.senderTaxId,
-      group: rest.group,
-      amount: rest.amount,
-      paymentExpirationDate: rest.paymentExpirationDate,
-      taxonomyCode: rest.taxonomyCode,
+      senderDenomination: responseV2.senderDenomination,
+      sourceChannelDetails: responseV2.sourceChannelDetails,
+      senderTaxId: responseV2.senderTaxId,
+      group: responseV2.group,
+      amount: responseV2.amount,
+      paymentExpirationDate: responseV2.paymentExpirationDate,
+      taxonomyCode: responseV2.taxonomyCode,
       pagoPaIntMode: pagoPaIntMode,
     };
 
-    console.log("return transformed object ", newObject);
+    console.log("return transformed object ", responseV1);
 
-    return newObject;
+    return responseV1;
   }
 
   function transformRecipient(recipient) {
