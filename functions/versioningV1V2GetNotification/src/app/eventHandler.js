@@ -177,6 +177,8 @@ exports.versioning = async (event, context) => {
     const timelineIds = [];
     for (const tl of timeline) timelineIds.push(tl.elementId);
 
+    // elimina dalla status hostory tutti gli elementi che includono come related timeline
+    // elements elementi non sono presenti nella timeline
     const notificationStatusHistory = rest.notificationStatusHistory.filter(
       (nsh) => {
         let keep = true;
@@ -210,6 +212,7 @@ exports.versioning = async (event, context) => {
       timeline: timeline,
       physicalCommunicationType: physicalCommunicationType,
       senderDenomination: rest.senderDenomination,
+      sourceChannelDetails: rest.sourceChannelDetails,
       senderTaxId: rest.senderTaxId,
       group: rest.group,
       amount: rest.amount,
