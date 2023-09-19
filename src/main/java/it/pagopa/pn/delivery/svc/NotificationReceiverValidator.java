@@ -12,13 +12,17 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysica
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.*;
+import java.util.stream.Stream;
 
+@Slf4j
 @Component
 public class NotificationReceiverValidator {
 
@@ -32,9 +36,13 @@ public class NotificationReceiverValidator {
         this.mvpParameterConsumer = mvpParameterConsumer;
         this.validateUtils = validateUtils;
         this.pnDeliveryConfigs = pnDeliveryConfigs;
+
+        log.info("Validation enabled={}", pnDeliveryConfigs.isPhysicalAddressValidation());
+        log.info("Validation pattern={}", pnDeliveryConfigs.getPhysicalAddressValidationPattern());
+        log.info("Validation length={}", pnDeliveryConfigs.getPhysicalAddressValidationLength());
     }
 
-    public void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
+    protected void checkNewNotificationBeforeInsertAndThrow(InternalNotification internalNotification) {
         Set<ConstraintViolation<InternalNotification>> errors = checkNewNotificationBeforeInsert(internalNotification);
         if( ! errors.isEmpty() ) {
             List<ProblemError> errorList  = new ExceptionHelper(Optional.empty()).generateProblemErrorsFromConstraintViolation(errors);
@@ -42,7 +50,7 @@ public class NotificationReceiverValidator {
         }
     }
 
-    public Set<ConstraintViolation<InternalNotification>> checkNewNotificationBeforeInsert(InternalNotification internalNotification) {
+    protected Set<ConstraintViolation<InternalNotification>> checkNewNotificationBeforeInsert(InternalNotification internalNotification) {
         return validator.validate( internalNotification );
     }
 
@@ -57,7 +65,7 @@ public class NotificationReceiverValidator {
         }
     }
 
-    public Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkNewNotificationRequestBeforeInsert(NewNotificationRequest internalNotification) {
       Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
 
       // check del numero massimo di documenti allegati
@@ -104,7 +112,63 @@ public class NotificationReceiverValidator {
           recIdx++;
       }
       errors.addAll(validator.validate( internalNotification ));
+      errors.addAll( this.checkPhysicalAddress( internalNotification ));
       return errors;
+    }
+
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkPhysicalAddress(NewNotificationRequest internalNotification) {
+
+        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+
+        if (this.pnDeliveryConfigs.isPhysicalAddressValidation()) {
+
+            int recIdx = 0;
+
+            for (NotificationRecipient recipient : internalNotification.getRecipients()) {
+
+                NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+
+                Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
+                Pair<String, String> address = Pair.of("address", physicalAddress.getAddress());
+                Pair<String, String> addressDetails = Pair.of("addressDetails", physicalAddress.getAddressDetails());
+                Pair<String, String> province = Pair.of("province", physicalAddress.getProvince());
+                Pair<String, String> foreignState = Pair.of("foreignState", physicalAddress.getForeignState());
+                Pair<String, String> at = Pair.of("at", physicalAddress.getAt());
+                Pair<String, String> zip = Pair.of("zip", physicalAddress.getZip());
+                Pair<String, String> municipality = Pair.of("municipality", physicalAddress.getMunicipality());
+                Pair<String, String> municipalityDetails = Pair.of("municipalityDetails", physicalAddress.getMunicipalityDetails());
+                Pair<String, String> row2 = buildPair("at and municipalityDetails", List.of(at, municipalityDetails));
+                Pair<String, String> row5 = buildPair("zip, municipality and Province", List.of(zip, municipality, province));
+
+                int finalRecIdx = recIdx;
+                Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
+                        .filter(field -> field.getValue() != null &&
+                                (!field.getValue().matches("[" + this.pnDeliveryConfigs.getPhysicalAddressValidationPattern() + "]*")))
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
+                        .forEach(errors::add);
+
+                Stream.of(denomination, row2, addressDetails, address, row5, foreignState)
+                        .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getPhysicalAddressValidationLength() )
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getPhysicalAddressValidationLength())))
+                        .forEach(errors::add);
+
+                recIdx++;
+            }
+        }
+
+        return errors;
+
+    }
+
+    private static Pair<String, String> buildPair(String name, List<Pair<String, String>> pairs){
+        List<String> rowElem = new ArrayList<>();
+
+        pairs.stream().
+                filter(field -> field.getValue() != null)
+                .forEach( field -> rowElem.add(field.getValue().trim()));
+
+        return Pair.of(name, String.join(" ", rowElem));
+
     }
 
     private static void onlyNumericalTaxIdForPG(Set<ConstraintViolation<NewNotificationRequest>> errors, int recIdx, NotificationRecipient recipient) {
