@@ -136,7 +136,7 @@ describe("eventHandler tests", function () {
 
     fetchMock.mock(url, {
       status: 500,
-      body: JSON.stringify({error: "ERROR"}),
+      body: JSON.stringify({ error: "ERROR" }),
       headers: { "Content-Type": "application/json" },
     });
 
@@ -287,5 +287,43 @@ describe("eventHandler tests", function () {
     const context = {};
 
     expect(async () => await eventHandler.versioning(event, context)).to.throw;
+  });
+
+  it("fetch throw error", async () => {
+    beforeEach(() => {
+      fetchMock.reset();
+    });
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    const eventHandler = proxyquire
+      .noCallThru()
+      .load("../app/eventHandler.js", {});
+
+    fetchMock.mock(url, () => {
+      throw new Error();
+    });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await eventHandler.versioning(event, context);
+
+    expect(response.statusCode).to.equal(502);
   });
 });

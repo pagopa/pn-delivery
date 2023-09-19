@@ -22,9 +22,7 @@ exports.versioning = async (event, context) => {
     return err;
   }
 
-  console.log(
-    "Versioning_V1-V2_GetNotification_Lambda function started"
-  );
+  console.log("Versioning_V1-V2_GetNotification_Lambda function started");
 
   const IUN = event.pathParameters["iun"];
 
@@ -99,10 +97,10 @@ exports.versioning = async (event, context) => {
 
   console.log("calling ", url);
   let response;
-  try{
+  try {
     response = await fetch(url, { method: "GET", headers: headers });
     let responseV2 = await response.json();
-    if(response.ok){
+    if (response.ok) {
       const transformedObject = transformObject(responseV2);
       console.log("ritorno risposta trasformata ", transformedObject);
       const ret = {
@@ -117,10 +115,10 @@ exports.versioning = async (event, context) => {
       body: JSON.stringify(responseV2),
     };
     return ret;
-  }catch(error){
+  } catch (error) {
     const ret = {
       statusCode: response?.status ?? 502,
-      body: response?.statusText ?? 'problem calling fetch',
+      body: response?.statusText ?? "problem calling fetch",
     };
     return ret;
   }
@@ -152,7 +150,9 @@ exports.versioning = async (event, context) => {
     const documentsAvailable = responseV2.documentsAvailable;
     const idempotenceToken = responseV2.idempotenceToken;
     const recipients = [];
-    responseV2.recipients.forEach((r) => recipients.push(transformRecipient(r)));
+    responseV2.recipients.forEach((r) =>
+      recipients.push(transformRecipient(r))
+    );
 
     const notificationStatus = responseV2.notificationStatus;
     const documents = [];
@@ -176,8 +176,8 @@ exports.versioning = async (event, context) => {
 
     // elimina dalla status hostory tutti gli elementi che includono come related timeline
     // elements elementi non sono presenti nella timeline
-    const notificationStatusHistory = responseV2.notificationStatusHistory.filter(
-      (nsh) => {
+    const notificationStatusHistory =
+      responseV2.notificationStatusHistory.filter((nsh) => {
         let keep = true;
         for (const timelineElement of nsh.relatedTimelineElements) {
           keep = keep && timelineIds.includes(timelineElement);
@@ -186,8 +186,7 @@ exports.versioning = async (event, context) => {
           }
         }
         return keep;
-      }
-    );
+      });
 
     // Crea il nuovo oggetto risultante senza payments
     const responseV1 = {
