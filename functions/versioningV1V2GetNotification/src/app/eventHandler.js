@@ -1,17 +1,30 @@
 // converte la risposta V2.0 a V1 e verrà estesa per convertire V2.1 a V1
 
 exports.versioning = async (event, context) => {
+
+  const path = '/notifications/sent/';
+
+  if(event['resource'] !== `${path}/{iun}` || !event['path'].startsWith('/delivery') || event['httpMethod'].toUpperCase() !== 'GET'){
+    console.log("ERROR ENDPOINT ERRATO: {resource, path, httpMethod} ",event['resource'], event['path'], event['httpMethod'] );
+      const err = {
+        statusCode: 502,
+        body: "ENDPOINT ERRATO",
+      };
+
+      return err;
+  }
+
   console.log(
-    "TestLambdaProxy function started:",
+    "Versioning_V1-V2_GetNotification_Lambda function started:",
     JSON.stringify(event),
     JSON.stringify(context)
   );
 
+  
   const IUN = event.pathParameters["iun"];
 
-  const url = process.env.PN_DELIVERY_URL.concat("/notifications/sent/").concat(
-    IUN
-  );
+  const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
+
   const CATEGORIES = [
     "SENDER_ACK_CREATION_REQUEST",
     "VALIDATE_NORMALIZE_ADDRESSES_REQUEST",
