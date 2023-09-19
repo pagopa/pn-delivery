@@ -955,7 +955,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotification
-      x-pagopa-lambda-name: ilNomeDellaLambda
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda
       x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
@@ -1023,10 +1023,9 @@ paths:
         valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getNotificationLegalFacts
+      operationId: retrieveNotificationLegalFacts
       parameters:
         - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1060,21 +1059,11 @@ paths:
         ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFact
+      operationId: retrieveLegalFact
       parameters:
-        - $ref: '#/components/parameters/lollipopOriginalUrl'
-        - $ref: '#/components/parameters/lollipopOriginalMethod'
-        - $ref: '#/components/parameters/lollipopPublicKey'
-        - $ref: '#/components/parameters/lollipopAssertionRef'
-        - $ref: '#/components/parameters/lollipopAssertionType'
-        - $ref: '#/components/parameters/lollipopAuthJwt'
-        - $ref: '#/components/parameters/lollipopUserId'
-        - $ref: '#/components/parameters/lollipopSignatureInput'
-        - $ref: '#/components/parameters/lollipopSignature'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1108,20 +1097,10 @@ paths:
         ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
       tags:
         - LegalFacts
-      operationId: getLegalFactById
+      operationId: downloadLegalFactById
       parameters:
-        - $ref: '#/components/parameters/lollipopOriginalUrl'
-        - $ref: '#/components/parameters/lollipopOriginalMethod'
-        - $ref: '#/components/parameters/lollipopPublicKey'
-        - $ref: '#/components/parameters/lollipopAssertionRef'
-        - $ref: '#/components/parameters/lollipopAssertionType'
-        - $ref: '#/components/parameters/lollipopAuthJwt'
-        - $ref: '#/components/parameters/lollipopUserId'
-        - $ref: '#/components/parameters/lollipopSignatureInput'
-        - $ref: '#/components/parameters/lollipopSignature'
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1147,43 +1126,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/document/{documentType}:
-    get:
-      summary: Restituisce il singolo documento identificato dalla documentKey
-      description: Permette di scaricare un documento correlato alla notificazione
-      tags:
-        - DocumentsWeb
-      operationId: getDocumentsWeb
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
-        - $ref: '#/components/parameters/pathDocumentType'
-        - $ref: '#/components/parameters/queryDocumentId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
-        '400':
-          description: Invalid input
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+
   /delivery-progresses/streams:
     post:
       summary: Crea nuovo stream di eventi
@@ -1471,74 +1414,13 @@ components:
         minLength: 25
         maxLength: 25
         pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-    lollipopOriginalUrl:
-      name: x-pagopa-lollipop-original-url
-      in: header
-      description: lollipop expected lc original url
-      required: false
-      schema:
-        type: string
-    lollipopOriginalMethod:
-      name: x-pagopa-lollipop-original-method
-      in: header
-      description: lollipop expected lc original method
-      required: false
-      schema:
-        type: string
-    lollipopPublicKey:
-      name: x-pagopa-lollipop-public-key
-      in: header
-      description: lollipop public key
-      required: false
-      schema:
-        type: string
-    lollipopAssertionRef:
-      name: x-pagopa-lollipop-assertion-ref
-      in: header
-      description: lollipop assertion reference
-      required: false
-      schema:
-        type: string
-    lollipopAssertionType:
-      name: x-pagopa-lollipop-assertion-type
-      in: header
-      description: lollipop assertion type (SAML)
-      required: false
-      schema:
-        type: string
-    lollipopAuthJwt:
-      name: x-pagopa-lollipop-auth-jwt
-      in: header
-      description: lollipop authentication jwt
-      required: false
-      schema:
-        type: string
-    lollipopUserId:
-      name: x-pagopa-lollipop-user-id
-      in: header
-      description: lollipop user id
-      required: false
-      schema:
-        type: string
-    lollipopSignatureInput:
-      name: signature-input
-      in: header
-      description: lollipop signature input
-      required: false
-      schema:
-        type: string
-    lollipopSignature:
-      name: signature
-      in: header
-      description: lollipop signature
-      required: false
-      schema:
-        type: string
     legalFactsSearchMandateId:
       name: mandateId
       in: query
       required: false
-      description: identificativo della delega
+      description: identificativo della delega, non utilizzato nelle API B2B
+      x-pn-intended-usage:
+        - WEB
       schema:
         type: string
         format: uuid
@@ -4028,7 +3910,7 @@ components:
           type: array
           items:
             type: string
-            minLength: 5
+            minLength: 4
             maxLength: 256
             pattern: ^[A-Z_]+$
     StreamMetadataResponse:

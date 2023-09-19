@@ -8,6 +8,11 @@ target/
 /src/test/load-test/jmeter/test-result/
 /src/test/load-test/outputs/
 
+# Node.js
+node_modules/
+.nyc_output/
+coverage/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -35,3 +40,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Lambda ###
+function.zip

@@ -16,7 +16,7 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotification                                # ONLY EXTERNAL
-      x-pagopa-lambda-name: ilNomeDellaLambda
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda
       x-pagopa-lambda-account: core
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
