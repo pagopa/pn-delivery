@@ -1058,6 +1058,13 @@ Resources:
     Type: AWS::Lambda::Version
     Properties:
       FunctionName: !Ref VersioningV1V2GetNotificationLambda
+
+  VersioningV1V2GetNotificationLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties: 
+      FunctionName: !Ref VersioningV1V2GetNotificationLambda
+      FunctionVersion: !GetAtt VersioningV1V2GetNotificationLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
       ProvisionedConcurrencyConfig:
         ProvisionedConcurrentExecutions: !Ref VersioningV1V2GetNotificationLambdaProvisionedConcurrency
 
