@@ -1098,7 +1098,7 @@ Resources:
   VersioningV1V2GetNotificationLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref VersioningV1V2GetNotificationLambda
+      FunctionName: !Ref VersioningV1V2GetNotificationLambdaVersionAlias
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
