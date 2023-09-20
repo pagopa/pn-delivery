@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: 'Example microservice deploy'
 
+Transform:
+  - UpdateDeploymentTransform
+
 Parameters:
   ProjectName:
     Type: String
@@ -1051,12 +1054,12 @@ Resources:
       MemorySize: 512
 
   # a new version at each deploy, with provisioned concurrency set
-  VersioningV1V2GetNotificationLambdaVersion:
-    Type: "AWS::Lambda::Version"
+  VersioningV1V2GetNotificationLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
     Properties:
       FunctionName: !Ref VersioningV1V2GetNotificationLambda
       ProvisionedConcurrencyConfig:
-           ProvisionedConcurrentExecutions: !Ref VersioningV1V2GetNotificationLambdaProvisionedConcurrency
+        ProvisionedConcurrentExecutions: !Ref VersioningV1V2GetNotificationLambdaProvisionedConcurrency
 
   # Lambda function role
   VersioningV1V2GetNotificationLambdaRole:
