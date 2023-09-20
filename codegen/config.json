@@ -23,7 +23,8 @@
             ],
             "servicePath": "delivery",
             "generateBundle": true,
-            "mergeBeforeBundleGeneration": true
+            "mergeBeforeBundleGeneration": true,
+            "bundlePatch": "api-external-b2b-bundle_yaml.patch"
         },
         {
             "intendedUsage": "WEB",
