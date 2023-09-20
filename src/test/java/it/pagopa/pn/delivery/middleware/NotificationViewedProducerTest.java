@@ -17,6 +17,9 @@ import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 
 import java.time.Instant;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class NotificationViewedProducerTest {
 
     private NotificationViewedProducer notificationViewedProducer;
@@ -38,6 +41,24 @@ class NotificationViewedProducerTest {
 
         Mockito.when( sqsClient.getQueueUrl( Mockito.any( software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest.class ))).thenReturn( response );
         notificationViewedProducer = new SqsNotificationViewedProducer( sqsClient, objectMapper, cfg );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendNotificationViewed() {
+        // Given
+        String iun = "IUN";
+        Instant when = Instant.parse( "2023-01-19T12:01:12Z" ) ;
+        int recipientIndex = 0;
+
+        NotificationViewDelegateInfo delegateInfo = NotificationViewDelegateInfo.builder()
+                .internalId( "internalId" )
+                .operatorUuid( "operatorUid" )
+                .delegateType( NotificationViewDelegateInfo.DelegateType.PF )
+                .mandateId( "mandateId" )
+                .build();
+
+        assertThrows(NullPointerException.class,() -> notificationViewedProducer.sendNotificationViewed( iun, when, recipientIndex, delegateInfo ));
     }
 
     @ExtendWith(MockitoExtension.class)

@@ -24,8 +24,6 @@ class DtoToEntityNotificationMapperTest {
     public static final String X_PAGOPA_PN_SRC_CH = "B2B";
     public static final String NOTICE_CODE = "302211675775915057";
     public static final String CREDITOR_TAX_ID = "77777777777";
-    public static final String SENT_AT_DATE = "2023-03-14T15:30:23.123Z";
-    public static final String NOTICE_CODE_ALTERNATIVE = "302351677498380984";
     private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 
     private DtoToEntityNotificationMapper mapper;

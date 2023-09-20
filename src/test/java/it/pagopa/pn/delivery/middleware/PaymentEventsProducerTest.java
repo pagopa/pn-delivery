@@ -18,6 +18,9 @@ import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 import java.time.Instant;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class PaymentEventsProducerTest {
 
     private PaymentEventsProducer paymentEventsProducer;
@@ -39,6 +42,26 @@ class PaymentEventsProducerTest {
 
         Mockito.when( sqsClient.getQueueUrl( Mockito.any( software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest.class ))).thenReturn( response );
         paymentEventsProducer = new SqsPaymentEventsProducer( sqsClient, objectMapper, cfg );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendPaymentEvents() {
+        // Given
+        List<InternalPaymentEvent> internalPaymentEvents = List.of(InternalPaymentEvent.builder()
+                .iun("IUN")
+                .paymentDate(Instant.parse("2023-01-18T12:34:00Z"))
+                .paymentType(PnDeliveryPaymentEvent.PaymentType.PAGOPA)
+                .recipientIdx(0)
+                .recipientType(PnDeliveryPaymentEvent.RecipientType.PF)
+                .creditorTaxId("creditorTaxId")
+                .noticeCode("noticeCode")
+                .build()
+        );
+
+        assertThrows(NullPointerException.class, () -> paymentEventsProducer.sendPaymentEvents( internalPaymentEvents) );
+
+
     }
 
     @ExtendWith(MockitoExtension.class)

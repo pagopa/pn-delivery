@@ -1,24 +1,15 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -34,6 +25,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {PnDeliveryConfigs.class})
 @ExtendWith(SpringExtension.class)
@@ -57,41 +51,14 @@ class NotificationMetadataEntityDaoDynamoTest {
     @Test
     void testSearchByIun() {
         PageSearchTrunk<NotificationMetadataEntity> pageSearchTrunk = new PageSearchTrunk<>();
-        when(notificationMetadataEntityDaoDynamo.searchByIun(Mockito.<InputSearchNotificationDto>any(),
-                Mockito.<String>any(), Mockito.<String>any())).thenReturn(pageSearchTrunk);
+        when(notificationMetadataEntityDaoDynamo.searchByIun(Mockito.any(),
+                Mockito.any(), Mockito.any())).thenReturn(pageSearchTrunk);
         assertSame(pageSearchTrunk,
                 notificationMetadataEntityDaoDynamo.searchByIun(new InputSearchNotificationDto(), "42", "42"));
-        verify(notificationMetadataEntityDaoDynamo).searchByIun(Mockito.<InputSearchNotificationDto>any(),
-                Mockito.<String>any(), Mockito.<String>any());
+        verify(notificationMetadataEntityDaoDynamo).searchByIun(Mockito.any(),
+                Mockito.any(), Mockito.any());
     }
 
-    /**
-     * Method under test: {@link NotificationMetadataEntityDaoDynamo#searchForOneMonth(InputSearchNotificationDto, String, String, int, PnLastEvaluatedKey)}
-     */
-    @Test
-    @Disabled("TODO: Complete this test")
-    void testSearchForOneMonth() throws JsonProcessingException {
-        // TODO: Complete this test.
-        //   Reason: R013 No inputs found that don't throw a trivial exception.
-        //   Diffblue Cover tried to run the arrange/act section, but the method under
-        //   test threw
-        //   com.fasterxml.jackson.core.JsonParseException: Unexpected character ('�' (code 65533 / 0xfffd)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')
-        //    at [Source: (String)"��+z"; line: 1, column: 2]
-        //       at com.fasterxml.jackson.core.JsonParser._constructError(JsonParser.java:2391)
-        //       at com.fasterxml.jackson.core.base.ParserMinimalBase._reportError(ParserMinimalBase.java:735)
-        //       at com.fasterxml.jackson.core.base.ParserMinimalBase._reportUnexpectedChar(ParserMinimalBase.java:659)
-        //       at com.fasterxml.jackson.core.json.ReaderBasedJsonParser._handleOddValue(ReaderBasedJsonParser.java:2005)
-        //       at com.fasterxml.jackson.core.json.ReaderBasedJsonParser.nextToken(ReaderBasedJsonParser.java:802)
-        //       at com.fasterxml.jackson.databind.ObjectReader._initForReading(ObjectReader.java:356)
-        //       at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2041)
-        //       at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1492)
-        //       at it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey.deserializeInternalLastEvaluatedKey(PnLastEvaluatedKey.java:51)
-        //   See https://diff.blue/R013 to resolve this issue.
-
-        PnLastEvaluatedKey lastEvaluatedKey = PnLastEvaluatedKey.deserializeInternalLastEvaluatedKey("secret");
-        notificationMetadataEntityDaoDynamo.searchForOneMonth(new InputSearchNotificationDto(), "Index Name", "42", 3,
-                lastEvaluatedKey);
-    }
 
     /**
      * Method under test: {@link NotificationMetadataEntityDaoDynamo#searchForOneMonth(InputSearchNotificationDto, String, String, int, PnLastEvaluatedKey)}
@@ -99,14 +66,14 @@ class NotificationMetadataEntityDaoDynamoTest {
     @Test
     void testSearchForOneMonth2() {
         PageSearchTrunk<NotificationMetadataEntity> pageSearchTrunk = new PageSearchTrunk<>();
-        when(notificationMetadataEntityDaoDynamo.searchForOneMonth(Mockito.<InputSearchNotificationDto>any(),
-                Mockito.<String>any(), Mockito.<String>any(), anyInt(), Mockito.<PnLastEvaluatedKey>any()))
+        when(notificationMetadataEntityDaoDynamo.searchForOneMonth(Mockito.any(),
+                Mockito.any(), Mockito.any(), anyInt(), Mockito.any()))
                 .thenReturn(pageSearchTrunk);
         InputSearchNotificationDto inputSearchNotificationDto = mock(InputSearchNotificationDto.class);
         assertSame(pageSearchTrunk, notificationMetadataEntityDaoDynamo.searchForOneMonth(inputSearchNotificationDto,
                 "Index Name", "42", 3, new PnLastEvaluatedKey()));
-        verify(notificationMetadataEntityDaoDynamo).searchForOneMonth(Mockito.<InputSearchNotificationDto>any(),
-                Mockito.<String>any(), Mockito.<String>any(), anyInt(), Mockito.<PnLastEvaluatedKey>any());
+        verify(notificationMetadataEntityDaoDynamo).searchForOneMonth(Mockito.any(),
+                Mockito.any(), Mockito.any(), anyInt(), Mockito.any());
     }
 
     @BeforeEach
@@ -119,9 +86,9 @@ class NotificationMetadataEntityDaoDynamoTest {
      */
     @Test
     void testPutIfAbsent() {
-        doNothing().when(notificationMetadataEntityDaoDynamo).putIfAbsent(Mockito.<NotificationMetadataEntity>any());
+        doNothing().when(notificationMetadataEntityDaoDynamo).putIfAbsent(Mockito.any());
         notificationMetadataEntityDaoDynamo.putIfAbsent(new NotificationMetadataEntity());
-        verify(notificationMetadataEntityDaoDynamo).putIfAbsent(Mockito.<NotificationMetadataEntity>any());
+        verify(notificationMetadataEntityDaoDynamo).putIfAbsent(Mockito.any());
     }
 
     @Test
@@ -174,7 +141,7 @@ class NotificationMetadataEntityDaoDynamoTest {
 
     private static class MetadataEntityDaoMock implements NotificationMetadataEntityDao {
 
-        private EntityToDtoNotificationMetadataMapper entityToDto = new EntityToDtoNotificationMetadataMapper();
+        private final EntityToDtoNotificationMetadataMapper entityToDto = new EntityToDtoNotificationMetadataMapper();
 
         private final Map<Key, NotificationMetadataEntity> storage = new ConcurrentHashMap<>();
 

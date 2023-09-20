@@ -17,6 +17,8 @@ import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 
 import java.time.Instant;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 class AsseverationEventsProducerTest {
 
     private AsseverationEventsProducer asseverationEventsProducer;
@@ -61,6 +63,25 @@ class AsseverationEventsProducerTest {
         AsseverationEvent asseverationEvent = asseverationEventsProducer.buildAsseverationEvent(internalAsseverationEvent);
 
         Assertions.assertNotNull( asseverationEvent );
+    }
+
+    @ExtendWith(MockitoExtension.class)
+    @Test
+    void sendAsseverationEvent() {
+        Instant now = Instant.now();
+        InternalAsseverationEvent internalAsseverationEvent = InternalAsseverationEvent.builder()
+                .iun( "IUN" )
+                .noticeCode( "noticeCode" )
+                .creditorTaxId( "creditorTaxId" )
+                .senderPaId( "senderPaId" )
+                .recipientIdx( 0 )
+                .debtorPosUpdateDate( now.toString() )
+                .recordCreationDate( now.toString() )
+                .notificationSentAt( "2023-01-18T12:34:00.000Z" )
+                .version( 1 )
+                .moreFields( null )
+                .build();
+        assertThrows(NullPointerException.class, () -> asseverationEventsProducer.sendAsseverationEvent(internalAsseverationEvent));
     }
 
 }

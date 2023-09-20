@@ -37,14 +37,14 @@ class HandleEventUtilsTest {
     @Test
     void testMapStandardEventHeader4() {
         MessageHeaders headers = mock(MessageHeaders.class);
-        when(headers.get(Mockito.<Object>any())).thenReturn(null);
+        when(headers.get(Mockito.any())).thenReturn(null);
         StandardEventHeader actualMapStandardEventHeaderResult = HandleEventUtils.mapStandardEventHeader(headers);
         assertNull(actualMapStandardEventHeaderResult.getCreatedAt());
         assertNull(actualMapStandardEventHeaderResult.getPublisher());
         assertNull(actualMapStandardEventHeaderResult.getIun());
         assertNull(actualMapStandardEventHeaderResult.getEventType());
         assertNull(actualMapStandardEventHeaderResult.getEventId());
-        verify(headers, atLeast(1)).get(Mockito.<Object>any());
+        verify(headers, atLeast(1)).get(Mockito.any());
     }
 
     /**
@@ -53,9 +53,9 @@ class HandleEventUtilsTest {
     @Test
     void testMapStandardEventHeader5() {
         MessageHeaders headers = mock(MessageHeaders.class);
-        when(headers.get(Mockito.<Object>any())).thenThrow(new PnInternalException("An error occurred"));
+        when(headers.get(Mockito.any())).thenThrow(new PnInternalException("An error occurred"));
         assertThrows(PnInternalException.class, () -> HandleEventUtils.mapStandardEventHeader(headers));
-        verify(headers).get(Mockito.<Object>any());
+        verify(headers).get(Mockito.any());
     }
 
     @Test
