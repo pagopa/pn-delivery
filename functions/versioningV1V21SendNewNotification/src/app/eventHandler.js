@@ -1,4 +1,4 @@
-const { validateRequest, generateResponse } = require('./requestHelper')
+const { validateRequest, generateResponse, createNewNotificationRequesV21 } = require('./requestHelper')
 
 exports.handleEvent = async (event) => {
     console.log('event', event)
@@ -8,19 +8,46 @@ exports.handleEvent = async (event) => {
         return generateResponse({ resultCode: '404.00', resultDescription: 'Not found', errorList: isRequestValid }, 404, {})
     }
 
-    const eventValidationErrors = validateNewNotification(event.body)
+    /* const eventValidationErrors = validateNewNotification(event.body)
     if(eventValidationErrors.length>0){
         return generateResponse({ resultCode: '400.00', resultDescription: 'Validation error', errorList: eventValidationErrors }, 400, {})
-    }
+    } */
 
-    // creazione oggetto NewNotificationRequestV21
-    // mapping tra NewNotificationRequest e NewNotificationRequestV21
-    var newNotificationRequestV21 = new createNewNotificationRequesV21(event.body);
+    console.log("Versioning_V1-V21_SendNewNotification_Lambda function started");
 
-    
+    var newNotificationRequestV21 = createNewNotificationRequesV21(event.body);
 
     // post verso pn-delivery
     const url = process.env.PN_DELIVERY_URL.concat('/requests');
+
+    const headers = JSON.parse(JSON.stringify(event["headers"]));
+    headers["x-pagopa-pn-src-ch"] = "B2B";
+
+    if (event.requestContext.authorizer["cx_groups"]) {
+      headers["x-pagopa-pn-cx-groups"] =
+        event.requestContext.authorizer["cx_groups"];
+    }
+    if (event.requestContext.authorizer["cx_id"]) {
+      headers["x-pagopa-pn-cx-id"] = event.requestContext.authorizer["cx_id"];
+    }
+    if (event.requestContext.authorizer["cx_role"]) {
+      headers["x-pagopa-pn-cx-role"] = event.requestContext.authorizer["cx_role"];
+    }
+    if (event.requestContext.authorizer["cx_type"]) {
+      headers["x-pagopa-pn-cx-type"] = event.requestContext.authorizer["cx_type"];
+    }
+    if (event.requestContext.authorizer["cx_jti"]) {
+      headers["x-pagopa-pn-jti"] = event.requestContext.authorizer["cx_jti"];
+    }
+    if (event.requestContext.authorizer["sourceChannelDetails"]) {
+      headers["x-pagopa-pn-src-ch-detail"] =
+        event.requestContext.authorizer["sourceChannelDetails"];
+    }
+    if (event.requestContext.authorizer["uid"]) {
+      headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
+    }
+
+
     console.log ('calling ',url);
     return fetch(url, {
         method: "POST",
@@ -28,28 +55,8 @@ exports.handleEvent = async (event) => {
         headers: headers
     })
       .then(response => {
-          console.log('risposta da fetch');
-
-          if (response.ok){
-            return response.json().then(res => {
-                const transformedObject = transformObject(res);
-                console.log('ritorno risposta trasformata ',transformedObject);
-
-                const ret = {
-                  statusCode: 200,
-                  body: JSON.stringify(transformedObject)
-                };
-                return ret;
-              });
-          }else{
-            console.log('risposta negativa: ', response);
-            const err = {
-              statusCode: response.status,
-              body: response.statusText
-            };
-            return err;
-          }
-
+          console.log('Response: ' + response);
+          return response;
       });
 
     // creazione della response
@@ -57,34 +64,12 @@ exports.handleEvent = async (event) => {
 
     };
 
-    function createNewNotificationRequesV21(v1) {
-
-      const NewNotificationRequestV21 = {
-        idempotenceToken: v1.idempotenceToken,
-        paProtocolNumber: v1.paProtocolNumber,
-        subject: v1.subject,
-        abstract: v1.abstract,
-        recipients: recipients,
-        documents: v1.documents,
-        notificationFeePolicy: v1.notificationFeePolicy,
-        cancelledIun: v1.cancelledIun,
-        physicalCommunicationType: v1.physicalCommunicationType,
-        senderDenomination: v1.senderDenomination,
-        senderTaxId: v1.senderTaxId,
-        group: v1.group,
-        amount: v1.amount,
-        paymentExpirationDate: v1.paymentExpirationDate,
-        taxonomyCode: v1.taxonomyCode,
-        paFee: v1.paFee,
-        vat: v1.vat,
-        pagoPaIntMode: v1.pagoPaIntMode
-      }
-
-      return NewNotificationRequestV21
-    };
 
 
-    class NewNotificationRequestV21 {
+
+
+
+    /* class NewNotificationRequestV21 {
         constructor() {
           this.idempotenceToken = '';
           this.paProtocolNumber = '';
@@ -175,5 +160,5 @@ exports.handleEvent = async (event) => {
       
       // Esempio di utilizzo del costruttore:
       const emptyNotificationRequest = new NewNotificationRequestV21();
-      console.log(emptyNotificationRequest);
+      console.log(emptyNotificationRequest); */
       
