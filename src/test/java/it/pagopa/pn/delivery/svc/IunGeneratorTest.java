@@ -16,7 +16,7 @@ class IunGeneratorTest {
     private IunGenerator iunGenerator;
 
     @BeforeEach
-    private void setup() {
+    public void setup() {
         iunGenerator = new IunGenerator();
     }
 
@@ -41,31 +41,15 @@ class IunGeneratorTest {
         Assertions.assertEquals( 'N', controlChar);
     }
 
-    //@Test
-    void collisionsLessThanOneInOneYear() {
-        List<Long> collisions = Collections.synchronizedList( new ArrayList<>() );
-
-        long notificationsByMonth = 1 * 1000l * 1000l;
-
-        int months = 1 * 12;
-        IntStream.range(0, months ).parallel().forEach( m -> {
-            collisions.add( generatePredictedIun( notificationsByMonth ) );
-        });
-        System.out.println( collisions );
-        Assertions.assertTrue( collisions.stream().reduce(0L,(a,b) -> a+b) < 1 );
-    }
-
     @Test
     void collisionsLessThanOneInOneMonth() {
         List<Long> collisions = Collections.synchronizedList( new ArrayList<>() );
 
-        long notificationsByMonth = 1 * 1000l * 1000l;
+        long notificationsByMonth = 1000L * 1000L;
 
         int months = 1;
-        IntStream.range(0, months ).parallel().forEach( m -> {
-            collisions.add( generatePredictedIun( notificationsByMonth ) );
-        });
+        IntStream.range(0, months ).parallel().forEach( m -> collisions.add( generatePredictedIun( notificationsByMonth ) ));
         System.out.println( collisions );
-        Assertions.assertTrue( collisions.stream().reduce(0L,(a,b) -> a+b) < 1 );
+        Assertions.assertTrue( collisions.stream().reduce(0L, Long::sum) < 1 );
     }
 }

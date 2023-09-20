@@ -994,6 +994,7 @@ class PnSentReceivedNotificationControllerTest {
 
 	private InternalNotification newNotification() {
 		InternalNotification internalNotification = new InternalNotification();
+		internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
 		internalNotification.setSentAt(OffsetDateTime.now());
 		internalNotification.setRecipients(
 				List.of(
@@ -1078,10 +1079,6 @@ class PnSentReceivedNotificationControllerTest {
 
 	@Test
 	void getReceivedNotificationDocumentWithNotificationCancelledTest() {
-		/*Mockito.doThrow(new PnNotificationNotFoundException("Notification with iun: a-iun has a request for cancellation"))
-				.when(svc)
-				.checkIfNotificationIsNotCancelled(IUN);
-		*/
 		webTestClient.get()
 				.uri("/delivery/v2.1/notifications/received/{iun}/attachments/documents/{docIdx}", IUN, 1)
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
@@ -1091,18 +1088,4 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus().isNotFound();
 	}
 
-	/*@Test
-	void getReceivedNotificationAttachmentWithNotificationCancelledTest() {
-		Mockito.doThrow(new PnNotificationNotFoundException("Notification with iun: a-iun has a request for cancellation"))
-				.when(svc)
-				.checkIfNotificationIsNotCancelled(IUN);
-
-		webTestClient.get()
-				.uri("/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}", IUN, "PAGOPA")
-				.header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
-				.header(PnDeliveryRestConstants.UID_HEADER, UID)
-				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")
-				.exchange()
-				.expectStatus().isNotFound();
-	}*/
 }

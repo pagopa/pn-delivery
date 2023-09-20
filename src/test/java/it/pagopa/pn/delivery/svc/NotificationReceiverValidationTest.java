@@ -2,9 +2,9 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.exceptions.PnValidationException;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import javax.validation.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.ConstraintViolation;
+import javax.validation.Path;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.AdditionalMatchers.and;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 @Slf4j
 class NotificationReceiverValidationTest {
@@ -49,11 +49,7 @@ class NotificationReceiverValidationTest {
   public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
   public static final String VERSION_TOKEN = "version_token";
   public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
-  public static final String INVALID_ABSTRACT =
-          "invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars, invalid abstract string length more than max available: 1024 chars";
-  public static final String INVALID_SUBJECT =
-          "invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars, invalid abstract string length more than max available: 512 chars";
-  public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
+   public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
   public static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
 
   private NotificationReceiverValidator validator;
@@ -66,50 +62,6 @@ class NotificationReceiverValidationTest {
     validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils, cfg);
   }
 
-  @Test
-  @Disabled
-  void invalidEmptyNotification() {
-
-    // GIVEN
-    InternalNotification internalNotification = newInternalNotification();
-    internalNotification.setIun("IUN");
-    internalNotification.setPaProtocolNumber("protocol_01");
-    internalNotification.setSubject("Subject 01");
-    internalNotification.setCancelledIun("IUN_05");
-    internalNotification.setCancelledIun("IUN_00");
-    internalNotification.setSenderPaId("PA_ID");
-    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
-    internalNotification.setRecipients(Collections.singletonList(
-            NotificationRecipient.builder()
-                    .taxId("Codice Fiscale 01")
-                    .denomination("Nome Cognome/Ragione Sociale")
-                    .internalId( "recipientInternalId" )
-                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                            .type( NotificationDigitalAddress.TypeEnum.PEC )
-                            .address("account@dominio.it")
-                            .build()).build()));
-
-
-    // WHEN
-    Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
-
-    // THEN
-    assertConstraintViolationPresentByField(errors, "recipients");
-    assertConstraintViolationPresentByField(errors, "timeline");
-    assertConstraintViolationPresentByField(errors, "notificationStatusHistory");
-    assertConstraintViolationPresentByField(errors, "documents");
-    assertConstraintViolationPresentByField(errors, "iun");
-    assertConstraintViolationPresentByField(errors, "notificationStatus");
-    assertConstraintViolationPresentByField(errors, "sentAt");
-    assertConstraintViolationPresentByField(errors, "paProtocolNumber");
-    assertConstraintViolationPresentByField(errors, "physicalCommunicationType");
-    assertConstraintViolationPresentByField(errors, "subject");
-    assertConstraintViolationPresentByField(errors, "notificationFeePolicy");
-    assertConstraintViolationPresentByField(errors, "senderDenomination");
-    assertConstraintViolationPresentByField(errors, "senderTaxId");
-    Assertions.assertEquals(13, errors.size());
-  }
 
   @Test
   @Disabled
@@ -133,30 +85,7 @@ class NotificationReceiverValidationTest {
                             .address("account@dominio.it")
                             .build()).build()));
     // WHEN
-    Executable todo = () -> validator.checkNewNotificationBeforeInsertAndThrow(internalNotification);
-
-    // THEN
-    PnValidationException validationException;
-    validationException = Assertions.assertThrows(PnValidationException.class, todo);
-
-    @NotNull
-    @Valid
-    @Size(min = 1)
-    List<ProblemError> errors = validationException.getProblem().getErrors();
-    assertProblemErrorConstraintViolationPresentByField(errors, "recipients");
-    assertProblemErrorConstraintViolationPresentByField(errors, "timeline");
-    assertProblemErrorConstraintViolationPresentByField(errors, "notificationStatusHistory");
-    assertProblemErrorConstraintViolationPresentByField(errors, "documents");
-    assertProblemErrorConstraintViolationPresentByField(errors, "iun");
-    assertProblemErrorConstraintViolationPresentByField(errors, "notificationStatus");
-    assertProblemErrorConstraintViolationPresentByField(errors, "sentAt");
-    assertProblemErrorConstraintViolationPresentByField(errors, "paProtocolNumber");
-    assertProblemErrorConstraintViolationPresentByField(errors, "physicalCommunicationType");
-    assertProblemErrorConstraintViolationPresentByField(errors, "subject");
-    assertProblemErrorConstraintViolationPresentByField(errors, "notificationFeePolicy");
-    assertProblemErrorConstraintViolationPresentByField(errors, "senderDenomination");
-    assertProblemErrorConstraintViolationPresentByField(errors, "senderTaxId");
-    Assertions.assertEquals(13, errors.size());
+    Assertions.assertDoesNotThrow(() -> validator.checkNewNotificationBeforeInsertAndThrow(internalNotification));
   }
 
   @Test
