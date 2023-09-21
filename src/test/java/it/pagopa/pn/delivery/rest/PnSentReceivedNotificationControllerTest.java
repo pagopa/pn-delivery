@@ -12,6 +12,8 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.DelegateInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
@@ -20,6 +22,7 @@ import it.pagopa.pn.delivery.svc.NotificationQRService;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.PnDeliveryRestConstants;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.modelmapper.ModelMapper;
@@ -35,6 +38,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -197,8 +201,106 @@ class PnSentReceivedNotificationControllerTest {
 	}
 
 	@Test
+	void testTimeLine(){
+		TimelineElementDetails timelineElementDetails = new TimelineElementDetails();
+		timelineElementDetails.setLegalFactId("legalFactId");
+		timelineElementDetails.recIndex(0);
+		timelineElementDetails.oldAddress(new NotificationPhysicalAddress());
+		timelineElementDetails.setOldAddress(new NotificationPhysicalAddress());
+		timelineElementDetails.setNormalizedAddress(new NotificationPhysicalAddress());
+		timelineElementDetails.generatedAarUrl("url");
+		timelineElementDetails.physicalAddress(new NotificationPhysicalAddress());
+		timelineElementDetails.setPhysicalAddress(new NotificationPhysicalAddress());
+		timelineElementDetails.legalfactId("legalFactId");
+		timelineElementDetails.setLegalfactId("legalFactId");
+		timelineElementDetails.endWorkflowStatus(EndWorkflowStatus.SUCCESS);
+		timelineElementDetails.setEndWorkflowStatus(EndWorkflowStatus.FAILURE);
+		timelineElementDetails.completionWorkflowDate(OffsetDateTime.now());
+		timelineElementDetails.setCompletionWorkflowDate(OffsetDateTime.now());
+		timelineElementDetails.legalFactGenerationDate(OffsetDateTime.now());
+		timelineElementDetails.setLegalFactGenerationDate(OffsetDateTime.now());
+		timelineElementDetails.digitalAddress(new it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress());
+		timelineElementDetails.setDigitalAddress(new it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress());
+		timelineElementDetails.digitalAddressSource(DigitalAddressSource.GENERAL);
+		timelineElementDetails.setDigitalAddressSource(DigitalAddressSource.GENERAL);
+		timelineElementDetails.isAvailable(true);
+		timelineElementDetails.setIsAvailable(true);
+		timelineElementDetails.attemptDate(OffsetDateTime.now());
+		timelineElementDetails.setAttemptDate(OffsetDateTime.now());
+		timelineElementDetails.eventTimestamp(OffsetDateTime.now());
+		timelineElementDetails.setEventTimestamp(OffsetDateTime.now());
+		timelineElementDetails.raddType("raddType");
+		timelineElementDetails.setRaddType("raddType");
+		timelineElementDetails.raddTransactionId("id");
+		timelineElementDetails.setRaddTransactionId("id");
+		timelineElementDetails.delegateInfo(new DelegateInfo());
+		timelineElementDetails.setDelegateInfo(new DelegateInfo());
+		timelineElementDetails.setNotificationCost(0L);
+		timelineElementDetails.notificationCost(0L);
+		timelineElementDetails.deliveryMode(DeliveryMode.ANALOG);
+		timelineElementDetails.setDeliveryMode(DeliveryMode.ANALOG);
+		timelineElementDetails.contactPhase(ContactPhase.CHOOSE_DELIVERY);
+		timelineElementDetails.setContactPhase(ContactPhase.CHOOSE_DELIVERY);
+		timelineElementDetails.sentAttemptMade(1);
+		timelineElementDetails.setSentAttemptMade(1);
+		timelineElementDetails.sendDate(OffsetDateTime.now());
+		timelineElementDetails.setSendDate(OffsetDateTime.now());
+		timelineElementDetails.refusalReasons(new ArrayList<>());
+		timelineElementDetails.setRefusalReasons(new ArrayList<>());
+		timelineElementDetails.lastAttemptDate(OffsetDateTime.now());
+		timelineElementDetails.setLastAttemptDate(OffsetDateTime.now());
+		timelineElementDetails.schedulingDate(OffsetDateTime.now());
+		timelineElementDetails.setSchedulingDate(OffsetDateTime.now());
+		timelineElementDetails.ioSendMessageResult(IoSendMessageResult.NOT_SENT_OPTIN_ALREADY_SENT);
+		timelineElementDetails.setIoSendMessageResult(IoSendMessageResult.NOT_SENT_OPTIN_ALREADY_SENT);
+		timelineElementDetails.retryNumber(0);
+		timelineElementDetails.setRetryNumber(0);
+		timelineElementDetails.nextDigitalAddressSource(DigitalAddressSource.GENERAL);
+		timelineElementDetails.setNextDigitalAddressSource(DigitalAddressSource.GENERAL);
+		timelineElementDetails.nextSourceAttemptsMade(0);
+		timelineElementDetails.setNextSourceAttemptsMade(0);
+		timelineElementDetails.nextLastAttemptMadeForSource(OffsetDateTime.now());
+		timelineElementDetails.setNextLastAttemptMadeForSource(OffsetDateTime.now());
+		timelineElementDetails.responseStatus(ResponseStatus.OK);
+		timelineElementDetails.setResponseStatus(ResponseStatus.OK);
+
+		Assertions.assertNotNull(timelineElementDetails.getResponseStatus());
+		Assertions.assertNotNull(timelineElementDetails.getNextLastAttemptMadeForSource());
+		Assertions.assertNotNull(timelineElementDetails.getNextSourceAttemptsMade());
+		Assertions.assertNotNull(timelineElementDetails.getNextDigitalAddressSource());
+		Assertions.assertNotNull(timelineElementDetails.getRetryNumber());
+		Assertions.assertNotNull(timelineElementDetails.getIoSendMessageResult());
+		Assertions.assertNotNull(timelineElementDetails.getSchedulingDate());
+		Assertions.assertNotNull(timelineElementDetails.getLastAttemptDate());
+		Assertions.assertNotNull(timelineElementDetails.getRefusalReasons());
+		Assertions.assertNotNull(timelineElementDetails.getSendDate());
+		Assertions.assertNotNull(timelineElementDetails.getSentAttemptMade());
+		Assertions.assertNotNull(timelineElementDetails.getContactPhase());
+		Assertions.assertNotNull(timelineElementDetails.getDeliveryMode());
+		Assertions.assertNotNull(timelineElementDetails.getNotificationCost());
+		Assertions.assertNotNull(timelineElementDetails.getDelegateInfo());
+		Assertions.assertNotNull(timelineElementDetails.getOldAddress());
+		Assertions.assertEquals("legalFactId",timelineElementDetails.getLegalFactId());
+		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
+		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
+		Assertions.assertNotNull(timelineElementDetails.getPhysicalAddress());
+		Assertions.assertNotNull(timelineElementDetails.getLegalfactId());
+		Assertions.assertNotNull(timelineElementDetails.getEndWorkflowStatus());
+		Assertions.assertNotNull(timelineElementDetails.getCompletionWorkflowDate());
+		Assertions.assertNotNull(timelineElementDetails.getLegalFactGenerationDate());
+		Assertions.assertNotNull(timelineElementDetails.getDigitalAddress());
+		Assertions.assertNotNull(timelineElementDetails.getDigitalAddressSource());
+		Assertions.assertNotNull(timelineElementDetails.getIsAvailable());
+		Assertions.assertNotNull(timelineElementDetails.getAttemptDate());
+		Assertions.assertNotNull(timelineElementDetails.getEventTimestamp());
+		Assertions.assertNotNull(timelineElementDetails.getRaddType());
+		Assertions.assertNotNull(timelineElementDetails.getRaddTransactionId());
+	}
+
+	@Test
 	void getNotificationRequestStatusByRequestIdREFUSED() {
 		// Given
+
 		InternalNotification notification = newNotification();
 		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 						.status( NotificationStatus.REFUSED )
