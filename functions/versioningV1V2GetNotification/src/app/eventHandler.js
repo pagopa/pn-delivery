@@ -236,7 +236,7 @@ exports.versioning = async (event, context) => {
     const physicalAddress = recipient.physicalAddress
       ? transformPhysicalAddress(recipient.physicalAddress)
       : {};
-    const payment = transformPayment(recipient.payment);
+    const payment = recipient.payment ? transformPayment(recipient.payment) : undefined;
 
     const ret = {
       recipientType: recipientType,
@@ -285,7 +285,8 @@ exports.versioning = async (event, context) => {
       noticeCode: payment.noticeCode,
       creditorTaxId: payment.creditorTaxId,
       noticeCodeAlternative: payment.noticeCodeAlternative,
-      pagoPaForm: {
+      pagoPaForm: payment.pagoPaForm ? 
+      {
         digests: {
           sha256: payment.pagoPaForm.digests.sha256,
         },
@@ -294,7 +295,7 @@ exports.versioning = async (event, context) => {
           key: payment.pagoPaForm.ref.key,
           versionToken: payment.pagoPaForm.ref.versionToken,
         },
-      },
+      } : undefined,
     };
   }
 
