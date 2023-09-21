@@ -4,7 +4,6 @@ import it.pagopa.pn.common.rest.error.v1.dto.ProblemError;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
@@ -29,7 +28,6 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 @Slf4j
 class NotificationReceiverValidationTest {
@@ -279,37 +277,6 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
-  @Disabled
-  void invalidSubject() {
-    // GIVEN
-    InternalNotification internalNotification = new InternalNotification();
-    internalNotification.setIun("IUN");
-    internalNotification.setPaProtocolNumber("protocol_01");
-    internalNotification.setSubject("Subject 01");
-    internalNotification.setCancelledIun("IUN_05");
-    internalNotification.setCancelledIun("IUN_00");
-    internalNotification.setSenderPaId("PA_ID");
-    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
-    internalNotification.setRecipients(Collections.singletonList(
-            NotificationRecipient.builder()
-                    .taxId("Codice Fiscale 01")
-                    .denomination("Nome Cognome/Ragione Sociale")
-                    .internalId( "recipientInternalId" )
-                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                            .type( NotificationDigitalAddress.TypeEnum.PEC )
-                            .address("account@dominio.it")
-                            .build()).build()));
-
-    // WHEN
-    Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
-
-    // THEN
-    assertConstraintViolationPresentByField(errors, "subject");
-    Assertions.assertEquals(1, errors.size());
-  }
-
-  @Test
   void duplicatedRecipientTaxId() {
     // Given
     NewNotificationRequestV21 n = newNotificationDuplicateRecipient();
@@ -474,36 +441,6 @@ class NotificationReceiverValidationTest {
   }
 
 
-  @Test
-  @Disabled
-  void invalidPecAddress() {
-    InternalNotification internalNotification = new InternalNotification();
-    internalNotification.setIun("IUN");
-    internalNotification.setPaProtocolNumber("protocol_01");
-    internalNotification.setSubject("Subject 01");
-    internalNotification.setCancelledIun("IUN_05");
-    internalNotification.setCancelledIun("IUN_00");
-    internalNotification.setSenderPaId("PA_ID");
-    internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
-    internalNotification.setRecipients(Collections.singletonList(
-            NotificationRecipient.builder()
-                    .taxId("Codice Fiscale 01")
-                    .denomination("Nome Cognome/Ragione Sociale")
-                    .internalId( "recipientInternalId" )
-                    .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
-                            .type( NotificationDigitalAddress.TypeEnum.PEC )
-                            .address("account@dominio.it")
-                            .build()).build()));
-    // WHEN
-    Set<ConstraintViolation<InternalNotification>> errors;
-    errors = validator.checkNewNotificationBeforeInsert(internalNotification);
-
-    // THEN
-    assertConstraintViolationPresentByField(errors, "recipients[0].digitalDomicile.address");
-    Assertions.assertEquals(1, errors.size());
-  }
-
-
 
   @Test
   @Disabled
@@ -608,7 +545,6 @@ class NotificationReceiverValidationTest {
             NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
                     .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
                     .digitalDomicile(NotificationDigitalAddress.builder().build()).build());
-    String noticeCode = n.getRecipients().get(0).getPayments().get(0).getPagoPa().getNoticeCode();
 
     // WHEN
     Set<ConstraintViolation<NewNotificationRequestV21>> errors;
