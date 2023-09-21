@@ -12,9 +12,12 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.AttachmentDetails;
 import it.pagopa.pn.delivery.models.internal.notification.DelegateInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRefusedError;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
+import it.pagopa.pn.delivery.models.internal.notification.SendingReceipt;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
@@ -37,12 +40,16 @@ import org.springframework.util.Base64Utils;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
 @WebFluxTest(controllers = {PnSentNotificationsController.class, PnReceivedNotificationsController.class})
@@ -202,68 +209,273 @@ class PnSentReceivedNotificationControllerTest {
 
 	@Test
 	void testTimeLine(){
-		TimelineElementDetails timelineElementDetails = new TimelineElementDetails();
-		timelineElementDetails.setLegalFactId("legalFactId");
-		timelineElementDetails.recIndex(0);
-		timelineElementDetails.oldAddress(new NotificationPhysicalAddress());
-		timelineElementDetails.setOldAddress(new NotificationPhysicalAddress());
-		timelineElementDetails.setNormalizedAddress(new NotificationPhysicalAddress());
-		timelineElementDetails.generatedAarUrl("url");
-		timelineElementDetails.physicalAddress(new NotificationPhysicalAddress());
-		timelineElementDetails.setPhysicalAddress(new NotificationPhysicalAddress());
-		timelineElementDetails.legalfactId("legalFactId");
-		timelineElementDetails.setLegalfactId("legalFactId");
-		timelineElementDetails.endWorkflowStatus(EndWorkflowStatus.SUCCESS);
-		timelineElementDetails.setEndWorkflowStatus(EndWorkflowStatus.FAILURE);
-		timelineElementDetails.completionWorkflowDate(OffsetDateTime.now());
-		timelineElementDetails.setCompletionWorkflowDate(OffsetDateTime.now());
-		timelineElementDetails.legalFactGenerationDate(OffsetDateTime.now());
-		timelineElementDetails.setLegalFactGenerationDate(OffsetDateTime.now());
-		timelineElementDetails.digitalAddress(new it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress());
-		timelineElementDetails.setDigitalAddress(new it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress());
-		timelineElementDetails.digitalAddressSource(DigitalAddressSource.GENERAL);
-		timelineElementDetails.setDigitalAddressSource(DigitalAddressSource.GENERAL);
-		timelineElementDetails.isAvailable(true);
-		timelineElementDetails.setIsAvailable(true);
-		timelineElementDetails.attemptDate(OffsetDateTime.now());
-		timelineElementDetails.setAttemptDate(OffsetDateTime.now());
-		timelineElementDetails.eventTimestamp(OffsetDateTime.now());
-		timelineElementDetails.setEventTimestamp(OffsetDateTime.now());
-		timelineElementDetails.raddType("raddType");
-		timelineElementDetails.setRaddType("raddType");
-		timelineElementDetails.raddTransactionId("id");
-		timelineElementDetails.setRaddTransactionId("id");
-		timelineElementDetails.delegateInfo(new DelegateInfo());
-		timelineElementDetails.setDelegateInfo(new DelegateInfo());
-		timelineElementDetails.setNotificationCost(0L);
-		timelineElementDetails.notificationCost(0L);
-		timelineElementDetails.deliveryMode(DeliveryMode.ANALOG);
-		timelineElementDetails.setDeliveryMode(DeliveryMode.ANALOG);
-		timelineElementDetails.contactPhase(ContactPhase.CHOOSE_DELIVERY);
-		timelineElementDetails.setContactPhase(ContactPhase.CHOOSE_DELIVERY);
-		timelineElementDetails.sentAttemptMade(1);
-		timelineElementDetails.setSentAttemptMade(1);
-		timelineElementDetails.sendDate(OffsetDateTime.now());
-		timelineElementDetails.setSendDate(OffsetDateTime.now());
-		timelineElementDetails.refusalReasons(new ArrayList<>());
-		timelineElementDetails.setRefusalReasons(new ArrayList<>());
-		timelineElementDetails.lastAttemptDate(OffsetDateTime.now());
-		timelineElementDetails.setLastAttemptDate(OffsetDateTime.now());
-		timelineElementDetails.schedulingDate(OffsetDateTime.now());
-		timelineElementDetails.setSchedulingDate(OffsetDateTime.now());
-		timelineElementDetails.ioSendMessageResult(IoSendMessageResult.NOT_SENT_OPTIN_ALREADY_SENT);
-		timelineElementDetails.setIoSendMessageResult(IoSendMessageResult.NOT_SENT_OPTIN_ALREADY_SENT);
-		timelineElementDetails.retryNumber(0);
-		timelineElementDetails.setRetryNumber(0);
-		timelineElementDetails.nextDigitalAddressSource(DigitalAddressSource.GENERAL);
-		timelineElementDetails.setNextDigitalAddressSource(DigitalAddressSource.GENERAL);
-		timelineElementDetails.nextSourceAttemptsMade(0);
-		timelineElementDetails.setNextSourceAttemptsMade(0);
-		timelineElementDetails.nextLastAttemptMadeForSource(OffsetDateTime.now());
-		timelineElementDetails.setNextLastAttemptMadeForSource(OffsetDateTime.now());
-		timelineElementDetails.responseStatus(ResponseStatus.OK);
-		timelineElementDetails.setResponseStatus(ResponseStatus.OK);
+		TimelineElementDetails actualTimelineElementDetails = new TimelineElementDetails();
+		actualTimelineElementDetails.aarKey("Aar Key");
+		actualTimelineElementDetails.amount(10);
+		actualTimelineElementDetails.analogCost(1);
+		ArrayList<AttachmentDetails> attachments = new ArrayList<>();
+		actualTimelineElementDetails.attachments(attachments);
+		actualTimelineElementDetails
+				.attemptDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails
+				.completionWorkflowDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails.contactPhase(ContactPhase.CHOOSE_DELIVERY);
+		actualTimelineElementDetails.creditorTaxId("42");
+		DelegateInfo delegateInfo = new DelegateInfo("42", "42", "01234567-89AB-CDEF-FEDC-BA9876543210", "2020-03-01",
+				"Denomination", NotificationRecipientV21.RecipientTypeEnum.PF);
 
+		actualTimelineElementDetails.delegateInfo(delegateInfo);
+		actualTimelineElementDetails.deliveryDetailCode("Delivery Detail Code");
+		actualTimelineElementDetails.deliveryFailureCause("Delivery Failure Cause");
+		actualTimelineElementDetails.deliveryMode(DeliveryMode.DIGITAL);
+		it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress digitalAddress = new it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress(
+				it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress.TypeEnum.PEC, "42 Main St");
+
+		actualTimelineElementDetails.digitalAddress(digitalAddress);
+		actualTimelineElementDetails.digitalAddressSource(DigitalAddressSource.PLATFORM);
+		actualTimelineElementDetails.endWorkflowStatus(EndWorkflowStatus.SUCCESS);
+		actualTimelineElementDetails.envelopeWeight(3);
+		actualTimelineElementDetails
+				.eventTimestamp(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails.generatedAarUrl("https://example.org/example");
+		actualTimelineElementDetails.idF24("Id F24");
+		actualTimelineElementDetails.ioSendMessageResult(IoSendMessageResult.NOT_SENT_OPTIN_ALREADY_SENT);
+		actualTimelineElementDetails
+				.lastAttemptDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails
+				.legalFactGenerationDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails.legalFactId("42");
+		actualTimelineElementDetails.legalfactId("42");
+		NotificationPhysicalAddress newAddress = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St", "21654",
+				"Municipality", "Municipality Details", "Province", "Foreign State");
+
+		actualTimelineElementDetails.newAddress(newAddress);
+		actualTimelineElementDetails.nextDigitalAddressSource(DigitalAddressSource.PLATFORM);
+		actualTimelineElementDetails
+				.nextLastAttemptMadeForSource(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails.nextSourceAttemptsMade(1);
+		NotificationPhysicalAddress normalizedAddress = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St",
+				"21654", "Municipality", "Municipality Details", "Province", "Foreign State");
+
+		actualTimelineElementDetails.normalizedAddress(normalizedAddress);
+		actualTimelineElementDetails.noticeCode("Notice Code");
+		actualTimelineElementDetails.notificationCost(1L);
+		actualTimelineElementDetails
+				.notificationDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails.numberOfPages(10);
+		NotificationPhysicalAddress oldAddress = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St", "21654",
+				"Municipality", "Municipality Details", "Province", "Foreign State");
+
+		actualTimelineElementDetails.oldAddress(oldAddress);
+		actualTimelineElementDetails.paymentSourceChannel("Payment Source Channel");
+		NotificationPhysicalAddress physicalAddress = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St",
+				"21654", "Municipality", "Municipality Details", "Province", "Foreign State");
+
+		actualTimelineElementDetails.physicalAddress(physicalAddress);
+		actualTimelineElementDetails.prepareRequestId("42");
+		actualTimelineElementDetails.productType("Product Type");
+		actualTimelineElementDetails.raddTransactionId("42");
+		actualTimelineElementDetails.raddType("Radd Type");
+		actualTimelineElementDetails.reason("Just cause");
+		actualTimelineElementDetails.reasonCode("Just cause");
+		actualTimelineElementDetails.recIndex(1);
+		actualTimelineElementDetails.recipientType(NotificationRecipientV21.RecipientTypeEnum.PF);
+		ArrayList<NotificationRefusedError> refusalReasons = new ArrayList<>();
+		actualTimelineElementDetails.refusalReasons(refusalReasons);
+		actualTimelineElementDetails.registeredLetterCode("Registered Letter Code");
+		actualTimelineElementDetails.relatedRequestId("42");
+		actualTimelineElementDetails.responseStatus(ResponseStatus.OK);
+		actualTimelineElementDetails.retryNumber(10);
+		actualTimelineElementDetails
+				.schedulingAnalogDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails
+				.schedulingDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails
+				.sendDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails.sendRequestId("42");
+		ArrayList<SendingReceipt> sendingReceipts = new ArrayList<>();
+		actualTimelineElementDetails.sendingReceipts(sendingReceipts);
+		actualTimelineElementDetails.sentAttemptMade(1);
+		actualTimelineElementDetails.serviceLevel(ServiceLevel.AR_REGISTERED_LETTER);
+		actualTimelineElementDetails.setAarKey("Aar Key");
+		actualTimelineElementDetails.setAmount(10);
+		actualTimelineElementDetails.setAnalogCost(1);
+		ArrayList<AttachmentDetails> attachments2 = new ArrayList<>();
+		actualTimelineElementDetails.setAttachments(attachments2);
+		OffsetDateTime attemptDate = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC);
+		actualTimelineElementDetails.setAttemptDate(attemptDate);
+		OffsetDateTime completionWorkflowDate = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT,
+				ZoneOffset.UTC);
+		actualTimelineElementDetails.setCompletionWorkflowDate(completionWorkflowDate);
+		actualTimelineElementDetails.setContactPhase(ContactPhase.CHOOSE_DELIVERY);
+		actualTimelineElementDetails.setCreditorTaxId("42");
+		DelegateInfo delegateInfo2 = new DelegateInfo("42", "42", "01234567-89AB-CDEF-FEDC-BA9876543210", "2020-03-01",
+				"Denomination", NotificationRecipientV21.RecipientTypeEnum.PF);
+
+		actualTimelineElementDetails.setDelegateInfo(delegateInfo2);
+		actualTimelineElementDetails.setDeliveryDetailCode("Delivery Detail Code");
+		actualTimelineElementDetails.setDeliveryFailureCause("Delivery Failure Cause");
+		actualTimelineElementDetails.setDeliveryMode(DeliveryMode.DIGITAL);
+		it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress digitalAddress2 = new it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress(
+				it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress.TypeEnum.PEC, "42 Main St");
+
+		actualTimelineElementDetails.setDigitalAddress(digitalAddress2);
+		actualTimelineElementDetails.setDigitalAddressSource(DigitalAddressSource.PLATFORM);
+		actualTimelineElementDetails.setEndWorkflowStatus(EndWorkflowStatus.SUCCESS);
+		actualTimelineElementDetails.setEnvelopeWeight(3);
+		OffsetDateTime eventTimestamp = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC);
+		actualTimelineElementDetails.setEventTimestamp(eventTimestamp);
+		actualTimelineElementDetails.setGeneratedAarUrl("https://example.org/example");
+		actualTimelineElementDetails.setIdF24("Id F24");
+		actualTimelineElementDetails.setIoSendMessageResult(IoSendMessageResult.NOT_SENT_OPTIN_ALREADY_SENT);
+		actualTimelineElementDetails.setIsAvailable(true);
+		OffsetDateTime lastAttemptDate = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC);
+		actualTimelineElementDetails.setLastAttemptDate(lastAttemptDate);
+		OffsetDateTime legalFactGenerationDate = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT,
+				ZoneOffset.UTC);
+		actualTimelineElementDetails.setLegalFactGenerationDate(legalFactGenerationDate);
+		actualTimelineElementDetails.setLegalFactId("42");
+		actualTimelineElementDetails.setLegalfactId("42");
+		NotificationPhysicalAddress newAddress2 = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St", "21654",
+				"Municipality", "Municipality Details", "Province", "Foreign State");
+
+		actualTimelineElementDetails.setNewAddress(newAddress2);
+		actualTimelineElementDetails.setNextDigitalAddressSource(DigitalAddressSource.PLATFORM);
+		OffsetDateTime nextLastAttemptMadeForSource = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT,
+				ZoneOffset.UTC);
+		actualTimelineElementDetails.setNextLastAttemptMadeForSource(nextLastAttemptMadeForSource);
+		actualTimelineElementDetails.setNextSourceAttemptsMade(1);
+		NotificationPhysicalAddress normalizedAddress2 = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St",
+				"21654", "Municipality", "Municipality Details", "Province", "Foreign State");
+
+		actualTimelineElementDetails.setNormalizedAddress(normalizedAddress2);
+		actualTimelineElementDetails.setNoticeCode("Notice Code");
+		actualTimelineElementDetails.setNotificationCost(1L);
+		OffsetDateTime notificationDate = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC);
+		actualTimelineElementDetails.setNotificationDate(notificationDate);
+		actualTimelineElementDetails.setNotificationPhysicalAddress(new NotificationPhysicalAddress("At", "42 Main St",
+				"42 Main St", "21654", "Municipality", "Municipality Details", "Province", "Foreign State"));
+		actualTimelineElementDetails.setNumberOfPages(10);
+		NotificationPhysicalAddress oldAddress2 = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St", "21654",
+				"Municipality", "Municipality Details", "Province", "Foreign State");
+
+		actualTimelineElementDetails.setOldAddress(oldAddress2);
+		actualTimelineElementDetails.setPaymentSourceChannel("Payment Source Channel");
+		actualTimelineElementDetails.setPrepareRequestId("42");
+		actualTimelineElementDetails.setProductType("Product Type");
+		actualTimelineElementDetails.setRaddTransactionId("42");
+		actualTimelineElementDetails.setRaddType("Radd Type");
+		actualTimelineElementDetails.setReason("Just cause");
+		actualTimelineElementDetails.setReasonCode("Just cause");
+		actualTimelineElementDetails.setRecIndex(1);
+		actualTimelineElementDetails.setRecipientType(NotificationRecipientV21.RecipientTypeEnum.PF);
+		ArrayList<NotificationRefusedError> refusalReasons2 = new ArrayList<>();
+		actualTimelineElementDetails.setRefusalReasons(refusalReasons2);
+		actualTimelineElementDetails.setRegisteredLetterCode("Registered Letter Code");
+		actualTimelineElementDetails.setRelatedRequestId("42");
+		actualTimelineElementDetails.setResponseStatus(ResponseStatus.OK);
+		actualTimelineElementDetails.setRetryNumber(10);
+		actualTimelineElementDetails
+				.setSchedulingAnalogDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails
+				.setSchedulingDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails
+				.setSendDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
+		actualTimelineElementDetails.setSendRequestId("42");
+		ArrayList<SendingReceipt> sendingReceipts2 = new ArrayList<>();
+		actualTimelineElementDetails.setSendingReceipts(sendingReceipts2);
+		actualTimelineElementDetails.setSentAttemptMade(1);
+		actualTimelineElementDetails.setServiceLevel(ServiceLevel.AR_REGISTERED_LETTER);
+		actualTimelineElementDetails.setShouldRetry(true);
+		actualTimelineElementDetails.setUncertainPaymentDate(true);
+		actualTimelineElementDetails.shouldRetry(true);
+		actualTimelineElementDetails.uncertainPaymentDate(true);
+		testingTimeLine(actualTimelineElementDetails);
+		testingTimeLine1(actualTimelineElementDetails);
+		testingTimeLine2(actualTimelineElementDetails);
+		testingTimeLine3(actualTimelineElementDetails);
+	}
+
+	void testingTimeLine3(TimelineElementDetails actualTimelineElementDetails){
+		assertNotNull(actualTimelineElementDetails.getLegalFactGenerationDate());
+		assertEquals("42", actualTimelineElementDetails.getLegalFactId());
+		assertEquals("42", actualTimelineElementDetails.getLegalfactId());
+		NotificationPhysicalAddress newAddress3 = actualTimelineElementDetails.getNewAddress();
+		NotificationPhysicalAddress normalizedAddress3 = actualTimelineElementDetails.getNormalizedAddress();
+		assertEquals(normalizedAddress3, newAddress3);
+		NotificationPhysicalAddress oldAddress3 = actualTimelineElementDetails.getOldAddress();
+		assertEquals(oldAddress3, newAddress3);
+		NotificationPhysicalAddress physicalAddress2 = actualTimelineElementDetails.getPhysicalAddress();
+		assertEquals(physicalAddress2, newAddress3);
+		assertEquals(DigitalAddressSource.PLATFORM, actualTimelineElementDetails.getNextDigitalAddressSource());
+		assertNotNull(actualTimelineElementDetails.getNextLastAttemptMadeForSource());
+		assertEquals(1, actualTimelineElementDetails.getNextSourceAttemptsMade().intValue());
+		assertEquals(oldAddress3, normalizedAddress3);
+		assertEquals(physicalAddress2, normalizedAddress3);
+		assertEquals(1L, actualTimelineElementDetails.getNotificationCost().longValue());
+		assertNotNull(actualTimelineElementDetails.getNotificationDate());
+		assertSame(physicalAddress2, actualTimelineElementDetails.getNotificationPhysicalAddress());
+		assertEquals(10, actualTimelineElementDetails.getNumberOfPages().intValue());
+		assertEquals(physicalAddress2, oldAddress3);
+		assertEquals("Payment Source Channel", actualTimelineElementDetails.getPaymentSourceChannel());
+		assertEquals("42", actualTimelineElementDetails.getPrepareRequestId());
+		assertEquals("Product Type", actualTimelineElementDetails.getProductType());
+		assertEquals("42", actualTimelineElementDetails.getRaddTransactionId());
+		assertEquals("Radd Type", actualTimelineElementDetails.getRaddType());
+		assertEquals("Just cause", actualTimelineElementDetails.getReason());
+		assertEquals("Just cause", actualTimelineElementDetails.getReasonCode());
+		assertEquals(1, actualTimelineElementDetails.getRecIndex().intValue());
+		assertEquals(NotificationRecipientV21.RecipientTypeEnum.PF, actualTimelineElementDetails.getRecipientType());
+	}
+
+	void testingTimeLine2(TimelineElementDetails actualTimelineElementDetails){
+		assertEquals("Aar Key", actualTimelineElementDetails.getAarKey());
+		assertEquals(10, actualTimelineElementDetails.getAmount().intValue());
+		assertEquals(1, actualTimelineElementDetails.getAnalogCost().intValue());
+		assertNotNull(actualTimelineElementDetails.getAttemptDate());
+		assertNotNull(actualTimelineElementDetails.getCompletionWorkflowDate());
+		assertEquals(ContactPhase.CHOOSE_DELIVERY, actualTimelineElementDetails.getContactPhase());
+		assertEquals("42", actualTimelineElementDetails.getCreditorTaxId());
+		assertEquals("Delivery Detail Code", actualTimelineElementDetails.getDeliveryDetailCode());
+		assertEquals("Delivery Failure Cause", actualTimelineElementDetails.getDeliveryFailureCause());
+		assertEquals(DeliveryMode.DIGITAL, actualTimelineElementDetails.getDeliveryMode());
+		it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress digitalAddress3 = actualTimelineElementDetails.getDigitalAddress();
+		assertEquals(DigitalAddressSource.PLATFORM, actualTimelineElementDetails.getDigitalAddressSource());
+		assertEquals(EndWorkflowStatus.SUCCESS, actualTimelineElementDetails.getEndWorkflowStatus());
+		assertEquals(3, actualTimelineElementDetails.getEnvelopeWeight().intValue());
+		assertNotNull(actualTimelineElementDetails.getEventTimestamp());
+		assertEquals("https://example.org/example", actualTimelineElementDetails.getGeneratedAarUrl());
+		assertEquals("Id F24", actualTimelineElementDetails.getIdF24());
+		assertEquals(IoSendMessageResult.NOT_SENT_OPTIN_ALREADY_SENT,
+				actualTimelineElementDetails.getIoSendMessageResult());
+		assertTrue(actualTimelineElementDetails.getIsAvailable());
+		assertNotNull(actualTimelineElementDetails.getLastAttemptDate());
+		assertEquals("Registered Letter Code", actualTimelineElementDetails.getRegisteredLetterCode());
+		assertEquals("42", actualTimelineElementDetails.getRelatedRequestId());
+		TimelineElementDetails actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
+		assertSame(actualTimelineElementDetails, actualIsAvailableResult);
+		assertEquals("Notice Code", actualTimelineElementDetails.getNoticeCode());
+	}
+
+	void testingTimeLine1(TimelineElementDetails timelineElementDetails){
+		Assertions.assertNotNull(timelineElementDetails.getLegalFactId());
+		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
+		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
+		Assertions.assertNotNull(timelineElementDetails.getPhysicalAddress());
+		Assertions.assertNotNull(timelineElementDetails.getLegalfactId());
+		Assertions.assertNotNull(timelineElementDetails.getEndWorkflowStatus());
+		Assertions.assertNotNull(timelineElementDetails.getCompletionWorkflowDate());
+		Assertions.assertNotNull(timelineElementDetails.getLegalFactGenerationDate());
+		Assertions.assertNotNull(timelineElementDetails.getDigitalAddress());
+		Assertions.assertNotNull(timelineElementDetails.getDigitalAddressSource());
+		Assertions.assertNotNull(timelineElementDetails.getIsAvailable());
+		Assertions.assertNotNull(timelineElementDetails.getAttemptDate());
+		Assertions.assertNotNull(timelineElementDetails.getEventTimestamp());
+		Assertions.assertNotNull(timelineElementDetails.getRaddType());
+		Assertions.assertNotNull(timelineElementDetails.getRaddTransactionId());
+	}
+
+	void testingTimeLine(TimelineElementDetails timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getResponseStatus());
 		Assertions.assertNotNull(timelineElementDetails.getNextLastAttemptMadeForSource());
 		Assertions.assertNotNull(timelineElementDetails.getNextSourceAttemptsMade());
@@ -280,21 +492,6 @@ class PnSentReceivedNotificationControllerTest {
 		Assertions.assertNotNull(timelineElementDetails.getNotificationCost());
 		Assertions.assertNotNull(timelineElementDetails.getDelegateInfo());
 		Assertions.assertNotNull(timelineElementDetails.getOldAddress());
-		Assertions.assertEquals("legalFactId",timelineElementDetails.getLegalFactId());
-		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
-		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
-		Assertions.assertNotNull(timelineElementDetails.getPhysicalAddress());
-		Assertions.assertNotNull(timelineElementDetails.getLegalfactId());
-		Assertions.assertNotNull(timelineElementDetails.getEndWorkflowStatus());
-		Assertions.assertNotNull(timelineElementDetails.getCompletionWorkflowDate());
-		Assertions.assertNotNull(timelineElementDetails.getLegalFactGenerationDate());
-		Assertions.assertNotNull(timelineElementDetails.getDigitalAddress());
-		Assertions.assertNotNull(timelineElementDetails.getDigitalAddressSource());
-		Assertions.assertNotNull(timelineElementDetails.getIsAvailable());
-		Assertions.assertNotNull(timelineElementDetails.getAttemptDate());
-		Assertions.assertNotNull(timelineElementDetails.getEventTimestamp());
-		Assertions.assertNotNull(timelineElementDetails.getRaddType());
-		Assertions.assertNotNull(timelineElementDetails.getRaddTransactionId());
 	}
 
 	@Test
