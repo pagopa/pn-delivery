@@ -9,7 +9,6 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,6 @@ import java.util.Optional;
 })
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
-@Disabled
 class NotificationEntityDaoDynamoTestIT {
 
     @Autowired
