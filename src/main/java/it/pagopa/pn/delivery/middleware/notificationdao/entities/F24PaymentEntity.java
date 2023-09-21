@@ -50,7 +50,7 @@ public class F24PaymentEntity {
         this.index = index;
     }
 
-    public void setPagoPaPaymentEntity(MetadataAttachmentEntity metadataAttachment) {
+    public void setMetadataAttachment(MetadataAttachmentEntity metadataAttachment) {
         this.metadataAttachment = metadataAttachment;
     }
 }

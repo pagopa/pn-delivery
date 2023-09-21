@@ -60,7 +60,7 @@ class EntityToDtoNotificationMapperTest {
         metadataAttachment.setNotificationAttachmentDigestsEntity(notificationAttachmentDigestsEntity);
         metadataAttachment.setNotificationAttachmentBodyRefEntity(notificationAttachmentBodyRefEntity);
         metadataAttachment.setContentType("application/pdf");
-        f24PaymentEntity.setPagoPaPaymentEntity(metadataAttachment);
+        f24PaymentEntity.setMetadataAttachment(metadataAttachment);
 
         PagoPaPaymentEntity pagoPaPaymentEntity = new PagoPaPaymentEntity();
         pagoPaPaymentEntity.setContentType("application/pdf");
