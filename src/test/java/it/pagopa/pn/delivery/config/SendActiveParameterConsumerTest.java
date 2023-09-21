@@ -10,8 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
-@TestPropertySource(properties = { "pn.delivery.features.is-send-active-default-value=true"})
-@SpringBootTest
 class SendActiveParameterConsumerTest {
 
     public static final String PA_TAX_ID_ACTIVE = "80016350821";
@@ -25,15 +23,6 @@ class SendActiveParameterConsumerTest {
     void setup() {
         this.parameterConsumer = Mockito.mock( ParameterConsumer.class );
         this.sendActiveParameterConsumer = new SendActiveParameterConsumer(parameterConsumer);
-    }
-
-    @Test
-    @Disabled
-    void isSendActive1() {
-        Mockito.when( parameterConsumer.getParameterValue( Mockito.anyString(), Mockito.any() ) )
-                .thenReturn( Optional.empty() );
-
-        Assertions.assertTrue( sendActiveParameterConsumer.isSendActive( PA_TAX_ID_ACTIVE ) );
     }
 
     @Test
