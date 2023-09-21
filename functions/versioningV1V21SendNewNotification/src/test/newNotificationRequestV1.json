@@ -25,7 +25,7 @@
       "payment": {
         "noticeCode": "302000100000019421",
         "creditorTaxId": "77777777777",
-        "noticeCodeAlternative": "302000100000019421",
+        "noticeCodeAlternative": "302000100000019422",
         "pagoPaForm": {
           "digests": {
             "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="

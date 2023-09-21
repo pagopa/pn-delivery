@@ -11,5 +11,14 @@ describe('RequestHelper Testing', () => {
             expect(newNotificationRequestV21).to.not.be.null;
             expect(newNotificationRequestV21).to.not.be.undefined; 
         });
+
+        it('should return newNotificationRequestV21 without payments', async () => {
+            const newNotificationRequestV21JSON = fs.readFileSync("./src/test/newNotificationRequestV1.json");
+            let newNotificationRequestV1 = JSON.parse(newNotificationRequestV21JSON);
+            newNotificationRequestV1.recipients[0].payment = null;
+            const newNotificationRequestV21 = createNewNotificationRequesV21(newNotificationRequestV1);
+            expect(newNotificationRequestV21).to.not.be.null;
+            expect(newNotificationRequestV21).to.not.be.undefined; 
+        });
     });
 });

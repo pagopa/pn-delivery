@@ -17,6 +17,23 @@ exports.generateResponse = function(errorDetails, statusCode, headers){
   }
 }
 
+exports.validateNewNotification = function(newNotificationRequestV1){
+  console.log("validateNewNotification - newNotificationRequestV1 ", newNotificationRequestV1);
+  const errors = []
+
+  newNotificationRequestV1.recipients.forEach(recipient => {
+    if (recipient.payment && recipient.payment.noticeCodeAlternative && recipient.payment.noticeCodeAlternative == recipient.payment.noticeCode) {
+      console.log("noticeCodeAlternative ", recipient.payment.noticeCodeAlternative)
+      console.log("noticeCode ", recipient.payment.noticeCode)
+
+      errors.push('Alternative notice code equals to notice code')
+      return errors
+    }
+  });
+  
+  return errors;
+}
+
 function fromRecipientV1ToRecipientV21(recipientV1) {
   console.log("fromRecipientV1ToRecipientV21 - recipientV1 ", recipientV1)
   
@@ -30,8 +47,11 @@ function fromRecipientV1ToRecipientV21(recipientV1) {
     taxId: recipientV1.taxId,
     denomination: recipientV1.denomination,
     digitalDomicile: digitalDomicileV21,
-    physicalAddress: physicalAddressV21,
-    payments: paymentsV21,
+    physicalAddress: physicalAddressV21
+  }
+
+  if (paymentsV21) {
+    recipientV21.payments = paymentsV21;
   }
   
   console.log("fromRecipientV1ToRecipientV21 - recipientV21 ", recipientV21);
@@ -63,6 +83,7 @@ function createPhysicalAddress(physicalAddress) {
 }
 
 function fromPaymentV1toPaymentsV21(paymentV1) {
+  if (!paymentV1) return null;
   console.log("fromPaymentV1toPaymentsV21 - paymentV1 ", paymentV1);
   
   const paymentAttachment = fromPagoPaFormToPaymentAttachment(paymentV1.pagoPaForm)

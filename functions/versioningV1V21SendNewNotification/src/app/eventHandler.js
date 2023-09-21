@@ -1,4 +1,4 @@
-const { validateRequest, generateResponse, createNewNotificationRequesV21 } = require('./requestHelper')
+const { validateRequest, generateResponse, validateNewNotification, createNewNotificationRequesV21 } = require('./requestHelper')
 
 exports.handleEvent = async (event) => {
     console.log('event', event)
@@ -8,17 +8,18 @@ exports.handleEvent = async (event) => {
         return generateResponse({ resultCode: '404.00', resultDescription: 'Not found', errorList: isRequestValid }, 404, {})
     }
 
-    /* const eventValidationErrors = validateNewNotification(event.body)
-    if(eventValidationErrors.length>0){
+    const eventValidationErrors = validateNewNotification(event.body)
+    console.log("eventValidationErrors ", eventValidationErrors)
+    if(eventValidationErrors.length > 0){
         return generateResponse({ resultCode: '400.00', resultDescription: 'Validation error', errorList: eventValidationErrors }, 400, {})
-    } */
+    }
 
     console.log("Versioning_V1-V21_SendNewNotification_Lambda function started");
 
     var newNotificationRequestV21 = createNewNotificationRequesV21(event.body);
 
     // post verso pn-delivery
-    const url = process.env.PN_DELIVERY_URL.concat('/requests');
+    const url = process.env.PN_DELIVERY_URL.concat('/delivery/requests');
 
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -55,7 +56,7 @@ exports.handleEvent = async (event) => {
         headers: headers
     })
       .then(response => {
-          console.log('Response: ' + response);
+          console.log('Response: ' + JSON.stringify(response));
           return response;
       });
 
