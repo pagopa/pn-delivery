@@ -230,13 +230,9 @@ exports.versioning = async (event, context) => {
 
     const taxId = recipient.taxId;
     const denomination = recipient.denomination;
-    const digitalDomicile = recipient.digitalDomicile
-      ? transformDigitalAddress(recipient.digitalDomicile)
-      : null;
-    const physicalAddress = recipient.physicalAddress
-      ? transformPhysicalAddress(recipient.physicalAddress)
-      : {};
-    const payment = transformPayment(recipient.payment);
+    const digitalDomicile = recipient.digitalDomicile ? transformDigitalAddress(recipient.digitalDomicile) : undefined;
+    const physicalAddress = recipient.physicalAddress ? transformPhysicalAddress(recipient.physicalAddress) : undefined;
+    const payment = recipient.payment ? transformPayment(recipient.payment) : undefined;
 
     const ret = {
       recipientType: recipientType,
@@ -285,29 +281,30 @@ exports.versioning = async (event, context) => {
       noticeCode: payment.noticeCode,
       creditorTaxId: payment.creditorTaxId,
       noticeCodeAlternative: payment.noticeCodeAlternative,
-      pagoPaForm: {
+      pagoPaForm: payment.pagoPaForm ? 
+      {
         digests: {
-          sha256: payment.pagoPaForm.digests.sha256,
+          sha256: payment.pagoPaForm.digests?.sha256,
         },
         contentType: payment.pagoPaForm.contentType,
         ref: {
           key: payment.pagoPaForm.ref.key,
-          versionToken: payment.pagoPaForm.ref.versionToken,
+          versionToken: payment.pagoPaForm.ref?.versionToken,
         },
-      },
+      } : undefined,
     };
   }
 
   function transformNotificationDocument(doc) {
     const digests = {
-      sha256: doc.digests.sha256,
+      sha256: doc.digests?.sha256,
     };
 
     const contentType = doc.contentType;
-    const ref = {
+    const ref = doc.ref ? {
       key: doc.ref.key,
       versionToken: doc.ref.versionToken,
-    };
+    } : undefined;
     const title = doc.title;
     const docIdx = doc.docIdx;
 
