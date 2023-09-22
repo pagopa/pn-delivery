@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: pfMN2XMwHGIeHWT9ykmQHU4I+ueCSPEfWuLETzUgSDI=
+  version: faa0DlCpnk8F8xHF8w4wn1LWKq3go/6Bzr9rHaaxR4Y=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1305,6 +1305,29 @@ components:
       schema:
         type: string
         format: uuid
+    legalFactsSearchMandateId:
+      name: mandateId
+      in: query
+      required: false
+      description: identificativo della delega
+      schema:
+        type: string
+    pathDocumentType:
+      description: Categoria documento
+      name: documentType
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/DocumentCategory'
+    queryDocumentId:
+      description: Identificativo del documento
+      name: documentId
+      in: query
+      required: true
+      schema:
+        type: string
+        pattern: ^(safestorage:\/\/)?[A-Za-z0-9._-]+$
+        maxLength: 512
     notificationSearchMandateId:
       name: mandateId
       in: query
@@ -4240,6 +4263,37 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElementV20'
+    DocumentDownloadMetadataResponse:
+      title: Url e metadati per il download di un documento correlato alla notifica
+      description: |-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentLength
+      properties:
+        filename:
+          type: string
+        contentLength:
+          type: number
+          format: decimal32
+          example: 54092
+          description: dmensione, in byte, del contenuto.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
+        retryAfter:
+          type: number
+          format: decimal32
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia scaricabile.
     RequestCheckAarMandateDto:
       description: Le informazioni fornite per verificare l'AAR-QR-CodeValue
       type: object
@@ -4265,6 +4319,12 @@ components:
         mandateId:
           description: identificativo della delega
           type: string
+    DocumentCategory:
+      title: Tipi di documenti
+      description: Tipologie di documenti
+      type: string
+      enum:
+        - AAR
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid

@@ -49,6 +49,12 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f72047ed7caa661192ce2bee8188e8a668a1640d/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactType'
     pathLegalFactId:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f72047ed7caa661192ce2bee8188e8a668a1640d/docs/openapi/api-internal-pn-delivery-push.yaml#/components/parameters/pathLegalFactId'
+    legalFactsSearchMandateId:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f72047ed7caa661192ce2bee8188e8a668a1640d/docs/openapi/api-private.yaml#/components/parameters/legalFactsSearchMandateId'
+    pathDocumentType:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f72047ed7caa661192ce2bee8188e8a668a1640d/docs/openapi/api-private.yaml#/components/parameters/pathDocumentType'
+    queryDocumentId:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f72047ed7caa661192ce2bee8188e8a668a1640d/docs/openapi/api-private.yaml#/components/parameters/queryDocumentId'
 
 
   schemas:
@@ -69,6 +75,8 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f72047ed7caa661192ce2bee8188e8a668a1640d/docs/openapi/schemas-pn-legal-facts.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
     RequestStatus:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f72047ed7caa661192ce2bee8188e8a668a1640d/docs/openapi/api-internal-pn-delivery-push.yaml#/components/schemas/RequestStatus'
+    DocumentDownloadMetadataResponse:
+      $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/f72047ed7caa661192ce2bee8188e8a668a1640d/docs/openapi/api-private.yaml#/components/schemas/DocumentDownloadMetadataResponse'
     ############################################################################################
     ###                          STRUTTURE DATI DI PN-COMMONS                                ###
     ############################################################################################
