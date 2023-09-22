@@ -14,7 +14,18 @@ public class NotificationPaymentInfoEntity {
 
     private String noticeCode;
     private String creditorTaxId;
-    private PaymentAttachmentEntity pagoPaForm;
+    private boolean applyCost;
+    private PagoPaPaymentEntity pagoPaForm;
+    private F24PaymentEntity f24;
+
+    @DynamoDbAttribute(value = "applyCost")
+    public boolean isApplyCost() {
+        return applyCost;
+    }
+
+    public void setApplyCost(boolean applyCost) {
+        this.applyCost = applyCost;
+    }
 
     @DynamoDbAttribute(value = "noticeCode")
     public String getNoticeCode() {
@@ -35,11 +46,23 @@ public class NotificationPaymentInfoEntity {
     }
 
     @DynamoDbAttribute(value = "pagoPaForm")
-    public PaymentAttachmentEntity getPagoPaForm() {
+    public PagoPaPaymentEntity getPagoPaForm() {
         return pagoPaForm;
     }
 
-    public void setPagoPaForm(PaymentAttachmentEntity pagoPaForm) {
+    public void setPagoPaForm(PagoPaPaymentEntity pagoPaForm) {
         this.pagoPaForm = pagoPaForm;
     }
+
+    @DynamoDbAttribute(value = "F24")
+    public F24PaymentEntity getF24() {
+        return f24;
+    }
+
+    public void setF24(F24PaymentEntity f24) {
+        this.f24 = f24;
+    }
+
+
+
 }

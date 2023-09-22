@@ -131,7 +131,7 @@ public class NotificationPriceService {
                     && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()
                     && (((PnHttpResponseException) exc).getProblem().getErrors().get(0).getCode().equals(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED))) {
 
-                    throw new PnNotificationCancelledException("Cannot retrive price for cancelled notification", exc);
+                throw new PnNotificationCancelledException("Cannot retrive price for cancelled notification", exc);
             }
 
             throw exc;
@@ -182,7 +182,15 @@ public class NotificationPriceService {
                 .orElseThrow(() -> new PnNotificationNotFoundException(String.format("Notification with IUN: %s not found", iun)));
 
         notification.getRecipients().stream()
-                .filter(recipient -> recipient.getPayment() != null)
-                .forEach(recipient -> notificationCostEntityDao.deleteWithCheckIun(recipient.getPayment().getCreditorTaxId(), recipient.getPayment().getNoticeCode(), iun));
+                .filter(recipient -> recipient.getPayments() != null)
+                .forEach(recipient ->
+                        recipient.getPayments()
+                                .stream()
+                                .filter(notificationPaymentInfo ->
+                                        notificationPaymentInfo.getPagoPa() != null
+                                )
+                                .forEach(notificationPaymentInfo ->
+                                        notificationCostEntityDao.deleteWithCheckIun(notificationPaymentInfo.getPagoPa().getCreditorTaxId(), notificationPaymentInfo.getPagoPa().getNoticeCode(), iun)
+                                ));
     }
 }

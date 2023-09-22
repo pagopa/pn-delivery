@@ -86,7 +86,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /requests:
+  /v2.1/requests:
     post:
       summary: Richiesta invio notifica
       description: >-
@@ -106,12 +106,12 @@ paths:
         prevista dai webhook. <br/>
       tags:
         - NewNotification
-      operationId: sendNewNotification
+      operationId: sendNewNotificationV21
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewNotificationRequest'
+              $ref: '#/components/schemas/NewNotificationRequestV21'
         required: true
       responses:
         '202':
@@ -143,7 +143,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -161,7 +161,7 @@ paths:
         type: http_proxy
       parameters: []
     get:
-      operationId: retrieveNotificationRequestStatus
+      operationId: retrieveNotificationRequestStatusV21
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -180,7 +180,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NewNotificationRequestStatusResponse'
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV21'
         '400':
           description: Bad request
           content:
@@ -204,7 +204,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -221,10 +221,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /requests API CORS
+      operationId: Options for /v2.1/requests API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
@@ -232,7 +232,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.0/notifications/sent/{iun}:
+  /v2.1/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
@@ -240,7 +240,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV20
+      operationId: retrieveSentNotificationV21
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -249,7 +249,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullSentNotificationV20'
+                $ref: '#/components/schemas/FullSentNotificationV21'
         '400':
           description: Bad request
           content:
@@ -267,7 +267,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -285,10 +285,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.0/notifications/sent/{iun} API CORS
+      operationId: Options for /v2.1/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -383,6 +383,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
       responses:
         '200':
           description: OK
@@ -609,6 +610,7 @@ paths:
         type: http_proxy
   /events/payment/f24:
     post:
+      deprecated: true
       operationId: paymentEventsRequestF24
       description: >-
         Questa API è a disposizione della Pubblica Amministrazione per inviare
@@ -676,8 +678,157 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
+  /requests:
+    post:
+      deprecated: true
+      summary: Richiesta invio notifica
+      description: >-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere
+        l'invio di una notifica.
+
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è
+        sintatticamente
+
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+
+        Per conoscere lo stato di accettazione della richiesta di notifica
+        bisogna utilizzare l'operazione
+
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push
+        prevista dai webhook. <br/>
+      tags:
+        - NewNotification
+      operationId: sendNewNotification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewNotificationRequest'
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+      parameters: []
+    get:
+      deprecated: true
+      operationId: retrieveNotificationRequestStatus
+      tags:
+        - SenderReadB2B
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è
+        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
+        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+      parameters:
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /requests API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters: {}
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
   /notifications/sent/{iun}:
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
@@ -729,6 +880,72 @@ paths:
         contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
         type: aws_proxy
+  /v2.0/notifications/sent/{iun}:
+    get:
+      deprecated: true
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationV20
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullSentNotificationV20'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /v2.0/notifications/sent/{iun} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
 components:
   parameters:
     notificationRequestId:
@@ -755,7 +972,7 @@ components:
       name: idempotenceToken
       description: >-
         token usato per disambiguare "richieste di notificazione" effettuate con
-        lo stesso  numero di protocollo. 
+        lo stesso  numero di protocollo.
       in: query
       required: false
       schema:
@@ -771,7 +988,7 @@ components:
         type: number
     pathRecipientIdx:
       name: recipientIdx
-      description: indice dei destinatario nella lista partendo da 0.
+      description: indice del destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
@@ -780,14 +997,21 @@ components:
       name: attachmentName
       description: >-
         Tipologia del pagamento allegato alla notifica. Valori possibili
-        PAGOPA|F24_FLAT|F24_STANDARD
+        PAGOPA|F24
       in: path
       required: true
       schema:
         type: string
-        minLength: 6
-        maxLength: 12
-        pattern: PAGOPA|F24_FLAT|F24_STANDARD
+        minLength: 3
+        maxLength: 6
+        pattern: PAGOPA|F24
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: number
     pathLegalFactType:
       description: Categoria dell'atto opponibile a terzi
       name: legalFactType
@@ -879,13 +1103,14 @@ components:
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
-            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è
-            supportato solo
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente
+            sono supportati
               - application/pdf
+              - application/json
           type: string
           minLength: 15
-          maxLength: 15
-          pattern: ^application\/pdf$
+          maxLength: 16
+          pattern: ^application\/(pdf|json)$
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -984,9 +1209,9 @@ components:
             notificazione"  effettuate con lo stesso numero di protocollo (campo
             _paProtocolNumber_).
           type: string
-    NewNotificationRequestStatusResponse:
+    NewNotificationRequestStatusResponseV21:
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequest'
+        - $ref: '#/components/schemas/NewNotificationRequestV21'
         - type: object
           required:
             - notificationRequestId
@@ -1085,12 +1310,12 @@ components:
           type: string
       required:
         - code
-    FullSentNotificationV20:
+    FullSentNotificationV21:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
         accettata) e il  processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: '#/components/schemas/SentNotification'
+        - $ref: '#/components/schemas/SentNotificationV21'
         - type: object
           required:
             - notificationStatus
@@ -1283,6 +1508,32 @@ components:
           description: >-
             Stima del numero di secondi da aspettare prima che il contenuto del 
             documento sia scaricabile.
+    F24Metadata:
+      type: object
+      description: >-
+        è richiesto uno e uno solo tra le propeties f24Standard, f24Simplified,
+        f24Excise, f24Elid
+      properties:
+        f24Standard:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/F24Standard'
+            - type: 'null'
+        f24Simplified:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/F24Simplified'
+            - type: 'null'
+        f24Excise:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/F24Excise'
+            - type: 'null'
+        f24Elid:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/F24Elid'
+            - type: 'null'
     RequestStatus:
       description: Response to cancellation async call
       type: object
@@ -1454,29 +1705,92 @@ components:
       description: Un modulo di pagamento allegato alla notifica
       allOf:
         - $ref: '#/components/schemas/NotificationAttachment'
-    NotificationPaymentInfo:
-      title: Informazioni per effettuare il pagamento
+    PagoPaPayment:
+      title: Informazioni per effettuare il pagamento con sistema pagoPA
       description: >-
         Informazioni utili per effettuare il pagamento di una notifica, sono
         associate al destinatario perché le spese di notifica possono differire
         a seconda del canale di notifica utilizzato. <br/>
           - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
           - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _applyCost_: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica. <br/>
           - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
       type: object
       required:
         - noticeCode
         - creditorTaxId
+        - applyCost
       properties:
         noticeCode:
           $ref: '#/components/schemas/noticeCode'
         creditorTaxId:
           $ref: '#/components/schemas/paTaxId'
-        noticeCodeAlternative:
-          $ref: '#/components/schemas/noticeCode'
-        pagoPaForm:
+        applyCost:
+          type: boolean
+          nullable: false
+          description: >-
+            Flag per indicare se l'avviso pagoPa deve contere i costi di
+            notifica
+        attachment:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
-    NotificationRecipient:
+    NotificationMetadataAttachment:
+      description: Un metadato allegato della notifica.
+      type: object
+      required:
+        - digests
+        - contentType
+        - ref
+      properties:
+        digests:
+          $ref: '#/components/schemas/NotificationAttachmentDigests'
+        contentType:
+          type: string
+          description: tipo di contenuto dell'allegato, supportato application/json
+          minLength: 16
+          maxLength: 16
+          pattern: ^application\/json$
+        ref:
+          $ref: '#/components/schemas/NotificationAttachmentBodyRef'
+    F24Payment:
+      title: Informazioni per effettuare il pagamento tramite modello F24
+      description: >-
+        Informazioni utili per effettuare il pagamento di una notifica, sono
+        associate al destinatario perché le spese di notifica possono differire
+        a seconda del canale di notifica utilizzato. <br/>
+          - _title_: titolo del documento pdf da mostrare all'utente .<br/>
+          - _applyCost_: flag per indicare se il modello F24 deve contenere i costi di notifica.<br/>
+          - _metadataAttachment_: riferimento ai metadati per la generazione del modello F24.<br/>
+      type: object
+      required:
+        - title
+        - applyCost
+        - metadataAttachment
+      properties:
+        title:
+          description: Titolo del documento pdf da mostrare all'utente
+          type: string
+        applyCost:
+          type: boolean
+          nullable: false
+          description: Flag per indicare se il modello F24 deve contere i costi di notifica
+        metadataAttachment:
+          $ref: '#/components/schemas/NotificationMetadataAttachment'
+    NotificationPaymentItem:
+      minProperties: 1
+      properties:
+        pagoPa:
+          $ref: '#/components/schemas/PagoPaPayment'
+        f24:
+          $ref: '#/components/schemas/F24Payment'
+    NotificationPayments:
+      title: Pagamenti collegati alla notifica per il destinatario
+      description: >-
+        Lista dei pagamenti collegati alla notifica per il destinatario. Possono
+        essere pagamenti rateali o alternativi
+      type: array
+      items:
+        $ref: '#/components/schemas/NotificationPaymentItem'
+    NotificationRecipientV21:
       description: Informazioni sui destinatari
       required:
         - denomination
@@ -1501,8 +1815,8 @@ components:
           $ref: '#/components/schemas/NotificationDigitalAddress'
         physicalAddress:
           $ref: '#/components/schemas/NotificationPhysicalAddress'
-        payment:
-          $ref: '#/components/schemas/NotificationPaymentInfo'
+        payments:
+          $ref: '#/components/schemas/NotificationPayments'
     NotificationDocument:
       description: Un documento da notificare
       allOf:
@@ -1537,7 +1851,7 @@ components:
       minLength: 25
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
-    NewNotificationRequest:
+    NewNotificationRequestV21:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
       required:
@@ -1567,22 +1881,19 @@ components:
           maxLength: 256
         subject:
           type: string
-          description: titolo della notifica, NON inserire dati personali/sensibili
-          minLength: 10
+          description: titolo della notifica
           maxLength: 134
           pattern: ^.*$
         abstract:
           type: string
-          description: >-
-            descrizione sintetica della notifica, NON inserire dati
-            personali/sensibili
+          description: descrizione sintetica della notifica
           pattern: ^.*$
           maxLength: 1024
         recipients:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: '#/components/schemas/NotificationRecipient'
+            $ref: '#/components/schemas/NotificationRecipientV21'
         documents:
           type: array
           description: Documenti notificati
@@ -1628,21 +1939,33 @@ components:
             Codice tassonomico della notifica basato sulla definizione presente
             nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
             PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
           default: 010101P
+        paFee:
+          type: number
+          description: Costo espresso in eurocent che la PA imputa per la notifica
+          minimum: 0
+          maximum: 100
+        vat:
+          type: number
+          description: >-
+            IVA espressa in percentuale imposta al mittente sulla notifica
+            analogica
         pagoPaIntMode:
           type: string
           description: >-
             Modalitá di integrazione pagoPA per l'attualizazione del costo della
             notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
-            modalitá sincrona. <br/>
+            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (non ancora
+            supportata)<br/>
           enum:
             - NONE
             - SYNC
-    SentNotification:
+            - ASYNC
+    SentNotificationV21:
       description: Le informazioni riguardanti una richiesta di notifica accettata
       allOf:
-        - $ref: '#/components/schemas/NewNotificationRequest'
+        - $ref: '#/components/schemas/NewNotificationRequestV21'
         - type: object
           required:
             - iun
@@ -2909,6 +3232,615 @@ components:
           type: string
         fileAvailable:
           type: boolean
+    PersonalData:
+      type: object
+      properties:
+        surname:
+          pattern: ^[A-Z\\s]{1,24}$
+          type: string
+          description: surname of the person
+        name:
+          pattern: ^[A-Z\\s]{1,20}$
+          type: string
+          description: name of the person
+        birthDate:
+          pattern: ^\d{2}-\d{2}-\d{4}$
+          type: string
+          description: birthdate of the person
+        sex:
+          pattern: ^[FM]$
+          type: string
+          description: indicate if is (F)emale or (M)ale
+        birthPlace:
+          pattern: ^[A-Z\s]{1,40}$
+          type: string
+          description: birth place of the person
+        birthProvince:
+          pattern: ^[A-Z]{2}$
+          type: string
+          description: birth province of the person
+      description: Personal Data (Dati Anagrafici) object
+    TaxAddress:
+      type: object
+      properties:
+        municipality:
+          pattern: ^[A-Z]{1,40}$
+          type: string
+          description: municipality of the tax address
+        province:
+          pattern: ^[A-Z]{2}$
+          type: string
+          description: province of the tax address
+        address:
+          pattern: ^[A-Z0-9\s.]{1,35}$
+          type: string
+          description: street and house number of the tax address
+      description: Tax Residence (Domicilio Fiscale) object
+    PersonData:
+      type: object
+      properties:
+        personalData:
+          $ref: '#/components/schemas/PersonalData'
+        taxAddress:
+          $ref: '#/components/schemas/TaxAddress'
+      description: Person Data (Dati Anagrafici PF) object
+    CompanyData:
+      type: object
+      properties:
+        name:
+          pattern: ^[A-Z\s]{1,60}$
+          type: string
+          description: Company name
+        taxAddress:
+          $ref: '#/components/schemas/TaxAddress'
+      description: Company Data (Dati Anagrafici PNF) object
+    TaxPayerStandard:
+      type: object
+      properties:
+        taxCode:
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: Tax Payer Tax Code
+        isNotTaxYear:
+          type: boolean
+          description: field that show if the current year is included
+        person:
+          $ref: '#/components/schemas/PersonData'
+        company:
+          $ref: '#/components/schemas/CompanyData'
+        relativePersonTaxCode:
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: It is the tax code of a relative of the main tax payer
+        id:
+          pattern: ^[A-Z0-9]{2}$
+          type: string
+          description: identification code
+    IncludeNotificationCost:
+      type: object
+      required:
+        - applyCost
+      properties:
+        applyCost:
+          type: boolean
+          nullable: false
+          description: to check if include notification cost
+    Tax:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        taxType:
+          pattern: ^[A-Z0-9]{4}$
+          type: string
+          description: identification code of the type of tax
+        installment:
+          pattern: ^[A-Z0-9]{0,4}$
+          type: string
+          description: identification code of the ente
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: reference year of the tax
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the tax
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the tax
+      description: Tax object
+    TreasurySection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tax'
+          description: list of the taxes
+        office:
+          pattern: ^[A-Z0-9]{3}$
+          type: string
+          description: identification code of the office
+        document:
+          pattern: ^\d{11}$
+          type: string
+          description: identification code of the document
+      description: Treasury Section (Sezione Erario) object
+    Period:
+      type: object
+      properties:
+        startDate:
+          pattern: ^[0-9]{6}$
+          type: string
+          description: start date of the period
+        endDate:
+          pattern: ^[0-9]{6}$
+          type: string
+          description: end date of the period
+      description: Reporting Period (Sezione INPS) object
+    InpsRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        office:
+          pattern: ^[0-9]{3,4}$
+          type: string
+          description: identification code of the office
+        reason:
+          pattern: ^[A-Z-]{3,4}$
+          type: string
+          description: contribution reason for the record
+        inps:
+          pattern: ^[A-Za-z0-9\s]{0,17}$
+          type: string
+          description: INPS identification code
+        period:
+          $ref: '#/components/schemas/Period'
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: INPS Record object
+    InpsSection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/InpsRecord'
+          description: INPS Record List
+      description: INPS Section (Sezione INPS) object
+    RegionRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        region:
+          pattern: ^[0-9]{2}$
+          type: string
+          description: region identification code
+        taxType:
+          pattern: ^[0-9A-Z]{4}$
+          type: string
+          description: identification code of the type of tax
+        installment:
+          pattern: ^[A-Z0-9]{0,4}$
+          type: string
+          description: identification code of the ente
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: reference year
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: Region Record object
+    RegionSection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegionRecord'
+          description: Region Record List
+      description: Region Section (Sezione Regioni) object
+    LocalTaxRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      required:
+        - municipality
+        - taxType
+      properties:
+        municipality:
+          pattern: ^[0-9A-Z]{4}$
+          type: string
+          description: identification code of the municipality
+        reconsideration:
+          type: boolean
+          description: to check if it is a reconsideration act
+        propertiesChanges:
+          type: boolean
+          description: to check if there are some changes in properties list
+        advancePayment:
+          type: boolean
+          description: to check if it is a payment in advance
+        fullPayment:
+          type: boolean
+          description: to check if it a full payment
+        numberOfProperties:
+          pattern: ^[0-9]{3}$
+          type: string
+          description: number of properties
+        taxType:
+          pattern: ^[0-9]{4}$
+          type: string
+          description: identification code of the type of tax
+        installment:
+          pattern: ^[A-Z0-9]{0,4}$
+          type: string
+          description: identification code of the ente
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: reference year
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: LocalTax Record object
+    LocalTaxSection:
+      type: object
+      properties:
+        operationId:
+          pattern: ^[A-Z0-9]{18}$
+          type: string
+          description: identification code of the operation
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocalTaxRecord'
+        deduction:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: if there are any deduction
+      description: LocalTax Section (Sezione LocalTax e Altri Tributi Locali) object
+    InailRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        office:
+          pattern: ^[0-9]{5}$
+          type: string
+          description: identification code of the office
+        company:
+          pattern: ^[0-9]{8}$
+          type: string
+          description: identification code of the company
+        control:
+          pattern: ^[0-9]{2}$
+          type: string
+          description: control identification code
+        refNumber:
+          pattern: ^[0-9]{6}$
+          type: string
+          description: reference number
+        reason:
+          pattern: ^[A-Z0-9]$
+          type: string
+          description: reason of the record
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: INAIL Record object
+    SocialSecurityRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        institution:
+          pattern: ^[0-9]{4}$
+          type: string
+          description: identification code of the institution
+        office:
+          pattern: ^[0-9A-Z]{5}$
+          type: string
+          description: identification code of the office
+        reason:
+          pattern: ^[0-9A-Z]{3,4}$
+          type: string
+          description: reason of the contribution
+        position:
+          pattern: ^[0-9]{9}$
+          type: string
+          description: identification code of the position
+        period:
+          $ref: '#/components/schemas/Period'
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+        credit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: credit amount of the record
+      description: Social Security Record object
+    SocialSecuritySection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/InailRecord'
+        socSecRecords:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialSecurityRecord'
+          description: Social Security Record List
+      description: Social Security Section (Sezione Altri Enti Previdenziali) object
+    F24Standard:
+      type: object
+      properties:
+        taxPayer:
+          $ref: '#/components/schemas/TaxPayerStandard'
+        treasury:
+          $ref: '#/components/schemas/TreasurySection'
+        inps:
+          $ref: '#/components/schemas/InpsSection'
+        region:
+          $ref: '#/components/schemas/RegionSection'
+        localTax:
+          $ref: '#/components/schemas/LocalTaxSection'
+        socialSecurity:
+          $ref: '#/components/schemas/SocialSecuritySection'
+    TaxPayerSimplified:
+      type: object
+      properties:
+        taxCode:
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: Tax Payer Tax Code
+        personalData:
+          $ref: '#/components/schemas/PersonalData'
+        relativePersonTaxCode:
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: It is the tax code of a relative of the main tax payer
+        id:
+          pattern: ^[A-Z0-9]{2}$
+          type: string
+          description: identification code
+        document:
+          pattern: ^\d{11}$
+          type: string
+          description: identification code of the document
+        office:
+          pattern: ^[A-Z0-9]{3}$
+          type: string
+          description: identification code of the office
+    SimplifiedPaymentRecord:
+      allOf:
+        - $ref: '#/components/schemas/LocalTaxRecord'
+      required:
+        - section
+      properties:
+        section:
+          pattern: ^(ER|RG|EL)$
+          type: string
+          description: section code (ER|RG|EL)
+      description: Payment Reason Record object
+    SimplifiedPaymentSection:
+      type: object
+      properties:
+        operationId:
+          pattern: ^[A-Z0-9]{18}$
+          type: string
+          description: identification code of the operation
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimplifiedPaymentRecord'
+          description: Payments Record List
+      description: Payment Reason Section (Motivo del Pagamento) object
+    F24Simplified:
+      type: object
+      properties:
+        taxPayer:
+          $ref: '#/components/schemas/TaxPayerSimplified'
+        payments:
+          $ref: '#/components/schemas/SimplifiedPaymentSection'
+    TaxPayerExcise:
+      type: object
+      properties:
+        taxCode:
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: Tax Payer Tax Code
+        isNotTaxYear:
+          type: boolean
+          description: field that show if the current year is included
+        person:
+          $ref: '#/components/schemas/PersonData'
+        company:
+          $ref: '#/components/schemas/CompanyData'
+        relativePersonTaxCode:
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: It is the tax code of a relative of the main tax payer
+        id:
+          pattern: ^[A-Z0-9]{2}$
+          type: string
+          description: identification code
+    ExciseTax:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        institution:
+          pattern: ^[A-Z]{2}$
+          type: string
+          description: institution of the tax
+        province:
+          pattern: ^[A-Z]{2}$
+          type: string
+          description: province of the tax
+        id:
+          pattern: ^[A-Z0-9]{17}$
+          type: string
+          description: identification code
+        taxType:
+          pattern: ^[0-9A-Z]{4}$
+          type: string
+          description: identification code of the type of tax
+        installment:
+          pattern: ^[A-Z0-9]{0,4}$
+          type: string
+          description: identification code of the ente
+        month:
+          pattern: ^[0-1][0-9]$
+          type: string
+          description: month reference
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: reference year
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount
+      description: Excise Tax object
+    ExciseSection:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExciseTax'
+          description: Excise Tax List
+        office:
+          pattern: ^[A-Z0-9]{3}$
+          type: string
+          description: identification code of the office
+        document:
+          pattern: ^\d{11}$
+          type: string
+          description: identification code of the document
+      description: Excise Section (Accise) object
+    F24Excise:
+      type: object
+      properties:
+        taxPayer:
+          $ref: '#/components/schemas/TaxPayerExcise'
+        treasury:
+          $ref: '#/components/schemas/TreasurySection'
+        inps:
+          $ref: '#/components/schemas/InpsSection'
+        region:
+          $ref: '#/components/schemas/RegionSection'
+        localTax:
+          $ref: '#/components/schemas/LocalTaxSection'
+        excise:
+          $ref: '#/components/schemas/ExciseSection'
+      description: F24 Excise (Accise) object
+    TaxPayerElide:
+      type: object
+      properties:
+        taxCode:
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: Tax Payer Tax Code
+        person:
+          $ref: '#/components/schemas/PersonData'
+        company:
+          $ref: '#/components/schemas/CompanyData'
+        relativePersonTaxCode:
+          pattern: >-
+            ^([A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1})|([0-9]{11})$
+          type: string
+          description: It is the tax code of a relative of the main tax payer
+        id:
+          pattern: ^[A-Z0-9]{2}$
+          type: string
+          description: identification code
+    TreasuryRecord:
+      allOf:
+        - $ref: '#/components/schemas/IncludeNotificationCost'
+      type: object
+      properties:
+        type:
+          pattern: ^[A-Z]$
+          type: string
+          description: type of treasury
+        id:
+          pattern: ^[A-Z0-9]{17}$
+          type: string
+          description: identification code of the element
+        taxType:
+          pattern: ^[A-Z0-9]{4}$
+          type: string
+          description: identification code of the type of tax
+        year:
+          pattern: ^[1-2][0-9]{3}$
+          type: string
+          description: referance year
+        debit:
+          pattern: ^[0-9]{3,15}$
+          type: string
+          description: debit amount of the record
+      description: Treasury Record object
+    TreasuryAndOtherSection:
+      type: object
+      properties:
+        office:
+          pattern: ^[A-Z0-9]{3}$
+          type: string
+          description: identification code of the office
+        document:
+          pattern: ^\d{11}$
+          type: string
+          description: identification code of the document
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreasuryRecord'
+          description: Treasury Records
+      description: Treasury ans Other Section (Sezione Erario e Altro) object
+    F24Elid:
+      type: object
+      properties:
+        taxPayer:
+          $ref: '#/components/schemas/TaxPayerElide'
+        treasury:
+          $ref: '#/components/schemas/TreasuryAndOtherSection'
     StatusDetail:
       description: Detail of response to cancellation async call
       type: object
@@ -2931,6 +3863,41 @@ components:
             problem.
           example: Parameter not valid
           type: string
+    NewNotificationRequestStatusResponse:
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - notificationRequestId
+            - notificationRequestStatus
+          properties:
+            notificationRequestId:
+              description: >-
+                identificativo univoco di una richiesta di invio notifica, non è
+                lo IUN
+              type: string
+            notificationRequestStatus:
+              description: >-
+                - __WAITING__: in attesa di essere valutata - __ACCEPTED__:
+                richiesta di notifica accettata, lo IUN è valorizzato -
+                __REFUSED__: richiesta di notifica rifiutata, è valorizzato il
+                campo _errors_
+              type: string
+            retryAfter:
+              type: number
+              description: >-
+                Numero di secondi da attendere prima di effettuare una nuova
+                richiesta per  la stessa entità; valorizzato quando lo status è
+                __WAITING__.
+            iun:
+              $ref: '#/components/schemas/IUN'
+            errors:
+              description: >-
+                Elenco degli errori che hanno causato il rifiuto della richiesta
+                di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/ProblemError'
     FullSentNotification:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica
@@ -2954,6 +3921,29 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElement'
+    FullSentNotificationV20:
+      description: >-
+        Le informazioni riguardanti una notifica (richiesta di notifica
+        accettata) e il  processo di inoltro della notifica verso il cittadino.
+      allOf:
+        - $ref: '#/components/schemas/SentNotification'
+        - type: object
+          required:
+            - notificationStatus
+            - notificationStatusHistory
+            - timeline
+          properties:
+            notificationStatus:
+              $ref: '#/components/schemas/NotificationStatus'
+            notificationStatusHistory:
+              $ref: '#/components/schemas/NotificationStatusHistory'
+            timeline:
+              description: >-
+                elenco dettagliato di tutto ciò che è accaduto durrante il
+                processo di notifica
+              type: array
+              items:
+                $ref: '#/components/schemas/TimelineElementV20'
     TimelineElement:
       type: object
       additionalProperties: false
@@ -2980,6 +3970,186 @@ components:
           $ref: '#/components/schemas/TimelineElementCategory'
         details:
           $ref: '#/components/schemas/TimelineElementDetails'
+    NotificationPaymentInfo:
+      title: Informazioni per effettuare il pagamento
+      description: >-
+        Informazioni utili per effettuare il pagamento di una notifica, sono
+        associate al destinatario perché le spese di notifica possono differire
+        a seconda del canale di notifica utilizzato. <br/>
+          - _noticeCode_: "codice avviso pagoPA" di pagamento del sistema pagoPA, usato per pagamento online.<br/>
+          - _creditorTaxId_: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA". <br/>
+          - _pagoPaForm_: riferimento al PDF contenete il bollettino pagoPA<br/>
+      type: object
+      required:
+        - noticeCode
+        - creditorTaxId
+      properties:
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        noticeCodeAlternative:
+          $ref: '#/components/schemas/noticeCode'
+        pagoPaForm:
+          $ref: '#/components/schemas/NotificationPaymentAttachment'
+    NotificationRecipient:
+      description: Informazioni sui destinatari
+      required:
+        - denomination
+        - recipientType
+        - taxId
+        - physicalAddress
+      type: object
+      properties:
+        recipientType:
+          type: string
+          description: >-
+            Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)
+          enum:
+            - PF
+            - PG
+        taxId:
+          $ref: '#/components/schemas/TaxId'
+        denomination:
+          $ref: '#/components/schemas/Denomination'
+        digitalDomicile:
+          $ref: '#/components/schemas/NotificationDigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/NotificationPhysicalAddress'
+        payment:
+          $ref: '#/components/schemas/NotificationPaymentInfo'
+    NewNotificationRequest:
+      description: I campi utilizzati per la creazione di una nuova Notifica.
+      type: object
+      required:
+        - paProtocolNumber
+        - subject
+        - recipients
+        - documents
+        - physicalCommunicationType
+        - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
+      properties:
+        idempotenceToken:
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare
+            differenti  "richieste di notificazione" effettuate con lo stesso
+            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
+            necessario in caso di  "richiesta di notifica" rifiutata per errori
+            nei codici di verifica degli allegati.
+          type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
+        paProtocolNumber:
+          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+          pattern: ^.*$
+          maxLength: 256
+        subject:
+          type: string
+          description: titolo della notifica, NON inserire dati personali/sensibili
+          minLength: 10
+          maxLength: 134
+          pattern: ^.*$
+        abstract:
+          type: string
+          description: >-
+            descrizione sintetica della notifica, NON inserire dati
+            personali/sensibili
+          pattern: ^.*$
+          maxLength: 1024
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: '#/components/schemas/NotificationRecipient'
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
+          minItems: 1
+        notificationFeePolicy:
+          $ref: '#/components/schemas/NotificationFeePolicy'
+        cancelledIun:
+          $ref: '#/components/schemas/IUN'
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
+        amount:
+          type: number
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          minLength: 10
+          maxLength: 10
+          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
+          description: >-
+            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
+            all'Italia
+        taxonomyCode:
+          type: string
+          minLength: 7
+          maxLength: 7
+          pattern: ^([0-9]{6}[A-Z]{1})$
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente
+            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
+            PIATTAFORMA NOTIFICHE
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
+          default: 010101P
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della
+            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
+            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (Non ancora
+            supportata) <br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC
+    SentNotification:
+      description: Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: >-
+                Identificativo (non IPA) della PA mittente che ha eseguito
+                l'onboarding su SelfCare.
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              $ref: '#/components/schemas/IUN'
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
     TimelineElementCategory:
       type: string
       description: |
