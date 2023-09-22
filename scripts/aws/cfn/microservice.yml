@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: 'Example microservice deploy'
 
+Transform:
+  - UpdateDeploymentTransform
+
 Parameters:
   ProjectName:
     Type: String
@@ -1051,12 +1054,19 @@ Resources:
       MemorySize: 512
 
   # a new version at each deploy, with provisioned concurrency set
-  VersioningV1V2GetNotificationLambdaVersion:
-    Type: "AWS::Lambda::Version"
+  VersioningV1V2GetNotificationLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
     Properties:
       FunctionName: !Ref VersioningV1V2GetNotificationLambda
+
+  VersioningV1V2GetNotificationLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties: 
+      FunctionName: !Ref VersioningV1V2GetNotificationLambda
+      FunctionVersion: !GetAtt VersioningV1V2GetNotificationLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
       ProvisionedConcurrencyConfig:
-           ProvisionedConcurrentExecutions: !Ref VersioningV1V2GetNotificationLambdaProvisionedConcurrency
+        ProvisionedConcurrentExecutions: !Ref VersioningV1V2GetNotificationLambdaProvisionedConcurrency
 
   # Lambda function role
   VersioningV1V2GetNotificationLambdaRole:
@@ -1088,7 +1098,7 @@ Resources:
   VersioningV1V2GetNotificationLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref VersioningV1V2GetNotificationLambda
+      FunctionName: !Ref VersioningV1V2GetNotificationLambdaVersionAlias
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
