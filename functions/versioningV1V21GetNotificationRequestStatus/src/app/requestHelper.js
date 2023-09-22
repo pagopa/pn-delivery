@@ -17,15 +17,15 @@ exports.generateResponse = function(errorDetails, statusCode, headers){
     }
 }
 
-exports.validateQuerryParameters = function(queryParameters){
+exports.validateQueryStringParameters = function(queryStringParameters){
     const errors = [];
 
     // notificationRequestId
-    const notificationRequestId = queryParameters['notificationRequestId'];
+    const notificationRequestId = queryStringParameters['notificationRequestId'];
 
     // paProtocolNumber && idempotenceToken
-    const paProtocolNumber = queryParameters['paProtocolNumber'];
-    const idempotenceToken = queryParameters['idempotenceToken'];
+    const paProtocolNumber = queryStringParameters['paProtocolNumber'];
+    const idempotenceToken = queryStringParameters['idempotenceToken'];
 
     if ( !notificationRequestId ) {
         if ( !(paProtocolNumber && idempotenceToken) ) {

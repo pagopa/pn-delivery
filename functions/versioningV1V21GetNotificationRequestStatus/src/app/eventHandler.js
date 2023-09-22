@@ -1,4 +1,4 @@
-const { validateRequest, generateResponse, validateQueryParameters } = require('./requestHelper')
+const { validateRequest, generateResponse, validateQueryStringParameters } = require('./requestHelper')
 
 exports.handleEvent = async (event) => {
     console.log('event', event)
@@ -8,7 +8,7 @@ exports.handleEvent = async (event) => {
         return generateResponse({ resultCode: '404.00', resultDescription: 'Not found', errorList: isRequestValid }, 404, {})
     }
     
-    const eventValidationErrors = validateQueryParameters(event.queryParameters)
+    const eventValidationErrors = validateQueryStringParameters(event.queryStringParameters)
     console.log("eventValidationErrors ", eventValidationErrors)
     if(eventValidationErrors.length > 0){
         return generateResponse({ resultCode: '400.00', resultDescription: 'Validation error', errorList: eventValidationErrors }, 400, {})
@@ -17,11 +17,11 @@ exports.handleEvent = async (event) => {
     console.log("Versioning_V1-V21_GetNotificationRequestStatus_Lambda function started");
     
     // notificationRequestId
-    const notificationRequestId = event.queryParameters['notificationRequestId'];
+    const notificationRequestId = event.queryStringParameters['notificationRequestId'];
     
     // paProtocolNumber && idempotenceToken
-    const paProtocolNumber = event.queryParameters['paProtocolNumber'];
-    const idempotenceToken = event.queryParameters['idempotenceToken'];
+    const paProtocolNumber = event.queryStringParameters['paProtocolNumber'];
+    const idempotenceToken = event.queryStringParameters['idempotenceToken'];
     
     // get verso pn-delivery
     const url = process.env.PN_DELIVERY_URL.concat('/delivery/requests');
@@ -172,6 +172,10 @@ exports.handleEvent = async (event) => {
     }
 
     function transformPaymentFromV21ToV1(paymentsV21) {
+        // max 2 pagamenti else throw exception
+        // allegati di pagamento devono essere uguali (stesso sha) else throw exception
+
+        // riempio noticeCode e in caso noticeCodeAlternative
         const paymentV1 = {
 
         }
