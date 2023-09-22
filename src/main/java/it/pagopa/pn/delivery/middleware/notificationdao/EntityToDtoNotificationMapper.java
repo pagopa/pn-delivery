@@ -1,8 +1,10 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.SentNotificationV21;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
@@ -33,7 +35,7 @@ public class EntityToDtoNotificationMapper {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setSenderDenomination(entity.getSenderDenomination());
         internalNotification.set_abstract(entity.getNotificationAbstract());
-        internalNotification.senderTaxId(entity.getSenderTaxId());
+        internalNotification.setSenderTaxId(entity.getSenderTaxId());
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()));
         internalNotification.setIun(entity.getIun());
         internalNotification.setSubject(entity.getSubject());
@@ -52,6 +54,10 @@ public class EntityToDtoNotificationMapper {
         internalNotification.setTaxonomyCode(entity.getTaxonomyCode());
         internalNotification.setSourceChannel(entity.getSourceChannel());
         internalNotification.setRecipientIds(recipientIds);
+        internalNotification.setPaFee(entity.getPaFee());
+        internalNotification.setVat(entity.getVat());
+        internalNotification.setSourceChannelDetails(entity.getSourceChannelDetails());
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()));
         return internalNotification;
     }
 
@@ -63,6 +69,7 @@ public class EntityToDtoNotificationMapper {
 
     private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
         return NotificationRecipient.builder()
+                .denomination(entity.getDenomination())
                 .internalId( entity.getRecipientId() )
                 .recipientType( NotificationRecipientV21.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
                 .payments( entity2PaymentInfo( entity.getPayments() ) )
