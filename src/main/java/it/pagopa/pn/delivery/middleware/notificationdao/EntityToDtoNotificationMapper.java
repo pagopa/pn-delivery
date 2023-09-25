@@ -36,7 +36,7 @@ public class EntityToDtoNotificationMapper {
         internalNotification.setSenderDenomination(entity.getSenderDenomination());
         internalNotification.set_abstract(entity.getNotificationAbstract());
         internalNotification.setSenderTaxId(entity.getSenderTaxId());
-        internalNotification.setNotificationFeePolicy(NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()));
+        internalNotification.setNotificationFeePolicy(entity.getNotificationFeePolicy() != null ? NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()) : null);
         internalNotification.setIun(entity.getIun());
         internalNotification.setSubject(entity.getSubject());
         internalNotification.setSentAt(entity.getSentAt().atOffset(ZoneOffset.UTC));
@@ -57,7 +57,7 @@ public class EntityToDtoNotificationMapper {
         internalNotification.setPaFee(entity.getPaFee());
         internalNotification.setVat(entity.getVat());
         internalNotification.setSourceChannelDetails(entity.getSourceChannelDetails());
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()));
+        internalNotification.setPagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV21.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null);
         return internalNotification;
     }
 
