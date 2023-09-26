@@ -1,7 +1,7 @@
 exports.validateRequest = function(event){
-    const { path, httpMethod, queryParameters } = event
+    const { path, httpMethod, queryStringParameters } = event
     const errors = []
-    if(httpMethod === 'GET' && path && path === '/delivery/requests' && queryParameters){
+    if(httpMethod === 'GET' && path && path === '/delivery/requests' && queryStringParameters){
       return []
     }
   

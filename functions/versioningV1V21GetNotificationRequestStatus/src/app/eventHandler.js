@@ -84,7 +84,7 @@ exports.handleEvent = async (event) => {
     }
 
     function transformFromV21ToV1(responseV21) {
-        console.log("transformFromV21ToV1 - responseV21", JSON.stringify(responseV21));
+        console.log("transformFromV21ToV1 - responseV21", responseV21);
 
         const recipientsV1 = [];
         responseV21.recipients.forEach(recipientV21 => {
@@ -120,15 +120,21 @@ exports.handleEvent = async (event) => {
             pagoPaIntMode: responseV21.pagoPaIntMode
         }
 
-        console.log("transformFromV21ToV1 - responseV1", JSON.stringify(responseV1));
+        console.log("transformFromV21ToV1 - responseV1", responseV1);
         return responseV1;
     }
 
     function transformRecipientFromV21ToV1(recipientV21) {
+        console.log("transformRecipientFromV21ToV1 - recipientV21", recipientV21);
 
+        console.log("recipientV21.digitalDomicile: ", recipientV21.digitalDomicile)
         const digitalDomicileV1 = recipientV21.digitalDomicile ? transformDigitalDomicile(recipientV21.digitalDomicile) : undefined
         const physicalAddressV1 = transformPhysicalAddress(recipientV21.physicalAddress)
-        const paymentV1 = recipientV21.payments.length > 0 ? transformPaymentFromV21ToV1(recipientV21.payments) : undefined
+
+        let paymentV1 = undefined
+        if (recipientV21.payments) {
+            paymentV1 = recipientV21.payments.length > 0 ? transformPaymentFromV21ToV1(recipientV21.payments) : undefined
+        }
 
         const recipientV1 = {
             recipientType: recipientV21.recipientType,
@@ -159,19 +165,22 @@ exports.handleEvent = async (event) => {
 
     // TODO da portare a fattor comune
     function transformPhysicalAddress(physicalAddress) {
+        console.log("transformPhysicalAddress: ", physicalAddress)
         return {
-            at: physicalAddress.at,
+            at: physicalAddress.at ? physicalAddress.at : undefined,
             address: physicalAddress.address,
-            addressDetails: physicalAddress.addressDetails,
+            addressDetails: physicalAddress.addressDetails ? physicalAddress.addressDetails : undefined,
             zip: physicalAddress.zip,
             municipality: physicalAddress.municipality,
-            municipalityDetails: physicalAddress.municipalityDetails,
+            municipalityDetails: physicalAddress.municipalityDetails ? physicalAddress.municipalityDetails : undefined,
             province: physicalAddress.province,
             foreignState: physicalAddress.foreignState,
         }
     }
 
     function transformPaymentFromV21ToV1(paymentsV21) {
+        console.log("transformPaymentFromV21ToV1 - paymentsV21", paymentsV21);
+
         // max 2 pagamenti else throw exception
         if (paymentsV21.length > 2) {
             throw new Error("Unable to map payments, more than 2");
