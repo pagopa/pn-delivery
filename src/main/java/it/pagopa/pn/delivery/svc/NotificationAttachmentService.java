@@ -49,8 +49,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 
@@ -328,7 +326,7 @@ public class NotificationAttachmentService {
         String iun = notification.getIun();
         Integer documentIndex = fileDownloadIdentify.documentIdx;
         Integer recipientIdx = fileDownloadIdentify.recipientIdx;
-        Integer attachmentIdx = fileDownloadIdentify.attachmentIdx;
+        Integer attachmentIdx = fileDownloadIdentify.attachmentIdx != null ? fileDownloadIdentify.attachmentIdx : 0;
         String attachmentName = fileDownloadIdentify.attachmentName;
 
         if(documentIndex != null){
@@ -337,16 +335,19 @@ public class NotificationAttachmentService {
             fileKey = doc.getRef().getKey();
         }
         else{
-            if(notification.getRecipients().size()<=recipientIdx){
-                String exMessage =  String.format("Notification without recipients attachment index - iun=%s", iun);
-                throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTRECIPIENTSATTACHMENT);
-            }
+            NotificationRecipient effectiveRecipient = checkRecipientsAndPayments(notification, recipientIdx, attachmentIdx);
+
             if (StringUtils.hasText(attachmentName) && attachmentName.equals(ATTACHMENT_TYPE_F24)) {
-                return callPNF24(recipientIdx, attachmentIdx, notification);
+                List<String> pathTokens;
+                NotificationPaymentInfo notificationPaymentInfo = effectiveRecipient.getPayments().get(attachmentIdx);
+                if (notificationPaymentInfo.getF24() != null) {
+                    pathTokens = Collections.singletonList(String.format("%d,%d", recipientIdx, attachmentIdx));
+                } else {
+                    pathTokens = Collections.emptyList();
+                }
+                return callPNF24(recipientIdx, pathTokens, notification);
             }
             else{
-                attachmentIdx = attachmentIdx != null ? fileDownloadIdentify.attachmentIdx : 0;
-                NotificationRecipient effectiveRecipient = notification.getRecipients().get(recipientIdx);
                 fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, attachmentIdx, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
                 if (!StringUtils.hasText(fileKey)) {
                     String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayments().toString());
@@ -358,6 +359,19 @@ public class NotificationAttachmentService {
         MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, fileKey);
         log.info("downloadDocumentWithRedirect with fileKey={} name:{} - iun={}", fileKey, name, iun);
         return downloadFileAndBuildInfo(fileKey, iun, name);
+    }
+
+    private NotificationRecipient checkRecipientsAndPayments(InternalNotification notification, Integer recipientIdx, Integer attachmentIdx){
+        if(notification.getRecipients().size()<=recipientIdx){
+            String exMessage =  String.format("Notification without recipients attachment index - iun=%s", notification.getIun());
+            throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTRECIPIENTSATTACHMENT);
+        }
+        NotificationRecipient effectiveRecipient = notification.getRecipients().get(recipientIdx);
+        if(effectiveRecipient.getPayments().size()<=attachmentIdx){
+            String exMessage =  String.format("Notification without payment attachment index - iun=%s", notification.getIun());
+            throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
+        }
+        return effectiveRecipient;
     }
 
     private FileInfos downloadFileAndBuildInfo(String fileKey, String iun, String name) {
@@ -377,32 +391,8 @@ public class NotificationAttachmentService {
 
 
 
-        private FileInfos callPNF24(Integer recipientIdx, Integer attachmentIdx, InternalNotification notification){
+    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification){
         NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null);
-
-        NotificationRecipient notificationRecipient = notification.getRecipients().get(recipientIdx);
-
-        List<String> pathTokens;
-        if (attachmentIdx != null) {
-            NotificationPaymentInfo notificationPaymentInfo = notificationRecipient.getPayments().get(attachmentIdx);
-            if (notificationPaymentInfo.getF24() != null) {
-                pathTokens = Collections.singletonList(String.format("%d,%d", recipientIdx, attachmentIdx));
-            } else {
-                pathTokens = Collections.emptyList();
-            }
-        } else {
-            pathTokens = IntStream.range(0, notificationRecipient.getPayments().size())
-                    .boxed()
-                    .flatMap(paymentIndex -> {
-                        NotificationPaymentInfo notificationPaymentInfo = notificationRecipient.getPayments().get(paymentIndex);
-                        if (notificationPaymentInfo.getF24() != null) {
-                            return Stream.of(String.format("%d,%d", recipientIdx, paymentIndex));
-                        } else {
-                            return Stream.empty();
-                        }
-                    })
-                    .toList();
-        }
 
         F24Response f24Response = pnF24Client.generatePDF("PN-DELIVERY", notification.getIun(), pathTokens, cost.getAmount());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
@@ -414,10 +404,6 @@ public class NotificationAttachmentService {
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, Integer attachmentIdx, boolean isMVPTria){
-        if(doc.getPayments().size()<=attachmentIdx){
-            String exMessage =  String.format("Notification without payment attachment index - iun=%s", iun);
-            throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
-        }
         NotificationPaymentInfo payment = doc.getPayments().get(attachmentIdx);
         if ( !Objects.nonNull( payment ) ) {
             String exMessage =  String.format("Notification without payment attachment - iun=%s", iun);
