@@ -329,7 +329,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID, null), mandateId,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID, null), null,
             null, attachmentName, true);
 
     // Then
@@ -431,7 +431,7 @@ class NotificationAttachmentServiceTest {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(0, 0, PAGOPA);
+        NotificationAttachmentService.FileDownloadIdentify.create(0, 0, PAGOPA, null);
 
     PnHttpResponseException exception = new PnHttpResponseException("error", 404);
 
@@ -448,7 +448,7 @@ class NotificationAttachmentServiceTest {
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     notification.setRecipients(Collections.singletonList(NotificationRecipient.builder().build()));
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA);
+        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA, null);
 
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
@@ -461,7 +461,7 @@ class NotificationAttachmentServiceTest {
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     notification.setRecipients(Collections.singletonList(NotificationRecipient.builder().build()));
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA);
+        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA, null);
     when(mvpParameterConsumer.isMvp(any())).thenReturn(Boolean.TRUE);
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
@@ -475,7 +475,7 @@ class NotificationAttachmentServiceTest {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "WrongAttachmentName");
+        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "WrongAttachmentName", null);
 
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
@@ -487,7 +487,7 @@ class NotificationAttachmentServiceTest {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(0, 0, PAGOPA);
+        NotificationAttachmentService.FileDownloadIdentify.create(0, 0, PAGOPA, null);
 
     FileDownloadResponse response = new FileDownloadResponse().contentType("WrongContntType");
 
@@ -504,7 +504,7 @@ class NotificationAttachmentServiceTest {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-            NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "F24");
+            NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "F24", null);
 
     FileDownloadResponse response = new FileDownloadResponse().contentType("WrongContntType");
 

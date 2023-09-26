@@ -204,6 +204,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     null,
                     recipientIdx,
                     attachmentName,
+                    attachmentIdx,
                     false
             );
             if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
