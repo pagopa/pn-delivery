@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: Z8V0Un342K5oNDCfWvo9Mj82Svro+VbNhTAR0srKwdo=
+  version: 0G6NoecpJ5JFgRwLNWiGcl5DsOFBC90mR6GWJf9GeXE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -4110,7 +4110,7 @@ components:
             Codice tassonomico della notifica basato sulla definizione presente
             nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
             PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
           default: 010101P
         pagoPaIntMode:
           type: string
