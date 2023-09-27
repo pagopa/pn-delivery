@@ -77,8 +77,8 @@ exports.handleEvent = async (event) => {
         
     } catch (error) {
         const ret = {
-            statusCode: response?.status ?? 502,
-            body: response?.statusText ?? "problem calling fetch",
+            statusCode: 400,
+            body: error,
         };
         return ret;
     }
@@ -180,7 +180,7 @@ exports.handleEvent = async (event) => {
 
     function transformPaymentFromV21ToV1(paymentsV21) {
         console.log("transformPaymentFromV21ToV1 - paymentsV21", paymentsV21);
-
+        
         // max 2 pagamenti else throw exception
         if (paymentsV21.length > 2) {
             throw new Error("Unable to map payments, more than 2");
