@@ -345,7 +345,7 @@ public class NotificationAttachmentService {
                 } else {
                     pathTokens = Collections.emptyList();
                 }
-                return callPNF24(recipientIdx, pathTokens, notification);
+                return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost());
             }
             else{
                 fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, attachmentIdx, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
@@ -391,8 +391,8 @@ public class NotificationAttachmentService {
 
 
 
-    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification){
-        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null);
+    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost){
+        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null, applyCost);
 
         F24Response f24Response = pnF24Client.generatePDF("PN-DELIVERY", notification.getIun(), pathTokens, cost.getAmount());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();

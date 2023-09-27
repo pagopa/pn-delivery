@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,18 +37,16 @@ class PnDeliveryPushClientImplTest {
     @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.api.TimelineAndStatusApi")
     private TimelineAndStatusApi timelineAndStatusApi;
 
-    /**
-     * Method under test: {@link PnDeliveryPushClientImpl#getNotificationProcessCost(String, int, NotificationFeePolicy)}
-     */
+
     @Test
     void testGetNotificationProcessCost() throws RestClientException {
         NotificationProcessCostResponse notificationProcessCostResponse = new NotificationProcessCostResponse();
         when(notificationProcessCostApi.notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any())).thenReturn(notificationProcessCostResponse);
+                Mockito.<NotificationFeePolicy>any(), anyBoolean())).thenReturn(notificationProcessCostResponse);
         assertSame(notificationProcessCostResponse,
-                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.FLAT_RATE));
+                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.FLAT_RATE, false));
         verify(notificationProcessCostApi).notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any());
+                Mockito.<NotificationFeePolicy>any(), anyBoolean());
     }
 
     /**
@@ -64,18 +63,15 @@ class PnDeliveryPushClientImplTest {
                 Mockito.<OffsetDateTime>any());
     }
 
-    /**
-     * Method under test: {@link PnDeliveryPushClientImpl#getNotificationProcessCost(String, int, NotificationFeePolicy)}
-     */
     @Test
     void testGetNotificationProcessCost2() throws RestClientException {
         NotificationProcessCostResponse notificationProcessCostResponse = new NotificationProcessCostResponse();
         when(notificationProcessCostApi.notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any())).thenReturn(notificationProcessCostResponse);
+                Mockito.<NotificationFeePolicy>any(), anyBoolean())).thenReturn(notificationProcessCostResponse);
         assertSame(notificationProcessCostResponse,
-                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.DELIVERY_MODE));
+                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.DELIVERY_MODE, false));
         verify(notificationProcessCostApi).notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any());
+                Mockito.<NotificationFeePolicy>any(), anyBoolean());
     }
 }
 

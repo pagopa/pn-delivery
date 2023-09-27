@@ -17,6 +17,9 @@ import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +73,28 @@ public class NotificationPriceService {
         // se la lista degli id non presente nell'internal notifications la posso recuperare dalla notificationMetadataEntity
         String recipientId = internalNotification.getRecipientIds().get(recipientIdx);
         log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
-        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt());
+
+        boolean applyCost = true;
+        try {
+            for (NotificationRecipient recipient : internalNotification.getRecipients()) {
+                if (recipient != null) {
+                    for (NotificationPaymentInfo paymentInfo : recipient.getPayments()) {
+                        if (paymentInfo != null) {
+                            PagoPaPayment pagoPa = paymentInfo.getPagoPa();
+                            if (pagoPa != null && pagoPa.getNoticeCode().equals(noticeCode)) {
+                                applyCost = pagoPa.isApplyCost();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (NullPointerException e) {
+            log.error( "Unable to find recipients or payments for iun={}", iun);
+            throw new PnNotificationNotFoundException( String.format("Unable to find recipients or payments for iun=%s", iun));
+        }
+
+        //int paFee = internalNotification.getPaFee();
+        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt(), applyCost);
 
         // invio l'evento di asseverazione sulla coda
         log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
@@ -115,14 +139,14 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt) {
+    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt, boolean applyCost) {
         // controllo che notifica sia stata accettata cercandola nella tabella notificationMetadata tramite PK iun##recipientId
         getNotificationMetadataEntity(iun, recipientId, sentAt);
 
         // contatto delivery-push per farmi calcolare tramite iun, recipientIdx, notificationFeePolicy costo della notifica
         // delivery-push mi risponde con amount, data perfezionamento presa visione, data perfezionamento decorrenza termini
         try {
-            return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy);
+            return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy, applyCost);
         } catch (Exception exc) {
             // nel caso in cui la risposta da parte di delivery push è un 404, devo controllare che la causale
             // sia per colpa della notifica cancellata. Se si, ritorno a mia volta un 404, altrimenti ritorno

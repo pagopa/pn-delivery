@@ -26,9 +26,9 @@ public class PnDeliveryPushClientImpl {
         return timelineAndStatusApi.getNotificationHistory( iun, numberOfRecipients, createdAt);
     }
 
-    public NotificationProcessCostResponse getNotificationProcessCost(String iun, int recipientIdx, NotificationFeePolicy notificationFeePolicy){
+    public NotificationProcessCostResponse getNotificationProcessCost(String iun, int recipientIdx, NotificationFeePolicy notificationFeePolicy, boolean applyCost){
         log.logInvokingExternalService(PnLogger.EXTERNAL_SERVICES.PN_DELIVERY_PUSH, "getNotificationProcessCost");
-        return notificationProcessCostApi.notificationProcessCost( iun, recipientIdx, notificationFeePolicy );
+        return notificationProcessCostApi.notificationProcessCost( iun, recipientIdx, notificationFeePolicy, applyCost );
     }
 
 }

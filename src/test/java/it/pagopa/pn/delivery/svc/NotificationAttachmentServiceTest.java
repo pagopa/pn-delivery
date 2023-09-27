@@ -18,9 +18,7 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
@@ -513,7 +511,7 @@ class NotificationAttachmentServiceTest {
     cost.setAmount(200);
     cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
     cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
-    Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(),anyInt(),any())).thenReturn(cost);
+    Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(),anyInt(),any(), anyBoolean())).thenReturn(cost);
 
     F24Response f24Response = new F24Response();
     f24Response.setRetryAfter(BigDecimal.valueOf(0));
@@ -553,14 +551,22 @@ class NotificationAttachmentServiceTest {
     notificationRecipient.setTaxId(taxid);
     NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
     PagoPaPayment pagoPaPayment = new PagoPaPayment();
+    F24Payment f24Payment = new F24Payment();
+
     it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef notificationAttachmentBodyRef = new it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef();
 
     notificationAttachmentBodyRef.setKey("filekey");
     pagoPaPayment.setAttachment(new it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment());
     pagoPaPayment.getAttachment().setRef(notificationAttachmentBodyRef);
 
-    if (channel.equals(PAGOPA))
+    f24Payment.setTitle("title");
+    f24Payment.setMetadataAttachment(new MetadataAttachment());
+    f24Payment.setApplyCost(false);
+
+    if (channel.equals(PAGOPA)) {
       notificationPaymentInfo.setPagoPa(pagoPaPayment);
+      notificationPaymentInfo.setF24(f24Payment);
+    }
 
     notificationRecipient.setPayment(List.of(notificationPaymentInfo));
     notification.addRecipientsItem(notificationRecipient);
