@@ -71,3 +71,8 @@ index 0c2982f7..0b76ef95 100644
    /delivery-progresses/streams:
      post:
        summary: Crea nuovo stream di eventi
+@@ -3232,6 +3232,7 @@ components:
+               - FILE_PDF_TOOBIG_ERROR
+               - NOT_VALID_ADDRESS
+               - RECIPIENT_ID_NOT_VALID
++              - F24_METADATA_NOT_VALID
