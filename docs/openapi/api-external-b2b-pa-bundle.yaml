@@ -2450,7 +2450,7 @@ components:
           $ref: '#/components/schemas/paTaxId'
         applyCost:
           type: boolean
-          nullable: true
+          nullable: false
           description: >-
             Flag per indicare se l'avviso pagoPa deve contere i costi di
             notifica
@@ -2494,7 +2494,7 @@ components:
           type: string
         applyCost:
           type: boolean
-          nullable: true
+          nullable: false
           description: Flag per indicare se il modello F24 deve contere i costi di notifica
         metadataAttachment:
           $ref: '#/components/schemas/NotificationMetadataAttachment'

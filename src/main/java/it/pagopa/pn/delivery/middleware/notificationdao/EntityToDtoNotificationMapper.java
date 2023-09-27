@@ -4,7 +4,6 @@ import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.SentNotificationV21;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
@@ -91,7 +90,7 @@ public class EntityToDtoNotificationMapper {
         F24Payment paymentAttachment = null;
         if ( Objects.nonNull( f24 ) ) {
             paymentAttachment = F24Payment.builder()
-                    .applyCost(f24.getApplyCost())
+                    .applyCost(f24.getApplyCost() == null ? true : f24.getApplyCost())
                     .index(f24.getIndex())
                     .title(f24.getTitle())
                     .metadataAttachment(
@@ -118,7 +117,7 @@ public class EntityToDtoNotificationMapper {
             paymentAttachment = PagoPaPayment.builder()
                     .creditorTaxId(pagoPaForm.getCreditorTaxId())
                     .noticeCode(pagoPaForm.getNoticeCode())
-                    .applyCost(pagoPaForm.isApplyCost())
+                    .applyCost(pagoPaForm.isApplyCost() == null ? true : pagoPaForm.isApplyCost())
                     .attachment(
                             MetadataAttachment.builder()
                                     .contentType( pagoPaForm.getPagoPaForm().getContentType() )
