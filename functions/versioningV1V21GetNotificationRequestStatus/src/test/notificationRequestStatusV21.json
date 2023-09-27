@@ -30,21 +30,42 @@
                 "province": "BO",
                 "foreignState": "ITALIA"
             },
-            "payment": {
-                "noticeCode": "302011695374606354",
-                "creditorTaxId": "77777777777",
-                "noticeCodeAlternative": "302011695374606355",
-                "pagoPaForm": {
-                    "digests": {
-                        "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
-                    },
-                    "contentType": "application/pdf",
-                    "ref": {
-                        "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
-                        "versionToken": "v1"
+            "payments": [
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606354",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
+                    }
+                },
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606355",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
                     }
                 }
-            }
+            ] 
         }
     ],
     "documents": [
