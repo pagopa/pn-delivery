@@ -39,6 +39,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -68,8 +69,11 @@ public class NotificationAttachmentService {
     private final CheckAuthComponent checkAuthComponent;
     private final NotificationViewedProducer notificationViewedProducer;
     private final MVPParameterConsumer mvpParameterConsumer;
+    private final String f24CxId;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, PnF24ClientImpl pnF24Client, PnDeliveryPushClientImpl pnDeliveryPushClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer, MVPParameterConsumer mvpParameterConsumer) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, PnF24ClientImpl pnF24Client, PnDeliveryPushClientImpl pnDeliveryPushClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer,
+                                         MVPParameterConsumer mvpParameterConsumer,
+                                         @Value("${pn.delivery.f24.cxid}")  String f24CxId) {
         this.safeStorageClient = safeStorageClient;
         this.pnF24Client = pnF24Client;
         this.pnDeliveryPushClient = pnDeliveryPushClient;
@@ -77,6 +81,7 @@ public class NotificationAttachmentService {
         this.checkAuthComponent = checkAuthComponent;
         this.notificationViewedProducer = notificationViewedProducer;
         this.mvpParameterConsumer = mvpParameterConsumer;
+        this.f24CxId = f24CxId;
     }
 
     public FileDownloadResponse getFile(String fileKey){
@@ -343,7 +348,8 @@ public class NotificationAttachmentService {
                 if (notificationPaymentInfo.getF24() != null) {
                     pathTokens = Collections.singletonList(String.format("%d,%d", recipientIdx, attachmentIdx));
                 } else {
-                    pathTokens = Collections.emptyList();
+                    String exMessage = String.format("Unable to find F24 for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayments().toString());
+                    throw new PnNotFoundException("F24 not found", exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTRECIPIENTSATTACHMENT);
                 }
                 return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost());
             }
@@ -394,7 +400,7 @@ public class NotificationAttachmentService {
     private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost){
         NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null, applyCost);
 
-        F24Response f24Response = pnF24Client.generatePDF("PN-DELIVERY", notification.getIun(), pathTokens, cost.getAmount());
+        F24Response f24Response = pnF24Client.generatePDF(f24CxId, notification.getIun(), pathTokens, cost.getAmount());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
         FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
         fileDownloadInfo.setUrl(f24Response.getUrl());

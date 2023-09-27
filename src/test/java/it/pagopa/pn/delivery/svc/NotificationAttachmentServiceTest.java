@@ -64,6 +64,7 @@ class NotificationAttachmentServiceTest {
   private CheckAuthComponent checkAuthComponent;
   private NotificationViewedProducer notificationViewedProducer;
   private MVPParameterConsumer mvpParameterConsumer;
+  private String f24CxId;
 
   @BeforeEach
   public void setup() {
@@ -77,8 +78,9 @@ class NotificationAttachmentServiceTest {
     checkAuthComponent = Mockito.mock(CheckAuthComponent.class);
     notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
     mvpParameterConsumer = Mockito.mock(MVPParameterConsumer.class);
+    f24CxId = "PN-DELIVERY";
     attachmentService = new NotificationAttachmentService(pnSafeStorageClient, pnF24Client, pnDeliveryPushClient, notificationDao,
-        checkAuthComponent, notificationViewedProducer, mvpParameterConsumer);
+        checkAuthComponent, notificationViewedProducer, mvpParameterConsumer, f24CxId);
   }
 
   @Test
