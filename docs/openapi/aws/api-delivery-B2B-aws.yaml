@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 0G6NoecpJ5JFgRwLNWiGcl5DsOFBC90mR6GWJf9GeXE=
+  version: wr1+/7aPJWzhC4KUbE1ND+zbhGLsb94XHW9IJtMlwEk=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -700,6 +700,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotification
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -736,9 +738,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-delivery-versioning-v1v21-sendnewnotification-lambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -749,9 +750,9 @@ paths:
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
       parameters: []
     get:
       deprecated: true
