@@ -82,7 +82,6 @@ paths:
   
   "/delivery-private/notifications/{iun}":
     get:
-      deprecated: true
       summary: servizio per cercare una notifica dato <iun>
       tags:
         - internal-only

@@ -65,7 +65,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .partitionValue( "creditorTaxId##noticeCode" )
                 .build();
         Key costKey2 = Key.builder()
-                .partitionValue( "77777777777##002720356512737953" )
+                .partitionValue( "creditorTaxId1##noticeCode1" )
                 .build();
         Key costKey3 = Key.builder()
                 .partitionValue("creditorTaxId##noticeCode_opt")
@@ -213,8 +213,8 @@ class NotificationEntityDaoDynamoTestIT {
                                                         )
                                                         .build()
                                         )
-                                        .noticeCode("noticeCode")
-                                        .creditorTaxId("creditorTaxId")
+                                        .noticeCode("noticeCode1")
+                                        .creditorTaxId("creditorTaxId1")
                                         .applyCost(false)
                                         .pagoPaForm(PagoPaPaymentEntity.builder()
                                                 .contentType("application/pdf")

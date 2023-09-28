@@ -27,7 +27,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 class NotificationEntityQRDynamoTest {
 
   private static DynamoDbTable<NotificationQREntity> qrStorageTable;
-  private static DynamoDbIndex<NotificationQREntity> qrStorageIndex;
+  private static DynamoDbIndex qrStorageIndex;
 
   private static final String IUN = "UHQX-NMVP-ZKDQ-202210-H-1";
   private static final String RECIPIENT_ID = "PF-aa0c4556-5a6f-45b1-800c-0f4f3c5a57b6";
@@ -92,7 +92,7 @@ class NotificationEntityQRDynamoTest {
 
     Map<String, String> result = qrEntityDao.getQRByIun(IUN);
 
-    Assertions.assertTrue(!result.isEmpty());
+    Assertions.assertFalse(result.isEmpty());
 
 
   }

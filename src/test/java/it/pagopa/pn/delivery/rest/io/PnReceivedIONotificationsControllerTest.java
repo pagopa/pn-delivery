@@ -108,8 +108,9 @@ class PnReceivedIONotificationsControllerTest {
         internalNotification.setSubject("Subject 01");
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
-        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setSenderPaId(PA_ID);
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")

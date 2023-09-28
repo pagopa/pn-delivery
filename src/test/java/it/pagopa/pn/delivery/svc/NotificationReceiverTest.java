@@ -49,7 +49,7 @@ class NotificationReceiverTest {
 	private static final String KEY = "KEY";
 	private static final String PAID = "PAID";
 	private static final String IUN = "FAKE-FAKE-FAKE-202209-F-1";
-	private static final NotificationDocument notificationReferredAttachment() {
+	private static NotificationDocument notificationReferredAttachment() {
 		return NotificationDocument.builder()
 				.ref( NotificationAttachmentBodyRef.builder()
 						.versionToken( VERSION_TOKEN )
@@ -251,17 +251,17 @@ class NotificationReceiverTest {
 		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build(),
 				NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build(),
 				NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build()));
@@ -302,17 +302,17 @@ class NotificationReceiverTest {
 		//InternalNotification notification = newNotificationWithoutPayments();
 		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build(),
 				NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build(),
 				NotificationDocument.builder()
-						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID().toString()).versionToken("v1").build())
+						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
 						.digests( NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
 						.build()));
@@ -519,7 +519,7 @@ class NotificationReceiverTest {
 		Executable todo = () -> deliveryService.receiveNotification( X_PAGOPA_PN_CX_ID, notification, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY);
 
 		// Then
-		Assertions.assertThrows( NullPointerException.class, todo );
+		Assertions.assertThrows( PnInvalidInputException.class, todo );
 	}
 
 	@Test

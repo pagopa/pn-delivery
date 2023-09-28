@@ -217,6 +217,7 @@ class CheckAuthComponentTest {
 
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
         internalNotification.setSentAt(OffsetDateTime.MAX);
         internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setRecipientIds(List.of("IUN_01"));

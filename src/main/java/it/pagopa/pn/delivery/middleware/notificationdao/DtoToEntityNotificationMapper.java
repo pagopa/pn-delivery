@@ -134,6 +134,7 @@ public class DtoToEntityNotificationMapper {
         return pagoPaPaymentEntity;
     }
 
+    /*
     private MetadataAttachmentEntity dto2PaymentAttachment(PagoPaPayment dto ) {
         MetadataAttachmentEntity pagoPaPaymentEntity = null;
         if (dto != null) {
@@ -152,6 +153,7 @@ public class DtoToEntityNotificationMapper {
         }
         return pagoPaPaymentEntity;
     }
+     */
 
     private List<DocumentAttachmentEntity> convertDocuments(List<NotificationDocument> dtoList) {
         List<DocumentAttachmentEntity> entityList = null;

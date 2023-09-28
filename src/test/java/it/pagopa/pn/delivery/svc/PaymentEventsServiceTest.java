@@ -41,7 +41,6 @@ class PaymentEventsServiceTest {
     public static final String RECIPIENT_INTERNAL_ID = "recipientInternalId";
     private static final Integer PAYMENT_AMOUNT = 1200;
     private static final String PAYMENT_SOURCE_CHANNEL_PA = "PA";
-    private static final String PAYMENT_SOURCE_CHANNEL_EXTERNAL_REGISTRY = "EXTERNAL_REGISTRY";
     @Mock
     private PaymentEventsProducer paymentEventsProducer;
     @Mock

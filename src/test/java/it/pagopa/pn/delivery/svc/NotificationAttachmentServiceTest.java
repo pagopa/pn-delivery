@@ -109,7 +109,7 @@ class NotificationAttachmentServiceTest {
     String attachmentName = PAGOPA;
 
     Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
+        Optional.of(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
     NotificationRecipient recipient =
             NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
@@ -147,7 +147,7 @@ class NotificationAttachmentServiceTest {
     InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID + "-bad", attachmentName));
+        Optional.of(buildNotification(IUN, X_PAGOPA_PN_CX_ID + "-bad", attachmentName));
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.fail();
 
@@ -176,7 +176,7 @@ class NotificationAttachmentServiceTest {
 
     InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
-    Optional<InternalNotification> optNotification = Optional.ofNullable(null);
+    Optional<InternalNotification> optNotification = Optional.empty();
 
     when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
@@ -198,11 +198,10 @@ class NotificationAttachmentServiceTest {
     String cxType = "PA";
     String cxId = "paId";
     int recipientidx = 0;
-    String attachmentName = PAGOPA;
     InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
 
     Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
+        Optional.of(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
     NotificationRecipient recipient =
         NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
@@ -219,7 +218,7 @@ class NotificationAttachmentServiceTest {
     // Then
     assertThrows(PnBadRequestException.class,
         () -> attachmentService.downloadAttachmentWithRedirect(IUN, internalAuthHeader, null,
-            recipientidx, attachmentName, false));
+            recipientidx, PAGOPA, false));
 
     Mockito.verify(notificationViewedProducer, Mockito.times(0))
         .sendNotificationViewed(Mockito.anyString(), Mockito.any(Instant.class), Mockito.anyInt(), Mockito.any( NotificationViewDelegateInfo.class ));
@@ -230,13 +229,10 @@ class NotificationAttachmentServiceTest {
   void downloadDocumentWithRedirectByIunAndDocIndex() {
     // Given
     String cxType = "PF";
-    String cxId = X_PAGOPA_PN_CX_ID;
     int docidx = 0;
-    String attachmentName = PAGOPA;
-
 
     Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
+        Optional.of(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
     NotificationRecipient recipient =
         NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
@@ -252,7 +248,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null), null, docidx, true);
+        attachmentService.downloadDocumentWithRedirect(IUN, new InternalAuthHeader(cxType, X_PAGOPA_PN_CX_ID, X_PAGOPA_PN_UID, null), null, docidx, true);
 
     // Then
     assertNotNull(result);
@@ -272,7 +268,7 @@ class NotificationAttachmentServiceTest {
 
 
     Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
+        Optional.of(buildNotification(IUN, X_PAGOPA_PN_CX_ID));
 
     NotificationRecipient recipient =
         NotificationRecipient.builder().taxId(X_PAGOPA_PN_CX_ID).build();
@@ -346,7 +342,7 @@ class NotificationAttachmentServiceTest {
     String attachmentName = PAGOPA;
 
     Optional<InternalNotification> optNotification =
-        Optional.ofNullable(buildNotification(IUN, internalIdDelegator));
+        Optional.of(buildNotification(IUN, internalIdDelegator));
 
     NotificationRecipient recipient =
         NotificationRecipient.builder().taxId(internalIdDelegator).build();
