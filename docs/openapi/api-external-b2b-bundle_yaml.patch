@@ -76,3 +76,6 @@ index 0c2982f7..0b76ef95 100644
                - NOT_VALID_ADDRESS
                - RECIPIENT_ID_NOT_VALID
 +              - F24_METADATA_NOT_VALID
+         detail:
+           type: string
+     RequestRefusedDetails:
