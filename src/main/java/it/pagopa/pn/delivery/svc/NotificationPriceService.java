@@ -94,7 +94,7 @@ public class NotificationPriceService {
         }
 
         //int paFee = internalNotification.getPaFee();
-        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt(), applyCost);
+        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt(), applyCost, internalNotification.getPaFee());
 
         // invio l'evento di asseverazione sulla coda
         log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
@@ -139,14 +139,14 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt, boolean applyCost) {
+    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt, boolean applyCost, int paFee) {
         // controllo che notifica sia stata accettata cercandola nella tabella notificationMetadata tramite PK iun##recipientId
         getNotificationMetadataEntity(iun, recipientId, sentAt);
 
         // contatto delivery-push per farmi calcolare tramite iun, recipientIdx, notificationFeePolicy costo della notifica
         // delivery-push mi risponde con amount, data perfezionamento presa visione, data perfezionamento decorrenza termini
         try {
-            return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy, applyCost);
+            return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy, applyCost, paFee);
         } catch (Exception exc) {
             // nel caso in cui la risposta da parte di delivery push è un 404, devo controllare che la causale
             // sia per colpa della notifica cancellata. Se si, ritorno a mia volta un 404, altrimenti ritorno

@@ -513,7 +513,7 @@ class NotificationAttachmentServiceTest {
     cost.setAmount(200);
     cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
     cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
-    Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(),anyInt(),any(), anyBoolean())).thenReturn(cost);
+    Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(),anyInt(),any(), anyBoolean(), anyInt())).thenReturn(cost);
 
     F24Response f24Response = new F24Response();
     f24Response.setRetryAfter(BigDecimal.valueOf(0));
@@ -548,6 +548,8 @@ class NotificationAttachmentServiceTest {
   private InternalNotification buildNotification(String iun, String taxid, String channel) {
 
     InternalNotification notification = new InternalNotification();
+    notification.setPaFee(0);
+    notification.setVat(0);
     notification.setIun(iun);
     NotificationRecipient notificationRecipient = new NotificationRecipient();
     notificationRecipient.setTaxId(taxid);

@@ -351,7 +351,7 @@ public class NotificationAttachmentService {
                     String exMessage = String.format("Unable to find F24 for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayments().toString());
                     throw new PnNotFoundException("F24 not found", exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTRECIPIENTSATTACHMENT);
                 }
-                return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost());
+                return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost(), notification.getPaFee());
             }
             else{
                 fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, attachmentIdx, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
@@ -397,8 +397,8 @@ public class NotificationAttachmentService {
 
 
 
-    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost){
-        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null, applyCost);
+    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, int paFee){
+        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null, applyCost, paFee);
 
         F24Response f24Response = pnF24Client.generatePDF(f24CxId, notification.getIun(), pathTokens, cost.getAmount());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();

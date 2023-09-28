@@ -102,7 +102,7 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),Mockito.anyBoolean() ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),Mockito.anyBoolean(), Mockito.anyInt() ))
                 .thenReturn( new NotificationProcessCostResponse()
                         .amount( 2000 )
                         .refinementDate( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) )
@@ -191,7 +191,7 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean()))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt()))
                 .thenThrow(new PnHttpResponseException("err", 404));
 
 
@@ -229,7 +229,7 @@ class NotificationPriceServiceTest {
 
         PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean() ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt() ))
                 .thenThrow(exception);
 
 
@@ -267,7 +267,7 @@ class NotificationPriceServiceTest {
 
         PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean()))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt()))
                 .thenThrow(exception);
 
 
@@ -400,6 +400,8 @@ class NotificationPriceServiceTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setPaFee(0);
+        internalNotification.setVat(0);
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()

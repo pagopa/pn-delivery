@@ -42,11 +42,11 @@ class PnDeliveryPushClientImplTest {
     void testGetNotificationProcessCost() throws RestClientException {
         NotificationProcessCostResponse notificationProcessCostResponse = new NotificationProcessCostResponse();
         when(notificationProcessCostApi.notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any(), anyBoolean())).thenReturn(notificationProcessCostResponse);
+                Mockito.<NotificationFeePolicy>any(), anyBoolean(), Mockito.<Integer>any())).thenReturn(notificationProcessCostResponse);
         assertSame(notificationProcessCostResponse,
-                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.FLAT_RATE, false));
+                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.FLAT_RATE, false, 0));
         verify(notificationProcessCostApi).notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any(), anyBoolean());
+                Mockito.<NotificationFeePolicy>any(), anyBoolean(), Mockito.<Integer>any());
     }
 
     /**
@@ -67,11 +67,11 @@ class PnDeliveryPushClientImplTest {
     void testGetNotificationProcessCost2() throws RestClientException {
         NotificationProcessCostResponse notificationProcessCostResponse = new NotificationProcessCostResponse();
         when(notificationProcessCostApi.notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any(), anyBoolean())).thenReturn(notificationProcessCostResponse);
+                Mockito.<NotificationFeePolicy>any(), anyBoolean(), Mockito.<Integer>any())).thenReturn(notificationProcessCostResponse);
         assertSame(notificationProcessCostResponse,
-                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.DELIVERY_MODE, false));
+                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0));
         verify(notificationProcessCostApi).notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any(), anyBoolean());
+                Mockito.<NotificationFeePolicy>any(), anyBoolean(), Mockito.<Integer>any());
     }
 }
 
