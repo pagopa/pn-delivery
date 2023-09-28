@@ -3232,6 +3232,7 @@ components:
               - FILE_PDF_TOOBIG_ERROR
               - NOT_VALID_ADDRESS
               - RECIPIENT_ID_NOT_VALID
+              - F24_METADATA_NOT_VALID  (solo a partire dalla versione 2.1)
         detail:
           type: string
     RequestRefusedDetails:
