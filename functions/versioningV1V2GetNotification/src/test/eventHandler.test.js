@@ -324,6 +324,173 @@ describe("eventHandler tests", function () {
 
     const response = await eventHandler.versioning(event, context);
 
-    expect(response.statusCode).to.equal(502);
+    expect(response.statusCode).to.equal(400);
+  });
+
+  it("Unamble to map more than 2 payments", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
+    let notification = JSON.parse(notificationJSON);
+
+    beforeEach(() => {
+      fetchMock.reset();
+    });
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    const eventHandler = proxyquire
+      .noCallThru()
+      .load("../app/eventHandler.js", {});
+
+    const extraPayment = {
+      pagoPa: {
+        noticeCode: "302011695374606354",
+        creditorTaxId: "77777777777",
+        applyCost: true,
+        attachment: {
+            digests: {
+                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+            },
+            contentType: "application/pdf",
+            ref: {
+                key: "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                versionToken: "v1"
+            }
+        }
+      }
+    }
+
+    notification.recipients[0].payments.push(extraPayment);
+
+    fetchMock.mock(url, {
+      status: 200,
+      body: notification,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const res = await eventHandler.versioning(event, context);
+    expect(res.statusCode).to.equal(400)
+  });
+
+  it("Unamble to map f24 type payment", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
+    let notification = JSON.parse(notificationJSON);
+
+    beforeEach(() => {
+      fetchMock.reset();
+    });
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    const eventHandler = proxyquire
+      .noCallThru()
+      .load("../app/eventHandler.js", {});
+
+    const extraPayment = {
+      f24: {
+        applyCost: true,
+        attachmentMetadata: {
+            digests: {
+                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+            },
+            contentType: "application/json",
+            ref: {
+                key: "PN_F24_METADATA-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                versionToken: "v1"
+            }
+        }
+      }
+    }
+
+    notification.recipients[0].payments[0] = extraPayment;
+
+    fetchMock.mock(url, {
+      status: 200,
+      body: notification,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const res = await eventHandler.versioning(event, context);
+    console.log("RESULT: ", res)
+    expect(res.statusCode).to.equal(400)
+  });
+
+  it("Unable to map more attachment different sha", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
+    let notification = JSON.parse(notificationJSON);
+
+    notification.recipients[0].payments[1].pagoPa.attachment.digests.sha256 = 'differentSha';
+
+    beforeEach(() => {
+      fetchMock.reset();
+    });
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    const eventHandler = proxyquire
+      .noCallThru()
+      .load("../app/eventHandler.js", {});
+
+    fetchMock.mock(url, {
+      status: 200,
+      body: notification,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const res = await eventHandler.versioning(event, context);
+    expect(res.statusCode).to.equal(400)
   });
 });

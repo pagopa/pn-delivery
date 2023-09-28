@@ -12,20 +12,42 @@
             "recipientType": "PF",
             "taxId": "CLMCST42R12D969Z",
             "denomination": "Mario Gherkin",
-            "payment": {
-                "noticeCode": "302321694688513856",
-                "creditorTaxId": "77777777777",
-                "pagoPaForm": {
-                    "digests": {
-                        "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
-                    },
-                    "contentType": "application/pdf",
-                    "ref": {
-                        "key": "PN_NOTIFICATION_ATTACHMENTS-696c3f12d7204e16884239404afc429e.pdf",
-                        "versionToken": "v1"
+            "payments": [
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606354",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
+                    }
+                },
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606355",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
                     }
                 }
-            },
+            ],
             "physicalAddress": {
                 "at": "Presso",
                 "address": "VIA@OK_AR",
