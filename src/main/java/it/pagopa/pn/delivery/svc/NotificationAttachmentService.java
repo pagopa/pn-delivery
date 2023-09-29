@@ -349,7 +349,7 @@ public class NotificationAttachmentService {
                     pathTokens = Collections.singletonList(String.format("%d,%d", recipientIdx, attachmentIdx));
                 } else {
                     String exMessage = String.format("Unable to find F24 for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayments().toString());
-                    throw new PnNotFoundException("F24 not found", exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTRECIPIENTSATTACHMENT);
+                    throw new PnNotFoundException("F24 not found", exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
                 }
                 return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost(), notification.getPaFee());
             }
