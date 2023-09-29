@@ -11,7 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @Data
 @ToString
 @DynamoDbBean
-public class AttachmentDigestsEntity {
+public class NotificationAttachmentDigestsEntity {
     public static final String FIELD_SHA_256 = "sha256";
 
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SHA_256)})) private String sha256;

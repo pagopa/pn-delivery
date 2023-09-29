@@ -2,19 +2,17 @@ package it.pagopa.pn.delivery.middleware.queue.consumer.handler;
 
 import it.pagopa.pn.api.dto.events.EventType;
 import it.pagopa.pn.api.dto.events.PnMandateEvent;
-
-import java.util.function.Consumer;
-
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.svc.NotificationDelegatedService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,14 +20,13 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 
-@ContextConfiguration(classes = {MandateHandler.class})
 @ExtendWith(SpringExtension.class)
 class MandateHandlerTest {
 
-    @Autowired
+    @InjectMocks
     private MandateHandler mandateHandler;
 
-    @MockBean
+    @Mock
     private NotificationDelegatedService notificationDelegatedService;
 
     /**

@@ -13,8 +13,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.DeleteItemEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.mock;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -42,13 +47,24 @@ class NotificationEntityCostDynamoTest {
 
     @BeforeEach
     void setup() {
-        notificationCostDao = Mockito.mock(PnDeliveryConfigs.NotificationCostDao.class);
-        costStorageTable = Mockito.mock(DynamoDbTable.class);
-        dynamoDbEnhancedClient = Mockito.mock( DynamoDbEnhancedClient.class );
+        notificationCostDao = mock(PnDeliveryConfigs.NotificationCostDao.class);
+        costStorageTable = mock(DynamoDbTable.class);
+        dynamoDbEnhancedClient = mock( DynamoDbEnhancedClient.class );
         Mockito.when( cfg.getNotificationCostDao() ).thenReturn( notificationCostDao );
         Mockito.when( cfg.getNotificationCostDao().getTableName() ).thenReturn( "NotificationsCost" );
         Mockito.when( dynamoDbEnhancedClient.table( Mockito.anyString(), Mockito.any() )).then( in -> costStorageTable );
         costEntityDao = new NotificationEntityCostDynamo( dynamoDbEnhancedClient, cfg );
+    }
+
+    @Test
+    void deleteWithCheckIun(){
+        assertDoesNotThrow(() -> costEntityDao.deleteWithCheckIun("TAXID",NOTICE_CODE, IUN));
+    }
+
+    @Test
+    void throwDeleteWithCheckIun(){
+        Mockito.when( costStorageTable.deleteItem((DeleteItemEnhancedRequest) Mockito.any()) ).thenThrow(ConditionalCheckFailedException.class);
+        assertDoesNotThrow(() -> costEntityDao.deleteWithCheckIun("TAXID",NOTICE_CODE, IUN));
     }
 
     @Test

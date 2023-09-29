@@ -94,7 +94,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotification"
+                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV21"
         '400':
           description: Bad request
           content:
@@ -268,7 +268,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'           
+                $ref: '#/components/schemas/Problem'
 
   "/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}":
     get:
@@ -301,11 +301,11 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'     
+                $ref: '#/components/schemas/Problem'
 
   "/delivery-private/notifications/{iun}/quick-access-link-tokens":
     get:
-      summary: servizio che dato uno <iun> restituisce per ogni destinatario il token per l'accesso rapido al dettaglio notifica  
+      summary: servizio che dato uno <iun> restituisce per ogni destinatario il token per l'accesso rapido al dettaglio notifica
       tags:
         - internal-only
       operationId: getQuickAccessLinkTokensPrivate
@@ -409,7 +409,7 @@ components:
       description: Access token is missing or invalid
 
   schemas:
-    
+
     RequestCheckAarDto:
       type: object
       required:
@@ -417,7 +417,7 @@ components:
         - recipientInternalId
         - aarQrCodeValue
       properties:
-        recipientType: 
+        recipientType:
           type: string
           description: |
             tipo del destinatario <br/>
@@ -431,7 +431,7 @@ components:
           description: valore del token QR-Code presente sull'avviso di avvenuta ricezione
           minLength: 1
           maxLength: 2048
-          
+
     ResponseCheckAarDto:
       type: object
       required:
@@ -439,7 +439,7 @@ components:
       properties:
         iun:
           $ref: 'schemas-pn-notification.yaml#/components/schemas/IUN'
-        
+
 
     RequestUpdateStatusDto:
       type: object
@@ -462,6 +462,14 @@ components:
           type: integer
           format: int32
           description: indice del destinatario
+
+    PaymentEventsPagoPaPrivate:
+      title: Lista di eventi di pagamento PagoPa
+      description: Lista di eventi di pagamento PagoPa
+      type: array
+      items:
+        $ref: '#/components/schemas/PaymentEventPagoPaPrivate'
+
 
     PaymentEventPagoPaPrivate:
       title: Evento di pagamento PagoPa

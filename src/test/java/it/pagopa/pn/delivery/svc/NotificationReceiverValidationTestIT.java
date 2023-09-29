@@ -39,9 +39,9 @@ class NotificationReceiverValidationTestIT {
     @Test
     void taxIdNotInWhiteListInvalidCF() {
 
-        NewNotificationRequest notificationRequest = newNotification( INVALID_TAX_ID_NOT_IN_WHITE_LIST );
+        NewNotificationRequestV21 notificationRequest = newNotification( INVALID_TAX_ID_NOT_IN_WHITE_LIST );
 
-        Set<ConstraintViolation<NewNotificationRequest>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV21>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 0", 1);
     }
@@ -49,9 +49,9 @@ class NotificationReceiverValidationTestIT {
     @Test
     void taxIdInWhiteListInvalidCF() {
 
-        NewNotificationRequest notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
+        NewNotificationRequestV21 notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
 
-        Set<ConstraintViolation<NewNotificationRequest>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV21>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 0", 0);
 
@@ -60,29 +60,28 @@ class NotificationReceiverValidationTestIT {
     @Test
     void taxIdNotInWhiteListMultipleInvalidCF() {
 
-        NewNotificationRequest notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
-        notificationRequest.addRecipientsItem( NotificationRecipient.builder()
+        NewNotificationRequestV21 notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
+        notificationRequest.addRecipientsItem( NotificationRecipientV21.builder()
                         .taxId( INVALID_TAX_ID_NOT_IN_WHITE_LIST )
                 .build() );
 
-        Set<ConstraintViolation<NewNotificationRequest>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
+        Set<ConstraintViolation<NewNotificationRequestV21>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
 
         assertConstraintViolationPresentByMessage(constraintViolations, "Invalid taxId for recipient 1", 1);
     }
 
-    private NewNotificationRequest newNotification( String recipientTaxId ) {
-        List<NotificationRecipient> recipients = new ArrayList<>();
+    private NewNotificationRequestV21 newNotification( String recipientTaxId ) {
+        List<NotificationRecipientV21> recipients = new ArrayList<>();
         recipients.add(
-                NotificationRecipient.builder().recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+                NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
                         .taxId( recipientTaxId ).denomination("Nome Cognome / Ragione Sociale")
                         .digitalDomicile(NotificationDigitalAddress.builder()
                                 .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
                         .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("zip")
                                 .province("province").municipality("municipality").at("at").build())
-                        .payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
-                                .noticeCodeAlternative("noticeCodeAlternative").build())
+                        .payments(new ArrayList<>())
                         .build());
-        return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
+        return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
                 .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject")
                 .senderTaxId("paId").recipients(recipients).build();
     }

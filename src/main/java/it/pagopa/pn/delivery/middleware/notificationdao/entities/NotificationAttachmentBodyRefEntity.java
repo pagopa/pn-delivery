@@ -11,7 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @EqualsAndHashCode
 @ToString
 @DynamoDbBean
-public class AttachmentRefEntity {
+public class NotificationAttachmentBodyRefEntity {
     public static final String FIELD_KEY = "key";
     public static final String FIELD_VERSION_TOKEN = "versionToken";
 

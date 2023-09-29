@@ -11,12 +11,19 @@ import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationRequest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputDownloadDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
@@ -292,7 +299,7 @@ public class NotificationAttachmentService {
             NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
             fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
             if (!StringUtils.hasText( fileKey )) {
-                String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayment().toString());
+                String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayments().toString());
                 throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);
             }
             name = attachmentName;
@@ -314,27 +321,28 @@ public class NotificationAttachmentService {
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, boolean isMVPTria){
-        NotificationPaymentInfo payment = doc.getPayment();
+        //TODO: REMOVE GET(0) WHEN REFACTOR FOR THIS METHOD START
+        NotificationPaymentInfo payment = doc.getPayments().get(0);
         if ( !Objects.nonNull( payment ) ) {
-          String exMessage =  String.format("Notification without payment attachment - iun=%s", iun);
+            String exMessage =  String.format("Notification without payment attachment - iun=%s", iun);
             log.error(exMessage);
             if(isMVPTria) {
-              throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
+                throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
             } else {
-              throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);              
+                throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);
             }
-           
+
         }
         if (attachmentName.equals(ATTACHMENT_TYPE_PAGO_PA)) {
-            return getKey( payment.getPagoPaForm() );
+            return getKey( payment.getPagoPa() );
         }
         return null;
     }
 
-    private String getKey(NotificationPaymentAttachment payment) {
+    private String getKey(PagoPaPayment payment) {
         String key = null;
         if (Objects.nonNull( payment ) ) {
-            key = payment.getRef().getKey();
+            key = payment.getAttachment().getRef().getKey();
         }
         return key;
     }

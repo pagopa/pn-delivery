@@ -48,7 +48,7 @@ info:
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
       di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus)
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV21)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
       >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
@@ -89,9 +89,10 @@ info:
       ### Ciclo di vita della notifica lato mittente
       
       #### 1. Caricamento dei documenti della notifica
-      
-      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini di pagamento).
-      
+    
+      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadati di pagamento).
+      [Schema Metadata F24](#/components/schemas/F24Metadata)
+    
       #### 1.a. Richiesta presigned Url
       
       Invocare l'operazione [presignedUploadRequest](#/NewNotification/presignedUploadRequest) 
@@ -127,7 +128,7 @@ info:
       #### 2. Richiesta di invio della notifica
     
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotification) utilizzando i riferimenti dei file 
+      [sendNewNotification](#/NewNotification/sendNewNotificationV21) utilizzando i riferimenti dei file 
       caricati ottenuti al punto (1.b).
       
       </br>
@@ -151,8 +152,8 @@ info:
     
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
       identificata dalla IUN restituito dall'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatus).</br> 
-      A tal punto si potranno utilizzare l'operazione _GET /delivery/notifications/sent/{iun}_ per 
+      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV21).</br> 
+      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.1/notifications/sent/{iun}_ per 
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
@@ -165,6 +166,10 @@ info:
         "title": "NotificationAccepted",
         "eventType": "STATUS"
       }
+      ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio della stream appena creata chiamando la 
+      API [getEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/getEventStream), mentre si possono ottenere i dati degli eventi richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Events/consumeEventStream)
+    
+    
       ``</br></br>che permette di monitorare gli eventi di tipo "STATO". Successivamente si può ottenere il dettaglio 
       dello stream appena creato chiamando la API [getEventStream](#/Streams/getEventStream)), mentre si possono 
       ottenere i dati degli eventi richiamando la API [consumeEventStream](#/Streams/consumeEventStream)
@@ -186,27 +191,21 @@ info:
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
     <ul>  
-    <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li>
-    <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li>
-    <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li>
-    <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li>
+    <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente di produzione</li>
+    <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retrocompatibilità</li>
     </ul>  
     </details></br>
-      
+
   contact:
     email: pn-supporto-enti@pagopa.it
   license:
     name: Licenza di PN
     url: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
 servers:
-  - url: https://api.pn.pagopa.it
+  - url: https://api.notifichedigitali.it
     description: Ambiente di produzione
-  - url: https://api.coll.pn.pagopa.it
+  - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
-  - url: https://api.svil.pn.pagopa.it
-    description: Ambiente di test
-  - url: https://api.dev.pn.pagopa.it
-    description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
     description: >-
@@ -319,7 +318,7 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/requests":
+  "/delivery/v2.1/requests":
     post:
       summary: Richiesta invio notifica
       description: |-
@@ -332,12 +331,12 @@ paths:
         
       tags:
         - NewNotification
-      operationId: sendNewNotification
+      operationId: sendNewNotificationV21
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV21"
         required: true
       responses:
         '202':
@@ -364,13 +363,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-    
+
 
     ###########################################################################################
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: retrieveNotificationRequestStatus                 # ONLY EXTERNAL
+      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -389,7 +388,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NewNotificationRequestStatusResponse"
+                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV21"
         '400':
           description: Bad request
           content:
@@ -408,13 +407,13 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-    
-    
+
+
     ###########################################################################################
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
-  
-  "/delivery/v2.0/notifications/sent/{iun}":
+
+  "/delivery/v2.1/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
@@ -422,7 +421,7 @@ paths:
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV20                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:
@@ -431,7 +430,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV20"
+                $ref: "#/components/schemas/FullSentNotificationV21"
         '400':
           description: Bad request
           content:
@@ -444,7 +443,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-    
+
     ###########################################################################################
     ###                     DOWNLOAD DOCUMENTI E ALLEGATI PER PAGAMENTO                     ###
     ###########################################################################################
@@ -485,8 +484,8 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem' 
-                
+                $ref: '#/components/schemas/Problem'
+
   "/delivery/notifications/sent/{iun}/attachments/payment/{recipientIdx}/{attachmentName}":
     get:
       description: Download allegato per pagamento
@@ -498,6 +497,7 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathRecipientIdx'
         - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
       responses:
         '200':
           description: OK
@@ -522,9 +522,9 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem' 
+                $ref: '#/components/schemas/Problem'
 
-  
+
   '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
     get:                                                                            # ONLY EXTERNAL
       operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
@@ -616,6 +616,7 @@ paths:
 
   '/delivery/events/payment/f24':
     post:
+      deprecated: true
       operationId: paymentEventsRequestF24
       description: >-
         Questa API è a disposizione della Pubblica Amministrazione per inviare eventi
@@ -651,13 +652,13 @@ paths:
                 $ref: '#/components/schemas/Problem'
 
 components:
-  
+
   parameters:
     ############################################################################################
     ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
     ############################################################################################
 
-     
+
     ############################################################################################
     ###                     PARAMETRI DI AUTENTICAZIONE E AUTORIZZAZIONE                     ###
     ############################################################################################
@@ -689,7 +690,7 @@ components:
       name: idempotenceToken
       description: >-
         token usato per disambiguare "richieste di notificazione" effettuate con lo stesso 
-        numero di protocollo. 
+        numero di protocollo.
       in: query
       required: false
       schema:
@@ -697,8 +698,8 @@ components:
         # ASCII printable characters
         pattern: ^[ -~]*$
         maxLength: 256
-    
-    
+
+
     ############################################################################################
     ###                             PARAMETRI DOWNLOAD DOCUMENTI                             ###
     ############################################################################################
@@ -712,7 +713,7 @@ components:
         format: int32
     pathRecipientIdx:
       name: recipientIdx
-      description: indice dei destinatario nella lista partendo da 0.
+      description: indice del destinatario nella lista partendo da 0.
       in: path
       required: true
       schema:
@@ -720,24 +721,22 @@ components:
         format: int32
     pathAttachmentName:
       name: attachmentName
-      description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24_FLAT|F24_STANDARD
+      description: Tipologia del pagamento allegato alla notifica. Valori possibili PAGOPA|F24
       in: path
       required: true
       schema:
         type: string
-        minLength: 6
-        maxLength: 12
-        pattern: "PAGOPA|F24_FLAT|F24_STANDARD"
-        #quella sottostante è quella corretta. Riscritta per problemi con tool usato
-        #oneOf:
-        #  - type: number
-        #  - type: string
-        #    enum:
-        #      - PAGOPA
-        #      - F24_FLAT
-        #      - F24_STANDARD
-    
-    
+        minLength: 3
+        maxLength: 6
+        pattern: "PAGOPA|F24"
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
     ############################################################################################
@@ -753,7 +752,7 @@ components:
     ###########################################################################################
     PnStatusResponse:
       $ref: './remote-refs.yaml#/components/schemas/PnStatusResponse'
-    
+
     ###########################################################################################
     ###                             DTO PRECARICAMENTO ALLEGATI                             ###
     ###########################################################################################
@@ -775,12 +774,13 @@ components:
         contentType:
           title: MIME type del file che verrà caricato
           description: >-
-            Il MIME type dell'allegato che dovrà essere caricato. Attualmente è supportato solo
+            Il MIME type dell'allegato che dovrà essere caricato. Attualmente sono supportati
               - application/pdf
+              - application/json
           type: string
           minLength: 15
-          maxLength: 15
-          pattern: ^application\/pdf$
+          maxLength: 16
+          pattern: ^application\/(pdf|json)$
         sha256:
           title: checksum sha256 del file che verrà caricato
           description: >-
@@ -879,10 +879,10 @@ components:
             Ripetizione del token usato per disambiguare "richieste di notificazione" 
             effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
-    
-    NewNotificationRequestStatusResponse:
+
+    NewNotificationRequestStatusResponseV21:
       allOf:
-        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequest"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV21"
         - type: object
           required:
             - notificationRequestId
@@ -923,12 +923,12 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV20:
+    FullSentNotificationV21:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV21'
         - type: object
           required:
             - notificationStatus
@@ -949,7 +949,7 @@ components:
     ###########################################################################################
     ###                              DTO EVENTO DI PAGAMENTO                                ###
     ###########################################################################################
-    
+
     PaymentEventsRequestPagoPa:
       title: Invio eventi di pagamento da PA a PN
       description: >- 
@@ -1048,7 +1048,7 @@ components:
         amount:
           type: integer
           format: int32
-    
+
     TimelineElementV20:
       $ref: './remote-refs.yaml#/components/schemas/TimelineElementV20'
     NotificationStatus:
@@ -1057,6 +1057,8 @@ components:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatusHistory'
     LegalFactDownloadMetadataResponse:
       $ref: './remote-refs.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
+    F24Metadata:
+      $ref: './remote-refs.yaml#/components/schemas/F24Metadata'
     RequestStatus:
       $ref: './remote-refs.yaml#/components/schemas/RequestStatus'
 
@@ -1068,7 +1070,7 @@ components:
 
 security:                 # ONLY EXTERNAL
   - ApiKeyAuth: [] # use the same name as under securitySchemes    # ONLY EXTERNAL
-              
 
 
-  
+
+

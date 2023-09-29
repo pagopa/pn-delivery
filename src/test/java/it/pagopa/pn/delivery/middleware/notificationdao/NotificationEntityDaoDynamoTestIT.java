@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV20;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ import java.util.Optional;
         "pn.delivery.notification-qr-dao.table-name=NotificationsQR",
         "pn.delivery.max-recipients-count=0",
         "pn.delivery.max-attachments-count=0"
-    })
+})
 @SpringBootTest
 @Import(LocalStackTestConfig.class)
 class NotificationEntityDaoDynamoTestIT {
@@ -64,7 +65,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .partitionValue( "creditorTaxId##noticeCode" )
                 .build();
         Key costKey2 = Key.builder()
-                .partitionValue( "77777777777##002720356512737953" )
+                .partitionValue( "creditorTaxId1##noticeCode1" )
                 .build();
         Key costKey3 = Key.builder()
                 .partitionValue("creditorTaxId##noticeCode_opt")
@@ -126,7 +127,7 @@ class NotificationEntityDaoDynamoTestIT {
         Assertions.assertEquals( token, result.get().getAarQRCodeValue() );
     }
 
-    
+
     @Test
     void getRequestIdByPaProtocolNumberAndIdempotenceToken() {
         //GIVEN
@@ -153,22 +154,34 @@ class NotificationEntityDaoDynamoTestIT {
                 .denomination("recipientDenomination")
                 .payments( List.of(
                                 NotificationPaymentInfoEntity.builder()
-                                        .creditorTaxId("creditorTaxId")
+                                        .f24(
+                                                F24PaymentEntity.builder()
+                                                        .title("title")
+                                                        .applyCost(false)
+                                                        .metadataAttachment(
+                                                                MetadataAttachmentEntity.builder()
+                                                                        .contentType("application/pdf")
+                                                                        .digests(NotificationAttachmentDigestsEntity.builder()
+                                                                                .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
+                                                                                .build())
+                                                                        .build()
+                                                        )
+                                                        .build()
+                                        )
                                         .noticeCode("noticeCode")
-                                        .pagoPaForm(PaymentAttachmentEntity.builder()
+                                        .creditorTaxId("creditorTaxId")
+                                        .applyCost(false)
+                                        .pagoPaForm(PagoPaPaymentEntity.builder()
                                                 .contentType("application/pdf")
-                                                .digests(AttachmentDigestsEntity.builder()
+                                                .digests(NotificationAttachmentDigestsEntity.builder()
                                                         .sha256("sha256")
                                                         .build())
-                                                .ref(AttachmentRefEntity.builder()
+                                                .ref(NotificationAttachmentBodyRefEntity.builder()
                                                         .key("key")
                                                         .versionToken("versionToken")
                                                         .build())
-                                                .build())
-                                        .build(),
-                                NotificationPaymentInfoEntity.builder()
-                                        .creditorTaxId("creditorTaxId")
-                                        .noticeCode("noticeCode_opt")
+                                                .build()
+                                        )
                                         .build()
                         )
                 )
@@ -185,11 +198,35 @@ class NotificationEntityDaoDynamoTestIT {
         NotificationRecipientEntity notificationRecipientEntity1 = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
                 .payments( List.of(
-                        NotificationPaymentInfoEntity.builder()
-                                .creditorTaxId("77777777777")
-                                .noticeCode("002720356512737953")
-                                .build()
-                    )
+                                NotificationPaymentInfoEntity.builder()
+                                        .f24(
+                                                F24PaymentEntity.builder()
+                                                        .title("title")
+                                                        .applyCost(false)
+                                                        .metadataAttachment(
+                                                                MetadataAttachmentEntity.builder()
+                                                                        .contentType("application/pdf")
+                                                                        .digests(NotificationAttachmentDigestsEntity.builder()
+                                                                                .sha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE=")
+                                                                                .build())
+                                                                        .build()
+                                                        )
+                                                        .build()
+                                        )
+                                        .noticeCode("noticeCode1")
+                                        .creditorTaxId("creditorTaxId1")
+                                        .applyCost(false)
+                                        .pagoPaForm(PagoPaPaymentEntity.builder()
+                                                .contentType("application/pdf")
+                                                .digests(NotificationAttachmentDigestsEntity.builder()
+                                                        .sha256("sha256")
+                                                        .build())
+                                                .ref(NotificationAttachmentBodyRefEntity.builder()
+                                                        .key("key")
+                                                        .versionToken("versionToken")
+                                                        .build())
+                                                .build()).build()
+                        )
                 )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
                         .foreignState("Svizzera")
@@ -209,7 +246,7 @@ class NotificationEntityDaoDynamoTestIT {
                 .idempotenceToken( "idempotenceToken" )
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .physicalCommunicationType(FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId( "pa_02" )
@@ -231,15 +268,15 @@ class NotificationEntityDaoDynamoTestIT {
     }
 
     private void removeFromNotificationQRDb(String iun) {
-      
-      notificationQREntityDao.getQRByIun("IUN_01").values().forEach(token ->{
-        Key QRkey = Key.builder()
-            .partitionValue(token)
-            .build();
-        
-          notificationQREntityDao.delete( QRkey );
-      });
-      
- 
+
+        notificationQREntityDao.getQRByIun("IUN_01").values().forEach(token ->{
+            Key QRkey = Key.builder()
+                    .partitionValue(token)
+                    .build();
+
+            notificationQREntityDao.delete( QRkey );
+        });
+
+
     }
 }
