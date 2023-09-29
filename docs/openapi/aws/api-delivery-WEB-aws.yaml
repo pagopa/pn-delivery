@@ -2038,7 +2038,7 @@ components:
           $ref: '#/components/schemas/paTaxId'
         applyCost:
           type: boolean
-          nullable: true
+          nullable: false
           description: >-
             Flag per indicare se l'avviso pagoPa deve contere i costi di
             notifica
