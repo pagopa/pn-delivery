@@ -291,10 +291,6 @@ components:
           format: int32
           minimum: 0
           maximum: 100
-        vat:
-          type: integer
-          format: int32
-          description: IVA espressa in percentuale imposta al mittente sulla notifica analogica
         pagoPaIntMode:
           type: string
           description: >-
