@@ -13,7 +13,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 public class F24PaymentEntity {
 
     private String title;
-    private boolean applyCost;
+    private Boolean applyCost;
     private Integer index;
     private MetadataAttachmentEntity metadataAttachment;
 
@@ -24,7 +24,7 @@ public class F24PaymentEntity {
     }
 
     @DynamoDbAttribute(value = "applyCost")
-    public boolean getApplyCost() {
+    public Boolean getApplyCost() {
         return applyCost;
     }
 
@@ -42,7 +42,7 @@ public class F24PaymentEntity {
         this.title = title;
     }
 
-    public void setApplyCost(boolean applyCost) {
+    public void setApplyCost(Boolean applyCost) {
         this.applyCost = applyCost;
     }
 

@@ -5,6 +5,8 @@ import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.F24Response;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
@@ -16,10 +18,12 @@ import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
+import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
@@ -34,6 +38,7 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +46,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 class NotificationAttachmentServiceTest {
@@ -56,6 +61,8 @@ class NotificationAttachmentServiceTest {
   private NotificationDao notificationDao;
   private PnSafeStorageClientImpl pnSafeStorageClient;
   private PnMandateClientImpl pnMandateClient;
+  private PnF24ClientImpl pnF24Client;
+  private PnDeliveryPushClientImpl pnDeliveryPushClient;
   private CheckAuthComponent checkAuthComponent;
   private NotificationViewedProducer notificationViewedProducer;
   private MVPParameterConsumer mvpParameterConsumer;
@@ -66,11 +73,13 @@ class NotificationAttachmentServiceTest {
 
     notificationDao = Mockito.mock(NotificationDao.class);
     pnSafeStorageClient = Mockito.mock(PnSafeStorageClientImpl.class);
+    pnF24Client = Mockito.mock(PnF24ClientImpl.class);
+    pnDeliveryPushClient = Mockito.mock(PnDeliveryPushClientImpl.class);
     pnMandateClient = Mockito.mock(PnMandateClientImpl.class);
     checkAuthComponent = Mockito.mock(CheckAuthComponent.class);
     notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
     mvpParameterConsumer = Mockito.mock(MVPParameterConsumer.class);
-    attachmentService = new NotificationAttachmentService(pnSafeStorageClient, notificationDao,
+    attachmentService = new NotificationAttachmentService(pnSafeStorageClient, pnF24Client, pnDeliveryPushClient, notificationDao,
         checkAuthComponent, notificationViewedProducer, mvpParameterConsumer);
   }
 
@@ -320,7 +329,7 @@ class NotificationAttachmentServiceTest {
 
     // When
     NotificationAttachmentDownloadMetadataResponse result =
-        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID, null), mandateId,
+        attachmentService.downloadAttachmentWithRedirect(IUN, new InternalAuthHeader(cxType, xPagopaPnCxId, X_PAGOPA_PN_UID, null), null,
             null, attachmentName, true);
 
     // Then
@@ -422,7 +431,7 @@ class NotificationAttachmentServiceTest {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(0, 0, PAGOPA);
+        NotificationAttachmentService.FileDownloadIdentify.create(0, 0, PAGOPA, null);
 
     PnHttpResponseException exception = new PnHttpResponseException("error", 404);
 
@@ -439,7 +448,7 @@ class NotificationAttachmentServiceTest {
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     notification.setRecipients(Collections.singletonList(NotificationRecipient.builder().build()));
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA);
+        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA, null);
 
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
@@ -452,7 +461,7 @@ class NotificationAttachmentServiceTest {
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     notification.setRecipients(Collections.singletonList(NotificationRecipient.builder().build()));
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA);
+        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, PAGOPA, null);
     when(mvpParameterConsumer.isMvp(any())).thenReturn(Boolean.TRUE);
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
@@ -466,7 +475,7 @@ class NotificationAttachmentServiceTest {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "WrongAttachmentName");
+        NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "WrongAttachmentName", null);
 
     Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
@@ -478,7 +487,7 @@ class NotificationAttachmentServiceTest {
     // Given
     InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
     NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
-        NotificationAttachmentService.FileDownloadIdentify.create(0, 0, PAGOPA);
+        NotificationAttachmentService.FileDownloadIdentify.create(0, 0, PAGOPA, null);
 
     FileDownloadResponse response = new FileDownloadResponse().contentType("WrongContntType");
 
@@ -488,6 +497,32 @@ class NotificationAttachmentServiceTest {
         attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
     Assertions.assertEquals("iun__titolo.pdf", fileInfos.getFileName());
+  }
+
+  @Test
+  void computeFileInfoDefaultContentType1() {
+    // Given
+    InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
+    NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
+            NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "F24", null);
+
+    FileDownloadResponse response = new FileDownloadResponse().contentType("WrongContntType");
+
+    Mockito.when(attachmentService.getFile("filekey")).thenReturn(response);
+    NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
+    cost.setAmount(200);
+    cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
+    cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
+    Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(),anyInt(),any())).thenReturn(cost);
+
+    F24Response f24Response = new F24Response();
+    f24Response.setRetryAfter(BigDecimal.valueOf(0));
+    f24Response.setUrl("url");
+    Mockito.when(pnF24Client.generatePDF(anyString(),anyString(),any(),anyInt())).thenReturn(f24Response);
+    NotificationAttachmentService.FileInfos fileInfos =
+            attachmentService.computeFileInfo(fileDownloadIdentify, notification);
+
+    Assertions.assertEquals("url", fileInfos.getFileDownloadResponse().getDownload().getUrl());
   }
 
   private InternalNotification buildNotification(String iun, String taxid) {

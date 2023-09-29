@@ -52,7 +52,6 @@ public class StatusService {
     }
 
     public void updateStatus(RequestUpdateStatusDto dto) {
-        //TODO: DO NOT REGRESSION TESTS
         Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun());
 
         if (notificationOptional.isPresent()) {

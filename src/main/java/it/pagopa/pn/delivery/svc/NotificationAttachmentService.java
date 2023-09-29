@@ -9,7 +9,11 @@ import it.pagopa.pn.commons.utils.MimeTypesUtils;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.F24Response;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
+import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileCreationRequest;
+import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
@@ -21,9 +25,11 @@ import it.pagopa.pn.delivery.models.InputDownloadDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
-import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
+import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
 import it.pagopa.pn.delivery.svc.authorization.AuthorizationOutcome;
 import it.pagopa.pn.delivery.svc.authorization.CheckAuthComponent;
@@ -32,19 +38,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.slf4j.MDC;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_FILEINFONOTFOUND;
-import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT;
+import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 
 @Service
 @Slf4j
@@ -53,15 +59,20 @@ public class NotificationAttachmentService {
     public static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
     public static final String PRELOADED = "PRELOADED";
     private static final String ATTACHMENT_TYPE_PAGO_PA = "PAGOPA" ;
+    private static final String ATTACHMENT_TYPE_F24 = "F24";
 
     private final PnSafeStorageClientImpl safeStorageClient;
+    private final PnF24ClientImpl pnF24Client;
+    private final PnDeliveryPushClientImpl pnDeliveryPushClient;
     private final NotificationDao notificationDao;
     private final CheckAuthComponent checkAuthComponent;
     private final NotificationViewedProducer notificationViewedProducer;
     private final MVPParameterConsumer mvpParameterConsumer;
 
-    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer, MVPParameterConsumer mvpParameterConsumer) {
+    public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, PnF24ClientImpl pnF24Client, PnDeliveryPushClientImpl pnDeliveryPushClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer, MVPParameterConsumer mvpParameterConsumer) {
         this.safeStorageClient = safeStorageClient;
+        this.pnF24Client = pnF24Client;
+        this.pnDeliveryPushClient = pnDeliveryPushClient;
         this.notificationDao = notificationDao;
         this.checkAuthComponent = checkAuthComponent;
         this.notificationViewedProducer = notificationViewedProducer;
@@ -96,6 +107,7 @@ public class NotificationAttachmentService {
         private Integer documentIdx;
         private Integer recipientIdx;
         private String attachmentName;
+        private Integer attachmentIdx;
 
         private FileDownloadIdentify() {}
 
@@ -103,16 +115,17 @@ public class NotificationAttachmentService {
             this.documentIdx = documentIdx;
         }
 
-        public FileDownloadIdentify(Integer recipientIdx, String attachmentName) {
+        public FileDownloadIdentify(Integer recipientIdx, String attachmentName, Integer attachmentIdx) {
             this.recipientIdx = recipientIdx;
             this.attachmentName = attachmentName;
+            this.attachmentIdx = attachmentIdx;
         }
 
-        public static FileDownloadIdentify create(Integer documentIndex, Integer recipientIdx, String attachmentName) {
+        public static FileDownloadIdentify create(Integer documentIndex, Integer recipientIdx, String attachmentName, Integer attachmentIdx) {
             if (documentIndex != null) {
                 return new FileDownloadIdentify( documentIndex );
             } else {
-                return new FileDownloadIdentify( recipientIdx, attachmentName );
+                return new FileDownloadIdentify( recipientIdx, attachmentName, attachmentIdx );
             }
         }
     }
@@ -195,6 +208,30 @@ public class NotificationAttachmentService {
         return downloadDocumentWithRedirect( inputDownloadDto );
     }
 
+
+    public InternalAttachmentWithFileKey downloadAttachmentWithRedirectWithFileKey(
+            String iun,
+            InternalAuthHeader internalAuthHeader,
+            String mandateId,
+            Integer recipientIdx,
+            String attachmentName,
+            Integer attachmentIndex,
+            Boolean markNotificationAsViewed) {
+        InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
+                .cxType(internalAuthHeader.cxType())
+                .cxId(internalAuthHeader.xPagopaPnCxId())
+                .uid(internalAuthHeader.xPagopaPnUid())
+                .mandateId( mandateId )
+                .iun( iun )
+                .documentIndex( null )
+                .recipientIdx( recipientIdx )
+                .attachmentName( attachmentName )
+                .attachmentIdx(attachmentIndex)
+                .markNotificationAsViewed( markNotificationAsViewed )
+                .build();
+        return downloadDocumentWithRedirect( inputDownloadDto );
+    }
+
     private InternalAttachmentWithFileKey downloadDocumentWithRedirect(InputDownloadDto inputDownloadDto ) {
         String cxType = inputDownloadDto.getCxType();
         String cxId = inputDownloadDto.getCxId();
@@ -202,6 +239,7 @@ public class NotificationAttachmentService {
         String mandateId = inputDownloadDto.getMandateId();
         String iun = inputDownloadDto.getIun();
         Integer recipientIdx = inputDownloadDto.getRecipientIdx();
+        Integer attachmentIdx = inputDownloadDto.getAttachmentIdx();
         List<String> cxGroups = inputDownloadDto.getCxGroups();
         Integer documentIndex = inputDownloadDto.getDocumentIndex();
         String attachmentName = inputDownloadDto.getAttachmentName();
@@ -223,8 +261,9 @@ public class NotificationAttachmentService {
                 throw new PnNotificationNotFoundException("Notification not found for iun=" + iun);
             }
 
+
             Integer downloadRecipientIdx = handleReceiverAttachmentDownload( recipientIdx, authorizationOutcome.getEffectiveRecipientIdx(), documentIndex );
-            FileDownloadIdentify fileDownloadIdentify = FileDownloadIdentify.create( documentIndex, downloadRecipientIdx, attachmentName );
+            FileDownloadIdentify fileDownloadIdentify = FileDownloadIdentify.create( documentIndex, downloadRecipientIdx, attachmentName, attachmentIdx );
 
             FileInfos fileInfos = computeFileInfo( fileDownloadIdentify, notification );
 
@@ -281,37 +320,67 @@ public class NotificationAttachmentService {
     }
 
     public FileInfos computeFileInfo(FileDownloadIdentify fileDownloadIdentify, InternalNotification notification ) {
-        String fileName;
         String fileKey;
+        String name;
 
         String iun = notification.getIun();
         Integer documentIndex = fileDownloadIdentify.documentIdx;
-        String name;
-        if (documentIndex != null)
-        {
-            NotificationDocument doc = notification.getDocuments().get( documentIndex );
-            name   = doc.getTitle();
+        Integer recipientIdx = fileDownloadIdentify.recipientIdx;
+        Integer attachmentIdx = fileDownloadIdentify.attachmentIdx != null ? fileDownloadIdentify.attachmentIdx : 0;
+        String attachmentName = fileDownloadIdentify.attachmentName;
+
+        if(documentIndex != null){
+            NotificationDocument doc = notification.getDocuments().get(documentIndex);
+            name = doc.getTitle();
             fileKey = doc.getRef().getKey();
         }
-        else
-        {
-            String attachmentName = fileDownloadIdentify.attachmentName;
-            NotificationRecipient effectiveRecipient = notification.getRecipients().get( fileDownloadIdentify.recipientIdx );
-            fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
-            if (!StringUtils.hasText( fileKey )) {
-                String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayments().toString());
-                throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);
+        else{
+            NotificationRecipient effectiveRecipient = checkRecipientsAndPayments(notification, recipientIdx, attachmentIdx);
+
+            if (StringUtils.hasText(attachmentName) && attachmentName.equals(ATTACHMENT_TYPE_F24)) {
+                List<String> pathTokens;
+                NotificationPaymentInfo notificationPaymentInfo = effectiveRecipient.getPayments().get(attachmentIdx);
+                if (notificationPaymentInfo.getF24() != null) {
+                    pathTokens = Collections.singletonList(String.format("%d,%d", recipientIdx, attachmentIdx));
+                } else {
+                    pathTokens = Collections.emptyList();
+                }
+                return callPNF24(recipientIdx, pathTokens, notification);
             }
-            name = attachmentName;
+            else{
+                fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, attachmentIdx, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
+                if (!StringUtils.hasText(fileKey)) {
+                    String exMessage = String.format("Unable to find key for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayments().toString());
+                    throw new PnNotFoundException("FileInfo not found", exMessage, ERROR_CODE_DELIVERY_FILEINFONOTFOUND);
+                }
+                name = attachmentName;
+            }
         }
         MDC.put(MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY, fileKey);
         log.info("downloadDocumentWithRedirect with fileKey={} name:{} - iun={}", fileKey, name, iun);
+        return downloadFileAndBuildInfo(fileKey, iun, name);
+    }
+
+    private NotificationRecipient checkRecipientsAndPayments(InternalNotification notification, Integer recipientIdx, Integer attachmentIdx){
+        if(notification.getRecipients().size()<=recipientIdx){
+            String exMessage =  String.format("Notification without recipients attachment index - iun=%s", notification.getIun());
+            throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
+        }
+        NotificationRecipient effectiveRecipient = notification.getRecipients().get(recipientIdx);
+        if(effectiveRecipient.getPayments().size()<=attachmentIdx){
+            String exMessage =  String.format("Notification without payment attachment index - iun=%s", notification.getIun());
+            throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
+        }
+        return effectiveRecipient;
+    }
+
+    private FileInfos downloadFileAndBuildInfo(String fileKey, String iun, String name) {
         try {
             FileDownloadResponse r = this.getFile(fileKey);
-            fileName = buildFilename(iun, name, r.getContentType());
+            String fileName = buildFilename(iun, name, r.getContentType());
 
             log.info("downloadDocumentWithRedirect with fileKey={} filename:{} - iun={}", fileKey, fileName, iun);
-            return new FileInfos( fileName, r , fileKey);
+            return new FileInfos(fileName, r, fileKey);
         } catch (Exception exc) {
             if (exc instanceof PnHttpResponseException pnHttpResponseException && pnHttpResponseException.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
                 throw new PnBadRequestException("File info not found", pnHttpResponseException.getMessage(), ERROR_CODE_DELIVERY_FILEINFONOTFOUND, pnHttpResponseException);
@@ -320,9 +389,22 @@ public class NotificationAttachmentService {
         }
     }
 
-    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, boolean isMVPTria){
-        //TODO: REMOVE GET(0) WHEN REFACTOR FOR THIS METHOD START
-        NotificationPaymentInfo payment = doc.getPayments().get(0);
+
+
+    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification){
+        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null);
+
+        F24Response f24Response = pnF24Client.generatePDF("PN-DELIVERY", notification.getIun(), pathTokens, cost.getAmount());
+        FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
+        FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
+        fileDownloadInfo.setUrl(f24Response.getUrl());
+        fileDownloadInfo.setRetryAfter(f24Response.getRetryAfter());
+        fileDownloadResponse.setDownload(fileDownloadInfo);
+        return new FileInfos(null, fileDownloadResponse, null);
+    }
+
+    private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, Integer attachmentIdx, boolean isMVPTria){
+        NotificationPaymentInfo payment = doc.getPayments().get(attachmentIdx);
         if ( !Objects.nonNull( payment ) ) {
             String exMessage =  String.format("Notification without payment attachment - iun=%s", iun);
             log.error(exMessage);
