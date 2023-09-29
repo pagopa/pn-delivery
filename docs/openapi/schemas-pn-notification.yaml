@@ -535,7 +535,7 @@ components:
         applyCost:
           type: boolean
           nullable: false
-          description: Flag per indicare se l'avviso pagoPa deve contere i costi di notifica
+          description: Flag per indicare se l'avviso pagoPa deve contenere i costi di notifica
         attachment:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
 

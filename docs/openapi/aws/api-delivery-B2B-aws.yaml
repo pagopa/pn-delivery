@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: d7M/2rmtCBZGQTgQ4g1OEpVkP5ixWnvksxEMV5yCyxk=
+  version: UvIaCI0KSz7/yBMasVFLFZWrkgrGJU4XYcV9VGw+Mmo=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1729,7 +1729,7 @@ components:
           type: boolean
           nullable: false
           description: >-
-            Flag per indicare se l'avviso pagoPa deve contere i costi di
+            Flag per indicare se l'avviso pagoPa deve contenere i costi di
             notifica
         attachment:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
