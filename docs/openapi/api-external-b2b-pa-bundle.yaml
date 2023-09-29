@@ -968,6 +968,8 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotification
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -2452,7 +2454,7 @@ components:
           type: boolean
           nullable: true
           description: >-
-            Flag per indicare se l'avviso pagoPa deve contere i costi di
+            Flag per indicare se l'avviso pagoPa deve contenere i costi di
             notifica
         attachment:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
@@ -2671,12 +2673,6 @@ components:
           format: int32
           minimum: 0
           maximum: 100
-        vat:
-          type: integer
-          format: int32
-          description: >-
-            IVA espressa in percentuale imposta al mittente sulla notifica
-            analogica
         pagoPaIntMode:
           type: string
           description: >-
@@ -3232,6 +3228,7 @@ components:
               - FILE_PDF_TOOBIG_ERROR
               - NOT_VALID_ADDRESS
               - RECIPIENT_ID_NOT_VALID
+              - F24_METADATA_NOT_VALID  (solo a partire dalla versione 2.1)
         detail:
           type: string
     RequestRefusedDetails:
