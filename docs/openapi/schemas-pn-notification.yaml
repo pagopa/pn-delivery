@@ -291,10 +291,6 @@ components:
           format: int32
           minimum: 0
           maximum: 100
-        vat:
-          type: integer
-          format: int32
-          description: IVA espressa in percentuale imposta al mittente sulla notifica analogica
         pagoPaIntMode:
           type: string
           description: >-
@@ -539,7 +535,7 @@ components:
         applyCost:
           type: boolean
           nullable: false
-          description: Flag per indicare se l'avviso pagoPa deve contere i costi di notifica
+          description: Flag per indicare se l'avviso pagoPa deve contenere i costi di notifica
         attachment:
           $ref: "#/components/schemas/NotificationPaymentAttachment"
 

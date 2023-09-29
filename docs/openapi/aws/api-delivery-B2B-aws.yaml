@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: wr1+/7aPJWzhC4KUbE1ND+zbhGLsb94XHW9IJtMlwEk=
+  version: UvIaCI0KSz7/yBMasVFLFZWrkgrGJU4XYcV9VGw+Mmo=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -700,8 +700,6 @@ paths:
       tags:
         - NewNotification
       operationId: sendNewNotification
-      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
-      x-pagopa-lambda-account: core
       requestBody:
         content:
           application/json:
@@ -738,8 +736,9 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-delivery-versioning-v1v21-sendnewnotification-lambda:live/invocations
-        httpMethod: POST
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/requests
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -750,9 +749,9 @@ paths:
           integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
         passthroughBehavior: when_no_match
-        contentHandling: CONVERT_TO_TEXT
+        connectionType: VPC_LINK
         timeoutInMillis: 29000
-        type: aws_proxy
+        type: http_proxy
       parameters: []
     get:
       deprecated: true
@@ -1730,7 +1729,7 @@ components:
           type: boolean
           nullable: false
           description: >-
-            Flag per indicare se l'avviso pagoPa deve contere i costi di
+            Flag per indicare se l'avviso pagoPa deve contenere i costi di
             notifica
         attachment:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
@@ -1947,11 +1946,6 @@ components:
           description: Costo espresso in eurocent che la PA imputa per la notifica
           minimum: 0
           maximum: 100
-        vat:
-          type: number
-          description: >-
-            IVA espressa in percentuale imposta al mittente sulla notifica
-            analogica
         pagoPaIntMode:
           type: string
           description: >-
