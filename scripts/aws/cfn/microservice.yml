@@ -394,6 +394,15 @@ Parameters:
     Description: 'VersioningV1V2GetNotificationProvisionedConcurrency'
     Default: 1
 
+  VersioningV1V21SendNewNotificationLambdaName:
+    Type: String
+    Description: 'VersioningV1V21SendNewNotificationName'
+
+  VersioningV1V21SendNewNotificationLambdaProvisionedConcurrency:
+    Type: Number
+    Description: 'VersioningV1V21SendNewNotificationProvisionedConcurrency'
+    Default: 1
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -1099,6 +1108,92 @@ Resources:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref VersioningV1V2GetNotificationLambdaVersionAlias
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
+
+
+  #########################################################
+  ###        VersioningV1V21SendNewNotification         ###
+  #########################################################
+  VersioningV1V21SendNewNotificationSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${VersioningV1V21SendNewNotificationLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  VersioningV1V21SendNewNotificationLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref VersioningV1V21SendNewNotificationLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V21SendNewNotification.zip"
+      Role: !GetAtt VersioningV1V21SendNewNotificationLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt VersioningV1V21SendNewNotificationSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.1"
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+      MemorySize: 512
+
+  # a new version at each deploy, with provisioned concurrency set
+  VersioningV1V21SendNewNotificationLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref VersioningV1V21SendNewNotificationLambda
+
+  VersioningV1V21SendNewNotificationLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref VersioningV1V21SendNewNotificationLambda
+      FunctionVersion: !GetAtt VersioningV1V21SendNewNotificationLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref VersioningV1V21SendNewNotificationLambdaProvisionedConcurrency
+
+  # Lambda function role
+  VersioningV1V21SendNewNotificationLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-versioningV1V21SendNewNotificationLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  VersioningV1V21SendNewNotificationLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref VersioningV1V2SendNewNotificationLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  # Lambda access right
+  VersioningV1V21SendNotificationLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VersioningV1V21SendNewNotificationLambdaVersionAlias
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
