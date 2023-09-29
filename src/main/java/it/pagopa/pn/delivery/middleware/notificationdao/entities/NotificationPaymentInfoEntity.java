@@ -14,16 +14,17 @@ public class NotificationPaymentInfoEntity {
 
     private String noticeCode;
     private String creditorTaxId;
-    private boolean applyCost;
+    @Builder.Default
+    private Boolean applyCost = true;
     private PagoPaPaymentEntity pagoPaForm;
     private F24PaymentEntity f24;
 
     @DynamoDbAttribute(value = "applyCost")
-    public boolean isApplyCost() {
+    public Boolean isApplyCost() {
         return applyCost;
     }
 
-    public void setApplyCost(boolean applyCost) {
+    public void setApplyCost(Boolean applyCost) {
         this.applyCost = applyCost;
     }
 
