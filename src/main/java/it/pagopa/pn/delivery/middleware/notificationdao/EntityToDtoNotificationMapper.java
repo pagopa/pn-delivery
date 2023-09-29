@@ -1,8 +1,10 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.SentNotificationV21;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
@@ -33,8 +35,8 @@ public class EntityToDtoNotificationMapper {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setSenderDenomination(entity.getSenderDenomination());
         internalNotification.set_abstract(entity.getNotificationAbstract());
-        internalNotification.senderTaxId(entity.getSenderTaxId());
-        internalNotification.setNotificationFeePolicy(NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()));
+        internalNotification.setSenderTaxId(entity.getSenderTaxId());
+        internalNotification.setNotificationFeePolicy(entity.getNotificationFeePolicy() != null ? NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()) : null);
         internalNotification.setIun(entity.getIun());
         internalNotification.setSubject(entity.getSubject());
         internalNotification.setSentAt(entity.getSentAt().atOffset(ZoneOffset.UTC));
@@ -52,6 +54,10 @@ public class EntityToDtoNotificationMapper {
         internalNotification.setTaxonomyCode(entity.getTaxonomyCode());
         internalNotification.setSourceChannel(entity.getSourceChannel());
         internalNotification.setRecipientIds(recipientIds);
+        internalNotification.setPaFee(entity.getPaFee());
+        internalNotification.setVat(entity.getVat());
+        internalNotification.setSourceChannelDetails(entity.getSourceChannelDetails());
+        internalNotification.setPagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV21.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null);
         return internalNotification;
     }
 
@@ -63,6 +69,7 @@ public class EntityToDtoNotificationMapper {
 
     private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
         return NotificationRecipient.builder()
+                .denomination(entity.getDenomination())
                 .internalId( entity.getRecipientId() )
                 .recipientType( NotificationRecipientV21.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
                 .payments( entity2PaymentInfo( entity.getPayments() ) )
