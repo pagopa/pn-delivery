@@ -35,7 +35,7 @@ public class EntityToDtoNotificationMapper {
         internalNotification.setSenderDenomination(entity.getSenderDenomination());
         internalNotification.set_abstract(entity.getNotificationAbstract());
         internalNotification.setSenderTaxId(entity.getSenderTaxId());
-        internalNotification.setNotificationFeePolicy(entity.getNotificationFeePolicy() != null ? NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()) : null);
+        internalNotification.setNotificationFeePolicy(NotificationFeePolicy.fromValue(entity.getNotificationFeePolicy().getValue()));
         internalNotification.setIun(entity.getIun());
         internalNotification.setSubject(entity.getSubject());
         internalNotification.setSentAt(entity.getSentAt().atOffset(ZoneOffset.UTC));
@@ -53,8 +53,8 @@ public class EntityToDtoNotificationMapper {
         internalNotification.setTaxonomyCode(entity.getTaxonomyCode());
         internalNotification.setSourceChannel(entity.getSourceChannel());
         internalNotification.setRecipientIds(recipientIds);
-        internalNotification.setPaFee(entity.getPaFee());
-        internalNotification.setVat(entity.getVat());
+        internalNotification.setPaFee(entity.getPaFee() != null ? entity.getPaFee() : 0);
+        internalNotification.setVat(entity.getVat() != null ? entity.getVat() : 0);
         internalNotification.setSourceChannelDetails(entity.getSourceChannelDetails());
         internalNotification.setPagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV21.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null);
         return internalNotification;
@@ -68,7 +68,6 @@ public class EntityToDtoNotificationMapper {
 
     private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
         return NotificationRecipient.builder()
-                .denomination(entity.getDenomination())
                 .internalId( entity.getRecipientId() )
                 .recipientType( NotificationRecipientV21.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
                 .payments( entity2PaymentInfo( entity.getPayments() ) )
@@ -90,7 +89,7 @@ public class EntityToDtoNotificationMapper {
         F24Payment paymentAttachment = null;
         if ( Objects.nonNull( f24 ) ) {
             paymentAttachment = F24Payment.builder()
-                    .applyCost(f24.getApplyCost() == null ? true : f24.getApplyCost())
+                    .applyCost(f24.getApplyCost())
                     .index(f24.getIndex())
                     .title(f24.getTitle())
                     .metadataAttachment(

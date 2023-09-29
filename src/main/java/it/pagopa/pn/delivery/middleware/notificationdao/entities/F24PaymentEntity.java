@@ -13,8 +13,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 public class F24PaymentEntity {
 
     private String title;
-    @Builder.Default
-    private Boolean applyCost = true;
+    private Boolean applyCost;
     private Integer index;
     private MetadataAttachmentEntity metadataAttachment;
 

@@ -71,7 +71,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAGOPA_INT_MODE)})) private String pagoPaIntMode;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL)})) private String sourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL_DETAILS)})) private String sourceChannelDetails;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int version;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private int paFee;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private int vat;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private Integer version;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private Integer paFee;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
 }

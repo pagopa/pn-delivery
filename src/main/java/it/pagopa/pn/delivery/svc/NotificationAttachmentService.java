@@ -364,7 +364,7 @@ public class NotificationAttachmentService {
     private NotificationRecipient checkRecipientsAndPayments(InternalNotification notification, Integer recipientIdx, Integer attachmentIdx){
         if(notification.getRecipients().size()<=recipientIdx){
             String exMessage =  String.format("Notification without recipients attachment index - iun=%s", notification.getIun());
-            throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTRECIPIENTSATTACHMENT);
+            throw new PnInternalException(exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
         }
         NotificationRecipient effectiveRecipient = notification.getRecipients().get(recipientIdx);
         if(effectiveRecipient.getPayments().size()<=attachmentIdx){
