@@ -53,8 +53,8 @@ public class EntityToDtoNotificationMapper {
         internalNotification.setTaxonomyCode(entity.getTaxonomyCode());
         internalNotification.setSourceChannel(entity.getSourceChannel());
         internalNotification.setRecipientIds(recipientIds);
-        internalNotification.setPaFee(entity.getPaFee() != null ? entity.getPaFee() : 0);
-        internalNotification.setVat(entity.getVat() != null ? entity.getVat() : 0);
+        internalNotification.setPaFee(entity.getPaFee());
+        internalNotification.setVat(entity.getVat());
         internalNotification.setSourceChannelDetails(entity.getSourceChannelDetails());
         internalNotification.setPagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV21.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null);
         return internalNotification;
