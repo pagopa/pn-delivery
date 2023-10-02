@@ -326,4 +326,5 @@ describe("eventHandler tests", function () {
 
     expect(response.statusCode).to.equal(502);
   });
+
 });
