@@ -49,7 +49,7 @@ info:
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
       di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV21)
+      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV21)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
       >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
@@ -153,7 +153,7 @@ info:
     
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
       identificata dalla IUN restituito dall'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/getNotificationRequestStatusV21).</br> 
+      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV21).</br> 
       A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.1/notifications/sent/{iun}_ per 
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
@@ -183,8 +183,11 @@ info:
 
       ### 5. Download dei Legal Facts
 
-      E' possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [dowload Legal Fact](#/SenderReadB2B/getSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/getSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
+      E' possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [dowload Legal Fact](#/SenderReadB2B/retrieveSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/retrieveSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
       
+    </br>
+    
+    <strong>Le FAQ possono essere consultate al seguente link</strong>: <a href>https://docs.pagopa.it/f.a.q.-per-integratori/</a>
     </br>
     
     <details>
