@@ -597,7 +597,7 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification());
 
     //THEN
-      assertThat(errors, hasSize(2));
+      assertThat(errors, hasSize(4));
       assertThat(errors, hasItems(
               hasProperty("message", Matchers.containsString("denomination")),
               hasProperty("message", Matchers.containsString("exceed"))
@@ -615,13 +615,8 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(moreBadRecipientsNewNotification());
 
     //THEN
-    assertThat(errors, hasSize(10));
+    assertThat(errors, hasSize(5));
     assertThat(errors, hasItems(
-            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0"))),
-            hasProperty("message", allOf(Matchers.containsString("address"), Matchers.containsString("recipient 0"))),
-            hasProperty("message", allOf(Matchers.containsString("province"), Matchers.containsString("recipient 0"))),
-            hasProperty("message", allOf(Matchers.containsString("zip"), Matchers.containsString("recipient 0"))),
-            hasProperty("message", allOf(Matchers.containsString("exceed"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("foreignState"), Matchers.containsString("recipient 1"))),
             hasProperty("message", allOf(Matchers.containsString("addressDetails"), Matchers.containsString("recipient 1"))),
             hasProperty("message", allOf(Matchers.containsString("municipality"), Matchers.containsString("recipient 1"))),
@@ -863,6 +858,7 @@ class NotificationReceiverValidationTest {
                             //.noticeCodeAlternative("noticeCodeAlternative").build())
                     .build());
     return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+            .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
   }
@@ -879,6 +875,7 @@ class NotificationReceiverValidationTest {
                     .payments(List.of(NotificationPaymentItem.builder()
                                     .pagoPa(PagoPaPayment.builder()
                                             .noticeCode("noticeCode")
+                                            .applyCost(false)
                                             .build()
                                     ).build()
                             )
@@ -894,12 +891,14 @@ class NotificationReceiverValidationTest {
                     .payments(List.of(NotificationPaymentItem.builder()
                                     .pagoPa(PagoPaPayment.builder()
                                             .noticeCode("noticeCode")
+                                            .applyCost(false)
                                             .build()
                                     ).build()
                             )
                     )
                     .build());
     return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+            .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
   }

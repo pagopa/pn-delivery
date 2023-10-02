@@ -514,6 +514,7 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequestV21 notification = NewNotificationRequestV21.builder()
 				.senderTaxId( "fakeSenderTaxId" )
+				.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
 				.recipients( Collections.singletonList( NotificationRecipientV21.builder().build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
 				.build();
