@@ -87,29 +87,21 @@ public class NotificationReceiverValidator {
             // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
             onlyNumericalTaxIdForPGV2(errors, recIdx, recipient);
 
-          if( !validateUtils.validate(recipient.getTaxId())) {
-              ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
-              errors.add(constraintViolation);
-          }
-          if ( !distinctTaxIds.add( recipient.getTaxId() )){
-              ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
-              errors.add(constraintViolation);
-          }
-          /*if(recipient.getPayment() != null){
-              String noticeCode = recipient.getPayment().getNoticeCode();
-              String noticeCodeAlternative = recipient.getPayment().getNoticeCodeAlternative();
-              if ( noticeCode.equals(noticeCodeAlternative) ) {
-                  ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
-                  errors.add(constraintViolation);
-              }
-          }*/
-          NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-          checkProvinceV2(errors, physicalAddress);
-          recIdx++;
-      }
-      errors.addAll(validator.validate(newNotificationRequestV2));
-      errors.addAll( this.checkPhysicalAddress(newNotificationRequestV2));
-      return errors;
+            if( !validateUtils.validate(recipient.getTaxId())) {
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
+                errors.add(constraintViolation);
+            }
+            if ( !distinctTaxIds.add( recipient.getTaxId() )){
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+                errors.add(constraintViolation);
+            }
+            NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+            checkProvinceV2(errors, physicalAddress);
+            recIdx++;
+        }
+        errors.addAll(validator.validate(newNotificationRequestV2));
+        errors.addAll( this.checkPhysicalAddress(newNotificationRequestV2));
+        return errors;
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV21>> checkPhysicalAddress(NewNotificationRequestV21 internalNotification) {
@@ -175,6 +167,11 @@ public class NotificationReceiverValidator {
                 errors.add(constraintViolation);
             }
         }
+        checkApplyCost(pagoPAapplyCostFlgCount, f24ApplyCostFlgCount, notificationFeePolicy, errors);
+        return errors;
+    }
+
+    private void checkApplyCost(int pagoPAapplyCostFlgCount, int f24ApplyCostFlgCount, boolean notificationFeePolicy, Set<ConstraintViolation<NewNotificationRequestV21>> errors) {
         if (notificationFeePolicy) {
             if (pagoPAapplyCostFlgCount < 1) {
                 ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must be valorized for at least one payment");
@@ -194,8 +191,8 @@ public class NotificationReceiverValidator {
                 errors.add(constraintViolation);
             }
         }
-        return errors;
     }
+
 
     private static Pair<String, String> buildPair(String name, List<Pair<String, String>> pairs){
         List<String> rowElem = new ArrayList<>();

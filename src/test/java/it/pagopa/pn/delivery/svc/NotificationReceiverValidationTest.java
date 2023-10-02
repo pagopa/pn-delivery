@@ -47,7 +47,7 @@ class NotificationReceiverValidationTest {
   public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
   public static final String VERSION_TOKEN = "version_token";
   public static final String KEY = "safestorage://PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG"; // or also PN_AAR-0002-YCUO-BZCH-9MKQ-EGKG
-   public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
+  public static final String PHYSICAL_ADDRESS_VALIDATION_PATTERN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '-";
   public static final Integer PHYSICAL_ADDRESS_VALIDATION_LENGTH = 44;
 
   private NotificationReceiverValidator validator;
@@ -96,6 +96,15 @@ class NotificationReceiverValidationTest {
     errors = validator.checkNewNotificationBeforeInsert(n);
     Assertions.assertTrue(errors.isEmpty()); // this is due to an error inside validator.checkNewNotificationBeforeInsert so go over
   }
+
+  @Test
+  void checkOk2() {
+    InternalNotification n = validDocumentWithoutPayments();
+    n.setNotificationFeePolicy(NotificationFeePolicy.FLAT_RATE);
+
+    Assertions.assertDoesNotThrow(() -> validator.checkNewNotificationBeforeInsertAndThrow(n));
+  }
+
 
   @Test
   @Disabled
@@ -534,7 +543,7 @@ class NotificationReceiverValidationTest {
 
 
   @Test
-          @Disabled
+  @Disabled
     // doesn't pass mvp checks
   void newNotificationRequestForMVPInvalid() {
 
@@ -574,7 +583,7 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
-  //positive check.
+    //positive check.
   void physicalAddressValidationOk() {
 
     //WHEN
@@ -588,7 +597,7 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
-  //negative check with invalid denomination field.
+    //negative check with invalid denomination field.
   void physicalAddressValidationKo() {
     //WHEN
     when(cfg.isPhysicalAddressValidation()).thenReturn(true);
@@ -597,16 +606,40 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification());
 
     //THEN
-      assertThat(errors, hasSize(4));
-      assertThat(errors, hasItems(
-              hasProperty("message", Matchers.containsString("denomination")),
-              hasProperty("message", Matchers.containsString("exceed"))
-      ));
+    assertThat(errors, hasSize(4));
+    assertThat(errors, hasItems(
+            hasProperty("message", Matchers.containsString("denomination")),
+            hasProperty("message", Matchers.containsString("exceed"))
+    ));
+  }
+
+  @Test
+  void physicalAddressValidationKo2() {
+    //WHEN
+    when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+    when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+    when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
+    var errors = validator.checkPhysicalAddress(badRecipientsNewNotification2());
+
+    //THEN
+    assertThat(errors, hasSize(3));
+  }
+
+  @Test
+  void physicalAddressValidationKo3() {
+    //WHEN
+    when(cfg.isPhysicalAddressValidation()).thenReturn(true);
+    when(cfg.getPhysicalAddressValidationPattern()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_PATTERN);
+    when(cfg.getPhysicalAddressValidationLength()).thenReturn(PHYSICAL_ADDRESS_VALIDATION_LENGTH);
+    var errors = validator.checkPhysicalAddress(badRecipientsNewNotification2());
+
+    //THEN
+    assertThat(errors, hasSize(3));
   }
 
 
   @Test
-  //negative check with all invalid fields from two different recipients.
+    //negative check with all invalid fields from two different recipients.
   void PhysicalAddressMoreRecipientsValidationKo() {
     //WHEN
     when(cfg.isPhysicalAddressValidation()).thenReturn(true);
@@ -622,7 +655,7 @@ class NotificationReceiverValidationTest {
             hasProperty("message", allOf(Matchers.containsString("municipality"), Matchers.containsString("recipient 1"))),
             hasProperty("message", allOf(Matchers.containsString("at"), Matchers.containsString("recipient 1"))),
             hasProperty("message", allOf(Matchers.containsString("municipalityDetails"), Matchers.containsString("recipient 1")))
-      ));
+    ));
   }
 
   private <T> void assertConstraintViolationPresentByMessage(Set<ConstraintViolation<T>> set,
@@ -838,6 +871,35 @@ class NotificationReceiverValidationTest {
             .build();
   }
 
+  private NewNotificationRequestV21 badRecipientsNewNotification2() {
+    List<NotificationRecipientV21> recipients = new ArrayList<>();
+    recipients.add(
+            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                    .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
+                    .digitalDomicile(NotificationDigitalAddress.builder()
+                            .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
+                    .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
+                            .province("province").municipality("municipalitymorethan40characters").at("at").build())
+                    .payments(List.of(NotificationPaymentItem.builder()
+                                    .f24(F24Payment.builder()
+                                            .applyCost(true)
+                                            .build())
+                                    .pagoPa(PagoPaPayment.builder()
+                                            .applyCost(true)
+                                            .noticeCode("noticeCode")
+                                            .build()
+                                    ).build()
+                            )
+                    )
+                    //.payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
+                    //.noticeCodeAlternative("noticeCodeAlternative").build())
+                    .build());
+    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+            .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(recipients).build();
+  }
+
   private NewNotificationRequestV21 badRecipientsNewNotification() {
     List<NotificationRecipientV21> recipients = new ArrayList<>();
     recipients.add(
@@ -855,7 +917,7 @@ class NotificationReceiverValidationTest {
                             )
                     )
                     //.payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
-                            //.noticeCodeAlternative("noticeCodeAlternative").build())
+                    //.noticeCodeAlternative("noticeCodeAlternative").build())
                     .build());
     return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
             .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
@@ -866,37 +928,37 @@ class NotificationReceiverValidationTest {
   private NewNotificationRequestV21 moreBadRecipientsNewNotification() {
     List<NotificationRecipientV21> recipients = new ArrayList<>();
     recipients.add(NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
-                    .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
-                    .digitalDomicile(NotificationDigitalAddress.builder()
-                            .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
-                    .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo?").zip("83100*")
-                            .province("province_").municipality("municipalitymorethan40characters-").municipalityDetails("municipalityDetails/")
-                            .at("at.").addressDetails("addressDetails0").foreignState("foreignState ").build())
-                    .payments(List.of(NotificationPaymentItem.builder()
-                                    .pagoPa(PagoPaPayment.builder()
-                                            .noticeCode("noticeCode")
-                                            .applyCost(false)
-                                            .build()
-                                    ).build()
-                            )
+            .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
+            .digitalDomicile(NotificationDigitalAddress.builder()
+                    .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
+            .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo?").zip("83100*")
+                    .province("province_").municipality("municipalitymorethan40characters-").municipalityDetails("municipalityDetails/")
+                    .at("at.").addressDetails("addressDetails0").foreignState("foreignState ").build())
+            .payments(List.of(NotificationPaymentItem.builder()
+                            .pagoPa(PagoPaPayment.builder()
+                                    .noticeCode("noticeCode")
+                                    .applyCost(false)
+                                    .build()
+                            ).build()
                     )
-                    .build());
+            )
+            .build());
     recipients.add(NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
-                    .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
-                    .digitalDomicile(NotificationDigitalAddress.builder()
-                            .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
-                    .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
+            .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
+            .digitalDomicile(NotificationDigitalAddress.builder()
+                    .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
+            .physicalAddress(NotificationPhysicalAddress.builder().address("Indirizzo").zip("83100")
                     .province("province").municipality("municipality!").municipalityDetails("municipalityDetails?")
                     .at("at_").addressDetails("addressDetails$").foreignState("foreignState%").build())
-                    .payments(List.of(NotificationPaymentItem.builder()
-                                    .pagoPa(PagoPaPayment.builder()
-                                            .noticeCode("noticeCode")
-                                            .applyCost(false)
-                                            .build()
-                                    ).build()
-                            )
+            .payments(List.of(NotificationPaymentItem.builder()
+                            .pagoPa(PagoPaPayment.builder()
+                                    .noticeCode("noticeCode")
+                                    .applyCost(false)
+                                    .build()
+                            ).build()
                     )
-                    .build());
+            )
+            .build());
     return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
             .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")

@@ -74,26 +74,8 @@ public class NotificationPriceService {
         String recipientId = internalNotification.getRecipientIds().get(recipientIdx);
         log.info( "Get notification process cost with iun={} recipientId={} recipientIdx={} feePolicy={}", iun, recipientId, recipientIdx, notificationFeePolicy);
 
-        boolean applyCost = true;
-        try {
-            for (NotificationRecipient recipient : internalNotification.getRecipients()) {
-                if (recipient != null) {
-                    for (NotificationPaymentInfo paymentInfo : recipient.getPayments()) {
-                        if (paymentInfo != null) {
-                            PagoPaPayment pagoPa = paymentInfo.getPagoPa();
-                            if (pagoPa != null && pagoPa.getNoticeCode().equals(noticeCode)) {
-                                applyCost = pagoPa.isApplyCost();
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (NullPointerException e) {
-            log.error( "Unable to find recipients or payments for iun={}", iun);
-            throw new PnNotificationNotFoundException( String.format("Unable to find recipients or payments for iun=%s", iun));
-        }
+        boolean applyCost = getApplyCost(internalNotification, noticeCode);
 
-        //int paFee = internalNotification.getPaFee();
         NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt(), applyCost, internalNotification.getPaFee());
 
         // invio l'evento di asseverazione sulla coda
@@ -109,6 +91,38 @@ public class NotificationPriceService {
                 .notificationViewDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getNotificationViewDate() ) )
                 .iun( iun )
                 .build();
+    }
+
+    private boolean getApplyCost(InternalNotification internalNotification, String noticeCode){
+        boolean applyCost;
+        try {
+            applyCost = checkApplyCost(internalNotification, noticeCode);
+        } catch (NullPointerException e) {
+            log.error( "Unable to find recipients or payments for iun={}", internalNotification.getIun());
+            throw new PnNotificationNotFoundException( String.format("Unable to find recipients or payments for iun=%s", internalNotification.getIun()));
+        }
+        return applyCost;
+    }
+
+    private boolean checkApplyCost(InternalNotification internalNotification, String noticeCode){
+        for (NotificationRecipient recipient : internalNotification.getRecipients()) {
+            if (recipient != null) {
+                return checkApplyCost(recipient, noticeCode);
+            }
+        }
+        return true;
+    }
+
+    private boolean checkApplyCost(NotificationRecipient recipient, String noticeCode){
+        for (NotificationPaymentInfo paymentInfo : recipient.getPayments()) {
+            if (paymentInfo != null) {
+                PagoPaPayment pagoPa = paymentInfo.getPagoPa();
+                if (pagoPa != null && pagoPa.getNoticeCode().equals(noticeCode)) {
+                    return pagoPa.isApplyCost();
+                }
+            }
+        }
+        return true;
     }
 
     private InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification) {

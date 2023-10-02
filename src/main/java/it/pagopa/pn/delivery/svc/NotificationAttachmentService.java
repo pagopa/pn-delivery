@@ -115,8 +115,6 @@ public class NotificationAttachmentService {
         private String attachmentName;
         private Integer attachmentIdx;
 
-        private FileDownloadIdentify() {}
-
         public FileDownloadIdentify(Integer documentIdx) {
             this.documentIdx = documentIdx;
         }
