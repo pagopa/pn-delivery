@@ -98,7 +98,7 @@ class NotificationPriceServiceTest {
                 .thenReturn( Optional.of( internalNotification ) );
 
         Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
-                        .iunRecipientId( "iun##recipientInternalId0" )
+                .iunRecipientId( "iun##recipientInternalId0" )
                 .build())
         );
 

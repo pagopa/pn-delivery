@@ -556,6 +556,74 @@ class NotificationAttachmentServiceTest {
     Assertions.assertEquals("url", fileInfos.getFileDownloadResponse().getDownload().getUrl());
   }
 
+  @Test
+  void computeFileInfoF24Null() {
+    // Given
+    InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
+    NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
+            NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "F24", null);
+
+    FileDownloadResponse response = new FileDownloadResponse().contentType("WrongContntType");
+
+    Mockito.when(attachmentService.getFile("filekey")).thenReturn(response);
+    NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
+    cost.setAmount(200);
+    cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
+    cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
+    Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(),anyInt(),any(), anyBoolean(), anyInt())).thenReturn(cost);
+
+    F24Response f24Response = new F24Response();
+    f24Response.setRetryAfter(BigDecimal.valueOf(0));
+    f24Response.setUrl("url");
+    Mockito.when(cfg.getF24CxId()).thenReturn("pn-delivery");
+    Mockito.when(pnF24Client.generatePDF(anyString(),anyString(),any(),anyInt())).thenReturn(f24Response);
+
+    NotificationRecipient notificationRecipient = new NotificationRecipient();
+    notificationRecipient.setTaxId(X_PAGOPA_PN_CX_ID);
+    NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
+    notificationPaymentInfo.setF24(null);
+    notificationRecipient.setPayment(List.of(notificationPaymentInfo));
+    notification.setRecipients(List.of(notificationRecipient));
+
+
+    Assertions.assertThrows(PnNotFoundException.class, () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification));
+
+  }
+
+  @Test
+  void computeFileInfoF24Null2() {
+    // Given
+    InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
+    NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
+            NotificationAttachmentService.FileDownloadIdentify.create(null, 2, "F24", null);
+
+    FileDownloadResponse response = new FileDownloadResponse().contentType("WrongContntType");
+
+    Mockito.when(attachmentService.getFile("filekey")).thenReturn(response);
+    NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
+    cost.setAmount(200);
+    cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
+    cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
+    Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(),anyInt(),any(), anyBoolean(), anyInt())).thenReturn(cost);
+
+    F24Response f24Response = new F24Response();
+    f24Response.setRetryAfter(BigDecimal.valueOf(0));
+    f24Response.setUrl("url");
+    Mockito.when(cfg.getF24CxId()).thenReturn("pn-delivery");
+    Mockito.when(pnF24Client.generatePDF(anyString(),anyString(),any(),anyInt())).thenReturn(f24Response);
+
+    NotificationRecipient notificationRecipient = new NotificationRecipient();
+    notificationRecipient.setTaxId(X_PAGOPA_PN_CX_ID);
+    NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
+    notificationPaymentInfo.setF24(null);
+    notificationRecipient.setPayment(List.of(notificationPaymentInfo));
+    notification.setRecipients(List.of(notificationRecipient));
+
+
+    Assertions.assertThrows(PnInternalException.class, () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification));
+
+  }
+
   private InternalNotification buildNotification(String iun, String taxid) {
     return buildNotification(iun, taxid, PAGOPA);
   }
@@ -614,9 +682,6 @@ class NotificationAttachmentServiceTest {
     documentItem.setTitle("titolo");
     notification.addDocumentsItem(documentItem);
     notification.setRecipientIds(List.of(taxid));
-
-
-
     return notification;
   }
 }

@@ -94,9 +94,11 @@ public class NotificationPriceService {
     }
 
     private boolean getApplyCost(InternalNotification internalNotification, String noticeCode){
-        boolean applyCost;
+        boolean applyCost = true;
         try {
-            applyCost = checkApplyCost(internalNotification, noticeCode);
+            for(NotificationRecipient recipient : internalNotification.getRecipients()){
+                applyCost = checkApplyCost(recipient, noticeCode);
+            }
         } catch (NullPointerException e) {
             log.error( "Unable to find recipients or payments for iun={}", internalNotification.getIun());
             throw new PnNotificationNotFoundException( String.format("Unable to find recipients or payments for iun=%s", internalNotification.getIun()));
@@ -104,21 +106,14 @@ public class NotificationPriceService {
         return applyCost;
     }
 
-    private boolean checkApplyCost(InternalNotification internalNotification, String noticeCode){
-        for (NotificationRecipient recipient : internalNotification.getRecipients()) {
-            if (recipient != null) {
-                return checkApplyCost(recipient, noticeCode);
-            }
-        }
-        return true;
-    }
-
     private boolean checkApplyCost(NotificationRecipient recipient, String noticeCode){
-        for (NotificationPaymentInfo paymentInfo : recipient.getPayments()) {
-            if (paymentInfo != null) {
-                PagoPaPayment pagoPa = paymentInfo.getPagoPa();
-                if (pagoPa != null && pagoPa.getNoticeCode().equals(noticeCode)) {
-                    return pagoPa.isApplyCost();
+        if (recipient != null) {
+            for (NotificationPaymentInfo paymentInfo : recipient.getPayments()) {
+                if (paymentInfo != null) {
+                    PagoPaPayment pagoPa = paymentInfo.getPagoPa();
+                    if (pagoPa != null && pagoPa.getNoticeCode().equals(noticeCode)) {
+                        return pagoPa.isApplyCost();
+                    }
                 }
             }
         }
