@@ -77,7 +77,7 @@ class NotificationReceiverTest {
 	private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private PnDeliveryConfigs pnDeliveryConfigs;
 	private PnF24ClientImpl pnF24Client;
-	private String f24CxId;
+	private PnDeliveryConfigs cfg;
 
 	@BeforeEach
 	public void setup() {
@@ -92,7 +92,7 @@ class NotificationReceiverTest {
 		validateUtils = Mockito.mock( ValidateUtils.class );
 		pnDeliveryConfigs = Mockito.mock(PnDeliveryConfigs.class);
 		pnF24Client = Mockito.mock(PnF24ClientImpl.class);
-		f24CxId = "PN-DELIVERY";
+		cfg = Mockito.mock(PnDeliveryConfigs.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -109,7 +109,7 @@ class NotificationReceiverTest {
 				sendActiveParameterConsumer,
 				pnExternalRegistriesClient,
 				pnF24Client,
-				f24CxId);
+				cfg);
 	}
 
 	@Test

@@ -6,6 +6,7 @@ import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.utils.MDCUtils;
 import it.pagopa.pn.commons.utils.MimeTypesUtils;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
@@ -69,11 +70,11 @@ public class NotificationAttachmentService {
     private final CheckAuthComponent checkAuthComponent;
     private final NotificationViewedProducer notificationViewedProducer;
     private final MVPParameterConsumer mvpParameterConsumer;
-    private final String f24CxId;
+    private final PnDeliveryConfigs cfg;
 
     public NotificationAttachmentService(PnSafeStorageClientImpl safeStorageClient, PnF24ClientImpl pnF24Client, PnDeliveryPushClientImpl pnDeliveryPushClient, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent, NotificationViewedProducer notificationViewedProducer,
                                          MVPParameterConsumer mvpParameterConsumer,
-                                         @Value("${pn.delivery.f24.cxid}")  String f24CxId) {
+                                         PnDeliveryConfigs cfg) {
         this.safeStorageClient = safeStorageClient;
         this.pnF24Client = pnF24Client;
         this.pnDeliveryPushClient = pnDeliveryPushClient;
@@ -81,7 +82,7 @@ public class NotificationAttachmentService {
         this.checkAuthComponent = checkAuthComponent;
         this.notificationViewedProducer = notificationViewedProducer;
         this.mvpParameterConsumer = mvpParameterConsumer;
-        this.f24CxId = f24CxId;
+        this.cfg = cfg;
     }
 
     public FileDownloadResponse getFile(String fileKey){
@@ -400,7 +401,7 @@ public class NotificationAttachmentService {
     private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, int paFee){
         NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null, applyCost, paFee);
 
-        F24Response f24Response = pnF24Client.generatePDF(f24CxId, notification.getIun(), pathTokens, cost.getAmount());
+        F24Response f24Response = pnF24Client.generatePDF(this.cfg.getF24CxId(), notification.getIun(), pathTokens, cost.getAmount());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
         FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
         fileDownloadInfo.setUrl(f24Response.getUrl());

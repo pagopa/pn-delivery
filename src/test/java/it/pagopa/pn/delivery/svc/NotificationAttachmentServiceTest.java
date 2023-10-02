@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.svc;
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.F24Response;
@@ -64,7 +65,7 @@ class NotificationAttachmentServiceTest {
   private CheckAuthComponent checkAuthComponent;
   private NotificationViewedProducer notificationViewedProducer;
   private MVPParameterConsumer mvpParameterConsumer;
-  private String f24CxId;
+  private PnDeliveryConfigs cfg;
 
   @BeforeEach
   public void setup() {
@@ -78,9 +79,9 @@ class NotificationAttachmentServiceTest {
     checkAuthComponent = Mockito.mock(CheckAuthComponent.class);
     notificationViewedProducer = Mockito.mock(NotificationViewedProducer.class);
     mvpParameterConsumer = Mockito.mock(MVPParameterConsumer.class);
-    f24CxId = "PN-DELIVERY";
+    cfg = Mockito.mock(PnDeliveryConfigs.class);
     attachmentService = new NotificationAttachmentService(pnSafeStorageClient, pnF24Client, pnDeliveryPushClient, notificationDao,
-        checkAuthComponent, notificationViewedProducer, mvpParameterConsumer, f24CxId);
+        checkAuthComponent, notificationViewedProducer, mvpParameterConsumer, cfg);
   }
 
   @Test
@@ -518,6 +519,7 @@ class NotificationAttachmentServiceTest {
     F24Response f24Response = new F24Response();
     f24Response.setRetryAfter(BigDecimal.valueOf(0));
     f24Response.setUrl("url");
+    Mockito.when(cfg.getF24CxId()).thenReturn("pn-delivery");
     Mockito.when(pnF24Client.generatePDF(anyString(),anyString(),any(),anyInt())).thenReturn(f24Response);
     NotificationAttachmentService.FileInfos fileInfos =
             attachmentService.computeFileInfo(fileDownloadIdentify, notification);

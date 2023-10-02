@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
@@ -53,7 +54,7 @@ public class NotificationReceiverService {
 
 	private final IunGenerator iunGenerator = new IunGenerator();
 
-	private final String f24CxId;
+	private final PnDeliveryConfigs cfg;
 
 	@Autowired
 	public NotificationReceiverService(
@@ -64,7 +65,7 @@ public class NotificationReceiverService {
 			SendActiveParameterConsumer parameterConsumer,
 			PnExternalRegistriesClientImpl pnExternalRegistriesClient,
 			PnF24ClientImpl f24Client,
-			@Value("${pn.delivery.f24.cxid}")  String f24CxId) {
+			PnDeliveryConfigs cfg) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
@@ -72,7 +73,7 @@ public class NotificationReceiverService {
 		this.parameterConsumer = parameterConsumer;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 		this.f24Client = f24Client;
-		this.f24CxId = f24CxId;
+		this.cfg = cfg;
 	}
 
 	/**
@@ -144,7 +145,7 @@ public class NotificationReceiverService {
 		saveF24Request.setId(internalNotification.getIun());
 
 		if(!saveF24Items.isEmpty()){
-			f24Client.saveMetadata(f24CxId, internalNotification.getIun(), saveF24Request);
+			f24Client.saveMetadata(this.cfg.getF24CxId(), internalNotification.getIun(), saveF24Request);
 		}
 
 		doSaveWithRethrow(internalNotification);
