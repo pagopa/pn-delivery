@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.utils.io;
 
+import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -24,7 +25,6 @@ public class IOMapper {
     private static final String URL_ATTACHMENT_F24 = "/delivery/notifications/received/{iun}/attachments/payment/F24/?attachmentIdx={indexDocument}";
     private static final String F24_DOCUMENT_TYPE = "application/pdf";
 
-
     private final ModelMapper modelMapper;
 
     public ThirdPartyMessage mapToThirdPartMessage(InternalNotification internalNotification, boolean isCancelled) {
@@ -44,7 +44,9 @@ public class IOMapper {
 
         it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient = filterRecipient(internalNotification);
 
-        if(filteredNotificationRecipient == null) return null;
+        if(filteredNotificationRecipient == null) {
+            return null;
+        }
 
         IOReceivedNotification ioReceivedNotification = IOReceivedNotification.builder()
                 .subject(internalNotification.getSubject())
@@ -120,8 +122,13 @@ public class IOMapper {
 
         it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient = filterRecipient(internalNotification);
 
-        if(recipientHasF24Payments(filteredNotificationRecipient)) {
-            thirdPartyAttachments.addAll(mapF24PaymentsToThirdPartyAttachment(filteredNotificationRecipient, internalNotification.getIun()));
+        try{
+            if(recipientHasF24Payments(filteredNotificationRecipient)) {
+                thirdPartyAttachments.addAll(mapF24PaymentsToThirdPartyAttachment(filteredNotificationRecipient, internalNotification.getIun()));
+            }
+        }
+        catch (Exception e){
+            throw new PnNotificationNotFoundException( String.format("Unable to find recipients or payments for iun=%s", internalNotification.getIun()));
         }
 
         if(!documents.isEmpty()) {
@@ -144,6 +151,7 @@ public class IOMapper {
         return filteredNotificationRecipient.getPayments()
                 .stream()
                 .anyMatch(notificationPaymentInfo -> notificationPaymentInfo.getF24() != null);
+
     }
 
     private List<ThirdPartyAttachment> mapF24PaymentsToThirdPartyAttachment(it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient, String iun) {
