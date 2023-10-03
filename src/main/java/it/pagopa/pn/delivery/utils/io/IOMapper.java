@@ -40,7 +40,9 @@ public class IOMapper {
     }
 
     public IOReceivedNotification mapToDetails(InternalNotification internalNotification, boolean isCancelled) {
-        if(internalNotification == null) return null;
+        if(internalNotification == null) {
+            return null;
+        }
 
         it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient = filterRecipient(internalNotification);
 
