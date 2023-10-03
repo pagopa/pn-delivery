@@ -10,7 +10,7 @@
     "IsLollipopActive": "false",
     "MaxAttachmentsCount": "15",
     "MaxRecipientsCount": "15",
-    "LollipopExpectedLcOriginalUrl": "https://api-app.io.pagopa.it/api/v1/third-party-messages/:messageId",
+    "LollipopExpectedLcOriginalUrl": "^https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/payment/(F24|PAGOPA)(\\?attachmentIdx=\\d+)?)?$",
     "LollipopEnableConsumerLogging": "true",
     "VersioningV1V2GetNotificationLambdaProvisionedConcurrency": "1"
   }
