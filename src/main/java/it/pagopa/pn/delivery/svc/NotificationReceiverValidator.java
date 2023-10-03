@@ -95,6 +95,12 @@ public class NotificationReceiverValidator {
                 ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
                 errors.add(constraintViolation);
             }
+
+            boolean isNotificationFeePolicyDeliveryMode = newNotificationRequestV2.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE);
+            if(recipient.getPayments() != null) {
+                errors.addAll(checkApplyCost(isNotificationFeePolicyDeliveryMode, recipient.getPayments()));
+            }
+
             NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
             checkProvinceV2(errors, physicalAddress);
             recIdx++;
@@ -113,9 +119,6 @@ public class NotificationReceiverValidator {
             int recIdx = 0;
 
             for (NotificationRecipientV21 recipient : internalNotification.getRecipients()) {
-
-                errors = checkApplyCost(internalNotification.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE), recipient.getPayments());
-
                 NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
                 Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
@@ -148,14 +151,14 @@ public class NotificationReceiverValidator {
         return errors;
     }
 
-    private Set<ConstraintViolation<NewNotificationRequestV21>> checkApplyCost(boolean notificationFeePolicy, List<NotificationPaymentItem> recipients){
+    private Set<ConstraintViolation<NewNotificationRequestV21>> checkApplyCost(boolean isNotificationFeePolicyDeliveryMode, List<NotificationPaymentItem> payments){
 
         Set<ConstraintViolation<NewNotificationRequestV21>> errors = new HashSet<>();
 
         int pagoPAapplyCostFlgCount = 0;
         int f24ApplyCostFlgCount = 0;
 
-        for (NotificationPaymentItem paymentInfo : recipients) {
+        for (NotificationPaymentItem paymentInfo : payments) {
             if (paymentInfo.getPagoPa() != null && Boolean.TRUE.equals(paymentInfo.getPagoPa().getApplyCost())) {
                 pagoPAapplyCostFlgCount++;
             }
@@ -167,12 +170,12 @@ public class NotificationReceiverValidator {
                 errors.add(constraintViolation);
             }
         }
-        checkApplyCost(pagoPAapplyCostFlgCount, f24ApplyCostFlgCount, notificationFeePolicy, errors);
+        checkApplyCost(pagoPAapplyCostFlgCount, f24ApplyCostFlgCount, isNotificationFeePolicyDeliveryMode, errors);
         return errors;
     }
 
-    private void checkApplyCost(int pagoPAapplyCostFlgCount, int f24ApplyCostFlgCount, boolean notificationFeePolicy, Set<ConstraintViolation<NewNotificationRequestV21>> errors) {
-        if (notificationFeePolicy) {
+    private void checkApplyCost(int pagoPAapplyCostFlgCount, int f24ApplyCostFlgCount, boolean isNotificationFeePolicyDeliveryMode, Set<ConstraintViolation<NewNotificationRequestV21>> errors) {
+        if (isNotificationFeePolicyDeliveryMode) {
             if (pagoPAapplyCostFlgCount < 1) {
                 ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must be valorized for at least one payment");
                 errors.add(constraintViolation);

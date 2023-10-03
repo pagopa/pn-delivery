@@ -94,30 +94,24 @@ public class NotificationPriceService {
     }
 
     private boolean getApplyCost(InternalNotification internalNotification, String noticeCode){
-        boolean applyCost = true;
-        try {
-            for(NotificationRecipient recipient : internalNotification.getRecipients()){
-                applyCost = checkApplyCost(recipient, noticeCode);
+        for(NotificationRecipient recipient : internalNotification.getRecipients()){
+            Optional<PagoPaPayment> optPagoPaPayment = findPagoPaPaymentByNoticeCode(recipient, noticeCode);
+            if(optPagoPaPayment.isPresent()) {
+                return optPagoPaPayment.get().isApplyCost();
             }
-        } catch (NullPointerException e) {
-            log.error( "Unable to find recipients or payments for iun={}", internalNotification.getIun());
-            throw new PnNotificationNotFoundException( String.format("Unable to find recipients or payments for iun=%s", internalNotification.getIun()));
         }
-        return applyCost;
+
+        log.error( "Unable to find recipients or payments for iun={}", internalNotification.getIun());
+        throw new PnNotificationNotFoundException( String.format("Unable to find recipients or payments for iun=%s", internalNotification.getIun()));
     }
 
-    private boolean checkApplyCost(NotificationRecipient recipient, String noticeCode){
-        if (recipient != null) {
-            for (NotificationPaymentInfo paymentInfo : recipient.getPayments()) {
-                if (paymentInfo != null) {
-                    PagoPaPayment pagoPa = paymentInfo.getPagoPa();
-                    if (pagoPa != null && pagoPa.getNoticeCode().equals(noticeCode)) {
-                        return pagoPa.isApplyCost();
-                    }
-                }
-            }
-        }
-        return true;
+    private Optional<PagoPaPayment> findPagoPaPaymentByNoticeCode(NotificationRecipient recipient, String noticeCode) {
+        if (recipient == null) { return Optional.empty(); }
+
+        return recipient.getPayments().stream()
+                .filter(payment -> payment.getPagoPa() != null && payment.getPagoPa().getNoticeCode().equals(noticeCode))
+                .map(NotificationPaymentInfo::getPagoPa)
+                .findFirst();
     }
 
     private InternalAsseverationEvent createInternalAsseverationEvent(InternalNotificationCost internalNotificationCost, InternalNotification internalNotification) {
@@ -148,7 +142,7 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt, boolean applyCost, int paFee) {
+    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt, boolean applyCost, Integer paFee) {
         // controllo che notifica sia stata accettata cercandola nella tabella notificationMetadata tramite PK iun##recipientId
         getNotificationMetadataEntity(iun, recipientId, sentAt);
 

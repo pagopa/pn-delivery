@@ -298,6 +298,37 @@ class NotificationReceiverValidationTest {
     assertConstraintViolationPresentByMessage(errors, "Duplicated recipient taxId");
   }
 
+  @Test
+  void applyCostNotGivenWhenNotificationIsDeliveryMode() {
+    // Given
+    NewNotificationRequestV21 n = newNotificationWithPaymentsWithoutApplyCosts();
+
+    // When
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // Then
+    assertConstraintViolationPresentByMessage(errors, "PagoPA applyCostFlg must be valorized for at least one payment");
+    assertConstraintViolationPresentByMessage(errors, "F24 applyCostFlg must be valorized for at least one payment");
+
+  }
+
+  @Test
+  void applyCostGivenWhenNotificationIsFlatRate() {
+    // Given
+    NewNotificationRequestV21 n = newNotificationWithApplyCostsAndFeePolicyFlatRate();
+
+    // When
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // Then
+    assertConstraintViolationPresentByMessage(errors, "PagoPA applyCostFlg must not be valorized for any payment");
+    assertConstraintViolationPresentByMessage(errors, "F24 applyCostFlg must not be valorized for any payment");
+
+  }
+
+
 
   @Test
   @Disabled("Documents field required in NewNotificationRequest")
@@ -606,7 +637,7 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification());
 
     //THEN
-    assertThat(errors, hasSize(4));
+    assertThat(errors, hasSize(2));
     assertThat(errors, hasItems(
             hasProperty("message", Matchers.containsString("denomination")),
             hasProperty("message", Matchers.containsString("exceed"))
@@ -622,7 +653,7 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification2());
 
     //THEN
-    assertThat(errors, hasSize(3));
+    assertThat(errors, hasSize(2));
   }
 
   @Test
@@ -634,7 +665,7 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification2());
 
     //THEN
-    assertThat(errors, hasSize(3));
+    assertThat(errors, hasSize(2));
   }
 
 
@@ -648,8 +679,13 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(moreBadRecipientsNewNotification());
 
     //THEN
-    assertThat(errors, hasSize(5));
+    assertThat(errors, hasSize(10));
     assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("address"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("province"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("zip"), Matchers.containsString("recipient 0"))),
+            hasProperty("message", allOf(Matchers.containsString("exceed"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("foreignState"), Matchers.containsString("recipient 1"))),
             hasProperty("message", allOf(Matchers.containsString("addressDetails"), Matchers.containsString("recipient 1"))),
             hasProperty("message", allOf(Matchers.containsString("municipality"), Matchers.containsString("recipient 1"))),
@@ -1047,6 +1083,90 @@ class NotificationReceiverValidationTest {
                             .address("account@dominio.it")
                             .build()).build()));
     return internalNotification;
+  }
+
+  private NewNotificationRequestV21 newNotificationWithPaymentsWithoutApplyCosts() {
+    NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
+            .payments( List.of(NotificationPaymentItem.builder()
+                    .pagoPa(PagoPaPayment.builder()
+                            .creditorTaxId("00000000000")
+                            .applyCost(false)
+                            .noticeCode("000000000000000000")
+                            .build())
+                    .f24(F24Payment.builder()
+                            .title("title")
+                            .applyCost(false)
+                            .metadataAttachment(NotificationMetadataAttachment.builder()
+                                    .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+                                    .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+                                    .contentType("application/json")
+                                    .build())
+                            .build())
+                    .build()))
+            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+            .denomination( "Ada Lovelace" )
+            .taxId( "taxID" )
+            .digitalDomicile( NotificationDigitalAddress.builder()
+                    .type( NotificationDigitalAddress.TypeEnum.PEC )
+                    .address( "address@pec.it" )
+                    .build() )
+            .physicalAddress( NotificationPhysicalAddress.builder()
+                    .at( "at" )
+                    .province( "province" )
+                    .zip( "83100" )
+                    .address( "address" )
+                    .addressDetails( "addressDetail" )
+                    .municipality( "municipality" )
+                    .municipalityDetails( "municipalityDetail" )
+                    .build() )
+            .build();
+    return NewNotificationRequestV21.builder()
+            .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
+            .senderDenomination("Sender Denomination")
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
+  }
+
+  private NewNotificationRequestV21 newNotificationWithApplyCostsAndFeePolicyFlatRate() {
+    NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
+            .payments( List.of(NotificationPaymentItem.builder()
+                    .pagoPa(PagoPaPayment.builder()
+                            .creditorTaxId("00000000000")
+                            .applyCost(true)
+                            .noticeCode("000000000000000000")
+                            .build())
+                    .f24(F24Payment.builder()
+                            .title("title")
+                            .applyCost(true)
+                            .metadataAttachment(NotificationMetadataAttachment.builder()
+                                    .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+                                    .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+                                    .contentType("application/json")
+                                    .build())
+                            .build())
+                    .build()))
+            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+            .denomination( "Ada Lovelace" )
+            .taxId( "taxID" )
+            .digitalDomicile( NotificationDigitalAddress.builder()
+                    .type( NotificationDigitalAddress.TypeEnum.PEC )
+                    .address( "address@pec.it" )
+                    .build() )
+            .physicalAddress( NotificationPhysicalAddress.builder()
+                    .at( "at" )
+                    .province( "province" )
+                    .zip( "83100" )
+                    .address( "address" )
+                    .addressDetails( "addressDetail" )
+                    .municipality( "municipality" )
+                    .municipalityDetails( "municipalityDetail" )
+                    .build() )
+            .build();
+    return NewNotificationRequestV21.builder()
+            .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
+            .senderDenomination("Sender Denomination")
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
   }
 
 }
