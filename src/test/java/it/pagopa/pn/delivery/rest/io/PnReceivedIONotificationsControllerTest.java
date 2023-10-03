@@ -3,14 +3,15 @@ package it.pagopa.pn.delivery.rest.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
+import it.pagopa.pn.delivery.models.internal.notification.*;
+import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
 import org.junit.jupiter.api.Test;
@@ -101,6 +102,8 @@ class PnReceivedIONotificationsControllerTest {
         TimelineElement timelineElement = new TimelineElement();
         timelineElement.setCategory(TimelineElementCategoryV20.AAR_CREATION_REQUEST);
         InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElement.builder()
+                .status(NotificationStatus.ACCEPTED).build()));
         internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun("iun");
@@ -111,11 +114,19 @@ class PnReceivedIONotificationsControllerTest {
         internalNotification.setSenderPaId(PA_ID);
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
+        internalNotification.setDocuments(List.of(NotificationDocument.builder()
+                .title("title")
+                .contentType("application/pdf")
+                .docIdx("docIdx").build()));
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
+                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
+                        .payments(List.of(NotificationPaymentInfo.builder()
+                                        .f24(F24Payment.builder().build())
+                                .pagoPa(PagoPaPayment.builder().build()).build()))
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")
