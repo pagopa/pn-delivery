@@ -1,6 +1,6 @@
 let options = {
   "sonar.organization": "pagopa",
-  "sonar.projectKey": "pagopa_pn-delivery-versioningV1V21SendNewNotificationLambda",
+  "sonar.projectKey": "pagopa_pn-delivery-versioningV1V21GetNotificationRequestStatusLambda",
 };
 
 if (process.env.PR_NUM) {

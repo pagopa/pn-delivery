@@ -87,29 +87,27 @@ public class NotificationReceiverValidator {
             // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
             onlyNumericalTaxIdForPGV2(errors, recIdx, recipient);
 
-          if( !validateUtils.validate(recipient.getTaxId())) {
-              ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
-              errors.add(constraintViolation);
-          }
-          if ( !distinctTaxIds.add( recipient.getTaxId() )){
-              ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
-              errors.add(constraintViolation);
-          }
-          /*if(recipient.getPayment() != null){
-              String noticeCode = recipient.getPayment().getNoticeCode();
-              String noticeCodeAlternative = recipient.getPayment().getNoticeCodeAlternative();
-              if ( noticeCode.equals(noticeCodeAlternative) ) {
-                  ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Alternative notice code equals to notice code" );
-                  errors.add(constraintViolation);
-              }
-          }*/
-          NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
-          checkProvinceV2(errors, physicalAddress);
-          recIdx++;
-      }
-      errors.addAll(validator.validate(newNotificationRequestV2));
-      errors.addAll( this.checkPhysicalAddress(newNotificationRequestV2));
-      return errors;
+            if( !validateUtils.validate(recipient.getTaxId())) {
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
+                errors.add(constraintViolation);
+            }
+            if ( !distinctTaxIds.add( recipient.getTaxId() )){
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Duplicated recipient taxId" );
+                errors.add(constraintViolation);
+            }
+
+            boolean isNotificationFeePolicyDeliveryMode = newNotificationRequestV2.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE);
+            if(recipient.getPayments() != null) {
+                errors.addAll(checkApplyCost(isNotificationFeePolicyDeliveryMode, recipient.getPayments()));
+            }
+
+            NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
+            checkProvinceV2(errors, physicalAddress);
+            recIdx++;
+        }
+        errors.addAll(validator.validate(newNotificationRequestV2));
+        errors.addAll( this.checkPhysicalAddress(newNotificationRequestV2));
+        return errors;
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV21>> checkPhysicalAddress(NewNotificationRequestV21 internalNotification) {
@@ -121,7 +119,6 @@ public class NotificationReceiverValidator {
             int recIdx = 0;
 
             for (NotificationRecipientV21 recipient : internalNotification.getRecipients()) {
-
                 NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
                 Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
@@ -151,10 +148,54 @@ public class NotificationReceiverValidator {
                 recIdx++;
             }
         }
-
         return errors;
-
     }
+
+    private Set<ConstraintViolation<NewNotificationRequestV21>> checkApplyCost(boolean isNotificationFeePolicyDeliveryMode, List<NotificationPaymentItem> payments){
+
+        Set<ConstraintViolation<NewNotificationRequestV21>> errors = new HashSet<>();
+
+        int pagoPAapplyCostFlgCount = 0;
+        int f24ApplyCostFlgCount = 0;
+
+        for (NotificationPaymentItem paymentInfo : payments) {
+            if (paymentInfo.getPagoPa() != null && Boolean.TRUE.equals(paymentInfo.getPagoPa().getApplyCost())) {
+                pagoPAapplyCostFlgCount++;
+            }
+            if(paymentInfo.getF24() != null && Boolean.TRUE.equals(paymentInfo.getF24().getApplyCost())){
+                f24ApplyCostFlgCount++;
+            }
+            if(paymentInfo.getF24() != null && !StringUtils.hasText(paymentInfo.getF24().getTitle())){
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("F24 description is mandatory");
+                errors.add(constraintViolation);
+            }
+        }
+        checkApplyCost(pagoPAapplyCostFlgCount, f24ApplyCostFlgCount, isNotificationFeePolicyDeliveryMode, errors);
+        return errors;
+    }
+
+    private void checkApplyCost(int pagoPAapplyCostFlgCount, int f24ApplyCostFlgCount, boolean isNotificationFeePolicyDeliveryMode, Set<ConstraintViolation<NewNotificationRequestV21>> errors) {
+        if (isNotificationFeePolicyDeliveryMode) {
+            if (pagoPAapplyCostFlgCount < 1) {
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must be valorized for at least one payment");
+                errors.add(constraintViolation);
+            }
+            if (f24ApplyCostFlgCount < 1) {
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("F24 applyCostFlg must be valorized for at least one payment");
+                errors.add(constraintViolation);
+            }
+        } else {
+            if (pagoPAapplyCostFlgCount != 0) {
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must not be valorized for any payment");
+                errors.add(constraintViolation);
+            }
+            if (f24ApplyCostFlgCount != 0) {
+                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("F24 applyCostFlg must not be valorized for any payment");
+                errors.add(constraintViolation);
+            }
+        }
+    }
+
 
     private static Pair<String, String> buildPair(String name, List<Pair<String, String>> pairs){
         List<String> rowElem = new ArrayList<>();

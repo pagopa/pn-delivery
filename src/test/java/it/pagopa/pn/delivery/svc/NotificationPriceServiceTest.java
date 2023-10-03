@@ -98,11 +98,11 @@ class NotificationPriceServiceTest {
                 .thenReturn( Optional.of( internalNotification ) );
 
         Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
-                        .iunRecipientId( "iun##recipientInternalId0" )
+                .iunRecipientId( "iun##recipientInternalId0" )
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),Mockito.anyBoolean(), Mockito.anyInt() ))
                 .thenReturn( new NotificationProcessCostResponse()
                         .amount( 2000 )
                         .refinementDate( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) )
@@ -191,7 +191,7 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt()))
                 .thenThrow(new PnHttpResponseException("err", 404));
 
 
@@ -229,7 +229,7 @@ class NotificationPriceServiceTest {
 
         PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt() ))
                 .thenThrow(exception);
 
 
@@ -267,7 +267,7 @@ class NotificationPriceServiceTest {
 
         PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt()))
                 .thenThrow(exception);
 
 
@@ -393,16 +393,6 @@ class NotificationPriceServiceTest {
     private InternalNotification getNewInternalNotification() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setSentAt(OffsetDateTime.now());
-        internalNotification.setRecipients(
-                List.of(
-                        NotificationRecipient.builder()
-                                .internalId("internalId")
-                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
-                                .taxId("taxId")
-                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
-                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
-                                .payments(List.of(NotificationPaymentInfo.builder().build()))
-                                .build()));
         internalNotification.setRecipientIds(List.of("0"));
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -410,9 +400,14 @@ class NotificationPriceServiceTest {
         internalNotification.setCancelledIun("IUN_05");
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setPaFee(0);
+        internalNotification.setVat(0);
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
+                        .payments(List.of(NotificationPaymentInfo.builder()
+                                .pagoPa(it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                                        .noticeCode("noticeCode").build()).build()))
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )

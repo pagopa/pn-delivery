@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
@@ -18,6 +19,7 @@ import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
@@ -52,6 +54,8 @@ public class NotificationReceiverService {
 
 	private final IunGenerator iunGenerator = new IunGenerator();
 
+	private final PnDeliveryConfigs cfg;
+
 	@Autowired
 	public NotificationReceiverService(
 			Clock clock,
@@ -60,7 +64,8 @@ public class NotificationReceiverService {
 			ModelMapper modelMapper,
 			SendActiveParameterConsumer parameterConsumer,
 			PnExternalRegistriesClientImpl pnExternalRegistriesClient,
-			PnF24ClientImpl f24Client) {
+			PnF24ClientImpl f24Client,
+			PnDeliveryConfigs cfg) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
@@ -68,6 +73,7 @@ public class NotificationReceiverService {
 		this.parameterConsumer = parameterConsumer;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
 		this.f24Client = f24Client;
+		this.cfg = cfg;
 	}
 
 	/**
@@ -139,7 +145,7 @@ public class NotificationReceiverService {
 		saveF24Request.setId(internalNotification.getIun());
 
 		if(!saveF24Items.isEmpty()){
-			f24Client.saveMetadata("PN-DELIVERY", internalNotification.getIun(), saveF24Request);
+			f24Client.saveMetadata(this.cfg.getF24CxId(), internalNotification.getIun(), saveF24Request);
 		}
 
 		doSaveWithRethrow(internalNotification);

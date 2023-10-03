@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static it.pagopa.pn.commons.log.PnLogger.EXTERNAL_SERVICES.PN_F24;
+
 @Component
 @CustomLog
 @RequiredArgsConstructor
@@ -19,12 +21,12 @@ public class PnF24ClientImpl {
     private final F24ControllerApi f24ControllerApi;
 
     public RequestAccepted saveMetadata(String xPagopaF24CxId, String setId, SaveF24Request saveF24Request) {
-        log.logInvokingExternalService("pn-f24", "saveMetadata");
+        log.logInvokingExternalService(PN_F24, "saveMetadata");
         return f24ControllerApi.saveMetadata(xPagopaF24CxId, setId, saveF24Request);
     }
 
     public F24Response generatePDF(String xPagopaF24CxId, String setId, List<String> pathTokens, Integer cost){
-        log.logInvokingExternalService("pn-f24", "generatePDF");
+        log.logInvokingExternalService(PN_F24, "generatePDF");
         return f24ControllerApi.generatePDF(xPagopaF24CxId, setId, pathTokens, cost);
     }
 

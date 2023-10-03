@@ -1,0 +1,93 @@
+{
+    "abstract": "Abstract della notifica",
+    "paProtocolNumber": "1695374606337",
+    "subject": "Test inserimento 22-09-2023 11:23:26",
+    "recipients": [
+        {
+            "recipientType": "PF",
+            "taxId": "DVNLRD52D15M059P",
+            "denomination": "Leo  denomination",
+            "physicalAddress": {
+                "address": "VIA @FAIL-IRREPERIBILE_AR 16",
+                "zip": "40121",
+                "municipality": "BOLOGNA",
+                "province": "BO",
+                "foreignState": "ITALIA"
+            }
+        },
+        {
+            "recipientType": "PF",
+            "taxId": "FRMTTR76M06B715E",
+            "denomination": "Fiera denomination",
+            "digitalDomicile": {
+                "type": "PEC",
+                "address": "FRMTTR76M06B715E@pec.pagopa.it"
+            },
+            "physicalAddress": {
+                "address": "VIA TUTTO OK 16",
+                "zip": "40121",
+                "municipality": "BOLOGNA",
+                "province": "BO",
+                "foreignState": "ITALIA"
+            },
+            "payments": [
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606354",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
+                    }
+                },
+                {
+                    "pagoPa": {
+                        "noticeCode": "302011695374606355",
+                        "creditorTaxId": "77777777777",
+                        "applyCost": true,
+                        "attachment": {
+                            "digests": {
+                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+                            },
+                            "contentType": "application/pdf",
+                            "ref": {
+                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
+                                "versionToken": "v1"
+                            }
+                        }
+                    }
+                }
+            ] 
+        }
+    ],
+    "documents": [
+        {
+            "digests": {
+                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+            },
+            "contentType": "application/pdf",
+            "ref": {
+                "key": "PN_NOTIFICATION_ATTACHMENTS-8af3eafd250b4aae88dd977e0ead8142.pdf",
+                "versionToken": "v1"
+            },
+            "docIdx": "0"
+        }
+    ],
+    "notificationFeePolicy": "FLAT_RATE",
+    "physicalCommunicationType": "REGISTERED_LETTER_890",
+    "senderDenomination": "Comune di Sapppada",
+    "senderTaxId": "00207190257",
+    "taxonomyCode": "010101P",
+    "pagoPaIntMode": "NONE",
+    "notificationRequestId": "QUpNTi1UWFVBLU1IR1AtMjAyMzA5LVotMQ==",
+    "notificationRequestStatus": "ACCEPTED",
+    "iun": "AJMN-TXUA-MHGP-202309-Z-1"
+}
