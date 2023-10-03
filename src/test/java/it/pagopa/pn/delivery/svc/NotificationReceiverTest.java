@@ -77,6 +77,7 @@ class NotificationReceiverTest {
 	private PnExternalRegistriesClientImpl pnExternalRegistriesClient;
 	private PnDeliveryConfigs pnDeliveryConfigs;
 	private PnF24ClientImpl pnF24Client;
+	private PnDeliveryConfigs cfg;
 
 	@BeforeEach
 	public void setup() {
@@ -91,6 +92,7 @@ class NotificationReceiverTest {
 		validateUtils = Mockito.mock( ValidateUtils.class );
 		pnDeliveryConfigs = Mockito.mock(PnDeliveryConfigs.class);
 		pnF24Client = Mockito.mock(PnF24ClientImpl.class);
+		cfg = Mockito.mock(PnDeliveryConfigs.class);
 
 		// - Separate Tests
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -106,7 +108,8 @@ class NotificationReceiverTest {
 				modelMapper,
 				sendActiveParameterConsumer,
 				pnExternalRegistriesClient,
-				pnF24Client);
+				pnF24Client,
+				cfg);
 	}
 
 	@Test
@@ -511,6 +514,7 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequestV21 notification = NewNotificationRequestV21.builder()
 				.senderTaxId( "fakeSenderTaxId" )
+				.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
 				.recipients( Collections.singletonList( NotificationRecipientV21.builder().build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
 				.build();

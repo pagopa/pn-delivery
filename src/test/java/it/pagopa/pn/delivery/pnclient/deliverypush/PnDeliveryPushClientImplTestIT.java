@@ -87,10 +87,10 @@ class PnDeliveryPushClientImplTestIT extends MockAWSObjectsTest {
                         .withStatusCode(200)
                 );
 
-        deliveryPushClient.getNotificationProcessCost( "DHUJ-QYVT-DMVH-202302-P-1", 0, NotificationFeePolicy.FLAT_RATE );
+        deliveryPushClient.getNotificationProcessCost( "DHUJ-QYVT-DMVH-202302-P-1", 0, NotificationFeePolicy.FLAT_RATE ,false, 0);
         // Then
         assertDoesNotThrow( () -> {
-            deliveryPushClient.getNotificationProcessCost( "DHUJ-QYVT-DMVH-202302-P-1", 0, NotificationFeePolicy.FLAT_RATE );
+            deliveryPushClient.getNotificationProcessCost( "DHUJ-QYVT-DMVH-202302-P-1", 0, NotificationFeePolicy.FLAT_RATE, false, 0 );
         });
     }
 
