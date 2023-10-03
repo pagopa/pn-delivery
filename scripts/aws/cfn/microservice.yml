@@ -403,6 +403,15 @@ Parameters:
     Description: 'VersioningV1V21SendNewNotificationProvisionedConcurrency'
     Default: 1
 
+  VersioningV1V21GetNotificationRequestStatusLambdaName:
+    Type: String
+    Description: 'VersioningV1V21GetNotificationRequestStatusName'
+
+  VersioningV1V21GetNotificationRequestStatusLambdaProvisionedConcurrency:
+    Type: Number
+    Description: 'VersioningV1V21GetNotificationRequestStatusProvisionedConcurrency'
+    Default: 1
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -1190,10 +1199,95 @@ Resources:
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   # Lambda access right
-  VersioningV1V21SendNotificationLambdaPermission:
+  VersioningV1V21SendNewNotificationLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref VersioningV1V21SendNewNotificationLambdaVersionAlias
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
+
+  #########################################################
+  ###    VersioningV1V21GetNotificationRequestStatus    ###
+  #########################################################
+  VersioningV1V21GetNotificationRequestStatusSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${VersioningV1V21GetNotificationRequestStatusLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  VersioningV1V21GetNotificationRequestStatusLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref VersioningV1V21GetNotificationRequestStatusLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V21GetNotificationRequestStatus.zip"
+      Role: !GetAtt VersioningV1V21GetNotificationRequestStatusLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt VersioningV1V21GetNotificationRequestStatusSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.1"
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+      MemorySize: 512
+
+  # a new version at each deploy, with provisioned concurrency set
+  VersioningV1V21GetNotificationRequestStatusLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref VersioningV1V21GetNotificationRequestStatusLambda
+
+  VersioningV1V21GetNotificationRequestStatusLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref VersioningV1V21GetNotificationRequestStatusLambda
+      FunctionVersion: !GetAtt VersioningV1V21GetNotificationRequestStatusLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref VersioningV1V21GetNotificationRequestStatusLambdaProvisionedConcurrency
+
+  # Lambda function role
+  VersioningV1V21GetNotificationRequestStatusLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-versioningV1V21GetNotificationRequestStatusLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  VersioningV1V21GetNotificationRequestStatusLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref VersioningV1V2GetNotificationRequestStatusLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+
+  # Lambda access right
+  VersioningV1V21GetNotificationRequestStatusLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VersioningV1V21GetNotificationRequestStatusLambdaVersionAlias
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
