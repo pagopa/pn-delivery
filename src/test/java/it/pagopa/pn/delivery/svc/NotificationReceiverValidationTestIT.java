@@ -82,6 +82,7 @@ class NotificationReceiverValidationTestIT {
                         .payments(new ArrayList<>())
                         .build());
         return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+                .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
                 .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject")
                 .senderTaxId("paId").recipients(recipients).build();
     }
