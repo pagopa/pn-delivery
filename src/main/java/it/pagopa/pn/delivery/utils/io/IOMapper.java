@@ -11,7 +11,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 @Component
@@ -50,20 +52,8 @@ public class IOMapper {
                 .notificationStatusHistory(convertNotificationStatusHistory(internalNotification.getNotificationStatusHistory()))
                 ._abstract(internalNotification.get_abstract())
                 .senderDenomination(internalNotification.getSenderDenomination())
-                //.completedPayments()
-                //.isCancelled()
                 .recipients(duplicateRecipientForEachPagoPaPayment(filteredNotificationRecipient))
                 .build();
-        /*
-        IOReceivedNotification ioReceivedNotification = modelMapper.map(internalNotification, IOReceivedNotification.class);
-        List<NotificationRecipient> filteredNotificationRecipients = ioReceivedNotification.getRecipients()
-                .stream()
-                .filter(rec -> StringUtils.hasText(rec.getTaxId()))
-                .toList();
-        if(!CollectionUtils.isEmpty( filteredNotificationRecipients )) {
-            ioReceivedNotification.setRecipients( filteredNotificationRecipients );
-        }
-        */
 
         if (isCancelled) {
             ioReceivedNotification.setIsCancelled(true);

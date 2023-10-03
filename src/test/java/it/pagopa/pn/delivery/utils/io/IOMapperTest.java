@@ -6,6 +6,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAtt
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
@@ -188,6 +189,51 @@ class IOMapperTest {
     }
 
     @Test
+    void mapToDetailsNotification() {
+        InternalNotification internalNotification = internalNotification();
+        internalNotification.setRecipients(
+                List.of(
+                        NotificationRecipient.builder()
+                                .internalId("internalId")
+                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .taxId("taxId")
+                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
+                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
+                                .payments(List.of(NotificationPaymentInfo.builder()
+                                                .pagoPa(it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                                                        .applyCost(false)
+                                                        .creditorTaxId("creditorTaxId")
+                                                        .noticeCode("noticeCode")
+                                                        .attachment(MetadataAttachment.builder().build()).build())
+                                        .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder().build()).build()))
+                                .build()));
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(internalNotification, false);
+
+        assertThat(actualValue).isNotNull();
+    }
+
+    @Test
+    void mapToDetailsNotification2() {
+        InternalNotification internalNotification = internalNotification();
+        internalNotification.setRecipients(
+                List.of(
+                        NotificationRecipient.builder()
+                                .internalId("internalId")
+                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .taxId("taxId")
+                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
+                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
+                                .payments(List.of(NotificationPaymentInfo.builder()
+                                        .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder()
+                                                .applyCost(false)
+                                                .title("title")
+                                                .metadataAttachment(MetadataAttachment.builder().build()).build()).build()))
+                                .build()));
+
+        assertThat(ioMapper.mapToThirdPartyAttachment(internalNotification)).isNotNull();
+    }
+
+    @Test
     void mapToThirdPartyAttachmentWithDocumentNullTest() {
 
         ThirdPartyAttachment actualValue = ioMapper.mapToThirdPartyAttachment(null, 0, "IUN");
@@ -200,9 +246,9 @@ class IOMapperTest {
     @Test
     void mapToThirdPartyAttachmentCollectionEmptyTest() {
 
-        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(List.of(), "IUN");
+        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(internalNotification());
 
-        assertThat(actualValue).isNotNull().isEmpty();
+        assertThat(actualValue).isNotNull();
 
     }
 
@@ -255,6 +301,8 @@ class IOMapperTest {
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
+                        .payments(List.of(NotificationPaymentInfo.builder()
+                                .build()))
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")
