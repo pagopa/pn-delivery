@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDel
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -36,18 +37,22 @@ public class StatusService {
     private final PnDataVaultClientImpl dataVaultClient;
     private final NotificationCostEntityDao notificationCostEntityDao;
 
+    private final PnExternalRegistriesClientImpl externalRegistriesClient;
+
     public StatusService(NotificationDao notificationDao,
                          NotificationMetadataEntityDao notificationMetadataEntityDao,
                          NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao,
                          NotificationDelegatedService notificationDelegatedService,
                          PnDataVaultClientImpl dataVaultClient,
-                         NotificationCostEntityDao notificationCostEntityDao) {
+                         NotificationCostEntityDao notificationCostEntityDao,
+                         PnExternalRegistriesClientImpl externalRegistriesClient) {
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
         this.notificationDelegationMetadataEntityDao = notificationDelegationMetadataEntityDao;
         this.notificationDelegatedService = notificationDelegatedService;
         this.dataVaultClient = dataVaultClient;
         this.notificationCostEntityDao = notificationCostEntityDao;
+        this.externalRegistriesClient = externalRegistriesClient;
     }
 
     public void updateStatus(RequestUpdateStatusDto dto) {
@@ -109,6 +114,7 @@ public class StatusService {
 
     private List<NotificationMetadataEntity> computeMetadataEntry(RequestUpdateStatusDto dto, InternalNotification notification, OffsetDateTime acceptedAt) {
         NotificationStatus lastStatus = dto.getNextStatus();
+        String rootSenderId = externalRegistriesClient.getRootSenderId(notification.getSenderPaId());
         String creationMonth = DataUtils.extractCreationMonth( notification.getSentAt().toInstant() );
 
         List<String> opaqueTaxIds = new ArrayList<>();
@@ -117,7 +123,7 @@ public class StatusService {
         }
 
         return opaqueTaxIds.stream()
-                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt))
+                    .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt, rootSenderId))
                     .toList();
     }
 
@@ -127,7 +133,8 @@ public class StatusService {
             String recipientId,
             List<String> recipientsIds,
             String creationMonth,
-            OffsetDateTime acceptedAt
+            OffsetDateTime acceptedAt,
+            String rootSenderId
     ) {
         int recipientIndex = recipientsIds.indexOf( recipientId );
 
@@ -136,6 +143,7 @@ public class StatusService {
         return NotificationMetadataEntity.builder()
                 .notificationStatus( lastStatus.toString() )
                 .senderId( notification.getSenderPaId() )
+                .rootSenderId(rootSenderId)
                 .recipientId( recipientId )
                 .sentAt( notification.getSentAt().toInstant() )
                 .notificationGroup( notification.getGroup() )
