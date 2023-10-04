@@ -2,17 +2,18 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.AddressDto;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.AnalogDomicile;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.BaseRecipientDto;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.NotificationRecipientAddressesDto;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
+import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
+import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
@@ -49,16 +50,6 @@ class NotificationDaoDynamoTest {
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
     private static final String VERSION_TOKEN = "VERSION_TOKEN";
     private static final String KEY = "KEY";
-    public static final NotificationDocument NOTIFICATION_REFERRED_ATTACHMENT = NotificationDocument.builder()
-            .ref( NotificationAttachmentBodyRef.builder()
-                    .versionToken( VERSION_TOKEN )
-                    .key( KEY )
-                    .build() )
-            .digests( NotificationAttachmentDigests.builder()
-                    .sha256(SHA256_BODY)
-                    .build() )
-            .contentType("application/pdf")
-            .build();
 
     @BeforeEach
     void setup() {
@@ -72,10 +63,24 @@ class NotificationDaoDynamoTest {
     }
 
     @Test
+    void getRequestId(){
+
+        entityDao.get(Key.builder()
+                .partitionValue( "senderId" + "##" + "paProtocolNumber" + "##" + "id" )
+                .build());
+
+
+        Optional<String> pageSearchTrunk = this.dao.getRequestId("senderId","paProtocolNumber","id");
+
+        Assertions.assertNotNull(pageSearchTrunk);
+    }
+
+    @Test
     void insertSuccessWithoutPayments() throws PnIdConflictException {
 
         // GIVEN
         InternalNotification notification = newNotificationWithoutPayments( );
+        notification.setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
 
         // WHEN
         when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
@@ -119,13 +124,13 @@ class NotificationDaoDynamoTest {
                 .province( "province1" )
                 .cap( "cap1" )
                 .state( "state1" ));
-
-        when( pnDataVaultClient.getNotificationAddressesByIun( Mockito.anyString() ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
+        when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
         Assertions.assertTrue( saved.isPresent() );
         // verifica ordine taxId destinatari
         Assertions.assertEquals(saved.get().getRecipients().get(0).getTaxId(), baseRecipientDto.getTaxId());
         // verifica ordine indirizzi
+        assert notificationRecipientAddressesDto.getDigitalAddress() != null;
         Assertions.assertEquals( saved.get().getRecipients().get(0).getDigitalDomicile().getAddress(), notificationRecipientAddressesDto.getDigitalAddress().getValue() );
         //Assertions.assertEquals( notification, saved.get() );
     }
@@ -158,8 +163,32 @@ class NotificationDaoDynamoTest {
         when( pnDataVaultClient.ensureRecipientByExternalId( any(RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
         this.dao.addNotification( notification );
 
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto.setDenomination( "recipientDenomination" );
+        notificationRecipientAddressesDto.setDigitalAddress( new AddressDto().value( "digitalAddress" ) );
+        notificationRecipientAddressesDto.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress" )
+                .addressDetails( "addressDetail" )
+                .at( "at" )
+                .municipality( "municipality" )
+                .province( "province" )
+                .cap( "cap" )
+                .state( "state" ));
+
+        NotificationRecipientAddressesDto notificationRecipientAddressesDto1 = new NotificationRecipientAddressesDto();
+        notificationRecipientAddressesDto1.setDenomination( "recipientDenomination1" );
+        notificationRecipientAddressesDto1.setDigitalAddress( new AddressDto().value( "digitalAddress1" ) );
+        notificationRecipientAddressesDto1.setPhysicalAddress( new AnalogDomicile()
+                .address( "physicalAddress1" )
+                .addressDetails( "addressDetail1" )
+                .at( "at1" )
+                .municipality( "municipality1" )
+                .province( "province1" )
+                .cap( "cap1" )
+                .state( "state1" ));
+
+        when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         // THEN
-        // TODO da sistemare la getNotificationByIun
         Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
         Assertions.assertTrue( saved.isPresent() );
         //Assertions.assertEquals( notification, saved.get() );
@@ -211,6 +240,17 @@ class NotificationDaoDynamoTest {
     }
 
     @Test
+    void searchForOneMonth() {
+        InputSearchNotificationDto dto = new InputSearchNotificationDto();
+        PageSearchTrunk<NotificationDelegationMetadataEntity> page = new PageSearchTrunk<>();
+        page.setResults(Collections.singletonList(new NotificationDelegationMetadataEntity()));
+        when(delegationMetadataEntityDao.searchForOneMonth(any(), any(), any(), anyInt(), any())).thenReturn(page);
+        Assertions.assertDoesNotThrow(() -> {
+            this.dao.searchForOneMonth(dto, "indexName", "partitionValue", 1, null);
+        });
+    }
+
+    @Test
     void findByPk() {
         InputSearchNotificationDelegatedDto dto = new InputSearchNotificationDelegatedDto();
         Page<NotificationDelegationMetadataEntity> page = Page.create(Collections.singletonList(new NotificationDelegationMetadataEntity()), null);
@@ -229,10 +269,10 @@ class NotificationDaoDynamoTest {
         InputSearchNotificationDto inputSearchNotificationDto = new InputSearchNotificationDto();
         inputSearchNotificationDto.setIunMatch(iun);
         entityDao.put(NotificationEntity.builder()
-                        .iun(iun)
-                        .sentAt(Instant.now())
-                        .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
-                        .senderPaId(senderId)
+                .iun(iun)
+                .sentAt(Instant.now())
+                .recipients(List.of(NotificationRecipientEntity.builder().recipientId("rec1").build()))
+                .senderPaId(senderId)
                 .build());
 
 
@@ -360,7 +400,7 @@ class NotificationDaoDynamoTest {
 
         @Override
         public PageSearchTrunk<NotificationMetadataEntity> searchByIun(InputSearchNotificationDto inputSearchNotificationDto, String partitionValue, String sentAt) {
-            return new PageSearchTrunk<NotificationMetadataEntity>(List.of(NotificationMetadataEntity.builder().build()), new ConcurrentHashMap<>());
+            return new PageSearchTrunk<>(List.of(NotificationMetadataEntity.builder().build()), new ConcurrentHashMap<>());
         }
     }
 
@@ -420,158 +460,101 @@ class NotificationDaoDynamoTest {
     }
 
     private InternalNotification newNotificationWithoutPayments() {
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .iun("IUN_01")
-                .paProtocolNumber( "protocol_01" )
-                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotificationV20.PagoPaIntModeEnum.NONE )
-                .subject("Subject 01")
-                .physicalCommunicationType( FullSentNotificationV20.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .group( "Group_1" )
-                .senderPaId( "pa_02" )
-                .recipientIds(Collections.singletonList("Codice Fiscale 01"))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .sentAt( OffsetDateTime.now() )
-                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .recipients( Collections.singletonList(NotificationRecipient.builder()
-                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                                .taxId("Codice Fiscale 01")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(NotificationDigitalAddress.builder()
-                                        .type(NotificationDigitalAddress.TypeEnum.PEC)
-                                        .address("account@dominio.it")
-                                        .build())
-                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                                .physicalAddress( NotificationPhysicalAddress.builder()
-                                        .address( "address" )
-                                        .zip( "zip" )
-                                        .municipality( "municipality" )
-                                        .at( "at" )
-                                        .addressDetails( "addressDetails" )
-                                        .province( "province" )
-                                        .foreignState( "foreignState" )
-                                        .build() )
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NotificationDocument.builder()
-                                .ref( NotificationAttachmentBodyRef.builder()
-                                        .key("key_doc00")
-                                        .versionToken("v01_doc00")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .contentType( "application/pdf" )
-                                .build(),
-                        NotificationDocument.builder()
-                                .ref( NotificationAttachmentBodyRef.builder()
-                                        .key("key_doc01")
-                                        .versionToken("v01_doc01")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .contentType( "application/pdf" )
-                                .build()
-                ))
-                .build());
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setVat(0);
+        internalNotification.setPaFee(0);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setSentAt(OffsetDateTime.now());
+        internalNotification.setIun("IUN_01");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 
-    /*private Notification newNotificationWithPaymentsDeliveryMode( boolean withIuv ) {
-        return newNotificationWithoutPayments().toBuilder()
-                .payment( NotificationPaymentInfo.builder()
-                        .iuv( withIuv ? "iuv01" : null )
-                        .notificationFeePolicy( NotificationPaymentInfoFeePolicies.DELIVERY_MODE )
-                        .f24( NotificationPaymentInfo.F24.builder()
-                                .digital( NotificationAttachment.builder()
-                                        .ref( NotificationAttachment.Ref.builder()
-                                                .key("key_F24dig")
-                                                .versionToken("v01_F24dig")
-                                                .build()
-                                        )
-                                        .digests( NotificationAttachment.Digests.builder()
-                                                .sha256("sha__F24dig")
-                                                .build()
-                                        )
-                                        .build()
-                                )
-                                .analog( NotificationAttachment.builder()
-                                        .ref( NotificationAttachment.Ref.builder()
-                                                .key("key_F24anag")
-                                                .versionToken("v01_F24anag")
-                                                .build()
-                                        )
-                                        .digests( NotificationAttachment.Digests.builder()
-                                                .sha256("sha__F24anag")
-                                                .build()
-                                        )
-                                        .build()
-                                )
-                                .build()
-                        )
-                        .build()
-                )
-                .build();
-    }*/
-
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .iun("IUN_01")
-                .physicalCommunicationType( FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
-                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .pagoPaIntMode( FullSentNotificationV20.PagoPaIntModeEnum.NONE )
-                .paProtocolNumber("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .senderPaId("pa_02")
-                .notificationStatus(NotificationStatus.ACCEPTED)
-                .sentAt( OffsetDateTime.parse( "2023-03-16T12:30:23.123Z" ) )
-                .recipients(Collections.singletonList(
-                        NotificationRecipient.builder()
-                                .internalId( "recipientInternalId" )
-                                .payment( NotificationPaymentInfo.builder()
-                                        .noticeCode( "noticeCode" )
-                                        .noticeCodeAlternative( "noticeCodeAlternative" )
-                                        .pagoPaForm( null )
-                                        .build() )
-                                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NotificationDocument.builder()
-                                .ref(NotificationAttachmentBodyRef.builder()
-                                        .key("doc00")
-                                        .versionToken("v01_doc00")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .build(),
-                        NotificationDocument.builder()
-                                .ref(NotificationAttachmentBodyRef.builder()
-                                        .key("doc01")
-                                        .versionToken("v01_doc01")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .build()
-                ))
-                .recipientIds( Collections.singletonList("recipientId") )
-                .sourceChannel( X_PAGOPA_PN_SRC_CH )
-                .build()
-        );
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setPaFee(0);
+        internalNotification.setVat(0);
+        internalNotification.setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setSentAt(OffsetDateTime.now());
+        internalNotification.setIun("IUN_01");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+        internalNotification.setPaFee(0);
+        internalNotification.setVat(0);
+        internalNotification.setDocuments(List.of(NotificationDocument
+                .builder()
+                .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder()
+                        .sha256(SHA256_BODY)
+                        .build())
+                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder()
+                        .key(KEY)
+                        .versionToken(VERSION_TOKEN)
+                        .build())
+                .build()));
+        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .payments(List.of(NotificationPaymentInfo.builder()
+                                .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder()
+                                        .title("title")
+                                        .applyCost(false)
+                                        .metadataAttachment(MetadataAttachment.builder()
+                                                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder().build())
+                                                .contentType("application/json")
+                                                .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder().build())
+                                                .build())
+                                        .build())
+                                .pagoPa(it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                                        .applyCost(false)
+                                        .noticeCode("302211675775915057")
+                                        .creditorTaxId("77777777777")
+                                        .attachment(MetadataAttachment.builder()
+                                                .ref(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentBodyRef.builder().build())
+                                                .contentType("application/json")
+                                                .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder().build())
+                                                .build())
+                                        .build())
+                                .build())
+                        )
+                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder()
+                                .address("address")
+                                .addressDetails("address")
+                                .zip("zip")
+                                .at("at")
+                                .municipality("municipality")
+                                .province("province")
+                                .foreignState("foreignState")
+                                .build())
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 }

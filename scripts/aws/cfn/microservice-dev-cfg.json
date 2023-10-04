@@ -21,6 +21,8 @@
     "IsSendActiveDefaultValue": "true",
     "PhysicalAddressValidationValue": "true",
     "PhysicalAddressValidationCharsValue": "@_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '\\-",
-    "VersioningV1V2GetNotificationLambdaProvisionedConcurrency": "1"
+    "VersioningV1V2GetNotificationLambdaProvisionedConcurrency": "1",
+    "VersioningV1V21SendNewNotificationLambdaProvisionedConcurrency": "1",
+    "VersioningV1V21GetNotificationRequestStatusLambdaProvisionedConcurrency": "1"
   }
 }

@@ -286,18 +286,7 @@ class NotificationSearchMultiPageByPFAndPGOnlyTest {
                     .recipientIds(List.of( "internalIdPF"+i ) )
                     .build() );
         }
-/*
-        for(int i = 0;i<5;i++)
-        {
-            entityResultPG.getResults().add( NotificationMetadataEntity.builder()
-                    .senderIdRecipientId( "senderId##internalIdPG"+i )
-                    .iunRecipientId("IUN##internalIdPG"+i )
-                    .notificationStatus( NotificationStatus.VIEWED.getValue() )
-                    .senderId( "senderId" )
-                    .sentAt(now.plus( Duration.ofDays( i ) ).plusSeconds( i ))
-                    .recipientIds(List.of( "internalIdPG"+i ) )
-                    .build() );
-        }*/
+
         entityResultPF.setLastEvaluatedKey(null);
         entityResultPG.setLastEvaluatedKey(null);
 

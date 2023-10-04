@@ -51,7 +51,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(AAR_QR_CODE_VALUE)
                 .iun( "iun" )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 
@@ -76,7 +76,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(AAR_QR_CODE_VALUE)
                 .iun( "iun" )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 
@@ -144,7 +144,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(AAR_QR_CODE_VALUE)
                 .iun( "iun" )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 
@@ -189,7 +189,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(AAR_QR_CODE_VALUE)
                 .iun( "iun" )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 
@@ -213,7 +213,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(AAR_QR_CODE_VALUE)
                 .iun( "iun" )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 
@@ -251,7 +251,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(AAR_QR_CODE_VALUE)
                 .iun( "iun" )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 
@@ -281,7 +281,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(AAR_QR_CODE_VALUE)
                 .iun( "iun" )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 
@@ -306,7 +306,7 @@ class NotificationQRServiceTest {
         InternalNotificationQR internalNotificationQR = InternalNotificationQR.builder()
                 .aarQRCodeValue(AAR_QR_CODE_VALUE)
                 .iun( "iun" )
-                .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+                .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
                 .recipientInternalId( "recipientInternalId" )
                 .build();
 

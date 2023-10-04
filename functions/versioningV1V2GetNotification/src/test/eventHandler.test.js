@@ -493,4 +493,5 @@ describe("eventHandler tests", function () {
     const res = await eventHandler.versioning(event, context);
     expect(res.statusCode).to.equal(400)
   });
+
 });
