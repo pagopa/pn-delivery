@@ -303,7 +303,6 @@ public class NotificationRetrieverService {
 		if (StringUtils.hasText( delegator )) {
 			searchDto.setSenderReceiverId( delegator );
 		}
-
 		// filtro sugli ID della PA che può visualizzare
 		if (StringUtils.hasText(searchDto.getFilterId())
 			&& !CollectionUtils.isEmpty(mandate.getVisibilityIds())
@@ -653,10 +652,11 @@ public class NotificationRetrieverService {
 	private String checkMandateForNotificationDetail(String userId, String mandateId, String paId, String iun, String recipientType, List<String> cxGroups) {
 		CxTypeAuthFleet cxTypeAuthFleet = StringUtils.hasText(recipientType) ? CxTypeAuthFleet.valueOf(recipientType) : null;
 		List<InternalMandateDto> mandates = pnMandateClient.listMandatesByDelegate(userId, mandateId, cxTypeAuthFleet, cxGroups);
+		String rootSenderId = pnExternalRegistriesClient.getRootSenderId(paId);
 		if(!mandates.isEmpty()) {
 
 			for ( InternalMandateDto mandate : mandates ) {
-				String delegatorId = evaluateMandateAndRetrieveDelegatorId(userId, mandateId, paId, iun, mandate);
+				String delegatorId = evaluateMandateAndRetrieveDelegatorId(userId, mandateId, rootSenderId, iun, mandate);
 				if (delegatorId != null)
 					return delegatorId;
 			}
@@ -667,17 +667,17 @@ public class NotificationRetrieverService {
 		return null;
 	}
 
-	private String evaluateMandateAndRetrieveDelegatorId(String userId, String mandateId, String paId, String iun, InternalMandateDto mandate){
+	private String evaluateMandateAndRetrieveDelegatorId(String userId, String mandateId, String rootSenderId, String iun, InternalMandateDto mandate){
 		if (mandate.getDelegator() != null && mandate.getMandateId() != null && mandate.getMandateId().equals(mandateId)) {
 
 			if( !CollectionUtils.isEmpty(mandate.getVisibilityIds()) ) {
 				boolean isPaIdInVisibilityPa = mandate.getVisibilityIds().stream().anyMatch(
-						paId::equals
+						rootSenderId::equals
 				);
 
 				if( !isPaIdInVisibilityPa ){
 					String message = String.format("Unable to find valid mandate for notification detail, paNotificationId=%s is not in visibility pa id for mandate" +
-							"- iun=%s delegate=%s with mandateId=%s", paId, iun, userId, mandateId);
+							"- iun=%s delegate=%s with mandateId=%s", rootSenderId, iun, userId, mandateId);
 					log.warn(message);
 					return null;
 				}

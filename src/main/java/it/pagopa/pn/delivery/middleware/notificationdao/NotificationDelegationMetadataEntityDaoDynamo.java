@@ -191,7 +191,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
             log.debug("senderId is empty - skip add senderId filter expression");
             return;
         }
-        addEqStringFilterExpression(senderId, NotificationDelegationMetadataEntity.FIELD_SENDER_ID, ":senderId", filterExpressionBuilder, expressionBuilder);
+        addEqStringFilterExpression(senderId, NotificationDelegationMetadataEntity.FIELD_ROOT_SENDER_ID, ":rootSenderId", filterExpressionBuilder, expressionBuilder);
     }
 
     private void addReceiverFilterExpression(String receiverId,

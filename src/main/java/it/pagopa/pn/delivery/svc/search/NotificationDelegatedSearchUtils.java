@@ -54,7 +54,8 @@ public class NotificationDelegatedSearchUtils {
         return entity.getRecipientId().equals(mandate.getDelegator())
                 && (mandateStartDate == null || entity.getSentAt().compareTo(mandateStartDate) >= 0) // sent after start mandate
                 && (mandateEndDate == null || entity.getSentAt().compareTo(mandateEndDate) <= 0) // sent before end mandate
-                && (CollectionUtils.isEmpty(mandate.getVisibilityIds()) || mandate.getVisibilityIds().contains(entity.getSenderId()));
+
+                && (CollectionUtils.isEmpty(mandate.getVisibilityIds()) || mandate.getVisibilityIds().contains(entity.getRootSenderId()));
     }
 
     private List<InternalMandateDto> getMandates(List<NotificationDelegationMetadataEntity> queryResult,
