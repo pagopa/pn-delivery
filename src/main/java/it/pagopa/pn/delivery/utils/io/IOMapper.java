@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.utils.io;
 
-import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -124,13 +123,8 @@ public class IOMapper {
 
         it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient = filterRecipient(internalNotification);
 
-        try{
-            if(recipientHasF24Payments(filteredNotificationRecipient)) {
-                thirdPartyAttachments.addAll(mapF24PaymentsToThirdPartyAttachment(filteredNotificationRecipient, internalNotification.getIun()));
-            }
-        }
-        catch (Exception e){
-            throw new PnNotificationNotFoundException( String.format("Unable to find recipients or payments for iun=%s", internalNotification.getIun()));
+        if(recipientHasF24Payments(filteredNotificationRecipient)) {
+            thirdPartyAttachments.addAll(mapF24PaymentsToThirdPartyAttachment(filteredNotificationRecipient, internalNotification.getIun()));
         }
 
         if(!documents.isEmpty()) {
@@ -150,6 +144,10 @@ public class IOMapper {
     }
 
     private boolean recipientHasF24Payments(it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient) {
+        if(filteredNotificationRecipient == null || filteredNotificationRecipient.getPayments() == null) {
+            return false;
+        }
+
         return filteredNotificationRecipient.getPayments()
                 .stream()
                 .anyMatch(notificationPaymentInfo -> notificationPaymentInfo.getF24() != null);
