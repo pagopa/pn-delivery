@@ -59,18 +59,20 @@ class ValidationsTest {
     void regexTest() {
         String url1 = "https://api-app.io.pagopa.it/api/v1/third-party-messages/asdasd123qwasdasdasdvxvs23";
         String url2 = "https://api-app.io.pagopa.it/api/v1/third-party-messages/asdasd123qwasdasdasdvxvs23/attachments/delivery/notifications/received/ENZE-EUJU-UMGL-202306-H-1/attachments/documents/0";
-
-        String regex = "https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}(?:/attachments/(?:\\w+|\\w+(?:/\\w+)*))?";
+        String url3 = "https://api-app.io.pagopa.it/api/v1/third-party-messages/asdasd123qwasdasdasdvxvs23/attachments/delivery/notifications/received/ENZE-EUJU-UMGL-202306-H-1/attachments/payment/F24/?attachmentIdx=0";
+        String regex = "^https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/documents/[0-9])?(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/payment/(F24|PAGOPA)(/?\\?attachmentIdx=\\d+))?$";
 
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher1 = pattern.matcher(url1);
         Matcher matcher2 = pattern.matcher(url2);
+        Matcher matcher3 = pattern.matcher(url3);
 
         boolean match1 = matcher1.matches();
         boolean match2 = matcher2.matches();
-
+        boolean match3 = matcher3.matches();
         Assertions.assertTrue( match1 );
-        //Assertions.assertTrue( match2 );
+        Assertions.assertTrue( match2 );
+        Assertions.assertTrue( match3 );
 
     }
 
