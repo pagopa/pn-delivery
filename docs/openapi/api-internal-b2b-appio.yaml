@@ -41,6 +41,9 @@ paths:
         - $ref: '#/components/parameters/uidAuthFleet'              # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/cxIdAuthFleet'             # NO EXTERNAL
+        - $ref: '#/components/parameters/cxGroupsAuthFleet'         # NO EXTERNAL
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/attachmentIdx'
         - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
@@ -171,6 +174,15 @@ components:
       $ref: 'remote-refs.yaml#/components/parameters/uidAuthFleet'               # NO EXTERNAL
     cxTaxIdAuthFleet:
       $ref: 'remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 6
+        pattern: "PAGOPA|F24"
     attachmentIdx:
       in: query
       name: attachmentIdx

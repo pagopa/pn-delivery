@@ -43,20 +43,18 @@ public class IOMapper {
             return null;
         }
 
-        it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient = filterRecipient(internalNotification);
-
-        if(filteredNotificationRecipient == null) {
-            return null;
-        }
-
         IOReceivedNotification ioReceivedNotification = IOReceivedNotification.builder()
                 .subject(internalNotification.getSubject())
                 .iun(internalNotification.getIun())
                 .notificationStatusHistory(convertNotificationStatusHistory(internalNotification.getNotificationStatusHistory()))
                 ._abstract(internalNotification.get_abstract())
                 .senderDenomination(internalNotification.getSenderDenomination())
-                .recipients(duplicateRecipientForEachPagoPaPayment(filteredNotificationRecipient))
                 .build();
+
+        it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient filteredNotificationRecipient = filterRecipient(internalNotification);
+        if(filteredNotificationRecipient != null) {
+            ioReceivedNotification.setRecipients(duplicateRecipientForEachPagoPaPayment(filteredNotificationRecipient));
+        }
 
         if (isCancelled) {
             ioReceivedNotification.setIsCancelled(true);
