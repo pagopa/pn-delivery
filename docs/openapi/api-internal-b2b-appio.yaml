@@ -67,8 +67,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not Found
           content:

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: DCbK4ppKFzr0Qa71Iay453vDcXRC+Ua/BJIO22Aeed4=
+  version: vYWOAA1cBj+xi9s+YaEdkt+4cUvvgpxdmIB+dgLY+4Y=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -11,6 +11,85 @@ servers:
     x-amazon-apigateway-endpoint-configuration:
       disableExecuteApiEndpoint: true
 paths:
+  /notifications/received/{iun}/attachments/payment/{attachmentName}:
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - AppIO-PN-Payments
+      operationId: getReceivedNotificationAttachment
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
+        - $ref: '#/components/parameters/lollipopOriginalUrl'
+        - $ref: '#/components/parameters/lollipopOriginalMethod'
+        - $ref: '#/components/parameters/lollipopPublicKey'
+        - $ref: '#/components/parameters/lollipopAssertionRef'
+        - $ref: '#/components/parameters/lollipopAssertionType'
+        - $ref: '#/components/parameters/lollipopAuthJwt'
+        - $ref: '#/components/parameters/lollipopUserId'
+        - $ref: '#/components/parameters/lollipopSignatureInput'
+        - $ref: '#/components/parameters/lollipopSignature'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: >-
+                  #/components/schemas/NotificationAttachmentDownloadMetadataResponse
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_IoAuthorizer_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/payment/{attachmentName}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''IO'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.attachmentName: method.request.path.attachmentName
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: >-
+        Options for
+        /notifications/received/{iun}/attachments/payment/{attachmentName} API
+        CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/notifications/received/{iun}/attachments/payment/{attachmentName}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.iun: method.request.path.iun
+          integration.request.path.attachmentName: method.request.path.attachmentName
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
   /notifications/received/{iun}:
     get:
       summary: Accesso notifiche ricevute
@@ -171,6 +250,22 @@ components:
         maxLength: 16
         pattern: >-
           ^[A-Z]{6}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{2}[A-Z]{1}[0-9LMNPQRSTUV]{3}[A-Z]{1}
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 6
+        pattern: PAGOPA|F24
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: number
     pathLegalFactType:
       description: Categoria dell'atto opponibile a terzi
       name: legalFactType
@@ -266,35 +361,6 @@ components:
       schema:
         type: number
   schemas:
-    LegalFactDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file non è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentLength
-      properties:
-        filename:
-          type: string
-        contentLength:
-          type: number
-          example: 54092
-          description: dmensione, in byte, del contenuto.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia scaricabile.
     ThirdPartyMessage:
       type: object
       properties:
@@ -349,6 +415,64 @@ components:
       required:
         - status
         - errors
+    NotificationAttachmentDownloadMetadataResponse:
+      title: Url e metadati per il download di un allegato di una notifica
+      description: |-
+        I due campi più importanti sono __url__ e __retryAfter__. <br/>
+          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
+          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
+            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
+      type: object
+      required:
+        - filename
+        - contentType
+        - contentLength
+        - sha256
+      properties:
+        filename:
+          type: string
+        contentType:
+          type: string
+          example: application/pdf
+        contentLength:
+          type: number
+          example: 54092
+          description: dimensione, in byte, del contenuto.
+        sha256:
+          type: string
+          description: SHA256 del contenuto del file.
+        url:
+          type: string
+          description: >-
+            URL preautorizzato a cui effettuare una richiesta GET per ottenere
+            il  contenuto del documento. Presente solo se il documento è pronto
+            per il download.
+        retryAfter:
+          type: number
+          description: >-
+            Stima del numero di secondi da aspettare prima che il contenuto del 
+            documento sia disponibile per il download.
+    ProblemError:
+      properties:
+        code:
+          description: Internal code of the error, in human-readable format
+          example: >-
+            PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY
+            | etc...
+          type: string
+        element:
+          description: Parameter or request body field name for validation error
+          example: body.order.item[2].quantity
+          type: string
+        detail:
+          description: >-
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Parameter not valid
+          maxLength: 1024
+          type: string
+      required:
+        - code
     ThirdPartyAttachment:
       type: object
       properties:
@@ -506,64 +630,6 @@ components:
         - iun
         - recipients
         - notificationStatusHistory
-    ProblemError:
-      properties:
-        code:
-          description: Internal code of the error, in human-readable format
-          example: >-
-            PN_PARAMETER_TOO_LONG | PN_PARAMETER_TOO_SHORT | PN_DUPLICATE_ENTRY
-            | etc...
-          type: string
-        element:
-          description: Parameter or request body field name for validation error
-          example: body.order.item[2].quantity
-          type: string
-        detail:
-          description: >-
-            A human readable explanation specific to this occurrence of the
-            problem.
-          example: Parameter not valid
-          maxLength: 1024
-          type: string
-      required:
-        - code
-    NotificationAttachmentDownloadMetadataResponse:
-      title: Url e metadati per il download di un allegato di una notifica
-      description: |-
-        I due campi più importanti sono __url__ e __retryAfter__. <br/>
-          - __url__ è presente se il file è pronto per essere scaricato ed indica l'url a cui fare GET.
-          - __retryAfter__ indica che il file è stato archiviato e bisognerà aspettare un numero di
-            secondi non inferiore a quanto indicato dal campo _retryAfter_. <br/>
-      type: object
-      required:
-        - filename
-        - contentType
-        - contentLength
-        - sha256
-      properties:
-        filename:
-          type: string
-        contentType:
-          type: string
-          example: application/pdf
-        contentLength:
-          type: number
-          example: 54092
-          description: dimensione, in byte, del contenuto.
-        sha256:
-          type: string
-          description: SHA256 del contenuto del file.
-        url:
-          type: string
-          description: >-
-            URL preautorizzato a cui effettuare una richiesta GET per ottenere
-            il  contenuto del documento. Presente solo se il documento è pronto
-            per il download.
-        retryAfter:
-          type: number
-          description: >-
-            Stima del numero di secondi da aspettare prima che il contenuto del 
-            documento sia disponibile per il download.
     LegalFactCategory:
       title: Tipi di atti opponibili a terzi
       description: >-
@@ -599,8 +665,8 @@ tags:
     description: Notification details
   - name: AppIO-PN-Documents
     description: Notification Documents
-  - name: AppIO-PN-LegalFacts
-    description: Notification Legal Facts
+  - name: AppIO-PN-Payments
+    description: Notification Payments
 x-amazon-apigateway-gateway-responses:
   DEFAULT_5XX:
     responseParameters:
