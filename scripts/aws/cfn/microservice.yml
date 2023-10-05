@@ -394,6 +394,14 @@ Parameters:
     Description: 'VersioningV1V2GetNotificationProvisionedConcurrency'
     Default: 1
 
+  EnhancedWebSecurityEnabled:
+    Type: String
+    Default: false
+    Description: Enable additional WAF Web rules
+    AllowedValues:
+      - true
+      - false
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -582,6 +590,7 @@ Resources:
         IntendedUsage: WEB
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
         Limit: 600000
+        EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
   DeliveryMicroservicePublicIoAPI:
