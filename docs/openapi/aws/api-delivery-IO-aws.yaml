@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: vYWOAA1cBj+xi9s+YaEdkt+4cUvvgpxdmIB+dgLY+4Y=
+  version: P+x2ZQq0GbidOpvxMEVmRyJOiStCb1hwKicxDLauswU=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -21,6 +21,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/attachmentIdx'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'
         - $ref: '#/components/parameters/lollipopOriginalUrl'
         - $ref: '#/components/parameters/lollipopOriginalMethod'
         - $ref: '#/components/parameters/lollipopPublicKey'

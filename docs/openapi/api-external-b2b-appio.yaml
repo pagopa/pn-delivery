@@ -41,6 +41,7 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/attachmentIdx'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
         - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
