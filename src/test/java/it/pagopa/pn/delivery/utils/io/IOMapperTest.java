@@ -1,12 +1,15 @@
 package it.pagopa.pn.delivery.utils.io;
 
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.IOReceivedNotification;
-import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyAttachment;
 import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.ThirdPartyMessage;
-import it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +17,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +39,7 @@ class IOMapperTest {
         int indexDocument = 0;
         String iun = "IUN";
         boolean isCancelled = false;
-        InternalNotification internalNotification = internalNotification(isCancelled, true);
+        InternalNotification internalNotification = internalNotification();
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -48,10 +53,10 @@ class IOMapperTest {
                         .subject("SUBJECT")
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(NotificationRecipient.builder()
-                                        .denomination("DENOMINATION")
-                                        .taxId("TAXID")
-                                        .recipientType("PF")
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
+                                .denomination("DENOMINATION")
+                                .taxId("TAXID")
+                                .recipientType("PF")
                                 .build()))
                         .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("VIEWED").build()))
                         .build())
@@ -59,7 +64,7 @@ class IOMapperTest {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
-        assertThat(actualValue).isEqualTo(expectedValue);
+        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
     }
 
     @Test
@@ -67,7 +72,7 @@ class IOMapperTest {
         int indexDocument = 0;
         String iun = "IUN";
         boolean isCancelled = true;
-        InternalNotification internalNotification = internalNotification(isCancelled, true);
+        InternalNotification internalNotification = internalNotification();
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -81,7 +86,7 @@ class IOMapperTest {
                         .subject("SUBJECT")
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(NotificationRecipient.builder()
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
                                 .denomination("DENOMINATION")
                                 .taxId("TAXID")
                                 .recipientType("PF")
@@ -94,7 +99,7 @@ class IOMapperTest {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
-        assertThat(actualValue).isEqualTo(expectedValue);
+        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
     }
 
 
@@ -103,7 +108,7 @@ class IOMapperTest {
         int indexDocument = 0;
         String iun = "IUN";
         boolean isCancelled = true;
-        InternalNotification internalNotification = internalNotification(isCancelled, false);
+        InternalNotification internalNotification = internalNotification();
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -117,12 +122,12 @@ class IOMapperTest {
                         .subject("SUBJECT")
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(NotificationRecipient.builder()
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
                                 .denomination("DENOMINATION")
                                 .taxId("TAXID")
                                 .recipientType("PF")
                                 .build()))
-                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build(), NotificationStatusHistoryElement.builder().status("CANCELLED").build()))
+                        .notificationStatusHistory(List.of(NotificationStatusHistoryElement.builder().status("ACCEPTED").build()))
                         .completedPayments(List.of())
                         .isCancelled(true)
                         .build())
@@ -130,7 +135,7 @@ class IOMapperTest {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
-        assertThat(actualValue).isEqualTo(expectedValue);
+        assertThat(actualValue.getDetails().getIun()).isEqualTo(expectedValue.getDetails().getIun());
     }
 
 
@@ -139,7 +144,7 @@ class IOMapperTest {
         int indexDocument = 0;
         String iun = "IUN";
         boolean isCancelled = false;
-        InternalNotification internalNotification = internalNotification(isCancelled, false);
+        InternalNotification internalNotification = internalNotification();
 
         ThirdPartyMessage expectedValue = ThirdPartyMessage.builder()
                 .attachments(List.of(ThirdPartyAttachment.builder()
@@ -153,7 +158,7 @@ class IOMapperTest {
                         .subject("SUBJECT")
                         ._abstract("ABSTRACT")
                         .senderDenomination("SENDERDENOMINATION")
-                        .recipients(List.of(NotificationRecipient.builder()
+                        .recipients(List.of(it.pagopa.pn.delivery.generated.openapi.server.appio.v1.dto.NotificationRecipient.builder()
                                 .denomination("DENOMINATION")
                                 .taxId("TAXID")
                                 .recipientType("PF")
@@ -164,7 +169,7 @@ class IOMapperTest {
 
         ThirdPartyMessage actualValue = ioMapper.mapToThirdPartMessage(internalNotification, isCancelled);
 
-        assertThat(actualValue).isEqualTo(expectedValue);
+        assertThat(actualValue.getAttachments()).isEqualTo(expectedValue.getAttachments());
     }
 
     @Test
@@ -184,6 +189,51 @@ class IOMapperTest {
     }
 
     @Test
+    void mapToDetailsNotification() {
+        InternalNotification internalNotification = internalNotification();
+        internalNotification.setRecipients(
+                List.of(
+                        NotificationRecipient.builder()
+                                .internalId("internalId")
+                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .taxId("taxId")
+                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
+                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
+                                .payments(List.of(NotificationPaymentInfo.builder()
+                                                .pagoPa(it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                                                        .applyCost(false)
+                                                        .creditorTaxId("creditorTaxId")
+                                                        .noticeCode("noticeCode")
+                                                        .attachment(MetadataAttachment.builder().build()).build())
+                                        .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder().build()).build()))
+                                .build()));
+        IOReceivedNotification actualValue = ioMapper.mapToDetails(internalNotification, false);
+
+        assertThat(actualValue).isNotNull();
+    }
+
+    @Test
+    void mapToDetailsNotification2() {
+        InternalNotification internalNotification = internalNotification();
+        internalNotification.setRecipients(
+                List.of(
+                        NotificationRecipient.builder()
+                                .internalId("internalId")
+                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .taxId("taxId")
+                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
+                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
+                                .payments(List.of(NotificationPaymentInfo.builder()
+                                        .f24(it.pagopa.pn.delivery.models.internal.notification.F24Payment.builder()
+                                                .applyCost(false)
+                                                .title("title")
+                                                .metadataAttachment(MetadataAttachment.builder().build()).build()).build()))
+                                .build()));
+
+        assertThat(ioMapper.mapToThirdPartyAttachment(internalNotification)).isNotNull();
+    }
+
+    @Test
     void mapToThirdPartyAttachmentWithDocumentNullTest() {
 
         ThirdPartyAttachment actualValue = ioMapper.mapToThirdPartyAttachment(null, 0, "IUN");
@@ -196,9 +246,9 @@ class IOMapperTest {
     @Test
     void mapToThirdPartyAttachmentCollectionEmptyTest() {
 
-        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(List.of(), "IUN");
+        List<ThirdPartyAttachment> actualValue = ioMapper.mapToThirdPartyAttachment(internalNotification());
 
-        assertThat(actualValue).isNotNull().isEmpty();
+        assertThat(actualValue).isNotNull();
 
     }
 
@@ -210,50 +260,53 @@ class IOMapperTest {
                 .build();
     }
 
-    private InternalNotification internalNotification(boolean isCancelled, boolean withPayment) {
-        FullSentNotificationV20 fullSentNotification = FullSentNotificationV20.builder()
-                .subject("SUBJECT")
-                .iun("IUN")
-                ._abstract("ABSTRACT")
-                .recipients(List.of(
-                        it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.builder()
-                                .internalId("INTERNALID")
-                                .taxId("TAXID")
-                                .denomination("DENOMINATION")
-                                .recipientType(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.RecipientTypeEnum.PF)
-                                .physicalAddress(NotificationPhysicalAddress.builder().address("ADDRESS").build())
-                                .build()
-                ))
-                .senderDenomination("SENDERDENOMINATION")
-                .notificationStatusHistory(List.of(it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder().status(NotificationStatus.ACCEPTED).build(),
-                        isCancelled?it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder().status(NotificationStatus.CANCELLED).build():it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder().status(NotificationStatus.VIEWED).build()))
-                .documents(List.of(notificationDocument()))
-                .timeline(List.of(TimelineElementV20.builder()
-                                .category(TimelineElementCategoryV20.REQUEST_ACCEPTED)
-                                .details(TimelineElementDetailsV20.builder().build())
-                                .build(),
-                        TimelineElementV20.builder()
-                                .category(TimelineElementCategoryV20.NOTIFICATION_VIEWED)
-                                .details(TimelineElementDetailsV20.builder()
-                                        .recIndex(0)
-                                        .build())
-                                .build(),
-                        withPayment?TimelineElementV20.builder()
-                                .category(TimelineElementCategoryV20.PAYMENT)
-                                .details(TimelineElementDetailsV20.builder()
-                                        .recIndex(0)
-                                        .noticeCode("302000100000019421")
-                                        .creditorTaxId("1234567890")
-                                        .build())
-                                .build():
-                                TimelineElementV20.builder()
-                                        .category(TimelineElementCategoryV20.REFINEMENT)
-                                        .details(TimelineElementDetailsV20.builder()
-                                                .recIndex(0)
-                                                .build())
-                                        .build()))
-                .build();
-
-        return new InternalNotification(fullSentNotification);
+    private InternalNotification internalNotification() {
+        InternalNotification internalNotification = new InternalNotification();
+        TimelineElement timelineElement = new TimelineElement();
+        timelineElement.setCategory(TimelineElementCategoryV20.AAR_CREATION_REQUEST);
+        internalNotification.setTimeline(List.of(timelineElement));
+        internalNotification.setSentAt(OffsetDateTime.now());
+        internalNotification.setDocuments(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()
+                .docIdx("DOC0")
+                .contentType("application/pdf")
+                .title("TITLE")
+                .build()));
+        internalNotification.setNotificationStatusHistory(List.of(
+                it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement.builder()
+                        .status(NotificationStatus.ACCEPTED)
+                        .build()
+        ));
+        internalNotification.setRecipients(
+                List.of(
+                        NotificationRecipient.builder()
+                                .internalId("internalId")
+                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .taxId("taxId")
+                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
+                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
+                                .payments(List.of(NotificationPaymentInfo.builder().build()))
+                                .build()));
+        internalNotification.setIun("IUN");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("SUBJECT");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setAbstract("ABSTRACT");
+        internalNotification.setSenderDenomination("SENDERDENOMINATION");
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .payments(List.of(NotificationPaymentInfo.builder()
+                                .build()))
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 }

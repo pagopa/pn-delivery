@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV20;
+import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ public class RefinementLocalDate {
     public static final String ZONE_ID_EUROPE_ROME = "Europe/Rome";
 
     @NotNull
-    public OffsetDateTime setLocalRefinementDate(TimelineElementV20 timelineElement) {
+    public OffsetDateTime setLocalRefinementDate(TimelineElement timelineElement) {
         OffsetDateTime refinementDate;
         OffsetDateTime timestampUtc = timelineElement.getTimestamp();
         // mi sposto all'offest IT

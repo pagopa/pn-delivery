@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV20;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
@@ -44,6 +44,8 @@ public class NotificationEntity {
     public static final String FIELD_SOURCE_CHANNEL = "sourceChannel";
     public static final String FIELD_SOURCE_CHANNEL_DETAILS = "sourceChannelDetails";
     public static final String FIELD_VERSION = "version";
+    public static final String FIELD_PA_FEE = "paFee";
+    public static final String FIELD_VAT = "vat";
 
     @Getter(onMethod=@__({@DynamoDbPartitionKey, @DynamoDbAttribute(FIELD_IUN)})) private String iun;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_ABSTRACT)})) private String notificationAbstract;
@@ -57,7 +59,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENTS)})) private List<NotificationRecipientEntity> recipients;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DOCUMENTS)})) private List<DocumentAttachmentEntity> documents;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTIFICATION_FEE_POLICY)})) private NotificationFeePolicy notificationFeePolicy;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV20.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_COMMUNICATION_TYPE)})) private FullSentNotificationV21.PhysicalCommunicationTypeEnum physicalCommunicationType;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_GROUP)})) private String group;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_DENOMINATION)})) private String senderDenomination;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SENDER_TAX_ID)})) private String senderTaxId;
@@ -69,6 +71,7 @@ public class NotificationEntity {
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAGOPA_INT_MODE)})) private String pagoPaIntMode;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL)})) private String sourceChannel;
     @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_SOURCE_CHANNEL_DETAILS)})) private String sourceChannelDetails;
-    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private int version;
-
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VERSION)})) private Integer version;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PA_FEE)})) private Integer paFee;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_VAT)})) private Integer vat;
 }

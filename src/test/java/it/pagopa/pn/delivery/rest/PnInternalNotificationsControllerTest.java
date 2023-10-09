@@ -8,6 +8,8 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -20,16 +22,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 
 @WebFluxTest(controllers = {PnInternalNotificationsController.class})
@@ -39,16 +43,11 @@ class PnInternalNotificationsControllerTest {
     private static final String SENDER_ID = "test";
     private static final String START_DATE = "2021-09-17T00:00:00.000Z";
     private static final String END_DATE = "2021-09-18T00:00:00.000Z";
-    private static final Integer SIZE = 10;
     private static final NotificationStatus STATUS = NotificationStatus.IN_VALIDATION;
     private static final String RECIPIENT_ID = "CGNNMO80A01H501M";
     private static final String RECIPIENT_INTERNAL_ID = "PF-2d74ffe9-aa40-47c2-88ea-9fb171ada637";
     public static final InternalAuthHeader INTERNAL_AUTH_HEADER = new InternalAuthHeader("PF", RECIPIENT_INTERNAL_ID, null, null);
-    private static final String UID = "2d74ffe9-aa40-47c2-88ea-9fb171ada637";
-    private static final String SUBJECT_REG_EXP = "asd";
-    private static final String NEXT_PAGES_KEY = "eyJlayI6ImNfYjQyOSMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwiaWsiOnsiaXVuX3JlY2lwaWVudElkIjoiY19iNDI5LTIwMjIwNDA1MTEyOCMjZWQ4NGI4YzktNDQ0ZS00MTBkLTgwZDctY2ZhZDZhYTEyMDcwIiwic2VudEF0IjoiMjAyMi0wNC0wNVQwOToyODo0Mi4zNTgxMzZaIiwic2VuZGVySWRfcmVjaXBpZW50SWQiOiJjX2I0MjkjI2VkODRiOGM5LTQ0NGUtNDEwZC04MGQ3LWNmYWQ2YWExMjA3MCJ9fQ==";
-    private static final String DELEGATOR_ID = "DelegatorId";
-    private static final String MANDATE_ID = "mandateId";
+    private static final String MANDATE_ID = "4fd712cd-8751-48ba-9f8c-471815146896";
     private static final String REDIRECT_URL = "http://redirectUrl";
     public static final String ATTACHMENT_BODY_STR = "Body";
     public static final String SHA256_BODY = DigestUtils.sha256Hex(ATTACHMENT_BODY_STR);
@@ -444,18 +443,22 @@ class PnInternalNotificationsControllerTest {
         Mockito.when( attachmentService.downloadAttachmentWithRedirect(
                 Mockito.anyString(),
                 Mockito.any( InternalAuthHeader.class ),
-                Mockito.isNull(),
+                Mockito.any(),
                 Mockito.isNull(),
                 Mockito.anyString(),
                 Mockito.anyBoolean()
         )).thenReturn( response );
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("recipientInternalId",RECIPIENT_INTERNAL_ID);
+        params.add("mandateId",MANDATE_ID);
 
         webTestClient.get()
                 .uri( uriBuilder ->
                         uriBuilder
                                 .path("/delivery-private/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}", IUN)
                                         .replace("{attachmentName}",ATTACHMENT_NAME ))
-                                .queryParam( "recipientInternalId", RECIPIENT_INTERNAL_ID )
+                                .queryParams( params)
                                 .build())
                 .accept( MediaType.APPLICATION_JSON )
                 .exchange()
@@ -463,7 +466,7 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, ATTACHMENT_NAME, false );
+        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, ATTACHMENT_NAME, false );
     }
 
     @Test
@@ -637,54 +640,36 @@ class PnInternalNotificationsControllerTest {
     }
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .iun("IUN_01")
-                .paProtocolNumber("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .senderPaId("pa_02")
-                .notificationStatus(NotificationStatus.ACCEPTED)
-                .recipients(Collections.singletonList(
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
+        internalNotification.setSentAt(OffsetDateTime.now());
+        internalNotification.setRecipients(
+                List.of(
                         NotificationRecipient.builder()
-                                .taxId("Codice Fiscale 01")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(NotificationDigitalAddress.builder()
-                                        .type(NotificationDigitalAddress.TypeEnum.PEC)
-                                        .address("account@dominio.it")
-                                        .build())
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NotificationDocument.builder()
-                                .ref(NotificationAttachmentBodyRef.builder()
-                                        .key("doc00")
-                                        .versionToken("v01_doc00")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .build(),
-                        NotificationDocument.builder()
-                                .ref(NotificationAttachmentBodyRef.builder()
-                                        .key("doc01")
-                                        .versionToken("v01_doc01")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .build()
-                ))
-                .recipientIds(Collections.singletonList("recipientId"))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
-                .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement.builder()
-                        .status(NotificationStatus.ACCEPTED)
-                        .build()))
-                .build());
+                                .internalId("internalId")
+                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .taxId("taxId")
+                                .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
+                                .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
+                                .payments(List.of(NotificationPaymentInfo.builder().build()))
+                                .build()));
+        internalNotification.setRecipientIds(List.of(RECIPIENT_ID));
+        internalNotification.setIun("IUN_01");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 }

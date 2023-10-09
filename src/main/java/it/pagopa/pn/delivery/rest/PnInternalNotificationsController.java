@@ -95,12 +95,12 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<SentNotification> getSentNotificationPrivate(String iun) {
+    public ResponseEntity<SentNotificationV21> getSentNotificationPrivate(String iun) {
         InternalNotification notification = retrieveSvc.getNotificationInformation(iun, false, true);
-        SentNotification sentNotification = modelMapper.map(notification, SentNotification.class);
+        SentNotificationV21 sentNotification = modelMapper.map(notification, SentNotificationV21.class);
 
         int recIdx = 0;
-        for (NotificationRecipient rec : sentNotification.getRecipients()) {
+        for (NotificationRecipientV21 rec : sentNotification.getRecipients()) {
             rec.setInternalId(notification.getRecipientIds().get(recIdx));
             recIdx += 1;
         }

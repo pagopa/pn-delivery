@@ -13,7 +13,10 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRefusedError;
+import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
+import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.InternalFieldsCleaner;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +27,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
-import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
+
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -48,7 +51,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<FullSentNotificationV20> getSentNotificationV20(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<FullSentNotificationV21> getSentNotificationV21(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, List<String> xPagopaPnCxGroups) {
         InternalNotification internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -62,7 +65,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             throw new PnNotificationNotFoundException( "Unable to find notification with iun="+ internalNotification.getIun() );
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        FullSentNotificationV20 result = modelMapper.map( internalNotification, FullSentNotificationV20.class );
+        FullSentNotificationV21 result = modelMapper.map( internalNotification, FullSentNotificationV21.class );
         logEvent.generateSuccess().log();
         return ResponseEntity.ok( result );
     }
@@ -110,7 +113,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NewNotificationRequestStatusResponse> getNotificationRequestStatus(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+    public ResponseEntity<NewNotificationRequestStatusResponseV21> getNotificationRequestStatusV21(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         InternalNotification internalNotification;
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -138,9 +141,9 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken, xPagopaPnCxGroups);
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        NewNotificationRequestStatusResponse response = modelMapper.map(
+        NewNotificationRequestStatusResponseV21 response = modelMapper.map(
                 internalNotification,
-                NewNotificationRequestStatusResponse.class
+                NewNotificationRequestStatusResponseV21.class
         );
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 
@@ -162,7 +165,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             case REFUSED -> {
                 response.setNotificationRequestStatus("REFUSED");
                 response.setIun(null);
-                Optional<TimelineElementV20> timelineElement = internalNotification.getTimeline().stream().filter(
+                Optional<TimelineElement> timelineElement = internalNotification.getTimeline().stream().filter(
                         tle -> TimelineElementCategoryV20.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
                 timelineElement.ifPresent(element -> setRefusedErrors(response, element));
             }
@@ -173,7 +176,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return ResponseEntity.ok( response );
     }
 
-    private void setRefusedErrors(NewNotificationRequestStatusResponse response, TimelineElementV20 timelineElement) {
+    private void setRefusedErrors(NewNotificationRequestStatusResponseV21 response, TimelineElement timelineElement) {
         List<NotificationRefusedError> refusalReasons = timelineElement.getDetails().getRefusalReasons();
         List<ProblemError> problemErrorList = refusalReasons.stream().map(
                 reason -> ProblemError.builder()
@@ -185,7 +188,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getSentNotificationAttachment(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, String iun, Integer recipientIdx, String attachmentName, List<String> xPagopaPnCxGroups, Integer attachmentIdx) {
         InternalAttachmentWithFileKey internalAttachmentWithFileKey = new InternalAttachmentWithFileKey();
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -201,6 +204,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
                     null,
                     recipientIdx,
                     attachmentName,
+                    attachmentIdx,
                     false
             );
             if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){

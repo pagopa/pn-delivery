@@ -123,7 +123,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/notifications/received/{iun}":
+  "/delivery/v2.1/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
       description: >-
@@ -131,7 +131,7 @@ paths:
         notifiche ricevute.
       tags:
         - RecipientRead
-      operationId: getReceivedNotification
+      operationId: getReceivedNotificationV21
       security:                                      # ONLY EXTERNAL
         - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
@@ -143,7 +143,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullReceivedNotification"
+                $ref: "#/components/schemas/FullReceivedNotificationV21"
         '400':
           description: Bad request
           content:
@@ -209,6 +209,7 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathAttachmentName'
         - $ref: '#/components/parameters/queryMandateId'
+        - $ref: '#/components/parameters/attachmentIdx'
       responses:
         '200':
           description: OK
@@ -367,13 +368,6 @@ components:
         minLength: 3
         maxLength: 6
         pattern: "PAGOPA|F24"
-        # quella sottostante è quella corretta. Riscritta per problemi con tool usato
-        #    oneOf:
-        #      - type: number
-        #      - type: string
-        #        enum:
-        #          - PAGOPA
-        #          - F24
     queryMandateId:
       name: mandateId
       in: query
@@ -381,6 +375,14 @@ components:
       schema:
         type: string
         format: uuid
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
 
     ############################################################################################
     ###                      PARAMETRI DOWNLOAD ATTI OPPONIBILI A TERZI                      ###
@@ -399,12 +401,12 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotification:
+    FullReceivedNotificationV21:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotification'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV21'
         - type: object
           required:
             - notificationStatus
