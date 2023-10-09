@@ -1,10 +1,15 @@
 package it.pagopa.pn.delivery.svc.authorization;
 
+import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.mandate.PnMandateClientImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +21,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 class CheckAuthComponentTest {
 
@@ -93,8 +98,38 @@ class CheckAuthComponentTest {
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
+        Assertions.assertFalse( authorizationOutcome.isAuthorized() );
+    }
+
+    @Test
+    void canAccessPFWithMandateIdSuccess1() {
+        String cxType = "PF";
+        String cxId = "CX_ID";
+        String iun = "IUN_01";
+        String mandateId = "mandateId";
+        Integer recipientIdx = 0;
+
+        InternalNotification notification = newNotification();
+        notification.setCancelledIun(iun);
+        notification.setRecipientIds(List.of("recipientId"));
+        notification.setRecipients(List.of(NotificationRecipient.builder().taxId("taxId").recipientType(NotificationRecipientV21.RecipientTypeEnum.PF).build()));
+        // Given
+        ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
+
+        // When
+        Mockito.when( mandateClient.listMandatesByDelegate( cxId, mandateId, CxTypeAuthFleet.PF, null ) )
+                .thenReturn( Collections.singletonList(new InternalMandateDto()
+                        .datefrom( "2022-01-01T00:00Z" )
+                        .mandateId( mandateId )
+                        .delegator( "recipientId" ))
+                );
+        AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
+
+        // Then
         Assertions.assertTrue( authorizationOutcome.isAuthorized() );
     }
+
+
     @Test
     void canAccessPGWithMandateIdSuccess() {
         String cxType = "PG";
@@ -117,7 +152,7 @@ class CheckAuthComponentTest {
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertTrue( authorizationOutcome.isAuthorized() );
+        Assertions.assertFalse( authorizationOutcome.isAuthorized() );
     }
 
     @Test
@@ -138,7 +173,7 @@ class CheckAuthComponentTest {
         Executable todo = () -> checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertThrows( PnNotFoundException.class, todo);
+        Assertions.assertThrows( PnMandateNotFoundException.class, todo);
     }
     @Test
     void canAccessPGWithMandateIdNotFoundExc() {
@@ -177,59 +212,31 @@ class CheckAuthComponentTest {
         AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
 
         // Then
-        Assertions.assertTrue( authorizationOutcome.isAuthorized() );
+        Assertions.assertFalse( authorizationOutcome.isAuthorized() );
     }
 
     private InternalNotification newNotification() {
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .iun("IUN_01")
-                .paProtocolNumber("protocol_01")
-                .subject("Subject 01")
-                .cancelledByIun("IUN_05")
-                .cancelledIun("IUN_00")
-                .senderPaId( "pa_02" )
-                .notificationStatus( NotificationStatus.ACCEPTED )
-                .sentAt( OffsetDateTime.parse( "2022-08-26T00:00Z" ) )
-                .recipients( Collections.singletonList(
-                        NotificationRecipient.builder()
-                                .taxId("Codice Fiscale 01")
-                                .denomination("Nome Cognome/Ragione Sociale")
-                                .digitalDomicile(NotificationDigitalAddress.builder()
-                                        .type( NotificationDigitalAddress.TypeEnum.PEC )
-                                        .address("account@dominio.it")
-                                        .build())
-                                .build()
-                ))
-                .documents(Arrays.asList(
-                        NotificationDocument.builder()
-                                .ref( NotificationAttachmentBodyRef.builder()
-                                        .key("doc00")
-                                        .versionToken("v01_doc00")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc00")
-                                        .build()
-                                )
-                                .build(),
-                        NotificationDocument.builder()
-                                .ref( NotificationAttachmentBodyRef.builder()
-                                        .key("doc01")
-                                        .versionToken("v01_doc01")
-                                        .build()
-                                )
-                                .digests(NotificationAttachmentDigests.builder()
-                                        .sha256("sha256_doc01")
-                                        .build()
-                                )
-                                .build()
-                ))
-                .recipientIds(Collections.singletonList( "recipientId" ))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .timeline( Collections.singletonList(TimelineElementV20.builder().build()))
-                .notificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
-                        .status( NotificationStatus.ACCEPTED )
-                        .build() ) )
-                .build());
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
+        internalNotification.setSentAt(OffsetDateTime.MAX);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setRecipientIds(List.of("IUN_01"));
+        internalNotification.setIun("IUN_01");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 }

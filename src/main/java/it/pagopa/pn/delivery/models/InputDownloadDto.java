@@ -22,5 +22,6 @@ public class InputDownloadDto {
     private Integer documentIndex;
     private Integer recipientIdx;
     private String attachmentName;
+    private Integer attachmentIdx;
     private Boolean markNotificationAsViewed;
 }

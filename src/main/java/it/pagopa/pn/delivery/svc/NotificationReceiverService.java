@@ -1,18 +1,25 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
+import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.config.SendActiveParameterConsumer;
 import it.pagopa.pn.delivery.exception.PnBadRequestException;
 import it.pagopa.pn.delivery.exception.PnInvalidInputException;
+import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Item;
+import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Request;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequest;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
+import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +31,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_INVALIDPARAMETER_GROUP;
 import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_CODE_DELIVERY_SEND_IS_DISABLED;
@@ -41,8 +50,11 @@ public class NotificationReceiverService {
 	private final SendActiveParameterConsumer parameterConsumer;
 
 	private final PnExternalRegistriesClientImpl pnExternalRegistriesClient;
+	private final PnF24ClientImpl f24Client;
 
 	private final IunGenerator iunGenerator = new IunGenerator();
+
+	private final PnDeliveryConfigs cfg;
 
 	@Autowired
 	public NotificationReceiverService(
@@ -51,13 +63,17 @@ public class NotificationReceiverService {
 			NotificationReceiverValidator validator,
 			ModelMapper modelMapper,
 			SendActiveParameterConsumer parameterConsumer,
-			PnExternalRegistriesClientImpl pnExternalRegistriesClient) {
+			PnExternalRegistriesClientImpl pnExternalRegistriesClient,
+			PnF24ClientImpl f24Client,
+			PnDeliveryConfigs cfg) {
 		this.clock = clock;
 		this.notificationDao = notificationDao;
 		this.validator = validator;
 		this.modelMapper = modelMapper;
 		this.parameterConsumer = parameterConsumer;
 		this.pnExternalRegistriesClient = pnExternalRegistriesClient;
+		this.f24Client = f24Client;
+		this.cfg = cfg;
 	}
 
 	/**
@@ -72,7 +88,7 @@ public class NotificationReceiverService {
 	 */
 	public NewNotificationResponse receiveNotification(
 			String xPagopaPnCxId,
-			NewNotificationRequest newNotificationRequest,
+			NewNotificationRequestV21 newNotificationRequest,
 			String xPagopaPnSrcCh,
 			String xPagopaPnSrcChDetails,
 			List<String> xPagopaPnCxGroups
@@ -99,10 +115,40 @@ public class NotificationReceiverService {
 
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
+		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
 
-		internalNotification.setSourceChannelDetails( xPagopaPnSrcChDetails );
+		SaveF24Request saveF24Request = new SaveF24Request();
+		List<SaveF24Item> saveF24Items = IntStream.range(0, internalNotification.getRecipients().size())
+				.boxed()
+				.flatMap(recipientIndex -> {
+					NotificationRecipient notificationRecipient = internalNotification.getRecipients().get(recipientIndex);
+					return IntStream.range(0, notificationRecipient.getPayments().size())
+							.boxed()
+							.flatMap(paymentIndex -> {
+								NotificationPaymentInfo notificationPaymentInfo = notificationRecipient.getPayments().get(paymentIndex);
+								if (notificationPaymentInfo.getF24() != null) {
+									SaveF24Item saveF24Item = new SaveF24Item();
+									saveF24Item.setApplyCost(notificationPaymentInfo.getF24().isApplyCost());
+									saveF24Item.setSha256(notificationPaymentInfo.getF24().getMetadataAttachment().getDigests() != null ? notificationPaymentInfo.getF24().getMetadataAttachment().getDigests().getSha256() : null);
+									saveF24Item.setFileKey(notificationPaymentInfo.getF24().getMetadataAttachment().getRef() != null ? notificationPaymentInfo.getF24().getMetadataAttachment().getRef().getKey() : null);
+									saveF24Item.setPathTokens(List.of(Integer.toString(recipientIndex), Integer.toString(paymentIndex)));
+									return Stream.of(saveF24Item);
+								} else {
+									return Stream.empty();
+								}
+							});
+				})
+				.toList();
 
-		String iun = doSaveWithRethrow(internalNotification);
+		String iun = generateIun(internalNotification);
+		saveF24Request.setF24Items(saveF24Items);
+		saveF24Request.setId(internalNotification.getIun());
+
+		if(!saveF24Items.isEmpty()){
+			f24Client.saveMetadata(this.cfg.getF24CxId(), internalNotification.getIun(), saveF24Request);
+		}
+
+		doSaveWithRethrow(internalNotification);
 
 		NewNotificationResponse response = generateResponse(internalNotification, iun);
 
@@ -138,20 +184,20 @@ public class NotificationReceiverService {
 
 	}
 
-	private void setPagoPaIntMode(NewNotificationRequest newNotificationRequest) {
-		 // controllo se non é stato settato il valore pagoPaIntMode dalla PA
+	private void setPagoPaIntMode(NewNotificationRequestV21 newNotificationRequest) {
+		// controllo se non é stato settato il valore pagoPaIntMode dalla PA
 		if ( ObjectUtils.isEmpty( newNotificationRequest.getPagoPaIntMode() ) ) {
 			// verifico che nessun destinatario ha un pagamento
 			if ( newNotificationRequest.getRecipients().stream()
-					.noneMatch(notificationRecipient -> notificationRecipient.getPayment() != null )) {
+					.noneMatch(notificationRecipient -> notificationRecipient.getPayments() != null && !notificationRecipient.getPayments().isEmpty())) {
 				// metto default a NONE
-				newNotificationRequest.setPagoPaIntMode(NewNotificationRequest.PagoPaIntModeEnum.NONE);
+				newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
 			} else {
 				// qualche destinatario ha un pagamento
 				if (newNotificationRequest.getNotificationFeePolicy().equals( DELIVERY_MODE )) {
-					newNotificationRequest.setPagoPaIntMode(NewNotificationRequest.PagoPaIntModeEnum.SYNC);
+					newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.SYNC);
 				} else {
-					newNotificationRequest.setPagoPaIntMode( NewNotificationRequest.PagoPaIntModeEnum.NONE );
+					newNotificationRequest.setPagoPaIntMode( NewNotificationRequestV21.PagoPaIntModeEnum.NONE );
 				}
 			}
 		}
@@ -159,7 +205,7 @@ public class NotificationReceiverService {
 
 	private NewNotificationResponse generateResponse(InternalNotification internalNotification, String iun) {
 		String notificationId = Base64Utils.encodeToString(iun.getBytes(StandardCharsets.UTF_8));
-		
+
 		return NewNotificationResponse.builder()
 				.notificationRequestId(notificationId)
 				.paProtocolNumber( internalNotification.getPaProtocolNumber() )
@@ -167,24 +213,24 @@ public class NotificationReceiverService {
 				.build();
 	}
 
-	private String doSaveWithRethrow( InternalNotification internalNotification) throws PnIdConflictException {
-		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
-				internalNotification.getPaProtocolNumber() );
-
+	private String generateIun(InternalNotification internalNotification){
 		Instant createdAt = clock.instant();
 		String iun = iunGenerator.generatePredictedIun( createdAt );
 		log.debug( "Generated iun={}", iun );
-		doSave(internalNotification, createdAt, iun);
-		return iun;
-	}
-	
-
-	private void doSave(InternalNotification internalNotification, Instant createdAt, String iun) throws PnIdConflictException {
-
 		internalNotification.iun( iun );
 		internalNotification.sentAt( createdAt.atOffset( ZoneOffset.UTC ) );
-		
-		log.info("Store the notification metadata for iun={}", iun);
+		return iun;
+	}
+
+	private void doSaveWithRethrow( InternalNotification internalNotification) throws PnIdConflictException {
+		log.debug( "tryMultipleTimesToHandleIunCollision: start paProtocolNumber={}",
+				internalNotification.getPaProtocolNumber() );
+		doSave(internalNotification);
+	}
+
+
+	private void doSave(InternalNotification internalNotification) throws PnIdConflictException {
+		log.info("Store the notification metadata for iun={}", internalNotification.getIun());
 		notificationDao.addNotification(internalNotification);
 	}
 

@@ -28,9 +28,49 @@ tags:
     description: Notification details
   - name: AppIO-PN-Documents
     description: Notification Documents
-  - name: AppIO-PN-LegalFacts
-    description: Notification Legal Facts
+  - name: AppIO-PN-Payments
+    description: Notification Payments
 paths:
+  "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}":
+    get:
+      summary: Download allegato per pagamento
+      tags:
+        - AppIO-PN-Payments
+      operationId: getReceivedNotificationAttachment
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/pathAttachmentName'
+        - $ref: '#/components/parameters/attachmentIdx'
+        - $ref: '#/components/parameters/cxTaxIdAuthFleet'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
+        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas-pn-notification.yaml#/components/schemas/NotificationAttachmentDownloadMetadataResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
   "/delivery/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
@@ -105,44 +145,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-    ###########################################################################################
-    ###                          DOWNLOAD ATTI OPPONIBILI A TERZI                           ###
-    ###########################################################################################
 
-  '/delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}':
-    get:
-      summary: Download atto opponibile a terzi
-      description: Permette di scaricare un atto opponibile a terzi
-      tags:
-        - AppIO-PN-LegalFacts
-      operationId: getLegalFact
-      parameters:
-        - $ref: 'parameters-notification-search.yaml#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/pathLegalFactType'
-        - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/cxTaxIdAuthFleet'
-        - $ref: '#/components/parameters/lollipopOriginalUrl'                                     # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopOriginalMethod'                                  # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopPublicKey'                                       # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAssertionRef'                                    # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAssertionType'                                   # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopAuthJwt'                                         # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopUserId'                                          # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopSignatureInput'                                  # ONLY EXTERNAL
-        - $ref: '#/components/parameters/lollipopSignature'                                       # ONLY EXTERNAL
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LegalFactDownloadMetadataResponse"
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
 components:
   parameters:
     ############################################################################################
@@ -150,6 +153,23 @@ components:
     ############################################################################################
     cxTaxIdAuthFleet:
       $ref: 'remote-refs.yaml#/components/parameters/cxTaxIdAuthFleet'
+    pathAttachmentName:
+      name: attachmentName
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 6
+        pattern: "PAGOPA|F24"
+    attachmentIdx:
+      in: query
+      name: attachmentIdx
+      description: indice del documento di pagamento partendo da 0
+      required: false
+      schema:
+        type: integer
+        format: int32
     pathLegalFactType:
       description: >-
         Categoria dell'atto opponibile a terzi
@@ -190,8 +210,6 @@ components:
       $ref: 'remote-refs.yaml#/components/parameters/lollipopSignature'                             # ONLY EXTERNAL
 
   schemas:
-    LegalFactDownloadMetadataResponse:
-      $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/LegalFactDownloadMetadataResponse'
     ThirdPartyMessage:
       $ref: './schemas-pn-timeline-appio.yaml#/components/schemas/ThirdPartyMessage'
 

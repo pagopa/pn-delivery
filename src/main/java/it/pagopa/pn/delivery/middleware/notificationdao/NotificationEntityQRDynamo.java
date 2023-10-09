@@ -3,7 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao;
 import it.pagopa.pn.commons.abstractions.impl.AbstractDynamoKeyValueStore;
 import it.pagopa.pn.commons.exceptions.PnIdConflictException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationQREntity;
 import it.pagopa.pn.delivery.models.InternalNotificationQR;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class NotificationEntityQRDynamo extends AbstractDynamoKeyValueStore<Noti
                             .iun( notificationQREntity.getIun() )
                             .aarQRCodeValue( notificationQREntity.getAarQRCodeValue() )
                             .recipientInternalId( notificationQREntity.getRecipientId() )
-                            .recipientType( NotificationRecipient.RecipientTypeEnum.valueOf( notificationQREntity.getRecipientType().getValue() ))
+                            .recipientType( NotificationRecipientV21.RecipientTypeEnum.valueOf( notificationQREntity.getRecipientType().getValue() ))
                     .build() );
         } else {
             return Optional.empty();

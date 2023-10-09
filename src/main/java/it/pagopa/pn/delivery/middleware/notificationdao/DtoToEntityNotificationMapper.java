@@ -1,10 +1,11 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,9 @@ public class DtoToEntityNotificationMapper {
                 .taxonomyCode(dto.getTaxonomyCode())
                 .pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
                 .sourceChannel( dto.getSourceChannel() )
-                .sourceChannelDetails( dto.getSourceChannelDetails() )
+                .sourceChannelDetails( dto.getSourceChannel() )
+                .paFee(dto.getPaFee())
+                .vat(dto.getVat())
                 .version( NOTIFICATION_VERSION );
 
         return builder.build();
@@ -54,50 +57,103 @@ public class DtoToEntityNotificationMapper {
         return NotificationRecipientEntity.builder()
                 .recipientId( recipient.getTaxId() )
                 .recipientType( RecipientTypeEntity.valueOf( recipient.getRecipientType().getValue() ) )
-                .payments( dto2PaymentList( recipient.getPayment() ) )
+                .payments( dto2PaymentList( recipient.getPayments() ) )
                 .build();
     }
 
-    private List<NotificationPaymentInfoEntity> dto2PaymentList(NotificationPaymentInfo dto) {
-        List<NotificationPaymentInfoEntity> paymentInfoEntityList = null;
-        if ( dto != null) {
-            paymentInfoEntityList = new ArrayList<>();
-            paymentInfoEntityList.add( NotificationPaymentInfoEntity.builder()
-                    .creditorTaxId( dto.getCreditorTaxId() )
-                    .noticeCode( dto.getNoticeCode() )
-                    .pagoPaForm( dto2PaymentAttachment( dto.getPagoPaForm() ) )
-                    .build()
-            );
-            if ( StringUtils.hasText( dto.getNoticeCodeAlternative() ) ) {
-                paymentInfoEntityList.add( NotificationPaymentInfoEntity.builder()
-                        .creditorTaxId( dto.getCreditorTaxId() )
-                        .noticeCode( dto.getNoticeCodeAlternative() )
-                        .pagoPaForm( dto2PaymentAttachment( dto.getPagoPaForm() ) )
-                        .build()
-                );
-            }
+    private List<NotificationPaymentInfoEntity> dto2PaymentList(List<NotificationPaymentInfo> notificationPaymentInfos) {
+        List<NotificationPaymentInfoEntity> paymentInfoEntityList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(notificationPaymentInfos)) {
+            notificationPaymentInfos.forEach(item ->
+                    paymentInfoEntityList.addAll(toNotificationPaymentInfoEntityList(item)));
         }
         return paymentInfoEntityList;
     }
 
-    private PaymentAttachmentEntity dto2PaymentAttachment( NotificationPaymentAttachment dto ) {
-        PaymentAttachmentEntity paymentAttachmentEntity = null;
+    private List<NotificationPaymentInfoEntity> toNotificationPaymentInfoEntityList(NotificationPaymentInfo item) {
+        List<NotificationPaymentInfoEntity> notificationPaymentInfoEntities = new ArrayList<>();
+        notificationPaymentInfoEntities.add(NotificationPaymentInfoEntity.builder()
+                .creditorTaxId(item.getPagoPa() != null ? item.getPagoPa().getCreditorTaxId() : null)
+                .noticeCode(item.getPagoPa() != null ? item.getPagoPa().getNoticeCode() : null)
+                .applyCost(item.getPagoPa() != null ? item.getPagoPa().isApplyCost() : null)
+                .pagoPaForm(
+                        dto2PagoPaPaymentEntity(item.getPagoPa())
+                )
+                .f24(
+                        dto2F24PaymentEntity(item.getF24())
+                ).build());
+        return notificationPaymentInfoEntities;
+    }
+
+    private F24PaymentEntity dto2F24PaymentEntity(F24Payment f24Payment){
+        F24PaymentEntity f24PaymentEntity = null;
+        if(f24Payment != null){
+            f24PaymentEntity =  F24PaymentEntity.builder()
+                    .applyCost(f24Payment.isApplyCost())
+                    .title(f24Payment.getTitle())
+                    .index(f24Payment.getIndex())
+                    .metadataAttachment(dto2PaymentAttachment(f24Payment))
+                    .build();
+        }
+        return f24PaymentEntity;
+    }
+
+    private PagoPaPaymentEntity dto2PagoPaPaymentEntity(PagoPaPayment pagoPaPayment){
+        PagoPaPaymentEntity pagoPaPaymentEntity = null;
+        if(pagoPaPayment != null){
+            pagoPaPaymentEntity = PagoPaPaymentEntity.builder()
+                    .contentType(pagoPaPayment.getAttachment().getContentType())
+                    .ref(NotificationAttachmentBodyRefEntity.builder()
+                            .key(pagoPaPayment.getAttachment().getRef().getKey())
+                            .versionToken(pagoPaPayment.getAttachment().getRef().getVersionToken())
+                            .build())
+                    .digests(NotificationAttachmentDigestsEntity.builder()
+                            .sha256(pagoPaPayment.getAttachment().getDigests().getSha256())
+                            .build())
+                    .build();
+        }
+        return pagoPaPaymentEntity;
+    }
+
+    private MetadataAttachmentEntity dto2PaymentAttachment(F24Payment dto ) {
+        MetadataAttachmentEntity pagoPaPaymentEntity = null;
         if (dto != null) {
-            paymentAttachmentEntity = PaymentAttachmentEntity.builder()
-                    .ref( AttachmentRefEntity.builder()
-                            .key( dto.getRef().getKey() )
-                            .versionToken( dto.getRef().getVersionToken() )
+            pagoPaPaymentEntity = MetadataAttachmentEntity.builder()
+                    .ref( NotificationAttachmentBodyRefEntity.builder()
+                            .key( dto.getMetadataAttachment().getRef().getKey() )
+                            .versionToken( dto.getMetadataAttachment().getRef().getVersionToken() )
                             .build()
                     )
-                    .contentType( dto.getContentType() )
-                    .digests( AttachmentDigestsEntity.builder()
-                            .sha256( dto.getDigests().getSha256() )
+                    .contentType( dto.getMetadataAttachment().getContentType() )
+                    .digests( NotificationAttachmentDigestsEntity.builder()
+                            .sha256( dto.getMetadataAttachment().getDigests().getSha256() )
                             .build()
                     )
                     .build();
         }
-        return paymentAttachmentEntity;
+        return pagoPaPaymentEntity;
     }
+
+    /*
+    private MetadataAttachmentEntity dto2PaymentAttachment(PagoPaPayment dto ) {
+        MetadataAttachmentEntity pagoPaPaymentEntity = null;
+        if (dto != null) {
+            pagoPaPaymentEntity = MetadataAttachmentEntity.builder()
+                    .ref( NotificationAttachmentBodyRefEntity.builder()
+                            .key( dto.getAttachment().getRef().getKey() )
+                            .versionToken( dto.getAttachment().getRef().getVersionToken() )
+                            .build()
+                    )
+                    .contentType( dto.getAttachment().getContentType() )
+                    .digests( NotificationAttachmentDigestsEntity.builder()
+                            .sha256( dto.getAttachment().getDigests().getSha256() )
+                            .build()
+                    )
+                    .build();
+        }
+        return pagoPaPaymentEntity;
+    }
+     */
 
     private List<DocumentAttachmentEntity> convertDocuments(List<NotificationDocument> dtoList) {
         List<DocumentAttachmentEntity> entityList = null;
@@ -113,10 +169,10 @@ public class DtoToEntityNotificationMapper {
             entity = new DocumentAttachmentEntity();
             entity.setContentType( dto.getContentType() );
             entity.setTitle( dto.getTitle() );
-            entity.setDigests( AttachmentDigestsEntity.builder()
+            entity.setDigests( NotificationAttachmentDigestsEntity.builder()
                     .sha256( dto.getDigests().getSha256() )
                     .build());
-            entity.setRef( AttachmentRefEntity.builder()
+            entity.setRef( NotificationAttachmentBodyRefEntity.builder()
                     .key( dto.getRef().getKey() )
                     .versionToken( dto.getRef().getVersionToken() )
                     .build());

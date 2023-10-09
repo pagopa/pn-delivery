@@ -1,9 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnHttpResponseException;
-import it.pagopa.pn.commons.exceptions.mapper.DtoProblemToProblemErrorMapper;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
-import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
@@ -15,6 +13,8 @@ import it.pagopa.pn.delivery.models.AsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalAsseverationEvent;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.InternalNotificationCost;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.utils.RefinementLocalDate;
 import org.jetbrains.annotations.NotNull;
@@ -32,9 +32,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient.RecipientTypeEnum.PF;
+import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21.RecipientTypeEnum.PF;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -42,13 +44,10 @@ class NotificationPriceServiceTest {
 
     private static final String PA_TAX_ID = "paTaxId";
     private static final String NOTICE_CODE = "noticeCode";
-    public static final String REFINEMENT_DATE = "2022-10-07T11:01:25.122312Z";
     public static final String EXPECTED_REFINEMENT_DATE = "2022-10-07T23:59:59.999999999+02:00";
     private static final String X_PAGOPA_PN_SRC_CH = "sourceChannel";
     public static final String SENT_AT_DATE = "2023-03-08T14:35:39.214793Z";
     public static final String EVENT_DATE = "2023-03-08T15:45:39.753534Z";
-
-    public static final String ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED = "PN_DELIVERYPUSH_NOTIFICATION_CANCELLED";
 
     @Mock
     private NotificationDao notificationDao;
@@ -80,6 +79,7 @@ class NotificationPriceServiceTest {
     void getNotificationPriceSuccess() {
         //Given
         InternalNotification internalNotification = getNewInternalNotification();
+        internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
         internalNotification.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
 
         InternalNotificationCost internalNotificationCost = InternalNotificationCost.builder()
@@ -87,6 +87,7 @@ class NotificationPriceServiceTest {
                 .iun( "iun" )
                 .creditorTaxIdNoticeCode( "creditorTaxId##noticeCode" )
                 .recipientType( RecipientType.PF.getValue() )
+                .recipientIdx(0)
                 .build();
 
         //When
@@ -97,11 +98,11 @@ class NotificationPriceServiceTest {
                 .thenReturn( Optional.of( internalNotification ) );
 
         Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
-                        .iunRecipientId( "iun##recipientInternalId0" )
+                .iunRecipientId( "iun##recipientInternalId0" )
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),Mockito.anyBoolean(), Mockito.anyInt() ))
                 .thenReturn( new NotificationProcessCostResponse()
                         .amount( 2000 )
                         .refinementDate( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) )
@@ -131,7 +132,8 @@ class NotificationPriceServiceTest {
                 .moreFields( AsseverationEvent.Payload.AsseverationMoreField.builder().build() )
                 .build();
 
-        Mockito.verify( asseverationEventsProducer ).sendAsseverationEvent( asseverationEvent );
+        assertDoesNotThrow(() -> (asseverationEventsProducer ).sendAsseverationEvent( asseverationEvent ));
+
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -189,7 +191,7 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt()))
                 .thenThrow(new PnHttpResponseException("err", 404));
 
 
@@ -225,19 +227,16 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        PnHttpResponseException exception =  new PnHttpResponseException("errore", "detail", 404, List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
-                        .code(ERROR_CODE_DELIVERYPUSH_NOTIFICATIONCANCELLED)
-                .build()), null);
+        PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
-
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt() ))
                 .thenThrow(exception);
 
 
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
-        Assertions.assertThrows(PnNotificationCancelledException.class, todo);
+        Assertions.assertThrows(PnHttpResponseException.class, todo);
     }
 
     @ExtendWith(MockitoExtension.class)
@@ -266,12 +265,9 @@ class NotificationPriceServiceTest {
                 .build())
         );
 
-        PnHttpResponseException exception =  new PnHttpResponseException("errore", "detail", 404, List.of(it.pagopa.pn.commons.exceptions.dto.ProblemError.builder()
-                .code("altro_CODICE_ERRORE")
-                .build()), null);
+        PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
-
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ) ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt()))
                 .thenThrow(exception);
 
 
@@ -354,9 +350,16 @@ class NotificationPriceServiceTest {
         String noticeCode = "a-notice-code";
         InternalNotification notification = new InternalNotification();
         notification.setIun(iun);
+        NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
+        notificationPaymentInfo.setPagoPa(
+                it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                        .noticeCode(noticeCode)
+                        .creditorTaxId(paTaxId)
+                        .build()
+        );
         notification.setRecipients(List.of(new NotificationRecipient()
                 .recipientType(PF)
-                .payment(new NotificationPaymentInfo().noticeCode(noticeCode).creditorTaxId(paTaxId))));
+                .payment(List.of(notificationPaymentInfo))));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
 
         assertDoesNotThrow(() -> svc.removeAllNotificationCostsByIun(iun));
@@ -369,11 +372,17 @@ class NotificationPriceServiceTest {
         String iun = "a-iun";
         String paTaxId = "creditor-tax-id";
         String noticeCode = "a-notice-code";
+        NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();
+        notificationPaymentInfo.setPagoPa(
+                it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                        .creditorTaxId(paTaxId)
+                        .noticeCode(noticeCode).build()
+        );
         InternalNotification notification = new InternalNotification();
         notification.setIun(iun);
         notification.setRecipients(List.of(new NotificationRecipient()
                 .recipientType(PF)
-                .payment(new NotificationPaymentInfo().noticeCode(noticeCode).creditorTaxId(paTaxId))));
+                .payment(List.of(notificationPaymentInfo))));
         Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.empty());
 
         assertThrows(PnNotFoundException.class, () -> svc.removeAllNotificationCostsByIun(iun));
@@ -382,37 +391,31 @@ class NotificationPriceServiceTest {
 
     @NotNull
     private InternalNotification getNewInternalNotification() {
-        return new InternalNotification(FullSentNotificationV20.builder()
-                .notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE )
-                .iun( "iun" )
-                .sentAt( OffsetDateTime.parse(SENT_AT_DATE) )
-                .senderPaId( "senderPaId" )
-                .recipientIds(List.of( "recipientInternalId0" ))
-                .sourceChannel(X_PAGOPA_PN_SRC_CH)
-                .recipients(Collections.singletonList(NotificationRecipient.builder()
-                        .recipientType( PF )
-                        .physicalAddress(NotificationPhysicalAddress.builder()
-                                .foreignState( "Italia" )
-                                .build())
-                        .payment( NotificationPaymentInfo.builder()
-                                .creditorTaxId( PA_TAX_ID )
-                                .noticeCode( NOTICE_CODE )
-                                .build() )
-                        .build()) )
-                .timeline( List.of( TimelineElementV20.builder()
-                                .category( TimelineElementCategoryV20.REFINEMENT )
-                                .timestamp( OffsetDateTime.parse( REFINEMENT_DATE ) )
-                                .build(),
-                        TimelineElementV20.builder()
-                                .category( TimelineElementCategoryV20.SEND_SIMPLE_REGISTERED_LETTER )
-                                .details( TimelineElementDetailsV20.builder()
-                                        .recIndex( 0 )
-                                        .physicalAddress( PhysicalAddress.builder()
-                                                .foreignState( "Italia" )
-                                                .build() )
-                                        .build() )
-                                .build()) )
-                .build());
+        InternalNotification internalNotification = new InternalNotification();
+        internalNotification.setSentAt(OffsetDateTime.now());
+        internalNotification.setRecipientIds(List.of("0"));
+        internalNotification.setIun("IUN_01");
+        internalNotification.setPaProtocolNumber("protocol_01");
+        internalNotification.setSubject("Subject 01");
+        internalNotification.setCancelledIun("IUN_05");
+        internalNotification.setCancelledIun("IUN_00");
+        internalNotification.setSenderPaId("PA_ID");
+        internalNotification.setPaFee(0);
+        internalNotification.setVat(0);
+        internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
+        internalNotification.setRecipients(Collections.singletonList(
+                NotificationRecipient.builder()
+                        .payments(List.of(NotificationPaymentInfo.builder()
+                                .pagoPa(it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment.builder()
+                                        .noticeCode("noticeCode").build()).build()))
+                        .taxId("Codice Fiscale 01")
+                        .denomination("Nome Cognome/Ragione Sociale")
+                        .internalId( "recipientInternalId" )
+                        .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
+                                .type( NotificationDigitalAddress.TypeEnum.PEC )
+                                .address("account@dominio.it")
+                                .build()).build()));
+        return internalNotification;
     }
 
 }

@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -13,12 +12,14 @@ import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationCos
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationDelegationMetadataEntity;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.NotificationMetadataEntity;
 import it.pagopa.pn.delivery.models.InternalNotification;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import it.pagopa.pn.delivery.utils.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.OffsetDateTime;
@@ -71,17 +72,18 @@ public class StatusService {
                 }
                 case REFUSED ->
                         notification.getRecipients().stream()
-                                .filter(r -> Objects.nonNull(r.getPayment()))
-                                .forEach(r -> {
-                                    notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
-                                            .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCode())
-                                            .build());
-                                    if(r.getPayment().getNoticeCodeAlternative() != null && !r.getPayment().getNoticeCodeAlternative().isEmpty())
+                                .filter(r -> Objects.nonNull(r.getPayments()))
+                                .forEach(r -> r.getPayments().forEach(notificationPaymentInfo -> {
+                                    if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCode())){
                                         notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
-                                                .creditorTaxIdNoticeCode(r.getPayment().getCreditorTaxId() +"##"+ r.getPayment().getNoticeCodeAlternative())
+                                                .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCode())
                                                 .build());
-
-                                });
+                                    }
+                                    /*if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative()))
+                                        notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
+                                                .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative())
+                                                .build());*/
+                                }));
                 default -> {
                     Key key = Key.builder()
                             .partitionValue( notification.getIun() + "##" + notification.getRecipients().get( 0 ).getInternalId() )

@@ -3,24 +3,25 @@ package it.pagopa.pn.delivery.svc.search;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
 import it.pagopa.pn.commons.configs.MVPParameterConsumer;
-import it.pagopa.pn.commons.exceptions.*;
+import it.pagopa.pn.commons.exceptions.ExceptionHelper;
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
 import it.pagopa.pn.delivery.exception.*;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationHistoryResponse;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
-import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
-import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
-import it.pagopa.pn.delivery.models.InternalAuthHeader;
-import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.ResultPaginationDto;
+import it.pagopa.pn.delivery.models.*;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
+import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
@@ -40,7 +41,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -288,7 +291,7 @@ public class NotificationRetrieverService {
 	 *
 	 */
 	private boolean adjustSearchDatesAndReceiverAndAllowedPaIds(InputSearchNotificationDto searchDto,
-											  InternalMandateDto mandate) {
+																InternalMandateDto mandate) {
 		Instant searchStartDate = searchDto.getStartDate();
 		Instant searchEndDate = searchDto.getEndDate();
 		Instant mandateStartDate = Instant.parse(mandate.getDatefrom());
@@ -305,8 +308,8 @@ public class NotificationRetrieverService {
 		}
 		// filtro sugli ID della PA che può visualizzare
 		if (StringUtils.hasText(searchDto.getFilterId())
-			&& !CollectionUtils.isEmpty(mandate.getVisibilityIds())
-			&& !mandate.getVisibilityIds().contains(searchDto.getFilterId()))
+				&& !CollectionUtils.isEmpty(mandate.getVisibilityIds())
+				&& !mandate.getVisibilityIds().contains(searchDto.getFilterId()))
 		{
 			// questo è il caso in cui c'è un filtro per PA e la delega è solo per alcune PA e la PA non è nella delega
 			// Da notare che per ora, lato GUI, non c'è possibilità di filtrare per PA, quindi qui dentro non dovrebbe entrarci mai finchè non verrà eventualmente implementata la funzionalità
@@ -380,14 +383,19 @@ public class NotificationRetrieverService {
 		return notification;
 	}
 
+
 	private void completeInternalNotificationWithTimeline(String iun, boolean requestBySender, InternalNotification notification) {
 		notification = enrichWithTimelineAndStatusHistory(iun, notification);
 		OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 		checkDocumentsAvailability(notification, refinementDate , requestBySender);
+		/*
+		checkDocumentsAvailability(notification, refinementDate , requestBySender);
 		if ( !requestBySender && Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) ) {
 			computeNoticeCodeToReturn(notification, refinementDate );
 		}
+		 */
 	}
+
 
 	/**
 	 * Get the full detail of a notification by IUN with senderId check
@@ -416,7 +424,7 @@ public class NotificationRetrieverService {
 		if ( StringUtils.hasText( notificationGroup ) && !CollectionUtils.isEmpty( groups )
 				&& !groups.contains( notificationGroup ) ) {
 			throw new PnNotificationNotFoundException(
-				String.format("Unable to find notification with iun=%s for senderId=%s in groups=%s", iun, senderId, groups )
+					String.format("Unable to find notification with iun=%s for senderId=%s in groups=%s", iun, senderId, groups )
 			);
 		}
 	}
@@ -435,15 +443,15 @@ public class NotificationRetrieverService {
 		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
-	protected OffsetDateTime findRefinementDate(List<TimelineElementV20> timeline, String iun) {
+	protected OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
 		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
-		Optional<TimelineElementV20> optionalMin = timeline
+		Optional<TimelineElement> optionalMin = timeline
 				.stream()
 				.filter(tle -> TimelineElementCategoryV20.REFINEMENT.equals(tle.getCategory() )
 						|| TimelineElementCategoryV20.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.min( Comparator.comparing(TimelineElementV20::getTimestamp) );
+				.min( Comparator.comparing(TimelineElement::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
 			refinementDate = refinementLocalDateUtils.setLocalRefinementDate(optionalMin.get());
@@ -453,12 +461,16 @@ public class NotificationRetrieverService {
 		return refinementDate;
 	}
 
+	/*
 	private void computeNoticeCodeToReturn(InternalNotification notification, OffsetDateTime refinementDate) {
 		log.debug( "Compute notice code to return for iun={}", notification.getIun() );
 		NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
 		setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
 	}
+	 */
 
+
+	/*
 	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, OffsetDateTime refinementDate) {
 		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
 		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
@@ -480,39 +492,45 @@ public class NotificationRetrieverService {
 		}
 		return noticeCodeToReturn;
 	}
+	 */
 
+	/*
 	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
 		for ( NotificationRecipient recipient : recipientList ) {
-			NotificationPaymentInfo notificationPaymentInfo = recipient.getPayment();
-			if ( notificationPaymentInfo != null) {
-    			String creditorTaxId = notificationPaymentInfo.getCreditorTaxId();
-    			String noticeCode = notificationPaymentInfo.getNoticeCode();
-    			if ( notificationPaymentInfo.getNoticeCodeAlternative() != null ) {
-    				switch (noticeCodeToReturn) {
-    					case FIRST_NOTICE_CODE: {
-    						break;
-    					}
-    					// - se devo restituire il notice code alternativo...
-    					case SECOND_NOTICE_CODE: {
-    						// - ...verifico che il primo notice code non è stato già pagato
-    						setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
-    						break;
-    					}
-    					case NO_NOTICE_CODE: {
-    						notificationPaymentInfo.setNoticeCode( null );
-    						break;
-    					}
-    					default: {
-    						throw new UnsupportedOperationException( "Unable to compute notice code to return for iun="+ iun );
-    					}
-    				}
-    				// in ogni caso non restituisco il noticeCode opzionale
-    				notificationPaymentInfo.setNoticeCodeAlternative( null );
-    			}
+			List<NotificationPaymentInfo> notificationPaymentInfoList = recipient.getPayments();
+			if (!CollectionUtils.isEmpty(notificationPaymentInfoList)) {
+				notificationPaymentInfoList.stream().filter(notificationPaymentInfo -> Objects.nonNull(notificationPaymentInfo.getPagoPa()))
+						.forEach(notificationPaymentInfo -> {
+							String creditorTaxId = notificationPaymentInfo.getPagoPa().getCreditorTaxId();
+							String noticeCode = notificationPaymentInfo.getPagoPa().getNoticeCode();
+							if (notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() != null) {
+								switch (noticeCodeToReturn) {
+									case FIRST_NOTICE_CODE: {
+										break;
+									}
+									// - se devo restituire il notice code alternativo...
+									case SECOND_NOTICE_CODE: {
+										// - ...verifico che il primo notice code non è stato già pagato
+										setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
+										break;
+									}
+									case NO_NOTICE_CODE: {
+										notificationPaymentInfo.getPagoPa().setNoticeCode(null);
+										break;
+									}
+									default: {
+										throw new UnsupportedOperationException("Unable to compute notice code to return for iun=" + iun);
+									}
+								}
+								// in ogni caso non restituisco il noticeCode opzionale
+								notificationPaymentInfo.getPagoPa().setNoticeCodeAlternative(null);
+							}
+						});
 			}
 		}
-	}
+	}*/
 
+	/*
 	private void setNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
 		log.debug( "Start getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
 		try {
@@ -522,22 +540,21 @@ public class NotificationRetrieverService {
 				// - se il primo notice code NON è stato già pagato
 				if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
 					// - restituisco il notice code alternativo
-					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getNoticeCodeAlternative() );
-					notificationPaymentInfo.setNoticeCode( notificationPaymentInfo.getNoticeCodeAlternative() );
+					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() );
+					notificationPaymentInfo.getPagoPa().setNoticeCode( notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() );
 				}
 				// - il primo notice code è stato già pagato quindi lo restituisco
 			} else {
 				// - External-registries non risponde quindi non restituisco nessun notice code
 				log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
-				notificationPaymentInfo.setNoticeCode( null );
+				notificationPaymentInfo.getPagoPa().setNoticeCode( null );
 			}
 		} catch ( PnHttpResponseException ex ) {
 			// - External-registries non risponde quindi non restituisco nessun notice code
 			log.error( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
-			notificationPaymentInfo.setNoticeCode( null );
+			notificationPaymentInfo.getPagoPa().setNoticeCode( null );
 		}
-
-	}
+	}*/
 
 	public enum NoticeCodeToReturn {
 		FIRST_NOTICE_CODE("FIRST_NOTICE_CODE"),
@@ -614,10 +631,10 @@ public class NotificationRetrieverService {
 		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
 			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
-			List<TimelineElementV20> timeline = internalNotification.getTimeline();
+			List<TimelineElement> timeline = internalNotification.getTimeline();
 			log.debug("Timelines size before filter: {}", timeline.size());
 
-			List<TimelineElementV20> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
+			List<TimelineElement> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
 							timelineElement.getDetails().getRecIndex() == null ||
 							timelineElement.getDetails().getRecIndex() == recipientIndex)
 					.toList();
@@ -724,9 +741,13 @@ public class NotificationRetrieverService {
 		notification.setDocumentsAvailable( false );
 		notification.setDocuments( Collections.emptyList() );
 		for ( NotificationRecipient recipient : notification.getRecipients() ) {
-			NotificationPaymentInfo payment = recipient.getPayment();
-			if ( payment != null ) {
-				payment.setPagoPaForm( null );
+			List<NotificationPaymentInfo> payments = recipient.getPayments();
+			if (!CollectionUtils.isEmpty(payments)) {
+				payments.forEach(notificationPaymentInfo -> {
+					notificationPaymentInfo.setPagoPa( null );
+					//TODO: CAPIRE PER F24 COME GESTIRE LA REMOVE DOCUMENT
+					notificationPaymentInfo.getF24().setIndex( null );
+				});
 			}
 		}
 	}
@@ -746,17 +767,19 @@ public class NotificationRetrieverService {
 
 		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		FullSentNotificationV20 resultFullSent = notification
+		//TODO: VEDERE SE IL RETURN FUNZIONA CORRETTAMENTE
+		assert statusHistory != null;
+		assert timelineList != null;
+		assert timelineStatusHistoryDto.getNotificationStatus() != null;
+		return notification
 				.timeline( timelineList.stream()
-						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV20.class ) )
+						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElement.class ) )
 						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> modelMapper.map( el, NotificationStatusHistoryElement.class ))
 						.toList()
 				)
 				.notificationStatus( NotificationStatus.fromValue( timelineStatusHistoryDto.getNotificationStatus().getValue() ));
-
-		return modelMapper.map( resultFullSent, InternalNotification.class );
 	}
 
 
@@ -817,7 +840,7 @@ public class NotificationRetrieverService {
 
 		if( recIndex == -1 ) {
 			log.debug("Recipient not found for iun={} and recipientId={} ", internalNotification.getIun(), recipientId );
-		throw new PnNotFoundException("Notification not found" ,"Notification with iun=" +
+			throw new PnNotFoundException("Notification not found" ,"Notification with iun=" +
 					internalNotification.getIun() + " do not have recipient/delegator=" + recipientId,
 					ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR );
 		}
@@ -830,11 +853,11 @@ public class NotificationRetrieverService {
 		if(isNotificationCancelled(getNotificationInformation(iun))) {
 			throw new PnNotificationNotFoundException(String.format("Notification with iun: %s has a request for cancellation", iun));
 		}
- 	}
+	}
 
 	public boolean isNotificationCancelled(InternalNotification notification) {
 		var cancellationRequestCategory = TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST;
-		Optional<TimelineElementV20> cancellationRequestTimeline = notification.getTimeline().stream()
+		Optional<TimelineElement> cancellationRequestTimeline = notification.getTimeline().stream()
 				.filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
 				.findFirst();
 		boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();

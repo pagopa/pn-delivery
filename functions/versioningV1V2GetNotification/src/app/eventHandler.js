@@ -1,4 +1,4 @@
-// converte la risposta V2.0 a V1 e verrà estesa per convertire V2.1 a V1
+// converte la risposta V2.1 a V1
 
 exports.versioning = async (event, context) => {
   const path = "/notifications/sent/";
@@ -22,7 +22,7 @@ exports.versioning = async (event, context) => {
     return err;
   }
 
-  console.log("Versioning_V1-V2_GetNotification_Lambda function started");
+  console.log("Versioning_V1-V21_GetNotification_Lambda function started");
 
   const IUN = event.pathParameters["iun"];
 
@@ -117,8 +117,8 @@ exports.versioning = async (event, context) => {
     return ret;
   } catch (error) {
     const ret = {
-      statusCode: response?.status ?? 502,
-      body: response?.statusText ?? "problem calling fetch",
+      statusCode: 400,
+      body: error,
     };
     return ret;
   }
@@ -232,13 +232,16 @@ exports.versioning = async (event, context) => {
     const denomination = recipient.denomination;
     const digitalDomicile = recipient.digitalDomicile ? transformDigitalAddress(recipient.digitalDomicile) : undefined;
     const physicalAddress = recipient.physicalAddress ? transformPhysicalAddress(recipient.physicalAddress) : undefined;
-    const payment = recipient.payment ? transformPayment(recipient.payment) : undefined;
+
+    let paymentV1 = undefined;
+    if(recipient.payments) {
+      paymentV1 = recipient.payments.length > 0 ? transformPaymentFromV21ToV1(recipient.payments) : undefined;
+    }
 
     const ret = {
       recipientType: recipientType,
       taxId: taxId,
-      denomination: denomination,
-      payment: payment,
+      denomination: denomination
     };
 
     if (digitalDomicile) {
@@ -247,6 +250,9 @@ exports.versioning = async (event, context) => {
     if (physicalAddress) {
       ret.physicalAddress = physicalAddress;
     }
+    if(paymentV1) {
+      ret.payment = paymentV1;
+  }
 
     return ret;
   }
@@ -276,23 +282,45 @@ exports.versioning = async (event, context) => {
     };
   }
 
-  function transformPayment(payment) {
-    return {
-      noticeCode: payment.noticeCode,
-      creditorTaxId: payment.creditorTaxId,
-      noticeCodeAlternative: payment.noticeCodeAlternative,
-      pagoPaForm: payment.pagoPaForm ? 
-      {
+  function transformPaymentFromV21ToV1(paymentsV21) {
+    console.log("transformPaymentFromV21ToV1 - paymentsV21", paymentsV21);
+    
+    // max 2 pagamenti else throw exception
+    if (paymentsV21.length > 2) {
+      throw new Error("Unable to map payments, more than 2");
+    }
+    // se una tipologia di pagamento presente é F24 errore
+    if (paymentsV21.some( paymentV21 => paymentV21.f24 )) {
+      throw new Error("Unable to map payment f24 type");
+    }
+    // allegati di pagamento devono essere uguali (stesso sha) else throw exception
+    if ( paymentsV21[0].pagoPa.attachment.digests.sha256 !== paymentsV21[1].pagoPa.attachment.digests.sha256 ) {
+      throw new Error("Unable to map payments with different attachment");
+    }
+    
+    // riempio noticeCode e in caso noticeCodeAlternative
+    const paymentV1 = {
+      noticeCode: paymentsV21[0].pagoPa.noticeCode,
+      creditorTaxId: paymentsV21[0].pagoPa.creditorTaxId
+    }
+    
+    if (paymentsV21.length > 1) {
+      paymentV1.noticeCodeAlternative = paymentsV21[1].pagoPa.noticeCode;
+    }
+    
+    if (paymentsV21[0].pagoPa.attachment) {
+      paymentV1.pagoPaForm = {
         digests: {
-          sha256: payment.pagoPaForm.digests?.sha256,
+          sha256: paymentsV21[0].pagoPa.attachment.digests.sha256
         },
-        contentType: payment.pagoPaForm.contentType,
+        contentType: paymentsV21[0].pagoPa.attachment.contentType,
         ref: {
-          key: payment.pagoPaForm.ref.key,
-          versionToken: payment.pagoPaForm.ref?.versionToken,
-        },
-      } : undefined,
-    };
+          key: paymentsV21[0].pagoPa.attachment.ref.key,
+          versionToken: paymentsV21[0].pagoPa.attachment.ref.versionToken
+        }
+      }
+    }
+    return paymentV1;
   }
 
   function transformNotificationDocument(doc) {
