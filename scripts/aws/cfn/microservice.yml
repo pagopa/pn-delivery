@@ -1205,7 +1205,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
       Parameters:
-        FunctionName: !Ref VersioningV1V2SendNewNotificationLambda
+        FunctionName: !Ref VersioningV1V21SendNewNotificationLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
 
   # Lambda access right
