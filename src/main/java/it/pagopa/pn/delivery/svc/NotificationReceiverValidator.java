@@ -155,37 +155,50 @@ public class NotificationReceiverValidator {
 
         Set<ConstraintViolation<NewNotificationRequestV21>> errors = new HashSet<>();
 
-        int pagoPAapplyCostFlgCount = 0;
+        int pagoPAPaymentsCounter = 0;
+        int f24PaymentsCounter = 0;
+        int pagoPAApplyCostFlgCount = 0;
         int f24ApplyCostFlgCount = 0;
 
         for (NotificationPaymentItem paymentInfo : payments) {
-            if (paymentInfo.getPagoPa() != null && Boolean.TRUE.equals(paymentInfo.getPagoPa().getApplyCost())) {
-                pagoPAapplyCostFlgCount++;
+            if (paymentInfo.getPagoPa() != null) {
+                pagoPAPaymentsCounter++;
+                if (Boolean.TRUE.equals(paymentInfo.getPagoPa().getApplyCost())) {
+                    pagoPAApplyCostFlgCount++;
+                }
             }
-            if(paymentInfo.getF24() != null && Boolean.TRUE.equals(paymentInfo.getF24().getApplyCost())){
-                f24ApplyCostFlgCount++;
-            }
-            if(paymentInfo.getF24() != null && !StringUtils.hasText(paymentInfo.getF24().getTitle())){
-                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("F24 description is mandatory");
-                errors.add(constraintViolation);
+
+            if(paymentInfo.getF24() != null) {
+                f24PaymentsCounter++;
+                if(Boolean.TRUE.equals(paymentInfo.getF24().getApplyCost())) {
+                    f24ApplyCostFlgCount++;
+                }
+
+                if(!StringUtils.hasText(paymentInfo.getF24().getTitle())){
+                    ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("F24 description is mandatory");
+                    errors.add(constraintViolation);
+                }
             }
         }
-        checkApplyCost(pagoPAapplyCostFlgCount, f24ApplyCostFlgCount, isNotificationFeePolicyDeliveryMode, errors);
+
+        boolean notificationHasPagoPaPayments = pagoPAPaymentsCounter > 0;
+        boolean notificationHasF24Payments = f24PaymentsCounter > 0;
+        checkApplyCost(pagoPAApplyCostFlgCount, f24ApplyCostFlgCount, notificationHasPagoPaPayments, notificationHasF24Payments, isNotificationFeePolicyDeliveryMode, errors);
         return errors;
     }
 
-    private void checkApplyCost(int pagoPAapplyCostFlgCount, int f24ApplyCostFlgCount, boolean isNotificationFeePolicyDeliveryMode, Set<ConstraintViolation<NewNotificationRequestV21>> errors) {
+    private void checkApplyCost(int pagoPAApplyCostFlgCount, int f24ApplyCostFlgCount, boolean notificationHasPagoPaPayments, boolean notificationHasF24Payments, boolean isNotificationFeePolicyDeliveryMode, Set<ConstraintViolation<NewNotificationRequestV21>> errors) {
         if (isNotificationFeePolicyDeliveryMode) {
-            if (pagoPAapplyCostFlgCount < 1) {
+            if (notificationHasPagoPaPayments && pagoPAApplyCostFlgCount == 0) {
                 ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must be valorized for at least one payment");
                 errors.add(constraintViolation);
             }
-            if (f24ApplyCostFlgCount < 1) {
+            if (notificationHasF24Payments && f24ApplyCostFlgCount == 0) {
                 ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("F24 applyCostFlg must be valorized for at least one payment");
                 errors.add(constraintViolation);
             }
         } else {
-            if (pagoPAapplyCostFlgCount != 0) {
+            if (pagoPAApplyCostFlgCount != 0) {
                 ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("PagoPA applyCostFlg must not be valorized for any payment");
                 errors.add(constraintViolation);
             }
