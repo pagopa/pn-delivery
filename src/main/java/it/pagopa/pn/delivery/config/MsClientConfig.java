@@ -1,6 +1,7 @@
 package it.pagopa.pn.delivery.config;
 
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.api.F24ControllerApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.ApiClient;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.NotificationsApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.api.RecipientsApi;
@@ -79,6 +80,14 @@ public class MsClientConfig {
             it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.ApiClient(restTemplate);
             newApiClient.setBasePath(cfg.getMandateBaseUrl());
             return new MandatePrivateServiceApi(newApiClient);
+        }
+
+        @Bean
+        @Primary
+        F24ControllerApi f24ControllerApi(@Qualifier("withTracing") RestTemplate restTemplate, PnDeliveryConfigs cfg) {
+            it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.ApiClient newApiClient = new it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.ApiClient(restTemplate);
+            newApiClient.setBasePath(cfg.getF24BaseUrl());
+            return new F24ControllerApi(newApiClient);
         }
 
         @Bean

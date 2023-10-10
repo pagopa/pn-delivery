@@ -24,6 +24,8 @@ public class PnDeliveryConfigs {
 
     private String safeStorageBaseUrl;
 
+    private String f24BaseUrl;
+
     private String safeStorageCxId;
     private String f24CxId;
 
