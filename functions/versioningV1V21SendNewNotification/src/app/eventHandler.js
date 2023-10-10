@@ -8,7 +8,9 @@ exports.handleEvent = async (event) => {
         return generateResponse({ resultCode: '404.00', resultDescription: 'Not found', errorList: isRequestValid }, 404, {})
     }
 
-    const eventValidationErrors = validateNewNotification(event.body)
+    const eventBody = JSON.parse(event.body)
+
+    const eventValidationErrors = validateNewNotification(eventBody)
     console.log("eventValidationErrors ", eventValidationErrors)
     if(eventValidationErrors.length > 0){
         return generateResponse({ resultCode: '400.00', resultDescription: 'Validation error', errorList: eventValidationErrors }, 400, {})
@@ -16,7 +18,7 @@ exports.handleEvent = async (event) => {
 
     console.log("Versioning_V1-V21_SendNewNotification_Lambda function started");
 
-    var newNotificationRequestV21 = createNewNotificationRequesV21(event.body);
+    var newNotificationRequestV21 = createNewNotificationRequesV21(eventBody);
 
     // post verso pn-delivery
     const url = process.env.PN_DELIVERY_URL.concat('/delivery/requests');
