@@ -1,29 +1,53 @@
-const AWS = require('aws-sdk');
+const { DynamoDBClient, ScanCommand, UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
+const { fromIni } = require("@aws-sdk/credential-provider-ini");
+const { STSClient, AssumeRoleCommand } = require("@aws-sdk/client-sts");
 
-const arguments = process.argv ;
+const arguments = process.argv;
 
-if(arguments.length<=2){
-  console.error("Specify AWS profile as argument")
-  process.exit(1)
+if (arguments.length <= 2) {
+  console.error("Specify AWS profile as argument");
+  process.exit(1);
 }
 
 const awsProfile = arguments[2]
+const roleArn = arguments[3]
 
-console.log("Using profile "+awsProfile)
+console.log("Using profile " + awsProfile);
 
-let credentials = null
-
-process.env.AWS_SDK_LOAD_CONFIG=1
-if(awsProfile.indexOf('sso_')>=0){ // sso profile
-  credentials = new AWS.SsoCredentials({profile:awsProfile});
-  AWS.config.credentials = credentials;
-} else { // IAM profile
-  credentials = new AWS.SharedIniFileCredentials({profile: awsProfile});
-  AWS.config.credentials = credentials;
+function awsProfileConfig() {
+  if(awsProfile.indexOf('sso_')>=0){
+    return { 
+      region: "eu-south-1", 
+      credentials: fromIni({ 
+        profile: awsProfile,
+      })
+    }
+  }else{
+    return { 
+      region: "eu-south-1", 
+      credentials: fromIni({ 
+        profile: awsProfile,
+        roleAssumer: async (sourceCredentials, params) => {
+          const stsClient = new STSClient({ credentials: sourceCredentials });
+          const command = new AssumeRoleCommand({
+            RoleArn: roleArn,
+            RoleSessionName: "session1"
+          });
+          const response = await stsClient.send(command);
+          return {
+            accessKeyId: response.Credentials.AccessKeyId,
+            secretAccessKey: response.Credentials.SecretAccessKey,
+            sessionToken: response.Credentials.SessionToken,
+            expiration: response.Credentials.Expiration
+          };
+        }
+      })
+    }
+  }
 }
-AWS.config.update({region: 'eu-south-1'});
 
-const docClient = new AWS.DynamoDB.DocumentClient();
+const dynamoDBClient = new DynamoDBClient(awsProfileConfig());
+console.log("DOCUMENT CLIENT CREATO");
 
 TABLE_NAME = 'pn-NotificationsMetadata'
 SCAN_LIMIT = 2000 // max 2000
@@ -44,8 +68,9 @@ const params = {
   ExclusiveStartKey: { iun: 'UMZL-MPEZ-GQNY-202211-M-1' }
 };*/
 
-function scanTable(params, callback) {
-  docClient.scan(params, function(err, data) {
+async function scanTable(params, callback) {
+  const scanCommand = new ScanCommand(params);
+  dynamoDBClient.send(scanCommand, function(err, data) {
     if (err) {
       callback(err, null);
     } else {
@@ -62,15 +87,19 @@ function scanTable(params, callback) {
   });
 }
 
-scanTable(params, function(err, data) {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log( "Scanned items: ", data.Items.length )
-    data.Items.forEach(function (item) {
-      const key = item.iun_recipientId;
-      console.log("Key: ", key, "at Index: ", index++ );
-      if (!item.rootSenderId) {
+
+async function main(){
+
+  console.log('start update item');
+
+  scanTable(params, function(err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log( "Scanned items: ", data.Items.length )
+      data.Items.forEach(async function (item) {
+        const key = item.iun_recipientId;
+        console.log("Key: ", key, "at Index: ", index++ );
         const updateExpression = "SET #rootSenderId = :value"
         const updateParams = {
           TableName: TABLE_NAME,
@@ -86,15 +115,19 @@ scanTable(params, function(err, data) {
           },
           ConditionExpression: "attribute_not_exists(rootSenderId)"
         }
-        docClient.update(updateParams, (err, data) => {
-          if (err) {
-            console.error("Errore nell'aggiornamento dell'elemento:", JSON.stringify(err, null, 2));
-            console.error("Errore sull'elemento con key: ", updateParams.Key);
-          } else {
-            console.log("Aggiornato elemento con key: ", updateParams.Key);
-          }
-        })
-      }
-    });
-  }
-})
+        try {
+          const updateItemCommand = new UpdateItemCommand(updateParams);
+          await dynamoDBClient.send(updateItemCommand);
+            console.log("Aggiornato elemento con key: ", key);
+        } catch (error) {
+          console.error("Errore nell'aggiornamento dell'elemento:", JSON.stringify(error, null, 2));
+          console.error("Errore sull'elemento con key: ", key);
+        }
+      });
+    }
+  })
+      
+}
+
+main();
+
