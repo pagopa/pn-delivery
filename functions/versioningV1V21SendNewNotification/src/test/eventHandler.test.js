@@ -30,7 +30,7 @@ describe('EventHandler Testing', () => {
                 resource: "/delivery/requests",
                 path: "/delivery/requests",
                 httpMethod: 'POST',
-                body: badNewNotificationRequest
+                body: JSON.stringify(badNewNotificationRequest)
             };
 
             const res = await handleEvent(event)
@@ -68,7 +68,7 @@ describe('EventHandler Testing', () => {
             resource: "/delivery/requests",
             path: "/delivery/requests",
             httpMethod: 'POST',
-            body: newNotificationRequesV1
+            body: JSON.stringify(newNotificationRequesV1)
           };
 
         //const event = createEvent('/delivery/requests', 'POST', newNotificationRequesV1)
