@@ -82,6 +82,7 @@ public class NotificationReceiverValidator {
 
         int recIdx = 0;
         Set<String> distinctTaxIds = new HashSet<>();
+        Set<String> distinctIuvs = new HashSet<>();
         for (NotificationRecipientV21 recipient : newNotificationRequestV2.getRecipients()) {
 
             // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
@@ -99,6 +100,7 @@ public class NotificationReceiverValidator {
             boolean isNotificationFeePolicyDeliveryMode = newNotificationRequestV2.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE);
             if(recipient.getPayments() != null) {
                 errors.addAll(checkApplyCost(isNotificationFeePolicyDeliveryMode, recipient.getPayments()));
+                errors.addAll(checkIuvs(recipient.getPayments(), distinctIuvs, recIdx));
             }
 
             NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
@@ -207,6 +209,26 @@ public class NotificationReceiverValidator {
                 errors.add(constraintViolation);
             }
         }
+    }
+
+    public Set<ConstraintViolation<NewNotificationRequestV21>> checkIuvs(List<NotificationPaymentItem> payments, Set<String> iuvSet, int recIdx) {
+        Set<ConstraintViolation<NewNotificationRequestV21>> errors = new HashSet<>();
+        int paymIdx = 0;
+        for (NotificationPaymentItem payment : payments) {
+            if(payment.getPagoPa() != null) {
+                String iuv = payment.getPagoPa().getCreditorTaxId() + payment.getPagoPa().getNoticeCode();
+
+                if ( !iuvSet.add( iuv ) ) {
+                    String errorMsg = String.format("Duplicated iuv { %s } on recipient with index %s in payment with index %s", iuv, recIdx, paymIdx);
+                    ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>(errorMsg);
+                    errors.add(constraintViolation);
+                }
+            }
+
+            paymIdx++;
+        }
+
+        return errors;
     }
 
 

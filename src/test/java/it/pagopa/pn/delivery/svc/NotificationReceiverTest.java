@@ -352,9 +352,9 @@ class NotificationReceiverTest {
 		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setRecipients(
 				List.of(
-						buildRecipient("LVLDAA85T50G702B", 8),
-						buildRecipient("DSRDNI00A01A225I", 7),
-						buildRecipient("GLLGLL64B15G702I", 9))
+						buildRecipient("LVLDAA85T50G702B", "888888888888888888"),
+						buildRecipient("DSRDNI00A01A225I", "777777777777777777"),
+						buildRecipient("GLLGLL64B15G702I", "999999999999999999"))
 		);
 
 		// When
@@ -394,9 +394,9 @@ class NotificationReceiverTest {
 		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setRecipients(
 				List.of(
-						buildRecipient("LVLDAA85T50G702B", 8),
-						buildRecipient("DSRDNI00A01A225I", 7),
-						buildRecipient("GLLGLL64B15G702I", 9))
+						buildRecipient("LVLDAA85T50G702B", "888888888888888888"),
+						buildRecipient("DSRDNI00A01A225I", "777777777777777777"),
+						buildRecipient("GLLGLL64B15G702I", "999999999999999999"))
 		);
 
 		// When
@@ -514,6 +514,7 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequestV21 notification = NewNotificationRequestV21.builder()
 				.senderTaxId( "fakeSenderTaxId" )
+				.paProtocolNumber("test")
 				.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
 				.recipients( Collections.singletonList( NotificationRecipientV21.builder().build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
@@ -651,7 +652,7 @@ class NotificationReceiverTest {
 				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
 				.paProtocolNumber( "paProtocolNumber" )
 				.recipients( Collections.singletonList(
-						buildRecipient("LVLDAA85T50G702B", 8) ))
+						buildRecipient("LVLDAA85T50G702B", "888888888888888888") ))
 				.physicalCommunicationType( NewNotificationRequestV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				._abstract( "abstract" )
 				.build();
@@ -730,13 +731,13 @@ class NotificationReceiverTest {
 		return notification;
 	}
 
-	private NotificationRecipientV21 buildRecipient(String taxID, int noticeCode){
+	private NotificationRecipientV21 buildRecipient(String taxID, String noticeCode){
 		return NotificationRecipientV21.builder()
 				.payments( List.of(NotificationPaymentItem.builder()
 						.pagoPa(PagoPaPayment.builder()
 								.creditorTaxId("00000000000")
 								.applyCost(false)
-								.noticeCode("000000000000000000")
+								.noticeCode(noticeCode)
 								.build())
 						.f24(F24Payment.builder()
 								.title("title")

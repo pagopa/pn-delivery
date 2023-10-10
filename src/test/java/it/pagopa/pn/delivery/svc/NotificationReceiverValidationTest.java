@@ -328,6 +328,33 @@ class NotificationReceiverValidationTest {
 
   }
 
+  @Test
+  void validationFailsWhenNotificationHasDuplicatedIuvs() {
+    // Given
+    NewNotificationRequestV21 notification = newNotificationWithSameIuvs();
+
+    // When
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(notification);
+
+    String error = createExpectedIuvDuplicatedErrorMessage(notification, 0, 1);
+    // Then
+    assertConstraintViolationPresentByMessage(errors, error);
+
+  }
+
+  /**
+   *
+   * @param n Notifica da validare
+   * @param recIdx indice del destinatario in cui si trova il pagamento con IUV duplicato
+   * @param paymIdx indice del pagamento in cui si trova lo IUV duplicato
+   * @return Il messaggio d'errore di validazione per gli IUV duplicati
+   */
+  private String createExpectedIuvDuplicatedErrorMessage(NewNotificationRequestV21 n, int recIdx, int paymIdx) {
+    NotificationPaymentItem expectedPayment = n.getRecipients().get(recIdx).getPayments().get(paymIdx);
+    String expectedIuvDuplicated = expectedPayment.getPagoPa().getCreditorTaxId() + expectedPayment.getPagoPa().getNoticeCode();
+    return String.format("Duplicated iuv { %s } on recipient with index %s in payment with index %s", expectedIuvDuplicated, recIdx, paymIdx);
+  }
 
 
   @Test
@@ -1128,23 +1155,26 @@ class NotificationReceiverValidationTest {
   }
 
   private NewNotificationRequestV21 newNotificationWithApplyCostsAndFeePolicyFlatRate() {
+    List<NotificationPaymentItem> paymentItems = new ArrayList<>();
+    paymentItems.add(NotificationPaymentItem.builder()
+            .pagoPa(PagoPaPayment.builder()
+                    .creditorTaxId("00000000000")
+                    .applyCost(true)
+                    .noticeCode("000000000000000000")
+                    .build())
+            .f24(F24Payment.builder()
+                    .title("title")
+                    .applyCost(true)
+                    .metadataAttachment(NotificationMetadataAttachment.builder()
+                            .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
+                            .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+                            .contentType("application/json")
+                            .build())
+                    .build())
+            .build());
+
     NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
-            .payments( List.of(NotificationPaymentItem.builder()
-                    .pagoPa(PagoPaPayment.builder()
-                            .creditorTaxId("00000000000")
-                            .applyCost(true)
-                            .noticeCode("000000000000000000")
-                            .build())
-                    .f24(F24Payment.builder()
-                            .title("title")
-                            .applyCost(true)
-                            .metadataAttachment(NotificationMetadataAttachment.builder()
-                                    .ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
-                                    .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
-                                    .contentType("application/json")
-                                    .build())
-                            .build())
-                    .build()))
+            .payments(paymentItems)
             .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
             .denomination( "Ada Lovelace" )
             .taxId( "taxID" )
@@ -1167,6 +1197,20 @@ class NotificationReceiverValidationTest {
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
+  }
+
+  private NewNotificationRequestV21 newNotificationWithSameIuvs() {
+    NewNotificationRequestV21 notification = newNotificationWithApplyCostsAndFeePolicyFlatRate();
+    NotificationPaymentItem firstPayment = notification.getRecipients().get(0).getPayments().get(0);
+    NotificationPaymentItem duplicatedPayment = NotificationPaymentItem.builder()
+            .pagoPa(PagoPaPayment.builder()
+                    .noticeCode(firstPayment.getPagoPa().getNoticeCode())
+                    .creditorTaxId(firstPayment.getPagoPa().getCreditorTaxId())
+                    .build())
+            .build();
+
+    notification.getRecipients().get(0).getPayments().add(duplicatedPayment);
+    return notification;
   }
 
 }
