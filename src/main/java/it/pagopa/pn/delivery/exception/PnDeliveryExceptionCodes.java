@@ -7,6 +7,8 @@ public class PnDeliveryExceptionCodes extends PnExceptionsCodes {
     // raccolgo qui tutti i codici di errore di delivery
     public static final String ERROR_CODE_DELIVERY_SEND_IS_DISABLED = "PN_DELIVERY_SEND_IS_DISABLED";
     public static final String ERROR_CODE_DELIVERY_MANDATENOTFOUND = "PN_DELIVERY_MANDATENOTFOUND";
+
+    public static final String ERROR_CODE_DELIVERY_ROOTIDNOTFOUND = "PN_DELIVERY_ROOTIDNOTFOUND";
     public static final String ERROR_CODE_DELIVERY_NOTIFICATIONNOTFOUND = "PN_DELIVERY_NOTIFICATIONNOTFOUND";
     public static final String ERROR_CODE_DELIVERY_NOTIFICATIONMETADATANOTFOUND = "PN_DELIVERY_NOTIFICATIONMETADATANOTFOUND";
     public static final String ERROR_CODE_DELIVERY_FILEINFONOTFOUND = "PN_DELIVERY_FILEINFONOTFOUND";
