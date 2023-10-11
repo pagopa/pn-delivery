@@ -50,7 +50,7 @@
           }
       }
   ],
-  "notificationFeePolicy": "FLAT_RATE",
+  "notificationFeePolicy": "DELIVERY_MODE",
   "physicalCommunicationType": "REGISTERED_LETTER_890",
   "senderDenomination": "Comune di milano",
   "senderTaxId": "00215150236",
