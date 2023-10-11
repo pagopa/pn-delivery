@@ -46,14 +46,14 @@ describe('EventHandler Testing', () => {
         });
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
           });
 
         const eventHandler = proxyquire
             .noCallThru()
             .load("../app/eventHandler.js", {});
 
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
+        let url = `${process.env.PN_DELIVERY_URL}/requests`;
 
         fetchMock.post(url, {
             status: 202,
