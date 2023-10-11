@@ -1,0 +1,9 @@
+{
+  "name": "aoouo_updatetable",
+  "version": "1.0.0",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.427.0",
+    "@aws-sdk/util-dynamodb": "^3.427.0",
+    "aws-sdk": "^2.1472.0"
+  }
+}

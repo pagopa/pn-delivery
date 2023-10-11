@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.InternalOnlyApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.PaymentInfoApi;
+import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.RootSenderIdApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroupStatus;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaymentInfo;
@@ -31,6 +32,9 @@ class PnExternalRegistriesClientImplTest {
 
     @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.PaymentInfoApi")
     private PaymentInfoApi paymentInfoApi;
+
+    @MockBean(name = "it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.api.RootSenderIdApi")
+    private RootSenderIdApi rootSenderIdApi;
 
     @Autowired
     private PnExternalRegistriesClientImpl pnExternalRegistriesClientImpl;

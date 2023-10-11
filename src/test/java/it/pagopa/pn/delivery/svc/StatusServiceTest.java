@@ -16,6 +16,7 @@ import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInf
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
+import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +52,9 @@ class StatusServiceTest {
     private NotificationDelegatedService notificationDelegatedService;
     @Mock
     private PnDataVaultClientImpl dataVaultClient;
+
+    @Mock
+    private PnExternalRegistriesClientImpl externalRegistriesClient;
     
     private StatusService statusService;
     @Mock
@@ -58,7 +62,7 @@ class StatusServiceTest {
 
     @BeforeEach
     public void setup() {
-        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, notificationDelegationMetadataEntityDao, notificationDelegatedService, dataVaultClient, notificationCostEntityDao);
+        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, notificationDelegationMetadataEntityDao, notificationDelegatedService, dataVaultClient, notificationCostEntityDao, externalRegistriesClient);
     }
 
     @ExtendWith(MockitoExtension.class)

@@ -64,4 +64,54 @@ class NotificationDelegatedSearchUtilsTest {
         assertNotNull(result);
         assertEquals(0, result.size());
     }
+
+    @Test
+    void testCheckMandateRootSenderIdNotInVisibilityId() {
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setDelegate(DELEGATE_ID);
+        internalMandateDto.setMandateId("mandateId");
+        internalMandateDto.setDatefrom(Instant.now().minus(120, ChronoUnit.DAYS).toString());
+        internalMandateDto.setDateto(Instant.now().plus(120, ChronoUnit.DAYS).toString());
+        internalMandateDto.setVisibilityIds(Collections.singletonList("senderId"));
+        internalMandateDto.setDelegator("dr1");
+        when(mandateClient.listMandatesByDelegators(any(), any(), any())).thenReturn(Collections.singletonList(internalMandateDto));
+        List<NotificationDelegationMetadataEntity> list = Collections.singletonList(
+                NotificationDelegationMetadataEntity.builder()
+                        .mandateId("mandateId")
+                        .sentAt(Instant.now())
+                        .senderId("senderId")
+                        .rootSenderId("rootSenderId")
+                        .recipientId("dr1")
+                        .build()
+        );
+        List<NotificationDelegationMetadataEntity> result = notificationDelegatedSearchUtils.checkMandates(list, searchDto);
+        assertNotNull(result);
+        System.out.println("RESULT: "+result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void testCheckMandateRootSenderIdInVisibilityId() {
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setDelegate(DELEGATE_ID);
+        internalMandateDto.setMandateId("mandateId");
+        internalMandateDto.setDatefrom(Instant.now().minus(120, ChronoUnit.DAYS).toString());
+        internalMandateDto.setDateto(Instant.now().plus(120, ChronoUnit.DAYS).toString());
+        internalMandateDto.setVisibilityIds(Collections.singletonList("rootSenderId"));
+        internalMandateDto.setDelegator("dr1");
+        when(mandateClient.listMandatesByDelegators(any(), any(), any())).thenReturn(Collections.singletonList(internalMandateDto));
+        List<NotificationDelegationMetadataEntity> list = Collections.singletonList(
+                NotificationDelegationMetadataEntity.builder()
+                        .mandateId("mandateId")
+                        .sentAt(Instant.now())
+                        .senderId("senderId")
+                        .rootSenderId("rootSenderId")
+                        .recipientId("dr1")
+                        .build()
+        );
+        List<NotificationDelegationMetadataEntity> result = notificationDelegatedSearchUtils.checkMandates(list, searchDto);
+        assertNotNull(result);
+        System.out.println("RESULT: "+result);
+        assertEquals(1, result.size());
+    }
 }

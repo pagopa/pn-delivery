@@ -315,7 +315,7 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
 
             for (int i = 0; i < mandateAllowedPaIds.size(); i++) {
                 String paid = mandateAllowedPaIds.get( i );
-                expressionBuilder.append( "senderId = :mandateAllowedPaId" );
+                expressionBuilder.append( "rootSenderId = :mandateAllowedPaId" );
                 expressionBuilder.append(i).append(" ");
                 if ( i < mandateAllowedPaIds.size() -1 )
                     expressionBuilder.append( " OR " );

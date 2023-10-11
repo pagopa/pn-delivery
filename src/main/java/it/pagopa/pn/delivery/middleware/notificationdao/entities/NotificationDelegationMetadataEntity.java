@@ -29,6 +29,7 @@ public class NotificationDelegationMetadataEntity {
     public static final String FIELD_RECIPIENT_ID_CREATION_MONTH = "recipientId_creationMonth";
     public static final String FIELD_SENDER_ID_RECIPIENT_ID = "senderId_recipientId";
     public static final String FIELD_TABLE_ROW = "tableRow";
+    public static final String FIELD_ROOT_SENDER_ID = "rootSenderId";
 
     public static final String INDEX_DELEGATE_ID = "delegateId";
     public static final String INDEX_DELEGATE_ID_GROUP_ID = "delegateId_groupId";
@@ -70,6 +71,7 @@ public class NotificationDelegationMetadataEntity {
     }))
     private String senderId;
 
+
     @Getter(onMethod = @__({
             @DynamoDbAttribute(value = FIELD_RECIPIENT_ID)
     }))
@@ -105,4 +107,9 @@ public class NotificationDelegationMetadataEntity {
     }))
     private Map<String, String> tableRow;
 
+    private String rootSenderId;
+    @DynamoDbAttribute(value = FIELD_ROOT_SENDER_ID)
+    public String getRootSenderId() {
+        return rootSenderId == null ? this.getSenderId() : rootSenderId;
+    }
 }

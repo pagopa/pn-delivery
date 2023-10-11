@@ -103,6 +103,8 @@ public class NotificationDelegatedService {
                         lastEvaluatedKey);
                 List<NotificationDelegationMetadataEntity> entries = saveOnePageOfNotifications(page, groups, mandate);
                 duplicationCounter += entries.size();
+
+
                 lastEvaluatedKey = lastEvaluatedKeyFromPage(page, partition);
                 log.debug("last evaluated key: {}", lastEvaluatedKey);
                 partitionIterations++;
@@ -214,7 +216,7 @@ public class NotificationDelegatedService {
         String creationMonth = DataUtils.extractCreationMonth(metadata.getSentAt());
         return mandates.stream()
                 .filter(mandate -> CollectionUtils.isEmpty(mandate.getVisibilityIds())
-                        || mandate.getVisibilityIds().contains(metadata.getSenderId()))
+                        || mandate.getVisibilityIds().contains(metadata.getRootSenderId()))
                 .flatMap(mandate -> {
                     Stream<NotificationDelegationMetadataEntity> entries = Stream.empty();
                     if (!CollectionUtils.isEmpty(groups)) {
@@ -246,6 +248,7 @@ public class NotificationDelegatedService {
                 .delegateIdGroupIdCreationMonth(delegateIdGroupIdCreationMonth)
                 .mandateId(mandate.getMandateId())
                 .senderId(metadata.getSenderId())
+                .rootSenderId(metadata.getRootSenderId())
                 .recipientId(metadata.getRecipientId())
                 .recipientIds(metadata.getRecipientIds())
                 .notificationStatus(metadata.getNotificationStatus())
