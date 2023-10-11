@@ -16,15 +16,8 @@ exports.handleEvent = async (event) => {
     
     console.log("Versioning_V1-V21_GetNotificationRequestStatus_Lambda function started");
     
-    // notificationRequestId
-    const notificationRequestId = event.queryStringParameters['notificationRequestId'];
-    
-    // paProtocolNumber && idempotenceToken
-    const paProtocolNumber = event.queryStringParameters['paProtocolNumber'];
-    const idempotenceToken = event.queryStringParameters['idempotenceToken'];
-    
     // get verso pn-delivery
-    const url = process.env.PN_DELIVERY_URL.concat('/delivery/requests');
+    const url = process.env.PN_DELIVERY_URL.concat('/requests?');
     
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -52,12 +45,34 @@ exports.handleEvent = async (event) => {
     if (event.requestContext.authorizer["uid"]) {
         headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
     }
+
+    // notificationRequestId
+    const notificationRequestId = event.queryStringParameters['notificationRequestId'];
+    
+    // paProtocolNumber && idempotenceToken
+    const paProtocolNumber = event.queryStringParameters['paProtocolNumber'];
+    const idempotenceToken = event.queryStringParameters['idempotenceToken'];
+
+    let searchParams;
+
+    if (notificationRequestId) {
+        searchParams = new URLSearchParams({
+            notificationRequestId: notificationRequestId
+        });
+    }
+
+    if ( paProtocolNumber &&  idempotenceToken) {
+        searchParams = new URLSearchParams({
+            paProtocolNumber: paProtocolNumber,
+            idempotenceToken: idempotenceToken
+        });
+    }
     
     
     console.log ('calling ',url);
     let response;
     try {
-        response = await fetch(url, { method: "GET", headers: headers });
+        response = await fetch(url + searchParams, { method: "GET", headers: headers });
         let responseV21 = await response.json();
         if (response.ok) {
             const transformedObject = transformFromV21ToV1(responseV21);
