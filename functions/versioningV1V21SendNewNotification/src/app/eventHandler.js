@@ -58,6 +58,12 @@ exports.handleEvent = async (event) => {
         headers: headers
     });
 
-    console.log('Response: ' + JSON.stringify(response));
-    return response;
+    const responseJson = await response.json(); 
+    console.log('Response: ' + JSON.stringify(responseJson));
+    
+    const ret = {
+      statusCode: response.status,
+      body: JSON.stringify(responseJson)
+    }
+    return ret;
     };

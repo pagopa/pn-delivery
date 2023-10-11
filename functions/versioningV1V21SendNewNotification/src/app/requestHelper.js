@@ -34,12 +34,12 @@ exports.validateNewNotification = function(newNotificationRequestV1){
   return errors;
 }
 
-function fromRecipientV1ToRecipientV21(recipientV1) {
+function fromRecipientV1ToRecipientV21(recipientV1, applyCostFlag) {
   console.log("fromRecipientV1ToRecipientV21 - recipientV1 ", recipientV1)
   
   const digitalDomicileV21 = createDigitalDomicile(recipientV1.digitalDomicile);
   const physicalAddressV21 = createPhysicalAddress(recipientV1.physicalAddress);
-  const paymentsV21 = fromPaymentV1toPaymentsV21(recipientV1.payment);
+  const paymentsV21 = fromPaymentV1toPaymentsV21(recipientV1.payment, applyCostFlag);
   
   
   const recipientV21 = {
@@ -82,7 +82,7 @@ function createPhysicalAddress(physicalAddress) {
   };
 }
 
-function fromPaymentV1toPaymentsV21(paymentV1) {
+function fromPaymentV1toPaymentsV21(paymentV1, applyCostFlag) {
   if (!paymentV1) return null;
   console.log("fromPaymentV1toPaymentsV21 - paymentV1 ", paymentV1);
   
@@ -92,7 +92,7 @@ function fromPaymentV1toPaymentsV21(paymentV1) {
   const pagoPaPayment = {
     noticeCode: paymentV1.noticeCode,
     creditorTaxId: paymentV1.creditorTaxId,
-    applyCost: true,
+    applyCost: applyCostFlag,
     attachment: paymentAttachment
   };
   const paymentV21 = {
@@ -105,7 +105,7 @@ function fromPaymentV1toPaymentsV21(paymentV1) {
     const pagoPaPaymentAlternative = {
       noticeCode: paymentV1.noticeCodeAlternative,
       creditorTaxId: paymentV1.creditorTaxId,
-      applyCost: true,
+      applyCost: applyCostFlag,
       attachment: paymentAttachment
     };
     const paymentV21Alternative = {
@@ -168,9 +168,15 @@ function transformNotificationDocument(doc) {
 
 exports.createNewNotificationRequesV21 = function(newNotificationRequestV1){
   console.log("createNewNotificationRequesV21 - newNotificationRequestV1 ", newNotificationRequestV1);
+
+  let applyCostFlag = false;
+  if (newNotificationRequestV1.notificationFeePolicy === 'DELIVERY_MODE') {
+    applyCostFlag = true
+  }
+
   const recipientsV21 = [];
   newNotificationRequestV1.recipients.forEach(recipient => {
-    recipientsV21.push(fromRecipientV1ToRecipientV21(recipient))
+    recipientsV21.push(fromRecipientV1ToRecipientV21(recipient, applyCostFlag))
   });
   
   const documents = [];

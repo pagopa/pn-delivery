@@ -74,7 +74,7 @@ describe('EventHandler Testing', () => {
         //const event = createEvent('/delivery/requests', 'POST', newNotificationRequesV1)
 
         const response = await handleEvent(event);
-        expect(response.status).to.equal(202);
+        expect(response.statusCode).to.equal(202);
             
         });
     });
