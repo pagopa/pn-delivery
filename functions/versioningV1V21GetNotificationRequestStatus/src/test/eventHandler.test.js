@@ -50,12 +50,14 @@ describe("eventHandler tests", function () {
         });
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
         });
         
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
 
-        fetchMock.mock(url, {
+        fetchMock.mock(url + new URLSearchParams({
+            notificationRequestId: 'invalidNotificationRequestId'
+            }), {
             status: 404,
             body: {},
             headers: { "Content-Type": "application/json" },
@@ -122,12 +124,14 @@ describe("eventHandler tests", function () {
         });
 
         process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
         });
         
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
 
-        fetchMock.mock(url, {
+        fetchMock.mock(url + new URLSearchParams({
+            notificationRequestId: 'validNotificationRequestId'
+        }), {
             status: 200,
             body: notificationRequestStatusV21,
             headers: { "Content-Type": "application/json" },
