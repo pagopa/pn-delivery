@@ -187,10 +187,8 @@ info:
     <details>
       <summary><strong><big><big><big><big>AMBIENTI</big></big></big></big></strong></summary>
     <ul>  
-    <li><strong>https://api.pn.pagopa.it:</strong></br>Ambiente di produzione</li>
-    <li><strong>https://api.coll.pagopa.it:</strong></br>Ambiente di collaudo</li>
-    <li><strong>https://api.svil.pn.pagopa.it:</strong></br>Ambiente di test. Potrebbe subire modifiche/integrazioni in futuro, rimanendo comunque non-bloccante e rispettando il principio di retro-attività</li>
-    <li><strong>https://api.dev.pn.pagopa.it:</strong></br>Ambiente di sviluppo</li>
+    <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente di produzione</li>
+    <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendocomunque non-bloccante e rispettando il principio di retrocompatibilità</li>
     </ul>  
     </details></br>
       
@@ -200,14 +198,10 @@ info:
     name: Licenza di PN
     url: 'https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html'
 servers:
-  - url: https://api.pn.pagopa.it
+  - url: https://api.notifichedigitali.it
     description: Ambiente di produzione
-  - url: https://api.coll.pn.pagopa.it
+  - url: https://api.uat.notifichedigitali.it
     description: Ambiente di collaudo
-  - url: https://api.svil.pn.pagopa.it
-    description: Ambiente di test
-  - url: https://api.dev.pn.pagopa.it
-    description: Ambiente di sviluppo
 tags:
   - name: HealthCheck
     description: >-
