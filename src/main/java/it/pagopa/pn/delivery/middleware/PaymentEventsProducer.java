@@ -17,7 +17,7 @@ public interface PaymentEventsProducer extends MomProducer<PnDeliveryPaymentEven
     default List<PnDeliveryPaymentEvent> buildPaymentEvents(List<InternalPaymentEvent> internalPaymentEvents) {
         List<PnDeliveryPaymentEvent> paymentEvents = new ArrayList<>(internalPaymentEvents.size());
         for ( InternalPaymentEvent internalPaymentEvent : internalPaymentEvents ) {
-            String eventId = internalPaymentEvent.getIun() + "_notification_paid_" + internalPaymentEvent.getRecipientIdx();
+            String eventId = internalPaymentEvent.getIun() + "_notification_paid_" + internalPaymentEvent.getRecipientIdx() + "_" + internalPaymentEvent.getCreditorTaxId() + internalPaymentEvent.getNoticeCode();
             paymentEvents.add( PnDeliveryPaymentEvent.builder()
                     .messageDeduplicationId( eventId )
                     .messageGroupId("delivery")
