@@ -202,7 +202,6 @@ exports.createNewNotificationRequesV21 = function(newNotificationRequestV1){
     paymentExpirationDate: newNotificationRequestV1.paymentExpirationDate,
     taxonomyCode: newNotificationRequestV1.taxonomyCode,
     paFee: newNotificationRequestV1.paFee,
-    vat: newNotificationRequestV1.vat,
     pagoPaIntMode: newNotificationRequestV1.pagoPaIntMode
   }
   
