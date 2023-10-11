@@ -548,7 +548,7 @@
                         </goals>
                         <phase>process-resources</phase>
                         <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-f24/46a9a27fbccf0bd7dc59ccbcfd9e32118f73bd3e/docs/openapi/api-internal-f24.yaml</inputSpec>
+                            <inputSpec>https://raw.githubusercontent.com/pagopa/pn-f24/88e340a3d801c0058a441338ad0e0e6acbec234d/docs/openapi/api-internal-f24.yaml</inputSpec>
                             <generatorName>java</generatorName>
                             <library>resttemplate</library>
                             <generateApiTests>false</generateApiTests>
