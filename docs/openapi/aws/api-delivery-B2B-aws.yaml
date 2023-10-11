@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: oBR98tTcT7d0N+zKWa+dlIjN0iROexciQFlUQtkmzb4=
+  version: grePi4/fQRZbalr4Ya7UNNEklnrqUlA+lbDQVr0OZrw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2458,7 +2458,7 @@ components:
             perfezionata prima per visualizzazione
           example: 1220
           type: number
-    NotificationRefusedError:
+    NotificationRefusedErrorV20:
       type: object
       properties:
         errorCode:
@@ -2473,16 +2473,19 @@ components:
               - FILE_PDF_TOOBIG_ERROR
               - NOT_VALID_ADDRESS
               - RECIPIENT_ID_NOT_VALID
+              - F24_METADATA_NOT_VALID
+              - PAYMENT_NOT_VALID
+              ...
         detail:
           type: string
-    RequestRefusedDetails:
+    RequestRefusedDetailsV20:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedError'
+            $ref: '#/components/schemas/NotificationRefusedErrorV20'
     ScheduleAnalogWorkflowDetails:
       type: object
       required:
@@ -2940,7 +2943,7 @@ components:
         reason:
           type: string
           description: Motivazione casistica non gestita
-    NotificationPaidDetails:
+    NotificationPaidDetailsV20:
       type: object
       required:
         - recIndex
@@ -2966,6 +2969,7 @@ components:
           type: string
           description: Canale sorgente della richiesta di pagamento
         uncertainPaymentDate:
+          deprecated: true
           type: boolean
           description: Indica se la data di pagamento é certa
     SendAnalogProgressDetails:
@@ -3099,7 +3103,7 @@ components:
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetails'
-        - $ref: '#/components/schemas/RequestRefusedDetails'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV20'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
@@ -3116,7 +3120,7 @@ components:
         - $ref: '#/components/schemas/AarCreationRequestDetails'
         - $ref: '#/components/schemas/AarGenerationDetails'
         - $ref: '#/components/schemas/NotHandledDetails'
-        - $ref: '#/components/schemas/NotificationPaidDetails'
+        - $ref: '#/components/schemas/NotificationPaidDetailsV20'
         - $ref: '#/components/schemas/SendAnalogProgressDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
         - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
@@ -4216,6 +4220,59 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+    NotificationRefusedError:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: |-
+            Errori di rifiuto della notifica.
+              - FILE_NOTFOUND
+              - FILE_SHA_ERROR
+              - TAXID_NOT_VALID
+              - SERVICE_UNAVAILABLE
+              - FILE_PDF_INVALID_ERROR
+              - FILE_PDF_TOOBIG_ERROR
+              - NOT_VALID_ADDRESS
+              - RECIPIENT_ID_NOT_VALID
+        detail:
+          type: string
+    RequestRefusedDetails:
+      type: object
+      properties:
+        refusalReasons:
+          type: array
+          description: Motivazioni che hanno portato al rifiuto della notifica
+          items:
+            $ref: '#/components/schemas/NotificationRefusedError'
+    NotificationPaidDetails:
+      type: object
+      required:
+        - recIndex
+        - recipientType
+        - paymentSourceChannel
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario che ha effettuato il pagamento della notifica
+        recipientType:
+          $ref: '#/components/schemas/RecipientType'
+        amount:
+          type: number
+          description: Importo di pagamento in eurocent
+        creditorTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        noticeCode:
+          $ref: '#/components/schemas/noticeCode'
+        idF24:
+          type: string
+          description: un UUID che identifica un pagamento f24
+        paymentSourceChannel:
+          type: string
+          description: Canale sorgente della richiesta di pagamento
+        uncertainPaymentDate:
+          type: boolean
+          description: Indica se la data di pagamento é certa
     TimelineElementDetails:
       description: The raw event payload that will be different based on the event.
       oneOf:

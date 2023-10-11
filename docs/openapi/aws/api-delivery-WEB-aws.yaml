@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: o+979PY7fb94cImFKgxscRQGba7uiKFSYcZVaTuqCuc=
+  version: Ro6P8gSro3YntKc6iSYIUJHX6PAFTDiA3vxT6PHkoy0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2779,7 +2779,7 @@ components:
             perfezionata prima per visualizzazione
           example: 1220
           type: number
-    NotificationRefusedError:
+    NotificationRefusedErrorV20:
       type: object
       properties:
         errorCode:
@@ -2794,16 +2794,19 @@ components:
               - FILE_PDF_TOOBIG_ERROR
               - NOT_VALID_ADDRESS
               - RECIPIENT_ID_NOT_VALID
+              - F24_METADATA_NOT_VALID
+              - PAYMENT_NOT_VALID
+              ...
         detail:
           type: string
-    RequestRefusedDetails:
+    RequestRefusedDetailsV20:
       type: object
       properties:
         refusalReasons:
           type: array
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
-            $ref: '#/components/schemas/NotificationRefusedError'
+            $ref: '#/components/schemas/NotificationRefusedErrorV20'
     ScheduleAnalogWorkflowDetails:
       type: object
       required:
@@ -3261,7 +3264,7 @@ components:
         reason:
           type: string
           description: Motivazione casistica non gestita
-    NotificationPaidDetails:
+    NotificationPaidDetailsV20:
       type: object
       required:
         - recIndex
@@ -3287,6 +3290,7 @@ components:
           type: string
           description: Canale sorgente della richiesta di pagamento
         uncertainPaymentDate:
+          deprecated: true
           type: boolean
           description: Indica se la data di pagamento é certa
     SendAnalogProgressDetails:
@@ -3420,7 +3424,7 @@ components:
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetails'
-        - $ref: '#/components/schemas/RequestRefusedDetails'
+        - $ref: '#/components/schemas/RequestRefusedDetailsV20'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
@@ -3437,7 +3441,7 @@ components:
         - $ref: '#/components/schemas/AarCreationRequestDetails'
         - $ref: '#/components/schemas/AarGenerationDetails'
         - $ref: '#/components/schemas/NotHandledDetails'
-        - $ref: '#/components/schemas/NotificationPaidDetails'
+        - $ref: '#/components/schemas/NotificationPaidDetailsV20'
         - $ref: '#/components/schemas/SendAnalogProgressDetails'
         - $ref: '#/components/schemas/SimpleRegisteredLetterProgressDetails'
         - $ref: '#/components/schemas/ProbableDateAnalogWorkflowDetails'
