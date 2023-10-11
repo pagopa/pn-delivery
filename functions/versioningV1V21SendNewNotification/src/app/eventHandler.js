@@ -21,7 +21,7 @@ exports.handleEvent = async (event) => {
     var newNotificationRequestV21 = createNewNotificationRequesV21(eventBody);
 
     // post verso pn-delivery
-    const url = process.env.PN_DELIVERY_URL.concat('/delivery/requests');
+    const url = process.env.PN_DELIVERY_URL.concat('/requests');
 
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -52,14 +52,12 @@ exports.handleEvent = async (event) => {
 
 
     console.log ('calling ',url);
-    return fetch(url, {
+    const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify(newNotificationRequestV21),
         headers: headers
-    })
-      .then(response => {
-          console.log('Response: ' + JSON.stringify(response));
-          return response;
-      });
+    });
 
+    console.log('Response: ' + JSON.stringify(response));
+    return response;
     };
