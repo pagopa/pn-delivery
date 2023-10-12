@@ -122,17 +122,13 @@ public class NotificationReceiverService {
 				.boxed()
 				.flatMap(recipientIndex -> {
 					NotificationRecipient notificationRecipient = internalNotification.getRecipients().get(recipientIndex);
-					if (notificationRecipient.getPayments() != null && !notificationRecipient.getPayments().isEmpty()) {
+					if (CollectionUtils.isEmpty(notificationRecipient.getPayments())) {
 						return IntStream.range(0, notificationRecipient.getPayments().size())
 								.boxed()
 								.flatMap(paymentIndex -> {
 									NotificationPaymentInfo notificationPaymentInfo = notificationRecipient.getPayments().get(paymentIndex);
 									if (notificationPaymentInfo.getF24() != null) {
-										SaveF24Item saveF24Item = new SaveF24Item();
-										saveF24Item.setApplyCost(notificationPaymentInfo.getF24().isApplyCost());
-										saveF24Item.setSha256(notificationPaymentInfo.getF24().getMetadataAttachment().getDigests() != null ? notificationPaymentInfo.getF24().getMetadataAttachment().getDigests().getSha256() : null);
-										saveF24Item.setFileKey(notificationPaymentInfo.getF24().getMetadataAttachment().getRef() != null ? notificationPaymentInfo.getF24().getMetadataAttachment().getRef().getKey() : null);
-										saveF24Item.setPathTokens(List.of(Integer.toString(recipientIndex), Integer.toString(paymentIndex)));
+										SaveF24Item saveF24Item = constructF24Item(notificationPaymentInfo, recipientIndex, paymentIndex);
 										return Stream.of(saveF24Item);
 									} else {
 										return Stream.empty();
@@ -159,6 +155,15 @@ public class NotificationReceiverService {
 
 		log.info("New notification storing END {}", response);
 		return response;
+	}
+
+	private SaveF24Item constructF24Item(NotificationPaymentInfo notificationPaymentInfo, Integer recipientIndex, Integer paymentIndex) {
+		SaveF24Item saveF24Item = new SaveF24Item();
+		saveF24Item.setApplyCost(notificationPaymentInfo.getF24().isApplyCost());
+		saveF24Item.setSha256(notificationPaymentInfo.getF24().getMetadataAttachment().getDigests() != null ? notificationPaymentInfo.getF24().getMetadataAttachment().getDigests().getSha256() : null);
+		saveF24Item.setFileKey(notificationPaymentInfo.getF24().getMetadataAttachment().getRef() != null ? notificationPaymentInfo.getF24().getMetadataAttachment().getRef().getKey() : null);
+		saveF24Item.setPathTokens(List.of(Integer.toString(recipientIndex), Integer.toString(paymentIndex)));
+		return saveF24Item;
 	}
 
 	private void checkGroup(String senderId, String notificationGroup, List<String> xPagopaPnCxGroups) {
