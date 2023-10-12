@@ -623,7 +623,7 @@ class NotificationReceiverTest {
 	@Test
 	void successNewNotificationNoPagoPaIntModeNoPayment() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationWithoutPayments();
+		NewNotificationRequestV21 newNotificationRequest = newNotificationWithPayments();
 		newNotificationRequest.setGroup(null);
 		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
 		// When
@@ -658,7 +658,7 @@ class NotificationReceiverTest {
 				.build();
 	}
 
-	private NewNotificationRequestV21 newNotificationWithoutPayments( ) {
+	private NewNotificationRequestV21 newNotificationWithPayments( ) {
 		return NewNotificationRequestV21.builder()
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")
@@ -707,7 +707,7 @@ class NotificationReceiverTest {
 	}
 
 	private NewNotificationRequestV21 newNotificationWithPaymentsDeliveryMode( ) {
-		NewNotificationRequestV21 notification = newNotificationWithoutPayments( );
+		NewNotificationRequestV21 notification = newNotificationWithPayments( );
 		notification.notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
 
 		for( NotificationRecipientV21 recipient : notification.getRecipients()) {
