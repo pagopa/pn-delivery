@@ -122,7 +122,7 @@ public class NotificationReceiverService {
 				.boxed()
 				.flatMap(recipientIndex -> {
 					NotificationRecipient notificationRecipient = internalNotification.getRecipients().get(recipientIndex);
-					if (CollectionUtils.isEmpty(notificationRecipient.getPayments())) {
+					if (!CollectionUtils.isEmpty(notificationRecipient.getPayments())) {
 						return IntStream.range(0, notificationRecipient.getPayments().size())
 								.boxed()
 								.flatMap(paymentIndex -> {
