@@ -95,6 +95,13 @@ class NotificationAttachmentServiceTest {
     request.setSha256("the_sha256_base64_encoded");
     list.add(request);
 
+    PreLoadRequest f24MetaRequest = PreLoadRequest.builder()
+            .contentType("application/json")
+            .preloadIdx("2")
+            .sha256("metadata-f24-sha256")
+            .build();
+    list.add(f24MetaRequest);
+
     FileCreationResponse response = new FileCreationResponse();
     response.setUploadMethod(FileCreationResponse.UploadMethodEnum.POST);
     response.setSecret("secret");
@@ -108,7 +115,7 @@ class NotificationAttachmentServiceTest {
 
     // Then
     assertNotNull(result);
-    assertEquals(1, result.size());
+    assertEquals(2, result.size());
   }
 
   @Test

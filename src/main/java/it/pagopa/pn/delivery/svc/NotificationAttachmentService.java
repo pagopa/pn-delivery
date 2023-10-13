@@ -40,7 +40,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -59,6 +58,7 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.*;
 public class NotificationAttachmentService {
 
     public static final String PN_NOTIFICATION_ATTACHMENTS = "PN_NOTIFICATION_ATTACHMENTS";
+    public static final String PN_F24_META = "PN_F24_META";
     public static final String PRELOADED = "PRELOADED";
     private static final String ATTACHMENT_TYPE_PAGO_PA = "PAGOPA" ;
     private static final String ATTACHMENT_TYPE_F24 = "F24";
@@ -95,7 +95,11 @@ public class NotificationAttachmentService {
             log.info("preloadDocuments contentType:{} preloadIdx:{}", req.getContentType(), req.getPreloadIdx());
             FileCreationRequest fileCreationRequest = new FileCreationRequest();
             fileCreationRequest.setContentType(req.getContentType());
-            fileCreationRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENTS);
+            if ("application/json".equals(req.getContentType())) {
+                fileCreationRequest.setDocumentType(PN_F24_META);
+            } else {
+                fileCreationRequest.setDocumentType(PN_NOTIFICATION_ATTACHMENTS);
+            }
             fileCreationRequest.setStatus(PRELOADED);
 
             var resp = this.safeStorageClient.createFile(fileCreationRequest, req.getSha256());
