@@ -51,13 +51,14 @@ console.log("DOCUMENT CLIENT CREATO");
 
 TABLE_NAME = 'pn-NotificationDelegationMetadata'
 SCAN_LIMIT = 2000 // max 2000
-DELAY_MS = 1000; //1 second
+DELAY_MS = 250; //250 ms
 
 var index = 1;
 
 const params = {
   TableName: TABLE_NAME,
-  Limit: SCAN_LIMIT
+  Limit: SCAN_LIMIT,
+  FilterExpression: 'attribute_not_exists(rootSenderId)',
 };
 
 // da utilizzare per ri-cominciare da key specifica
@@ -91,7 +92,7 @@ async function scanTable(params, callback) {
 async function main(){
 
   console.log('start update item');
-
+  let countItem = 0;
   scanTable(params, function(err, data) {
     if (err) {
       console.log(err);
@@ -99,12 +100,14 @@ async function main(){
       console.log( "Scanned items: ", data.Items.length )
       data.Items.forEach(async function (item) {
         const key = item.iun_recipientId_delegateId_groupId;
-        console.log("Key: ", key, "at Index: ", index++ );
+        const sortkey = item.sentAt;
+        //console.log("Key: ", key, "at Index: ", index++ );
         const updateExpression = "SET #rootSenderId = :value"
         const updateParams = {
           TableName: TABLE_NAME,
           Key: {
-            "iun_recipientId_delegateId_groupId": key
+            "iun_recipientId_delegateId_groupId": key,
+            "sentAt": sortkey
           },
           UpdateExpression: updateExpression,
           ExpressionAttributeNames: {
@@ -118,12 +121,16 @@ async function main(){
         try {
           const updateItemCommand = new UpdateItemCommand(updateParams);
           await dynamoDBClient.send(updateItemCommand);
-          console.log("Aggiornato elemento con key: ", key);
+          //console.log("Aggiornato elemento con key: ", key);
+          countItem++;
         } catch (error) {
           console.error("Errore nell'aggiornamento dell'elemento:", JSON.stringify(error, null, 2));
           console.error("Errore sull'elemento con key: ", key);
         }
       });
+       if(countItem % 1000){
+          console.log('ELEMENTI AGGIORNATI ATTUALMENTE = ',countItem);
+       }
     }
   })
       
