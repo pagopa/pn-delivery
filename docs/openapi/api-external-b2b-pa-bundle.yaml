@@ -58,7 +58,7 @@ info:
       #### 3.2 Richiesta avanzamento via "stream" di verifica di accettazione
 
       Questa modalità è consigliata. Per essere fruita è necessaria un'operazione preliminare 
-      tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/createEventStream)
+      tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fmain%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/createEventStream)
       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:</br></br>``
       {
         "title": "NotificationAccepted",
@@ -68,7 +68,7 @@ info:
         ]
       }
       ``</br></br>
-      Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fdevelop%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Events/consumeEventStream)
+      Successivamente si possono ottenere i dati richiamando la API [consumeEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fmain%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Events/consumeEventStream)
       
       
       __NOTA__ saranno disponibili i dati di cambiamento di stato occorsi solo successivamente alla configurazione
@@ -316,7 +316,7 @@ info:
       ### 1) Creazione dello stream ed inserimento notifica
       In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni limitatamente agli eventi della v1, non bisogna inserire alcun filtro: 
       <code>"filterValues": []</code></br>      
-      Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
+      Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
       
       </br>
       </br>
@@ -350,7 +350,7 @@ info:
 
       A questo punto si potrà capire, sempre dal valore del <code>retry-after</code> contenuto nell'header</br> se chiamare subito il servizio ed inserire il <code>lastEventId</code> di questa ulteriore chiamata</br> o attendere il tempo indicato nell'header</br>
 
-      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveSentNotification) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
+      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV20) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
 
       </td>
       <td>
@@ -485,7 +485,7 @@ info:
     per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono
     automaticamente cancellati anche se non sono stati prelevati dallo stream, e
     sarà possibile ottenere lo stato della notifica solo attraverso il servizio
-    [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__
+    [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__
     </font> 
 
     </br> </br>
