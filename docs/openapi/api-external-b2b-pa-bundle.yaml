@@ -183,9 +183,9 @@ info:
     <ul>   <li><strong>https://api.notifichedigitali.it:</strong></br>Ambiente
     di produzione</li>
     <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di
-    collaudo. Potrebbe subire modifiche/integrazioni in futuro,
-    rimanendocomunque non-bloccante e rispettando il principio di
-    retrocompatibilità</li> </ul>   </details></br>
+    collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendo
+    comunque non-bloccante e rispettando il principio di retrocompatibilità</li>
+    </ul>   </details></br>
       <br/>
 
 
