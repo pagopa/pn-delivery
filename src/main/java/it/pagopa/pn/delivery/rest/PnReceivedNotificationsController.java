@@ -174,7 +174,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            //retrieveSvc.checkIfNotificationIsNotCancelled(iun);
+            retrieveSvc.checkIfNotificationIsNotCancelled(iun);
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             response = notificationAttachmentService.downloadDocumentWithRedirect(
                     iun,
@@ -211,7 +211,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                 .build();
         logEvent.log();
         try {
-            //retrieveSvc.checkIfNotificationIsNotCancelled(iun);
+            retrieveSvc.checkIfNotificationIsNotCancelled(iun);
             InternalAuthHeader internalAuthHeader = new InternalAuthHeader(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnUid, xPagopaPnCxGroups);
             response = notificationAttachmentService.downloadAttachmentWithRedirect(
                     iun,
