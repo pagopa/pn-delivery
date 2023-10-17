@@ -219,6 +219,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                     mandateId != null ? mandateId.toString() : null,
                     null,
                     attachmentName,
+                    attachmentIdx,
                     true
             );
             String fileName = response.getFilename();

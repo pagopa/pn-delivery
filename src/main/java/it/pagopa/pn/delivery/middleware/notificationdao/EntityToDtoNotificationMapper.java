@@ -134,33 +134,6 @@ public class EntityToDtoNotificationMapper {
         return paymentAttachment;
     }
 
-    /*
-    private PagoPaPayment entity2PaymentAttachment(PagoPaPaymentEntity pagoPaForm) {
-        PagoPaPayment paymentAttachment = null;
-        if ( Objects.nonNull( pagoPaForm ) ) {
-            paymentAttachment = PagoPaPayment.builder()
-                    .creditorTaxId(pagoPaForm.getCreditorTaxId())
-                    .noticeCode(pagoPaForm.getNoticeCode())
-                    .applyCost(pagoPaForm.getApplyCost())
-                    .attachment(
-                            MetadataAttachment.builder()
-                                    .contentType( pagoPaForm.getAttachment().getContentType() )
-                                    .digests( NotificationAttachmentDigests.builder()
-                                            .sha256( pagoPaForm.getAttachment().getNotificationAttachmentDigestsEntity().getSha256() )
-                                            .build()
-                                    )
-                                    .ref( NotificationAttachmentBodyRef.builder()
-                                            .key( pagoPaForm.getAttachment().getNotificationAttachmentBodyRefEntity().getKey() )
-                                            .versionToken( pagoPaForm.getAttachment().getNotificationAttachmentBodyRefEntity().getVersionToken() )
-                                            .build()
-                                    ).build()
-                    )
-                    .build();
-        }
-        return paymentAttachment;
-    }
-     */
-
     private List<NotificationDocument> buildDocumentsList(NotificationEntity entity ) {
         List<NotificationDocument> result = new ArrayList<>();
 

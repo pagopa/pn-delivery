@@ -195,6 +195,19 @@ public class NotificationAttachmentService {
                 recipientIdx,attachmentName,markNotificationAsViewed ).downloadMetadataResponse;
     }
 
+    public NotificationAttachmentDownloadMetadataResponse downloadAttachmentWithRedirect(
+            String iun,
+            InternalAuthHeader internalAuthHeader,
+            String mandateId,
+            Integer recipientIdx,
+            String attachmentName,
+            Integer attachmentIdx,
+            Boolean markNotificationAsViewed) {
+
+        return downloadAttachmentWithRedirectWithFileKey( iun,internalAuthHeader,mandateId,
+                recipientIdx,attachmentName, attachmentIdx, markNotificationAsViewed ).downloadMetadataResponse;
+    }
+
     public InternalAttachmentWithFileKey downloadAttachmentWithRedirectWithFileKey(
             String iun,
             InternalAuthHeader internalAuthHeader,

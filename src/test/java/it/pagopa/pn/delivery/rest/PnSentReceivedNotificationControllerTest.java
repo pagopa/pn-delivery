@@ -874,6 +874,7 @@ class PnSentReceivedNotificationControllerTest {
 						isNull(),
 						Mockito.anyInt(),
 						anyString(),
+						any(),
 						Mockito.anyBoolean()
 				)).thenReturn( response );
 
@@ -913,6 +914,7 @@ class PnSentReceivedNotificationControllerTest {
 				isNull(),
 				Mockito.anyInt(),
 				anyString(),
+				any(),
 				Mockito.anyBoolean()
 		)).thenReturn( response );
 
@@ -990,7 +992,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID, null);
 		Mockito.doThrow( new PnNotificationNotFoundException("Simulated Error") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, internalAuthHeader, null,null, PAGOPA, true );
+				.downloadAttachmentWithRedirect( IUN, internalAuthHeader, null,null, PAGOPA, null, true );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -1008,7 +1010,7 @@ class PnSentReceivedNotificationControllerTest {
 		InternalAuthHeader internalAuthHeader = new InternalAuthHeader(CX_TYPE_PF, CX_ID, UID, null);
 		Mockito.doThrow( new PnBadRequestException("Request took too long to complete.", "test", ERROR_CODE_DELIVERY_FILEINFONOTFOUND))
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, internalAuthHeader, null,null, PAGOPA, true );
+				.downloadAttachmentWithRedirect( IUN, internalAuthHeader, null,null, PAGOPA, null, true );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -1026,7 +1028,7 @@ class PnSentReceivedNotificationControllerTest {
 		// When
 		Mockito.doThrow( new PnInternalException("Simulated Error", "test") )
 				.when( attachmentService )
-				.downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null,null, PAGOPA, true );
+				.downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null,null, PAGOPA, null, true );
 
 		webTestClient.get()
 				.uri( "/delivery/notifications/received/{iun}/attachments/payment/{attachmentName}".replace("{iun}",IUN).replace("{attachmentName}",PAGOPA))
@@ -1057,6 +1059,7 @@ class PnSentReceivedNotificationControllerTest {
 						anyString(),
 						Mockito.isNull(),
 						anyString(),
+						Mockito.any(),
 						Mockito.anyBoolean()
 				)).thenReturn( response );
 
@@ -1077,7 +1080,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, pagopa, true);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, pagopa, null, true);
 	}
 
 	@Test
@@ -1099,6 +1102,7 @@ class PnSentReceivedNotificationControllerTest {
 				Mockito.isNull(),
 				Mockito.isNull(),
 				Mockito.anyString(),
+				Mockito.any(),
 				Mockito.anyBoolean()
 		)).thenReturn( response );
 
@@ -1119,7 +1123,7 @@ class PnSentReceivedNotificationControllerTest {
 				.expectStatus()
 				.isOk();
 
-		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, pagopa, true);
+		Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, pagopa, null, true);
 	}
 
 	@Test
