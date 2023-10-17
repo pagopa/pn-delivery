@@ -446,6 +446,7 @@ class PnInternalNotificationsControllerTest {
                 Mockito.any(),
                 Mockito.isNull(),
                 Mockito.anyString(),
+                Mockito.any(),
                 Mockito.anyBoolean()
         )).thenReturn( response );
 
@@ -466,14 +467,14 @@ class PnInternalNotificationsControllerTest {
                 .isOk()
                 .expectBody( NotificationAttachmentDownloadMetadataResponse.class );
 
-        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, ATTACHMENT_NAME, false );
+        Mockito.verify( attachmentService ).downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, MANDATE_ID, null, ATTACHMENT_NAME, null, false );
     }
 
     @Test
     void getNotificationAttachmentPrivateFailure() {
         Mockito.doThrow( new PnNotFoundException("test", "test", "test") )
                 .when( attachmentService )
-                .downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, ATTACHMENT_NAME, false );
+                .downloadAttachmentWithRedirect( IUN, INTERNAL_AUTH_HEADER, null, null, ATTACHMENT_NAME, null, false );
 
         webTestClient.get()
                 .uri( uriBuilder ->
