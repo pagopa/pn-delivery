@@ -90,18 +90,17 @@ public class EntityToDtoNotificationMapper {
         if ( Objects.nonNull( f24 ) ) {
             paymentAttachment = F24Payment.builder()
                     .applyCost(f24.getApplyCost())
-                    .index(f24.getIndex())
                     .title(f24.getTitle())
                     .metadataAttachment(
                             MetadataAttachment.builder()
                                     .contentType( f24.getMetadataAttachment().getContentType() )
                                     .digests( NotificationAttachmentDigests.builder()
-                                            .sha256( f24.getMetadataAttachment().getNotificationAttachmentDigestsEntity().getSha256() )
+                                            .sha256( f24.getMetadataAttachment().getDigests().getSha256() )
                                             .build()
                                     )
                                     .ref( NotificationAttachmentBodyRef.builder()
-                                            .key( f24.getMetadataAttachment().getNotificationAttachmentBodyRefEntity().getKey() )
-                                            .versionToken( f24.getMetadataAttachment().getNotificationAttachmentBodyRefEntity().getVersionToken() )
+                                            .key( f24.getMetadataAttachment().getRef().getKey() )
+                                            .versionToken( f24.getMetadataAttachment().getRef().getVersionToken() )
                                             .build()
                                     ).build()
                     )
@@ -110,23 +109,23 @@ public class EntityToDtoNotificationMapper {
         return paymentAttachment;
     }
 
-    private PagoPaPayment entity2PaymentAttachment(NotificationPaymentInfoEntity pagoPaForm) {
+    private PagoPaPayment entity2PaymentAttachment(NotificationPaymentInfoEntity paymentInfo) {
         PagoPaPayment paymentAttachment = null;
-        if ( Objects.nonNull( pagoPaForm.getPagoPaForm() ) ) {
+        if ( Objects.nonNull( paymentInfo.getPagoPaForm() ) ) {
             paymentAttachment = PagoPaPayment.builder()
-                    .creditorTaxId(pagoPaForm.getCreditorTaxId())
-                    .noticeCode(pagoPaForm.getNoticeCode())
-                    .applyCost(pagoPaForm.isApplyCost() == null ? true : pagoPaForm.isApplyCost())
+                    .creditorTaxId(paymentInfo.getCreditorTaxId())
+                    .noticeCode(paymentInfo.getNoticeCode())
+                    .applyCost(paymentInfo.getApplyCost() == null || paymentInfo.getApplyCost())
                     .attachment(
                             MetadataAttachment.builder()
-                                    .contentType( pagoPaForm.getPagoPaForm().getContentType() )
+                                    .contentType( paymentInfo.getPagoPaForm().getContentType() )
                                     .digests( NotificationAttachmentDigests.builder()
-                                            .sha256( pagoPaForm.getPagoPaForm().getNotificationAttachmentDigestsEntity().getSha256() )
+                                            .sha256( paymentInfo.getPagoPaForm().getDigests().getSha256() )
                                             .build()
                                     )
                                     .ref( NotificationAttachmentBodyRef.builder()
-                                            .key( pagoPaForm.getPagoPaForm().getNotificationAttachmentBodyRefEntity().getKey() )
-                                            .versionToken( pagoPaForm.getPagoPaForm().getNotificationAttachmentBodyRefEntity().getVersionToken() )
+                                            .key( paymentInfo.getPagoPaForm().getRef().getKey() )
+                                            .versionToken( paymentInfo.getPagoPaForm().getRef().getVersionToken() )
                                             .build()
                                     ).build()
                     )

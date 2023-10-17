@@ -9,38 +9,16 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@Data
 @DynamoDbBean
 public class PagoPaPaymentEntity {
 
-    private NotificationAttachmentDigestsEntity digests;
-    private String contentType;
-    private NotificationAttachmentBodyRefEntity ref;
+    public static final String FIELD_DIGESTS = "digests";
+    public static final String FIELD_CONTENT_TYPE = "contentType";
+    public static final String FIELD_REF = "ref";
 
-    @DynamoDbAttribute(value = "ref")
-    public NotificationAttachmentBodyRefEntity getNotificationAttachmentBodyRefEntity() {
-        return ref;
-    }
-
-    public void setNotificationAttachmentBodyRefEntity(NotificationAttachmentBodyRefEntity ref) {
-        this.ref = ref;
-    }
-
-    @DynamoDbAttribute(value = "contentType")
-    public String getContentType() {
-        return contentType;
-    }
-
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    @DynamoDbAttribute(value = "digests")
-    public NotificationAttachmentDigestsEntity getNotificationAttachmentDigestsEntity() {
-        return digests;
-    }
-
-    public void setNotificationAttachmentDigestsEntity(NotificationAttachmentDigestsEntity digests) {
-        this.digests = digests;
-    }
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DIGESTS)})) private NotificationAttachmentDigestsEntity digests;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_CONTENT_TYPE)})) private String contentType;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_REF)})) private NotificationAttachmentBodyRefEntity ref;
 
 }

@@ -91,7 +91,6 @@ public class DtoToEntityNotificationMapper {
             f24PaymentEntity =  F24PaymentEntity.builder()
                     .applyCost(f24Payment.isApplyCost())
                     .title(f24Payment.getTitle())
-                    .index(f24Payment.getIndex())
                     .metadataAttachment(dto2PaymentAttachment(f24Payment))
                     .build();
         }

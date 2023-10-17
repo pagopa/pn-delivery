@@ -745,8 +745,7 @@ public class NotificationRetrieverService {
 			if (!CollectionUtils.isEmpty(payments)) {
 				payments.forEach(notificationPaymentInfo -> {
 					notificationPaymentInfo.setPagoPa( null );
-					//TODO: CAPIRE PER F24 COME GESTIRE LA REMOVE DOCUMENT
-					notificationPaymentInfo.getF24().setIndex( null );
+					notificationPaymentInfo.setF24(null);
 				});
 			}
 		}
@@ -767,7 +766,6 @@ public class NotificationRetrieverService {
 
 		List<it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatusHistoryElement> statusHistory = timelineStatusHistoryDto.getNotificationStatusHistory();
 
-		//TODO: VEDERE SE IL RETURN FUNZIONA CORRETTAMENTE
 		assert statusHistory != null;
 		assert timelineList != null;
 		assert timelineStatusHistoryDto.getNotificationStatus() != null;

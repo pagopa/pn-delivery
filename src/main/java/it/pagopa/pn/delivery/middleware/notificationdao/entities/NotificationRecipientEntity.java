@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.middleware.notificationdao.entities;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnoreNulls;
 
 import java.util.List;
 
@@ -11,66 +12,21 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@Data
 @DynamoDbBean
 public class NotificationRecipientEntity {
-    private RecipientTypeEntity recipientType;
-    private String recipientId;
-    private String denomination;
-    private NotificationDigitalAddressEntity digitalDomicile;
-    private NotificationPhysicalAddressEntity physicalAddress;
-    private List<NotificationPaymentInfoEntity> payments;
+    public static final String FIELD_RECIPIENT_TYPE = "recipientType";
+    public static final String FIELD_RECIPIENT_ID = "recipientId";
+    public static final String FIELD_DENOMINATION = "denomination";
+    public static final String FIELD_DIGITAL_DOMICILE = "digitalDomicile";
+    public static final String FIELD_PHYSICAL_ADDRESS = "physicalAddress";
+    public static final String FIELD_PAYMENTS = "payments";
 
-    @DynamoDbAttribute(value = "recipientType")
-    public RecipientTypeEntity getRecipientType() {
-        return recipientType;
-    }
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENT_TYPE)})) private RecipientTypeEntity recipientType;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_RECIPIENT_ID)})) private String recipientId;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DENOMINATION)})) private String denomination;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_DIGITAL_DOMICILE)})) private NotificationDigitalAddressEntity digitalDomicile;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PHYSICAL_ADDRESS)})) private NotificationPhysicalAddressEntity physicalAddress;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAYMENTS),  @DynamoDbIgnoreNulls})) private List<NotificationPaymentInfoEntity> payments;
 
-    public void setRecipientType(RecipientTypeEntity recipientType) {
-        this.recipientType = recipientType;
-    }
-
-    @DynamoDbAttribute(value = "recipientId")
-    public String getRecipientId() {
-        return recipientId;
-    }
-
-    public void setRecipientId(String recipientId) {
-        this.recipientId = recipientId;
-    }
-
-    @DynamoDbAttribute(value = "denomination")
-    public String getDenomination() {
-        return denomination;
-    }
-
-    public void setDenomination(String denomination) {
-        this.denomination = denomination;
-    }
-
-    @DynamoDbAttribute(value = "digitalDomicile")
-    public NotificationDigitalAddressEntity getDigitalDomicile() {
-        return digitalDomicile;
-    }
-
-    public void setDigitalDomicile(NotificationDigitalAddressEntity digitalDomicile) {
-        this.digitalDomicile = digitalDomicile;
-    }
-
-    @DynamoDbAttribute(value = "physicalAddress")
-    public NotificationPhysicalAddressEntity getPhysicalAddress() {
-        return physicalAddress;
-    }
-
-    public void setPhysicalAddress(NotificationPhysicalAddressEntity physicalAddress) {
-        this.physicalAddress = physicalAddress;
-    }
-
-    @DynamoDbAttribute(value = "payments")
-    public List<NotificationPaymentInfoEntity> getPayments() {
-        return payments;
-    }
-
-    public void setPayments(List<NotificationPaymentInfoEntity> payments) {
-        this.payments = payments;
-    }
 }
