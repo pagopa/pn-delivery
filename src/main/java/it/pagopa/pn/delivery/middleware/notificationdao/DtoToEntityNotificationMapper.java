@@ -65,14 +65,13 @@ public class DtoToEntityNotificationMapper {
         List<NotificationPaymentInfoEntity> paymentInfoEntityList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(notificationPaymentInfos)) {
             notificationPaymentInfos.forEach(item ->
-                    paymentInfoEntityList.addAll(toNotificationPaymentInfoEntityList(item)));
+                    paymentInfoEntityList.add(toNotificationPaymentInfoEntity(item)));
         }
         return paymentInfoEntityList;
     }
 
-    private List<NotificationPaymentInfoEntity> toNotificationPaymentInfoEntityList(NotificationPaymentInfo item) {
-        List<NotificationPaymentInfoEntity> notificationPaymentInfoEntities = new ArrayList<>();
-        notificationPaymentInfoEntities.add(NotificationPaymentInfoEntity.builder()
+    private NotificationPaymentInfoEntity toNotificationPaymentInfoEntity(NotificationPaymentInfo item) {
+        return NotificationPaymentInfoEntity.builder()
                 .creditorTaxId(item.getPagoPa() != null ? item.getPagoPa().getCreditorTaxId() : null)
                 .noticeCode(item.getPagoPa() != null ? item.getPagoPa().getNoticeCode() : null)
                 .applyCost(item.getPagoPa() != null ? item.getPagoPa().isApplyCost() : null)
@@ -81,8 +80,7 @@ public class DtoToEntityNotificationMapper {
                 )
                 .f24(
                         dto2F24PaymentEntity(item.getF24())
-                ).build());
-        return notificationPaymentInfoEntities;
+                ).build();
     }
 
     private F24PaymentEntity dto2F24PaymentEntity(F24Payment f24Payment){
