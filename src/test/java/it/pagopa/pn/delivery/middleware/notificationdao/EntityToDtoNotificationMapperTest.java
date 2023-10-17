@@ -50,22 +50,21 @@ class EntityToDtoNotificationMapperTest {
         F24PaymentEntity f24PaymentEntity = new F24PaymentEntity();
         f24PaymentEntity.setTitle("title");
         f24PaymentEntity.setApplyCost(false);
-        f24PaymentEntity.setIndex(0);
         MetadataAttachmentEntity metadataAttachment = new MetadataAttachmentEntity();
         NotificationAttachmentDigestsEntity notificationAttachmentDigestsEntity = new NotificationAttachmentDigestsEntity();
         notificationAttachmentDigestsEntity.setSha256("Zsg9Nyzj13UPzkyaQlnA7wbgTfBaZmH02OVyiRjpydE");
         NotificationAttachmentBodyRefEntity notificationAttachmentBodyRefEntity = new NotificationAttachmentBodyRefEntity();
         notificationAttachmentBodyRefEntity.setKey("key");
         notificationAttachmentBodyRefEntity.setVersionToken("versionKey");
-        metadataAttachment.setNotificationAttachmentDigestsEntity(notificationAttachmentDigestsEntity);
-        metadataAttachment.setNotificationAttachmentBodyRefEntity(notificationAttachmentBodyRefEntity);
+        metadataAttachment.setDigests(notificationAttachmentDigestsEntity);
+        metadataAttachment.setRef(notificationAttachmentBodyRefEntity);
         metadataAttachment.setContentType("application/pdf");
         f24PaymentEntity.setMetadataAttachment(metadataAttachment);
 
         PagoPaPaymentEntity pagoPaPaymentEntity = new PagoPaPaymentEntity();
         pagoPaPaymentEntity.setContentType("application/pdf");
-        pagoPaPaymentEntity.setNotificationAttachmentDigestsEntity(notificationAttachmentDigestsEntity);
-        pagoPaPaymentEntity.setNotificationAttachmentBodyRefEntity(notificationAttachmentBodyRefEntity);
+        pagoPaPaymentEntity.setDigests(notificationAttachmentDigestsEntity);
+        pagoPaPaymentEntity.setRef(notificationAttachmentBodyRefEntity);
 
         NotificationPaymentInfoEntity notificationPaymentInfoEntity = new NotificationPaymentInfoEntity();
         notificationPaymentInfoEntity.setApplyCost(false);

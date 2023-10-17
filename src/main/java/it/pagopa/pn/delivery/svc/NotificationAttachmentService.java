@@ -252,7 +252,7 @@ public class NotificationAttachmentService {
         Integer documentIndex = inputDownloadDto.getDocumentIndex();
         String attachmentName = inputDownloadDto.getAttachmentName();
         Boolean markNotificationAsViewed = inputDownloadDto.getMarkNotificationAsViewed();
-        log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} markNotificationAsViewed={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, markNotificationAsViewed );
+        log.info("downloadDocumentWithRedirect for cxType={} iun={} documentIndex={} recipientIdx={} xPagopaPnCxId={} attachmentName={} mandateId={} markNotificationAsViewed={} attachmentIndex={}", cxType, iun, documentIndex, recipientIdx, cxId, attachmentName, mandateId, markNotificationAsViewed, attachmentIdx );
 
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, cxGroups, iun, recipientIdx );
 
@@ -262,7 +262,7 @@ public class NotificationAttachmentService {
 
             log.info( "START check authorization" );
             AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, notification );
-            log.info( "END check authorization autorized={} xPagopaPnCxId={} mandateId={} recipientIdx={} iun={}", authorizationOutcome.isAuthorized(), cxId, mandateId, recipientIdx, iun);
+            log.info( "END check authorization autorized={} xPagopaPnCxId={} mandateId={} recipientIdx={} effectiveRecipientIdx={} iun={}", authorizationOutcome.isAuthorized(), cxId, mandateId, recipientIdx, authorizationOutcome.getEffectiveRecipientIdx(), iun);
 
             if ( !authorizationOutcome.isAuthorized() ) {
                 log.error("Error download attachment. xPagopaPnCxId={} mandateId={} recipientIdx={} cannot download attachment for notification with iun={}", cxId, mandateId, recipientIdx, iun);
@@ -351,7 +351,7 @@ public class NotificationAttachmentService {
                 if (notificationPaymentInfo.getF24() != null) {
                     pathTokens = Collections.singletonList(String.format("%d,%d", recipientIdx, attachmentIdx));
                 } else {
-                    String exMessage = String.format("Unable to find F24 for attachment=%s iun=%s with this paymentInfo=%s", attachmentName, iun, effectiveRecipient.getPayments().toString());
+                    String exMessage = String.format("Unable to find F24 for attachmentName=%s attachmentIndex=%s iun=%s with this paymentInfo=%s", attachmentName, attachmentIdx, iun, notificationPaymentInfo);
                     throw new PnNotFoundException("F24 not found", exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
                 }
                 return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost(), notification.getPaFee());

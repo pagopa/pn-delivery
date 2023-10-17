@@ -9,61 +9,19 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@Data
 @DynamoDbBean
 public class NotificationPaymentInfoEntity {
+    public static final String FIELD_NOTICE_CODE = "noticeCode";
+    public static final String FIELD_CREDITOR_TAX_ID = "creditorTaxId";
+    public static final String FIELD_APPLY_COST = "applyCost";
+    public static final String FIELD_PAGO_PA_FORM = "pagoPaForm";
+    public static final String FIELD_F24 = "f24";
 
-    private String noticeCode;
-    private String creditorTaxId;
-    @Builder.Default
-    private Boolean applyCost = true;
-    private PagoPaPaymentEntity pagoPaForm;
-    private F24PaymentEntity f24;
-
-    @DynamoDbAttribute(value = "applyCost")
-    public Boolean isApplyCost() {
-        return applyCost;
-    }
-
-    public void setApplyCost(Boolean applyCost) {
-        this.applyCost = applyCost;
-    }
-
-    @DynamoDbAttribute(value = "noticeCode")
-    public String getNoticeCode() {
-        return noticeCode;
-    }
-
-    public void setNoticeCode(String noticeCode) {
-        this.noticeCode = noticeCode;
-    }
-
-    @DynamoDbAttribute(value = "creditorTaxId")
-    public String getCreditorTaxId() {
-        return creditorTaxId;
-    }
-
-    public void setCreditorTaxId(String creditorTaxId) {
-        this.creditorTaxId = creditorTaxId;
-    }
-
-    @DynamoDbAttribute(value = "pagoPaForm")
-    public PagoPaPaymentEntity getPagoPaForm() {
-        return pagoPaForm;
-    }
-
-    public void setPagoPaForm(PagoPaPaymentEntity pagoPaForm) {
-        this.pagoPaForm = pagoPaForm;
-    }
-
-    @DynamoDbAttribute(value = "F24")
-    public F24PaymentEntity getF24() {
-        return f24;
-    }
-
-    public void setF24(F24PaymentEntity f24) {
-        this.f24 = f24;
-    }
-
-
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_NOTICE_CODE)})) private String noticeCode;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_CREDITOR_TAX_ID)})) private String creditorTaxId;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_APPLY_COST)})) private Boolean applyCost;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_PAGO_PA_FORM)})) private PagoPaPaymentEntity pagoPaForm;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_F24)})) private F24PaymentEntity f24;
 
 }

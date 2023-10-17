@@ -12,6 +12,5 @@ import lombok.*;
 public class F24Payment {
     private String title;
     private boolean applyCost;
-    private Integer index;
     private MetadataAttachment metadataAttachment;
 }

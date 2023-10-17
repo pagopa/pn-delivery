@@ -9,48 +9,14 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@Data
 @DynamoDbBean
 public class F24PaymentEntity {
+    public static final String FIELD_TITLE = "title";
+    public static final String FIELD_APPLY_COST = "applyCost";
+    public static final String FIELD_METADATA_ATTACHMENT = "metadataAttachment";
 
-    private String title;
-    private Boolean applyCost;
-    private Integer index;
-    private MetadataAttachmentEntity metadataAttachment;
-
-
-    @DynamoDbAttribute(value = "title")
-    public String getTitle() {
-        return title;
-    }
-
-    @DynamoDbAttribute(value = "applyCost")
-    public Boolean getApplyCost() {
-        return applyCost;
-    }
-
-    @DynamoDbAttribute(value = "index")
-    public Integer getIndex() {
-        return index;
-    }
-
-    @DynamoDbAttribute(value = "metadataAttachment")
-    public MetadataAttachmentEntity getMetadataAttachment() {
-        return metadataAttachment;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setApplyCost(Boolean applyCost) {
-        this.applyCost = applyCost;
-    }
-
-    public void setIndex(Integer index) {
-        this.index = index;
-    }
-
-    public void setMetadataAttachment(MetadataAttachmentEntity metadataAttachment) {
-        this.metadataAttachment = metadataAttachment;
-    }
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_TITLE)})) private String title;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_APPLY_COST)})) private Boolean applyCost;
+    @Getter(onMethod=@__({@DynamoDbAttribute(FIELD_METADATA_ATTACHMENT)})) private MetadataAttachmentEntity metadataAttachment;
 }
