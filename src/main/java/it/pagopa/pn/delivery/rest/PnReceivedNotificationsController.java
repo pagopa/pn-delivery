@@ -226,8 +226,8 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
             String url = response.getUrl();
             String retryAfter = String.valueOf( response.getRetryAfter() );
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
-            logEvent.generateSuccess("getReceivedNotificationAttachment attachment name={}, {}",
-                    attachmentName, message).log();
+            logEvent.generateSuccess("getReceivedNotificationAttachment attachment name={} attachment index={}, {}",
+                    attachmentName, attachmentIdx, message).log();
             return ResponseEntity.ok(response);
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();

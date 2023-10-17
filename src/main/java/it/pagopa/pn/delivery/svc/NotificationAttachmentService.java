@@ -189,46 +189,12 @@ public class NotificationAttachmentService {
             String mandateId,
             Integer recipientIdx,
             String attachmentName,
-            Boolean markNotificationAsViewed) {
-
-        return downloadAttachmentWithRedirectWithFileKey( iun,internalAuthHeader,mandateId,
-                recipientIdx,attachmentName,markNotificationAsViewed ).downloadMetadataResponse;
-    }
-
-    public NotificationAttachmentDownloadMetadataResponse downloadAttachmentWithRedirect(
-            String iun,
-            InternalAuthHeader internalAuthHeader,
-            String mandateId,
-            Integer recipientIdx,
-            String attachmentName,
             Integer attachmentIdx,
             Boolean markNotificationAsViewed) {
 
         return downloadAttachmentWithRedirectWithFileKey( iun,internalAuthHeader,mandateId,
                 recipientIdx,attachmentName, attachmentIdx, markNotificationAsViewed ).downloadMetadataResponse;
     }
-
-    public InternalAttachmentWithFileKey downloadAttachmentWithRedirectWithFileKey(
-            String iun,
-            InternalAuthHeader internalAuthHeader,
-            String mandateId,
-            Integer recipientIdx,
-            String attachmentName,
-            Boolean markNotificationAsViewed) {
-        InputDownloadDto inputDownloadDto = new InputDownloadDto().toBuilder()
-                .cxType(internalAuthHeader.cxType())
-                .cxId(internalAuthHeader.xPagopaPnCxId())
-                .uid(internalAuthHeader.xPagopaPnUid())
-                .mandateId( mandateId )
-                .iun( iun )
-                .documentIndex( null )
-                .recipientIdx( recipientIdx )
-                .attachmentName( attachmentName )
-                .markNotificationAsViewed( markNotificationAsViewed )
-                .build();
-        return downloadDocumentWithRedirect( inputDownloadDto );
-    }
-
 
     public InternalAttachmentWithFileKey downloadAttachmentWithRedirectWithFileKey(
             String iun,

@@ -694,9 +694,15 @@ components:
         url:
           type: string
           minLength: 1
+        category:
+          type: string
+          enum:
+            - DOCUMENT
+            - F24
       required:
         - id
         - url
+        - category
 
     IOReceivedNotification:
       description: >-

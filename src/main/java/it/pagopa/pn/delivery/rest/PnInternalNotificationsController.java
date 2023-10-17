@@ -169,16 +169,16 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     }
 
     @Override
-    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachmentPrivate(String iun, String attachmentName, String recipientInternalId, String mandateId) {
+    public ResponseEntity<NotificationAttachmentDownloadMetadataResponse> getReceivedNotificationAttachmentPrivate(String iun, String attachmentName, String recipientInternalId, String mandateId, Integer attachmentIdx) {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEventType eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_RCP;
-        String logMsg = "getReceivedNotificationAttachmentPrivate attachment name={}";
+        String logMsg = "getReceivedNotificationAttachmentPrivate attachment name={} attachment index={}";
         if (StringUtils.hasText( mandateId )) {
             eventType = PnAuditLogEventType.AUD_NT_ATCHOPEN_DEL;
-            logMsg = "getReceivedAndDelegatedNotificationAttachmentPrivate attachment name={} and mandateId={}";
+            logMsg = "getReceivedAndDelegatedNotificationAttachmentPrivate attachment name={}, attachment index={} and mandateId={}";
         }
         NotificationAttachmentDownloadMetadataResponse response = new NotificationAttachmentDownloadMetadataResponse();
-        PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, mandateId)
+        PnAuditLogEvent logEvent = auditLogBuilder.before(eventType, logMsg, attachmentName, attachmentIdx, mandateId)
                 .iun(iun)
                 .build();
         logEvent.log();
@@ -190,14 +190,15 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                     mandateId,
                     null,
                     attachmentName,
+                    attachmentIdx,
                     false
             );
             String fileName = response.getFilename();
             String url = response.getUrl();
             String retryAfter = String.valueOf( response.getRetryAfter() );
             String message = LogUtils.createAuditLogMessageForDownloadDocument(fileName, url, retryAfter);
-            logEvent.generateSuccess("getReceivedNotificationAttachmentPrivate attachment name={}, {}",
-                    attachmentName, message).log();
+            logEvent.generateSuccess("getReceivedNotificationAttachmentPrivate attachment name={} and attachment index={}, {}",
+                    attachmentName, attachmentIdx, message).log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
             throw exc;

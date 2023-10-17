@@ -151,6 +151,7 @@ class IOMapperTest {
                         .contentType("application/pdf")
                         .id(iun + "_DOC" + indexDocument)
                         .name("TITLE")
+                        .category(ThirdPartyAttachment.CategoryEnum.DOCUMENT)
                         .url("/delivery/notifications/received/IUN/attachments/documents/0")
                         .build()))
                 .details(IOReceivedNotification.builder()
