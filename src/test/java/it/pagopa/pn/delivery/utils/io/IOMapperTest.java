@@ -9,7 +9,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.MetadataAttachment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -263,7 +262,7 @@ class IOMapperTest {
 
     private InternalNotification internalNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        TimelineElement timelineElement = new TimelineElement();
+        TimelineElementV20 timelineElement = new TimelineElementV20();
         timelineElement.setCategory(TimelineElementCategoryV20.AAR_CREATION_REQUEST);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setSentAt(OffsetDateTime.now());
@@ -273,7 +272,7 @@ class IOMapperTest {
                 .title("TITLE")
                 .build()));
         internalNotification.setNotificationStatusHistory(List.of(
-                it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement.builder()
+                it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement.builder()
                         .status(NotificationStatus.ACCEPTED)
                         .build()
         ));

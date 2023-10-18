@@ -13,8 +13,6 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRefusedError;
-import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
@@ -165,7 +163,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             case REFUSED -> {
                 response.setNotificationRequestStatus("REFUSED");
                 response.setIun(null);
-                Optional<TimelineElement> timelineElement = internalNotification.getTimeline().stream().filter(
+                Optional<TimelineElementV20> timelineElement = internalNotification.getTimeline().stream().filter(
                         tle -> TimelineElementCategoryV20.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
                 timelineElement.ifPresent(element -> setRefusedErrors(response, element));
             }
@@ -176,8 +174,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return ResponseEntity.ok( response );
     }
 
-    private void setRefusedErrors(NewNotificationRequestStatusResponseV21 response, TimelineElement timelineElement) {
-        List<NotificationRefusedError> refusalReasons = timelineElement.getDetails().getRefusalReasons();
+    private void setRefusedErrors(NewNotificationRequestStatusResponseV21 response, TimelineElementV20 timelineElement) {
+        List<NotificationRefusedErrorV20> refusalReasons = timelineElement.getDetails().getRefusalReasons();
         List<ProblemError> problemErrorList = refusalReasons.stream().map(
                 reason -> ProblemError.builder()
                         .code( reason.getErrorCode() )

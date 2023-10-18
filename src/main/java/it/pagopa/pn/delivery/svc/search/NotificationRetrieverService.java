@@ -2,7 +2,6 @@ package it.pagopa.pn.delivery.svc.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.pagopa.pn.api.dto.events.NotificationViewDelegateInfo;
-import it.pagopa.pn.commons.configs.MVPParameterConsumer;
 import it.pagopa.pn.commons.exceptions.ExceptionHelper;
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.commons.exceptions.dto.ProblemError;
@@ -12,16 +11,13 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.No
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchRow;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementCategoryV20;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
-import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
@@ -67,7 +63,6 @@ public class NotificationRetrieverService {
 	private final ModelMapper modelMapper;
 	private final NotificationSearchFactory notificationSearchFactory;
 	private final RefinementLocalDate refinementLocalDateUtils;
-	private final MVPParameterConsumer mvpParameterConsumer;
 	private final PnDeliveryConfigs cfg;
 
 
@@ -82,7 +77,6 @@ public class NotificationRetrieverService {
 										ModelMapper modelMapper,
 										NotificationSearchFactory notificationSearchFactory,
 										RefinementLocalDate refinementLocalDateUtils,
-										MVPParameterConsumer mvpParameterConsumer,
 										PnDeliveryConfigs cfg) {
 		this.clock = clock;
 		this.notificationAcknowledgementProducer = notificationAcknowledgementProducer;
@@ -94,7 +88,6 @@ public class NotificationRetrieverService {
 		this.modelMapper = modelMapper;
 		this.notificationSearchFactory = notificationSearchFactory;
 		this.refinementLocalDateUtils = refinementLocalDateUtils;
-		this.mvpParameterConsumer = mvpParameterConsumer;
 		this.cfg = cfg;
 	}
 
@@ -388,12 +381,6 @@ public class NotificationRetrieverService {
 		notification = enrichWithTimelineAndStatusHistory(iun, notification);
 		OffsetDateTime refinementDate = findRefinementDate( notification.getTimeline(), notification.getIun() );
 		checkDocumentsAvailability(notification, refinementDate , requestBySender);
-		/*
-		checkDocumentsAvailability(notification, refinementDate , requestBySender);
-		if ( !requestBySender && Boolean.TRUE.equals( mvpParameterConsumer.isMvp( notification.getSenderTaxId() ) ) ) {
-			computeNoticeCodeToReturn(notification, refinementDate );
-		}
-		 */
 	}
 
 
@@ -443,15 +430,15 @@ public class NotificationRetrieverService {
 		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
-	protected OffsetDateTime findRefinementDate(List<TimelineElement> timeline, String iun) {
+	protected OffsetDateTime findRefinementDate(List<TimelineElementV20> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
 		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
-		Optional<TimelineElement> optionalMin = timeline
+		Optional<TimelineElementV20> optionalMin = timeline
 				.stream()
 				.filter(tle -> TimelineElementCategoryV20.REFINEMENT.equals(tle.getCategory() )
 						|| TimelineElementCategoryV20.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.min( Comparator.comparing(TimelineElement::getTimestamp) );
+				.min( Comparator.comparing(TimelineElementV20::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
 			refinementDate = refinementLocalDateUtils.setLocalRefinementDate(optionalMin.get());
@@ -460,101 +447,6 @@ public class NotificationRetrieverService {
 		}
 		return refinementDate;
 	}
-
-	/*
-	private void computeNoticeCodeToReturn(InternalNotification notification, OffsetDateTime refinementDate) {
-		log.debug( "Compute notice code to return for iun={}", notification.getIun() );
-		NoticeCodeToReturn noticeCodeToReturn = findNoticeCodeToReturn(notification.getIun(), refinementDate);
-		setNoticeCodeToReturn(notification.getRecipients(), noticeCodeToReturn, notification.getIun());
-	}
-	 */
-
-
-	/*
-	private NoticeCodeToReturn findNoticeCodeToReturn(String iun, OffsetDateTime refinementDate) {
-		// restituire il primo notice code se notifica ancora non perfezionata o perfezionata da meno di 5 gg
-		NoticeCodeToReturn noticeCodeToReturn = NoticeCodeToReturn.FIRST_NOTICE_CODE;
-		if ( refinementDate != null ) {
-			long daysBetween = ChronoUnit.DAYS.between( refinementDate.toInstant().truncatedTo(ChronoUnit.DAYS),
-					clock.instant().truncatedTo( ChronoUnit.DAYS ) );
-			// restituire il secondo notice code se data perfezionamento tra 5 e 60 gg da oggi
-			long maxFirstNoticeCodeDays = Long.parseLong( cfg.getMaxFirstNoticeCodeDays() );
-			long maxSecondNoticeCodeDays = Long.parseLong( cfg.getMaxSecondNoticeCodeDays() );
-			if ( daysBetween > maxFirstNoticeCodeDays && daysBetween <= maxSecondNoticeCodeDays) {
-				log.debug( "Return second notice code for iun={}, days from refinement={}", iun, daysBetween );
-				noticeCodeToReturn = NoticeCodeToReturn.SECOND_NOTICE_CODE;
-			}
-			// non restituire nessuno notice code se data perfezionamento più di 60 gg da oggi
-			if ( daysBetween > maxSecondNoticeCodeDays) {
-				log.debug( "Return no notice code for iun={}, days from refinement={}", iun, daysBetween );
-				noticeCodeToReturn = NoticeCodeToReturn.NO_NOTICE_CODE;
-			}
-		}
-		return noticeCodeToReturn;
-	}
-	 */
-
-	/*
-	private void setNoticeCodeToReturn(List<NotificationRecipient> recipientList, NoticeCodeToReturn noticeCodeToReturn, String iun) {
-		for ( NotificationRecipient recipient : recipientList ) {
-			List<NotificationPaymentInfo> notificationPaymentInfoList = recipient.getPayments();
-			if (!CollectionUtils.isEmpty(notificationPaymentInfoList)) {
-				notificationPaymentInfoList.stream().filter(notificationPaymentInfo -> Objects.nonNull(notificationPaymentInfo.getPagoPa()))
-						.forEach(notificationPaymentInfo -> {
-							String creditorTaxId = notificationPaymentInfo.getPagoPa().getCreditorTaxId();
-							String noticeCode = notificationPaymentInfo.getPagoPa().getNoticeCode();
-							if (notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() != null) {
-								switch (noticeCodeToReturn) {
-									case FIRST_NOTICE_CODE: {
-										break;
-									}
-									// - se devo restituire il notice code alternativo...
-									case SECOND_NOTICE_CODE: {
-										// - ...verifico che il primo notice code non è stato già pagato
-										setNoticeCodePayment(iun, notificationPaymentInfo, creditorTaxId, noticeCode);
-										break;
-									}
-									case NO_NOTICE_CODE: {
-										notificationPaymentInfo.getPagoPa().setNoticeCode(null);
-										break;
-									}
-									default: {
-										throw new UnsupportedOperationException("Unable to compute notice code to return for iun=" + iun);
-									}
-								}
-								// in ogni caso non restituisco il noticeCode opzionale
-								notificationPaymentInfo.getPagoPa().setNoticeCodeAlternative(null);
-							}
-						});
-			}
-		}
-	}*/
-
-	/*
-	private void setNoticeCodePayment(String iun, NotificationPaymentInfo notificationPaymentInfo, String creditorTaxId, String noticeCode) {
-		log.debug( "Start getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
-		try {
-			PaymentInfo paymentInfo = this.pnExternalRegistriesClient.getPaymentInfo(creditorTaxId, noticeCode);
-			if ( paymentInfo != null ) {
-				log.debug( "End getPaymentInfo iun={} creditorTaxId={} noticeCode={} paymentStatus={}", iun, creditorTaxId, noticeCode, paymentInfo.getStatus() );
-				// - se il primo notice code NON è stato già pagato
-				if ( !PaymentStatus.SUCCEEDED.equals( paymentInfo.getStatus() ) ) {
-					// - restituisco il notice code alternativo
-					log.info( "Return for iun={} alternative notice code={}", iun, notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() );
-					notificationPaymentInfo.getPagoPa().setNoticeCode( notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative() );
-				}
-				// - il primo notice code è stato già pagato quindi lo restituisco
-			} else {
-				// - External-registries non risponde quindi non restituisco nessun notice code
-				log.debug( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={}", iun, creditorTaxId, noticeCode);
-				notificationPaymentInfo.getPagoPa().setNoticeCode( null );
-			}
-		} catch ( PnHttpResponseException ex ) {
-			// - External-registries non risponde quindi non restituisco nessun notice code
-			log.error( "Unable to getPaymentInfo iun={} creditorTaxId={} noticeCode={} caused by ex={}", iun, creditorTaxId, noticeCode, ex);
-			notificationPaymentInfo.getPagoPa().setNoticeCode( null );
-		}
-	}*/
 
 	public enum NoticeCodeToReturn {
 		FIRST_NOTICE_CODE("FIRST_NOTICE_CODE"),
@@ -631,10 +523,10 @@ public class NotificationRetrieverService {
 		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
 			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
-			List<TimelineElement> timeline = internalNotification.getTimeline();
+			List<TimelineElementV20> timeline = internalNotification.getTimeline();
 			log.debug("Timelines size before filter: {}", timeline.size());
 
-			List<TimelineElement> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
+			List<TimelineElementV20> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
 							timelineElement.getDetails().getRecIndex() == null ||
 							timelineElement.getDetails().getRecIndex() == recipientIndex)
 					.toList();
@@ -771,7 +663,7 @@ public class NotificationRetrieverService {
 		assert timelineStatusHistoryDto.getNotificationStatus() != null;
 		return notification
 				.timeline( timelineList.stream()
-						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElement.class ) )
+						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV20.class ) )
 						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> modelMapper.map( el, NotificationStatusHistoryElement.class ))
@@ -855,7 +747,7 @@ public class NotificationRetrieverService {
 
 	public boolean isNotificationCancelled(InternalNotification notification) {
 		var cancellationRequestCategory = TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST;
-		Optional<TimelineElement> cancellationRequestTimeline = notification.getTimeline().stream()
+		Optional<TimelineElementV20> cancellationRequestTimeline = notification.getTimeline().stream()
 				.filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
 				.findFirst();
 		boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();

@@ -71,7 +71,7 @@ public class IOMapper {
         return ioReceivedNotification;
     }
 
-    private List<NotificationStatusHistoryElement> convertNotificationStatusHistory(List<it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement> notificationStatusHistory) {
+    private List<NotificationStatusHistoryElement> convertNotificationStatusHistory(List<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatusHistoryElement> notificationStatusHistory) {
         return notificationStatusHistory.stream()
                 .map(notificationStatusHistoryElement -> NotificationStatusHistoryElement.builder()
                         .status(notificationStatusHistoryElement.getStatus().getValue())

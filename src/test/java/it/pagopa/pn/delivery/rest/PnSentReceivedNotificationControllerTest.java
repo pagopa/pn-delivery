@@ -12,12 +12,6 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.AttachmentDetails;
-import it.pagopa.pn.delivery.models.internal.notification.DelegateInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRefusedError;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
-import it.pagopa.pn.delivery.models.internal.notification.SendingReceipt;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService;
 import it.pagopa.pn.delivery.svc.NotificationAttachmentService.InternalAttachmentWithFileKey;
@@ -209,11 +203,11 @@ class PnSentReceivedNotificationControllerTest {
 
 	@Test
 	void testTimeLine(){
-		TimelineElementDetails actualTimelineElementDetails = new TimelineElementDetails();
+		TimelineElementDetailsV20 actualTimelineElementDetails = new TimelineElementDetailsV20();
 		actualTimelineElementDetails.aarKey("Aar Key");
 		actualTimelineElementDetails.amount(10);
 		actualTimelineElementDetails.analogCost(1);
-		ArrayList<AttachmentDetails> attachments = new ArrayList<>();
+		ArrayList<it.pagopa.pn.delivery.generated.openapi.server.v1.dto.AttachmentDetails> attachments = new ArrayList<>();
 		actualTimelineElementDetails.attachments(attachments);
 		actualTimelineElementDetails
 				.attemptDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
@@ -222,14 +216,14 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.contactPhase(ContactPhase.CHOOSE_DELIVERY);
 		actualTimelineElementDetails.creditorTaxId("42");
 		DelegateInfo delegateInfo = new DelegateInfo("42", "42", "01234567-89AB-CDEF-FEDC-BA9876543210", "2020-03-01",
-				"Denomination", NotificationRecipientV21.RecipientTypeEnum.PF);
+				"Denomination", RecipientType.PF);
 
 		actualTimelineElementDetails.delegateInfo(delegateInfo);
 		actualTimelineElementDetails.deliveryDetailCode("Delivery Detail Code");
 		actualTimelineElementDetails.deliveryFailureCause("Delivery Failure Cause");
 		actualTimelineElementDetails.deliveryMode(DeliveryMode.DIGITAL);
-		it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress digitalAddress = new it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress(
-				it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress.TypeEnum.PEC, "42 Main St");
+		DigitalAddress digitalAddress = new DigitalAddress(
+				"PEC", "fake@mail.it");
 
 		actualTimelineElementDetails.digitalAddress(digitalAddress);
 		actualTimelineElementDetails.digitalAddressSource(DigitalAddressSource.PLATFORM);
@@ -246,7 +240,7 @@ class PnSentReceivedNotificationControllerTest {
 				.legalFactGenerationDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
 		actualTimelineElementDetails.legalFactId("42");
 		actualTimelineElementDetails.legalfactId("42");
-		NotificationPhysicalAddress newAddress = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St", "21654",
+		PhysicalAddress newAddress = new PhysicalAddress("At", "42 Main St", "42 Main St", "21654",
 				"Municipality", "Municipality Details", "Province", "Foreign State");
 
 		actualTimelineElementDetails.newAddress(newAddress);
@@ -254,7 +248,7 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails
 				.nextLastAttemptMadeForSource(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
 		actualTimelineElementDetails.nextSourceAttemptsMade(1);
-		NotificationPhysicalAddress normalizedAddress = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St",
+		PhysicalAddress normalizedAddress = new PhysicalAddress("At", "42 Main St", "42 Main St",
 				"21654", "Municipality", "Municipality Details", "Province", "Foreign State");
 
 		actualTimelineElementDetails.normalizedAddress(normalizedAddress);
@@ -263,12 +257,12 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails
 				.notificationDate(OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC));
 		actualTimelineElementDetails.numberOfPages(10);
-		NotificationPhysicalAddress oldAddress = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St", "21654",
+		PhysicalAddress oldAddress = new PhysicalAddress("At", "42 Main St", "42 Main St", "21654",
 				"Municipality", "Municipality Details", "Province", "Foreign State");
 
 		actualTimelineElementDetails.oldAddress(oldAddress);
 		actualTimelineElementDetails.paymentSourceChannel("Payment Source Channel");
-		NotificationPhysicalAddress physicalAddress = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St",
+		PhysicalAddress physicalAddress = new PhysicalAddress("At", "42 Main St", "42 Main St",
 				"21654", "Municipality", "Municipality Details", "Province", "Foreign State");
 
 		actualTimelineElementDetails.physicalAddress(physicalAddress);
@@ -279,8 +273,8 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.reason("Just cause");
 		actualTimelineElementDetails.reasonCode("Just cause");
 		actualTimelineElementDetails.recIndex(1);
-		actualTimelineElementDetails.recipientType(NotificationRecipientV21.RecipientTypeEnum.PF);
-		ArrayList<NotificationRefusedError> refusalReasons = new ArrayList<>();
+		actualTimelineElementDetails.recipientType(RecipientType.PF);
+		ArrayList<NotificationRefusedErrorV20> refusalReasons = new ArrayList<>();
 		actualTimelineElementDetails.refusalReasons(refusalReasons);
 		actualTimelineElementDetails.registeredLetterCode("Registered Letter Code");
 		actualTimelineElementDetails.relatedRequestId("42");
@@ -310,14 +304,14 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.setContactPhase(ContactPhase.CHOOSE_DELIVERY);
 		actualTimelineElementDetails.setCreditorTaxId("42");
 		DelegateInfo delegateInfo2 = new DelegateInfo("42", "42", "01234567-89AB-CDEF-FEDC-BA9876543210", "2020-03-01",
-				"Denomination", NotificationRecipientV21.RecipientTypeEnum.PF);
+				"Denomination", RecipientType.PF);
 
 		actualTimelineElementDetails.setDelegateInfo(delegateInfo2);
 		actualTimelineElementDetails.setDeliveryDetailCode("Delivery Detail Code");
 		actualTimelineElementDetails.setDeliveryFailureCause("Delivery Failure Cause");
 		actualTimelineElementDetails.setDeliveryMode(DeliveryMode.DIGITAL);
-		it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress digitalAddress2 = new it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress(
-				it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress.TypeEnum.PEC, "42 Main St");
+		DigitalAddress digitalAddress2 = new DigitalAddress(
+				"PEC", "fake@pec.it");
 
 		actualTimelineElementDetails.setDigitalAddress(digitalAddress2);
 		actualTimelineElementDetails.setDigitalAddressSource(DigitalAddressSource.PLATFORM);
@@ -336,7 +330,7 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.setLegalFactGenerationDate(legalFactGenerationDate);
 		actualTimelineElementDetails.setLegalFactId("42");
 		actualTimelineElementDetails.setLegalfactId("42");
-		NotificationPhysicalAddress newAddress2 = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St", "21654",
+		PhysicalAddress newAddress2 = new PhysicalAddress("At", "42 Main St", "42 Main St", "21654",
 				"Municipality", "Municipality Details", "Province", "Foreign State");
 
 		actualTimelineElementDetails.setNewAddress(newAddress2);
@@ -345,7 +339,7 @@ class PnSentReceivedNotificationControllerTest {
 				ZoneOffset.UTC);
 		actualTimelineElementDetails.setNextLastAttemptMadeForSource(nextLastAttemptMadeForSource);
 		actualTimelineElementDetails.setNextSourceAttemptsMade(1);
-		NotificationPhysicalAddress normalizedAddress2 = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St",
+		PhysicalAddress normalizedAddress2 = new PhysicalAddress("At", "42 Main St", "42 Main St",
 				"21654", "Municipality", "Municipality Details", "Province", "Foreign State");
 
 		actualTimelineElementDetails.setNormalizedAddress(normalizedAddress2);
@@ -353,10 +347,10 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.setNotificationCost(1L);
 		OffsetDateTime notificationDate = OffsetDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.MIDNIGHT, ZoneOffset.UTC);
 		actualTimelineElementDetails.setNotificationDate(notificationDate);
-		actualTimelineElementDetails.setNotificationPhysicalAddress(new NotificationPhysicalAddress("At", "42 Main St",
+		actualTimelineElementDetails.setPhysicalAddress(new PhysicalAddress("At", "42 Main St",
 				"42 Main St", "21654", "Municipality", "Municipality Details", "Province", "Foreign State"));
 		actualTimelineElementDetails.setNumberOfPages(10);
-		NotificationPhysicalAddress oldAddress2 = new NotificationPhysicalAddress("At", "42 Main St", "42 Main St", "21654",
+		PhysicalAddress oldAddress2 = new PhysicalAddress("At", "42 Main St", "42 Main St", "21654",
 				"Municipality", "Municipality Details", "Province", "Foreign State");
 
 		actualTimelineElementDetails.setOldAddress(oldAddress2);
@@ -368,8 +362,8 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.setReason("Just cause");
 		actualTimelineElementDetails.setReasonCode("Just cause");
 		actualTimelineElementDetails.setRecIndex(1);
-		actualTimelineElementDetails.setRecipientType(NotificationRecipientV21.RecipientTypeEnum.PF);
-		ArrayList<NotificationRefusedError> refusalReasons2 = new ArrayList<>();
+		actualTimelineElementDetails.setRecipientType(RecipientType.PF);
+		ArrayList<NotificationRefusedErrorV20> refusalReasons2 = new ArrayList<>();
 		actualTimelineElementDetails.setRefusalReasons(refusalReasons2);
 		actualTimelineElementDetails.setRegisteredLetterCode("Registered Letter Code");
 		actualTimelineElementDetails.setRelatedRequestId("42");
@@ -396,16 +390,16 @@ class PnSentReceivedNotificationControllerTest {
 		testingTimeLine3(actualTimelineElementDetails);
 	}
 
-	void testingTimeLine3(TimelineElementDetails actualTimelineElementDetails){
+	void testingTimeLine3(TimelineElementDetailsV20 actualTimelineElementDetails){
 		assertNotNull(actualTimelineElementDetails.getLegalFactGenerationDate());
 		assertEquals("42", actualTimelineElementDetails.getLegalFactId());
 		assertEquals("42", actualTimelineElementDetails.getLegalfactId());
-		NotificationPhysicalAddress newAddress3 = actualTimelineElementDetails.getNewAddress();
-		NotificationPhysicalAddress normalizedAddress3 = actualTimelineElementDetails.getNormalizedAddress();
+		PhysicalAddress newAddress3 = actualTimelineElementDetails.getNewAddress();
+		PhysicalAddress normalizedAddress3 = actualTimelineElementDetails.getNormalizedAddress();
 		assertEquals(normalizedAddress3, newAddress3);
-		NotificationPhysicalAddress oldAddress3 = actualTimelineElementDetails.getOldAddress();
+		PhysicalAddress oldAddress3 = actualTimelineElementDetails.getOldAddress();
 		assertEquals(oldAddress3, newAddress3);
-		NotificationPhysicalAddress physicalAddress2 = actualTimelineElementDetails.getPhysicalAddress();
+		PhysicalAddress physicalAddress2 = actualTimelineElementDetails.getPhysicalAddress();
 		assertEquals(physicalAddress2, newAddress3);
 		assertEquals(DigitalAddressSource.PLATFORM, actualTimelineElementDetails.getNextDigitalAddressSource());
 		assertNotNull(actualTimelineElementDetails.getNextLastAttemptMadeForSource());
@@ -414,7 +408,7 @@ class PnSentReceivedNotificationControllerTest {
 		assertEquals(physicalAddress2, normalizedAddress3);
 		assertEquals(1L, actualTimelineElementDetails.getNotificationCost().longValue());
 		assertNotNull(actualTimelineElementDetails.getNotificationDate());
-		assertSame(physicalAddress2, actualTimelineElementDetails.getNotificationPhysicalAddress());
+		assertSame(physicalAddress2, actualTimelineElementDetails.getPhysicalAddress());
 		assertEquals(10, actualTimelineElementDetails.getNumberOfPages().intValue());
 		assertEquals(physicalAddress2, oldAddress3);
 		assertEquals("Payment Source Channel", actualTimelineElementDetails.getPaymentSourceChannel());
@@ -425,10 +419,10 @@ class PnSentReceivedNotificationControllerTest {
 		assertEquals("Just cause", actualTimelineElementDetails.getReason());
 		assertEquals("Just cause", actualTimelineElementDetails.getReasonCode());
 		assertEquals(1, actualTimelineElementDetails.getRecIndex().intValue());
-		assertEquals(NotificationRecipientV21.RecipientTypeEnum.PF, actualTimelineElementDetails.getRecipientType());
+		assertEquals(RecipientType.PF, actualTimelineElementDetails.getRecipientType());
 	}
 
-	void testingTimeLine2(TimelineElementDetails actualTimelineElementDetails){
+	void testingTimeLine2(TimelineElementDetailsV20 actualTimelineElementDetails){
 		assertEquals("Aar Key", actualTimelineElementDetails.getAarKey());
 		assertEquals(10, actualTimelineElementDetails.getAmount().intValue());
 		assertEquals(1, actualTimelineElementDetails.getAnalogCost().intValue());
@@ -439,7 +433,7 @@ class PnSentReceivedNotificationControllerTest {
 		assertEquals("Delivery Detail Code", actualTimelineElementDetails.getDeliveryDetailCode());
 		assertEquals("Delivery Failure Cause", actualTimelineElementDetails.getDeliveryFailureCause());
 		assertEquals(DeliveryMode.DIGITAL, actualTimelineElementDetails.getDeliveryMode());
-		it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress digitalAddress3 = actualTimelineElementDetails.getDigitalAddress();
+		DigitalAddress digitalAddress3 = actualTimelineElementDetails.getDigitalAddress();
 		assertEquals(DigitalAddressSource.PLATFORM, actualTimelineElementDetails.getDigitalAddressSource());
 		assertEquals(EndWorkflowStatus.SUCCESS, actualTimelineElementDetails.getEndWorkflowStatus());
 		assertEquals(3, actualTimelineElementDetails.getEnvelopeWeight().intValue());
@@ -452,12 +446,12 @@ class PnSentReceivedNotificationControllerTest {
 		assertNotNull(actualTimelineElementDetails.getLastAttemptDate());
 		assertEquals("Registered Letter Code", actualTimelineElementDetails.getRegisteredLetterCode());
 		assertEquals("42", actualTimelineElementDetails.getRelatedRequestId());
-		TimelineElementDetails actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
+		TimelineElementDetailsV20 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
 		assertSame(actualTimelineElementDetails, actualIsAvailableResult);
 		assertEquals("Notice Code", actualTimelineElementDetails.getNoticeCode());
 	}
 
-	void testingTimeLine1(TimelineElementDetails timelineElementDetails){
+	void testingTimeLine1(TimelineElementDetailsV20 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getLegalFactId());
 		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
 		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
@@ -475,7 +469,7 @@ class PnSentReceivedNotificationControllerTest {
 		Assertions.assertNotNull(timelineElementDetails.getRaddTransactionId());
 	}
 
-	void testingTimeLine(TimelineElementDetails timelineElementDetails){
+	void testingTimeLine(TimelineElementDetailsV20 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getResponseStatus());
 		Assertions.assertNotNull(timelineElementDetails.getNextLastAttemptMadeForSource());
 		Assertions.assertNotNull(timelineElementDetails.getNextSourceAttemptsMade());
@@ -502,10 +496,10 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 						.status( NotificationStatus.REFUSED )
 				.build() ) );
-		notification.setTimeline( Collections.singletonList( TimelineElement.builder()
+		notification.setTimeline( Collections.singletonList( TimelineElementV20.builder()
 						.category( TimelineElementCategoryV20.REQUEST_REFUSED )
-						.details( TimelineElementDetails.builder()
-								.refusalReasons( Collections.singletonList( it.pagopa.pn.delivery.models.internal.notification.NotificationRefusedError.builder()
+						.details( TimelineElementDetailsV20.builder()
+								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV20.builder()
 												.errorCode( "FILE_NOTFOUND" )
 												.detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )
 										.build() ) )
