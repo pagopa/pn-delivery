@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: P+x2ZQq0GbidOpvxMEVmRyJOiStCb1hwKicxDLauswU=
+  version: Q/fzfsBfcPSiIP3hHn84q1rM9Wy7UQ8aUoa11LMqri0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -489,9 +489,15 @@ components:
         url:
           type: string
           minLength: 1
+        category:
+          type: string
+          enum:
+            - DOCUMENT
+            - F24
       required:
         - id
         - url
+        - category
     TaxId:
       description: C.F. persona fisica o persona giuridica (Partita iva)
       type: string
