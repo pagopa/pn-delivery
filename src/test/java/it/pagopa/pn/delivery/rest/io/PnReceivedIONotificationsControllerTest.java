@@ -10,7 +10,6 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
 import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
 import it.pagopa.pn.delivery.utils.io.IOMapper;
@@ -99,7 +98,7 @@ class PnReceivedIONotificationsControllerTest {
     }
 
     private InternalNotification newNotification() {
-        TimelineElement timelineElement = new TimelineElement();
+        TimelineElementV20 timelineElement = new TimelineElementV20();
         timelineElement.setCategory(TimelineElementCategoryV20.AAR_CREATION_REQUEST);
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElement.builder()

@@ -1,13 +1,8 @@
 package it.pagopa.pn.delivery.models;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV21;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationStatusHistoryElement;
-import it.pagopa.pn.delivery.models.internal.notification.TimelineElement;
 import lombok.*;
 
 import java.time.OffsetDateTime;
@@ -48,7 +43,7 @@ public class InternalNotification {
     private Boolean documentsAvailable;
     private NotificationStatus notificationStatus;
     private List<NotificationStatusHistoryElement> notificationStatusHistory;
-    private List<TimelineElement> timeline;
+    private List<TimelineElementV20> timeline;
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
@@ -386,12 +381,12 @@ public class InternalNotification {
         this.notificationStatusHistory = notificationStatusHistory;
     }
 
-    public InternalNotification timeline(List<TimelineElement> timeline) {
+    public InternalNotification timeline(List<TimelineElementV20> timeline) {
         this.timeline = timeline;
         return this;
     }
 
-    public InternalNotification addTimelineItem(TimelineElement timelineItem) {
+    public InternalNotification addTimelineItem(TimelineElementV20 timelineItem) {
         if (this.timeline == null) {
             this.timeline = new ArrayList<>();
         }
@@ -399,11 +394,11 @@ public class InternalNotification {
         return this;
     }
 
-    public List<TimelineElement> getTimeline() {
+    public List<TimelineElementV20> getTimeline() {
         return timeline;
     }
 
-    public void setTimeline(List<TimelineElement> timeline) {
+    public void setTimeline(List<TimelineElementV20> timeline) {
         this.timeline = timeline;
     }
 
