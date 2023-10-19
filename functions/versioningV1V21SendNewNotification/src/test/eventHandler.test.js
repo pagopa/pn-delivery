@@ -38,6 +38,28 @@ describe('EventHandler Testing', () => {
             expect(res).to.not.be.undefined;
             expect(res.statusCode).to.equal(400);
         });
+
+        it('should return 400 when invalid pagoPaIntMode', async () => {
+            const notificationJSON = fs.readFileSync("./src/test/newNotificationRequestV1.json");
+            let badNewNotificationRequest = JSON.parse(notificationJSON);
+            badNewNotificationRequest.pagoPaIntMode = 'ASYNC'
+
+            const event = {
+                headers: {},
+                requestContext: {
+                  authorizer: {},
+                },
+                resource: "/delivery/requests",
+                path: "/delivery/requests",
+                httpMethod: 'POST',
+                body: JSON.stringify(badNewNotificationRequest)
+            };
+
+            const res = await handleEvent(event)
+            expect(res).to.not.be.null;
+            expect(res).to.not.be.undefined;
+            expect(res.statusCode).to.equal(400);
+        });
         
         it("newNotificationRequestV21 accepted", async () => {
             

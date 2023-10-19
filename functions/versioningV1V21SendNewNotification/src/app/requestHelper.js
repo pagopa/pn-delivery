@@ -21,6 +21,11 @@ exports.validateNewNotification = function(newNotificationRequestV1){
   console.log("validateNewNotification - newNotificationRequestV1 ", newNotificationRequestV1);
   const errors = []
 
+  if (newNotificationRequestV1.pagoPaIntMode != 'SYNC' && newNotificationRequestV1.pagoPaIntMode != 'NONE') {
+    errors.push('Invalid pagoPaIntMode')
+    return errors;
+  }
+
   newNotificationRequestV1.recipients.forEach(recipient => {
     if (recipient.payment && recipient.payment.noticeCodeAlternative && recipient.payment.noticeCodeAlternative == recipient.payment.noticeCode) {
       console.log("noticeCodeAlternative ", recipient.payment.noticeCodeAlternative)

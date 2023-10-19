@@ -101,6 +101,8 @@ exports.handleEvent = async (event) => {
     function transformFromV21ToV1(responseV21) {
         console.log("transformFromV21ToV1 - responseV21", responseV21);
 
+        const pagoPaIntMode = transformPagoPaIntMode(responseV21.pagoPaIntMode);
+
         const recipientsV1 = [];
         responseV21.recipients.forEach(recipientV21 => {
             recipientsV1.push(transformRecipientFromV21ToV1(recipientV21))
@@ -132,12 +134,19 @@ exports.handleEvent = async (event) => {
             amount: responseV21.amount,
             paymentExpirationDate: responseV21.paymentExpirationDate,
             taxonomyCode: responseV21.taxonomyCode,
-            pagoPaIntMode: responseV21.pagoPaIntMode
+            pagoPaIntMode: pagoPaIntMode
         }
 
         console.log("transformFromV21ToV1 - responseV1", responseV1);
         return responseV1;
     }
+
+    function transformPagoPaIntMode(intmode) {
+        if (intmode != "SYNC" && intmode != "NONE") {
+          throw new Error("PagoPaIntMode value not supported");
+        }
+        return intmode;
+      }
 
     function transformRecipientFromV21ToV1(recipientV21) {
         console.log("transformRecipientFromV21ToV1 - recipientV21", recipientV21);

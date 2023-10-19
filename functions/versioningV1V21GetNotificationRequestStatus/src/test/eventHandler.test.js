@@ -287,5 +287,44 @@ describe("eventHandler tests", function () {
 
     });
 
+    it("PagoPaIntMode value not supported", async () => {
+
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
+        const notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
+
+        notificationRequestStatusV21.pagoPaIntMode = 'ASYNC'
+        
+        beforeEach(() => {
+            fetchMock.reset();
+        });
+
+        process.env = Object.assign(process.env, {
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+        });
+        
+        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
+
+        fetchMock.mock(url, {
+            status: 200,
+            body: notificationRequestStatusV21,
+            headers: { "Content-Type": "application/json" },
+        });
+
+        const event = {
+            path: '/delivery/requests',
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+            queryStringParameters: {
+                notificationRequestId: 'validNotificationRequestId'
+            }
+        }
+        const res = await handleEvent(event)
+        expect(res.statusCode).to.equal(400);
+
+    });
+
 
 });
