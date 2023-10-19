@@ -35,7 +35,6 @@ public class InternalNotification {
     private String paymentExpirationDate;
     private String taxonomyCode;
     private Integer paFee;
-    private Integer vat;
     private String senderPaId;
     private String iun;
     private OffsetDateTime sentAt;
@@ -48,6 +47,7 @@ public class InternalNotification {
     private String sourceChannel;
     private String sourceChannelDetails;
     private NewNotificationRequestV21.PagoPaIntModeEnum pagoPaIntMode;
+    private String version;
 
     public InternalNotification idempotenceToken(String idempotenceToken) {
         this.idempotenceToken = idempotenceToken;
@@ -427,5 +427,9 @@ public class InternalNotification {
         this.sourceChannel = sourceChannel;
         return this;
     }
+
+    public String getVersion() { return version; }
+
+    public void setVersion(String version) { this.version = version; }
 
 }

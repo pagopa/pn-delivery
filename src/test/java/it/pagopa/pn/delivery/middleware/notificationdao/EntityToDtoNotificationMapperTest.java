@@ -157,7 +157,7 @@ class EntityToDtoNotificationMapperTest {
                 .sentAt( Instant.now() )
                 .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
                 .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
-                .version( 1 )
+                .version( "1" )
                 //.recipientsJson(Collections.emptyMap())
                 .build();
     }

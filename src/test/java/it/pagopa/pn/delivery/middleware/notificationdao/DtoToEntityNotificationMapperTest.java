@@ -158,7 +158,6 @@ class DtoToEntityNotificationMapperTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setPaFee(0);
-        internalNotification.setVat(0);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setDocuments(List.of(NotificationDocument
                 .builder()

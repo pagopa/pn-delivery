@@ -461,7 +461,6 @@ class NotificationDaoDynamoTest {
 
     private InternalNotification newNotificationWithoutPayments() {
         InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setVat(0);
         internalNotification.setPaFee(0);
         internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
@@ -489,7 +488,6 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPaFee(0);
-        internalNotification.setVat(0);
         internalNotification.setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
@@ -502,7 +500,6 @@ class NotificationDaoDynamoTest {
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setPaFee(0);
-        internalNotification.setVat(0);
         internalNotification.setDocuments(List.of(NotificationDocument
                 .builder()
                 .digests(it.pagopa.pn.delivery.models.internal.notification.NotificationAttachmentDigests.builder()
