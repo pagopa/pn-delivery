@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 public class DtoToEntityNotificationMapper {
-    public static final String DEFAULT_NOTIFICATION_VERSION = "2.1";
+    public static final String LATEST_NOTIFICATION_VERSION = "2.1";
 
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
@@ -40,7 +40,7 @@ public class DtoToEntityNotificationMapper {
                 .sourceChannel( dto.getSourceChannel() )
                 .sourceChannelDetails( dto.getSourceChannel() )
                 .paFee(dto.getPaFee())
-                .version( StringUtils.hasText( dto.getVersion() ) ? dto.getVersion() : DEFAULT_NOTIFICATION_VERSION );
+                .version( StringUtils.hasText( dto.getVersion() ) ? dto.getVersion() : LATEST_NOTIFICATION_VERSION);
 
         return builder.build();
     }
