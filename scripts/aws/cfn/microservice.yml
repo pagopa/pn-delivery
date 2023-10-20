@@ -420,6 +420,11 @@ Parameters:
     Description: 'VersioningV1V21GetNotificationRequestStatusProvisionedConcurrency'
     Default: 1
 
+  B2bWafLimit:
+    Default: 600000
+    Type: Number
+    Description: b2b waf limit
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -483,6 +488,7 @@ Resources:
         ContainerEnvEntry33: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONLENGTH=${PhysicalAddressValidationLength}'
         ContainerEnvEntry34: 'PN_DELIVERY_F24CXID=pn-delivery'
         ContainerEnvEntry35: !Sub 'PN_DELIVERY_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry36: !Sub 'PN_DELIVERY_B2B_WAF_LIMIT=${B2bWafLimit}'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
@@ -581,7 +587,7 @@ Resources:
         IntendedUsage: B2B
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
         ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
-        Limit: 600000
+        Limit: !Ref B2bWafLimit
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
   DeliveryMicroservicePublicWebAPI:
