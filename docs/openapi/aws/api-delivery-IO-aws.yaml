@@ -368,7 +368,7 @@ components:
         - id
         - url
     TaxId:
-      description: C.F. persona fisica o persona giuridica (Partita iva)
+      description: C.F. persona fisica o persona giuridica
       type: string
       minLength: 11
       maxLength: 16
