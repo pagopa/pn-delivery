@@ -493,8 +493,6 @@ Resources:
         ContainerEnvEntry33: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONLENGTH=${PhysicalAddressValidationLength}'
         ContainerEnvEntry34: 'PN_DELIVERY_F24CXID=pn-delivery'
         ContainerEnvEntry35: !Sub 'PN_DELIVERY_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
-        ContainerEnvEntry36: !Sub 'PN_DELIVERY_B2B_WAF_LIMIT=${B2bWafLimit}'
-        ContainerEnvEntry37: !Sub 'PN_DELIVERY_WEB_WAF_LIMIT=${WebWafLimit}'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
