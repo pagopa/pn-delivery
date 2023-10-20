@@ -61,6 +61,7 @@ function fromRecipientV1ToRecipientV21(recipientV1, applyCostFlag) {
 }
 
 function createDigitalDomicile(digitalDomicile) {
+  if (!digitalDomicile) return null;
   console.log("createDigitalDomicile - digitalDomicile ", digitalDomicile);
   return {
     type: digitalDomicile.type,
