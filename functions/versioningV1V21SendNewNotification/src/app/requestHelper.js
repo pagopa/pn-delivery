@@ -122,6 +122,7 @@ function fromPaymentV1toPaymentsV21(paymentV1, applyCostFlag) {
 }
 
 function fromPagoPaFormToPaymentAttachment(pagoPaForm) {
+  if(!pagoPaForm) return null;
   console.log("fromPagoPaFormToPaymentAttachment - pagoPaForm ", pagoPaForm);
   const pagoPaFormDigests = {
     sha256: pagoPaForm.digests.sha256

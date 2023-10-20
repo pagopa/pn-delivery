@@ -205,7 +205,8 @@ exports.handleEvent = async (event) => {
             throw new Error("Unable to map payment f24 type");
         }
         // allegati di pagamento devono essere uguali (stesso sha) else throw exception
-        if ( paymentsV21.length > 1 && paymentsV21[0].pagoPa.attachment.digests.sha256 !== paymentsV21[1].pagoPa.attachment.digests.sha256 ) {
+        if ( paymentsV21.length > 1 && paymentsV21[0].pagoPa.attachment && paymentsV21[1].pagoPa.attachment &&
+             paymentsV21[0].pagoPa.attachment.digests.sha256 !== paymentsV21[1].pagoPa.attachment.digests.sha256 ) {
             throw new Error("Unable to map payments with different attachment");
         }
 
