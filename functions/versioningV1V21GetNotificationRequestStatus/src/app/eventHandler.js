@@ -1,7 +1,6 @@
 const { validateRequest, generateResponse, validateQueryStringParameters } = require('./requestHelper')
 
 exports.handleEvent = async (event) => {
-    console.log('event', event)
     
     const isRequestValid = validateRequest(event)
     if(isRequestValid.length > 0 ){
@@ -76,7 +75,6 @@ exports.handleEvent = async (event) => {
         let responseV21 = await response.json();
         if (response.ok) {
             const transformedObject = transformFromV21ToV1(responseV21);
-            console.log("ritorno risposta trasformata ", transformedObject);
             const ret = {
                 statusCode: response.status,
                 body: JSON.stringify(transformedObject),
@@ -99,7 +97,6 @@ exports.handleEvent = async (event) => {
     }
 
     function transformFromV21ToV1(responseV21) {
-        console.log("transformFromV21ToV1 - responseV21", responseV21);
 
         const recipientsV1 = [];
         responseV21.recipients.forEach(recipientV21 => {
@@ -135,14 +132,11 @@ exports.handleEvent = async (event) => {
             pagoPaIntMode: responseV21.pagoPaIntMode
         }
 
-        console.log("transformFromV21ToV1 - responseV1", responseV1);
         return responseV1;
     }
 
     function transformRecipientFromV21ToV1(recipientV21) {
-        console.log("transformRecipientFromV21ToV1 - recipientV21", recipientV21);
 
-        console.log("recipientV21.digitalDomicile: ", recipientV21.digitalDomicile)
         const digitalDomicileV1 = recipientV21.digitalDomicile ? transformDigitalDomicile(recipientV21.digitalDomicile) : undefined
         const physicalAddressV1 = transformPhysicalAddress(recipientV21.physicalAddress)
 
@@ -180,7 +174,6 @@ exports.handleEvent = async (event) => {
 
     // TODO da portare a fattor comune
     function transformPhysicalAddress(physicalAddress) {
-        console.log("transformPhysicalAddress: ", physicalAddress)
         return {
             at: physicalAddress.at ? physicalAddress.at : undefined,
             address: physicalAddress.address,
