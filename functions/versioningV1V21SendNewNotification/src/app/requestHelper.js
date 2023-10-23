@@ -18,7 +18,6 @@ exports.generateResponse = function(errorDetails, statusCode, headers){
 }
 
 exports.validateNewNotification = function(newNotificationRequestV1){
-  console.log("validateNewNotification - newNotificationRequestV1 ", newNotificationRequestV1);
   const errors = []
 
   newNotificationRequestV1.recipients.forEach(recipient => {
@@ -35,8 +34,6 @@ exports.validateNewNotification = function(newNotificationRequestV1){
 }
 
 function fromRecipientV1ToRecipientV21(recipientV1, applyCostFlag) {
-  console.log("fromRecipientV1ToRecipientV21 - recipientV1 ", recipientV1)
-  
   const digitalDomicileV21 = createDigitalDomicile(recipientV1.digitalDomicile);
   const physicalAddressV21 = createPhysicalAddress(recipientV1.physicalAddress);
   const paymentsV21 = fromPaymentV1toPaymentsV21(recipientV1.payment, applyCostFlag);
@@ -54,15 +51,12 @@ function fromRecipientV1ToRecipientV21(recipientV1, applyCostFlag) {
     recipientV21.payments = paymentsV21;
   }
   
-  console.log("fromRecipientV1ToRecipientV21 - recipientV21 ", recipientV21);
-  
   return recipientV21;
   
 }
 
 function createDigitalDomicile(digitalDomicile) {
   if (!digitalDomicile) return null;
-  console.log("createDigitalDomicile - digitalDomicile ", digitalDomicile);
   return {
     type: digitalDomicile.type,
     address: digitalDomicile.address,
@@ -70,7 +64,6 @@ function createDigitalDomicile(digitalDomicile) {
 }
 
 function createPhysicalAddress(physicalAddress) {
-  console.log("createPhysicalAddress - physicalAddress ", physicalAddress);
   return {
     at: physicalAddress.at,
     address: physicalAddress.address,
@@ -169,7 +162,6 @@ function transformNotificationDocument(doc) {
 }
 
 exports.createNewNotificationRequesV21 = function(newNotificationRequestV1){
-  console.log("createNewNotificationRequesV21 - newNotificationRequestV1 ", newNotificationRequestV1);
 
   let applyCostFlag = false;
   if (newNotificationRequestV1.notificationFeePolicy === 'DELIVERY_MODE') {
@@ -206,9 +198,7 @@ exports.createNewNotificationRequesV21 = function(newNotificationRequestV1){
     paFee: newNotificationRequestV1.paFee,
     pagoPaIntMode: newNotificationRequestV1.pagoPaIntMode
   }
-  
-  console.log("createNewNotificationRequesV21 - newNotificationRequestV21 ", newNotificationRequestV21);
-  
+    
   
   return newNotificationRequestV21
 };
