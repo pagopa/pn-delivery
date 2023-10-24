@@ -6,13 +6,14 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class DtoToEntityNotificationMapper {
-    public static final int NOTIFICATION_VERSION = 1;
+    public static final String LATEST_NOTIFICATION_VERSION = "2.1";
 
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
@@ -39,8 +40,7 @@ public class DtoToEntityNotificationMapper {
                 .sourceChannel( dto.getSourceChannel() )
                 .sourceChannelDetails( dto.getSourceChannel() )
                 .paFee(dto.getPaFee())
-                .vat(dto.getVat())
-                .version( NOTIFICATION_VERSION );
+                .version( StringUtils.hasText( dto.getVersion() ) ? dto.getVersion() : LATEST_NOTIFICATION_VERSION);
 
         return builder.build();
     }
