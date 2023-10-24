@@ -364,6 +364,7 @@ paths:
         - $ref: '#/components/parameters/cxGroupsAuthFleet'           # NO EXTERNAL
         - $ref: '#/components/parameters/headerSourceChannel'         # NO EXTERNAL
         - $ref: '#/components/parameters/headerSourceChannelDetails'  # NO EXTERNAL
+        - $ref: '#/components/parameters/headerNotificationVersion'   # NO EXTERNAL
       requestBody:
         content:
           application/json:
@@ -739,6 +740,18 @@ paths:
 components:
 
   parameters:
+
+    ############################################################################################
+    ###                     PARAMETRO VERSIONE CREAZIONE NOTIFICA                            ###
+    ############################################################################################
+    headerNotificationVersion:                                                      # NO EXTERNAL
+      name: x-pagopa-pn-notification-version                                        # NO EXTERNAL
+      in: header                                                                    # NO EXTERNAL
+      description: Notification creation version                                    # NO EXTERNAL
+      required: false                                                               # NO EXTERNAL
+      schema:                                                                       # NO EXTERNAL
+        type: string                                                                # NO EXTERNAL
+
     ############################################################################################
     ###                     PARAMETRO SORGENTE CREAZIONE NOTIFICA                            ###
     ############################################################################################

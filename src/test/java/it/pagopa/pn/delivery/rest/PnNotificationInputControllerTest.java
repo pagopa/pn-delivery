@@ -69,7 +69,8 @@ class PnNotificationInputControllerTest {
 						Mockito.any( NewNotificationRequestV21.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
-						Mockito.anyList())
+						Mockito.anyList(),
+						Mockito.isNull())
 				).thenReturn( savedNotification );
 
 		// Then
@@ -91,7 +92,8 @@ class PnNotificationInputControllerTest {
 						notificationRequest,
 						X_PAGOPA_PN_SRC_CH,
 						null,
-						GROUPS);
+						GROUPS,
+						null);
 	}
 
 	@Test
@@ -109,7 +111,8 @@ class PnNotificationInputControllerTest {
 				Mockito.any( NewNotificationRequestV21.class ),
 				Mockito.anyString(),
 				Mockito.anyString(),
-				Mockito.anyList())
+				Mockito.anyList(),
+				Mockito.isNull())
 		).thenReturn( savedNotification );
 
 		// Then
@@ -132,7 +135,52 @@ class PnNotificationInputControllerTest {
 				notificationRequest,
 				X_PAGOPA_PN_SRC_CH,
 				X_PAGOPA_PN_SRC_CH_DETAILS,
-				GROUPS);
+				GROUPS,
+				null);
+	}
+
+	@Test
+	void postSuccessWithNotificationVersion() throws PnIdConflictException {
+		// Given
+		NewNotificationRequestV21 notificationRequest = newNotificationRequest();
+
+		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
+				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
+				.paProtocolNumber("protocol_number").build();
+
+		// When
+		Mockito.when(deliveryService.receiveNotification(
+				Mockito.anyString(),
+				Mockito.any( NewNotificationRequestV21.class ),
+				Mockito.anyString(),
+				Mockito.anyString(),
+				Mockito.anyList(),
+				Mockito.anyString())
+		).thenReturn( savedNotification );
+
+		// Then
+		webTestClient.post()
+				.uri("/delivery/v2.1/requests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(Mono.just(notificationRequest), NewNotificationRequestV21.class)
+				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
+				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
+				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
+				.header(PnDeliveryRestConstants.CX_GROUPS_HEADER, GROUPS.get(0) +","+GROUPS.get(1) )
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_HEADER, X_PAGOPA_PN_SRC_CH)
+				.header(PnDeliveryRestConstants.SOURCE_CHANNEL_DETAILS_HEADER, X_PAGOPA_PN_SRC_CH_DETAILS )
+				.header(PnDeliveryRestConstants.NOTIFICATION_VERSION_HEADER, "1")
+				.exchange()
+				.expectStatus().isAccepted();
+
+		Mockito.verify( deliveryService ).receiveNotification(
+				PA_ID,
+				notificationRequest,
+				X_PAGOPA_PN_SRC_CH,
+				X_PAGOPA_PN_SRC_CH_DETAILS,
+				GROUPS,
+				"1");
 	}
 
 	private NewNotificationRequestV21 newNotificationRequest() {
@@ -188,6 +236,7 @@ class PnNotificationInputControllerTest {
 						Mockito.any( NewNotificationRequestV21.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
+						Mockito.isNull(),
 						Mockito.isNull())
 				).thenThrow( exception );
 
@@ -230,7 +279,7 @@ class PnNotificationInputControllerTest {
 		// Given
 		NewNotificationRequestV21 request = newNotificationRequest();
 
-		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH,null, Collections.emptyList() ) ).thenThrow( RuntimeException.class );
+		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH,null, Collections.emptyList(), null ) ).thenThrow( RuntimeException.class );
 
 		webTestClient.post()
 				.uri("/delivery/v2.1/requests")
@@ -296,7 +345,8 @@ class PnNotificationInputControllerTest {
 						Mockito.any( NewNotificationRequestV21.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
-						Mockito.anyList())
+						Mockito.anyList(),
+						Mockito.isNull())
 				).thenReturn( savedNotification );
 
 		// Then
@@ -318,7 +368,8 @@ class PnNotificationInputControllerTest {
 						Mockito.any( NewNotificationRequestV21.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
-						Mockito.anyList());
+						Mockito.anyList(),
+						Mockito.isNull());
 	}
 
 	@Test
