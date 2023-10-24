@@ -102,7 +102,6 @@ exports.versioning = async (event, context) => {
     let responseV2 = await response.json();
     if (response.ok) {
       const transformedObject = transformObject(responseV2);
-      console.log("ritorno risposta trasformata ", transformedObject);
       const ret = {
         statusCode: response.status,
         body: JSON.stringify(transformedObject),
@@ -124,7 +123,6 @@ exports.versioning = async (event, context) => {
   }
 
   function transformObject(responseV2) {
-    console.log("transforming object", JSON.stringify(responseV2));
 
     const notificationStatus_ENUM = [
       "IN_VALIDATION",
@@ -217,8 +215,6 @@ exports.versioning = async (event, context) => {
       pagoPaIntMode: pagoPaIntMode,
     };
 
-    console.log("return transformed object ", responseV1);
-
     return responseV1;
   }
 
@@ -253,7 +249,6 @@ exports.versioning = async (event, context) => {
 
   function transformDigitalAddress(address) {
     if (!address.type || address.type != "PEC") {
-      console.log("ERROR transformDigitalAddress ", address);
       throw Error("address type not supported ");
     }
 
