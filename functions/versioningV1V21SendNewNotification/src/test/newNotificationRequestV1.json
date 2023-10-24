@@ -54,5 +54,6 @@
   "physicalCommunicationType": "REGISTERED_LETTER_890",
   "senderDenomination": "Comune di milano",
   "senderTaxId": "00215150236",
-  "taxonomyCode": "010202N"
+  "taxonomyCode": "010202N",
+  "pagoPaIntMode": "NONE"
 }
