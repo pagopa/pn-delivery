@@ -1,7 +1,6 @@
 const { validateRequest, generateResponse, validateNewNotification, createNewNotificationRequesV21 } = require('./requestHelper')
 
 exports.handleEvent = async (event) => {
-    console.log('event', event)
 
     const isRequestValid = validateRequest(event)
     if(isRequestValid.length > 0 ){
