@@ -12,6 +12,8 @@ public class PnDeliveryRestConstants {
     public static final String SOURCE_CHANNEL_HEADER = "x-pagopa-pn-src-ch";
     public static final String SOURCE_CHANNEL_DETAILS_HEADER = "x-pagopa-pn-src-ch-details";
 
+    public static final String NOTIFICATION_VERSION_HEADER = "x-pagopa-pn-notification-version";
+
 
     private static final String DELIVERY_PATH = "delivery";
     private static final String DELIVERY_PATH_PRIVATE = "delivery-private";
