@@ -1,10 +1,7 @@
 package it.pagopa.pn.delivery.svc;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.validation.ConstraintViolation;
 import javax.validation.Path;
 import javax.validation.Valid;
@@ -301,6 +298,118 @@ class NotificationReceiverValidationTest {
 
 
   @Test
+  void denominationLengthValidationKo() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(44);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+
+    StringBuilder denomination = new StringBuilder();
+    for(int i = 0; i < 45; i++){
+      denomination.append("a");
+    }
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination.toString()));
+
+    //THEN
+    assertThat(errors, hasSize(1));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0")))
+    ));
+  }
+
+  @Test
+  void denominationLengthNOValidation() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+
+    StringBuilder denomination = new StringBuilder();
+    for(int i = 0; i < 45; i++){
+      denomination.append("a");
+    }
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination.toString()));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationLengthValidationOk() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(46);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+
+    StringBuilder denomination = new StringBuilder();
+    for(int i = 0; i < 45; i++){
+      denomination.append("a");
+    }
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination.toString()));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationIsoLatin1Ok() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+
+    String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationIsoLatin1Ko() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+
+    String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    String noIsoLatin1 = "Ą";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination+noIsoLatin1));
+
+    //THEN
+    assertThat(errors, hasSize(1));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0")))
+    ));
+  }
+
+  @Test
+  void denominationValidationRegexOk() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("REGEX");
+    when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
+
+    String denomination = "qwertyuiopasdfghjklzxcvbnm";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationRegexKo() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("REGEX");
+    when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
+
+    String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(1));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0")))
+    ));
+  }
+
+  @Test
   @Disabled("Documents field required in NewNotificationRequest")
   void invalidNullValuesInCollections() {
 
@@ -571,9 +680,8 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification());
 
     //THEN
-      assertThat(errors, hasSize(2));
+      assertThat(errors, hasSize(1));
       assertThat(errors, hasItems(
-              hasProperty("message", Matchers.containsString("denomination")),
               hasProperty("message", Matchers.containsString("exceed"))
       ));
   }
@@ -589,9 +697,8 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(moreBadRecipientsNewNotification());
 
     //THEN
-    assertThat(errors, hasSize(10));
+    assertThat(errors, hasSize(9));
     assertThat(errors, hasItems(
-            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("address"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("province"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("zip"), Matchers.containsString("recipient 0"))),
@@ -651,6 +758,30 @@ class NotificationReceiverValidationTest {
     return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
         .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
         .senderTaxId("paId").recipients(recipients).build();
+  }
+
+  private NewNotificationRequest newNotificationDenominationCustom(String denomination) {
+    NotificationRecipient notificationRecipient = NotificationRecipient.builder()
+            .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+            .denomination( denomination )
+            .taxId( "taxID" )
+            .digitalDomicile( NotificationDigitalAddress.builder()
+                    .type( NotificationDigitalAddress.TypeEnum.PEC )
+                    .address( "address@pec.it" )
+                    .build() )
+            .physicalAddress( NotificationPhysicalAddress.builder()
+                    .at( "at" )
+                    .province( "province" )
+                    .zip( "83100" )
+                    .address( "address" )
+                    .addressDetails( "addressDetail" )
+                    .municipality( "municipality" )
+                    .municipalityDetails( "municipalityDetail" )
+                    .build() )
+            .build();
+    return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(Arrays.asList(notificationRecipient)).build();
   }
 
   private FullSentNotificationV20 newFullSentNotification() {

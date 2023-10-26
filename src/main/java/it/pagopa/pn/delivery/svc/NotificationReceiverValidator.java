@@ -12,6 +12,7 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPhysica
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipient;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
+import it.pagopa.pn.delivery.utils.DenominationValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.REGEX;
+import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.NONE;
 
 @Slf4j
 @Component
@@ -113,6 +117,7 @@ public class NotificationReceiverValidator {
       }
       errors.addAll(validator.validate( internalNotification ));
       errors.addAll( this.checkPhysicalAddress( internalNotification ));
+      errors.addAll(this.checkDenomination( internalNotification ));
       return errors;
     }
 
@@ -128,7 +133,6 @@ public class NotificationReceiverValidator {
 
                 NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
-                Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
                 Pair<String, String> address = Pair.of("address", physicalAddress.getAddress());
                 Pair<String, String> addressDetails = Pair.of("addressDetails", physicalAddress.getAddressDetails());
                 Pair<String, String> province = Pair.of("province", physicalAddress.getProvince());
@@ -141,13 +145,13 @@ public class NotificationReceiverValidator {
                 Pair<String, String> row5 = buildPair("zip, municipality and Province", List.of(zip, municipality, province));
 
                 int finalRecIdx = recIdx;
-                Stream.of(denomination, address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
+                Stream.of(address, addressDetails, province, foreignState, at, zip, municipality, municipalityDetails)
                         .filter(field -> field.getValue() != null &&
                                 (!field.getValue().matches("[" + this.pnDeliveryConfigs.getPhysicalAddressValidationPattern() + "]*")))
                         .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
                         .forEach(errors::add);
 
-                Stream.of(denomination, row2, addressDetails, address, row5, foreignState)
+                Stream.of(row2, addressDetails, address, row5, foreignState)
                         .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getPhysicalAddressValidationLength() )
                         .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getPhysicalAddressValidationLength())))
                         .forEach(errors::add);
@@ -158,6 +162,44 @@ public class NotificationReceiverValidator {
 
         return errors;
 
+    }
+
+    protected Set<ConstraintViolation<NewNotificationRequest>> checkDenomination(NewNotificationRequest internalNotification) {
+
+        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+
+        int recIdx = 0;
+
+        for (NotificationRecipient recipient : internalNotification.getRecipients()) {
+
+            Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
+
+            int finalRecIdx = recIdx;
+            if(this.pnDeliveryConfigs.getDenominationLength() != null && this.pnDeliveryConfigs.getDenominationLength() != 0){
+                Stream.of(denomination)
+                        .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getDenominationLength() )
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getDenominationLength())))
+                        .forEach(errors::add);
+            }
+
+            if(this.pnDeliveryConfigs.getDenominationValidationTypeValue() != null && !this.pnDeliveryConfigs.getDenominationValidationTypeValue().equalsIgnoreCase(NONE.name())){
+                String denominationValidationType = this.pnDeliveryConfigs.getDenominationValidationTypeValue().toLowerCase();
+                String regex;
+                if(denominationValidationType.equalsIgnoreCase(REGEX.name() )){
+                    regex ="[" + this.pnDeliveryConfigs.getDenominationValidationRegexValue() + "]*";
+                }else{
+                    regex = DenominationValidationUtils.getRegexValue(denominationValidationType);
+                }
+                log.info("Check denomination with validation type {}",denominationValidationType);
+                Stream.of( denomination)
+                        .filter(field -> field.getValue() != null &&
+                                (!field.getValue().matches(regex)))
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
+                        .forEach(errors::add);
+            }
+            recIdx++;
+        }
+        return errors;
     }
 
     private static Pair<String, String> buildPair(String name, List<Pair<String, String>> pairs){
