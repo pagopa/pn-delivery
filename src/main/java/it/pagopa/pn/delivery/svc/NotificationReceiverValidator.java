@@ -168,7 +168,7 @@ public class NotificationReceiverValidator {
             Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
 
             int finalRecIdx = recIdx;
-            if(this.pnDeliveryConfigs.getDenominationLength() != 0){
+            if(this.pnDeliveryConfigs.getDenominationLength() != null && this.pnDeliveryConfigs.getDenominationLength() != 0){
                 Stream.of(denomination)
                         .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getDenominationLength() )
                         .map(field -> new ConstraintViolationImpl<NewNotificationRequestV21>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getDenominationLength())))
