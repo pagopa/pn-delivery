@@ -705,7 +705,11 @@ Resources:
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery'
-
+            - !Sub '/aws/lambda/${PnDeliveryInsertTriggerLambdaName}'
+            - !Sub '/aws/lambda/${PnDeliveryAsseverationLambdaName}'
+            - !Sub '/aws/lambda/${VersioningV1V2GetNotificationLambdaName}'
+            - !Sub '/aws/lambda/${VersioningV1V21SendNewNotificationLambdaName}'
+            - !Sub '/aws/lambda/${VersioningV1V21GetNotificationRequestStatusLambdaName}'
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
     Type: AWS::IAM::Role
