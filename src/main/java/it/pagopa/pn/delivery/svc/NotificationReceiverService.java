@@ -19,7 +19,6 @@ import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import lombok.CustomLog;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
@@ -41,6 +40,7 @@ import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.Notification
 @Service
 @CustomLog
 public class NotificationReceiverService {
+	public static final String LATEST_NOTIFICATION_VERSION = "2.1";
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;
@@ -91,7 +91,8 @@ public class NotificationReceiverService {
 			NewNotificationRequestV21 newNotificationRequest,
 			String xPagopaPnSrcCh,
 			String xPagopaPnSrcChDetails,
-			List<String> xPagopaPnCxGroups
+			List<String> xPagopaPnCxGroups,
+			String xPagopaPnNotificationVersion
 	) throws PnIdConflictException {
 		log.info("New notification storing START");
 
@@ -116,6 +117,7 @@ public class NotificationReceiverService {
 		internalNotification.setSenderPaId( xPagopaPnCxId );
 		internalNotification.setSourceChannel( xPagopaPnSrcCh );
 		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
+		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : LATEST_NOTIFICATION_VERSION );
 
 		SaveF24Request saveF24Request = new SaveF24Request();
 		List<SaveF24Item> saveF24Items = IntStream.range(0, internalNotification.getRecipients().size())

@@ -1,7 +1,6 @@
 const { validateRequest, generateResponse, validateNewNotification, createNewNotificationRequesV21 } = require('./requestHelper')
 
 exports.handleEvent = async (event) => {
-    console.log('event', event)
 
     const isRequestValid = validateRequest(event)
     if(isRequestValid.length > 0 ){
@@ -25,6 +24,7 @@ exports.handleEvent = async (event) => {
 
     const headers = JSON.parse(JSON.stringify(event["headers"]));
     headers["x-pagopa-pn-src-ch"] = "B2B";
+    headers["x-pagopa-pn-notification-version"] = "1";
 
     if (event.requestContext.authorizer["cx_groups"]) {
       headers["x-pagopa-pn-cx-groups"] =

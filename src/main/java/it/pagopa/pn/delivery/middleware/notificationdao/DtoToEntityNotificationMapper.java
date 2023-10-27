@@ -12,7 +12,6 @@ import java.util.List;
 
 @Component
 public class DtoToEntityNotificationMapper {
-    public static final int NOTIFICATION_VERSION = 1;
 
     public NotificationEntity dto2Entity(InternalNotification dto) {
         NotificationEntity.NotificationEntityBuilder builder = NotificationEntity.builder()
@@ -39,8 +38,7 @@ public class DtoToEntityNotificationMapper {
                 .sourceChannel( dto.getSourceChannel() )
                 .sourceChannelDetails( dto.getSourceChannel() )
                 .paFee(dto.getPaFee())
-                .vat(dto.getVat())
-                .version( NOTIFICATION_VERSION );
+                .version( dto.getVersion() );
 
         return builder.build();
     }

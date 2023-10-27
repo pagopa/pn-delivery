@@ -401,7 +401,6 @@ class NotificationPriceServiceTest {
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setPaFee(0);
-        internalNotification.setVat(0);
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()

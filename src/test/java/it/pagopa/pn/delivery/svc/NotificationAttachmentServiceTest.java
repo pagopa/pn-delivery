@@ -656,7 +656,6 @@ class NotificationAttachmentServiceTest {
 
     InternalNotification notification = new InternalNotification();
     notification.setPaFee(0);
-    notification.setVat(0);
     notification.setIun(iun);
     NotificationRecipient notificationRecipient = new NotificationRecipient();
     notificationRecipient.setTaxId(taxid);

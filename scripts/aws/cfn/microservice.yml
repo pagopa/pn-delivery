@@ -420,6 +420,16 @@ Parameters:
     Description: 'VersioningV1V21GetNotificationRequestStatusProvisionedConcurrency'
     Default: 1
 
+  B2bWafLimit:
+    Default: 600000
+    Type: Number
+    Description: b2b waf limit
+
+  WebWafLimit:
+    Default: 600000
+    Type: Number
+    Description: web waf limit
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -581,7 +591,7 @@ Resources:
         IntendedUsage: B2B
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicAPI.Outputs.APIGatewayARN
         ExcludedRule0: CrossSiteScripting_BODY,SizeRestrictions_BODY
-        Limit: 600000
+        Limit: !Ref B2bWafLimit
 
   # Expose PN-Delivery microservice public API with API-GW for WEB usage
   DeliveryMicroservicePublicWebAPI:
@@ -609,7 +619,7 @@ Resources:
         WAFName: !Sub '${ProjectName}-delivery-web'
         IntendedUsage: WEB
         APIGatewayARNs: !GetAtt DeliveryMicroservicePublicWebAPI.Outputs.APIGatewayARN
-        Limit: 600000
+        Limit: !Ref WebWafLimit
         EnhancedWebSecurityEnabled: !Ref EnhancedWebSecurityEnabled
 
   # Expose PN-Delivery microservice public API with API-GW for IO Backend usage
