@@ -19,6 +19,7 @@ components:
       type: string
       x-field-extra-annotation: "@lombok.ToString.Exclude" # NO EXTERNAL
       minLength: 1
+      maxLength: 80
       pattern: ^.*$
 
     TaxId:
