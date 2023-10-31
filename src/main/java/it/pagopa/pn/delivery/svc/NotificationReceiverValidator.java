@@ -92,9 +92,6 @@ public class NotificationReceiverValidator {
             // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
             onlyNumericalTaxIdForPGV2(errors, recIdx, recipient);
 
-            // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
-            onlyNumericalTaxIdForPGV2(errors, recIdx, recipient);
-
             if( !validateUtils.validate(recipient.getTaxId())) {
                 ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
                 errors.add(constraintViolation);
