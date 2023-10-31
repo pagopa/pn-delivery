@@ -21,10 +21,7 @@ import javax.validation.Path;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -791,7 +788,7 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification2());
 
     //THEN
-    assertThat(errors, hasSize(2));
+    assertThat(errors, hasSize(1));
   }
 
   @Test
@@ -803,7 +800,7 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification2());
 
     //THEN
-    assertThat(errors, hasSize(2));
+    assertThat(errors, hasSize(1));
   }
 
 
@@ -1016,9 +1013,9 @@ class NotificationReceiverValidationTest {
             .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
   }
 
-  private NewNotificationRequest newNotificationDenominationCustom(String denomination) {
-    NotificationRecipient notificationRecipient = NotificationRecipient.builder()
-            .recipientType( NotificationRecipient.RecipientTypeEnum.PF )
+  private NewNotificationRequestV21 newNotificationDenominationCustom(String denomination) {
+    NotificationRecipientV21 notificationRecipient = NotificationRecipientV21.builder()
+            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
             .denomination( denomination )
             .taxId( "taxID" )
             .digitalDomicile( NotificationDigitalAddress.builder()
@@ -1035,13 +1032,13 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequest.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(Arrays.asList(notificationRecipient)).build();
   }
 
-  private FullSentNotificationV20 newFullSentNotification() {
-    return FullSentNotificationV20.builder().sentAt(OffsetDateTime.now()).iun(IUN)
+  private FullSentNotificationV21 newFullSentNotification() {
+    return FullSentNotificationV21.builder().sentAt(OffsetDateTime.now()).iun(IUN)
         .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
         .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
         .notificationStatus(NotificationStatus.ACCEPTED)
@@ -1050,8 +1047,8 @@ class NotificationReceiverValidationTest {
             .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
                 .build())
             .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
-        .recipients(Collections.singletonList(NotificationRecipient.builder()
-            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+        .recipients(Collections.singletonList(NotificationRecipientV21.builder()
+            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
             .denomination("Ada Lovelace")
             .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
                 .type(NotificationDigitalAddress.TypeEnum.PEC).build())
@@ -1064,7 +1061,7 @@ class NotificationReceiverValidationTest {
         .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
         .sourceChannel(X_PAGOPA_PN_SRC_CH)
         .physicalCommunicationType(
-                FullSentNotificationV20.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
         .build();
   }
 

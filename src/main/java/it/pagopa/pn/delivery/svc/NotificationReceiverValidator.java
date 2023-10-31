@@ -114,9 +114,9 @@ public class NotificationReceiverValidator {
             checkProvinceV2(errors, physicalAddress);
             recIdx++;
       }
-      errors.addAll(validator.validate( internalNotification ));
-      errors.addAll( this.checkPhysicalAddress( internalNotification ));
-        errors.addAll(this.checkDenomination( internalNotification ));
+      errors.addAll(validator.validate( newNotificationRequestV2 ));
+      errors.addAll( this.checkPhysicalAddress( newNotificationRequestV2 ));
+        errors.addAll(this.checkDenomination( newNotificationRequestV2 ));
       return errors;
     }
 
@@ -162,13 +162,13 @@ public class NotificationReceiverValidator {
 
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequest>> checkDenomination(NewNotificationRequest internalNotification) {
+    protected Set<ConstraintViolation<NewNotificationRequestV21>> checkDenomination(NewNotificationRequestV21 internalNotification) {
 
-        Set<ConstraintViolation<NewNotificationRequest>> errors = new HashSet<>();
+        Set<ConstraintViolation<NewNotificationRequestV21>> errors = new HashSet<>();
 
         int recIdx = 0;
 
-        for (NotificationRecipient recipient : internalNotification.getRecipients()) {
+        for (NotificationRecipientV21 recipient : internalNotification.getRecipients()) {
 
             Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
 
@@ -176,7 +176,7 @@ public class NotificationReceiverValidator {
             if(this.pnDeliveryConfigs.getDenominationLength() != null && this.pnDeliveryConfigs.getDenominationLength() != 0){
                 Stream.of(denomination)
                         .filter(field -> field.getValue() != null && field.getValue().trim().length() > this.pnDeliveryConfigs.getDenominationLength() )
-                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getDenominationLength())))
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequestV21>(String.format("Field %s in recipient %s exceed max length of %s chars", field.getKey(), finalRecIdx, this.pnDeliveryConfigs.getDenominationLength())))
                         .forEach(errors::add);
             }
 
@@ -192,7 +192,7 @@ public class NotificationReceiverValidator {
                 Stream.of( denomination)
                         .filter(field -> field.getValue() != null &&
                                 (!field.getValue().matches(regex)))
-                        .map(field -> new ConstraintViolationImpl<NewNotificationRequest>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
+                        .map(field -> new ConstraintViolationImpl<NewNotificationRequestV21>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
                         .forEach(errors::add);
             }
             recIdx++;
