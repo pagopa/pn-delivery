@@ -125,7 +125,7 @@ class NotificationDaoDynamoTest {
                 .cap( "cap1" )
                 .state( "state1" ));
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
-        Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
+        Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
         // verifica ordine taxId destinatari
         Assertions.assertEquals(saved.get().getRecipients().get(0).getTaxId(), baseRecipientDto.getTaxId());
@@ -189,7 +189,7 @@ class NotificationDaoDynamoTest {
 
         when( pnDataVaultClient.getNotificationAddressesByIun( "IUN_01" ) ).thenReturn( List.of( notificationRecipientAddressesDto ,notificationRecipientAddressesDto1 ) );
         // THEN
-        Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun() );
+        Optional<InternalNotification> saved = this.dao.getNotificationByIun( notification.getIun(), true );
         Assertions.assertTrue( saved.isPresent() );
         //Assertions.assertEquals( notification, saved.get() );
     }

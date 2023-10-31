@@ -345,7 +345,7 @@ public class NotificationRetrieverService {
 	}
 
 	private InternalNotification getInternalNotification(String iun) {
-		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
+		Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun, true);
 		if (optNotification.isPresent()) {
 			return optNotification.get();
 		} else {

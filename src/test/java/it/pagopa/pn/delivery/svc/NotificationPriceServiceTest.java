@@ -94,7 +94,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
         Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
@@ -153,7 +153,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
         Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.empty() );
@@ -183,7 +183,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
         Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
@@ -219,7 +219,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
         Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
@@ -257,7 +257,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
         Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
@@ -303,7 +303,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
                 .thenReturn( Optional.empty() );
 
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
@@ -360,7 +360,7 @@ class NotificationPriceServiceTest {
         notification.setRecipients(List.of(new NotificationRecipient()
                 .recipientType(PF)
                 .payment(List.of(notificationPaymentInfo))));
-        Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
+        Mockito.when(notificationDao.getNotificationByIun(iun, false)).thenReturn(Optional.of(notification));
 
         assertDoesNotThrow(() -> svc.removeAllNotificationCostsByIun(iun));
 
@@ -383,7 +383,7 @@ class NotificationPriceServiceTest {
         notification.setRecipients(List.of(new NotificationRecipient()
                 .recipientType(PF)
                 .payment(List.of(notificationPaymentInfo))));
-        Mockito.when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.empty());
+        Mockito.when(notificationDao.getNotificationByIun(iun, false)).thenReturn(Optional.empty());
 
         assertThrows(PnNotFoundException.class, () -> svc.removeAllNotificationCostsByIun(iun));
     }

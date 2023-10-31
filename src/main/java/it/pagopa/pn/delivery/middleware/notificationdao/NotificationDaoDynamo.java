@@ -104,16 +104,17 @@ public class NotificationDaoDynamo implements NotificationDao {
 	}
 
 	@Override
-	public Optional<InternalNotification> getNotificationByIun(String iun) {
+	public Optional<InternalNotification> getNotificationByIun(String iun, boolean deanonymizeRecipients) {
 		Key keyToSearch = Key.builder()
 				.partitionValue(iun)
 				.build();
 		Optional<InternalNotification> daoResult = entityDao.get( keyToSearch )
 				.map( entity2DtoMapper::entity2Dto );
 
-		if(daoResult.isPresent()) {
-			handleRecipients(daoResult.get());
-			handleDocuments(daoResult.get());
+		daoResult.ifPresent(this::handleDocuments);
+
+		if(daoResult.isPresent() && deanonymizeRecipients) {
+			deanonymizeRecipients(daoResult.get());
 		}
 		return daoResult;
 	}
@@ -128,7 +129,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 				.map(NotificationEntity::getRequestId);
 	}
 
-	private void handleRecipients(InternalNotification daoResult) {
+	private void deanonymizeRecipients(InternalNotification daoResult) {
 		List<NotificationRecipient> daoNotificationRecipientList = daoResult.getRecipients();
 
 		Set<String> opaqueIds = daoNotificationRecipientList.stream()
@@ -138,12 +139,12 @@ public class NotificationDaoDynamo implements NotificationDao {
 		List<BaseRecipientDto> baseRecipientDtoList =
 				pnDataVaultClient.getRecipientDenominationByInternalId( new ArrayList<>(opaqueIds) );
 
-		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList = pnDataVaultClient.getNotificationAddressesByIun( daoResult.getIun() );
-		List<String> opaqueRecipientsIds = new ArrayList<>();
+		List<NotificationRecipientAddressesDto> notificationRecipientAddressesDtoList =
+				pnDataVaultClient.getNotificationAddressesByIun( daoResult.getIun() );
+
 		int recipientIndex = 0;
 		for ( NotificationRecipient recipient : daoNotificationRecipientList ) {
 			String opaqueTaxId = recipient.getInternalId();
-			opaqueRecipientsIds.add( opaqueTaxId );
 
 			BaseRecipientDto baseRec = baseRecipientDtoList.stream()
 					.filter( el ->Objects.equals( opaqueTaxId, el.getInternalId()) )
@@ -171,7 +172,6 @@ public class NotificationDaoDynamo implements NotificationDao {
 			}
 			recipientIndex += 1;
 		}
-		daoResult.setRecipientIds( opaqueRecipientsIds );
 	}
 
 	private void handleDocuments(InternalNotification daoResult) {

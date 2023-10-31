@@ -429,7 +429,7 @@ class NotificationRetrieverServiceTest {
                         .status(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED)
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( notification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         InternalNotification result = svc.getNotificationInformation( IUN );
@@ -459,7 +459,7 @@ class NotificationRetrieverServiceTest {
         // When
         when( notificationDao.getRequestId( Mockito.anyString(), Mockito.anyString(), Mockito.anyString() ) ).thenReturn( Optional.of( REQUEST_ID ) );
 
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( notification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         InternalNotification result = svc.getNotificationInformation( SENDER_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
@@ -498,7 +498,7 @@ class NotificationRetrieverServiceTest {
                         .status(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED)
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
-        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) ).thenReturn( Optional.of( notification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         InternalNotification result = svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID, GROUPS );
@@ -513,7 +513,7 @@ class NotificationRetrieverServiceTest {
     void getNotificationInformationByWrongSenderIdFailure() {
         InternalNotification notification = getNewInternalNotification();
 
-        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) ).thenReturn( Optional.of( notification ) );
 
         Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, WRONG_SENDER_ID, GROUPS );
         Assertions.assertThrows( PnNotificationNotFoundException.class, todo );
@@ -524,7 +524,7 @@ class NotificationRetrieverServiceTest {
         InternalNotification notification = getNewInternalNotification();
         notification.setGroup( "fakeGroup" );
 
-        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) ).thenReturn( Optional.of( notification ) );
 
         Executable todo = () ->  svc.getNotificationInformationWithSenderIdCheck( IUN, SENDER_ID, GROUPS );
         Assertions.assertThrows( PnNotificationNotFoundException.class, todo );
@@ -548,7 +548,7 @@ class NotificationRetrieverServiceTest {
                         .status(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationStatus.ACCEPTED)
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
-        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) ).thenReturn( Optional.of( notification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
         InternalNotification result = svc.getNotificationInformation( IUN, true, false );
@@ -638,7 +638,7 @@ class NotificationRetrieverServiceTest {
         //Given
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.empty() );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.empty() );
         Executable todo = () -> svc.getNotificationInformation( IUN );
 
         //Then
@@ -653,7 +653,7 @@ class NotificationRetrieverServiceTest {
         List<PaGroup> groups = getGroups();
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( notification ) );
         when( externalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(false ) )).thenReturn( groups );
 
         InternalNotification result = svc.getNotificationInformation( IUN, false, true, SENDER_ID);
@@ -671,7 +671,7 @@ class NotificationRetrieverServiceTest {
         List<PaGroup> groups = getGroups();
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( notification ) );
         when( externalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(false ) )).thenReturn( groups );
 
         InternalNotification result = svc.getNotificationInformation( IUN, false, true, SENDER_ID);
@@ -703,7 +703,7 @@ class NotificationRetrieverServiceTest {
 
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( anyString(), anyInt(), any() ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -735,7 +735,7 @@ class NotificationRetrieverServiceTest {
 
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( anyString(), anyInt(), any() ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -809,7 +809,7 @@ class NotificationRetrieverServiceTest {
 
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -861,7 +861,7 @@ class NotificationRetrieverServiceTest {
         //When
         when( pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), eq(CxTypeAuthFleet.PF), any()))
                 .thenReturn( mandateResult );
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -904,7 +904,7 @@ class NotificationRetrieverServiceTest {
         //When
         Mockito.when(externalRegistriesClient.getRootSenderId(Mockito.anyString())).thenReturn(SENDER_ID+"DIFF");
         Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -939,7 +939,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -979,7 +979,7 @@ class NotificationRetrieverServiceTest {
 
         //When
         Mockito.when( pnMandateClient.listMandatesByDelegate( Mockito.anyString(), Mockito.anyString(), any(), any() ) ).thenReturn( mandateResult );
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -1008,7 +1008,7 @@ class NotificationRetrieverServiceTest {
 
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -1040,7 +1040,7 @@ class NotificationRetrieverServiceTest {
 
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.now() );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -1072,7 +1072,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
@@ -1109,7 +1109,7 @@ class NotificationRetrieverServiceTest {
                 .status( PaymentStatus.SUCCEEDED );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( "2022-02-11T00:00:00.00Z" ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
@@ -1147,7 +1147,7 @@ class NotificationRetrieverServiceTest {
                 .status( PaymentStatus.REQUIRED );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
@@ -1186,7 +1186,7 @@ class NotificationRetrieverServiceTest {
                 .status( PaymentStatus.REQUIRED );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
@@ -1232,7 +1232,7 @@ class NotificationRetrieverServiceTest {
                 .status( PaymentStatus.REQUIRED );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( paymentInfo );
@@ -1266,7 +1266,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( "2022-05-11T00:00:00.00Z" ) );
 
@@ -1299,7 +1299,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant() ).thenReturn( Instant.parse( "2022-03-11T00:00:00.00Z" ) );
         when( externalRegistriesClient.getPaymentInfo( Mockito.anyString(), Mockito.anyString() ) ).thenThrow( PnHttpResponseException.class );
@@ -1329,7 +1329,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-06-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         when( clock.instant()).thenReturn(Instant.now());
 
@@ -1360,7 +1360,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-03-01T11:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -1389,7 +1389,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-03-01T11:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         when( clock.instant() ).thenReturn( Instant.parse( nowTestInstant ) );
         when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
 
@@ -1426,7 +1426,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
@@ -1470,7 +1470,7 @@ class NotificationRetrieverServiceTest {
                         .activeFrom( OffsetDateTime.ofInstant( Instant.parse( "2022-01-11T00:00:00.00Z" ), ZoneOffset.UTC ) )) );
 
         //When
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString() )).thenReturn( Optional.of( internalNotification ) );
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() )).thenReturn( Optional.of( internalNotification ) );
         Mockito.when( pnDeliveryPushClient.getTimelineAndStatusHistory( Mockito.anyString(), Mockito.anyInt(), Mockito.any(OffsetDateTime.class) ) ).thenReturn( timelineStatusHistoryDto );
         Mockito.when( clock.instant() ).thenReturn( Instant.parse( "2022-01-15T00:00:00.00Z" ) );
 
@@ -1633,7 +1633,7 @@ class NotificationRetrieverServiceTest {
                 new it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementV20().category(it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.TimelineElementCategoryV20.REQUEST_ACCEPTED)
         ));
 
-        when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
+        when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.of(notification));
         when(pnDeliveryPushClient.getTimelineAndStatusHistory(iun, notification.getRecipients().size(), notification.getSentAt())).thenReturn(deliveryPushResponse);
 
         Assertions.assertEquals(iun, notification.getIun());
@@ -1658,7 +1658,7 @@ class NotificationRetrieverServiceTest {
 
         ));
 
-        when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.of(notification));
+        when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.of(notification));
         when(pnDeliveryPushClient.getTimelineAndStatusHistory(iun, notification.getRecipients().size(), notification.getSentAt())).thenReturn(deliveryPushResponse);
         Assertions.assertEquals(iun, notification.getIun());
     }
