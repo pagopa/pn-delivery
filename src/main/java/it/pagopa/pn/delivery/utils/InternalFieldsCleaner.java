@@ -28,6 +28,7 @@ public class InternalFieldsCleaner {
         if( !ObjectUtils.isEmpty(internalNotification) ) {
             internalNotification.setRecipientIds( null );
             internalNotification.setSourceChannel( null );
+            internalNotification.setSourceChannelDetails(null);
             cleanInternalId( internalNotification.getRecipients() );
         }
     }

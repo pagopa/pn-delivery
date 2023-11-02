@@ -21,10 +21,7 @@ import javax.validation.Path;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -358,6 +355,118 @@ class NotificationReceiverValidationTest {
 
 
   @Test
+  void denominationLengthValidationKo() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(44);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+
+    StringBuilder denomination = new StringBuilder();
+    for(int i = 0; i < 45; i++){
+      denomination.append("a");
+    }
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination.toString()));
+
+    //THEN
+    assertThat(errors, hasSize(1));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0")))
+    ));
+  }
+
+  @Test
+  void denominationLengthNOValidation() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+
+    StringBuilder denomination = new StringBuilder();
+    for(int i = 0; i < 45; i++){
+      denomination.append("a");
+    }
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination.toString()));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationLengthValidationOk() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(46);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+
+    StringBuilder denomination = new StringBuilder();
+    for(int i = 0; i < 45; i++){
+      denomination.append("a");
+    }
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination.toString()));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationIsoLatin1Ok() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+
+    String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationIsoLatin1Ko() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+
+    String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    String noIsoLatin1 = "Ą";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination+noIsoLatin1));
+
+    //THEN
+    assertThat(errors, hasSize(1));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0")))
+    ));
+  }
+
+  @Test
+  void denominationValidationRegexOk() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("REGEX");
+    when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
+
+    String denomination = "qwertyuiopasdfghjklzxcvbnm";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationRegexKo() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("REGEX");
+    when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
+
+    String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(1));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0")))
+    ));
+  }
+
+  @Test
   @Disabled("Documents field required in NewNotificationRequest")
   void invalidNullValuesInCollections() {
     InternalNotification internalNotification = new InternalNotification();
@@ -664,11 +773,10 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification());
 
     //THEN
-    assertThat(errors, hasSize(2));
-    assertThat(errors, hasItems(
-            hasProperty("message", Matchers.containsString("denomination")),
-            hasProperty("message", Matchers.containsString("exceed"))
-    ));
+      assertThat(errors, hasSize(1));
+      assertThat(errors, hasItems(
+              hasProperty("message", Matchers.containsString("exceed"))
+      ));
   }
 
   @Test
@@ -680,7 +788,7 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification2());
 
     //THEN
-    assertThat(errors, hasSize(2));
+    assertThat(errors, hasSize(1));
   }
 
   @Test
@@ -692,7 +800,7 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(badRecipientsNewNotification2());
 
     //THEN
-    assertThat(errors, hasSize(2));
+    assertThat(errors, hasSize(1));
   }
 
 
@@ -706,9 +814,8 @@ class NotificationReceiverValidationTest {
     var errors = validator.checkPhysicalAddress(moreBadRecipientsNewNotification());
 
     //THEN
-    assertThat(errors, hasSize(10));
+    assertThat(errors, hasSize(9));
     assertThat(errors, hasItems(
-            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("address"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("province"), Matchers.containsString("recipient 0"))),
             hasProperty("message", allOf(Matchers.containsString("zip"), Matchers.containsString("recipient 0"))),
@@ -906,32 +1013,56 @@ class NotificationReceiverValidationTest {
             .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
   }
 
+  private NewNotificationRequestV21 newNotificationDenominationCustom(String denomination) {
+    NotificationRecipientV21 notificationRecipient = NotificationRecipientV21.builder()
+            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+            .denomination( denomination )
+            .taxId( "taxID" )
+            .digitalDomicile( NotificationDigitalAddress.builder()
+                    .type( NotificationDigitalAddress.TypeEnum.PEC )
+                    .address( "address@pec.it" )
+                    .build() )
+            .physicalAddress( NotificationPhysicalAddress.builder()
+                    .at( "at" )
+                    .province( "province" )
+                    .zip( "83100" )
+                    .address( "address" )
+                    .addressDetails( "addressDetail" )
+                    .municipality( "municipality" )
+                    .municipalityDetails( "municipalityDetail" )
+                    .build() )
+            .build();
+    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+            .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
+            .senderTaxId("paId").recipients(Arrays.asList(notificationRecipient)).build();
+  }
+
   private FullSentNotificationV21 newFullSentNotification() {
     return FullSentNotificationV21.builder().sentAt(OffsetDateTime.now()).iun(IUN)
-            .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
-            .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
-            .notificationStatus(NotificationStatus.ACCEPTED)
-            .documents(Collections.singletonList(NotificationDocument.builder()
-                    .contentType("application/pdf")
-                    .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
-                            .build())
-                    .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
-            .recipients(Collections.singletonList(NotificationRecipientV21.builder()
-                    .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
-                    .denomination("Ada Lovelace")
-                    .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
-                            .type(NotificationDigitalAddress.TypeEnum.PEC).build())
-                    .physicalAddress( createPhysicalAddress() )
-                    .build())
-            )
-            .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement
-                    .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatus.ACCEPTED)
-                    .relatedTimelineElements(Collections.emptyList()).build()))
-            .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
-            .sourceChannel(X_PAGOPA_PN_SRC_CH)
-            .physicalCommunicationType(
-                    FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
-            .build();
+        .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
+        .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
+        .notificationStatus(NotificationStatus.ACCEPTED)
+        .documents(Collections.singletonList(NotificationDocument.builder()
+            .contentType("application/pdf")
+            .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
+                .build())
+            .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
+        .recipients(Collections.singletonList(NotificationRecipientV21.builder()
+            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+            .denomination("Ada Lovelace")
+            .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
+                .type(NotificationDigitalAddress.TypeEnum.PEC).build())
+                .physicalAddress( createPhysicalAddress() )
+                .build())
+        )
+        .notificationStatusHistory(Collections.singletonList(NotificationStatusHistoryElement
+            .builder().activeFrom(OffsetDateTime.now()).status(NotificationStatus.ACCEPTED)
+            .relatedTimelineElements(Collections.emptyList()).build()))
+        .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
+        .sourceChannel(X_PAGOPA_PN_SRC_CH)
+        .physicalCommunicationType(
+                FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+        .build();
   }
 
   private NewNotificationRequestV21 badRecipientsNewNotification2() {
