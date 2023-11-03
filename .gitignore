@@ -43,3 +43,6 @@ build/
 
 ### Lambda ###
 function.zip
+
+## MACOS stuff ###
+*.DS_Store
