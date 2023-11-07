@@ -17,7 +17,7 @@ public interface NotificationDao {
 
     void addNotification(InternalNotification notification) throws PnIdConflictException;
 
-    Optional<InternalNotification> getNotificationByIun(String iun);
+    Optional<InternalNotification> getNotificationByIun(String iun, boolean deanonymizeRecipients);
 
     Optional<String> getRequestId( String senderId, String paProtocolNumber, String idempotenceToken );
 

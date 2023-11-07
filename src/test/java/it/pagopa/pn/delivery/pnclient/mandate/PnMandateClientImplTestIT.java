@@ -1,5 +1,6 @@
 package it.pagopa.pn.delivery.pnclient.mandate;
 
+import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.MockAWSObjectsTest;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
@@ -8,12 +9,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
+import org.mockserver.model.Delay;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.client.ResourceAccessException;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -67,11 +71,40 @@ class PnMandateClientImplTestIT extends MockAWSObjectsTest {
                 .respond(response()
                         .withStatusCode(200)
                 );
-        mandateClient.listMandatesByDelegate(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null);
 
         //Then
         assertDoesNotThrow( () -> {
             mandateClient.listMandatesByDelegate(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null);
+        });
+
+    }
+
+
+    @Test
+    void getMandatesFailTimeout() {
+        //Given
+        String path = "/mandate-private/api/v1/mandates-by-internaldelegate/delegatea";
+
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setDelegate(DELEGATE+"a");
+        internalMandateDto.setDelegator(DELEGATOR);
+        internalMandateDto.mandateId(MANDATE_ID);
+        internalMandateDto.setDatefrom(MANDATE_DATE_FROM);
+
+        //When
+        new MockServerClient("localhost", 9998)
+                .when(request()
+                        .withMethod("GET")
+                        .withPath(path)
+                )
+                .respond(response()
+                        .withStatusCode(200)
+                        .withDelay(Delay.milliseconds(10000))
+                );
+
+        //Then
+        assertThrows(ResourceAccessException.class, () -> {
+            mandateClient.listMandatesByDelegate(DELEGATE+"a", MANDATE_ID, CxTypeAuthFleet.PF, null);
         });
 
     }
@@ -95,7 +128,6 @@ class PnMandateClientImplTestIT extends MockAWSObjectsTest {
                 .respond(response()
                         .withStatusCode(200)
                 );
-        mandateClient.listMandatesByDelegator(DELEGATE, MANDATE_ID, CxTypeAuthFleet.PF, null, null, null);
 
         //Then
         assertDoesNotThrow( () -> {

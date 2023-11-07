@@ -97,7 +97,7 @@ class ReceivedNotificationsDocumentTest {
 		Mockito.when( pnDataVaultClient.getRecipientDenominationByInternalId(Mockito.anyList())).thenReturn(createBaseRecipientDto());
 		Mockito.when( pnDataVaultClient.getNotificationAddressesByIun(Mockito.anyString())).thenReturn(new ArrayList<>());
 
-		Optional<InternalNotification> results = notificationDao.getNotificationByIun(Mockito.anyString());
+		Optional<InternalNotification> results = notificationDao.getNotificationByIun(Mockito.anyString(), false);
 
 		// Then
 
@@ -116,10 +116,7 @@ class ReceivedNotificationsDocumentTest {
 		Mockito.when( entityDao.get(Mockito.any(Key.class))).thenReturn(notificationEntities);
 		Mockito.when( entity2DtoMapper.entity2Dto(Mockito.any(NotificationEntity.class))).thenReturn(notifications);
 
-		Mockito.when( pnDataVaultClient.getRecipientDenominationByInternalId(Mockito.anyList())).thenReturn(createBaseRecipientDto());
-		Mockito.when( pnDataVaultClient.getNotificationAddressesByIun(Mockito.anyString())).thenReturn(new ArrayList<>());
-
-		Optional<InternalNotification> results = notificationDao.getNotificationByIun(Mockito.anyString());
+		Optional<InternalNotification> results = notificationDao.getNotificationByIun(Mockito.anyString(), false);
 
 		// Then
 
@@ -146,7 +143,7 @@ class ReceivedNotificationsDocumentTest {
 		Mockito.when( pnDataVaultClient.getRecipientDenominationByInternalId(Mockito.anyList())).thenReturn(createBaseRecipientDto());
 		Mockito.when( pnDataVaultClient.getNotificationAddressesByIun(Mockito.anyString())).thenReturn(new ArrayList<>());
 
-		Optional<InternalNotification> results = notificationDao.getNotificationByIun(Mockito.anyString());
+		Optional<InternalNotification> results = notificationDao.getNotificationByIun(Mockito.anyString(), false);
 
 		// Then
 		List<it.pagopa.pn.delivery.models.internal.notification.NotificationDocument> documents = results.get().getDocuments();

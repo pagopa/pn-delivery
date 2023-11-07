@@ -78,7 +78,7 @@ class NotificationDelegatedSearchWithIunTest {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setIun("N1");
         internalNotification.setRecipientIds(List.of("r1", "r2", "r3","r4","r5"));
-        when(notificationDao.getNotificationByIun(any())).thenReturn(Optional.of(internalNotification));
+        when(notificationDao.getNotificationByIun(any(), anyBoolean())).thenReturn(Optional.of(internalNotification));
         when(notificationDao.searchDelegatedForOneMonth(any(), any(), any(), anyInt(), any()))
                 .thenReturn(pst).thenReturn(pst);
 
