@@ -35,7 +35,6 @@ public class StatusService {
     private final NotificationMetadataEntityDao notificationMetadataEntityDao;
     private final NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao;
     private final NotificationDelegatedService notificationDelegatedService;
-    private final PnDataVaultClientImpl dataVaultClient;
     private final NotificationCostEntityDao notificationCostEntityDao;
 
     private final PnExternalRegistriesClientImpl externalRegistriesClient;
@@ -44,20 +43,18 @@ public class StatusService {
                          NotificationMetadataEntityDao notificationMetadataEntityDao,
                          NotificationDelegationMetadataEntityDao notificationDelegationMetadataEntityDao,
                          NotificationDelegatedService notificationDelegatedService,
-                         PnDataVaultClientImpl dataVaultClient,
                          NotificationCostEntityDao notificationCostEntityDao,
                          PnExternalRegistriesClientImpl externalRegistriesClient) {
         this.notificationDao = notificationDao;
         this.notificationMetadataEntityDao = notificationMetadataEntityDao;
         this.notificationDelegationMetadataEntityDao = notificationDelegationMetadataEntityDao;
         this.notificationDelegatedService = notificationDelegatedService;
-        this.dataVaultClient = dataVaultClient;
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.externalRegistriesClient = externalRegistriesClient;
     }
 
     public void updateStatus(RequestUpdateStatusDto dto) {
-        Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun());
+        Optional<InternalNotification> notificationOptional = notificationDao.getNotificationByIun(dto.getIun(), false);
 
         if (notificationOptional.isPresent()) {
             InternalNotification notification = notificationOptional.get();
@@ -79,10 +76,6 @@ public class StatusService {
                                                 .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCode())
                                                 .build());
                                     }
-                                    /*if(notificationPaymentInfo.getPagoPa() != null && StringUtils.hasText(notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative()))
-                                        notificationCostEntityDao.deleteItem(NotificationCostEntity.builder()
-                                                .creditorTaxIdNoticeCode(notificationPaymentInfo.getPagoPa().getCreditorTaxId() +"##"+ notificationPaymentInfo.getPagoPa().getNoticeCodeAlternative())
-                                                .build());*/
                                 }));
                 default -> {
                     Key key = Key.builder()
@@ -119,10 +112,7 @@ public class StatusService {
         String rootSenderId = externalRegistriesClient.getRootSenderId(notification.getSenderPaId());
         String creationMonth = DataUtils.extractCreationMonth( notification.getSentAt().toInstant() );
 
-        List<String> opaqueTaxIds = new ArrayList<>();
-        for (NotificationRecipient recipient : notification.getRecipients()) {
-            opaqueTaxIds.add( dataVaultClient.ensureRecipientByExternalId( RecipientType.fromValue(recipient.getRecipientType().getValue()), recipient.getTaxId() ));
-        }
+        List<String> opaqueTaxIds = notification.getRecipientIds();
 
         return opaqueTaxIds.stream()
                     .map( recipientId -> this.buildOneSearchMetadataEntry( notification, lastStatus, recipientId, opaqueTaxIds, creationMonth, acceptedAt, rootSenderId))

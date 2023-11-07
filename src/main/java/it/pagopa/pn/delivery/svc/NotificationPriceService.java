@@ -133,7 +133,7 @@ public class NotificationPriceService {
     }
 
     private InternalNotification getInternalNotification(String iun) {
-        Optional<InternalNotification> optionalNotification = notificationDao.getNotificationByIun(iun);
+        Optional<InternalNotification> optionalNotification = notificationDao.getNotificationByIun(iun, false);
         if (optionalNotification.isPresent()) {
             return optionalNotification.get();
         } else {
@@ -205,7 +205,7 @@ public class NotificationPriceService {
     }
 
     public void removeAllNotificationCostsByIun(String iun) {
-        InternalNotification notification = notificationDao.getNotificationByIun(iun)
+        InternalNotification notification = notificationDao.getNotificationByIun(iun, false)
                 .orElseThrow(() -> new PnNotificationNotFoundException(String.format("Notification with IUN: %s not found", iun)));
 
         notification.getRecipients().stream()

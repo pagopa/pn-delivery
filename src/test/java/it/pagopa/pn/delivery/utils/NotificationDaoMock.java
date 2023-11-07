@@ -34,7 +34,7 @@ public class NotificationDaoMock implements NotificationDao {
     }
 
     @Override
-    public Optional<InternalNotification> getNotificationByIun(String iun) {
+    public Optional<InternalNotification> getNotificationByIun(String iun, boolean deanonymizeRecipients) {
         return Optional.empty();
     }
 

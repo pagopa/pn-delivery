@@ -37,14 +37,12 @@ public class PaymentEventsService {
     private final PaymentEventsProducer paymentEventsProducer;
     private final NotificationCostEntityDao notificationCostEntityDao;
     private final NotificationDao notificationDao;
-    private final PnDataVaultClientImpl dataVaultClient;
     private final CheckAuthComponent checkAuthComponent;
 
-    public PaymentEventsService(PaymentEventsProducer paymentEventsProducer, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, PnDataVaultClientImpl dataVaultClient, CheckAuthComponent checkAuthComponent) {
+    public PaymentEventsService(PaymentEventsProducer paymentEventsProducer, NotificationCostEntityDao notificationCostEntityDao, NotificationDao notificationDao, CheckAuthComponent checkAuthComponent) {
         this.paymentEventsProducer = paymentEventsProducer;
         this.notificationCostEntityDao = notificationCostEntityDao;
         this.notificationDao = notificationDao;
-        this.dataVaultClient = dataVaultClient;
         this.checkAuthComponent = checkAuthComponent;
     }
     public String handlePaymentEventsPagoPa(String cxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, PaymentEventsRequestPagoPa paymentEventsRequest) {
@@ -71,7 +69,7 @@ public class PaymentEventsService {
 
             InternalNotification internalNotification;
             // recupero notifica tramite iun
-            Optional<InternalNotification> optionalInternalNotification = notificationDao.getNotificationByIun( iun );
+            Optional<InternalNotification> optionalInternalNotification = notificationDao.getNotificationByIun( iun, false );
             if ( optionalInternalNotification.isPresent() ) {
                 internalNotification = optionalInternalNotification.get();
             } else {
@@ -118,59 +116,5 @@ public class PaymentEventsService {
             log.info( "Handle payment event - No notification by creditorTaxId={} noticeCode={}", creditorTaxId, noticeCode);
             throw new PnNotificationNotFoundException( String.format( "No notification by creditorTaxId=%s noticeCode=%s", creditorTaxId, noticeCode) );
         }
-    }
-
-    public void handlePaymentEventsF24(String cxTypePa, String cxIdPaId, List<String> xPagopaPnCxGroups, PaymentEventsRequestF24 paymentEventsRequestF24) {
-        List<InternalPaymentEvent> paymentEvents = new ArrayList<>( paymentEventsRequestF24.getEvents().size() );
-
-        for (PaymentEventF24 paymentEventF24 : paymentEventsRequestF24.getEvents() ) {
-            String iun = paymentEventF24.getIun();
-            int recipientIdx;
-            InternalNotification internalNotification;
-
-            Optional<InternalNotification> optionalInternalNotification = notificationDao.getNotificationByIun( iun );
-            if ( optionalInternalNotification.isPresent() ) {
-                internalNotification = optionalInternalNotification.get();
-
-                // opacizzo recipientTaxId tramite pn-datavault
-                String recipientInternalId = dataVaultClient.ensureRecipientByExternalId(  RecipientType.valueOf( paymentEventF24.getRecipientType() ), paymentEventF24.getRecipientTaxId() );
-                List<NotificationRecipient> internalNotificationRecipients = internalNotification.getRecipients();
-                Optional<NotificationRecipient> optionalNotificationRecipient = internalNotificationRecipients.stream().filter(rec -> rec.getInternalId().equals( recipientInternalId )).findFirst();
-                if (optionalNotificationRecipient.isPresent() ) {
-                    // setto recipientIdx del destinatario che ha effettuato il pagamento
-                    NotificationRecipient notificationRecipient = optionalNotificationRecipient.get();
-                    recipientIdx = internalNotification.getRecipientIds().indexOf( notificationRecipient.getInternalId() );
-                } else {
-                    log.info( "Handle payment event - No notification iun={} with recipientInternalId={}", iun, recipientInternalId );
-                    throw new PnNotificationNotFoundException( NOTIFICATION_NOT_FOUND_MSG + iun + " with recipientInternalId="+ recipientInternalId );
-                }
-            } else {
-                log.info( HANDLE_PAYMENT_EVENT_F24_NO_NOTIFICATION_BY_IUN_MSG, iun );
-                throw new PnNotificationNotFoundException( NOTIFICATION_NOT_FOUND_MSG + iun );
-            }
-
-            // controllo autorizzazione
-            ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxTypePa, cxIdPaId, null, xPagopaPnCxGroups, iun, recipientIdx );
-            AuthorizationOutcome authorizationOutcome = checkAuthComponent.canAccess( readAccessAuth, internalNotification );
-
-            if ( !authorizationOutcome.isAuthorized() ) {
-                log.info( HANDLE_PAYMENT_EVENT_F24_NO_NOTIFICATION_BY_IUN_MSG, iun );
-                throw new PnNotificationNotFoundException( NOTIFICATION_NOT_FOUND_MSG + iun );
-            }
-
-            paymentEvents.add( InternalPaymentEvent.builder()
-                    .iun( iun )
-                    .recipientType( PnDeliveryPaymentEvent.RecipientType.valueOf( paymentEventF24.getRecipientType() ) )
-                    .recipientIdx( recipientIdx )
-                    .paymentSourceChannel( PAYMENT_SOURCE_CHANNEL_PA )
-                    .paymentDate( paymentEventF24.getPaymentDate().toInstant() )
-                    .uncertainPaymentDate( false )
-                    //.paymentType( PnDeliveryPaymentEvent.PaymentType.F24 )
-                    .paymentAmount( paymentEventF24.getAmount() )
-                    .build()
-            );
-        }
-        // pubblico eventi sulla coda di delivery-push
-        paymentEventsProducer.sendPaymentEvents( paymentEvents );
     }
 }

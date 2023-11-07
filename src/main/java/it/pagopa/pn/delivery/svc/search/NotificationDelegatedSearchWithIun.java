@@ -52,7 +52,7 @@ public class NotificationDelegatedSearchWithIun extends NotificationSearch {
         List<PnLastEvaluatedKey> lastEvaluatedKeys = new ArrayList<>();
         Integer maxPageNumber = searchDto.getMaxPageNumber() != null ? searchDto.getMaxPageNumber() : cfg.getMaxPageSize();
         int requiredSize = searchDto.getSize() * maxPageNumber + 1;
-        Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(searchDto.getIun());
+        Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(searchDto.getIun(), false);
         if (optNotification.isPresent()) {
             List<String> recipientIds = optNotification.get().getRecipientIds();
             List<String> evaluatedRecipientIds;

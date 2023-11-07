@@ -1,7 +1,6 @@
 package it.pagopa.pn.delivery.svc;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.RequestUpdateStatusDto;
@@ -51,9 +50,6 @@ class StatusServiceTest {
     @Mock
     private NotificationDelegatedService notificationDelegatedService;
     @Mock
-    private PnDataVaultClientImpl dataVaultClient;
-
-    @Mock
     private PnExternalRegistriesClientImpl externalRegistriesClient;
     
     private StatusService statusService;
@@ -62,27 +58,19 @@ class StatusServiceTest {
 
     @BeforeEach
     public void setup() {
-        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, notificationDelegationMetadataEntityDao, notificationDelegatedService, dataVaultClient, notificationCostEntityDao, externalRegistriesClient);
+        statusService = new StatusService(notificationDao, notificationMetadataEntityDao, notificationDelegationMetadataEntityDao, notificationDelegatedService, notificationCostEntityDao, externalRegistriesClient);
     }
 
     @ExtendWith(MockitoExtension.class)
     @Test
-    @Disabled
     void updateStatus() {
 
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
 
-        Key key = Key.builder()
-                .partitionValue( iun + "##" + "recipientInternalId" )
-                .sortValue( "2021-09-16T15:00Z" )
-                .build();
-
         // WHEN
         Optional<InternalNotification> notification = Optional.of(newInternalNotification(iun, NotificationStatus.ACCEPTED));
-        when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
-        when( dataVaultClient.ensureRecipientByExternalId( RecipientType.PF, "CodiceFiscale" ) )
-                .thenReturn( "CodiceFiscale" );
-        when(notificationMetadataEntityDao.get( key )).thenReturn( Optional.of( NotificationMetadataEntity.builder()
+        when(notificationDao.getNotificationByIun(iun, false)).thenReturn(notification);
+        when(notificationMetadataEntityDao.get( Mockito.any(Key.class) )).thenReturn( Optional.of( NotificationMetadataEntity.builder()
                         .tableRow( Map.of( "acceptedAt", "2021-09-16T16:00Z") )
                 .build() )
         );
@@ -110,7 +98,7 @@ class StatusServiceTest {
                 .timestamp( OffsetDateTime.now() )
                 .build();
 
-        when(notificationDao.getNotificationByIun(iun)).thenReturn(Optional.empty());
+        when(notificationDao.getNotificationByIun(iun, false)).thenReturn(Optional.empty());
 
         Executable todo = () -> statusService.updateStatus( dto );
 
@@ -138,7 +126,7 @@ class StatusServiceTest {
 
         // WHEN
         Optional<InternalNotification> notification = Optional.of(newInternalNotification(iun, NotificationStatus.IN_VALIDATION));
-        when(notificationDao.getNotificationByIun(iun)).thenReturn(notification);
+        when(notificationDao.getNotificationByIun(iun, false)).thenReturn(notification);
         notification.get().setRecipients(List.of(notificationRecipient));
 
         RequestUpdateStatusDto dto = RequestUpdateStatusDto.builder()
@@ -157,7 +145,7 @@ class StatusServiceTest {
     void updateStatusDefault() {
         String iun = "202109-eb10750e-e876-4a5a-8762-c4348d679d35";
         Optional<InternalNotification> Internalnotification = Optional.of(newInternalNotification(iun, NotificationStatus.IN_VALIDATION));
-        when(notificationDao.getNotificationByIun(iun)).thenReturn(Internalnotification);
+        when(notificationDao.getNotificationByIun(iun, false)).thenReturn(Internalnotification);
 
         // WHEN
         Optional<NotificationMetadataEntity> notification = Optional.of(NotificationMetadataEntity.builder()
@@ -190,7 +178,7 @@ class StatusServiceTest {
         notificationRecipient.setPayment(List.of(notificationPaymentInfo));
 
         Optional<InternalNotification> internalNotification = Optional.of(newInternalNotification(iun, NotificationStatus.IN_VALIDATION));
-        when(notificationDao.getNotificationByIun(iun)).thenReturn(internalNotification);
+        when(notificationDao.getNotificationByIun(iun, false)).thenReturn(internalNotification);
         internalNotification.get().setRecipients(List.of(notificationRecipient));
         internalNotification.get().setRecipientIds(List.of("recipientId"));
         // WHEN
@@ -226,6 +214,7 @@ class StatusServiceTest {
         internalNotification.setCancelledIun("IUN_00");
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setNotificationStatus(inValidation);
+        internalNotification.setRecipientIds(List.of("internalId"));
         return internalNotification;
     }
 
@@ -240,7 +229,7 @@ class StatusServiceTest {
 
         InternalNotification notification = newInternalNotification( "FAKE_IUN", NotificationStatus.IN_VALIDATION );
 
-        when( notificationDao.getNotificationByIun( Mockito.anyString() ) ).thenReturn( Optional.of( notification ) );
+        when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) ).thenReturn( Optional.of( notification ) );
 
         assertDoesNotThrow(() -> statusService.updateStatus( requestUpdateStatusDto ) );
         Mockito.verify(notificationMetadataEntityDao, times(1)).put(Mockito.any());

@@ -135,7 +135,7 @@ class NotificationAttachmentServiceTest {
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
@@ -171,7 +171,7 @@ class NotificationAttachmentServiceTest {
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
@@ -198,7 +198,7 @@ class NotificationAttachmentServiceTest {
 
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.fail();
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
@@ -225,7 +225,7 @@ class NotificationAttachmentServiceTest {
 
     Optional<InternalNotification> optNotification = Optional.empty();
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
 
@@ -256,7 +256,7 @@ class NotificationAttachmentServiceTest {
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
             Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
@@ -287,7 +287,7 @@ class NotificationAttachmentServiceTest {
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
@@ -323,7 +323,7 @@ class NotificationAttachmentServiceTest {
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
@@ -358,7 +358,7 @@ class NotificationAttachmentServiceTest {
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.ok(recipient, 0);
 
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
     when(checkAuthComponent.canAccess(Mockito.any(ReadAccessAuth.class),
@@ -401,7 +401,7 @@ class NotificationAttachmentServiceTest {
     internalMandateDto.setDelegate(xPagopaPnCxId);
     internalMandateDto.setDelegator(internalIdDelegator);
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
     when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))
@@ -438,7 +438,7 @@ class NotificationAttachmentServiceTest {
     AuthorizationOutcome authorizationOutcome = AuthorizationOutcome.fail();
 
 
-    when(notificationDao.getNotificationByIun(Mockito.anyString())).thenReturn(optNotification);
+    when(notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean())).thenReturn(optNotification);
     when(pnSafeStorageClient.getFile(Mockito.anyString(), Mockito.anyBoolean()))
             .thenReturn(buildFileDownloadResponse());
     when(pnMandateClient.listMandatesByDelegate(Mockito.anyString(), Mockito.anyString(), any(), any()))

@@ -235,7 +235,7 @@ public class NotificationAttachmentService {
 
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest( cxType, cxId, mandateId, cxGroups, iun, recipientIdx );
 
-        Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun);
+        Optional<InternalNotification> optNotification = notificationDao.getNotificationByIun(iun, false);
         if (optNotification.isPresent()) {
             InternalNotification notification = optNotification.get();
 
