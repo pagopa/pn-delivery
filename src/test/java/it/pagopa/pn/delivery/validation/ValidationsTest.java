@@ -60,7 +60,7 @@ class ValidationsTest {
         String url1 = "https://api-app.io.pagopa.it/api/v1/third-party-messages/asdasd123qwasdasdasdvxvs23";
         String url2 = "https://api-app.io.pagopa.it/api/v1/third-party-messages/asdasd123qwasdasdasdvxvs23/attachments/delivery/notifications/received/ENZE-EUJU-UMGL-202306-H-1/attachments/documents/0";
         String url3 = "https://api-app.io.pagopa.it/api/v1/third-party-messages/asdasd123qwasdasdasdvxvs23/attachments/delivery/notifications/received/ENZE-EUJU-UMGL-202306-H-1/attachments/payment/F24/?attachmentIdx=0";
-        String regex = "^https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/documents/[0-9])?(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/payment/(F24|PAGOPA)(/?\\?attachmentIdx=\\d+))?$";
+        String regex = "^https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/documents/[0-9])?(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/payment/(F24|PAGOPA)(/?\\?attachmentIdx\\x3D\\d+))?$";
 
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher1 = pattern.matcher(url1);

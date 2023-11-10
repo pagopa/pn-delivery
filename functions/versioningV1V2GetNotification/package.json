@@ -23,8 +23,5 @@
         "fetch-mock": "^9.11.0"
     },
     "author": "",
-    "license": "ISC",
-    "dependencies": {
-        
-    }
+    "license": "ISC"
 }

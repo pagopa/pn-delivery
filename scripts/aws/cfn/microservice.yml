@@ -171,7 +171,23 @@ Parameters:
     Description: 'Flag to activate the physical address validation. Default: false'
     Default: false
     AllowedValues: [ true,false ]
-  
+
+  DenominationLength:
+    Type: Number
+    Description: 'denomination length'
+    Default: 44
+
+  DenominationValidationTypeValue:
+    Type: String
+    Description: 'Flag to activate the denomination validation. Default: NONE'
+    Default: "NONE"
+    AllowedValues: [ NONE,REGEX,ISO_LATIN_1 ]
+
+  DenominationValidationRegexValue:
+    Type: String
+    Description: 'regex for denomination validation.'
+
+
   PhysicalAddressValidationCharsValue:
     Type: String
     Description: 'Physical address validation. Allowed Characters'
@@ -491,8 +507,11 @@ Resources:
         ContainerEnvEntry31: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATION=${PhysicalAddressValidationValue}'
         ContainerEnvEntry32: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONPATTERN=${PhysicalAddressValidationCharsValue}'
         ContainerEnvEntry33: !Sub 'PN_DELIVERY_PHYSICALADDRESSVALIDATIONLENGTH=${PhysicalAddressValidationLength}'
-        ContainerEnvEntry34: 'PN_DELIVERY_F24CXID=pn-delivery'
-        ContainerEnvEntry35: !Sub 'PN_DELIVERY_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry34: !Sub 'PN_DELIVERY_DENOMINATIONLENGTH=${DenominationLength}'
+        ContainerEnvEntry35: !Sub 'PN_DELIVERY_DENOMINATIONVALIDATIONTYPEVALUE=${DenominationValidationTypeValue}'
+        ContainerEnvEntry36: !Sub 'PN_DELIVERY_DENOMINATIONVALIDATIONREGEXVALUE=${DenominationValidationRegexValue}'
+        ContainerEnvEntry37: 'PN_DELIVERY_F24CXID=pn-delivery'
+        ContainerEnvEntry38: !Sub 'PN_DELIVERY_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
