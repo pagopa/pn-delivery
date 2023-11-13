@@ -47,6 +47,50 @@ describe("eventHandler tests", function () {
     expect(response.statusCode).to.equal(200);
   });
 
+  it("statusCode 400", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
+    let notification = JSON.parse(notificationJSON);
+    notification.notificationStatus = "AAAAA";
+
+    beforeEach(() => {
+      fetchMock.reset();
+    });
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    const eventHandler = proxyquire
+      .noCallThru()
+      .load("../app/eventHandler.js", {});
+
+    fetchMock.mock(url, {
+      status: 200,
+      body: notification,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await eventHandler.versioning(event, context);
+
+    expect(response.statusCode).to.equal(400);
+  });
+
   it("statusCode 200 headers setting", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
@@ -307,7 +351,7 @@ describe("eventHandler tests", function () {
       .load("../app/eventHandler.js", {});
 
     fetchMock.mock(url, () => {
-      throw new Error();
+      throw new Error("errore fetch");
     });
 
     const event = {
@@ -323,6 +367,7 @@ describe("eventHandler tests", function () {
     const context = {};
 
     const response = await eventHandler.versioning(event, context);
+    console.log("response ", response)
 
     expect(response.statusCode).to.equal(400);
   });
