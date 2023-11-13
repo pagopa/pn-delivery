@@ -117,14 +117,15 @@ exports.versioning = async (event, context) => {
     return ret;
   } catch (error) {
     if (error instanceof ValidationException) {
+      console.info("Validation Exception: ", error)
       return {
         statusCode: 400,
         body: JSON.stringify(generateProblem(400, error.message))
       }
     } else {
-      console.error("Error on url " + url, error)
+      console.warn("Error on url " + url, error)
       return {
-        statusCode: 502,
+        statusCode: 500,
         body: JSON.stringify(generateProblem(502, error.message))
       }
     }
@@ -268,7 +269,7 @@ exports.versioning = async (event, context) => {
 
   function transformDigitalAddress(address) {
     if (!address.type || address.type != "PEC") {
-      throw new ValidationException("address type not supported ");
+      throw new ValidationException("Address type not supported ");
     }
 
     return {
