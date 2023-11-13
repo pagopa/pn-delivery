@@ -321,16 +321,6 @@ exports.versioning = async (event, context) => {
     if (paymentsV21.some((paymentV21) => paymentV21.f24)) {
       throw new ValidationException("Unable to map payment f24 type");
     }
-    // allegati di pagamento devono essere uguali (stesso sha) else throw exception
-    if (
-      paymentsV21.length > 1 &&
-      paymentsV21[0].pagoPa.attachment &&
-      paymentsV21[1].pagoPa.attachment &&
-      paymentsV21[0].pagoPa.attachment.digests.sha256 !==
-        paymentsV21[1].pagoPa.attachment.digests.sha256
-    ) {
-      throw new ValidationException("Unable to map payments with different attachment");
-    }
 
     // riempio noticeCode e in caso noticeCodeAlternative
     const paymentV1 = {

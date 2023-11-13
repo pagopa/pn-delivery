@@ -583,48 +583,4 @@ describe("eventHandler tests", function () {
     expect(res.statusCode).to.equal(400)
   });
 
-  it("Unable to map more attachment different sha", async () => {
-    const notificationJSON = fs.readFileSync("./src/test/notification.json");
-    let notification = JSON.parse(notificationJSON);
-
-    notification.recipients[0].payments[1].pagoPa.attachment.digests.sha256 = 'differentSha';
-
-    beforeEach(() => {
-      fetchMock.reset();
-    });
-
-    process.env = Object.assign(process.env, {
-      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
-    });
-
-    const iunValue = "12345";
-
-    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
-
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
-
-    fetchMock.mock(url, {
-      status: 200,
-      body: notification,
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const event = {
-      pathParameters: { iun: iunValue },
-      headers: {},
-      requestContext: {
-        authorizer: {},
-      },
-      resource: "/notifications/sent/{iun}",
-      path: "/delivery/notifications/sent/MOCK_IUN",
-      httpMethod: "GET",
-    };
-    const context = {};
-
-    const res = await eventHandler.versioning(event, context);
-    expect(res.statusCode).to.equal(400)
-  });
-
 });
