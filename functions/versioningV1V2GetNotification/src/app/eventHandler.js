@@ -1,4 +1,5 @@
-// converte la risposta V2.1 a V1
+// converte la risposta V2.x a V1
+const {ValidationException} = require("./exceptions.js");
 
 exports.versioning = async (event, context) => {
   const path = "/notifications/sent/";
@@ -22,7 +23,7 @@ exports.versioning = async (event, context) => {
     return err;
   }
 
-  console.log("Versioning_V1-V21_GetNotification_Lambda function started");
+  console.log("Versioning_V1-V2_GetNotification_Lambda function started");
 
   const IUN = event.pathParameters["iun"];
 
@@ -115,11 +116,30 @@ exports.versioning = async (event, context) => {
     };
     return ret;
   } catch (error) {
-    const ret = {
-      statusCode: 400,
-      body: error,
-    };
-    return ret;
+    if (error instanceof ValidationException) {
+      console.info("Validation Exception: ", error)
+      return {
+        statusCode: 400,
+        body: JSON.stringify(generateProblem(400, error.message))
+      }
+    } else {
+      console.warn("Error on url " + url, error)
+      return {
+        statusCode: 500,
+        body: JSON.stringify(generateProblem(502, error.message))
+      }
+    }
+  }
+
+  function generateProblem(status, message) {
+    return {
+      status: status,
+      errors: [
+        {
+          code: message
+        }
+      ]
+    }
   }
 
   function transformObject(responseV2) {
@@ -138,7 +158,7 @@ exports.versioning = async (event, context) => {
     ];
 
     if (!notificationStatus_ENUM.includes(responseV2.notificationStatus)) {
-      throw new Error("Status not supported");
+      throw new ValidationException("Status not supported");
     }
 
     const iun = responseV2.iun;
@@ -255,7 +275,7 @@ exports.versioning = async (event, context) => {
 
   function transformDigitalAddress(address) {
     if (!address.type || address.type != "PEC") {
-      throw Error("address type not supported ");
+      throw new ValidationException("Address type not supported ");
     }
 
     return {
@@ -279,7 +299,7 @@ exports.versioning = async (event, context) => {
 
   function transformPaymentFromV21ToV1(paymentsV21) {
     console.log("transformPaymentFromV21ToV1 - paymentsV21", paymentsV21);
-    
+
     // max 2 pagamenti else throw exception
     if (paymentsV21.length > 2) {
       throw new Error("Unable to map payments, more than 2");
@@ -293,17 +313,17 @@ exports.versioning = async (event, context) => {
        paymentsV21[0].pagoPa.attachment.digests.sha256 !== paymentsV21[1].pagoPa.attachment.digests.sha256 ) {
       throw new Error("Unable to map payments with different attachment");
     }
-    
+
     // riempio noticeCode e in caso noticeCodeAlternative
     const paymentV1 = {
       noticeCode: paymentsV21[0].pagoPa.noticeCode,
       creditorTaxId: paymentsV21[0].pagoPa.creditorTaxId
     }
-    
+
     if (paymentsV21.length > 1) {
       paymentV1.noticeCodeAlternative = paymentsV21[1].pagoPa.noticeCode;
     }
-    
+
     if (paymentsV21[0].pagoPa.attachment) {
       paymentV1.pagoPaForm = {
         digests: {
@@ -343,7 +363,7 @@ exports.versioning = async (event, context) => {
 
   function transformNotificationFeePolicy(policy) {
     if (policy != "FLAT_RATE" && policy != "DELIVERY_MODE") {
-      throw new Error("NotificationFeePolicy value not supported");
+      throw new ValidationException("NotificationFeePolicy value not supported");
     }
 
     return policy;
@@ -351,7 +371,7 @@ exports.versioning = async (event, context) => {
 
   function transformPhysicalCommunicationType(type) {
     if (type != "AR_REGISTERED_LETTER" && type != "REGISTERED_LETTER_890") {
-      throw new Error("PhysicalCommunicationType value not supported");
+      throw new ValidationException("PhysicalCommunicationType value not supported");
     }
 
     return type;
@@ -359,7 +379,7 @@ exports.versioning = async (event, context) => {
 
   function transformPagoPaIntMode(intmode) {
     if (intmode != "SYNC" && intmode != "NONE") {
-      throw new Error("PagoPaIntMode value not supported");
+      throw new ValidationException("PagoPaIntMode value not supported");
     }
     return intmode;
   }
