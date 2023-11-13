@@ -133,7 +133,7 @@ exports.versioning = async (event, context) => {
       console.warn("Error on url " + url, error)
       return {
         statusCode: 500,
-        body: JSON.stringify(generateProblem(502, error.message))
+        body: JSON.stringify(generateProblem(500, error.message))
       }
     }
   }
@@ -315,11 +315,11 @@ exports.versioning = async (event, context) => {
 
     // max 2 pagamenti else throw exception
     if (paymentsV21.length > 2) {
-      throw new Error("Unable to map payments, more than 2");
+      throw new ValidationException("Unable to map payments, more than 2");
     }
     // se una tipologia di pagamento presente é F24 errore
     if (paymentsV21.some((paymentV21) => paymentV21.f24)) {
-      throw new Error("Unable to map payment f24 type");
+      throw new ValidationException("Unable to map payment f24 type");
     }
     // allegati di pagamento devono essere uguali (stesso sha) else throw exception
     if (
@@ -329,7 +329,7 @@ exports.versioning = async (event, context) => {
       paymentsV21[0].pagoPa.attachment.digests.sha256 !==
         paymentsV21[1].pagoPa.attachment.digests.sha256
     ) {
-      throw new Error("Unable to map payments with different attachment");
+      throw new ValidationException("Unable to map payments with different attachment");
     }
 
     // riempio noticeCode e in caso noticeCodeAlternative

@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: r9l9H3bgZKHOCB7Hq2yuyshqJGj8jfjofnAdvUFH6qA=
+  version: xwAQ6PNHfls3nO53rTeBPlS/Nc+uRl3rDS6EoqKKVro=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -880,6 +880,8 @@ paths:
       tags:
         - SenderReadB2B
       operationId: retrieveSentNotificationV20
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -906,9 +908,8 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-delivery-versioning-v1v2-getnotification-lambda:live/invocations
+        httpMethod: POST
         requestParameters:
           integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
           integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
@@ -920,22 +921,9 @@ paths:
           integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
           integration.request.path.iun: method.request.path.iun
         passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
+        contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /v2.0/notifications/sent/{iun} API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.0/notifications/sent/{iun}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.iun: method.request.path.iun
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
+        type: aws_proxy
 components:
   parameters:
     notificationRequestId:

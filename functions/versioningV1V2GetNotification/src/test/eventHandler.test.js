@@ -47,6 +47,94 @@ describe("eventHandler tests", function () {
     expect(response.statusCode).to.equal(200);
   });
 
+  it("statusCode 200 v2.0", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
+    let notification = JSON.parse(notificationJSON);
+
+    beforeEach(() => {
+      fetchMock.reset();
+    });
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    const eventHandler = proxyquire
+      .noCallThru()
+      .load("../app/eventHandler.js", {});
+
+    fetchMock.mock(url, {
+      status: 200,
+      body: notification,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/v2.0/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await eventHandler.versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+    expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.greaterThanOrEqual(0)
+  });
+
+  it("statusCode 200 v1", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
+    let notification = JSON.parse(notificationJSON);
+
+    beforeEach(() => {
+      fetchMock.reset();
+    });
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    const eventHandler = proxyquire
+      .noCallThru()
+      .load("../app/eventHandler.js", {});
+
+    fetchMock.mock(url, {
+      status: 200,
+      body: notification,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "/notifications/sent/{iun}",
+      path: "/delivery/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await eventHandler.versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+    expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.equal(-1)
+  });
+
   it("statusCode 400", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
@@ -369,10 +457,10 @@ describe("eventHandler tests", function () {
     const response = await eventHandler.versioning(event, context);
     console.log("response ", response)
 
-    expect(response.statusCode).to.equal(400);
+    expect(response.statusCode).to.equal(500);
   });
 
-  it("Unamble to map more than 2 payments", async () => {
+  it("Unable to map more than 2 payments", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
 
