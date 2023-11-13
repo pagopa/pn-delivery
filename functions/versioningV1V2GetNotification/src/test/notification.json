@@ -34,17 +34,7 @@
                     "pagoPa": {
                         "noticeCode": "302011695374606355",
                         "creditorTaxId": "77777777777",
-                        "applyCost": true,
-                        "attachment": {
-                            "digests": {
-                                "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
-                            },
-                            "contentType": "application/pdf",
-                            "ref": {
-                                "key": "PN_NOTIFICATION_ATTACHMENTS-7e5e2a329ead4a8aa57240cde190710a.pdf",
-                                "versionToken": "v1"
-                            }
-                        }
+                        "applyCost": true
                     }
                 }
             ],
@@ -432,6 +422,16 @@
                 "recIndex": 0,
                 "notificationCost": 100,
                 "notRefinedRecipientIndexes": []
+            }
+        },
+        {
+            "elementId": "NOTIFICATION_CANCELLATION_REQUEST.IUN_EDXD-TUPX-LNWH-202309-Z-1",
+            "timestamp": "2023-09-15T10:59:34.366420178Z",
+            "legalFactsIds": [],
+            "category": "NOTIFICATION_CANCELLATION_REQUEST",
+            "details": {
+                "nextSourceAttemptsMade": 0,
+                "cancellationRequestId": "f4fcc954-8d21-4cf7-ae4d-347cc2f64ac0"
             }
         }
     ],

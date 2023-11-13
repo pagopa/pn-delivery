@@ -105,7 +105,6 @@ function fromPaymentV1toPaymentsV21(paymentV1, applyCostFlag) {
       noticeCode: paymentV1.noticeCodeAlternative,
       creditorTaxId: paymentV1.creditorTaxId,
       applyCost: applyCostFlag,
-      attachment: paymentAttachment
     };
     const paymentV21Alternative = {
       pagoPa: pagoPaPaymentAlternative
