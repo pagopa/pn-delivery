@@ -688,6 +688,9 @@ Resources:
           - ','
           - - !GetAtt PnDeliveryInsertTriggerLambda.Arn
             - !GetAtt PnDeliveryAsseverationLambda.Arn
+            - !GetAtt VersioningV1V2GetNotificationLambda.Arn
+            - !GetAtt VersioningV1V21SendNewNotificationLambda.Arn
+            - !GetAtt VersioningV1V21GetNotificationRequestStatusLambda.Arn
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -711,6 +714,9 @@ Resources:
             - !Ref PnDeliveryAsseverationDLQAlarmARN
             - !GetAtt PnDeliveryAsseverationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !Ref PnDeliveryAsseverationAgeAlarmARN
+            - !GetAtt VersioningV1V2GetNotificationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt VersioningV1V21SendNewNotificationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt VersioningV1V21GetNotificationRequestStatusLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         QueueArns: !Join
           - ','
           - - !Ref Mandate2DeliveryQueueARN
@@ -718,7 +724,12 @@ Resources:
         LogGroupsNames: !Join
           - ','
           - - !Sub '/aws/ecs/${ProjectName}-delivery'
-
+            - !Sub '/aws/lambda/${PnDeliveryInsertTriggerLambdaName}'
+            - !Sub '/aws/lambda/${PnDeliveryAsseverationLambdaName}'
+            - !Sub '/aws/lambda/${VersioningV1V2GetNotificationLambdaName}'
+            - !Sub '/aws/lambda/${VersioningV1V21SendNewNotificationLambdaName}'
+            - !Sub '/aws/lambda/${VersioningV1V21GetNotificationRequestStatusLambdaName}'
+            
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
     Type: AWS::IAM::Role

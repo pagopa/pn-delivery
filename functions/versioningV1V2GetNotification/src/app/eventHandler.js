@@ -1,10 +1,11 @@
-// converte la risposta V2.1 a V1
+// converte la risposta V2.x a V1
+const {ValidationException} = require("./exceptions.js");
 
 exports.versioning = async (event, context) => {
   const path = "/notifications/sent/";
 
   if (
-    event["resource"] !== `${path}{iun}` ||
+    event["resource"].indexOf(`${path}{iun}`) < 0 ||
     !event["path"].startsWith("/delivery/") ||
     event["httpMethod"].toUpperCase() !== "GET"
   ) {
@@ -22,13 +23,13 @@ exports.versioning = async (event, context) => {
     return err;
   }
 
-  console.log("Versioning_V1-V21_GetNotification_Lambda function started");
+  console.log("Versioning_V1-V2.x_GetNotification_Lambda function started");
 
   const IUN = event.pathParameters["iun"];
 
   const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
 
-  const CATEGORIES = [
+  let CATEGORIES = [
     "SENDER_ACK_CREATION_REQUEST",
     "VALIDATE_NORMALIZE_ADDRESSES_REQUEST",
     "NORMALIZED_ADDRESS",
@@ -67,6 +68,13 @@ exports.versioning = async (event, context) => {
     "NOT_HANDLED",
     "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS",
   ];
+
+  // v2.0 must add never categories to the allowed ones
+  if (event["path"].startsWith("/delivery/v2.0/")) {
+    CATEGORIES.push("NOTIFICATION_CANCELLATION_REQUEST");
+    CATEGORIES.push("NOTIFICATION_CANCELLED");
+    CATEGORIES.push("PREPARE_ANALOG_DOMICILE_FAILURE");
+  }
 
   const headers = JSON.parse(JSON.stringify(event["headers"]));
   headers["x-pagopa-pn-src-ch"] = "B2B";
@@ -115,15 +123,33 @@ exports.versioning = async (event, context) => {
     };
     return ret;
   } catch (error) {
-    const ret = {
-      statusCode: 400,
-      body: error,
-    };
-    return ret;
+    if (error instanceof ValidationException) {
+      console.info("Validation Exception: ", error)
+      return {
+        statusCode: 400,
+        body: JSON.stringify(generateProblem(400, error.message))
+      }
+    } else {
+      console.warn("Error on url " + url, error)
+      return {
+        statusCode: 500,
+        body: JSON.stringify(generateProblem(500, error.message))
+      }
+    }
+  }
+
+  function generateProblem(status, message) {
+    return {
+      status: status,
+      errors: [
+        {
+          code: message
+        }
+      ]
+    }
   }
 
   function transformObject(responseV2) {
-
     const notificationStatus_ENUM = [
       "IN_VALIDATION",
       "ACCEPTED",
@@ -138,7 +164,7 @@ exports.versioning = async (event, context) => {
     ];
 
     if (!notificationStatus_ENUM.includes(responseV2.notificationStatus)) {
-      throw new Error("Status not supported");
+      throw new ValidationException("Status not supported");
     }
 
     const iun = responseV2.iun;
@@ -226,18 +252,25 @@ exports.versioning = async (event, context) => {
 
     const taxId = recipient.taxId;
     const denomination = recipient.denomination;
-    const digitalDomicile = recipient.digitalDomicile ? transformDigitalAddress(recipient.digitalDomicile) : undefined;
-    const physicalAddress = recipient.physicalAddress ? transformPhysicalAddress(recipient.physicalAddress) : undefined;
+    const digitalDomicile = recipient.digitalDomicile
+      ? transformDigitalAddress(recipient.digitalDomicile)
+      : undefined;
+    const physicalAddress = recipient.physicalAddress
+      ? transformPhysicalAddress(recipient.physicalAddress)
+      : undefined;
 
     let paymentV1 = undefined;
-    if(recipient.payments) {
-      paymentV1 = recipient.payments.length > 0 ? transformPaymentFromV21ToV1(recipient.payments) : undefined;
+    if (recipient.payments) {
+      paymentV1 =
+        recipient.payments.length > 0
+          ? transformPaymentFromV21ToV1(recipient.payments)
+          : undefined;
     }
 
     const ret = {
       recipientType: recipientType,
       taxId: taxId,
-      denomination: denomination
+      denomination: denomination,
     };
 
     if (digitalDomicile) {
@@ -246,16 +279,16 @@ exports.versioning = async (event, context) => {
     if (physicalAddress) {
       ret.physicalAddress = physicalAddress;
     }
-    if(paymentV1) {
+    if (paymentV1) {
       ret.payment = paymentV1;
-  }
+    }
 
     return ret;
   }
 
   function transformDigitalAddress(address) {
     if (!address.type || address.type != "PEC") {
-      throw Error("address type not supported ");
+      throw new ValidationException("Address type not supported ");
     }
 
     return {
@@ -279,42 +312,37 @@ exports.versioning = async (event, context) => {
 
   function transformPaymentFromV21ToV1(paymentsV21) {
     console.log("transformPaymentFromV21ToV1 - paymentsV21", paymentsV21);
-    
+
     // max 2 pagamenti else throw exception
     if (paymentsV21.length > 2) {
-      throw new Error("Unable to map payments, more than 2");
+      throw new ValidationException("Unable to map payments, more than 2");
     }
     // se una tipologia di pagamento presente é F24 errore
-    if (paymentsV21.some( paymentV21 => paymentV21.f24 )) {
-      throw new Error("Unable to map payment f24 type");
+    if (paymentsV21.some((paymentV21) => paymentV21.f24)) {
+      throw new ValidationException("Unable to map payment f24 type");
     }
-    // allegati di pagamento devono essere uguali (stesso sha) else throw exception
-    if ( paymentsV21.length > 1 && paymentsV21[0].pagoPa.attachment && paymentsV21[1].pagoPa.attachment &&
-       paymentsV21[0].pagoPa.attachment.digests.sha256 !== paymentsV21[1].pagoPa.attachment.digests.sha256 ) {
-      throw new Error("Unable to map payments with different attachment");
-    }
-    
+
     // riempio noticeCode e in caso noticeCodeAlternative
     const paymentV1 = {
       noticeCode: paymentsV21[0].pagoPa.noticeCode,
-      creditorTaxId: paymentsV21[0].pagoPa.creditorTaxId
-    }
-    
+      creditorTaxId: paymentsV21[0].pagoPa.creditorTaxId,
+    };
+
     if (paymentsV21.length > 1) {
       paymentV1.noticeCodeAlternative = paymentsV21[1].pagoPa.noticeCode;
     }
-    
+
     if (paymentsV21[0].pagoPa.attachment) {
       paymentV1.pagoPaForm = {
         digests: {
-          sha256: paymentsV21[0].pagoPa.attachment.digests.sha256
+          sha256: paymentsV21[0].pagoPa.attachment.digests.sha256,
         },
         contentType: paymentsV21[0].pagoPa.attachment.contentType,
         ref: {
           key: paymentsV21[0].pagoPa.attachment.ref.key,
-          versionToken: paymentsV21[0].pagoPa.attachment.ref.versionToken
-        }
-      }
+          versionToken: paymentsV21[0].pagoPa.attachment.ref.versionToken,
+        },
+      };
     }
     return paymentV1;
   }
@@ -325,10 +353,12 @@ exports.versioning = async (event, context) => {
     };
 
     const contentType = doc.contentType;
-    const ref = doc.ref ? {
-      key: doc.ref.key,
-      versionToken: doc.ref.versionToken,
-    } : undefined;
+    const ref = doc.ref
+      ? {
+          key: doc.ref.key,
+          versionToken: doc.ref.versionToken,
+        }
+      : undefined;
     const title = doc.title;
     const docIdx = doc.docIdx;
 
@@ -343,7 +373,7 @@ exports.versioning = async (event, context) => {
 
   function transformNotificationFeePolicy(policy) {
     if (policy != "FLAT_RATE" && policy != "DELIVERY_MODE") {
-      throw new Error("NotificationFeePolicy value not supported");
+      throw new ValidationException("NotificationFeePolicy value not supported");
     }
 
     return policy;
@@ -351,7 +381,7 @@ exports.versioning = async (event, context) => {
 
   function transformPhysicalCommunicationType(type) {
     if (type != "AR_REGISTERED_LETTER" && type != "REGISTERED_LETTER_890") {
-      throw new Error("PhysicalCommunicationType value not supported");
+      throw new ValidationException("PhysicalCommunicationType value not supported");
     }
 
     return type;
@@ -359,7 +389,7 @@ exports.versioning = async (event, context) => {
 
   function transformPagoPaIntMode(intmode) {
     if (intmode != "SYNC" && intmode != "NONE") {
-      throw new Error("PagoPaIntMode value not supported");
+      throw new ValidationException("PagoPaIntMode value not supported");
     }
     return intmode;
   }
