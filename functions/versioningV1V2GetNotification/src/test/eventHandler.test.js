@@ -79,7 +79,7 @@ describe("eventHandler tests", function () {
       requestContext: {
         authorizer: {},
       },
-      resource: "/notifications/sent/{iun}",
+      resource: "v2.0/notifications/sent/{iun}",
       path: "/delivery/v2.0/notifications/sent/MOCK_IUN",
       httpMethod: "GET",
     };

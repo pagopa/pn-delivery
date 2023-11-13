@@ -5,7 +5,7 @@ exports.versioning = async (event, context) => {
   const path = "/notifications/sent/";
 
   if (
-    event["resource"] !== `${path}{iun}` ||
+    event["resource"].indexOf(`${path}{iun}`) < 0 ||
     !event["path"].startsWith("/delivery/") ||
     event["httpMethod"].toUpperCase() !== "GET"
   ) {
