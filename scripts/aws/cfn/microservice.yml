@@ -1069,7 +1069,7 @@ Resources:
         Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
-      Timeout: 10
+      Timeout: 30
       MemorySize: 512
 
   # a new version at each deploy, with provisioned concurrency set
