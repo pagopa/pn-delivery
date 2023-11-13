@@ -122,6 +122,7 @@ exports.versioning = async (event, context) => {
         body: JSON.stringify(generateProblem(400, error.message))
       }
     } else {
+      console.error("Error on url " + url, error)
       return {
         statusCode: 502,
         body: JSON.stringify(generateProblem(502, error.message))
