@@ -54,6 +54,7 @@ exports.versioning = async (event, context) => {
     "COMPLETELY_UNREACHABLE_CREATION_REQUEST",
     "PREPARE_SIMPLE_REGISTERED_LETTER",
     "SEND_SIMPLE_REGISTERED_LETTER",
+    "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS",
     "NOTIFICATION_VIEWED_CREATION_REQUEST",
     "NOTIFICATION_VIEWED",
     "PREPARE_ANALOG_DOMICILE",
@@ -66,7 +67,7 @@ exports.versioning = async (event, context) => {
     "AAR_CREATION_REQUEST",
     "AAR_GENERATION",
     "NOT_HANDLED",
-    "SEND_SIMPLE_REGISTERED_LETTER_PROGRESS",
+    "PROBABLE_ANALOG_SCHEDULING_DATE"
   ];
 
   // v2.0 must add never categories to the allowed ones
@@ -203,10 +204,11 @@ exports.versioning = async (event, context) => {
     const notificationStatusHistory =
       responseV2.notificationStatusHistory.filter((nsh) => {
         let keep = true;
-        for (const timelineElement of nsh.relatedTimelineElements) {
-          keep = keep && timelineIds.includes(timelineElement);
+        for (const relatedTimelineElement of nsh.relatedTimelineElements) {
+          keep = timelineIds.includes(relatedTimelineElement);
           if (!keep) {
-            console.log("Skipping timelineId ", timelineElement, timelineIds);
+            console.log("NotificationStatusHistory - skipping status:", nsh.status, "caused by relatedTimelineElement:", relatedTimelineElement);
+            return keep;
           }
         }
         return keep;
