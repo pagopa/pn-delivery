@@ -369,6 +369,6 @@ describe("eventHandler tests", function () {
     const response = await eventHandler.versioning(event, context);
     console.log("response ", response)
 
-    expect(response.statusCode).to.equal(502);
+    expect(response.statusCode).to.equal(500);
   });
 });
