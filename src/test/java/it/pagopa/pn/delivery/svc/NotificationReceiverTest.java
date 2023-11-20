@@ -93,7 +93,7 @@ class NotificationReceiverTest {
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		NotificationReceiverValidator validator = new NotificationReceiverValidator( factory.getValidator(), mvpParameterConsumer, validateUtils, pnDeliveryConfigs);
 
-		Mockito.when( validateUtils.validate( Mockito.anyString() ) ).thenReturn( true );
+		Mockito.when( validateUtils.validate( Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean() ) ).thenReturn( true );
 		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( true );
 
 		deliveryService = new NotificationReceiverService(
@@ -507,7 +507,9 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequest notification = NewNotificationRequest.builder()
 				.senderTaxId( "fakeSenderTaxId" )
-				.recipients( Collections.singletonList( NotificationRecipient.builder().build() ) )
+				.recipients( Collections.singletonList( NotificationRecipient.builder()
+								.recipientType(NotificationRecipient.RecipientTypeEnum.PF)
+						.build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
 				.build();
 

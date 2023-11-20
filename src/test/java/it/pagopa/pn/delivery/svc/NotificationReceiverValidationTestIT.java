@@ -63,6 +63,7 @@ class NotificationReceiverValidationTestIT {
         NewNotificationRequest notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
         notificationRequest.addRecipientsItem( NotificationRecipient.builder()
                         .taxId( INVALID_TAX_ID_NOT_IN_WHITE_LIST )
+                        .recipientType(NotificationRecipient.RecipientTypeEnum.PF)
                 .build() );
 
         Set<ConstraintViolation<NewNotificationRequest>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
