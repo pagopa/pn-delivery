@@ -20,6 +20,20 @@ exports.generateResponse = function(errorDetails, statusCode, headers){
 exports.validateNewNotification = function(newNotificationRequestV1){
   const errors = []
 
+  if (!newNotificationRequestV1.pagoPaIntMode){
+    newNotificationRequestV1.pagoPaIntMode = 'NONE';
+    if (!newNotificationRequestV1.pagoPaIntMode 
+        && newNotificationRequestV1.notificationFeePolicy === 'DELIVERY_MODE'
+        ){
+            newNotificationRequestV1.recipients.forEach( recipient => {
+              if (recipient.payment){
+                newNotificationRequestV1.pagoPaIntMode = 'SYNC';
+              }
+            });
+        
+    }
+  }
+
   if (newNotificationRequestV1.pagoPaIntMode != 'SYNC' && newNotificationRequestV1.pagoPaIntMode != 'NONE') {
     errors.push('Invalid pagoPaIntMode')
     return errors;
