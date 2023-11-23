@@ -21,14 +21,14 @@ import static it.pagopa.pn.delivery.exception.PnDeliveryExceptionCodes.ERROR_COD
 public class EntityToDtoNotificationMapper {
 
     public InternalNotification entity2Dto(NotificationEntity entity) {
-        if ( entity.getPhysicalCommunicationType() == null ) {
+        if (entity.getPhysicalCommunicationType() == null) {
             throw new PnInternalException(" Notification entity with iun "
                     + entity.getIun()
                     + " hash invalid physicalCommunicationType value",
                     ERROR_CODE_DELIVERY_UNSUPPORTED_PHYSICALCOMMUNICATIONTYPE);
         }
 
-        List<String> recipientIds = entity.getRecipients().stream().map( NotificationRecipientEntity::getRecipientId )
+        List<String> recipientIds = entity.getRecipients().stream().map(NotificationRecipientEntity::getRecipientId)
                 .toList();
 
         InternalNotification internalNotification = new InternalNotification();
@@ -68,15 +68,15 @@ public class EntityToDtoNotificationMapper {
 
     private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
         return NotificationRecipient.builder()
-                .internalId( entity.getRecipientId() )
-                .recipientType( NotificationRecipientV21.RecipientTypeEnum.valueOf( entity.getRecipientType().getValue() ) )
-                .payments( entity2PaymentInfo( entity.getPayments() ) )
+                .internalId(entity.getRecipientId())
+                .recipientType(NotificationRecipientV21.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
+                .payments(entity2PaymentInfo(entity.getPayments()))
                 .build();
     }
 
     private List<NotificationPaymentInfo> entity2PaymentInfo(List<NotificationPaymentInfoEntity> paymentList) {
         List<NotificationPaymentInfo> notificationPaymentItems = new ArrayList<>();
-        if ( !CollectionUtils.isEmpty( paymentList ) ) {
+        if (!CollectionUtils.isEmpty(paymentList)) {
             paymentList.forEach(notificationPaymentInfoEntity -> notificationPaymentItems.add(NotificationPaymentInfo.builder()
                     .f24(entity2PaymentAttachment(notificationPaymentInfoEntity.getF24()))
                     .pagoPa(entity2PaymentAttachment(notificationPaymentInfoEntity))
@@ -87,20 +87,20 @@ public class EntityToDtoNotificationMapper {
 
     private F24Payment entity2PaymentAttachment(F24PaymentEntity f24) {
         F24Payment paymentAttachment = null;
-        if ( Objects.nonNull( f24 ) ) {
+        if (Objects.nonNull(f24)) {
             paymentAttachment = F24Payment.builder()
                     .applyCost(f24.getApplyCost())
                     .title(f24.getTitle())
                     .metadataAttachment(
                             MetadataAttachment.builder()
-                                    .contentType( f24.getMetadataAttachment().getContentType() )
-                                    .digests( NotificationAttachmentDigests.builder()
-                                            .sha256( f24.getMetadataAttachment().getDigests().getSha256() )
+                                    .contentType(f24.getMetadataAttachment().getContentType())
+                                    .digests(NotificationAttachmentDigests.builder()
+                                            .sha256(f24.getMetadataAttachment().getDigests().getSha256())
                                             .build()
                                     )
-                                    .ref( NotificationAttachmentBodyRef.builder()
-                                            .key( f24.getMetadataAttachment().getRef().getKey() )
-                                            .versionToken( f24.getMetadataAttachment().getRef().getVersionToken() )
+                                    .ref(NotificationAttachmentBodyRef.builder()
+                                            .key(f24.getMetadataAttachment().getRef().getKey())
+                                            .versionToken(f24.getMetadataAttachment().getRef().getVersionToken())
                                             .build()
                                     ).build()
                     )
@@ -111,52 +111,59 @@ public class EntityToDtoNotificationMapper {
 
     private PagoPaPayment entity2PaymentAttachment(NotificationPaymentInfoEntity paymentInfo) {
         PagoPaPayment paymentAttachment = null;
-        if ( Objects.nonNull( paymentInfo.getPagoPaForm() ) ) {
+        if (Objects.nonNull(paymentInfo.getNoticeCode())) {
+
             paymentAttachment = PagoPaPayment.builder()
                     .creditorTaxId(paymentInfo.getCreditorTaxId())
                     .noticeCode(paymentInfo.getNoticeCode())
                     .applyCost(paymentInfo.getApplyCost() == null || paymentInfo.getApplyCost())
-                    .attachment(
-                            MetadataAttachment.builder()
-                                    .contentType( paymentInfo.getPagoPaForm().getContentType() )
-                                    .digests( NotificationAttachmentDigests.builder()
-                                            .sha256( paymentInfo.getPagoPaForm().getDigests().getSha256() )
-                                            .build()
-                                    )
-                                    .ref( NotificationAttachmentBodyRef.builder()
-                                            .key( paymentInfo.getPagoPaForm().getRef().getKey() )
-                                            .versionToken( paymentInfo.getPagoPaForm().getRef().getVersionToken() )
-                                            .build()
-                                    ).build()
-                    )
+                    .attachment(buildOptionalMetadataAttachment(paymentInfo))
                     .build();
         }
         return paymentAttachment;
     }
 
-    private List<NotificationDocument> buildDocumentsList(NotificationEntity entity ) {
+    private MetadataAttachment buildOptionalMetadataAttachment(NotificationPaymentInfoEntity paymentInfo) {
+        MetadataAttachment metadataAttachment = null;
+        if (paymentInfo.getPagoPaForm() != null) {
+            metadataAttachment = MetadataAttachment.builder()
+                    .contentType(paymentInfo.getPagoPaForm().getContentType())
+                    .digests(NotificationAttachmentDigests.builder()
+                            .sha256(paymentInfo.getPagoPaForm().getDigests().getSha256())
+                            .build()
+                    )
+                    .ref(NotificationAttachmentBodyRef.builder()
+                            .key(paymentInfo.getPagoPaForm().getRef().getKey())
+                            .versionToken(paymentInfo.getPagoPaForm().getRef().getVersionToken())
+                            .build()
+                    ).build();
+        }
+        return metadataAttachment;
+    }
+
+    private List<NotificationDocument> buildDocumentsList(NotificationEntity entity) {
         List<NotificationDocument> result = new ArrayList<>();
 
-        if( entity != null && entity.getDocuments() != null) {
+        if (entity != null && entity.getDocuments() != null) {
             result = entity.getDocuments().stream()
-                    .map( this::mapOneDocument )
+                    .map(this::mapOneDocument)
                     .toList();
         }
 
         return result;
     }
 
-    private NotificationDocument mapOneDocument(DocumentAttachmentEntity entity ) {
+    private NotificationDocument mapOneDocument(DocumentAttachmentEntity entity) {
         return entity == null ? null : NotificationDocument.builder()
-                .title( entity.getTitle() )
+                .title(entity.getTitle())
                 .ref(NotificationAttachmentBodyRef.builder()
-                        .versionToken( entity.getRef().getVersionToken() )
-                        .key( entity.getRef().getKey() )
+                        .versionToken(entity.getRef().getVersionToken())
+                        .key(entity.getRef().getKey())
                         .build())
-                .digests( NotificationAttachmentDigests.builder()
-                        .sha256( entity.getDigests().getSha256() )
-                        .build() )
-                .contentType( entity.getContentType() )
+                .digests(NotificationAttachmentDigests.builder()
+                        .sha256(entity.getDigests().getSha256())
+                        .build())
+                .contentType(entity.getContentType())
                 .build();
     }
 }
