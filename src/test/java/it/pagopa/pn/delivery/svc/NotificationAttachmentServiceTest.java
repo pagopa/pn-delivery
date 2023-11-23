@@ -565,6 +565,9 @@ class NotificationAttachmentServiceTest {
             attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
     Assertions.assertEquals("url", fileInfos.getFileDownloadResponse().getDownload().getUrl());
+    Assertions.assertEquals("123", fileInfos.getFileDownloadResponse().getChecksum());
+    Assertions.assertEquals(new BigDecimal(100), fileInfos.getFileDownloadResponse().getContentLength());
+    Assertions.assertEquals("application/pdf", fileInfos.getFileDownloadResponse().getContentType());
   }
 
   @Test
