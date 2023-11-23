@@ -556,12 +556,18 @@ class NotificationAttachmentServiceTest {
     F24Response f24Response = new F24Response();
     f24Response.setRetryAfter(BigDecimal.valueOf(0));
     f24Response.setUrl("url");
+    f24Response.setContentType("application/pdf");
+    f24Response.setContentLength(new BigDecimal(100));
+    f24Response.setSha256("123");
     Mockito.when(cfg.getF24CxId()).thenReturn("pn-delivery");
     Mockito.when(pnF24Client.generatePDF(anyString(),anyString(),any(),anyInt())).thenReturn(f24Response);
     NotificationAttachmentService.FileInfos fileInfos =
             attachmentService.computeFileInfo(fileDownloadIdentify, notification);
 
     Assertions.assertEquals("url", fileInfos.getFileDownloadResponse().getDownload().getUrl());
+    Assertions.assertEquals("123", fileInfos.getFileDownloadResponse().getChecksum());
+    Assertions.assertEquals(new BigDecimal(100), fileInfos.getFileDownloadResponse().getContentLength());
+    Assertions.assertEquals("application/pdf", fileInfos.getFileDownloadResponse().getContentType());
   }
 
   @Test
