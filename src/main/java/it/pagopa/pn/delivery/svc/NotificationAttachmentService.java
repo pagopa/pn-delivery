@@ -333,7 +333,7 @@ public class NotificationAttachmentService {
                     String exMessage = String.format("Unable to find F24 for attachmentName=%s attachmentIndex=%s iun=%s with this paymentInfo=%s", attachmentName, attachmentIdx, iun, notificationPaymentInfo);
                     throw new PnNotFoundException("F24 not found", exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
                 }
-                return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost(), notification.getPaFee());
+                return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost(), notification.getPaFee(), notificationPaymentInfo.getF24().getTitle());
             }
             else{
                 fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, attachmentIdx, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
@@ -379,8 +379,9 @@ public class NotificationAttachmentService {
 
 
 
-    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, int paFee){
+    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, int paFee, String title){
         NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null, applyCost, paFee);
+
 
         F24Response f24Response = pnF24Client.generatePDF(this.cfg.getF24CxId(), notification.getIun(), pathTokens, cost.getAmount());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
@@ -388,7 +389,13 @@ public class NotificationAttachmentService {
         fileDownloadInfo.setUrl(f24Response.getUrl());
         fileDownloadInfo.setRetryAfter(f24Response.getRetryAfter());
         fileDownloadResponse.setDownload(fileDownloadInfo);
-        return new FileInfos(null, fileDownloadResponse, null);
+        fileDownloadResponse.setChecksum(f24Response.getSha256());
+        fileDownloadResponse.setContentType(f24Response.getContentType());
+        fileDownloadResponse.setContentLength(f24Response.getContentLength());
+
+        String fileName = buildFilename(notification.getIun(), title, f24Response.getContentType());
+
+        return new FileInfos(fileName, fileDownloadResponse, null);
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, Integer attachmentIdx, boolean isMVPTria){
