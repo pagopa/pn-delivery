@@ -22,8 +22,7 @@ exports.validateNewNotification = function(newNotificationRequestV1){
 
   if (!newNotificationRequestV1.pagoPaIntMode){
     newNotificationRequestV1.pagoPaIntMode = 'NONE';
-    if (!newNotificationRequestV1.pagoPaIntMode 
-        && newNotificationRequestV1.notificationFeePolicy === 'DELIVERY_MODE'
+    if (newNotificationRequestV1.notificationFeePolicy === 'DELIVERY_MODE'
         ){
             newNotificationRequestV1.recipients.forEach( recipient => {
               if (recipient.payment){
