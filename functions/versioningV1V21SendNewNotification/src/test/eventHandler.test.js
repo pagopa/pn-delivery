@@ -63,40 +63,80 @@ describe('EventHandler Testing', () => {
         
         it("newNotificationRequestV21 accepted", async () => {
             
-        beforeEach(() => {
-            fetchMock.reset();
+            beforeEach(() => {
+                fetchMock.reset();
+            });
+
+            process.env = Object.assign(process.env, {
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+            });
+
+            const eventHandler = proxyquire
+                .noCallThru()
+                .load("../app/eventHandler.js", {});
+
+            let url = `${process.env.PN_DELIVERY_URL}/requests`;
+
+            fetchMock.post(url, {
+                status: 202,
+                body: { message: 'Accepted' },
+            });
+
+            const event = {
+                headers: {},
+                requestContext: {
+                authorizer: {},
+                },
+                resource: "/delivery/requests",
+                path: "/delivery/requests",
+                httpMethod: 'POST',
+                body: JSON.stringify(newNotificationRequesV1)
+            };
+
+            //const event = createEvent('/delivery/requests', 'POST', newNotificationRequesV1)
+
+            const response = await handleEvent(event);
+            expect(response.statusCode).to.equal(202);
+            
         });
 
-        process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
-          });
+        it("newNotificationRequestV21 with NO pagoPaIntMode, accepted", async () => {
+            
+            beforeEach(() => {
+                fetchMock.reset();
+            });
 
-        const eventHandler = proxyquire
-            .noCallThru()
-            .load("../app/eventHandler.js", {});
+            process.env = Object.assign(process.env, {
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+            });
 
-        let url = `${process.env.PN_DELIVERY_URL}/requests`;
+            const eventHandler = proxyquire
+                .noCallThru()
+                .load("../app/eventHandler.js", {});
 
-        fetchMock.post(url, {
-            status: 202,
-            body: { message: 'Accepted' },
-        });
+            let url = `${process.env.PN_DELIVERY_URL}/requests`;
 
-        const event = {
-            headers: {},
-            requestContext: {
-              authorizer: {},
-            },
-            resource: "/delivery/requests",
-            path: "/delivery/requests",
-            httpMethod: 'POST',
-            body: JSON.stringify(newNotificationRequesV1)
-          };
+            fetchMock.post(url, {
+                status: 202,
+                body: { message: 'Accepted' },
+            });
 
-        //const event = createEvent('/delivery/requests', 'POST', newNotificationRequesV1)
+            let notificationWithNOpagoPaIntMode = newNotificationRequesV1;
+            delete notificationWithNOpagoPaIntMode.pagoPaIntMode;
 
-        const response = await handleEvent(event);
-        expect(response.statusCode).to.equal(202);
+            const event = {
+                headers: {},
+                requestContext: {
+                authorizer: {},
+                },
+                resource: "/delivery/requests",
+                path: "/delivery/requests",
+                httpMethod: 'POST',
+                body: JSON.stringify(notificationWithNOpagoPaIntMode)
+            };
+
+            const response = await handleEvent(event);
+            expect(response.statusCode).to.equal(202);
             
         });
     });
