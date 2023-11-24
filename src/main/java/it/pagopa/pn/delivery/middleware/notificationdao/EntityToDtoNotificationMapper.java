@@ -9,6 +9,7 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -111,30 +112,30 @@ public class EntityToDtoNotificationMapper {
 
     private PagoPaPayment entity2PaymentAttachment(NotificationPaymentInfoEntity paymentInfo) {
         PagoPaPayment paymentAttachment = null;
-        if (Objects.nonNull(paymentInfo.getNoticeCode())) {
+        if (StringUtils.hasText(paymentInfo.getNoticeCode())) {
 
             paymentAttachment = PagoPaPayment.builder()
                     .creditorTaxId(paymentInfo.getCreditorTaxId())
                     .noticeCode(paymentInfo.getNoticeCode())
                     .applyCost(paymentInfo.getApplyCost() == null || paymentInfo.getApplyCost())
-                    .attachment(buildOptionalMetadataAttachment(paymentInfo))
+                    .attachment(buildOptionalMetadataAttachment(paymentInfo.getPagoPaForm()))
                     .build();
         }
         return paymentAttachment;
     }
 
-    private MetadataAttachment buildOptionalMetadataAttachment(NotificationPaymentInfoEntity paymentInfo) {
+    private MetadataAttachment buildOptionalMetadataAttachment(PagoPaPaymentEntity pagoPaForm) {
         MetadataAttachment metadataAttachment = null;
-        if (paymentInfo.getPagoPaForm() != null) {
+        if (pagoPaForm != null) {
             metadataAttachment = MetadataAttachment.builder()
-                    .contentType(paymentInfo.getPagoPaForm().getContentType())
+                    .contentType(pagoPaForm.getContentType())
                     .digests(NotificationAttachmentDigests.builder()
-                            .sha256(paymentInfo.getPagoPaForm().getDigests().getSha256())
+                            .sha256(pagoPaForm.getDigests().getSha256())
                             .build()
                     )
                     .ref(NotificationAttachmentBodyRef.builder()
-                            .key(paymentInfo.getPagoPaForm().getRef().getKey())
-                            .versionToken(paymentInfo.getPagoPaForm().getRef().getVersionToken())
+                            .key(pagoPaForm.getRef().getKey())
+                            .versionToken(pagoPaForm.getRef().getVersionToken())
                             .build()
                     ).build();
         }
