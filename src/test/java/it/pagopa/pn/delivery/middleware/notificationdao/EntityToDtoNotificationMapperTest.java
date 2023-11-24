@@ -25,7 +25,7 @@ class EntityToDtoNotificationMapperTest {
     }
 
     @Test
-    void throwEmptyDocument(){
+    void throwEmptyDocument() {
         NotificationEntity notificationEntity = newNotificationEntity();
         notificationEntity.setPhysicalCommunicationType(null);
         assertThrows(PnInternalException.class, () -> mapper.entity2Dto(notificationEntity));
@@ -40,10 +40,12 @@ class EntityToDtoNotificationMapperTest {
         InternalNotification internalNotification = mapper.entity2Dto(notificationEntity);
 
         // Then
-        Assertions.assertNotNull( internalNotification );
-        Assertions.assertEquals( "noticeCode" ,internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
-        Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa() );
-        Assertions.assertNotNull( internalNotification.getRecipients().get( 1 ).getPayments().get(0).getPagoPa() );
+        Assertions.assertNotNull(internalNotification);
+        Assertions.assertEquals("noticeCode", internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getNoticeCode());
+        Assertions.assertNotNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa());
+        Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa());
+        Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
+        Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
     }
 
     private NotificationEntity newNotificationEntity() {
@@ -71,7 +73,6 @@ class EntityToDtoNotificationMapperTest {
         notificationPaymentInfoEntity.setNoticeCode("noticeCode");
         notificationPaymentInfoEntity.setCreditorTaxId("creditorTaxId");
         notificationPaymentInfoEntity.setF24(f24PaymentEntity);
-        notificationPaymentInfoEntity.setPagoPaForm(pagoPaPaymentEntity);
 
         NotificationRecipientEntity notificationRecipientEntity = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
@@ -81,7 +82,7 @@ class EntityToDtoNotificationMapperTest {
                         .type(DigitalAddressTypeEntity.PEC)
                         .build())
                 .denomination("recipientDenomination")
-                .payments( List.of(notificationPaymentInfoEntity))
+                .payments(List.of(notificationPaymentInfoEntity))
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
                         .address("address")
                         .addressDetails("addressDetail")
@@ -94,7 +95,7 @@ class EntityToDtoNotificationMapperTest {
                 .build();
         NotificationRecipientEntity notificationRecipientEntity1 = NotificationRecipientEntity.builder()
                 .recipientType(RecipientTypeEntity.PF)
-                .payments( List.of(
+                .payments(List.of(
                                 NotificationPaymentInfoEntity.builder()
                                         .f24(
                                                 F24PaymentEntity.builder()
@@ -118,17 +119,17 @@ class EntityToDtoNotificationMapperTest {
                                         .creditorTaxId("creditorTaxId")
                                         .applyCost(false)
                                         .pagoPaForm(PagoPaPaymentEntity.builder()
-                                                        .contentType("application/pdf")
-                                                        .digests(NotificationAttachmentDigestsEntity.builder()
-                                                                .sha256("sha256")
-                                                                .build())
-                                                        .ref(NotificationAttachmentBodyRefEntity.builder()
-                                                                .key("key")
-                                                                .versionToken("versionToken")
-                                                                .build())
-                                                        .build()
-                                                )
+                                                .contentType("application/pdf")
+                                                .digests(NotificationAttachmentDigestsEntity.builder()
+                                                        .sha256("sha256")
+                                                        .build())
+                                                .ref(NotificationAttachmentBodyRefEntity.builder()
+                                                        .key("key")
+                                                        .versionToken("versionToken")
+                                                        .build())
                                                 .build()
+                                        )
+                                        .build()
                         )
                 )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
@@ -141,23 +142,23 @@ class EntityToDtoNotificationMapperTest {
                         .zip("00100")
                         .municipalityDetails("frazione1")
                         .build())
-                .recipientId( "fakeRecipientId" )
+                .recipientId("fakeRecipientId")
                 .build();
         return NotificationEntity.builder()
                 .iun("IUN_01")
-                .notificationAbstract( "Abstract" )
-                .idempotenceToken( "idempotenceToken" )
+                .notificationAbstract("Abstract")
+                .idempotenceToken("idempotenceToken")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
                 .physicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
-                .senderPaId( "pa_02" )
-                .group( "Group_1" )
-                .sentAt( Instant.now() )
-                .notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-                .recipients( List.of(notificationRecipientEntity, notificationRecipientEntity1) )
-                .version( "1" )
+                .senderPaId("pa_02")
+                .group("Group_1")
+                .sentAt(Instant.now())
+                .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
+                .recipients(List.of(notificationRecipientEntity, notificationRecipientEntity1))
+                .version("1")
                 //.recipientsJson(Collections.emptyMap())
                 .build();
     }
