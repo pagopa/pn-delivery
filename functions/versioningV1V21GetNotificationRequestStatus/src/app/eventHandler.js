@@ -1,4 +1,5 @@
 const { validateRequest, generateResponse, validateQueryStringParameters } = require('./requestHelper')
+const {ValidationException} = require("./exceptions.js");
 
 exports.handleEvent = async (event) => {
     
@@ -68,7 +69,7 @@ exports.handleEvent = async (event) => {
     }
     
     
-    console.log ('calling ',url);
+    console.log ('calling ',url + searchParams);
     let response;
     try {
         response = await fetch(url + searchParams, { method: "GET", headers: headers });
@@ -89,11 +90,30 @@ exports.handleEvent = async (event) => {
         return ret;
         
     } catch (error) {
-        const ret = {
-            statusCode: 400,
-            body: error,
-        };
-        return ret;
+        if (error instanceof ValidationException) {
+            console.info("Validation Exception: ", error)
+            return {
+                statusCode: 400,
+                body: JSON.stringify(generateProblem(400, error.message))
+            }
+        } else {
+            console.warn("Error on url " + url + searchParams, error)
+            return {
+                statusCode: 500,
+                body: JSON.stringify(generateProblem(500, error.message))
+            }
+        }
+    }
+
+    function generateProblem(status, message) {
+        return {
+            status: status,
+            errors: [
+                {
+                    code: message
+                }
+            ]
+        }
     }
 
     function transformFromV21ToV1(responseV21) {
@@ -139,7 +159,7 @@ exports.handleEvent = async (event) => {
 
     function transformPagoPaIntMode(intmode) {
         if (intmode != "SYNC" && intmode != "NONE") {
-          throw new Error("PagoPaIntMode value not supported");
+          throw new ValidationException("PagoPaIntMode value not supported");
         }
         return intmode;
       }
@@ -200,16 +220,11 @@ exports.handleEvent = async (event) => {
         
         // max 2 pagamenti else throw exception
         if (paymentsV21.length > 2) {
-            throw new Error("Unable to map payments, more than 2");
+            throw new ValidationException("Unable to map payments, more than 2");
         }
         // se una tipologia di pagamento presente é F24 errore
         if (paymentsV21.some( paymentV21 => paymentV21.f24 )) {
-            throw new Error("Unable to map payment f24 type");
-        }
-        // allegati di pagamento devono essere uguali (stesso sha) else throw exception
-        if ( paymentsV21.length > 1 && paymentsV21[0].pagoPa.attachment && paymentsV21[1].pagoPa.attachment &&
-             paymentsV21[0].pagoPa.attachment.digests.sha256 !== paymentsV21[1].pagoPa.attachment.digests.sha256 ) {
-            throw new Error("Unable to map payments with different attachment");
+            throw new ValidationException("Unable to map payment f24 type");
         }
 
         // riempio noticeCode e in caso noticeCodeAlternative

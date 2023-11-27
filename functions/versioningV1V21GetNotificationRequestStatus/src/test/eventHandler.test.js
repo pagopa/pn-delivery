@@ -90,9 +90,11 @@ describe("eventHandler tests", function () {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
         });
         
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
 
-        fetchMock.mock(url, {
+        fetchMock.mock(url + new URLSearchParams({
+            notificationRequestId: 'invalidNotificationRequestId'
+            }), {
             status: 400,
             body: {},
             headers: { "Content-Type": "application/json" },
@@ -154,6 +156,47 @@ describe("eventHandler tests", function () {
         expect(res.statusCode).to.equal(200);
     });
 
+    it("should return 200 with paProtocolNumber and idempotenceToken", async () => {
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
+        let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
+
+        beforeEach(() => {
+            fetchMock.reset();
+        });
+
+        process.env = Object.assign(process.env, {
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+        });
+        
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
+
+        fetchMock.mock(url + new URLSearchParams({
+            paProtocolNumber: 'validPaProtocolNumber',
+            idempotenceToken: 'validIdempotenceToken'
+        }), {
+            status: 200,
+            body: notificationRequestStatusV21,
+            headers: { "Content-Type": "application/json" },
+        });
+
+        const event = {
+            path: '/delivery/requests',
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+            queryStringParameters: {
+                paProtocolNumber: 'validPaProtocolNumber',
+                idempotenceToken: 'validIdempotenceToken'
+            }
+        }
+        
+        const res = await handleEvent(event)
+       
+        expect(res.statusCode).to.equal(200);
+    });
+
     it("Unable to map more than 2 payments", async () => {
 
         const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
@@ -187,48 +230,11 @@ describe("eventHandler tests", function () {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
         });
         
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
 
-        fetchMock.mock(url, {
-            status: 200,
-            body: notificationRequestStatusV21,
-            headers: { "Content-Type": "application/json" },
-        });
-
-        const event = {
-            path: '/delivery/requests',
-            httpMethod: "GET",
-            headers: {},
-            requestContext: {
-                authorizer: {},
-            },
-            queryStringParameters: {
-                notificationRequestId: 'validNotificationRequestId'
-            }
-        }
-        const res = await handleEvent(event)
-        expect(res.statusCode).to.equal(400);
-
-    });
-
-    it("Unable to map more attachment different sha", async () => {
-
-        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
-        let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
-
-        notificationRequestStatusV21.recipients[1].payments[1].pagoPa.attachment.digests.sha256 = 'differentSha';
-        
-        beforeEach(() => {
-            fetchMock.reset();
-        });
-
-        process.env = Object.assign(process.env, {
-            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
-        });
-        
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
-
-        fetchMock.mock(url, {
+        fetchMock.mock(url + new URLSearchParams({
+            notificationRequestId: 'validNotificationRequestId'
+        }), {
             status: 200,
             body: notificationRequestStatusV21,
             headers: { "Content-Type": "application/json" },
@@ -263,9 +269,11 @@ describe("eventHandler tests", function () {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
         });
         
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
 
-        fetchMock.mock(url, {
+        fetchMock.mock(url + new URLSearchParams({
+            notificationRequestId: 'validNotificationRequestId'
+        }), {
             status: 200,
             body: notificationRequestStatusV21Extra,
             headers: { "Content-Type": "application/json" },
@@ -302,9 +310,11 @@ describe("eventHandler tests", function () {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
         });
         
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/requests`;
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
 
-        fetchMock.mock(url, {
+        fetchMock.mock(url + new URLSearchParams({
+            notificationRequestId: 'validNotificationRequestId'
+        }), {
             status: 200,
             body: notificationRequestStatusV21,
             headers: { "Content-Type": "application/json" },
