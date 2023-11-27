@@ -178,7 +178,7 @@ class NotificationAttachmentServiceTest {
                 Mockito.any(InternalNotification.class))).thenReturn(authorizationOutcome);
 
         InternalAuthHeader internalAuthHeader = new InternalAuthHeader(cxType, cxId, X_PAGOPA_PN_UID, null);
-        assertThrows(PnInternalException.class, () ->
+        assertThrows(PnNotFoundException.class, () ->
                 attachmentService.downloadAttachmentWithRedirectWithFileKey(IUN, internalAuthHeader, null, recipientidx,
                         PAGOPA, 1, false));
 
@@ -712,7 +712,14 @@ class NotificationAttachmentServiceTest {
             notificationPaymentInfo.setF24(f24Payment);
         }
 
-        notificationRecipient.setPayment(List.of(notificationPaymentInfo));
+        notificationRecipient.setPayment(List.of(notificationPaymentInfo, NotificationPaymentInfo.builder()
+                        .pagoPa( PagoPaPayment.builder()
+                                .noticeCode("noticeCode")
+                                .creditorTaxId("creditoTaxId")
+                                .applyCost(false)
+                                .build()
+                        )
+                .build()));
         notification.addRecipientsItem(notificationRecipient);
 
         it.pagopa.pn.delivery.models.internal.notification.NotificationDocument documentItem = new it.pagopa.pn.delivery.models.internal.notification.NotificationDocument();
