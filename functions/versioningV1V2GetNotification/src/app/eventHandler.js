@@ -1,5 +1,11 @@
 // converte la risposta V2.x a V1
 const {ValidationException} = require("./exceptions.js");
+const AWSXRay = require("aws-xray-sdk-core");
+const http = require("http");
+const https = require("https");
+
+AWSXRay.captureHTTPsGlobal(http);
+AWSXRay.captureHTTPsGlobal(https);
 
 exports.versioning = async (event, context) => {
   const path = "/notifications/sent/";
