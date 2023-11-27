@@ -97,7 +97,7 @@ exports.handleEvent = async (event) => {
                 body: JSON.stringify(generateProblem(400, error.message))
             }
         } else {
-            console.warn("Error on url " + url + searchParams, error)
+            console.warn("Error on url " + url + '?' + searchParams, error)
             return {
                 statusCode: 500,
                 body: JSON.stringify(generateProblem(500, error.message))
