@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactPutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.TransactWriteItemsEnhancedRequest;
@@ -188,7 +189,7 @@ public class NotificationEntityDaoDynamo extends AbstractDynamoKeyValueStore<Not
             List<NotificationPaymentInfoEntity> payments = rec.getPayments();
             if (!CollectionUtils.isEmpty(payments)) {
                 for (NotificationPaymentInfoEntity payment : payments) {
-                    if (Objects.nonNull(payment)) {
+                    if (Objects.nonNull(payment) && StringUtils.hasText(payment.getNoticeCode())) {
                         NotificationCostEntity notificationCostEntity = NotificationCostEntity.builder()
                                 .recipientType(rec.getRecipientType().getValue())
                                 .recipientIdx(notificationEntity.getRecipients().indexOf(rec))
