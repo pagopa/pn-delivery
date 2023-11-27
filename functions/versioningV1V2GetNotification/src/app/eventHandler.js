@@ -67,7 +67,7 @@ exports.versioning = async (event, context) => {
     "AAR_CREATION_REQUEST",
     "AAR_GENERATION",
     "NOT_HANDLED",
-    "PROBABLE_ANALOG_SCHEDULING_DATE"
+    "PROBABLE_SCHEDULING_ANALOG_DATE"
   ];
 
   // v2.0 must add never categories to the allowed ones
