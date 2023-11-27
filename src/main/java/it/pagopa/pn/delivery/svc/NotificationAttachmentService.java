@@ -25,10 +25,7 @@ import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.InputDownloadDto;
 import it.pagopa.pn.delivery.models.InternalAuthHeader;
 import it.pagopa.pn.delivery.models.InternalNotification;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationDocument;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
-import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
-import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
+import it.pagopa.pn.delivery.models.internal.notification.*;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.pnf24.PnF24ClientImpl;
 import it.pagopa.pn.delivery.pnclient.safestorage.PnSafeStorageClientImpl;
@@ -410,15 +407,15 @@ public class NotificationAttachmentService {
 
         }
         if (attachmentName.equals(ATTACHMENT_TYPE_PAGO_PA)) {
-            return getKey(payment.getPagoPa());
+            return getKey(payment.getPagoPa().getAttachment());
         }
         return null;
     }
 
-    private String getKey(PagoPaPayment payment) {
+    private String getKey(MetadataAttachment attachment) {
         String key = null;
-        if (Objects.nonNull(payment)) {
-            key = payment.getAttachment().getRef().getKey();
+        if (Objects.nonNull(attachment)) {
+            key = attachment.getRef().getKey();
         }
         return key;
     }

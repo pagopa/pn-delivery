@@ -65,10 +65,10 @@ class NotificationEntityDaoDynamoTestIT {
                 .partitionValue( "creditorTaxId##noticeCode" )
                 .build();
         Key costKey2 = Key.builder()
-                .partitionValue( "creditorTaxId1##noticeCode1" )
+                .partitionValue( "creditorTaxId##noticeCode1" )
                 .build();
         Key costKey3 = Key.builder()
-                .partitionValue("creditorTaxId##noticeCode_opt")
+                .partitionValue("creditorTaxId1##noticeCode2")
                 .build();
 
 
@@ -106,10 +106,15 @@ class NotificationEntityDaoDynamoTestIT {
 
         //WHEN
         Optional<InternalNotificationCost> result = notificationCostEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode" );
+        Optional<InternalNotificationCost> secondPayment = notificationCostEntityDao.getNotificationByPaymentInfo( "creditorTaxId", "noticeCode1" );
+
 
         //THEN
         Assertions.assertNotNull( result );
+        Assertions.assertNotNull( secondPayment );
         Assertions.assertEquals( "IUN_01" , result.get().getIun() );
+        Assertions.assertEquals( "IUN_01" , secondPayment.get().getIun() );
+
     }
 
     @Test
@@ -182,7 +187,12 @@ class NotificationEntityDaoDynamoTestIT {
                                                         .build())
                                                 .build()
                                         )
-                                        .build()
+                                        .build(),
+                                NotificationPaymentInfoEntity.builder()
+                                        .noticeCode("noticeCode1")
+                                        .creditorTaxId("creditorTaxId")
+                                        .applyCost( false )
+                                .build()
                         )
                 )
                 .physicalAddress(NotificationPhysicalAddressEntity.builder()
@@ -213,7 +223,7 @@ class NotificationEntityDaoDynamoTestIT {
                                                         )
                                                         .build()
                                         )
-                                        .noticeCode("noticeCode1")
+                                        .noticeCode("noticeCode2")
                                         .creditorTaxId("creditorTaxId1")
                                         .applyCost(true)
                                         .pagoPaForm(PagoPaPaymentEntity.builder()
