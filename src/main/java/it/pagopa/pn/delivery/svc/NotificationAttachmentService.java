@@ -406,7 +406,7 @@ public class NotificationAttachmentService {
             }
 
         }
-        if (attachmentName.equals(ATTACHMENT_TYPE_PAGO_PA)) {
+        if (attachmentName.equals(ATTACHMENT_TYPE_PAGO_PA) && Objects.nonNull(payment.getPagoPa())) {
             return getKey(payment.getPagoPa().getAttachment());
         }
         return null;
