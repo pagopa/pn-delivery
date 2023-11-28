@@ -1,11 +1,9 @@
 // converte la risposta V2.x a V1
 const {ValidationException} = require("./exceptions.js");
 const AWSXRay = require("aws-xray-sdk-core");
-const http = require("http");
-const https = require("https");
 
-AWSXRay.captureHTTPsGlobal(http);
-AWSXRay.captureHTTPsGlobal(https);
+AWSXRay.captureHTTPsGlobal(require('http'));
+AWSXRay.captureHTTPsGlobal(require('https'));
 AWSXRay.capturePromise();
 
 const axios = require("axios");
