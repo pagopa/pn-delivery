@@ -6,6 +6,7 @@ const https = require("https");
 
 AWSXRay.captureHTTPsGlobal(http);
 AWSXRay.captureHTTPsGlobal(https);
+AWSXRay.capturePromise();
 
 const axios = require("axios");
 
