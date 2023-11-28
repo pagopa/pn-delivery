@@ -1,4 +1,11 @@
 const { validateRequest, generateResponse, validateNewNotification, createNewNotificationRequesV21 } = require('./requestHelper')
+const AWSXRay = require("aws-xray-sdk-core");
+
+AWSXRay.captureHTTPsGlobal(require('http'));
+AWSXRay.captureHTTPsGlobal(require('https'));
+AWSXRay.capturePromise();
+
+const axios = require("axios");
 
 exports.handleEvent = async (event) => {
 
@@ -52,18 +59,12 @@ exports.handleEvent = async (event) => {
 
 
     console.log ('calling ',url);
-    const response = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify(newNotificationRequestV21),
-        headers: headers
-    });
 
-    const responseJson = await response.json(); 
-    console.log('Response: ' + JSON.stringify(responseJson));
+    response = await axios.post(url, newNotificationRequestV21, { headers: headers });
     
     const ret = {
       statusCode: response.status,
-      body: JSON.stringify(responseJson)
+      body: JSON.stringify(response.data)
     }
     return ret;
     };

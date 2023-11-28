@@ -1,9 +1,11 @@
 const { expect } = require("chai");
 const { createEvent } = require('./utils.js');
 const { handleEvent } = require("../app/eventHandler.js");
-const fetchMock = require("fetch-mock");
 const proxyquire = require("proxyquire").noPreserveCache();
 const fs = require("fs");
+const axios = require('axios');
+var MockAdapter = require("axios-mock-adapter");
+var mock = new MockAdapter(axios);
 const newNotificationRequesV1 = require("./newNotificationRequestV1.json");
 
 describe('EventHandler Testing', () => {
@@ -62,10 +64,6 @@ describe('EventHandler Testing', () => {
         });
         
         it("newNotificationRequestV21 accepted", async () => {
-            
-            beforeEach(() => {
-                fetchMock.reset();
-            });
 
             process.env = Object.assign(process.env, {
                 PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
@@ -77,10 +75,7 @@ describe('EventHandler Testing', () => {
 
             let url = `${process.env.PN_DELIVERY_URL}/requests`;
 
-            fetchMock.post(url, {
-                status: 202,
-                body: { message: 'Accepted' },
-            });
+            mock.onPost(url).reply(202, {message: 'Accepted'});
 
             const event = {
                 headers: {},
@@ -101,10 +96,6 @@ describe('EventHandler Testing', () => {
         });
 
         it("newNotificationRequestV21 with NO pagoPaIntMode, accepted", async () => {
-            
-            beforeEach(() => {
-                fetchMock.reset();
-            });
 
             process.env = Object.assign(process.env, {
                 PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
@@ -116,10 +107,7 @@ describe('EventHandler Testing', () => {
 
             let url = `${process.env.PN_DELIVERY_URL}/requests`;
 
-            fetchMock.post(url, {
-                status: 202,
-                body: { message: 'Accepted' },
-            });
+            mock.onPost(url).reply(202, {message: 'Accepted'});
 
             let notificationWithNOpagoPaIntMode = newNotificationRequesV1;
             delete notificationWithNOpagoPaIntMode.pagoPaIntMode;

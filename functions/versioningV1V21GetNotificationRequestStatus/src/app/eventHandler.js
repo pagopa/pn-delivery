@@ -1,5 +1,12 @@
 const { validateRequest, generateResponse, validateQueryStringParameters } = require('./requestHelper')
 const {ValidationException} = require("./exceptions.js");
+const AWSXRay = require("aws-xray-sdk-core");
+
+AWSXRay.captureHTTPsGlobal(require('http'));
+AWSXRay.captureHTTPsGlobal(require('https'));
+AWSXRay.capturePromise();
+
+const axios = require("axios");
 
 exports.handleEvent = async (event) => {
     
@@ -72,20 +79,12 @@ exports.handleEvent = async (event) => {
     console.log ('calling ',url + searchParams);
     let response;
     try {
-        response = await fetch(url + searchParams, { method: "GET", headers: headers });
-        let responseV21 = await response.json();
-        if (response.ok) {
-            const transformedObject = transformFromV21ToV1(responseV21);
-            const ret = {
-                statusCode: response.status,
-                body: JSON.stringify(transformedObject),
-            };
-            return ret;
-        }
-        console.log("risposta negativa: ", response);
+        response = await axios.get(url, { params: searchParams, headers: headers });
+        
+        const transformedObject = transformFromV21ToV1(response.data);
         const ret = {
             statusCode: response.status,
-            body: JSON.stringify(responseV21),
+            body: JSON.stringify(transformedObject),
         };
         return ret;
         
@@ -96,7 +95,15 @@ exports.handleEvent = async (event) => {
                 statusCode: 400,
                 body: JSON.stringify(generateProblem(400, error.message))
             }
-        } else {
+        } else if(error.response) {
+            console.log("risposta negativa: ", error.response.data);
+            const ret = {
+                statusCode: error.response.status,
+                body: JSON.stringify(error.response.data)
+            };
+            return ret;
+        }
+        else {
             console.warn("Error on url " + url + searchParams, error)
             return {
                 statusCode: 500,

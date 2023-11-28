@@ -1,7 +1,10 @@
 const { handleEvent } = require("../app/eventHandler.js");
 const { expect } = require("chai");
-const fetchMock = require("fetch-mock");
 const fs = require("fs");
+const axios = require('axios');
+var MockAdapter = require("axios-mock-adapter");
+var mock = new MockAdapter(axios);
+const proxyquire = require("proxyquire").noPreserveCache();
 
 
 describe("eventHandler tests", function () {
@@ -45,23 +48,16 @@ describe("eventHandler tests", function () {
 
     it("should return 404 when fecth return not found", async () => {
 
-        beforeEach(() => {
-            fetchMock.reset();
-        });
-
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
-
-        fetchMock.mock(url + new URLSearchParams({
+        const params = new URLSearchParams({
             notificationRequestId: 'invalidNotificationRequestId'
-            }), {
-            status: 404,
-            body: {},
-            headers: { "Content-Type": "application/json" },
         });
+
+        mock.onGet(url, { params: params }).reply(404, {}, { "Content-Type": "application/json" });
 
         const event = {
             path: '/delivery/requests',
@@ -82,23 +78,16 @@ describe("eventHandler tests", function () {
 
     it("should return 400 when fecth return bad request", async () => {
 
-        beforeEach(() => {
-            fetchMock.reset();
-        });
-
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
-
-        fetchMock.mock(url + new URLSearchParams({
+        const params = new URLSearchParams({
             notificationRequestId: 'invalidNotificationRequestId'
-            }), {
-            status: 400,
-            body: {},
-            headers: { "Content-Type": "application/json" },
         });
+
+        mock.onGet(url, { params: params }).reply(400, {}, { "Content-Type": "application/json" });
 
         const event = {
             path: '/delivery/requests',
@@ -121,23 +110,16 @@ describe("eventHandler tests", function () {
         const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
         let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
-        beforeEach(() => {
-            fetchMock.reset();
-        });
-
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
-
-        fetchMock.mock(url + new URLSearchParams({
+        const params = new URLSearchParams({
             notificationRequestId: 'validNotificationRequestId'
-        }), {
-            status: 200,
-            body: notificationRequestStatusV21,
-            headers: { "Content-Type": "application/json" },
         });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV21, { "Content-Type": "application/json" });
 
         const event = {
             path: '/delivery/requests',
@@ -160,24 +142,18 @@ describe("eventHandler tests", function () {
         const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
         let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
-        beforeEach(() => {
-            fetchMock.reset();
-        });
 
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
-
-        fetchMock.mock(url + new URLSearchParams({
+        const params = new URLSearchParams({
             paProtocolNumber: 'validPaProtocolNumber',
             idempotenceToken: 'validIdempotenceToken'
-        }), {
-            status: 200,
-            body: notificationRequestStatusV21,
-            headers: { "Content-Type": "application/json" },
         });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV21, { "Content-Type": "application/json" });
 
         const event = {
             path: '/delivery/requests',
@@ -222,23 +198,17 @@ describe("eventHandler tests", function () {
 
         notificationRequestStatusV21.recipients[1].payments.push(extraPayment)
 
-        beforeEach(() => {
-            fetchMock.reset();
-        });
-
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
 
-        fetchMock.mock(url + new URLSearchParams({
+        const params = new URLSearchParams({
             notificationRequestId: 'validNotificationRequestId'
-        }), {
-            status: 200,
-            body: notificationRequestStatusV21,
-            headers: { "Content-Type": "application/json" },
         });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV21, { "Content-Type": "application/json" });
 
         const event = {
             path: '/delivery/requests',
@@ -260,24 +230,17 @@ describe("eventHandler tests", function () {
 
         const notificationRequestStatusExtraJSON = fs.readFileSync("./src/test/notificationRequestStatusV21ExtraPayment.json");
         const notificationRequestStatusV21Extra = JSON.parse(notificationRequestStatusExtraJSON);
-        
-        beforeEach(() => {
-            fetchMock.reset();
-        });
 
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
-
-        fetchMock.mock(url + new URLSearchParams({
+        const params = new URLSearchParams({
             notificationRequestId: 'validNotificationRequestId'
-        }), {
-            status: 200,
-            body: notificationRequestStatusV21Extra,
-            headers: { "Content-Type": "application/json" },
         });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV21Extra, { "Content-Type": "application/json" });
 
         const event = {
             path: '/delivery/requests',
@@ -301,24 +264,17 @@ describe("eventHandler tests", function () {
         const notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
         notificationRequestStatusV21.pagoPaIntMode = 'ASYNC'
-        
-        beforeEach(() => {
-            fetchMock.reset();
-        });
 
         process.env = Object.assign(process.env, {
             PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
         });
         
         let url = `${process.env.PN_DELIVERY_URL}/requests?`;
-
-        fetchMock.mock(url + new URLSearchParams({
+        const params = new URLSearchParams({
             notificationRequestId: 'validNotificationRequestId'
-        }), {
-            status: 200,
-            body: notificationRequestStatusV21,
-            headers: { "Content-Type": "application/json" },
         });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV21, { "Content-Type": "application/json" });
 
         const event = {
             path: '/delivery/requests',
