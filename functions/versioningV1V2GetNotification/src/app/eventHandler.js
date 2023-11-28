@@ -7,6 +7,8 @@ const https = require("https");
 AWSXRay.captureHTTPsGlobal(http);
 AWSXRay.captureHTTPsGlobal(https);
 
+const axios = require("axios");
+
 exports.versioning = async (event, context) => {
   const path = "/notifications/sent/";
 
@@ -113,10 +115,11 @@ exports.versioning = async (event, context) => {
   console.log("calling ", url);
   let response;
   try {
-    response = await fetch(url, { method: "GET", headers: headers });
-    let responseV2 = await response.json();
-    if (response.ok) {
-      const transformedObject = transformObject(responseV2);
+    console.log("header", headers)
+    response = await axios.get(url, { headers: headers });
+    console.log(response);
+    if (response.status === 200) {
+      const transformedObject = transformObject(response.data);
       const ret = {
         statusCode: response.status,
         body: JSON.stringify(transformedObject),
@@ -126,7 +129,7 @@ exports.versioning = async (event, context) => {
     console.log("risposta negativa: ", response);
     const ret = {
       statusCode: response.status,
-      body: JSON.stringify(responseV2),
+      body: JSON.stringify(response),
     };
     return ret;
   } catch (error) {
