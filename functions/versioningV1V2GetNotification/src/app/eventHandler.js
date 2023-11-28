@@ -1,11 +1,10 @@
 // converte la risposta V2.x a V1
 const {ValidationException} = require("./exceptions.js");
 const AWSXRay = require("aws-xray-sdk-core");
-const http = require("http");
-const https = require("https");
 
-AWSXRay.captureHTTPsGlobal(http);
-AWSXRay.captureHTTPsGlobal(https);
+AWSXRay.captureHTTPsGlobal(require('http'));
+AWSXRay.captureHTTPsGlobal(require('https'));
+AWSXRay.capturePromise();
 
 const axios = require("axios");
 
@@ -25,7 +24,7 @@ exports.versioning = async (event, context) => {
     );
     const err = {
       statusCode: 502,
-      body: "ENDPOINT ERRATO",
+      body: JSON.stringify(generateProblem(502, "ENDPOINT ERRATO"))
     };
 
     return err;
@@ -118,20 +117,15 @@ exports.versioning = async (event, context) => {
     console.log("header", headers)
     response = await axios.get(url, { headers: headers });
     console.log(response);
-    if (response.status === 200) {
-      const transformedObject = transformObject(response.data);
-      const ret = {
-        statusCode: response.status,
-        body: JSON.stringify(transformedObject),
-      };
-      return ret;
-    }
-    console.log("risposta negativa: ", response);
+    
+    const transformedObject = transformObject(response.data);
     const ret = {
       statusCode: response.status,
-      body: JSON.stringify(response),
+      body: JSON.stringify(transformedObject),
     };
     return ret;
+  
+    
   } catch (error) {
     if (error instanceof ValidationException) {
       console.info("Validation Exception: ", error)
@@ -139,6 +133,13 @@ exports.versioning = async (event, context) => {
         statusCode: 400,
         body: JSON.stringify(generateProblem(400, error.message))
       }
+    } else if (error.response) {
+      console.log("risposta negativa: ", error.response.data);
+      const ret = {
+        statusCode: error.response.status,
+        body: JSON.stringify(error.response.data)
+      };
+      return ret;
     } else {
       console.warn("Error on url " + url, error)
       return {
