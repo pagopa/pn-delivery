@@ -1121,6 +1121,11 @@ Resources:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 10
       MemorySize: 512
+      Tags:
+        - Key: "pn-eni-related"
+          Value: "true"
+        - Key: "pn-eni-related-groupName-regexp"
+          Value: "^pn-delivery-microsvc-prod-VersioningV1V2GetNotificationSecGroup*$"
 
   # a new version at each deploy, with provisioned concurrency set
   VersioningV1V2GetNotificationLambdaVersionPnPlaceholderEpochSeconds:
@@ -1208,6 +1213,12 @@ Resources:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 10
       MemorySize: 512
+      Tags:
+        - Key: "pn-eni-related"
+          Value: "true"
+        - Key: "pn-eni-related-groupName-regexp"
+          Value: "^pn-delivery-microsvc-prod-VersioningV1V21SendNewNotificationSecGroup*$"
+
 
   # a new version at each deploy, with provisioned concurrency set
   VersioningV1V21SendNewNotificationLambdaVersionPnPlaceholderEpochSeconds:
@@ -1294,6 +1305,12 @@ Resources:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Timeout: 10
       MemorySize: 512
+      Tags:
+        - Key: "pn-eni-related"
+          Value: "true"
+        - Key: "pn-eni-related-groupName-regexp"
+          Value: "^pn-delivery-microsvc-prod-VersioningV1V21GetNotificationRequestStatusSecGroup*$"
+
 
   # a new version at each deploy, with provisioned concurrency set
   VersioningV1V21GetNotificationRequestStatusLambdaVersionPnPlaceholderEpochSeconds:
