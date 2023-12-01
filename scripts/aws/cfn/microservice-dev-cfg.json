@@ -19,7 +19,7 @@
     "LollipopExpectedLcOriginalUrl": "^https://api-app.io.pagopa.it/api/v1/third-party-messages/[a-zA-Z0-9]{26}(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/documents/[0-9])?(:?/attachments/delivery/notifications/received/([A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]-[0-9])/attachments/payment/(F24|PAGOPA)(/?\\?attachmentIdx\\x3D\\d+))?$",
     "LollipopEnableConsumerLogging": "true",
     "IsSendActiveDefaultValue": "true",
-    "PhysicalAddressValidationValue": "true",
+    "PhysicalAddressValidationValue": "false",
     "PhysicalAddressValidationCharsValue": "@_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ./ '\\-",
     "VersioningV1V2GetNotificationLambdaProvisionedConcurrency": "1",
     "VersioningV1V21SendNewNotificationLambdaProvisionedConcurrency": "1",
