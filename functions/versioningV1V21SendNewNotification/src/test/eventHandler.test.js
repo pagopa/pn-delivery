@@ -127,5 +127,83 @@ describe('EventHandler Testing', () => {
             expect(response.statusCode).to.equal(202);
             
         });
+
+        it("newNotificationRequestV21 bad request", async () => {
+
+            process.env = Object.assign(process.env, {
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+            });
+
+            const eventHandler = proxyquire
+                .noCallThru()
+                .load("../app/eventHandler.js", {});
+
+            let url = `${process.env.PN_DELIVERY_URL}/requests`;
+
+            mock.onPost(url).reply(400, {
+                problem: {
+                    type: 'GENERIC_ERROR',
+                    status: 400,
+                    title: 'Bad Request',
+                    errors: [
+                        {
+                            code: 'PN_GENERIC_INVALIDPARAMETER',
+                            detail: 'SEND accepts only numerical taxId for PG recipient 0'
+                        }
+                    ]
+                }
+            });
+
+            let notificationWithNOpagoPaIntMode = newNotificationRequesV1;
+            delete notificationWithNOpagoPaIntMode.pagoPaIntMode;
+
+            const event = {
+                headers: {},
+                requestContext: {
+                authorizer: {},
+                },
+                resource: "/delivery/requests",
+                path: "/delivery/requests",
+                httpMethod: 'POST',
+                body: JSON.stringify(notificationWithNOpagoPaIntMode)
+            };
+
+            const response = await handleEvent(event);
+            expect(response.statusCode).to.equal(400);
+            
+        });
+
+        it("newNotificationRequestV21 bad request", async () => {
+
+            process.env = Object.assign(process.env, {
+                PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery",
+            });
+
+            const eventHandler = proxyquire
+                .noCallThru()
+                .load("../app/eventHandler.js", {});
+
+            let url = `${process.env.PN_DELIVERY_URL}/requests`;
+
+            mock.onPost(url).abortRequest();
+
+            let notificationWithNOpagoPaIntMode = newNotificationRequesV1;
+            delete notificationWithNOpagoPaIntMode.pagoPaIntMode;
+
+            const event = {
+                headers: {},
+                requestContext: {
+                authorizer: {},
+                },
+                resource: "/delivery/requests",
+                path: "/delivery/requests",
+                httpMethod: 'POST',
+                body: JSON.stringify(notificationWithNOpagoPaIntMode)
+            };
+
+            const response = await handleEvent(event);
+            expect(response.statusCode).to.equal(500);
+            
+        });
     });
 });
