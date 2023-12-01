@@ -373,9 +373,14 @@ public class NotificationAttachmentService {
     }
 
 
-    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, int paFee, String title) {
-        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null, applyCost, paFee);
-
+    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, Integer paFee, String title) {
+        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(
+                notification.getIun(),
+                recipientIdx,
+                notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null,
+                applyCost,
+                paFee
+        );
 
         F24Response f24Response = pnF24Client.generatePDF(this.cfg.getF24CxId(), notification.getIun(), pathTokens, cost.getAmount());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
