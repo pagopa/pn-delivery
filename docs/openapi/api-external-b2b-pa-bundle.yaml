@@ -2514,6 +2514,7 @@ components:
         - taxId
         - physicalAddress
       type: object
+      additionalProperties: false
       properties:
         recipientType:
           type: string

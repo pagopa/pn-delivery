@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: xwAQ6PNHfls3nO53rTeBPlS/Nc+uRl3rDS6EoqKKVro=
+  version: P/kwsU44u6HsyWmY5YeGEALiAaPGugxQ/eCrMWyddzE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1776,6 +1776,7 @@ components:
         - taxId
         - physicalAddress
       type: object
+      additionalProperties: false
       properties:
         recipientType:
           type: string
