@@ -2493,6 +2493,7 @@ components:
           $ref: '#/components/schemas/NotificationMetadataAttachment'
     NotificationPaymentItem:
       minProperties: 1
+      additionalProperties: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'

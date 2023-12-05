@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: P/kwsU44u6HsyWmY5YeGEALiAaPGugxQ/eCrMWyddzE=
+  version: lIZLHwFeR8Es0TTmClk5XN9KzvPd7mCVpIAe6H9E0Ag=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1755,6 +1755,7 @@ components:
           $ref: '#/components/schemas/NotificationMetadataAttachment'
     NotificationPaymentItem:
       minProperties: 1
+      additionalProperties: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'
