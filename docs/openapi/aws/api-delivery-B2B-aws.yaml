@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: PkFkLQmggZOjjS31c0de6mpN1D3YWiGk7czvyHDvDhs=
+  version: xVPH/xfhudjz9ibBtch25AFTMkhpdkH2Zde6M/tIlN0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1841,6 +1841,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-
@@ -4007,6 +4008,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-

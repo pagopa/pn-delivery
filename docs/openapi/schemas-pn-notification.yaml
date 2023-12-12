@@ -71,6 +71,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-
@@ -203,6 +204,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-
