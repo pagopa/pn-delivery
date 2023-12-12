@@ -1163,6 +1163,7 @@ Resources:
       Parameters:
         FunctionName: !Ref VersioningV1V2GetNotificationLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
 
   # Lambda access right
   VersioningV1V2GetNotificationLambdaPermission:
@@ -1250,6 +1251,7 @@ Resources:
       Parameters:
         FunctionName: !Ref VersioningV1V21SendNewNotificationLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
 
   # Lambda access right
   VersioningV1V21SendNewNotificationLambdaPermission:
@@ -1336,6 +1338,7 @@ Resources:
       Parameters:
         FunctionName: !Ref VersioningV1V21GetNotificationRequestStatusLambda
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
 
   # Lambda access right
   VersioningV1V21GetNotificationRequestStatusLambdaPermission:

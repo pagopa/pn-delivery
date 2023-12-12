@@ -126,6 +126,7 @@ paths:
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStartDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchEndDate'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchStatuses'
+        - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchMandateId'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchPageSize'
         - $ref: './parameters-notification-search.yaml#/components/parameters/notificationSearchNextPagesKey'
       responses:
