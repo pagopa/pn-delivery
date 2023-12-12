@@ -13,10 +13,12 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
@@ -133,7 +135,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
                                                                                   String recipientId, Boolean recipientIdOpaque,
                                                                                   String senderId, List<NotificationStatus> status,
-                                                                                  Integer size, String nextPagesKey) {
+                                                                                  String mandateId, Integer size, String nextPagesKey) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -146,6 +148,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         InputSearchNotificationDto searchDto = new InputSearchNotificationDto().toBuilder()
                 .bySender( StringUtils.hasText( senderId ) )
                 .senderReceiverId( StringUtils.hasText( recipientId )? recipientId : senderId)
+                .mandateId(mandateId)
                 .startDate(startDate.toInstant())
                 .endDate(endDate.toInstant())
                 .statuses(status==null?List.of():status)
