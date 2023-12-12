@@ -2251,7 +2251,6 @@ components:
             nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
             PIATTAFORMA NOTIFICHE
             DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
-          default: 010101P
         paFee:
           type: number
           description: Costo espresso in eurocent che la PA imputa per la notifica
