@@ -1144,7 +1144,6 @@ paths:
       operationId: retrieveNotificationLegalFacts
       parameters:
         - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1183,7 +1182,6 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1221,7 +1219,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1247,43 +1244,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/document/{documentType}:
-    get:
-      summary: Restituisce il singolo documento identificato dalla documentKey
-      description: Permette di scaricare un documento correlato alla notificazione
-      tags:
-        - DocumentsWeb
-      operationId: getDocumentsWeb
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
-        - $ref: '#/components/parameters/pathDocumentType'
-        - $ref: '#/components/parameters/queryDocumentId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
-        '400':
-          description: Invalid input
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+
   /delivery-progresses/streams:
     post:
       summary: Crea nuovo stream di eventi
