@@ -1755,6 +1755,7 @@ components:
           $ref: '#/components/schemas/NotificationMetadataAttachment'
     NotificationPaymentItem:
       minProperties: 1
+      additionalProperties: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'
@@ -1776,6 +1777,7 @@ components:
         - taxId
         - physicalAddress
       type: object
+      additionalProperties: false
       properties:
         recipientType:
           type: string
@@ -4088,7 +4090,7 @@ components:
             Codice tassonomico della notifica basato sulla definizione presente
             nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
             PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
         pagoPaIntMode:
           type: string
           description: >-
