@@ -302,6 +302,7 @@ class PnNotificationInputControllerTest {
 				.group( "group" )
 				.senderDenomination( "Comune di Milano" )
 				.senderTaxId( "01199250158" )
+				.taxonomyCode("010101P")
 				.paProtocolNumber( "protocol_number" )
 				.amount(10000)
 				.paymentExpirationDate("2023-10-22")

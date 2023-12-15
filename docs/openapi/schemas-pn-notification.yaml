@@ -71,6 +71,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-
@@ -152,7 +153,6 @@ components:
           pattern: "^([0-9]{6}[A-Z]{1})$"
           description: >-
             Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
-          default: "010101P"
         pagoPaIntMode:
           type: string
           description: >-
@@ -204,6 +204,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-
@@ -284,7 +285,6 @@ components:
           pattern: "^([0-9]{6}[A-Z]{1})$"
           description: >-
             Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
-          default: "010101P"
         paFee:
           type: integer
           description: Costo espresso in eurocent che la PA imputa per la notifica
