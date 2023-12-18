@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ozYwse6Q3S7vWohAu/sHfP2kqlwpi4TWwUNY7brkQYU=
+  version: hy3sr0+SOtG2qjhu3I56uXk87yTmtg9RXRnqh7ipQVI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2088,6 +2088,7 @@ components:
           $ref: '#/components/schemas/NotificationMetadataAttachment'
     NotificationPaymentItem:
       minProperties: 1
+      additionalProperties: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'
@@ -2109,6 +2110,7 @@ components:
         - taxId
         - physicalAddress
       type: object
+      additionalProperties: false
       properties:
         recipientType:
           type: string
@@ -2174,6 +2176,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-
@@ -2251,7 +2254,6 @@ components:
             nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
             PIATTAFORMA NOTIFICHE
             DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
-          default: 010101P
         paFee:
           type: number
           description: Costo espresso in eurocent che la PA imputa per la notifica

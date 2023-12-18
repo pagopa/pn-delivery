@@ -114,9 +114,7 @@ exports.versioning = async (event, context) => {
   console.log("calling ", url);
   let response;
   try {
-    console.log("header", headers)
     response = await axios.get(url, { headers: headers });
-    console.log(response);
     
     const transformedObject = transformObject(response.data);
     const ret = {

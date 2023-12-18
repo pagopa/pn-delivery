@@ -648,12 +648,27 @@ class NotificationReceiverTest {
 		Assertions.assertNotNull( response );
 	}
 
+	@Test
+	void throwsPnValidationExceptionForMissingTaxonomyCode() {
+
+		// Given
+		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setTaxonomyCode( null );
+
+		// When
+		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS, null );
+
+		// Then
+		Assertions.assertThrows( PnInvalidInputException.class, todo );
+	}
+
 	private NewNotificationRequestV21 newNotificationRequest() {
 		return NewNotificationRequestV21.builder()
 				.senderTaxId( "01199250158" )
 				.senderDenomination( "Comune di Milano" )
 				.group( "group1" )
 				.subject( "subject_length" )
+				.taxonomyCode("010101P")
 				.documents( Collections.singletonList( NotificationDocument.builder()
 						.contentType( "application/pdf" )
 						.digests( NotificationAttachmentDigests.builder()
@@ -704,6 +719,7 @@ class NotificationReceiverTest {
 				.group( "Group_1" )
 				.senderTaxId( "01199250158" )
 				.senderDenomination( "Comune di Milano" )
+				.taxonomyCode("010101P")
 				.build();
 	}
 
@@ -768,7 +784,6 @@ class NotificationReceiverTest {
 						.build() )
 				.build();
 	}
-
 
 }
 

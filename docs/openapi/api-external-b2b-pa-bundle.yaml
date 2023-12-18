@@ -2493,6 +2493,7 @@ components:
           $ref: '#/components/schemas/NotificationMetadataAttachment'
     NotificationPaymentItem:
       minProperties: 1
+      additionalProperties: false
       properties:
         pagoPa:
           $ref: '#/components/schemas/PagoPaPayment'
@@ -2514,6 +2515,7 @@ components:
         - taxId
         - physicalAddress
       type: object
+      additionalProperties: false
       properties:
         recipientType:
           type: string
@@ -2579,6 +2581,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-
@@ -2657,7 +2660,6 @@ components:
             nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
             PIATTAFORMA NOTIFICHE
             DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
-          default: 010101P
         paFee:
           type: integer
           description: Costo espresso in eurocent che la PA imputa per la notifica
@@ -4013,6 +4015,7 @@ components:
         - notificationFeePolicy
         - senderDenomination
         - senderTaxId
+        - taxonomyCode
       properties:
         idempotenceToken:
           description: >-
@@ -4094,7 +4097,6 @@ components:
             nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
             PIATTAFORMA NOTIFICHE
             DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
-          default: 010101P
         pagoPaIntMode:
           type: string
           description: >-

@@ -57,9 +57,8 @@ exports.handleEvent = async (event) => {
       headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
     }
 
-
+  try {
     console.log ('calling ',url);
-
     response = await axios.post(url, newNotificationRequestV21, { headers: headers });
     
     const ret = {
@@ -67,4 +66,31 @@ exports.handleEvent = async (event) => {
       body: JSON.stringify(response.data)
     }
     return ret;
-    };
+  } catch(error) {
+    if (error.response) {
+      console.log("risposta negativa: ", error.response.data);
+      const ret = {
+        statusCode: error.response.status,
+        body: JSON.stringify(error.response.data)
+      };
+      return ret;
+    } else {
+      console.warn("Error on url " + url, error)
+      return {
+        statusCode: 500,
+        body: JSON.stringify(generateProblem(500, error.message))
+      }
+    }
+  }
+  
+  function generateProblem(status, message) {
+    return {
+      status: status,
+      errors: [
+        {
+          code: message
+        }
+      ]
+    }
+  }
+}

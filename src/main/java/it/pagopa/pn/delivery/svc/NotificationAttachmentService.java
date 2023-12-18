@@ -373,21 +373,29 @@ public class NotificationAttachmentService {
     }
 
 
-    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, int paFee, String title) {
-        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(notification.getIun(), recipientIdx, notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null, applyCost, paFee);
-
+    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, Integer paFee, String title) {
+        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(
+                notification.getIun(),
+                recipientIdx,
+                notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null,
+                applyCost,
+                paFee
+        );
 
         F24Response f24Response = pnF24Client.generatePDF(this.cfg.getF24CxId(), notification.getIun(), pathTokens, cost.getAmount());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
         FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
-        String fileName = "";
+        String contentType = StringUtils.hasText(f24Response.getContentType()) ? f24Response.getContentType() : "application/pdf";
+        String fileName = buildFilename(notification.getIun(), title, contentType);
         if (StringUtils.hasText(f24Response.getUrl())) {
-            fileDownloadInfo.setUrl(f24Response.getUrl());
             fileDownloadResponse.setChecksum(f24Response.getSha256());
-            fileDownloadResponse.setContentType(StringUtils.hasText(f24Response.getContentType()) ? f24Response.getContentType() : "");
+            fileDownloadResponse.setContentType(contentType);
             fileDownloadResponse.setContentLength(f24Response.getContentLength());
-            fileName = buildFilename(notification.getIun(), title, f24Response.getContentType());
+            fileDownloadInfo.setUrl(f24Response.getUrl());
         } else {
+            fileDownloadResponse.setChecksum("");
+            fileDownloadResponse.setContentLength(BigDecimal.valueOf(0));
+            fileDownloadResponse.setContentType(contentType);
             fileDownloadInfo.setRetryAfter(f24Response.getRetryAfter());
         }
         fileDownloadResponse.setDownload(fileDownloadInfo);

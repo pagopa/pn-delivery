@@ -88,7 +88,10 @@ public class NotificationMetadataEntityDaoDynamo extends AbstractDynamoKeyValueS
             return  new PageSearchTrunk<>();
         }
         // filtro per destinatario (su filterId, quindi a logica invertita rispetto ai 2 filtri precedenti)
-        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId()) && inputSearchNotificationDto.isBySender() && !entity.getRecipientIds().contains(inputSearchNotificationDto.getFilterId()) )
+        if (StringUtils.hasText(inputSearchNotificationDto.getFilterId()) && inputSearchNotificationDto.isBySender() && !(
+            entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPF())
+            || entity.getRecipientIds().contains(inputSearchNotificationDto.getOpaqueFilterIdPG())
+            ))
         {
             log.debug("result not satisfy filter filterid receiver");
             return  new PageSearchTrunk<>();
