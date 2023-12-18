@@ -1125,7 +1125,7 @@ Resources:
         - Key: "pn-eni-related"
           Value: "true"
         - Key: "pn-eni-related-groupName-regexp"
-          Value: "^pn-delivery-microsvc-prod-VersioningV1V2GetNotificationSecGroup*$"
+          Value: !Base64 "^pn-delivery-microsvc-prod-VersioningV1V2GetNotificationSecGroup*$"
 
   # a new version at each deploy, with provisioned concurrency set
   VersioningV1V2GetNotificationLambdaVersionPnPlaceholderEpochSeconds:
@@ -1218,7 +1218,7 @@ Resources:
         - Key: "pn-eni-related"
           Value: "true"
         - Key: "pn-eni-related-groupName-regexp"
-          Value: "^pn-delivery-microsvc-prod-VersioningV1V21SendNewNotificationSecGroup*$"
+          Value: !Base64 "^pn-delivery-microsvc-prod-VersioningV1V21SendNewNotificationSecGroup*$"
 
 
   # a new version at each deploy, with provisioned concurrency set
@@ -1311,7 +1311,7 @@ Resources:
         - Key: "pn-eni-related"
           Value: "true"
         - Key: "pn-eni-related-groupName-regexp"
-          Value: "^pn-delivery-microsvc-prod-VersioningV1V21GetNotificationRequestStatusSecGroup*$"
+          Value: !Base64 "^pn-delivery-microsvc-prod-VersioningV1V21GetNotificationRequestStatusSecGroup*$"
 
 
   # a new version at each deploy, with provisioned concurrency set
