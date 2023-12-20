@@ -13,12 +13,10 @@ import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.ResultPaginationDto;
 import it.pagopa.pn.delivery.svc.*;
 import it.pagopa.pn.delivery.svc.search.NotificationRetrieverService;
-import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.OffsetDateTime;
@@ -135,7 +133,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
     public  ResponseEntity<NotificationSearchResponse> searchNotificationsPrivate(OffsetDateTime startDate, OffsetDateTime endDate,
                                                                                   String recipientId, Boolean recipientIdOpaque,
                                                                                   String senderId, List<NotificationStatus> status,
-                                                                                  String mandateId, Integer size, String nextPagesKey) {
+                                                                                  String mandateId, String cxType, Integer size, String nextPagesKey) {
 
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -160,7 +158,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         ResultPaginationDto<NotificationSearchRow,String> serviceResult;
         NotificationSearchResponse response = new NotificationSearchResponse();
         try {
-            serviceResult = retrieveSvc.searchNotification(searchDto, null, null);
+            serviceResult = retrieveSvc.searchNotification(searchDto, cxType, null);
             response = modelMapper.map( serviceResult, NotificationSearchResponse.class );
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
