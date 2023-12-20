@@ -128,3 +128,10 @@ components:
       description: Gruppo da utilizzare nella query come filtro
       schema:
         type: string
+    cxType:
+      name: cxType
+      in: query
+      required: false
+      description: Tipo di destinatario
+      schema:
+        type: string
