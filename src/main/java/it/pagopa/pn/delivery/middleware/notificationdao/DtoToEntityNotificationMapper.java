@@ -36,7 +36,7 @@ public class DtoToEntityNotificationMapper {
                 .taxonomyCode(dto.getTaxonomyCode())
                 .pagoPaIntMode( dto.getPagoPaIntMode().getValue() )
                 .sourceChannel( dto.getSourceChannel() )
-                .sourceChannelDetails( dto.getSourceChannel() )
+                .sourceChannelDetails( dto.getSourceChannelDetails() )
                 .paFee(dto.getPaFee())
                 .version( dto.getVersion() );
 
