@@ -46,7 +46,7 @@ exports.handleEvent = async (event) => {
         headers["x-pagopa-pn-jti"] = event.requestContext.authorizer["cx_jti"];
     }
     if (event.requestContext.authorizer["sourceChannelDetails"]) {
-        headers["x-pagopa-pn-src-ch-detail"] =
+        headers["x-pagopa-pn-src-ch-details"] =
         event.requestContext.authorizer["sourceChannelDetails"];
     }
     if (event.requestContext.authorizer["uid"]) {
