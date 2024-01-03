@@ -248,7 +248,7 @@ public class PnReceivedNotificationsController implements RecipientReadApi {
                         aarQrCodeValue,
                         recipientType,
                         xPagopaPnCxId)
-                .mdcEntry(MDC_PN_CTX_TOPIC, "aarQrCodeValue=" + aarQrCodeValue)
+                .mdcEntry(MDC_PN_CTX_TOPIC, String.format("aarQrCodeValue=%s", aarQrCodeValue))
                 .build();
         logEvent.log();
         ResponseCheckAarMandateDto responseCheckAarMandateDto;

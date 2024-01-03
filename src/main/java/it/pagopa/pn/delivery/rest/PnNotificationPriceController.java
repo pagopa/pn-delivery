@@ -29,7 +29,7 @@ public class PnNotificationPriceController implements NotificationPriceApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_REQCOST, "getNotificationPrice paTaxId={} noticeCode={}", paTaxId, noticeCode )
-                .mdcEntry(MDC_PN_CTX_TOPIC, "paTaxId=" + paTaxId + ";noticeCode=" + noticeCode)
+                .mdcEntry(MDC_PN_CTX_TOPIC, String.format("paTaxId=%s;noticeCode=%s", paTaxId, noticeCode))
                 .build();
         logEvent.log();
         NotificationPriceResponse response;

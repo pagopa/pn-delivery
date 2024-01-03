@@ -52,7 +52,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_REQCOST, "getNotificationCostPrivate paTaxId={} noticeCode={}", paTaxId, noticeCode)
-                .mdcEntry(MDC_PN_CTX_TOPIC, "paTaxId=" + paTaxId + ";noticeCode=" + noticeCode)
+                .mdcEntry(MDC_PN_CTX_TOPIC, String.format("paTaxId=%s;noticeCode=%s", paTaxId, noticeCode))
                 .build();
         logEvent.log();
         NotificationCostResponse response;
@@ -79,7 +79,7 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                         aarQrCodeValue,
                         recipientType,
                         recipientInternalId)
-                .mdcEntry(MDC_PN_CTX_TOPIC, "aarQrCodeValue=" + aarQrCodeValue + ";recipientType=" + recipientType + ";recipientInternalId=" + recipientInternalId)
+                .mdcEntry(MDC_PN_CTX_TOPIC, String.format("aarQrCodeValue=%s;recipientType=%s;recipientInternalId=%s", aarQrCodeValue, recipientType, recipientInternalId))
                 .build();
         logEvent.log();
         ResponseCheckAarDto responseCheckAarDto;
