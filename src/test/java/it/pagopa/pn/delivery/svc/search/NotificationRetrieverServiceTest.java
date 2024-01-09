@@ -1337,7 +1337,7 @@ class NotificationRetrieverServiceTest {
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa() );
+        Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getAttachment() );
     }
 
     @Test
@@ -1398,7 +1398,7 @@ class NotificationRetrieverServiceTest {
 
         Assertions.assertFalse( internalNotificationResult.getDocumentsAvailable() );
         Assertions.assertEquals( Collections.emptyList(), internalNotification.getDocuments() );
-        Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa() );
+        Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getAttachment() );
 
     }
 
