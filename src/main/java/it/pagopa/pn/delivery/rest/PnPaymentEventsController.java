@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
+
 @RestController
 @Slf4j
 public class PnPaymentEventsController implements PaymentEventsApi {
@@ -34,7 +36,7 @@ public class PnPaymentEventsController implements PaymentEventsApi {
         logEvent.log();
         try {
             String iun = paymentEventsService.handlePaymentEventsPagoPa(xPagopaPnCxType.getValue(), xPagopaPnCxId, xPagopaPnCxGroups, paymentEventsRequestPagoPa);
-            logEvent.getMdc().put("iun", iun);
+            logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("" + exc.getProblem()).log();
