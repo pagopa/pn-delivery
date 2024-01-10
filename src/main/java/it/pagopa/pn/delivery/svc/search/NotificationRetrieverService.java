@@ -16,8 +16,10 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationSearchR
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.NotificationViewedProducer;
 import it.pagopa.pn.delivery.models.*;
+import it.pagopa.pn.delivery.models.internal.notification.F24Payment;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationPaymentInfo;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
+import it.pagopa.pn.delivery.models.internal.notification.PagoPaPayment;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.pnclient.deliverypush.PnDeliveryPushClientImpl;
 import it.pagopa.pn.delivery.pnclient.externalregistries.PnExternalRegistriesClientImpl;
@@ -635,11 +637,21 @@ public class NotificationRetrieverService {
 		for ( NotificationRecipient recipient : notification.getRecipients() ) {
 			List<NotificationPaymentInfo> payments = recipient.getPayments();
 			if (!CollectionUtils.isEmpty(payments)) {
-				payments.forEach(notificationPaymentInfo -> {
-					notificationPaymentInfo.setPagoPa( null );
-					notificationPaymentInfo.setF24(null);
-				});
+				payments.forEach(this::removePaymentAttachment);
 			}
+		}
+	}
+
+	private void removePaymentAttachment(NotificationPaymentInfo notificationPaymentInfo) {
+		PagoPaPayment pagoPaPayment = notificationPaymentInfo.getPagoPa();
+		if (Objects.nonNull(pagoPaPayment)) {
+			// rimuovo allegato di pagamento pagoPA
+			pagoPaPayment.setAttachment(null);
+		}
+		F24Payment f24Payment = notificationPaymentInfo.getF24();
+		if (Objects.nonNull(f24Payment)) {
+			// rimuovo oggetto di pagamento F24
+			notificationPaymentInfo.setF24(null);
 		}
 	}
 
