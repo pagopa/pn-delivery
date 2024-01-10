@@ -1340,6 +1340,7 @@ class NotificationRetrieverServiceTest {
         Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
         Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getCreditorTaxId() );
         Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getAttachment() );
+        Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getF24() );
     }
 
     @Test
@@ -1403,6 +1404,7 @@ class NotificationRetrieverServiceTest {
         Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getNoticeCode() );
         Assertions.assertNotNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getCreditorTaxId() );
         Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getPagoPa().getAttachment() );
+        Assertions.assertNull( internalNotification.getRecipients().get( 0 ).getPayments().get(0).getF24() );
 
     }
 
