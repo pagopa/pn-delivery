@@ -128,7 +128,7 @@ info:
       #### 2. Richiesta di invio della notifica
     
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotificationV21) valorizzando il campo <b>payment</b> (scegliendo in base alla tipologia di file caricato <b>F24</b>/<b>pagoPa</b>) e il campo <b>documents</b> utilizzando i riferimenti dei file
+      [sendNewNotification](#/NewNotification/sendNewNotificationV21) valorizzando il campo <b>payments</b> (scegliendo in base alla tipologia di file caricato <b>F24</b>/<b>pagoPa</b>) e il campo <b>documents</b> utilizzando i riferimenti dei file
       caricati in precedenza nel seguente:
       <br>
       - <b>digests.sha256 </b>: SHA256 associato all'allegato caricato
@@ -137,12 +137,12 @@ info:
       - <b>ref.versionToken</b>: valore dell'header x-amz-version-id ottenuto dalla response in fase di upload dell'allegato ad esso associato.
       </br>
 
-      Nel caso si voglia valorizzare il campo <b>payment</b>  con un bolletino di pagamento <b>pagoPa</b> oltre al riferimento al file tramite la sezione <b>pagoPaForm</b> con le indicazioni riportate sopra, sono da valorizzare i campi <b>noticeCode</b> "codice avviso pagoPA" ,univoco, di pagamento del sistema pagoPA utilizzato , usato per pagamento online;
+      Nel caso si voglia valorizzare il campo <b>payments</b>  con un bolletino di pagamento <b>pagoPa</b> oltre al riferimento al file tramite la sezione <b>pagoPaForm</b> con le indicazioni riportate sopra, sono da valorizzare i campi <b>noticeCode</b> "codice avviso pagoPA" ,univoco, di pagamento del sistema pagoPA utilizzato , usato per pagamento online;
       <b> creditorTaxId</b>: codice fiscale dell'ente a cui fa riferimento il "codice avviso pagoPA"; il campo
       <b>applyCost</b>: flag per indicare se l'avviso pagoPA deve contenere i costi di notifica e il campo 
       </br>
 
-      Nel caso,invece, nel campo payment si voglia valorizzare un pagamento <b>F24</b>,oltre al riferimento al file caricato tramite la sezione <b>metadataAttachment</b> con le indicazioni riportate sopra, sono da valorizzare i campi <b> title</b>: titolo del documento pdf da mostrare all'utente e
+      Nel caso,invece, nel campo payments si voglia valorizzare un pagamento <b>F24</b>,oltre al riferimento al file caricato tramite la sezione <b>metadataAttachment</b> con le indicazioni riportate sopra, sono da valorizzare i campi <b> title</b>: titolo del documento pdf da mostrare all'utente e
         <b>applyCost</b>: flag per indicare se il modello F24 deve contenere i costi di notifica.
       
       </br>
