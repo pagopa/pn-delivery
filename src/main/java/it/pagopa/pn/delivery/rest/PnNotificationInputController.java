@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_SIZE;
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 
 
 @Slf4j
@@ -55,7 +56,7 @@ public class PnNotificationInputController implements NewNotificationApi {
         @NotNull String requestId = svcRes.getNotificationRequestId();
         @NotNull String protocolNumber = svcRes.getPaProtocolNumber();
         String iun = new String(Base64Utils.decodeFromString(requestId), StandardCharsets.UTF_8);
-        logEvent.getMdc().put("iun", iun);
+        logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
         logEvent.generateSuccess("sendNewNotification requestId={}, protocolNumber={}, idempotenceToken={}", requestId, protocolNumber, paIdempotenceToken).log();
         return ResponseEntity.accepted().body( svcRes );
     }

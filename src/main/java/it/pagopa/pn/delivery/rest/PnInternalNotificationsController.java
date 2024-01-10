@@ -23,6 +23,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_CTX_TOPIC;
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
+
 @Slf4j
 @RestController
 public class PnInternalNotificationsController implements InternalOnlyApi {
@@ -49,15 +52,14 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
                 .before(PnAuditLogEventType.AUD_NT_REQCOST, "getNotificationCostPrivate paTaxId={} noticeCode={}", paTaxId, noticeCode)
-                .mdcEntry("paTaxId",paTaxId)
-                .mdcEntry("noticeCode", noticeCode)
+                .mdcEntry(MDC_PN_CTX_TOPIC, String.format("paTaxId=%s;noticeCode=%s", paTaxId, noticeCode))
                 .build();
         logEvent.log();
         NotificationCostResponse response;
         try {
             response = priceService.getNotificationCost( paTaxId, noticeCode );
             String iun = response.getIun();
-            logEvent.getMdc().put("iun", iun);
+            logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
             logEvent.generateSuccess("getNotificationCostPrivate paTaxId={}, noticeCode={}, iun={}, recipientIdx={}", paTaxId, noticeCode, iun, response.getRecipientIdx()).log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("Exception on get notification cost private= " + exc.getProblem()).log();
@@ -77,15 +79,13 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
                         aarQrCodeValue,
                         recipientType,
                         recipientInternalId)
-                .mdcEntry("aarQrCodeValue", aarQrCodeValue)
-                .mdcEntry("recipientType", recipientType)
-                .mdcEntry("recipientInternalId", recipientInternalId)
+                .mdcEntry(MDC_PN_CTX_TOPIC, String.format("aarQrCodeValue=%s;recipientType=%s;recipientInternalId=%s", aarQrCodeValue, recipientType, recipientInternalId))
                 .build();
         logEvent.log();
         ResponseCheckAarDto responseCheckAarDto;
         try {
             responseCheckAarDto = qrService.getNotificationByQR( requestCheckAarDto );
-            logEvent.getMdc().put("iun", responseCheckAarDto.getIun());
+            logEvent.getMdc().put(MDC_PN_IUN_KEY, responseCheckAarDto.getIun());
             logEvent.generateSuccess().log();
         } catch (PnRuntimeException exc) {
             logEvent.generateFailure("Exception on get notification qr private= " + exc.getProblem()).log();

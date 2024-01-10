@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static it.pagopa.pn.commons.exceptions.PnExceptionsCodes.ERROR_CODE_PN_GENERIC_INVALIDPARAMETER_REQUIRED;
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_CTX_SAFESTORAGE_FILEKEY;
+import static it.pagopa.pn.commons.utils.MDCUtils.MDC_PN_IUN_KEY;
 
 
 @RestController
@@ -123,7 +125,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         logEvent.log();
         if (StringUtils.hasText( notificationRequestId )) {
             String iun = new String(Base64Utils.decodeFromString(notificationRequestId), StandardCharsets.UTF_8);
-            logEvent.getMdc().put("iun", iun);
+            logEvent.getMdc().put(MDC_PN_IUN_KEY, iun);
             internalNotification = retrieveSvc.getNotificationInformationWithSenderIdCheck( iun, xPagopaPnCxId, xPagopaPnCxGroups );
         } else {
             if ( !StringUtils.hasText( paProtocolNumber ) ) {
@@ -208,7 +210,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
                 logEvent.generateSuccess().log();
             }else{
-                logEvent.getMdc().put("dockey", internalAttachmentWithFileKey.getFileKey());
+                logEvent.getMdc().put(MDC_PN_CTX_SAFESTORAGE_FILEKEY, internalAttachmentWithFileKey.getFileKey());
                 logEvent.generateSuccess().log();
             }
         } catch (PnRuntimeException exc) {
@@ -240,7 +242,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             if(internalAttachmentWithFileKey == null || internalAttachmentWithFileKey.getFileKey() == null){
                 logEvent.generateSuccess().log();
             }else{
-                logEvent.getMdc().put("dockey", internalAttachmentWithFileKey.getFileKey());
+                logEvent.getMdc().put(MDC_PN_CTX_SAFESTORAGE_FILEKEY, internalAttachmentWithFileKey.getFileKey());
                 logEvent.generateSuccess().log();
             }
         } catch (PnRuntimeException exc) {
