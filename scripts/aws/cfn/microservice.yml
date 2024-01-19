@@ -1018,7 +1018,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs20.x
       FunctionName: !Ref PnDeliveryAsseverationLambdaName
       Description: 'It triggers the asseveration written of sqs'
       MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
@@ -1031,25 +1031,20 @@ Resources:
           BUCKET_NAME: !Sub "${LogsBucketName}"
       Code:
         ZipFile: |
-              const AWS = require('aws-sdk')
+              const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
               const crypto = require('node:crypto');
 
-              const S3 = new AWS.S3();
               const BUCKET_NAME = process.env.BUCKET_NAME
-
-              function putObjectToS3(bucket, key, data){
-                  return new Promise( (accept, reject) => {
-                      const params = {
-                          Bucket : bucket,
-                          Key : key,
-                          Body : data
-                      }
-                      S3.putObject(params, function(err, data) {
-                          if (err) reject(err)
-                          else accept(data)
-                      });
-                  })
-                      
+              const client = new S3Client({region: process.env.REGION});
+              
+              async function putObjectToS3(bucket, key, data){
+                  const params = {
+                      Bucket : bucket,
+                      Key : key,
+                      Body : data
+                  }
+                  const command = new PutObjectCommand(params);
+                  await client.send(command);             
               }
 
               function uuidv4(crypto) {
