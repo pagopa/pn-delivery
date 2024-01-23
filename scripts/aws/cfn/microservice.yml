@@ -1035,7 +1035,7 @@ Resources:
               const crypto = require('node:crypto');
 
               const BUCKET_NAME = process.env.BUCKET_NAME
-              const client = new S3Client({region: process.env.REGION});
+              const client = new S3Client();
               
               async function putObjectToS3(bucket, key, data){
                   const params = {
