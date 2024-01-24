@@ -241,13 +241,14 @@ paths:
 
   "/delivery-private/check-iun-internalid/{iun}":
     get:
-      summary: servizio per la verifica di accesso dato uno IUN e un internalId
+      summary: servizio per la verifica di accesso dato uno IUN e un internalId (eventualmente di un delegato)
       tags:
       - internal-only
       operationId: checkIUNAndInternalId
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
         - $ref: '#/components/parameters/queryRecipientInternalId'
+        - $ref: '#/components/parameters/queryMandateId'
       responses:
         '204':
           description: OK
