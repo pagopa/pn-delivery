@@ -289,7 +289,7 @@ components:
           type: integer
           description: >-
             Costo espresso in eurocent che la PA imputa per la notifica. <br/>
-            Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE e modalità di integrazione Async o modalità di pagamento F24  <br/>
+            Obbligatorio per notifiche con notificationFeePolicy=DELIVERY_MODE e modalità di integrazione Async o modalità di pagamento F24  <br/>
             Il default nei casi di non obbligatorietà è 100 <br/>
             Esempio paFee ad 1€ -> 100 <br/>
           format: int32
@@ -300,7 +300,7 @@ components:
           format: int32
           description: >-
             IVA espressa in percentuale imposta al mittente sulla notifica analogica. <br/>
-            Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE e modalità di integrazione Async o modalità di pagamento F24. <br/>
+            Obbligatorio per notifiche con notificationFeePolicy=DELIVERY_MODE e modalità di integrazione Async o modalità di pagamento F24. <br/>
             Il default nei casi di non obbligatorietà è 22 <br/>
             Esempio vat al 22% -> 22 <br/>
         pagoPaIntMode:
