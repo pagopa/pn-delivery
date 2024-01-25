@@ -290,7 +290,7 @@ components:
           description: >-
             Costo espresso in eurocent che la PA imputa per la notifica. <br/>
             Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE<br/>
-            Il default nei casi di non obbligatorietà è 0 <br/>
+            Il default nei casi di non obbligatorietà è 100 <br/>
             Esempio paFee ad 1€ -> 100 <br/>
           format: int32
           minimum: 0
