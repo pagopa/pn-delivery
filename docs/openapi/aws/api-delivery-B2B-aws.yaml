@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: UU7CtJne1o8e2DFG7SY0fDwBw4YAP6HmbUy6zXPn68I=
+  version: fShuQFgR06mGQor0TW94sKOb7bh0qruBMjJxGucCq58=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1923,9 +1923,22 @@ components:
             DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
         paFee:
           type: number
-          description: Costo espresso in eurocent che la PA imputa per la notifica
+          description: >-
+            Costo espresso in eurocent che la PA imputa per la notifica. <br/>
+            Obbligatorio per notifiche con notificationFeePolicy=DELIVERY_MODE e
+            modalità di integrazione Async o modalità di pagamento F24  <br/> Il
+            default nei casi di non obbligatorietà è 100 <br/> Esempio paFee ad
+            1€ -> 100 <br/>
           minimum: 0
           maximum: 100
+        vat:
+          type: number
+          description: >-
+            IVA espressa in percentuale imposta al mittente sulla notifica
+            analogica. <br/> Obbligatorio per notifiche con
+            notificationFeePolicy=DELIVERY_MODE e modalità di integrazione Async
+            o modalità di pagamento F24. <br/> Il default nei casi di non
+            obbligatorietà è 22 <br/> Esempio vat al 22% -> 22 <br/>
         pagoPaIntMode:
           type: string
           description: >-
