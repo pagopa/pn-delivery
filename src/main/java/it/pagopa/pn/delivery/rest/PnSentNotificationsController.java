@@ -165,8 +165,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             case REFUSED -> {
                 response.setNotificationRequestStatus("REFUSED");
                 response.setIun(null);
-                Optional<TimelineElementV20> timelineElement = internalNotification.getTimeline().stream().filter(
-                        tle -> TimelineElementCategoryV20.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
+                Optional<TimelineElementV23> timelineElement = internalNotification.getTimeline().stream().filter(
+                        tle -> TimelineElementCategoryV23.REQUEST_REFUSED.equals(tle.getCategory())).findFirst();
                 timelineElement.ifPresent(element -> setRefusedErrors(response, element));
             }
             default -> response.setNotificationRequestStatus("ACCEPTED");
@@ -176,8 +176,8 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return ResponseEntity.ok( response );
     }
 
-    private void setRefusedErrors(NewNotificationRequestStatusResponseV21 response, TimelineElementV20 timelineElement) {
-        List<NotificationRefusedErrorV20> refusalReasons = timelineElement.getDetails().getRefusalReasons();
+    private void setRefusedErrors(NewNotificationRequestStatusResponseV21 response, TimelineElementV23 timelineElement) {
+        List<NotificationRefusedErrorV23> refusalReasons = timelineElement.getDetails().getRefusalReasons();
         List<ProblemError> problemErrorList = refusalReasons.stream().map(
                 reason -> ProblemError.builder()
                         .code( reason.getErrorCode() )

@@ -262,8 +262,8 @@ class IOMapperTest {
 
     private InternalNotification internalNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        TimelineElementV20 timelineElement = new TimelineElementV20();
-        timelineElement.setCategory(TimelineElementCategoryV20.AAR_CREATION_REQUEST);
+        TimelineElementV23 timelineElement = new TimelineElementV23();
+        timelineElement.setCategory(TimelineElementCategoryV23.AAR_CREATION_REQUEST);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setDocuments(List.of(it.pagopa.pn.delivery.models.internal.notification.NotificationDocument.builder()

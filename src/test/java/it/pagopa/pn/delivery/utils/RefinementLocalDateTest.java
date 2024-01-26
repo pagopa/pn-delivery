@@ -1,6 +1,6 @@
 package it.pagopa.pn.delivery.utils;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV20;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.TimelineElementV23;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ class RefinementLocalDateTest {
     @Test
     void checkLocalRefinementDateLegale() {
         // Given
-        TimelineElementV20 tle = TimelineElementV20.builder()
+        TimelineElementV23 tle = TimelineElementV23.builder()
                 .timestamp( OffsetDateTime.parse( REFINEMENT_DATE_LEGALE ) )
                 .build();
 
@@ -38,7 +38,7 @@ class RefinementLocalDateTest {
     @Test
     void checkLocalRefinementDateSolare() {
         // Given
-        TimelineElementV20 tle = TimelineElementV20.builder()
+        TimelineElementV23 tle = TimelineElementV23.builder()
                 .timestamp( OffsetDateTime.parse( REFINEMENT_DATE_SOLARE ) )
                 .build();
 

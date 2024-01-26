@@ -1040,7 +1040,7 @@ class NotificationReceiverValidationTest {
   private FullSentNotificationV21 newFullSentNotification() {
     return FullSentNotificationV21.builder().sentAt(OffsetDateTime.now()).iun(IUN)
         .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
-        .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
+        .timeline(Collections.singletonList(TimelineElementV23.builder().build()))
         .notificationStatus(NotificationStatus.ACCEPTED)
         .documents(Collections.singletonList(NotificationDocument.builder()
             .contentType("application/pdf")
