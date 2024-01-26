@@ -810,6 +810,8 @@ Resources:
       MemorySize: 128
       Timeout: 10
       Role: !GetAtt PnDeliveryInsertTriggerLambdaRole.Arn
+      TracingConfig:
+        Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Environment:
@@ -1024,6 +1026,8 @@ Resources:
       MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
       Timeout: !Ref PnDeliveryAsseverationLambdaTimeout
       Role: !GetAtt PnDeliveryAsseverationLambdaRole.Arn
+      TracingConfig:
+        Mode: Active
       Layers:
         - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
       Environment:
