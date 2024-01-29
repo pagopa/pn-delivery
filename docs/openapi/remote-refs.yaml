@@ -103,6 +103,7 @@ components:
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/5bbfdf63511b62901dfd8c4705cfb69c39eec878/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElement'
 
     TimelineElementV20:
+      # DO NOT CHANGE: this is timeline V2.0 commit id.
       $ref: 'https://raw.githubusercontent.com/pagopa/pn-delivery-push/3a6a266b166664f1e8a9832883caf32973a2aedc/docs/openapi/schemas-pn-timeline.yaml#/components/schemas/TimelineElementV20'
 
 

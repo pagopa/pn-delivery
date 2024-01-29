@@ -2,7 +2,7 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
 index 0c2982f7..0b76ef95 100644
 --- a/docs/openapi/api-external-b2b-pa-bundle.yaml
 +++ b/docs/openapi/api-external-b2b-pa-bundle.yaml
-@@ -1026,7 +1026,6 @@ paths:
+@@ -1176,7 +1176,6 @@ paths:
        operationId: retrieveNotificationLegalFacts
        parameters:
          - $ref: '#/components/parameters/pathIun'

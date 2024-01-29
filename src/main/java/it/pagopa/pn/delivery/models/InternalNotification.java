@@ -27,7 +27,7 @@ public class InternalNotification {
     private List<NotificationDocument> documents;
     private NotificationFeePolicy notificationFeePolicy;
     private String cancelledIun;
-    private FullSentNotificationV21.PhysicalCommunicationTypeEnum physicalCommunicationType;
+    private FullSentNotificationV23.PhysicalCommunicationTypeEnum physicalCommunicationType;
     private String senderDenomination;
     private String senderTaxId;
     private String group;
@@ -169,16 +169,16 @@ public class InternalNotification {
         this.cancelledIun = cancelledIun;
     }
 
-    public InternalNotification physicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public InternalNotification physicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
         return this;
     }
 
-    public FullSentNotificationV21.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
+    public FullSentNotificationV23.PhysicalCommunicationTypeEnum getPhysicalCommunicationType() {
         return physicalCommunicationType;
     }
 
-    public void setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum physicalCommunicationType) {
+    public void setPhysicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum physicalCommunicationType) {
         this.physicalCommunicationType = physicalCommunicationType;
     }
 
