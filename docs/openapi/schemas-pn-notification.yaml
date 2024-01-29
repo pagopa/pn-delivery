@@ -46,6 +46,28 @@ components:
       minLength: 11
       pattern: '^\d+$'
 
+    PaFee:
+      type: integer
+      description: >-
+        Costo espresso in eurocent che la PA imputa per la notifica. <br/>
+        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE<br/>
+        Il default nei casi di non obbligatorietà è 100 <br/>
+        Esempio paFee ad 1€ -> 100 <br/>
+      format: int32
+      minimum: 0
+      maximum: 100
+
+    Vat:
+      type: integer
+      description: >-
+        IVA espressa in percentuale imposta al mittente sulla notifica analogica. <br/>
+        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE. <br/>
+        Il default nei casi di non obbligatorietà è 22 <br/>
+        Esempio vat al 22% -> 22 <br/>
+      format: int32
+      minimum: 0
+      maximum: 100
+
     NotificationFeePolicy:
       type: string
       description: >-
@@ -286,23 +308,9 @@ components:
           description: >-
             Codice tassonomico della notifica basato sulla definizione presente nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5 PIATTAFORMA NOTIFICHE DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
         paFee:
-          type: integer
-          description: >-
-            Costo espresso in eurocent che la PA imputa per la notifica. <br/>
-            Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE<br/>
-            Il default nei casi di non obbligatorietà è 100 <br/>
-            Esempio paFee ad 1€ -> 100 <br/>
-          format: int32
-          minimum: 0
-          maximum: 100
+          $ref: '#/components/schemas/PaFee'
         vat:
-          type: integer
-          format: int32
-          description: >-
-            IVA espressa in percentuale imposta al mittente sulla notifica analogica. <br/>
-            Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE. <br/>
-            Il default nei casi di non obbligatorietà è 22 <br/>
-            Esempio vat al 22% -> 22 <br/>
+          $ref: '#/components/schemas/Vat'
         pagoPaIntMode:
           type: string
           description: >-

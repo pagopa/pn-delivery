@@ -1041,9 +1041,9 @@ components:
           type: integer
           format: int32
         vat:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/vat'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/Vat'
         paFee:
-          $ref: 'schemas-pn-notification.yaml#/components/schemas/paFee'
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/PaFee'
         refinementDate:
           description: data di perfezionamento per decorrenza termini localizzata espressa alla mezzanotte del giorno in cui si verifica l'evento
           type: string
@@ -1052,6 +1052,14 @@ components:
           description: data di perfezionamento per presa visione espressa alla mezzanotte del giorno in cui si verifica l'evento
           type: string
           format: date-time
+        sendBaseCost:
+          description: costo base di SeND per notificazione
+          type: integer
+          format: int32
+        analogCost:
+          description: costo totale dei prodotti postali
+          type: integer
+          format: int32
       
 
 
