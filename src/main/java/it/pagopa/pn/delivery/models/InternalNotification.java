@@ -35,6 +35,7 @@ public class InternalNotification {
     private String paymentExpirationDate;
     private String taxonomyCode;
     private Integer paFee;
+    private Integer vat;
     private String senderPaId;
     private String iun;
     private OffsetDateTime sentAt;

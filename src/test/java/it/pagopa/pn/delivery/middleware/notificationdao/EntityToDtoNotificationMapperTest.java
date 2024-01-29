@@ -12,10 +12,12 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class EntityToDtoNotificationMapperTest {
+    public static final Integer VAT = 22;
 
     private EntityToDtoNotificationMapper mapper;
 
@@ -46,6 +48,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa());
         Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
+        assertEquals( VAT, internalNotification.getVat() );
     }
 
     private NotificationEntity newNotificationEntity() {
@@ -159,7 +162,7 @@ class EntityToDtoNotificationMapperTest {
                 .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
                 .recipients(List.of(notificationRecipientEntity, notificationRecipientEntity1))
                 .version("1")
-                //.recipientsJson(Collections.emptyMap())
+                .vat(VAT)
                 .build();
     }
 
