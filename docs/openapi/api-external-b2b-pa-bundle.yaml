@@ -321,7 +321,7 @@ info:
       ### 1) Creazione dello stream ed inserimento notifica
       In questo esempio creo 2 stream con il servizio di [creazione stream](#/Streams/createEventStream): uno per gli status</br> e l'altro per gli eventi di timeline.</br> Vedesi le request <big><strong>a)</strong></big> di esempio con le relative response <big><strong>b)</strong></big>, Da notare che sono presenti</br> dei filtri per ottenere solo specifici status o eventi; se si vogliono ottenere tutte </br>le variazioni limitatamente agli eventi della v1, non bisogna inserire alcun filtro: 
       <code>"filterValues": []</code></br>      
-      Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
+      Una volta creati gli stream, bisogna utilizzare il servizio di [inserimento nuova notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/NewNotification/sendNewNotification)</br> sulla Piattaforma. A questo punto bisognerà attendere che vengano completati i controlli</br> di validazione e se questi avranno esito positivo e la notifica verrà accettata, comincerà</br> il workflow di consegna della stessa. Con l'avanzare del tempo verranno generati degli</br> eventi e dei cambiamenti di stato che verranno puntualmente registrati negli stream</br> configurati precedentemente a partire già dal primo evento che certifica l'accettazione</br> o il rifiuto della notifica appena inserita con il relativo passaggio allo stato ACCEPTED.
       
       </br>
       </br>
@@ -355,7 +355,7 @@ info:
 
       A questo punto si potrà capire, sempre dal valore del <code>retry-after</code> contenuto nell'header</br> se chiamare subito il servizio ed inserire il <code>lastEventId</code> di questa ulteriore chiamata</br> o attendere il tempo indicato nell'header</br>
 
-      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveSentNotification) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
+      <strong>NOTA:</strong> gli eventi eliminati dallo stream in seguito alla chiamata del servizio di [lettura degli eventi](#/Events/consumeEventStream)</br> con il query param <code>lastEventId</code> valorizzato, <strong><font color="red">non potranno più essere recuperati dallo stream</font></strong></br> in nessun modo. E' quindi fondamentale salvare di volta in volta gli eventi che si ottengono</br> all'interno database del chiamante, rispettando la logica del producer/consumer di eventi</br> proposta dagli stream.</br> In caso di eliminazione degli eventi avvenuta per errore, sarà possibile come ultima istanza</br> chiamare il servizio di [lettura dettaglio notifica](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV23) che però esporrà tutti gli eventi di timeline e lo stato</br> attuale della singola notifica ed è quindi meno performante delle stream.
 
       </td>
       <td>
@@ -455,9 +455,9 @@ info:
     Le operazioni con il tag __Streams__ gestiscono la configurazione: <br/>
       - [Creazione](#/Streams/createEventStream) <br/>
       - [Elencare la lista degli stream creati](#/Streams/listEventStreams) <br/>
-      - [Leggere i metadati dello stream](#/Streams/getEventStream) <br/>
+      - [Leggere i metadati dello stream](#/Streams/retrieveEventStream) <br/>
       - [Modifica](#/Streams/updateEventStream) <br/>
-      - [Cancellazione](#/Streams/deleteEventStream) <br/>
+      - [Cancellazione](#/Streams/removeEventStream) <br/>
 
     Le operazioni con il tag __Events__ sono quelle utilizzate per la [lettura
     degli eventi](#/Events/consumeEventStream)  filtrati in base alla
@@ -490,13 +490,13 @@ info:
     per un massimo di <span id="webhookTtl">7</span> giorni dopo i quali sono
     automaticamente cancellati anche se non sono stati prelevati dallo stream, e
     sarà possibile ottenere lo stato della notifica solo attraverso il servizio
-    [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/develop/docs/openapi/api-external-b2b-pa-v1.yaml#/SenderReadB2B/retrieveNotificationRequestStatus)__
-    </font> 
+    [getNotificationRequestStatus](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pn-delivery/main/docs/openapi/api-external-b2b-pa-bundle.yaml#/SenderReadB2B/retrieveSentNotificationV23)__
+    </font>
 
     </br> </br>
 
     <h3>Le <strong>FAQ</strong> possono essere consultate al seguente link: <a
-    href="https://docs.pagopa.it/v1.0-1/">https://docs.pagopa.it/v1.0-1/</a></h3>
+    href="https://docs.pagopa.it/f.a.q.-per-integratori/">https://docs.pagopa.it/f.a.q.-per-integratori/</a></h3>
   contact:
     email: pn-supporto-enti@pagopa.it
   license:
@@ -1219,13 +1219,13 @@ paths:
       summary: Elenco atti opponibili a terzi
       description: >-
         Elenca le informazione di categorizzazione di tutti gli atti opponibili
-        a terzi  registrati durante il processo di notifica. <br/> L'unico
-        valore ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+        a terzi  registrati durante il processo di notifica. <br/>
       tags:
         - LegalFacts
       operationId: retrieveNotificationLegalFacts
       parameters:
         - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1254,9 +1254,7 @@ paths:
   /delivery-push/{iun}/legal-facts/{legalFactType}/{legalFactId}:
     get:
       summary: Singolo atto opponibile a terzi
-      description: >-
-        Permette di scaricare un atto opponibile a terzi <br/> L'unico valore
-        ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      description: Permette di scaricare un atto opponibile a terzi <br/>
       tags:
         - LegalFacts
       operationId: retrieveLegalFact
@@ -1264,6 +1262,7 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1292,15 +1291,14 @@ paths:
   /delivery-push/{iun}/download/legal-facts/{legalFactId}:
     get:
       summary: Singolo atto opponibile a terzi
-      description: >-
-        Permette di scaricare un atto opponibile a terzi <br/> L'unico valore
-        ammesso per il parametro _x-pagopa-pn-cx-type_ è `PA`
+      description: Permette di scaricare un atto opponibile a terzi <br/>
       tags:
         - LegalFacts
       operationId: downloadLegalFactById
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1308,6 +1306,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /delivery-push/{iun}/document/{documentType}:
+    get:
+      summary: Restituisce il singolo documento identificato dalla documentKey
+      description: Permette di scaricare un documento correlato alla notificazione
+      tags:
+        - DocumentsWeb
+      operationId: getDocumentsWeb
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/legalFactsSearchMandateId'
+        - $ref: '#/components/parameters/pathDocumentType'
+        - $ref: '#/components/parameters/queryDocumentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
         '400':
           description: Invalid input
           content:
@@ -5835,7 +5870,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategoryV20'
+          $ref: '#/components/schemas/TimelineElementCategoryV23'
         recipientIndex:
           type: integer
           format: int32
