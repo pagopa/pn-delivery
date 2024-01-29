@@ -446,6 +446,11 @@ Parameters:
     Type: Number
     Description: web waf limit
 
+  # EFS parameters
+  FargateEFSFileSystemID:
+    Type: String
+    Description: "EFS Filesystem"
+
   MountEfs:
     Type: String
     Default: false
@@ -453,6 +458,7 @@ Parameters:
       - "true"
       - "false"
 
+  # Logging parameters
   WireTapLogActivation:
     Type: String
     Default: false
