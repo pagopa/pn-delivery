@@ -550,6 +550,56 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+  /delivery/v2.3/price/{paTaxId}/{noticeCode}:
+    get:
+      operationId: retrieveNotificationPriceV23
+      summary: Retrieve notification partial price and total price with effective date
+      description: >-
+        Usata dagli enti per recuperare il costo di notificazione tramite
+        l'identificativo della posizione debitoria paTaxId e noticeCode. Viene
+        restituito sia il costo parziale che il costo totale di notificazione.
+      tags:
+        - NotificationPriceV23
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            $ref: schemas-pn-notification.yaml#/components/schemas/paTaxId
+        - name: noticeCode
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            $ref: schemas-pn-notification.yaml#/components/schemas/noticeCode
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPriceResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /delivery/events/payment/pagopa:
     post:
       operationId: paymentEventsRequestPagoPa
@@ -962,6 +1012,48 @@ components:
             del giorno in cui si verifica l'evento
           type: string
           format: date-time
+    NotificationPriceResponseV23:
+      title: Notification price Response
+      description: Notification price and effective date
+      type: object
+      properties:
+        iun:
+          $ref: ./schemas-pn-notification.yaml#/components/schemas/IUN
+        partialPrice:
+          description: Costo totale di notificazione che non include la paFee e vat
+          type: integer
+          format: int32
+        totalPrice:
+          description: >-
+            Costo totale di notificazione che include la paFee e vat applicato
+            ai costi cartacei. Presente solo se entrambi i campi paFee e vat
+            sono stati valorizzati
+          type: integer
+          format: int32
+        vat:
+          $ref: schemas-pn-notification.yaml#/components/schemas/Vat
+        paFee:
+          $ref: schemas-pn-notification.yaml#/components/schemas/PaFee
+        refinementDate:
+          description: >-
+            data di perfezionamento per decorrenza termini localizzata espressa
+            alla mezzanotte del giorno in cui si verifica l'evento
+          type: string
+          format: date-time
+        notificationViewDate:
+          description: >-
+            data di perfezionamento per presa visione espressa alla mezzanotte
+            del giorno in cui si verifica l'evento
+          type: string
+          format: date-time
+        sendBaseCost:
+          description: costo base di SeND per notificazione
+          type: integer
+          format: int32
+        analogCost:
+          description: costo totale dei prodotti postali
+          type: integer
+          format: int32
     NewNotificationResponse:
       title: Identificativi della richiesta di notifica
       description: >-

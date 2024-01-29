@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: hy3sr0+SOtG2qjhu3I56uXk87yTmtg9RXRnqh7ipQVI=
+  version: dMHoD/qanFAMhx8OZPdEAMUyFRgc+4ID5s/FVq+x3nc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -522,6 +522,92 @@ paths:
       x-amazon-apigateway-integration:
         uri: >-
           http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/price/{paTaxId}/{noticeCode}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.path.paTaxId: method.request.path.paTaxId
+          integration.request.path.noticeCode: method.request.path.noticeCode
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+  /v2.3/price/{paTaxId}/{noticeCode}:
+    get:
+      operationId: retrieveNotificationPriceV23
+      summary: Retrieve notification partial price and total price with effective date
+      description: >-
+        Usata dagli enti per recuperare il costo di notificazione tramite
+        l'identificativo della posizione debitoria paTaxId e noticeCode. Viene
+        restituito sia il costo parziale che il costo totale di notificazione.
+      tags:
+        - NotificationPriceV23
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            $ref: '#/components/schemas/paTaxId'
+        - name: noticeCode
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            $ref: '#/components/schemas/noticeCode'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPriceResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_jwtAuthorizer_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/price/{paTaxId}/{noticeCode}
+        connectionId: ${stageVariables.NetworkLoadBalancerLink}
+        httpMethod: ANY
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.path.paTaxId: method.request.path.paTaxId
+          integration.request.path.noticeCode: method.request.path.noticeCode
+        passthroughBehavior: when_no_match
+        connectionType: VPC_LINK
+        timeoutInMillis: 29000
+        type: http_proxy
+    options:
+      operationId: Options for /v2.3/price/{paTaxId}/{noticeCode} API CORS
+      x-amazon-apigateway-integration:
+        uri: >-
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/price/{paTaxId}/{noticeCode}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -1494,6 +1580,44 @@ components:
             del giorno in cui si verifica l'evento
           type: string
           format: date-time
+    NotificationPriceResponseV23:
+      title: Notification price Response
+      description: Notification price and effective date
+      type: object
+      properties:
+        iun:
+          $ref: '#/components/schemas/IUN'
+        partialPrice:
+          description: Costo totale di notificazione che non include la paFee e vat
+          type: number
+        totalPrice:
+          description: >-
+            Costo totale di notificazione che include la paFee e vat applicato
+            ai costi cartacei. Presente solo se entrambi i campi paFee e vat
+            sono stati valorizzati
+          type: number
+        vat:
+          $ref: '#/components/schemas/Vat'
+        paFee:
+          $ref: '#/components/schemas/PaFee'
+        refinementDate:
+          description: >-
+            data di perfezionamento per decorrenza termini localizzata espressa
+            alla mezzanotte del giorno in cui si verifica l'evento
+          type: string
+          format: date-time
+        notificationViewDate:
+          description: >-
+            data di perfezionamento per presa visione espressa alla mezzanotte
+            del giorno in cui si verifica l'evento
+          type: string
+          format: date-time
+        sendBaseCost:
+          description: costo base di SeND per notificazione
+          type: number
+        analogCost:
+          description: costo totale dei prodotti postali
+          type: number
     NewNotificationResponse:
       title: Identificativi della richiesta di notifica
       description: >-
@@ -2164,6 +2288,24 @@ components:
       minLength: 25
       maxLength: 25
       pattern: ^[A-Z]{4}-[A-Z]{4}-[A-Z]{4}-[0-9]{6}-[A-Z]{1}-[0-9]{1}$
+    PaFee:
+      type: number
+      description: >-
+        Costo espresso in eurocent che la PA imputa per la notifica. <br/>
+        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE<br/>
+        Il default nei casi di non obbligatorietà è 100 <br/> Esempio paFee ad
+        1€ -> 100 <br/>
+      minimum: 0
+      maximum: 100
+    Vat:
+      type: number
+      description: >-
+        IVA espressa in percentuale imposta al mittente sulla notifica
+        analogica. <br/> Obbligatoria per notifiche con
+        notificationFeePolicy=DELIVERY_MODE. <br/> Il default nei casi di non
+        obbligatorietà è 22 <br/> Esempio vat al 22% -> 22 <br/>
+      minimum: 0
+      maximum: 100
     NewNotificationRequestV21:
       description: I campi utilizzati per la creazione di una nuova Notifica.
       type: object
@@ -2255,10 +2397,9 @@ components:
             PIATTAFORMA NOTIFICHE
             DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
         paFee:
-          type: number
-          description: Costo espresso in eurocent che la PA imputa per la notifica
-          minimum: 0
-          maximum: 100
+          $ref: '#/components/schemas/PaFee'
+        vat:
+          $ref: '#/components/schemas/Vat'
         pagoPaIntMode:
           type: string
           description: >-
