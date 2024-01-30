@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: AwF54/i69jhLnlWKjbz4qtAgpBWDc1+8CsWcur6vld4=
+  version: sNAI/4w/jTQRaBotUcsdB1cCekpmpFSwywoMi6RkuVE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2603,11 +2603,6 @@ components:
           $ref: '#/components/schemas/RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
-        coverFileKey:
-          type: string
-          description: >-
-            Chiave per recupero da safe-storage del documento copertina stampato
-            da RADD
         eventTimestamp:
           type: string
           description: Data evento

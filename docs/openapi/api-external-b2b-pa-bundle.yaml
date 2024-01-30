@@ -3348,11 +3348,6 @@ components:
           $ref: '#/components/schemas/RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
-        coverFileKey:
-          type: string
-          description: >-
-            Chiave per recupero da safe-storage del documento copertina stampato
-            da RADD
         eventTimestamp:
           type: string
           description: Data evento
