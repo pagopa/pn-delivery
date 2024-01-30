@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: mblW1qdPCJ0st+qrN6OsdonHId8mG2YA+CVJZypQ59s=
+  version: PdYXHEDX1Osc8S4rc0iqyhBSlrcd73pnGOGu7f4+wUg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1280,7 +1280,7 @@ components:
             del giorno in cui si verifica l'evento
           type: string
           format: date-time
-        sendBaseCost:
+        sendFee:
           description: costo base di SeND per notificazione
           type: number
         analogCost:

@@ -1818,7 +1818,7 @@ components:
             del giorno in cui si verifica l'evento
           type: string
           format: date-time
-        sendBaseCost:
+        sendFee:
           description: costo base di SeND per notificazione
           type: integer
           format: int32
