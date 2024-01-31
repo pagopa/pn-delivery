@@ -3402,7 +3402,7 @@ components:
           $ref: '#/components/schemas/DigitalAddress'
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    RefinementDetails:
+    RefinementDetailsV23:
       type: object
       required:
         - recIndex
@@ -3418,6 +3418,10 @@ components:
           example: 1220
           type: integer
           format: int64
+        eventTimestamp:
+          type: string
+          description: Data evento refinement
+          format: date-time
     NotificationRefusedErrorV23:
       type: object
       properties:
@@ -3625,7 +3629,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-    SendDigitalProgressDetails:
+    SendDigitalProgressDetailsV23:
       type: object
       properties:
         recIndex:
@@ -3657,6 +3661,10 @@ components:
           type: integer
           description: numero dei tentativi effettuati
           format: int32
+        eventTimestamp:
+          type: string
+          description: Data evento
+          format: date-time
     ServiceLevel:
       type: string
       description: Livello Servizio
@@ -3966,6 +3974,10 @@ components:
           deprecated: true
           type: boolean
           description: Indica se la data di pagamento é certa
+        eventTimestamp:
+          type: string
+          description: Data evento pagamento
+          format: date-time
     SendAnalogProgressDetailsV23:
       type: object
       required:
@@ -4105,7 +4117,7 @@ components:
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
-        - $ref: '#/components/schemas/RefinementDetails'
+        - $ref: '#/components/schemas/RefinementDetailsV23'
         - $ref: '#/components/schemas/RequestRefusedDetailsV23'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
@@ -4114,7 +4126,7 @@ components:
         - $ref: '#/components/schemas/PrepareDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
@@ -4545,6 +4557,22 @@ components:
           $ref: '#/components/schemas/schemas-DigitalAddress'
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
+    RefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        notificationCost:
+          description: >-
+            costo notifica in euro cents, può essere nullo se la notifica si è
+            perfezionata prima per visualizzazione
+          example: 1220
+          type: integer
+          format: int64
     NotificationRefusedError:
       type: object
       properties:
@@ -4708,7 +4736,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-    schemas-SendDigitalProgressDetails:
+    SendDigitalProgressDetails:
       type: object
       properties:
         recIndex:
@@ -4826,7 +4854,7 @@ components:
         - $ref: '#/components/schemas/schemas-PrepareDigitalDetails'
         - $ref: '#/components/schemas/schemas-SendDigitalDetails'
         - $ref: '#/components/schemas/schemas-SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/schemas-SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetails'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
@@ -5013,7 +5041,7 @@ components:
         - $ref: '#/components/schemas/schemas-PrepareDigitalDetails'
         - $ref: '#/components/schemas/schemas-SendDigitalDetails'
         - $ref: '#/components/schemas/schemas-SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/schemas-SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetails'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'

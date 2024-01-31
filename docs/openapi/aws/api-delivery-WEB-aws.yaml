@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: D+rX80H5Hhy9ElzGiuEJu0CHU8MY1fQTrhAxWDDqLUE=
+  version: UHP5I8MFK7pjvhYHG2/1kRire471wFiqZYFCT7cbeSY=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2934,7 +2934,7 @@ components:
           $ref: '#/components/schemas/DigitalAddress'
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    RefinementDetails:
+    RefinementDetailsV23:
       type: object
       required:
         - recIndex
@@ -2948,6 +2948,10 @@ components:
             perfezionata prima per visualizzazione
           example: 1220
           type: number
+        eventTimestamp:
+          type: string
+          description: Data evento refinement
+          format: date-time
     NotificationRefusedErrorV23:
       type: object
       properties:
@@ -3144,7 +3148,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-    SendDigitalProgressDetails:
+    SendDigitalProgressDetailsV23:
       type: object
       properties:
         recIndex:
@@ -3174,6 +3178,10 @@ components:
         retryNumber:
           type: number
           description: numero dei tentativi effettuati
+        eventTimestamp:
+          type: string
+          description: Data evento
+          format: date-time
     ServiceLevel:
       type: string
       description: Livello Servizio
@@ -3462,6 +3470,10 @@ components:
           deprecated: true
           type: boolean
           description: Indica se la data di pagamento é certa
+        eventTimestamp:
+          type: string
+          description: Data evento pagamento
+          format: date-time
     SendAnalogProgressDetailsV23:
       type: object
       required:
@@ -3595,7 +3607,7 @@ components:
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
-        - $ref: '#/components/schemas/RefinementDetails'
+        - $ref: '#/components/schemas/RefinementDetailsV23'
         - $ref: '#/components/schemas/RequestRefusedDetailsV23'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
@@ -3604,7 +3616,7 @@ components:
         - $ref: '#/components/schemas/PrepareDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'

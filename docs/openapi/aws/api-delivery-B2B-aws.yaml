@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: sNAI/4w/jTQRaBotUcsdB1cCekpmpFSwywoMi6RkuVE=
+  version: Ndnf23IaV69061K0r1cL7Cn3K0Ile18Cot+hSJV9dFc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2654,7 +2654,7 @@ components:
           $ref: '#/components/schemas/DigitalAddress'
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    RefinementDetails:
+    RefinementDetailsV23:
       type: object
       required:
         - recIndex
@@ -2668,6 +2668,10 @@ components:
             perfezionata prima per visualizzazione
           example: 1220
           type: number
+        eventTimestamp:
+          type: string
+          description: Data evento refinement
+          format: date-time
     NotificationRefusedErrorV23:
       type: object
       properties:
@@ -2864,7 +2868,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-    SendDigitalProgressDetails:
+    SendDigitalProgressDetailsV23:
       type: object
       properties:
         recIndex:
@@ -2894,6 +2898,10 @@ components:
         retryNumber:
           type: number
           description: numero dei tentativi effettuati
+        eventTimestamp:
+          type: string
+          description: Data evento
+          format: date-time
     ServiceLevel:
       type: string
       description: Livello Servizio
@@ -3182,6 +3190,10 @@ components:
           deprecated: true
           type: boolean
           description: Indica se la data di pagamento é certa
+        eventTimestamp:
+          type: string
+          description: Data evento pagamento
+          format: date-time
     SendAnalogProgressDetailsV23:
       type: object
       required:
@@ -3315,7 +3327,7 @@ components:
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
-        - $ref: '#/components/schemas/RefinementDetails'
+        - $ref: '#/components/schemas/RefinementDetailsV23'
         - $ref: '#/components/schemas/RequestRefusedDetailsV23'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
@@ -3324,7 +3336,7 @@ components:
         - $ref: '#/components/schemas/PrepareDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
@@ -4502,6 +4514,20 @@ components:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
           $ref: '#/components/schemas/DelegateInfo'
+    RefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        notificationCost:
+          description: >-
+            costo notifica in euro cents, può essere nullo se la notifica si è
+            perfezionata prima per visualizzazione
+          example: 1220
+          type: number
     NotificationRefusedError:
       type: object
       properties:
@@ -4527,6 +4553,36 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedError'
+    SendDigitalProgressDetails:
+      type: object
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        deliveryFailureCause:
+          description: Codice errore, opzionale
+          type: string
+        deliveryDetailCode:
+          type: string
+          description: Vedi deliveryDetailCode in SendDigitalFeedbackDetails
+        shouldRetry:
+          type: boolean
+          description: indica se il progress ha dato luogo ad un ritentativo
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+        retryNumber:
+          type: number
+          description: numero dei tentativi effettuati
     NotificationPaidDetails:
       type: object
       required:
