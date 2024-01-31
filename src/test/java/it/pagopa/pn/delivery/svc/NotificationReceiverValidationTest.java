@@ -56,6 +56,31 @@ class NotificationReceiverValidationTest {
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     validator = new NotificationReceiverValidator(factory.getValidator(), mvpParameterConsumer, validateUtils, cfg);
   }
+  @Test
+  void invalidNotificationDeliveryModeNoPaFee() {
+    NewNotificationRequestV21 newNotificationRequest = newNotificationWithoutPayments();
+    newNotificationRequest.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+    newNotificationRequest.setVat(22);
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest);
+
+    assertThat(errors, hasItems(
+            hasProperty("message", Matchers.containsString("paFee"))
+    ));
+  }
+
+  @Test
+  void invalidNotificationDeliveryModeNoVat() {
+    NewNotificationRequestV21 newNotificationRequest = newNotificationWithoutPayments();
+    newNotificationRequest.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
+    newNotificationRequest.setPaFee(100);
+    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest);
+
+    assertThat(errors, hasItems(
+            hasProperty("message", Matchers.containsString("vat"))
+    ));
+  }
 
 
   @Test
