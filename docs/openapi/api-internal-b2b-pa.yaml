@@ -332,7 +332,7 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/v2.1/requests":
+  "/delivery/v2.3/requests":
     post:
       summary: Richiesta invio notifica
       description: |-
@@ -356,7 +356,7 @@ paths:
         </details>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV21
+      operationId: sendNewNotificationV23
       parameters:                                                     # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
@@ -402,8 +402,8 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: getNotificationRequestStatusV21                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
+      operationId: getNotificationRequestStatusV23                       # NO EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -451,7 +451,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.1/notifications/sent/{iun}":
+  "/delivery/v2.3/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
@@ -470,8 +470,8 @@ paths:
         </details>
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationV21                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
+      operationId: getSentNotificationV23                                      # NO EXTERNAL
+#      operationId: retrieveSentNotificationV23                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL

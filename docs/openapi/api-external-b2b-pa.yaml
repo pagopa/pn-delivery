@@ -316,7 +316,7 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/v2.1/requests":
+  "/delivery/v2.3/requests":
     post:
       summary: Richiesta invio notifica
       description: |-
@@ -329,7 +329,7 @@ paths:
         
       tags:
         - NewNotification
-      operationId: sendNewNotificationV21
+      operationId: sendNewNotificationV23
       requestBody:
         content:
           application/json:
@@ -367,7 +367,7 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
+      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -411,7 +411,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.1/notifications/sent/{iun}":
+  "/delivery/v2.3/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
@@ -419,7 +419,7 @@ paths:
 
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
+      operationId: retrieveSentNotificationV23                                # ONLY EXTERNAL
       parameters:
         - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
       responses:

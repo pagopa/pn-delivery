@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: PdYXHEDX1Osc8S4rc0iqyhBSlrcd73pnGOGu7f4+wUg=
+  version: jrUb84gaKsZbsYJR3ieAPi+vHCESzFr91gopIZCbyhE=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -86,7 +86,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.1/requests:
+  /v2.3/requests:
     post:
       summary: Richiesta invio notifica
       description: >-
@@ -106,7 +106,7 @@ paths:
         prevista dai webhook. <br/>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV21
+      operationId: sendNewNotificationV23
       requestBody:
         content:
           application/json:
@@ -143,7 +143,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -161,7 +161,7 @@ paths:
         type: http_proxy
       parameters: []
     get:
-      operationId: retrieveNotificationRequestStatusV21
+      operationId: retrieveNotificationRequestStatusV23
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -204,7 +204,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -221,10 +221,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.1/requests API CORS
+      operationId: Options for /v2.3/requests API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
@@ -232,7 +232,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.1/notifications/sent/{iun}:
+  /v2.3/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
@@ -240,7 +240,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV21
+      operationId: retrieveSentNotificationV23
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -267,7 +267,7 @@ paths:
         - api_key_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -285,10 +285,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.1/notifications/sent/{iun} API CORS
+      operationId: Options for /v2.3/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -903,6 +903,142 @@ paths:
         contentHandling: CONVERT_TO_TEXT
         timeoutInMillis: 29000
         type: aws_proxy
+  /v2.1/requests:
+    post:
+      summary: Richiesta invio notifica
+      description: >-
+        Operazione utilizzata dalla Pubblica Amministrazione per richiedere
+        l'invio di una notifica.
+
+
+        La restituzione di uno stato HTTP 202 significa solo che la richiesta è
+        sintatticamente
+
+        valida, non che la richiesta sia stata validata ed accettata. <br/>
+
+        Per conoscere lo stato di accettazione della richiesta di notifica
+        bisogna utilizzare l'operazione
+
+        _getNotificationRequestStatus_ oppure utilizzare la modalità push
+        prevista dai webhook. <br/>
+      tags:
+        - NewNotification
+      operationId: sendNewNotificationV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-sendnewnotification-lambda:live
+      x-pagopa-lambda-account: core
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewNotificationRequestV21'
+        required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationResponse'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-delivery-versioning-v1v21-sendnewnotification-lambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
+      parameters: []
+    get:
+      operationId: retrieveNotificationRequestStatusV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
+      x-pagopa-lambda-account: core
+      tags:
+        - SenderReadB2B
+      summary: Verifica accettazione richiesta notifica
+      description: >-
+        Questa operazione serve per verificare se la richiesta di notifica è
+        stata accettata e ottenere lo IUN associato a tale richiesta. <br/>
+        Bisogna specificare il parametro _requestId_ oppure la coppia costituita
+        dai parametri  _paProtocolNumber_ e _idempotenceToken_. <br/>
+      parameters:
+        - $ref: '#/components/parameters/notificationRequestId'
+        - $ref: '#/components/parameters/paProtocolNumber'
+        - $ref: '#/components/parameters/idempotenceToken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewNotificationRequestStatusResponseV21'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
   /notifications/sent/{iun}:
     get:
       deprecated: true
@@ -978,6 +1114,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FullSentNotificationV20'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      security:
+        - pn-auth-fleet_ApiKeyAuthorizerV2_openapi: []
+        - api_key_openapi: []
+      x-amazon-apigateway-integration:
+        uri: >-
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:pn-delivery-versioning-v1v2-getnotification-lambda:live/invocations
+        httpMethod: POST
+        requestParameters:
+          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
+          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
+          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
+          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
+          integration.request.header.x-pagopa-pn-src-ch: '''B2B'''
+          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
+          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
+          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
+          integration.request.path.iun: method.request.path.iun
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 29000
+        type: aws_proxy
+  /v2.1/notifications/sent/{iun}:
+    get:
+      summary: 'Mittente: lettura dettagli notifica versione 2'
+      description: >-
+        Questa operazione permette di leggere tutti i dettagli di una notifica
+        accettata. <br/>
+      tags:
+        - SenderReadB2B
+      operationId: retrieveSentNotificationV21
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v2-getnotification-lambda:live
+      x-pagopa-lambda-account: core
+      parameters:
+        - $ref: '#/components/parameters/pathIun'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullSentNotificationV21'
         '400':
           description: Bad request
           content:

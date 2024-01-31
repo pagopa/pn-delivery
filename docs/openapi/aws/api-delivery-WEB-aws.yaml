@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: nWRC38ynyumkupNWPyG+yzZU4otv+Q2upl5V7Etg71o=
+  version: jmDaqW2LfxHuJxFiJiPOswXl8TLuQWs47z0jkR0XXok=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -85,7 +85,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.1/requests:
+  /v2.3/requests:
     post:
       summary: Richiesta invio notifica
       description: >-
@@ -105,7 +105,7 @@ paths:
         prevista dai webhook. <br/>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV21
+      operationId: sendNewNotificationV23
       requestBody:
         content:
           application/json:
@@ -141,7 +141,7 @@ paths:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -159,7 +159,7 @@ paths:
         type: http_proxy
       parameters: []
     get:
-      operationId: retrieveNotificationRequestStatusV21
+      operationId: retrieveNotificationRequestStatusV23
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -201,7 +201,7 @@ paths:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -218,10 +218,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.1/requests API CORS
+      operationId: Options for /v2.3/requests API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/requests
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/requests
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters: {}
@@ -229,7 +229,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.1/notifications/sent/{iun}:
+  /v2.3/notifications/sent/{iun}:
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
@@ -237,7 +237,7 @@ paths:
         accettata. <br/>
       tags:
         - SenderReadB2B
-      operationId: retrieveSentNotificationV21
+      operationId: retrieveSentNotificationV23
       parameters:
         - $ref: '#/components/parameters/pathIun'
       responses:
@@ -263,7 +263,7 @@ paths:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -281,10 +281,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.1/notifications/sent/{iun} API CORS
+      operationId: Options for /v2.3/notifications/sent/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/sent/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/sent/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
