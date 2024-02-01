@@ -1320,7 +1320,6 @@ paths:
       operationId: retrieveNotificationLegalFacts
       parameters:
         - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1357,7 +1356,6 @@ paths:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactType'
         - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1393,7 +1391,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/pathIun'
         - $ref: '#/components/parameters/pathLegalFactId'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
       responses:
         '200':
           description: OK
@@ -1401,43 +1398,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
-        '400':
-          description: Invalid input
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  /delivery-push/{iun}/document/{documentType}:
-    get:
-      summary: Restituisce il singolo documento identificato dalla documentKey
-      description: Permette di scaricare un documento correlato alla notificazione
-      tags:
-        - DocumentsWeb
-      operationId: getDocumentsWeb
-      parameters:
-        - $ref: '#/components/parameters/pathIun'
-        - $ref: '#/components/parameters/legalFactsSearchMandateId'
-        - $ref: '#/components/parameters/pathDocumentType'
-        - $ref: '#/components/parameters/queryDocumentId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
         '400':
           description: Invalid input
           content:
@@ -2354,6 +2314,271 @@ components:
             $ref: '#/components/schemas/StatusDetail'
       required:
         - status
+    NewNotificationRequest:
+      description: I campi utilizzati per la creazione di una nuova Notifica.
+      type: object
+      required:
+        - paProtocolNumber
+        - subject
+        - recipients
+        - documents
+        - physicalCommunicationType
+        - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
+        - taxonomyCode
+      properties:
+        idempotenceToken:
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare
+            differenti  "richieste di notificazione" effettuate con lo stesso
+            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
+            necessario in caso di  "richiesta di notifica" rifiutata per errori
+            nei codici di verifica degli allegati.
+          type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
+        paProtocolNumber:
+          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+          pattern: ^.*$
+          maxLength: 256
+        subject:
+          type: string
+          description: titolo della notifica, NON inserire dati personali/sensibili
+          minLength: 10
+          maxLength: 134
+          pattern: ^.*$
+        abstract:
+          type: string
+          description: >-
+            descrizione sintetica della notifica, NON inserire dati
+            personali/sensibili
+          pattern: ^.*$
+          maxLength: 1024
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: '#/components/schemas/NotificationRecipient'
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
+          minItems: 1
+        notificationFeePolicy:
+          $ref: '#/components/schemas/NotificationFeePolicy'
+        cancelledIun:
+          $ref: '#/components/schemas/IUN'
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
+        amount:
+          type: integer
+          format: int32
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          minLength: 10
+          maxLength: 10
+          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
+          description: >-
+            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
+            all'Italia
+        taxonomyCode:
+          type: string
+          minLength: 7
+          maxLength: 7
+          pattern: ^([0-9]{6}[A-Z]{1})$
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente
+            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
+            PIATTAFORMA NOTIFICHE
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della
+            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
+            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (Non ancora
+            supportata) <br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC
+    SentNotification:
+      description: Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequest'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: >-
+                Identificativo (non IPA) della PA mittente che ha eseguito
+                l'onboarding su SelfCare.
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              $ref: '#/components/schemas/IUN'
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
+    NewNotificationRequestV21:
+      description: I campi utilizzati per la creazione di una nuova Notifica.
+      type: object
+      required:
+        - paProtocolNumber
+        - subject
+        - recipients
+        - documents
+        - physicalCommunicationType
+        - notificationFeePolicy
+        - senderDenomination
+        - senderTaxId
+        - taxonomyCode
+      properties:
+        idempotenceToken:
+          description: >-
+            Identificativo utilizzabile dal chiamante per disambiguare
+            differenti  "richieste di notificazione" effettuate con lo stesso
+            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
+            necessario in caso di  "richiesta di notifica" rifiutata per errori
+            nei codici di verifica degli allegati.
+          type: string
+          pattern: ^[ -~]*$
+          maxLength: 256
+        paProtocolNumber:
+          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
+          type: string
+          pattern: ^.*$
+          maxLength: 256
+        subject:
+          type: string
+          description: titolo della notifica
+          maxLength: 134
+          pattern: ^.*$
+        abstract:
+          type: string
+          description: descrizione sintetica della notifica
+          pattern: ^.*$
+          maxLength: 1024
+        recipients:
+          type: array
+          description: Informazioni sui destinatari
+          items:
+            $ref: '#/components/schemas/NotificationRecipientV21'
+        documents:
+          type: array
+          description: Documenti notificati
+          items:
+            $ref: '#/components/schemas/NotificationDocument'
+          minItems: 1
+        notificationFeePolicy:
+          $ref: '#/components/schemas/NotificationFeePolicy'
+        cancelledIun:
+          $ref: '#/components/schemas/IUN'
+        physicalCommunicationType:
+          type: string
+          description: Tipologia comunicazione fisica
+          enum:
+            - AR_REGISTERED_LETTER
+            - REGISTERED_LETTER_890
+        senderDenomination:
+          $ref: '#/components/schemas/Denomination'
+        senderTaxId:
+          $ref: '#/components/schemas/paTaxId'
+        group:
+          type: string
+          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
+          pattern: ^[ -~]*$
+          maxLength: 1024
+        amount:
+          type: integer
+          format: int32
+          description: Importo della notifica in eurocent
+        paymentExpirationDate:
+          type: string
+          minLength: 10
+          maxLength: 10
+          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
+          description: >-
+            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
+            all'Italia
+        taxonomyCode:
+          type: string
+          minLength: 7
+          maxLength: 7
+          pattern: ^([0-9]{6}[A-Z]{1})$
+          description: >-
+            Codice tassonomico della notifica basato sulla definizione presente
+            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
+            PIATTAFORMA NOTIFICHE
+            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
+        paFee:
+          $ref: '#/components/schemas/PaFeeV21'
+        vat:
+          $ref: '#/components/schemas/VatV21'
+        pagoPaIntMode:
+          type: string
+          description: >-
+            Modalitá di integrazione pagoPA per l'attualizazione del costo della
+            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
+            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (non ancora
+            supportata)<br/>
+          enum:
+            - NONE
+            - SYNC
+            - ASYNC
+    SentNotificationV21:
+      description: Le informazioni riguardanti una richiesta di notifica accettata
+      allOf:
+        - $ref: '#/components/schemas/NewNotificationRequestV21'
+        - type: object
+          required:
+            - iun
+            - sentAt
+          properties:
+            senderPaId:
+              type: string
+              description: >-
+                Identificativo (non IPA) della PA mittente che ha eseguito
+                l'onboarding su SelfCare.
+              pattern: ^.*$
+              maxLength: 256
+            iun:
+              $ref: '#/components/schemas/IUN'
+            sentAt:
+              type: string
+              description: Momento di ricezione della notifica da parte di PN
+              format: date-time
+            cancelledByIun:
+              $ref: '#/components/schemas/IUN'
+            documentsAvailable:
+              type: boolean
+              description: Indica se i documenti notificati sono ancora disponibili.
     NewNotificationRequestStatusResponse:
       allOf:
         - $ref: '#/components/schemas/NewNotificationRequest'
@@ -2495,6 +2720,84 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TimelineElementV20'
+    PaFeeV21:
+      type: integer
+      description: >-
+        Costo espresso in eurocent che la PA imputa per la notifica. <br/>
+        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE e
+        modalità di integrazione Async o modalità di pagamento F24.<br/> Il
+        default nei casi di non obbligatorietà è 100 <br/> Esempio paFee ad 1€
+        -> 100 <br/>
+      format: int32
+      minimum: 0
+      maximum: 100
+    VatV21:
+      type: integer
+      description: >-
+        IVA espressa in percentuale imposta al mittente sulla notifica
+        analogica. <br/> Obbligatoria per notifiche con
+        notificationFeePolicy=DELIVERY_MODE e modalità di integrazione Async o
+        modalità di pagamento F24.<br/> Il default nei casi di non
+        obbligatorietà è 22 <br/> Per rispettare retro-compatibilitá campo non
+        restituito nelle API v2.1 <br/> Esempio vat al 22% -> 22 <br/>
+      format: int32
+      minimum: 0
+      maximum: 100
+    NotificationRecipient:
+      description: Informazioni sui destinatari
+      required:
+        - denomination
+        - recipientType
+        - taxId
+        - physicalAddress
+      type: object
+      properties:
+        recipientType:
+          type: string
+          description: >-
+            Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)
+          enum:
+            - PF
+            - PG
+        taxId:
+          $ref: '#/components/schemas/TaxId'
+        denomination:
+          $ref: '#/components/schemas/Denomination'
+        digitalDomicile:
+          $ref: '#/components/schemas/NotificationDigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/NotificationPhysicalAddress'
+        payment:
+          $ref: '#/components/schemas/NotificationPaymentInfo'
+    NotificationRecipientV21:
+      description: Informazioni sui destinatari
+      required:
+        - denomination
+        - recipientType
+        - taxId
+        - physicalAddress
+      type: object
+      additionalProperties: false
+      properties:
+        recipientType:
+          type: string
+          description: >-
+            Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
+            (PG)
+          enum:
+            - PF
+            - PG
+        taxId:
+          $ref: '#/components/schemas/TaxId'
+        denomination:
+          $ref: '#/components/schemas/Denomination'
+        digitalDomicile:
+          $ref: '#/components/schemas/NotificationDigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/NotificationPhysicalAddress'
+        payments:
+          $ref: '#/components/schemas/NotificationPayments'
     TimelineElement:
       type: object
       additionalProperties: false
@@ -2845,7 +3148,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationPaymentItem'
-    NotificationRecipientV21:
+    NotificationRecipientV23:
       description: Informazioni sui destinatari
       required:
         - denomination
@@ -2970,7 +3273,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: '#/components/schemas/NotificationRecipientV21'
+            $ref: '#/components/schemas/NotificationRecipientV23'
         documents:
           type: array
           description: Documenti notificati
@@ -3422,7 +3725,7 @@ components:
           type: string
           description: Data tentativo
           format: date-time
-    RaddTypeV23:
+    RaddType:
       type: string
       description: |
         tipo di Rete Anti Digital Divide <br/>
@@ -3453,7 +3756,7 @@ components:
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
-    NotificationViewedCreationRequestDetailsV23:
+    NotificationViewedCreationRequestDetails:
       type: object
       required:
         - recIndex
@@ -3472,7 +3775,7 @@ components:
           description: Data ricezione richiesta visualizzazione notifica
           format: date-time
         raddType:
-          $ref: '#/components/schemas/RaddTypeV23'
+          $ref: '#/components/schemas/RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -3494,7 +3797,7 @@ components:
           type: integer
           format: int64
         raddType:
-          $ref: '#/components/schemas/RaddTypeV23'
+          $ref: '#/components/schemas/RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -3516,7 +3819,7 @@ components:
           description: Index destinatario notifica digitale
           format: int32
         raddType:
-          $ref: '#/components/schemas/RaddTypeV23'
+          $ref: '#/components/schemas/RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         eventTimestamp:
@@ -4293,7 +4596,7 @@ components:
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
         - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetails'
         - $ref: '#/components/schemas/NotificationViewedDetailsV23'
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
@@ -4384,294 +4687,6 @@ components:
           $ref: '#/components/schemas/noticeCode'
         pagoPaForm:
           $ref: '#/components/schemas/NotificationPaymentAttachment'
-    NotificationRecipient:
-      description: Informazioni sui destinatari
-      required:
-        - denomination
-        - recipientType
-        - taxId
-        - physicalAddress
-      type: object
-      properties:
-        recipientType:
-          type: string
-          description: >-
-            Tipologia di destinatario: Persona Fisica (PF) o Persona Giuridica
-            (PG)
-          enum:
-            - PF
-            - PG
-        taxId:
-          $ref: '#/components/schemas/TaxId'
-        denomination:
-          $ref: '#/components/schemas/Denomination'
-        digitalDomicile:
-          $ref: '#/components/schemas/NotificationDigitalAddress'
-        physicalAddress:
-          $ref: '#/components/schemas/NotificationPhysicalAddress'
-        payment:
-          $ref: '#/components/schemas/NotificationPaymentInfo'
-    NewNotificationRequest:
-      description: I campi utilizzati per la creazione di una nuova Notifica.
-      type: object
-      required:
-        - paProtocolNumber
-        - subject
-        - recipients
-        - documents
-        - physicalCommunicationType
-        - notificationFeePolicy
-        - senderDenomination
-        - senderTaxId
-        - taxonomyCode
-      properties:
-        idempotenceToken:
-          description: >-
-            Identificativo utilizzabile dal chiamante per disambiguare
-            differenti  "richieste di notificazione" effettuate con lo stesso
-            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
-            necessario in caso di  "richiesta di notifica" rifiutata per errori
-            nei codici di verifica degli allegati.
-          type: string
-          pattern: ^[ -~]*$
-          maxLength: 256
-        paProtocolNumber:
-          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
-          type: string
-          pattern: ^.*$
-          maxLength: 256
-        subject:
-          type: string
-          description: titolo della notifica, NON inserire dati personali/sensibili
-          minLength: 10
-          maxLength: 134
-          pattern: ^.*$
-        abstract:
-          type: string
-          description: >-
-            descrizione sintetica della notifica, NON inserire dati
-            personali/sensibili
-          pattern: ^.*$
-          maxLength: 1024
-        recipients:
-          type: array
-          description: Informazioni sui destinatari
-          items:
-            $ref: '#/components/schemas/NotificationRecipient'
-        documents:
-          type: array
-          description: Documenti notificati
-          items:
-            $ref: '#/components/schemas/NotificationDocument'
-          minItems: 1
-        notificationFeePolicy:
-          $ref: '#/components/schemas/NotificationFeePolicy'
-        cancelledIun:
-          $ref: '#/components/schemas/IUN'
-        physicalCommunicationType:
-          type: string
-          description: Tipologia comunicazione fisica
-          enum:
-            - AR_REGISTERED_LETTER
-            - REGISTERED_LETTER_890
-        senderDenomination:
-          $ref: '#/components/schemas/Denomination'
-        senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
-        group:
-          type: string
-          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-          pattern: ^[ -~]*$
-          maxLength: 1024
-        amount:
-          type: integer
-          format: int32
-          description: Importo della notifica in eurocent
-        paymentExpirationDate:
-          type: string
-          minLength: 10
-          maxLength: 10
-          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
-          description: >-
-            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
-            all'Italia
-        taxonomyCode:
-          type: string
-          minLength: 7
-          maxLength: 7
-          pattern: ^([0-9]{6}[A-Z]{1})$
-          description: >-
-            Codice tassonomico della notifica basato sulla definizione presente
-            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
-            PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)      
-        pagoPaIntMode:
-          type: string
-          description: >-
-            Modalitá di integrazione pagoPA per l'attualizazione del costo della
-            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
-            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (Non ancora
-            supportata) <br/>
-          enum:
-            - NONE
-            - SYNC
-            - ASYNC
-    PaFeeV21:
-      type: integer
-      description: >-
-        Costo espresso in eurocent che la PA imputa per la notifica. <br/>
-        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE e
-        modalità di integrazione Async o modalità di pagamento F24.<br/> Il
-        default nei casi di non obbligatorietà è 100 <br/> Esempio paFee ad 1€
-        -> 100 <br/>
-      format: int32
-      minimum: 0
-      maximum: 100
-    VatV21:
-      type: integer
-      description: >-
-        IVA espressa in percentuale imposta al mittente sulla notifica
-        analogica. <br/> Obbligatoria per notifiche con
-        notificationFeePolicy=DELIVERY_MODE e modalità di integrazione Async o
-        modalità di pagamento F24.<br/> Il default nei casi di non
-        obbligatorietà è 22 <br/> Per rispettare retro-compatibilitá campo non
-        restituito nelle API v2.1 <br/> Esempio vat al 22% -> 22 <br/>
-      format: int32
-      minimum: 0
-      maximum: 100
-    NewNotificationRequestV21:
-      description: I campi utilizzati per la creazione di una nuova Notifica.
-      type: object
-      required:
-        - paProtocolNumber
-        - subject
-        - recipients
-        - documents
-        - physicalCommunicationType
-        - notificationFeePolicy
-        - senderDenomination
-        - senderTaxId
-        - taxonomyCode
-      properties:
-        idempotenceToken:
-          description: >-
-            Identificativo utilizzabile dal chiamante per disambiguare
-            differenti  "richieste di notificazione" effettuate con lo stesso
-            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
-            necessario in caso di  "richiesta di notifica" rifiutata per errori
-            nei codici di verifica degli allegati.
-          type: string
-          pattern: ^[ -~]*$
-          maxLength: 256
-        paProtocolNumber:
-          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
-          type: string
-          pattern: ^.*$
-          maxLength: 256
-        subject:
-          type: string
-          description: titolo della notifica
-          maxLength: 134
-          pattern: ^.*$
-        abstract:
-          type: string
-          description: descrizione sintetica della notifica
-          pattern: ^.*$
-          maxLength: 1024
-        recipients:
-          type: array
-          description: Informazioni sui destinatari
-          items:
-            $ref: '#/components/schemas/NotificationRecipientV21'
-        documents:
-          type: array
-          description: Documenti notificati
-          items:
-            $ref: '#/components/schemas/NotificationDocument'
-          minItems: 1
-        notificationFeePolicy:
-          $ref: '#/components/schemas/NotificationFeePolicy'
-        cancelledIun:
-          $ref: '#/components/schemas/IUN'
-        physicalCommunicationType:
-          type: string
-          description: Tipologia comunicazione fisica
-          enum:
-            - AR_REGISTERED_LETTER
-            - REGISTERED_LETTER_890
-        senderDenomination:
-          $ref: '#/components/schemas/Denomination'
-        senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
-        group:
-          type: string
-          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-          pattern: ^[ -~]*$
-          maxLength: 1024
-        amount:
-          type: integer
-          format: int32
-          description: Importo della notifica in eurocent
-        paymentExpirationDate:
-          type: string
-          minLength: 10
-          maxLength: 10
-          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
-          description: >-
-            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
-            all'Italia
-        taxonomyCode:
-          type: string
-          minLength: 7
-          maxLength: 7
-          pattern: ^([0-9]{6}[A-Z]{1})$
-          description: >-
-            Codice tassonomico della notifica basato sulla definizione presente
-            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
-            PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
-        paFee:
-          $ref: '#/components/schemas/PaFeeV21'
-        vat:
-          $ref: '#/components/schemas/VatV21'
-        pagoPaIntMode:
-          type: string
-          description: >-
-            Modalitá di integrazione pagoPA per l'attualizazione del costo della
-            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
-            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (non ancora
-            supportata)<br/>
-          enum:
-            - NONE
-            - SYNC
-            - ASYNC
-    SentNotification:
-      description: Le informazioni riguardanti una richiesta di notifica accettata
-      allOf:
-        - $ref: '#/components/schemas/NewNotificationRequest'
-        - type: object
-          required:
-            - iun
-            - sentAt
-          properties:
-            senderPaId:
-              type: string
-              description: >-
-                Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare.
-              pattern: ^.*$
-              maxLength: 256
-            iun:
-              $ref: '#/components/schemas/IUN'
-            sentAt:
-              type: string
-              description: Momento di ricezione della notifica da parte di PN
-              format: date-time
-            cancelledByIun:
-              $ref: '#/components/schemas/IUN'
-            documentsAvailable:
-              type: boolean
-              description: Indica se i documenti notificati sono ancora disponibili.
     TimelineElementCategory:
       type: string
       description: |
@@ -4753,12 +4768,12 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
-    RaddType:
+    schemas-RaddType:
       type: string
       description: |
         tipo di Rete Anti Digital Divide <br/>
         __FSU__: Fornitore Servizio Universale <br/>
-    NotificationViewedCreationRequestDetails:
+    schemas-NotificationViewedCreationRequestDetails:
       type: object
       required:
         - recIndex
@@ -4777,7 +4792,7 @@ components:
           description: Data ricezione richiesta visualizzazione notifica
           format: date-time
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/schemas-RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -4799,7 +4814,7 @@ components:
           type: integer
           format: int64
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/schemas-RaddType'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -4980,7 +4995,8 @@ components:
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
         - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetails'
+        - $ref: >-
+            #/components/schemas/schemas-NotificationViewedCreationRequestDetails
         - $ref: '#/components/schemas/NotificationViewedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
@@ -5093,6 +5109,69 @@ components:
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
+    schemas-DigitalAddress:
+      description: Indirizzo di invio della notifica
+      required:
+        - address
+        - type
+      type: object
+      properties:
+        type:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          type: string
+          description: tipo di indirizzo PEC, REM, SERCQ, ...
+        address:
+          x-field-extra-annotation: '@lombok.ToString.Exclude'
+          type: string
+          description: account@domain
+    schemas-DigitalDeliveryCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+        endWorkflowStatus:
+          $ref: '#/components/schemas/EndWorkflowStatus'
+        completionWorkflowDate:
+          type: string
+          description: Data chiusura workflow
+          format: date-time
+        legalfactId:
+          type: string
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
+    schemas-DigitalSuccessWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+    schemas-PublicRegistryResponseDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+        physicalAddress:
+          $ref: '#/components/schemas/PhysicalAddress'
     NotificationRefusedErrorV20:
       type: object
       properties:
@@ -5121,6 +5200,176 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedErrorV20'
+    schemas-ScheduleDigitalWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - sentAttemptMade
+        - lastAttemptDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        sentAttemptMade:
+          type: integer
+          format: int32
+        lastAttemptDate:
+          type: string
+          format: date-time
+    schemas-SendCourtesyMessageDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - sendDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+        sendDate:
+          type: string
+          description: data invio messaggio di cortesia
+          format: date-time
+        ioSendMessageResult:
+          $ref: '#/components/schemas/IoSendMessageResult'
+    schemas-PrepareDigitalDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - retryNumber
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+        attemptDate:
+          type: string
+          description: data tentativo precedente
+          format: date-time
+        nextDigitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        nextSourceAttemptsMade:
+          type: integer
+          description: numero del prossimo tentativo da effettuare
+          format: int32
+        nextLastAttemptMadeForSource:
+          type: string
+          description: data tentativo precedente per prossimo source
+          format: date-time
+    schemas-SendDigitalDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - digitalAddressSource
+        - retryNumber
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
+    schemas-SendDigitalFeedbackDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddress
+        - responseStatus
+        - notificationDate
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+        responseStatus:
+          $ref: '#/components/schemas/ResponseStatus'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        deliveryFailureCause:
+          description: Codice errore, vuoto in caso di successo
+          type: string
+        deliveryDetailCode:
+          type: string
+          description: |
+            Stato - Codice relativo all'evento - Descrizione:
+              - PROGRESS   C000 = PREACCETTAZIONE
+              - PROGRESS   C001 = ACCETTAZIONE
+              - PROGRESS   C005 = PRESA_IN_CARICO
+              - PROGRESS   C007 = PREAVVISO_ERRORE_CONSEGNA
+              - PROGRESS   DP00 = RE-INVIO PEC CAUSA FALLIMENTO TEMPORANEO
+              - PROGRESS   DP10 = TIMEOUT RICEZIONE RISULTATO
+              - ERROR      C002 = NON_ACCETTAZIONE
+              - ERROR      C004 = ERRORE_CONSEGNA
+              - ERROR      C006 = RILEVAZIONE_VIRUS
+              - ERROR      C008 = ERRORE_COMUNICAZIONE_SERVER_PEC
+              - ERROR      C009 = ERRORE_DOMINIO_PEC_NON_VALIDO
+              - ERROR      C010 = ERROR_INVIO_PEC
+              - OK         C003 = AVVENUTA_CONSEGNA
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+    schemas-SendDigitalProgressDetails:
+      type: object
+      properties:
+        recIndex:
+          type: integer
+          description: Index destinatario notifica digitale
+          format: int32
+        deliveryFailureCause:
+          description: Codice errore, opzionale
+          type: string
+        deliveryDetailCode:
+          type: string
+          description: Vedi deliveryDetailCode in SendDigitalFeedbackDetails
+        shouldRetry:
+          type: boolean
+          description: indica se il progress ha dato luogo ad un ritentativo
+        digitalAddress:
+          $ref: '#/components/schemas/schemas-DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+        retryNumber:
+          type: integer
+          description: numero dei tentativi effettuati
+          format: int32
     NotificationPaidDetailsV20:
       type: object
       required:
@@ -5162,24 +5411,25 @@ components:
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableDetails'
-        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
+        - $ref: '#/components/schemas/schemas-DigitalDeliveryCreationRequestDetails'
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
-        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/schemas-DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetails'
+        - $ref: >-
+            #/components/schemas/schemas-NotificationViewedCreationRequestDetails
         - $ref: '#/components/schemas/NotificationViewedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
-        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
+        - $ref: '#/components/schemas/schemas-PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetails'
         - $ref: '#/components/schemas/RequestRefusedDetailsV20'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
-        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
+        - $ref: '#/components/schemas/schemas-ScheduleDigitalWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
-        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
-        - $ref: '#/components/schemas/PrepareDigitalDetails'
-        - $ref: '#/components/schemas/SendDigitalDetails'
-        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/schemas-SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/schemas-PrepareDigitalDetails'
+        - $ref: '#/components/schemas/schemas-SendDigitalDetails'
+        - $ref: '#/components/schemas/schemas-SendDigitalFeedbackDetails'
+        - $ref: '#/components/schemas/schemas-SendDigitalProgressDetails'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
@@ -5195,33 +5445,6 @@ components:
         - $ref: '#/components/schemas/NotificationCancellationRequestDetails'
         - $ref: '#/components/schemas/NotificationCancelledDetails'
         - $ref: '#/components/schemas/PrepareAnalogDomicileFailureDetails'
-    SentNotificationV21:
-      description: Le informazioni riguardanti una richiesta di notifica accettata
-      allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV21'
-        - type: object
-          required:
-            - iun
-            - sentAt
-          properties:
-            senderPaId:
-              type: string
-              description: >-
-                Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare.
-              pattern: ^.*$
-              maxLength: 256
-            iun:
-              $ref: '#/components/schemas/IUN'
-            sentAt:
-              type: string
-              description: Momento di ricezione della notifica da parte di PN
-              format: date-time
-            cancelledByIun:
-              $ref: '#/components/schemas/IUN'
-            documentsAvailable:
-              type: boolean
-              description: Indica se i documenti notificati sono ancora disponibili.
     PersonalData:
       type: object
       properties:
