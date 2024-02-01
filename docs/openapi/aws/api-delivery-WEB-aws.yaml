@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ejTp6f3DdgO7uPHv2RQ3hqZac8M0mpa9GUcrTj1QvMs=
+  version: cnlimXrH9YaAPTJU/EkH4mA6B/RtJqYsunzR7xy2Tbg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -962,7 +962,7 @@ paths:
         connectionType: VPC_LINK
         timeoutInMillis: 29000
         type: http_proxy
-  /v2.1/notifications/received/{iun}:
+  /v2.3/notifications/received/{iun}:
     get:
       summary: Accesso notifiche ricevute
       description: >-
@@ -970,7 +970,7 @@ paths:
         dettagli delle  notifiche ricevute.
       tags:
         - RecipientRead
-      operationId: getReceivedNotificationV21
+      operationId: getReceivedNotificationV23
       security:
         - pn-auth-fleet_jwtAuthorizer_openapi: []
       parameters:
@@ -982,7 +982,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullReceivedNotificationV21'
+                $ref: '#/components/schemas/FullReceivedNotificationV23'
         '400':
           description: Bad request
           content:
@@ -999,7 +999,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/received/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -1017,10 +1017,10 @@ paths:
         timeoutInMillis: 29000
         type: http_proxy
     options:
-      operationId: Options for /v2.1/notifications/received/{iun} API CORS
+      operationId: Options for /v2.3/notifications/received/{iun} API CORS
       x-amazon-apigateway-integration:
         uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.1/notifications/received/{iun}
+          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/v2.3/notifications/received/{iun}
         connectionId: ${stageVariables.NetworkLoadBalancerLink}
         httpMethod: ANY
         requestParameters:
@@ -2226,7 +2226,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NotificationPaymentItem'
-    NotificationRecipientV21:
+    NotificationRecipientV23:
       description: Informazioni sui destinatari
       required:
         - denomination
@@ -2349,7 +2349,7 @@ components:
           type: array
           description: Informazioni sui destinatari
           items:
-            $ref: '#/components/schemas/NotificationRecipientV21'
+            $ref: '#/components/schemas/NotificationRecipientV23'
         documents:
           type: array
           description: Documenti notificati
@@ -2934,7 +2934,7 @@ components:
           $ref: '#/components/schemas/DigitalAddress'
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    RefinementDetails:
+    RefinementDetailsV23:
       type: object
       required:
         - recIndex
@@ -2948,6 +2948,10 @@ components:
             perfezionata prima per visualizzazione
           example: 1220
           type: number
+        eventTimestamp:
+          type: string
+          description: Data evento refinement
+          format: date-time
     NotificationRefusedErrorV23:
       type: object
       properties:
@@ -2976,7 +2980,7 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedErrorV23'
-    ScheduleAnalogWorkflowDetails:
+    ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
         - recIndex
@@ -2984,7 +2988,11 @@ components:
         recIndex:
           type: number
           description: Index destinatario notifica digitale
-    ScheduleDigitalWorkflowDetails:
+        schedulingDate:
+          type: string
+          description: Data prevista per l'inizio dell'invio analogico
+          format: date-time
+    ScheduleDigitalWorkflowDetailsV23:
       type: object
       required:
         - recIndex
@@ -3003,6 +3011,12 @@ components:
           type: number
         lastAttemptDate:
           type: string
+          format: date-time
+        schedulingDate:
+          type: string
+          description: >-
+            Data prevista per il prossimo tentativo di invio digitale per il
+            source
           format: date-time
     ScheduleRefinementDetails:
       type: object
@@ -3144,7 +3158,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-    SendDigitalProgressDetails:
+    SendDigitalProgressDetailsV23:
       type: object
       properties:
         recIndex:
@@ -3174,6 +3188,10 @@ components:
         retryNumber:
           type: number
           description: numero dei tentativi effettuati
+        eventTimestamp:
+          type: string
+          description: Data evento
+          format: date-time
     ServiceLevel:
       type: string
       description: Livello Servizio
@@ -3462,6 +3480,10 @@ components:
           deprecated: true
           type: boolean
           description: Indica se la data di pagamento é certa
+        eventTimestamp:
+          type: string
+          description: Data evento pagamento
+          format: date-time
     SendAnalogProgressDetailsV23:
       type: object
       required:
@@ -3595,16 +3617,16 @@ components:
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
-        - $ref: '#/components/schemas/RefinementDetails'
+        - $ref: '#/components/schemas/RefinementDetailsV23'
         - $ref: '#/components/schemas/RequestRefusedDetailsV23'
-        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
-        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
+        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
+        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
         - $ref: '#/components/schemas/SendCourtesyMessageDetails'
         - $ref: '#/components/schemas/PrepareDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
@@ -4410,13 +4432,13 @@ components:
           type: array
           items:
             type: string
-    FullReceivedNotificationV21:
+    FullReceivedNotificationV23:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il
         processo di  inoltro della notifica verso i destinatari (Persone Fisiche
         o Giuridiche).
       allOf:
-        - $ref: '#/components/schemas/SentNotificationV21'
+        - $ref: '#/components/schemas/SentNotificationV23'
         - type: object
           required:
             - notificationStatus
@@ -4490,159 +4512,6 @@ components:
         mandateId:
           description: identificativo della delega
           type: string
-    PaFeeV21:
-      type: number
-      description: >-
-        Costo espresso in eurocent che la PA imputa per la notifica. <br/>
-        Obbligatoria per notifiche con notificationFeePolicy=DELIVERY_MODE e
-        modalità di integrazione Async o modalità di pagamento F24.<br/> Il
-        default nei casi di non obbligatorietà è 100 <br/> Esempio paFee ad 1€
-        -> 100 <br/>
-      minimum: 0
-      maximum: 100
-    VatV21:
-      type: number
-      description: >-
-        IVA espressa in percentuale imposta al mittente sulla notifica
-        analogica. <br/> Obbligatoria per notifiche con
-        notificationFeePolicy=DELIVERY_MODE e modalità di integrazione Async o
-        modalità di pagamento F24.<br/> Il default nei casi di non
-        obbligatorietà è 22 <br/> Per rispettare retro-compatibilitá campo non
-        restituito nelle API v2.1 <br/> Esempio vat al 22% -> 22 <br/>
-      minimum: 0
-      maximum: 100
-    NewNotificationRequestV21:
-      description: I campi utilizzati per la creazione di una nuova Notifica.
-      type: object
-      required:
-        - paProtocolNumber
-        - subject
-        - recipients
-        - documents
-        - physicalCommunicationType
-        - notificationFeePolicy
-        - senderDenomination
-        - senderTaxId
-        - taxonomyCode
-      properties:
-        idempotenceToken:
-          description: >-
-            Identificativo utilizzabile dal chiamante per disambiguare
-            differenti  "richieste di notificazione" effettuate con lo stesso
-            numero di protocollo  (campo _paProtocolNumber_). Questo può essere
-            necessario in caso di  "richiesta di notifica" rifiutata per errori
-            nei codici di verifica degli allegati.
-          type: string
-          pattern: ^[ -~]*$
-          maxLength: 256
-        paProtocolNumber:
-          description: Numero di protocollo che la PA mittente assegna alla notifica stessa
-          type: string
-          pattern: ^.*$
-          maxLength: 256
-        subject:
-          type: string
-          description: titolo della notifica
-          maxLength: 134
-          pattern: ^.*$
-        abstract:
-          type: string
-          description: descrizione sintetica della notifica
-          pattern: ^.*$
-          maxLength: 1024
-        recipients:
-          type: array
-          description: Informazioni sui destinatari
-          items:
-            $ref: '#/components/schemas/NotificationRecipientV21'
-        documents:
-          type: array
-          description: Documenti notificati
-          items:
-            $ref: '#/components/schemas/NotificationDocument'
-          minItems: 1
-        notificationFeePolicy:
-          $ref: '#/components/schemas/NotificationFeePolicy'
-        cancelledIun:
-          $ref: '#/components/schemas/IUN'
-        physicalCommunicationType:
-          type: string
-          description: Tipologia comunicazione fisica
-          enum:
-            - AR_REGISTERED_LETTER
-            - REGISTERED_LETTER_890
-        senderDenomination:
-          $ref: '#/components/schemas/Denomination'
-        senderTaxId:
-          $ref: '#/components/schemas/paTaxId'
-        group:
-          type: string
-          description: Gruppo di utenti dell'ente mittente che può visualizzare la notifica
-          pattern: ^[ -~]*$
-          maxLength: 1024
-        amount:
-          type: number
-          description: Importo della notifica in eurocent
-        paymentExpirationDate:
-          type: string
-          minLength: 10
-          maxLength: 10
-          pattern: ^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|[12][0-9]|0[1-9])$
-          description: >-
-            Data di scadenza del pagamento nel formato YYYY-MM-DD riferito
-            all'Italia
-        taxonomyCode:
-          type: string
-          minLength: 7
-          maxLength: 7
-          pattern: ^([0-9]{6}[A-Z]{1})$
-          description: >-
-            Codice tassonomico della notifica basato sulla definizione presente
-            nell'allegato 2 capitolo C del bando [__AVVISO PUBBLICO MISURA 1.4.5
-            PIATTAFORMA NOTIFICHE
-            DIGITALI__](https://pnrrcomuni.fondazioneifel.it/bandi_public/Bando/325)
-        paFee:
-          $ref: '#/components/schemas/PaFeeV21'
-        vat:
-          $ref: '#/components/schemas/VatV21'
-        pagoPaIntMode:
-          type: string
-          description: >-
-            Modalitá di integrazione pagoPA per l'attualizazione del costo della
-            notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
-            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (non ancora
-            supportata)<br/>
-          enum:
-            - NONE
-            - SYNC
-            - ASYNC
-    SentNotificationV21:
-      description: Le informazioni riguardanti una richiesta di notifica accettata
-      allOf:
-        - $ref: '#/components/schemas/NewNotificationRequestV21'
-        - type: object
-          required:
-            - iun
-            - sentAt
-          properties:
-            senderPaId:
-              type: string
-              description: >-
-                Identificativo (non IPA) della PA mittente che ha eseguito
-                l'onboarding su SelfCare.
-              pattern: ^.*$
-              maxLength: 256
-            iun:
-              $ref: '#/components/schemas/IUN'
-            sentAt:
-              type: string
-              description: Momento di ricezione della notifica da parte di PN
-              format: date-time
-            cancelledByIun:
-              $ref: '#/components/schemas/IUN'
-            documentsAvailable:
-              type: boolean
-              description: Indica se i documenti notificati sono ancora disponibili.
     DocumentCategory:
       title: Tipi di documenti
       description: Tipologie di documenti
