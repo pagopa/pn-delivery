@@ -446,6 +446,32 @@ Parameters:
     Type: Number
     Description: web waf limit
 
+  # EFS parameters
+  FargateEFSFileSystemID:
+    Type: String
+    Description: "EFS Filesystem"
+
+  MountEfs:
+    Type: String
+    Default: false
+    AllowedValues:
+      - "true"
+      - "false"
+
+  # Logging parameters
+  WireTapLogActivation:
+    Type: String
+    Default: false
+    Description: Activation of wire logs
+    AllowedValues:
+      - true
+      - false
+
+  PnCronAnalyzer:
+    Type: String
+    Default: '-'
+    Description: Cron for which you send the metric to CloudWatch
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -472,6 +498,8 @@ Resources:
         MaxTasksNumber: !Ref MaxTasksNumber
         AutoscalingDataPointN: !Ref AutoscalingDataPointN
         AutoscalingDataPointM: !Ref AutoscalingDataPointM
+        EfsFilesystem: !Ref FargateEFSFileSystemID
+        MountEfs: !Ref MountEfs
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
@@ -512,6 +540,8 @@ Resources:
         ContainerEnvEntry36: !Sub 'PN_DELIVERY_DENOMINATIONVALIDATIONREGEXVALUE=${DenominationValidationRegexValue}'
         ContainerEnvEntry37: 'PN_DELIVERY_F24CXID=pn-delivery'
         ContainerEnvEntry38: !Sub 'PN_DELIVERY_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry39: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry40: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
