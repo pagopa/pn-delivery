@@ -548,10 +548,10 @@ class NotificationAttachmentServiceTest {
 
         Mockito.when(attachmentService.getFile("filekey")).thenReturn(response);
         NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
-        cost.setAmount(200);
+        cost.setPartialCost(200);
         cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
         cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
-        when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), any())).thenReturn(cost);
+        when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), any(), any())).thenReturn(cost);
 
         F24Response f24Response = new F24Response();
         f24Response.setRetryAfter(BigDecimal.valueOf(0));
@@ -582,10 +582,10 @@ class NotificationAttachmentServiceTest {
 
         Mockito.when(attachmentService.getFile("filekey")).thenReturn(response);
         NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
-        cost.setAmount(200);
+        cost.setPartialCost(200);
         cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
         cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
-        when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), any())).thenReturn(cost);
+        when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), any(), any())).thenReturn(cost);
 
         F24Response f24Response = new F24Response();
         f24Response.setRetryAfter(BigDecimal.valueOf(0));
@@ -615,10 +615,10 @@ class NotificationAttachmentServiceTest {
 
         Mockito.when(attachmentService.getFile("filekey")).thenReturn(response);
         NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
-        cost.setAmount(200);
+        cost.setPartialCost(200);
         cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
         cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
-        Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), any())).thenReturn(cost);
+        Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), any(), any())).thenReturn(cost);
 
         F24Response f24Response = new F24Response();
         f24Response.setRetryAfter(BigDecimal.valueOf(1));
@@ -643,10 +643,10 @@ class NotificationAttachmentServiceTest {
 
         Mockito.when(attachmentService.getFile("filekey")).thenReturn(response);
         NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
-        cost.setAmount(200);
+        cost.setPartialCost(200);
         cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
         cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
-        Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), anyInt())).thenReturn(cost);
+        Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), anyInt(), any())).thenReturn(cost);
 
         F24Response f24Response = new F24Response();
         f24Response.setRetryAfter(BigDecimal.valueOf(0));
@@ -677,10 +677,10 @@ class NotificationAttachmentServiceTest {
 
         Mockito.when(attachmentService.getFile("filekey")).thenReturn(response);
         NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
-        cost.setAmount(200);
+        cost.setPartialCost(200);
         cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
         cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
-        Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), anyInt())).thenReturn(cost);
+        Mockito.when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), anyInt(), any())).thenReturn(cost);
 
         F24Response f24Response = new F24Response();
         f24Response.setRetryAfter(BigDecimal.valueOf(0));

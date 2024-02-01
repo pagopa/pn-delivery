@@ -39,6 +39,7 @@ import java.util.Optional;
 import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21.RecipientTypeEnum.PF;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 
 class NotificationPriceServiceTest {
 
@@ -94,27 +95,33 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
-        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
+        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
                 .iunRecipientId( "iun##recipientInternalId0" )
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),Mockito.anyBoolean(), Mockito.anyInt() ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost(
+                        anyString(),
+                        anyInt(),
+                        any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),
+                        anyBoolean(),
+                        anyInt(),
+                        any()))
                 .thenReturn( new NotificationProcessCostResponse()
-                        .amount( 2000 )
+                        .partialCost( 2000 )
                         .refinementDate( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) )
                 );
 
 
-        NotificationPriceResponse response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
+        NotificationPriceResponseV23 response = svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
 
         //Then
         Assertions.assertNotNull( response );
         Assertions.assertEquals("iun" , response.getIun() );
-        Assertions.assertEquals( 2000, response.getAmount() );
+        Assertions.assertEquals( 2000, response.getPartialPrice() );
         Assertions.assertEquals( OffsetDateTime.parse( EXPECTED_REFINEMENT_DATE ) , response.getRefinementDate() );
         Assertions.assertNull( response.getNotificationViewDate() );
 
@@ -153,10 +160,10 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
-        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.empty() );
+        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.empty() );
 
 
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );
@@ -183,15 +190,21 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
-        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
+        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
                 .iunRecipientId( "iun##recipientInternalId0" )
                 .build())
         );
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt()))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost(
+                        anyString(),
+                        anyInt(),
+                        any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),
+                        anyBoolean(),
+                        anyInt(),
+                        any()))
                 .thenThrow(new PnHttpResponseException("err", 404));
 
 
@@ -219,17 +232,23 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
-        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
+        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
                 .iunRecipientId( "iun##recipientInternalId0" )
                 .build())
         );
 
         PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt() ))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost(
+                        anyString(),
+                        anyInt(),
+                        any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),
+                        anyBoolean(),
+                        anyInt(),
+                        any()))
                 .thenThrow(exception);
 
 
@@ -257,17 +276,23 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.of( internalNotification ) );
 
-        Mockito.when( notificationMetadataEntityDao.get( Mockito.any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
+        Mockito.when( notificationMetadataEntityDao.get( any( Key.class ) ) ).thenReturn( Optional.of(NotificationMetadataEntity.builder()
                 .iunRecipientId( "iun##recipientInternalId0" )
                 .build())
         );
 
         PnHttpResponseException exception =  new PnHttpResponseException("errore", 404);
 
-        Mockito.when( deliveryPushClient.getNotificationProcessCost( Mockito.anyString(), Mockito.anyInt(), Mockito.any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ), Mockito.anyBoolean(), Mockito.anyInt()))
+        Mockito.when( deliveryPushClient.getNotificationProcessCost(
+                        anyString(),
+                        anyInt(),
+                        any( it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy.class ),
+                        anyBoolean(),
+                        anyInt(),
+                        any()))
                 .thenThrow(exception);
 
 
@@ -303,7 +328,7 @@ class NotificationPriceServiceTest {
         Mockito.when( notificationCostEntityDao.getNotificationByPaymentInfo( Mockito.anyString(),Mockito.anyString() ) )
                 .thenReturn( Optional.of(internalNotificationCost) );
 
-        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), Mockito.anyBoolean() ) )
+        Mockito.when( notificationDao.getNotificationByIun( Mockito.anyString(), anyBoolean() ) )
                 .thenReturn( Optional.empty() );
 
         Executable todo = () -> svc.getNotificationPrice( PA_TAX_ID, NOTICE_CODE );

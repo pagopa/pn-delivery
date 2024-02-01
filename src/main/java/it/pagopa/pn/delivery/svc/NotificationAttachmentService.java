@@ -329,7 +329,9 @@ public class NotificationAttachmentService {
                     String exMessage = String.format("Unable to find F24 for attachmentName=%s attachmentIndex=%s iun=%s with this paymentInfo=%s", attachmentName, attachmentIdx, iun, notificationPaymentInfo);
                     throw new PnNotFoundException("F24 not found", exMessage, ERROR_CODE_DELIVERY_NOTIFICATIONWITHOUTPAYMENTATTACHMENT);
                 }
-                return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost(), notification.getPaFee(), notificationPaymentInfo.getF24().getTitle());
+                return callPNF24(recipientIdx, pathTokens, notification, notificationPaymentInfo.getF24().isApplyCost(),
+                        notification.getPaFee(), notificationPaymentInfo.getF24().getTitle(), notification.getVat()
+                );
             } else {
                 fileKey = getFileKeyOfAttachment(iun, effectiveRecipient, attachmentName, attachmentIdx, mvpParameterConsumer.isMvp(notification.getSenderTaxId()));
                 if (!StringUtils.hasText(fileKey)) {
@@ -373,16 +375,17 @@ public class NotificationAttachmentService {
     }
 
 
-    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, Integer paFee, String title) {
+    private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, Integer paFee, String title, Integer vat) {
         NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(
                 notification.getIun(),
                 recipientIdx,
                 notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null,
                 applyCost,
-                paFee
+                paFee,
+                vat
         );
 
-        F24Response f24Response = pnF24Client.generatePDF(this.cfg.getF24CxId(), notification.getIun(), pathTokens, cost.getAmount());
+        F24Response f24Response = pnF24Client.generatePDF(this.cfg.getF24CxId(), notification.getIun(), pathTokens, cost.getPartialCost());
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
         FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
         String contentType = StringUtils.hasText(f24Response.getContentType()) ? f24Response.getContentType() : "application/pdf";
