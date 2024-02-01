@@ -113,7 +113,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
     }
 
     @Override
-    public ResponseEntity<NewNotificationRequestStatusResponseV21> getNotificationRequestStatusV21(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
+    public ResponseEntity<NewNotificationRequestStatusResponseV23> getNotificationRequestStatusV23(String xPagopaPnUid, CxTypeAuthFleet xPagopaPnCxType, String xPagopaPnCxId, List<String> xPagopaPnCxGroups, String notificationRequestId, String paProtocolNumber, String idempotenceToken) {
         InternalNotification internalNotification;
         PnAuditLogBuilder auditLogBuilder = new PnAuditLogBuilder();
         PnAuditLogEvent logEvent = auditLogBuilder
@@ -141,9 +141,9 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
             internalNotification = retrieveSvc.getNotificationInformation( xPagopaPnCxId, paProtocolNumber, idempotenceToken, xPagopaPnCxGroups);
         }
         InternalFieldsCleaner.cleanInternalFields( internalNotification );
-        NewNotificationRequestStatusResponseV21 response = modelMapper.map(
+        NewNotificationRequestStatusResponseV23 response = modelMapper.map(
                 internalNotification,
-                NewNotificationRequestStatusResponseV21.class
+                NewNotificationRequestStatusResponseV23.class
         );
         response.setNotificationRequestId( Base64Utils.encodeToString( internalNotification.getIun().getBytes(StandardCharsets.UTF_8) ));
 
@@ -176,7 +176,7 @@ public class PnSentNotificationsController implements SenderReadB2BApi,SenderRea
         return ResponseEntity.ok( response );
     }
 
-    private void setRefusedErrors(NewNotificationRequestStatusResponseV21 response, TimelineElementV23 timelineElement) {
+    private void setRefusedErrors(NewNotificationRequestStatusResponseV23 response, TimelineElementV23 timelineElement) {
         List<NotificationRefusedErrorV23> refusalReasons = timelineElement.getDetails().getRefusalReasons();
         List<ProblemError> problemErrorList = refusalReasons.stream().map(
                 reason -> ProblemError.builder()
