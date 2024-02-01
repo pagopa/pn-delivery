@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: D1v3TAuh14UWpflHJPJALqfBdur8ohsuv42QkSbzIjM=
+  version: BEAPUMsB9nSM9lAxLayaaFbK4ulNM3mEp1F2Tygw9p0=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2574,7 +2574,7 @@ components:
         type:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
-          description: tipo di indirizzo PEC, REM, SERCQ, ...
+          description: tipo di indirizzo PEC, REM, SERCQ, SMS, EMAIL, APPIO ...
         address:
           x-field-extra-annotation: '@lombok.ToString.Exclude'
           type: string
@@ -2647,11 +2647,12 @@ components:
           type: string
           description: Data tentativo
           format: date-time
-    RaddType:
+    RaddTypeV23:
       type: string
       description: |
         tipo di Rete Anti Digital Divide <br/>
         __FSU__: Fornitore Servizio Universale <br/>
+        __ALT__: Fornitore RADD Alternativa <br/>
     RaddTransactionId:
       type: string
       description: Identificativo della pratica all'interno della rete RADD
@@ -2677,7 +2678,7 @@ components:
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
-    NotificationViewedCreationRequestDetails:
+    NotificationViewedCreationRequestDetailsV23:
       type: object
       required:
         - recIndex
@@ -2695,7 +2696,7 @@ components:
           description: Data ricezione richiesta visualizzazione notifica
           format: date-time
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -2715,7 +2716,7 @@ components:
           example: 1220
           type: number
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -2736,7 +2737,7 @@ components:
           type: number
           description: Index destinatario notifica digitale
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         eventTimestamp:
@@ -2790,7 +2791,7 @@ components:
           $ref: '#/components/schemas/DigitalAddress'
         physicalAddress:
           $ref: '#/components/schemas/PhysicalAddress'
-    RefinementDetails:
+    RefinementDetailsV23:
       type: object
       required:
         - recIndex
@@ -2804,6 +2805,10 @@ components:
             perfezionata prima per visualizzazione
           example: 1220
           type: number
+        eventTimestamp:
+          type: string
+          description: Data evento refinement
+          format: date-time
     NotificationRefusedErrorV23:
       type: object
       properties:
@@ -2832,7 +2837,7 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedErrorV23'
-    ScheduleAnalogWorkflowDetails:
+    ScheduleAnalogWorkflowDetailsV23:
       type: object
       required:
         - recIndex
@@ -2840,7 +2845,11 @@ components:
         recIndex:
           type: number
           description: Index destinatario notifica digitale
-    ScheduleDigitalWorkflowDetails:
+        schedulingDate:
+          type: string
+          description: Data prevista per l'inizio dell'invio analogico
+          format: date-time
+    ScheduleDigitalWorkflowDetailsV23:
       type: object
       required:
         - recIndex
@@ -2859,6 +2868,12 @@ components:
           type: number
         lastAttemptDate:
           type: string
+          format: date-time
+        schedulingDate:
+          type: string
+          description: >-
+            Data prevista per il prossimo tentativo di invio digitale per il
+            source
           format: date-time
     ScheduleRefinementDetails:
       type: object
@@ -3000,7 +3015,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SendingReceipt'
-    SendDigitalProgressDetails:
+    SendDigitalProgressDetailsV23:
       type: object
       properties:
         recIndex:
@@ -3030,6 +3045,10 @@ components:
         retryNumber:
           type: number
           description: numero dei tentativi effettuati
+        eventTimestamp:
+          type: string
+          description: Data evento
+          format: date-time
     ServiceLevel:
       type: string
       description: Livello Servizio
@@ -3318,6 +3337,10 @@ components:
           deprecated: true
           type: boolean
           description: Indica se la data di pagamento é certa
+        eventTimestamp:
+          type: string
+          description: Data evento pagamento
+          format: date-time
     SendAnalogProgressDetailsV23:
       type: object
       required:
@@ -3446,21 +3469,21 @@ components:
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
         - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetails'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
         - $ref: '#/components/schemas/NotificationViewedDetailsV23'
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
         - $ref: '#/components/schemas/PublicRegistryResponseDetails'
-        - $ref: '#/components/schemas/RefinementDetails'
+        - $ref: '#/components/schemas/RefinementDetailsV23'
         - $ref: '#/components/schemas/RequestRefusedDetailsV23'
-        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
-        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
+        - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetailsV23'
+        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetailsV23'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
         - $ref: '#/components/schemas/SendCourtesyMessageDetails'
         - $ref: '#/components/schemas/PrepareDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalDetails'
         - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetailsV23'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'
@@ -4779,6 +4802,34 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+    RaddType:
+      type: string
+      description: |
+        tipo di Rete Anti Digital Divide <br/>
+        __FSU__: Fornitore Servizio Universale <br/>
+    NotificationViewedCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        legalfactId:
+          type: string
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
+        eventTimestamp:
+          type: string
+          description: Data ricezione richiesta visualizzazione notifica
+          format: date-time
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
     NotificationViewedDetails:
       type: object
       required:
@@ -4799,6 +4850,20 @@ components:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
           $ref: '#/components/schemas/DelegateInfo'
+    RefinementDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        notificationCost:
+          description: >-
+            costo notifica in euro cents, può essere nullo se la notifica si è
+            perfezionata prima per visualizzazione
+          example: 1220
+          type: number
     NotificationRefusedError:
       type: object
       properties:
@@ -4824,6 +4889,64 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedError'
+    ScheduleAnalogWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+    ScheduleDigitalWorkflowDetails:
+      type: object
+      required:
+        - recIndex
+        - digitalAddressSource
+        - sentAttemptMade
+        - lastAttemptDate
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        sentAttemptMade:
+          type: number
+        lastAttemptDate:
+          type: string
+          format: date-time
+    SendDigitalProgressDetails:
+      type: object
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        deliveryFailureCause:
+          description: Codice errore, opzionale
+          type: string
+        deliveryDetailCode:
+          type: string
+          description: Vedi deliveryDetailCode in SendDigitalFeedbackDetails
+        shouldRetry:
+          type: boolean
+          description: indica se il progress ha dato luogo ad un ritentativo
+        digitalAddress:
+          $ref: '#/components/schemas/DigitalAddress'
+        digitalAddressSource:
+          $ref: '#/components/schemas/DigitalAddressSource'
+        notificationDate:
+          type: string
+          description: data notifica
+          format: date-time
+        sendingReceipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SendingReceipt'
+        retryNumber:
+          type: number
+          description: numero dei tentativi effettuati
     NotificationPaidDetails:
       type: object
       required:

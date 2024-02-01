@@ -66,7 +66,7 @@ class PnNotificationInputControllerTest {
 		// When
 		Mockito.when(deliveryService.receiveNotification(
 						Mockito.anyString(),
-						Mockito.any( NewNotificationRequestV21.class ),
+						Mockito.any( NewNotificationRequestV23.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyList(),
