@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: ih8uhPdwqSabfYt4uu7C3Uz2yy2crCZ8W5CaBuI2H3E=
+  version: QLX6DKSig31Ow0+eyi9xdHkd6AilIET5QDke3genRrw=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -3015,8 +3015,8 @@ components:
         schedulingDate:
           type: string
           description: >-
-            Data prevista per il prossimo tentativo di invio digitale per il
-            source
+            Data prevista prossimo tentativo d'invio digitale per quella
+            specifica sorgente di indirizzo
           format: date-time
     ScheduleRefinementDetails:
       type: object

@@ -46,7 +46,7 @@ public class InternalNotification {
     private List<String> recipientIds;
     private String sourceChannel;
     private String sourceChannelDetails;
-    private NewNotificationRequestV21.PagoPaIntModeEnum pagoPaIntMode;
+    private NewNotificationRequestV23.PagoPaIntModeEnum pagoPaIntMode;
     private String version;
 
     public InternalNotification idempotenceToken(String idempotenceToken) {

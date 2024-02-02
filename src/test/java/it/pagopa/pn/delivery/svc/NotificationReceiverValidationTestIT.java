@@ -1,10 +1,8 @@
 package it.pagopa.pn.delivery.svc;
 
-import it.pagopa.pn.commons.abstractions.impl.MiddlewareTypes;
 import it.pagopa.pn.commons.utils.ValidateUtils;
 import it.pagopa.pn.delivery.LocalStackTestConfig;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
-import it.pagopa.pn.delivery.middleware.notificationdao.NotificationEntityDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,9 +59,9 @@ class NotificationReceiverValidationTestIT {
     void taxIdNotInWhiteListMultipleInvalidCF() {
 
         NewNotificationRequestV23 notificationRequest = newNotification( INVALID_TAX_ID_IN_WHITE_LIST );
-        notificationRequest.addRecipientsItem( NotificationRecipientV21.builder()
+        notificationRequest.addRecipientsItem( NotificationRecipientV23.builder()
                         .taxId( INVALID_TAX_ID_NOT_IN_WHITE_LIST )
-                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                 .build() );
 
         Set<ConstraintViolation<NewNotificationRequestV23>> constraintViolations = validator.checkNewNotificationRequestBeforeInsert(notificationRequest);
@@ -72,9 +70,9 @@ class NotificationReceiverValidationTestIT {
     }
 
     private NewNotificationRequestV23 newNotification( String recipientTaxId ) {
-        List<NotificationRecipientV21> recipients = new ArrayList<>();
+        List<NotificationRecipientV23> recipients = new ArrayList<>();
         recipients.add(
-                NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                         .taxId( recipientTaxId ).denomination("Nome Cognome / Ragione Sociale")
                         .digitalDomicile(NotificationDigitalAddress.builder()
                                 .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())

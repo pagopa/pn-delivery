@@ -3962,8 +3962,8 @@ components:
         schedulingDate:
           type: string
           description: >-
-            Data prevista per il prossimo tentativo di invio digitale per il
-            source
+            Data prevista prossimo tentativo d'invio digitale per quella
+            specifica sorgente di indirizzo
           format: date-time
     ScheduleRefinementDetails:
       type: object

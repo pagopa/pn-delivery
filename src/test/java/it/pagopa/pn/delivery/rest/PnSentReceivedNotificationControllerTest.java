@@ -185,7 +185,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -196,7 +196,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV21.class );
+				.expectBody( NewNotificationRequestStatusResponseV23.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -511,7 +511,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -522,7 +522,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV21.class );
+				.expectBody( NewNotificationRequestStatusResponseV23.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -537,7 +537,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -548,7 +548,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV21.class );
+				.expectBody( NewNotificationRequestStatusResponseV23.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -558,7 +558,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -575,7 +575,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
@@ -596,7 +596,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
 								.queryParam( "idempotenceToken", IDEMPOTENCE_TOKEN )
 								.build())
@@ -608,7 +608,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV21.class );
+				.expectBody( NewNotificationRequestStatusResponseV23.class );
 
 		Mockito.verify( svc ).getNotificationInformation( PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 	}
@@ -625,7 +625,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.1/notifications/received/" + IUN  )
+				.uri( "/delivery/v2.3/notifications/received/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
@@ -635,7 +635,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV21.class);
+				.expectBody(FullReceivedNotificationV23.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, null);
 	}
@@ -675,7 +675,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/notifications/received/" + IUN )
+								.path( "/delivery/v2.3/notifications/received/" + IUN )
 								.queryParam("mandateId", MANDATE_ID)
 								.build())
 				.accept( MediaType.ALL )
@@ -687,7 +687,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV21.class);
+				.expectBody(FullReceivedNotificationV23.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, MANDATE_ID);
 	}
@@ -1297,7 +1297,7 @@ class PnSentReceivedNotificationControllerTest {
 				List.of(
 						NotificationRecipient.builder()
 								.internalId("internalId")
-								.recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+								.recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
 								.taxId("taxId")
 								.physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
 								.digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
@@ -1377,7 +1377,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getReceivedNotificationDocumentWithNotificationCancelledTest() {
 		webTestClient.get()
-				.uri("/delivery/v2.1/notifications/received/{iun}/attachments/documents/{docIdx}", IUN, 1)
+				.uri("/delivery/v2.3/notifications/received/{iun}/attachments/documents/{docIdx}", IUN, 1)
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, UID)
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")

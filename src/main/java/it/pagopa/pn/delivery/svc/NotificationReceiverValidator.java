@@ -87,11 +87,11 @@ public class NotificationReceiverValidator {
         int recIdx = 0;
         Set<String> distinctTaxIds = new HashSet<>();
         Set<String> distinctIuvs = new HashSet<>();
-        for (NotificationRecipientV21 recipient : newNotificationRequestV2.getRecipients()) {
+        for (NotificationRecipientV23 recipient : newNotificationRequestV2.getRecipients()) {
 
             // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
             onlyNumericalTaxIdForPGV2(errors, recIdx, recipient);
-            boolean isPF = NotificationRecipientV21.RecipientTypeEnum.PF.getValue().equals(recipient.getRecipientType().getValue());
+            boolean isPF = NotificationRecipientV23.RecipientTypeEnum.PF.getValue().equals(recipient.getRecipientType().getValue());
 
             if( !validateUtils.validate(recipient.getTaxId(), isPF, false)) {
                 ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>( "Invalid taxId for recipient " + recIdx );
@@ -126,7 +126,7 @@ public class NotificationReceiverValidator {
 
             int recIdx = 0;
 
-            for (NotificationRecipientV21 recipient : internalNotification.getRecipients()) {
+            for (NotificationRecipientV23 recipient : internalNotification.getRecipients()) {
                 NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
 
                 Pair<String, String> address = Pair.of("address", physicalAddress.getAddress());
@@ -166,7 +166,7 @@ public class NotificationReceiverValidator {
 
         int recIdx = 0;
 
-        for (NotificationRecipientV21 recipient : internalNotification.getRecipients()) {
+        for (NotificationRecipientV23 recipient : internalNotification.getRecipients()) {
 
             Pair<String, String> denomination = Pair.of("denomination", recipient.getDenomination());
 
@@ -289,8 +289,8 @@ public class NotificationReceiverValidator {
     }
 
 
-    private static void onlyNumericalTaxIdForPGV2(Set<ConstraintViolation<NewNotificationRequestV23>> errors, int recIdx, NotificationRecipientV21 recipient) {
-        if (NotificationRecipientV21.RecipientTypeEnum.PG.equals(recipient.getRecipientType()) &&
+    private static void onlyNumericalTaxIdForPGV2(Set<ConstraintViolation<NewNotificationRequestV23>> errors, int recIdx, NotificationRecipientV23 recipient) {
+        if (NotificationRecipientV23.RecipientTypeEnum.PG.equals(recipient.getRecipientType()) &&
                 (!recipient.getTaxId().matches("^\\d+$"))) {
             ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("SEND accepts only numerical taxId for PG recipient " + recIdx);
             errors.add(constraintViolation);

@@ -103,7 +103,7 @@ class PnReceivedIONotificationsControllerTest {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setNotificationStatusHistory(List.of(NotificationStatusHistoryElement.builder()
                 .status(NotificationStatus.ACCEPTED).build()));
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
         internalNotification.setTimeline(List.of(timelineElement));
         internalNotification.setIun("iun");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -120,7 +120,7 @@ class PnReceivedIONotificationsControllerTest {
         internalNotification.setRecipients(Collections.singletonList(
                 NotificationRecipient.builder()
                         .taxId("Codice Fiscale 01")
-                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
                         .payments(List.of(NotificationPaymentInfo.builder()
