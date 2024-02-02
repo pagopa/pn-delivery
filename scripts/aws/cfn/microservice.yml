@@ -436,6 +436,16 @@ Parameters:
     Description: 'VersioningV1V21GetNotificationRequestStatusProvisionedConcurrency'
     Default: 1
 
+  VersioningV1V23GetNotificationPriceLambdaName:
+    Type: String
+    Description: 'VersioningV1V23GetNotificationPriceName'
+
+  
+  VersioningV1V23GetNotificationPriceLambdaProvisionedConcurrency:
+    Type: Number
+    Description: 'VersioningV1V23GetNotificationPriceProvisionedConcurrency'
+    Default: 1
+
   B2bWafLimit:
     Default: 600000
     Type: Number
@@ -721,6 +731,7 @@ Resources:
             - !GetAtt VersioningV1V2GetNotificationLambda.Arn
             - !GetAtt VersioningV1V21SendNewNotificationLambda.Arn
             - !GetAtt VersioningV1V21GetNotificationRequestStatusLambda.Arn
+            - !GetAtt VersioningV1V23GetNotificationPriceLambda.Arn
         RestApiStageArns: !Join
           - ','
           - - !GetAtt DeliveryMicroservicePublicAPI.Outputs.RestApiStageArn
@@ -747,6 +758,7 @@ Resources:
             - !GetAtt VersioningV1V2GetNotificationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V21SendNewNotificationLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
             - !GetAtt VersioningV1V21GetNotificationRequestStatusLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
+            - !GetAtt VersioningV1V23GetNotificationPriceLambdaAlarms.Outputs.LambdaInvocationErrorLogsMetricAlarm
         QueueArns: !Join
           - ','
           - - !Ref Mandate2DeliveryQueueARN
@@ -759,6 +771,7 @@ Resources:
             - !Sub '/aws/lambda/${VersioningV1V2GetNotificationLambdaName}'
             - !Sub '/aws/lambda/${VersioningV1V21SendNewNotificationLambdaName}'
             - !Sub '/aws/lambda/${VersioningV1V21GetNotificationRequestStatusLambdaName}'
+            - !Sub '/aws/lambda/${VersioningV1V23GetNotificationPriceLambdaName}'
             
   # Lambda function role
   PnDeliveryInsertTriggerLambdaRole:
@@ -1394,6 +1407,101 @@ Resources:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref VersioningV1V21GetNotificationRequestStatusLambdaVersionAlias
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'
+
+
+  #########################################################
+  ###       VersioningV1V23GetNotificationPrice         ###
+  #########################################################
+  VersioningV1V23GetNotificationPriceSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub '${VersioningV1V23GetNotificationPriceLambdaName}-sec-group'
+      VpcId: !Ref VpcId
+
+  # Lambda function
+  VersioningV1V23GetNotificationPriceLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref VersioningV1V23GetNotificationPriceLambdaName
+      Runtime: nodejs18.x
+      Handler: "index.handler"
+      Code:
+        S3Bucket: !Ref MicroserviceBucketName
+        S3Key: !Sub "${MicroserviceBucketBaseKey}/functions_zip/versioningV1V23GetNotificationPrice.zip"
+      Role: !GetAtt VersioningV1V23GetNotificationPriceLambdaRole.Arn
+      VpcConfig:
+        SecurityGroupIds:
+          - !GetAtt VersioningV1V23GetNotificationPriceSecGroup.GroupId
+        SubnetIds: !Ref SubnetsIds
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.1"
+      TracingConfig:
+        Mode: Active
+      Layers:
+        - !Sub "arn:aws:lambda:${AWS::Region}:339249233099:layer:LambdaInsightsExtension:13"
+      Timeout: 10
+      MemorySize: 512
+      Tags:
+        - Key: "pn-eni-related"
+          Value: "true"
+        - Key: "pn-eni-related-groupName-regexp"
+          Value: !Base64 "^pn-delivery-microsvc-prod-VersioningV1V23GetNotificationPriceSecGroup*$"
+
+
+  # a new version at each deploy, with provisioned concurrency set
+  VersioningV1V23GetNotificationPriceLambdaVersionPnPlaceholderEpochSeconds:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref VersioningV1V23GetNotificationPriceLambda
+
+  VersioningV1V23GetNotificationPriceLambdaVersionAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref VersioningV1V23GetNotificationPriceLambda
+      FunctionVersion: !GetAtt VersioningV1V23GetNotificationPriceLambdaVersionPnPlaceholderEpochSeconds.Version
+      Name: live
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: !Ref VersioningV1V23GetNotificationPriceLambdaProvisionedConcurrency
+
+  # Lambda function role
+  VersioningV1V23GetNotificationPriceLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-versioningV1V23GetNotificationPriceLambdaRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
+
+  VersioningV1V23GetNotificationPriceLambdaAlarms:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/lambda-alarms.yaml"
+      Parameters:
+        FunctionName: !Ref VersioningV1V23GetNotificationPriceLambda
+        AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
+        FilterPattern: "FATAL"
+
+  # Lambda access right
+  VersioningV1V23GetNotificationPriceLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VersioningV1V23GetNotificationPriceLambdaVersionAlias
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*'

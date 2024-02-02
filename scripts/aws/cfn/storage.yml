@@ -299,6 +299,17 @@ Resources:
         LogGroupRetention: !Ref LogRetention
         LogGroupPrefix: '/aws/lambda'
 
+  VersioningV1V23GetNotificationPriceLambdaLogGroup:
+    Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: !Sub "${TemplateBucketBaseUrl}/fragments/log-group.yaml"
+      Parameters:
+        LogGroupName: !Sub "${ProjectName}-delivery-versioning-v1v23-getnotificationprice-lambda"
+        LogGroupRetention: !Ref LogRetention
+        LogGroupPrefix: '/aws/lambda'
+
 Outputs:
 
   # Dynamo table
@@ -393,3 +404,7 @@ Outputs:
 
   VersioningV1V21GetNotificationRequestStatusLambdaName:
     Value: !Sub "${ProjectName}-delivery-versioning-v1v21-getnotificationrequeststatus-lambda"
+
+  VersioningV1V23GetNotificationPriceLambdaName:
+    Value: !Sub "${ProjectName}-delivery-versioning-v1v23-getnotificationprice-lambda"
+
