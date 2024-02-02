@@ -45,7 +45,7 @@ info:
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
       di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV21)
+      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
       >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
@@ -125,7 +125,7 @@ info:
       #### 2. Richiesta di invio della notifica
 
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotificationV21) utilizzando i riferimenti dei file 
+      [sendNewNotification](#/NewNotification/sendNewNotificationV23) utilizzando i riferimenti dei file 
       caricati ottenuti al punto (1.b).
       
       </br>
@@ -149,8 +149,8 @@ info:
 
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
       identificata dalla IUN restituito dall'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV21).</br> 
-      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.1/notifications/sent/{iun}_ per 
+      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23).</br> 
+      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.3/notifications/sent/{iun}_ per 
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
