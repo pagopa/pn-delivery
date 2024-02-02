@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: STFW53BpLg329M3pIQTAj36x0fSmK6JPhTnhJV8ykwU=
+  version: oD5FJRygEozEOjxqkwlBI2hcYy/5WZNWi+whVVPVL/U=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2647,11 +2647,12 @@ components:
           type: string
           description: Data tentativo
           format: date-time
-    RaddType:
+    RaddTypeV23:
       type: string
       description: |
         tipo di Rete Anti Digital Divide <br/>
         __FSU__: Fornitore Servizio Universale <br/>
+        __ALT__: Fornitore RADD Alternativa <br/>
     RaddTransactionId:
       type: string
       description: Identificativo della pratica all'interno della rete RADD
@@ -2677,7 +2678,7 @@ components:
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
-    NotificationViewedCreationRequestDetails:
+    NotificationViewedCreationRequestDetailsV23:
       type: object
       required:
         - recIndex
@@ -2695,7 +2696,7 @@ components:
           description: Data ricezione richiesta visualizzazione notifica
           format: date-time
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -2715,7 +2716,7 @@ components:
           example: 1220
           type: number
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -2736,7 +2737,7 @@ components:
           type: number
           description: Index destinatario notifica digitale
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         eventTimestamp:
@@ -3468,7 +3469,7 @@ components:
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
         - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetails'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
         - $ref: '#/components/schemas/NotificationViewedDetailsV23'
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
@@ -4856,6 +4857,34 @@ components:
         - AAR_GENERATION
         - NOT_HANDLED
         - PROBABLE_SCHEDULING_ANALOG_DATE
+    RaddType:
+      type: string
+      description: |
+        tipo di Rete Anti Digital Divide <br/>
+        __FSU__: Fornitore Servizio Universale <br/>
+    NotificationViewedCreationRequestDetails:
+      type: object
+      required:
+        - recIndex
+      properties:
+        recIndex:
+          type: number
+          description: Index destinatario notifica digitale
+        legalfactId:
+          type: string
+          description: >-
+            Identificativo dell'atto opponibile a terzi del quale è stata
+            richiesta la creazione
+        eventTimestamp:
+          type: string
+          description: Data ricezione richiesta visualizzazione notifica
+          format: date-time
+        raddType:
+          $ref: '#/components/schemas/RaddType'
+        raddTransactionId:
+          $ref: '#/components/schemas/RaddTransactionId'
+        delegateInfo:
+          $ref: '#/components/schemas/DelegateInfo'
     NotificationViewedDetails:
       type: object
       required:
@@ -5155,66 +5184,6 @@ components:
         - NOTIFICATION_CANCELLATION_REQUEST
         - NOTIFICATION_CANCELLED
         - PREPARE_ANALOG_DOMICILE_FAILURE
-    schemas-DigitalAddress:
-      description: Indirizzo di invio della notifica
-      required:
-        - address
-        - type
-      type: object
-      properties:
-        type:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          type: string
-          description: tipo di indirizzo PEC, REM, SERCQ, ...
-        address:
-          x-field-extra-annotation: '@lombok.ToString.Exclude'
-          type: string
-          description: account@domain
-    schemas-DigitalDeliveryCreationRequestDetails:
-      type: object
-      required:
-        - recIndex
-        - digitalAddress
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-        endWorkflowStatus:
-          $ref: '#/components/schemas/EndWorkflowStatus'
-        completionWorkflowDate:
-          type: string
-          description: Data chiusura workflow
-          format: date-time
-        legalfactId:
-          type: string
-          description: >-
-            Identificativo dell'atto opponibile a terzi del quale è stata
-            richiesta la creazione
-    schemas-DigitalSuccessWorkflowDetails:
-      type: object
-      required:
-        - recIndex
-        - digitalAddress
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-    schemas-PublicRegistryResponseDetails:
-      type: object
-      required:
-        - recIndex
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-        physicalAddress:
-          $ref: '#/components/schemas/PhysicalAddress'
     NotificationRefusedErrorV20:
       type: object
       properties:
@@ -5243,165 +5212,6 @@ components:
           description: Motivazioni che hanno portato al rifiuto della notifica
           items:
             $ref: '#/components/schemas/NotificationRefusedErrorV20'
-    schemas-ScheduleDigitalWorkflowDetails:
-      type: object
-      required:
-        - recIndex
-        - digitalAddressSource
-        - sentAttemptMade
-        - lastAttemptDate
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        sentAttemptMade:
-          type: number
-        lastAttemptDate:
-          type: string
-          format: date-time
-    schemas-SendCourtesyMessageDetails:
-      type: object
-      required:
-        - recIndex
-        - digitalAddress
-        - sendDate
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-        sendDate:
-          type: string
-          description: data invio messaggio di cortesia
-          format: date-time
-        ioSendMessageResult:
-          $ref: '#/components/schemas/IoSendMessageResult'
-    schemas-PrepareDigitalDetails:
-      type: object
-      required:
-        - recIndex
-        - digitalAddressSource
-        - retryNumber
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        retryNumber:
-          type: number
-          description: numero dei tentativi effettuati
-        attemptDate:
-          type: string
-          description: data tentativo precedente
-          format: date-time
-        nextDigitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        nextSourceAttemptsMade:
-          type: number
-          description: numero del prossimo tentativo da effettuare
-        nextLastAttemptMadeForSource:
-          type: string
-          description: data tentativo precedente per prossimo source
-          format: date-time
-    schemas-SendDigitalDetails:
-      type: object
-      required:
-        - recIndex
-        - digitalAddress
-        - digitalAddressSource
-        - retryNumber
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        retryNumber:
-          type: number
-          description: numero dei tentativi effettuati
-    schemas-SendDigitalFeedbackDetails:
-      type: object
-      required:
-        - recIndex
-        - digitalAddress
-        - responseStatus
-        - notificationDate
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-        responseStatus:
-          $ref: '#/components/schemas/ResponseStatus'
-        notificationDate:
-          type: string
-          description: data notifica
-          format: date-time
-        deliveryFailureCause:
-          description: Codice errore, vuoto in caso di successo
-          type: string
-        deliveryDetailCode:
-          type: string
-          description: |
-            Stato - Codice relativo all'evento - Descrizione:
-              - PROGRESS   C000 = PREACCETTAZIONE
-              - PROGRESS   C001 = ACCETTAZIONE
-              - PROGRESS   C005 = PRESA_IN_CARICO
-              - PROGRESS   C007 = PREAVVISO_ERRORE_CONSEGNA
-              - PROGRESS   DP00 = RE-INVIO PEC CAUSA FALLIMENTO TEMPORANEO
-              - PROGRESS   DP10 = TIMEOUT RICEZIONE RISULTATO
-              - ERROR      C002 = NON_ACCETTAZIONE
-              - ERROR      C004 = ERRORE_CONSEGNA
-              - ERROR      C006 = RILEVAZIONE_VIRUS
-              - ERROR      C008 = ERRORE_COMUNICAZIONE_SERVER_PEC
-              - ERROR      C009 = ERRORE_DOMINIO_PEC_NON_VALIDO
-              - ERROR      C010 = ERROR_INVIO_PEC
-              - OK         C003 = AVVENUTA_CONSEGNA
-        sendingReceipts:
-          type: array
-          items:
-            $ref: '#/components/schemas/SendingReceipt'
-    schemas-SendDigitalProgressDetails:
-      type: object
-      properties:
-        recIndex:
-          type: number
-          description: Index destinatario notifica digitale
-        deliveryFailureCause:
-          description: Codice errore, opzionale
-          type: string
-        deliveryDetailCode:
-          type: string
-          description: Vedi deliveryDetailCode in SendDigitalFeedbackDetails
-        shouldRetry:
-          type: boolean
-          description: indica se il progress ha dato luogo ad un ritentativo
-        digitalAddress:
-          $ref: '#/components/schemas/schemas-DigitalAddress'
-        digitalAddressSource:
-          $ref: '#/components/schemas/DigitalAddressSource'
-        notificationDate:
-          type: string
-          description: data notifica
-          format: date-time
-        sendingReceipts:
-          type: array
-          items:
-            $ref: '#/components/schemas/SendingReceipt'
-        retryNumber:
-          type: number
-          description: numero dei tentativi effettuati
     NotificationPaidDetailsV20:
       type: object
       required:
@@ -5441,24 +5251,24 @@ components:
         - $ref: '#/components/schemas/AnalogSuccessWorkflowDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableCreationRequestDetails'
         - $ref: '#/components/schemas/CompletelyUnreachableDetails'
-        - $ref: '#/components/schemas/schemas-DigitalDeliveryCreationRequestDetails'
+        - $ref: '#/components/schemas/DigitalDeliveryCreationRequestDetails'
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
-        - $ref: '#/components/schemas/schemas-DigitalSuccessWorkflowDetails'
+        - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
         - $ref: '#/components/schemas/NotificationViewedCreationRequestDetails'
         - $ref: '#/components/schemas/NotificationViewedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
-        - $ref: '#/components/schemas/schemas-PublicRegistryResponseDetails'
+        - $ref: '#/components/schemas/PublicRegistryResponseDetails'
         - $ref: '#/components/schemas/RefinementDetails'
         - $ref: '#/components/schemas/RequestRefusedDetailsV20'
         - $ref: '#/components/schemas/ScheduleAnalogWorkflowDetails'
-        - $ref: '#/components/schemas/schemas-ScheduleDigitalWorkflowDetails'
+        - $ref: '#/components/schemas/ScheduleDigitalWorkflowDetails'
         - $ref: '#/components/schemas/ScheduleRefinementDetails'
-        - $ref: '#/components/schemas/schemas-SendCourtesyMessageDetails'
-        - $ref: '#/components/schemas/schemas-PrepareDigitalDetails'
-        - $ref: '#/components/schemas/schemas-SendDigitalDetails'
-        - $ref: '#/components/schemas/schemas-SendDigitalFeedbackDetails'
-        - $ref: '#/components/schemas/schemas-SendDigitalProgressDetails'
+        - $ref: '#/components/schemas/SendCourtesyMessageDetails'
+        - $ref: '#/components/schemas/PrepareDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalDetails'
+        - $ref: '#/components/schemas/SendDigitalFeedbackDetails'
+        - $ref: '#/components/schemas/SendDigitalProgressDetails'
         - $ref: '#/components/schemas/BaseAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogDetails'
         - $ref: '#/components/schemas/SendAnalogFeedbackDetails'

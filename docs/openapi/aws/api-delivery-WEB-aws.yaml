@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: cnlimXrH9YaAPTJU/EkH4mA6B/RtJqYsunzR7xy2Tbg=
+  version: ih8uhPdwqSabfYt4uu7C3Uz2yy2crCZ8W5CaBuI2H3E=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2790,7 +2790,7 @@ components:
           type: string
           description: Data tentativo
           format: date-time
-    RaddType:
+    RaddTypeV23:
       type: string
       description: |
         tipo di Rete Anti Digital Divide <br/>
@@ -2821,7 +2821,7 @@ components:
           type: string
         delegateType:
           $ref: '#/components/schemas/RecipientType'
-    NotificationViewedCreationRequestDetails:
+    NotificationViewedCreationRequestDetailsV23:
       type: object
       required:
         - recIndex
@@ -2839,7 +2839,7 @@ components:
           description: Data ricezione richiesta visualizzazione notifica
           format: date-time
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -2859,7 +2859,7 @@ components:
           example: 1220
           type: number
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         delegateInfo:
@@ -2880,7 +2880,7 @@ components:
           type: number
           description: Index destinatario notifica digitale
         raddType:
-          $ref: '#/components/schemas/RaddType'
+          $ref: '#/components/schemas/RaddTypeV23'
         raddTransactionId:
           $ref: '#/components/schemas/RaddTransactionId'
         eventTimestamp:
@@ -3612,7 +3612,7 @@ components:
         - $ref: '#/components/schemas/DigitalFailureWorkflowDetails'
         - $ref: '#/components/schemas/DigitalSuccessWorkflowDetails'
         - $ref: '#/components/schemas/GetAddressInfoDetails'
-        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetails'
+        - $ref: '#/components/schemas/NotificationViewedCreationRequestDetailsV23'
         - $ref: '#/components/schemas/NotificationViewedDetailsV23'
         - $ref: '#/components/schemas/NotificationRADDRetrievedDetails'
         - $ref: '#/components/schemas/PublicRegistryCallDetails'
