@@ -36,6 +36,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -59,6 +60,7 @@ public class NotificationAttachmentService {
     public static final String PRELOADED = "PRELOADED";
     private static final String ATTACHMENT_TYPE_PAGO_PA = "PAGOPA";
     private static final String ATTACHMENT_TYPE_F24 = "F24";
+    public static final double MIN_VERSION_PAFEE_VAT_MANDATORY = 2.3;
 
     private final PnSafeStorageClientImpl safeStorageClient;
     private final PnF24ClientImpl pnF24Client;
@@ -376,20 +378,22 @@ public class NotificationAttachmentService {
 
 
     private FileInfos callPNF24(Integer recipientIdx, List<String> pathTokens, InternalNotification notification, boolean applyCost, Integer paFee, String title, Integer vat) {
-        NotificationProcessCostResponse cost = pnDeliveryPushClient.getNotificationProcessCost(
-                notification.getIun(),
+        String iun = notification.getIun();
+        NotificationProcessCostResponse notificationProcessCost = pnDeliveryPushClient.getNotificationProcessCost(
+                iun,
                 recipientIdx,
                 notification.getNotificationFeePolicy() != null ? NotificationFeePolicy.valueOf(notification.getNotificationFeePolicy().getValue()) : null,
                 applyCost,
                 paFee,
                 vat
         );
+        Integer cost = getCost(notification, notificationProcessCost);
 
-        F24Response f24Response = pnF24Client.generatePDF(this.cfg.getF24CxId(), notification.getIun(), pathTokens, cost.getPartialCost());
+        F24Response f24Response = pnF24Client.generatePDF(this.cfg.getF24CxId(), iun, pathTokens, cost);
         FileDownloadResponse fileDownloadResponse = new FileDownloadResponse();
         FileDownloadInfo fileDownloadInfo = new FileDownloadInfo();
         String contentType = StringUtils.hasText(f24Response.getContentType()) ? f24Response.getContentType() : "application/pdf";
-        String fileName = buildFilename(notification.getIun(), title, contentType);
+        String fileName = buildFilename(iun, title, contentType);
         if (StringUtils.hasText(f24Response.getUrl())) {
             fileDownloadResponse.setChecksum(f24Response.getSha256());
             fileDownloadResponse.setContentType(contentType);
@@ -403,6 +407,25 @@ public class NotificationAttachmentService {
         }
         fileDownloadResponse.setDownload(fileDownloadInfo);
         return new FileInfos(fileName, fileDownloadResponse, null);
+    }
+
+    @NotNull
+    private static Integer getCost(InternalNotification notification, NotificationProcessCostResponse notificationProcessCost) {
+        Integer cost = notificationProcessCost.getTotalCost();
+        if (cost == null) {
+            String version = notification.getVersion();
+            String notificationFeePolicy = notification.getNotificationFeePolicy().getValue();
+            Double numberVersion = version != null ? Double.valueOf(version) : null;
+            if(NotificationFeePolicy.DELIVERY_MODE.getValue().equals(notificationFeePolicy) &&
+                    numberVersion != null && numberVersion >= MIN_VERSION_PAFEE_VAT_MANDATORY){
+                String msg = String.format("Unable to return total cost for iun=%s, version=%s, notificationFeePolicy=%s, paFee=%s, sendFee=%s, vat=%s, partialCost=%s",
+                        notification.getIun(), version, notificationFeePolicy, notificationProcessCost.getPaFee(), notificationProcessCost.getSendFee(), notificationProcessCost.getVat(), notificationProcessCost.getPartialCost());
+                log.error(msg);
+                throw new PnInternalException(msg, ERROR_CODE_DELIVERY_TOTALCOSTWITHOUTPAFEEORVAT);
+            }
+            cost = notificationProcessCost.getPartialCost();
+        }
+        return cost;
     }
 
     private String getFileKeyOfAttachment(String iun, NotificationRecipient doc, String attachmentName, Integer attachmentIdx, boolean isMVPTria) {

@@ -14,6 +14,7 @@ import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.Fil
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadInfo;
 import it.pagopa.pn.delivery.generated.openapi.msclient.safestorage.v1.model.FileDownloadResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationAttachmentDownloadMetadataResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadRequest;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.PreLoadResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
@@ -725,6 +726,7 @@ class NotificationAttachmentServiceTest {
         InternalNotification notification = new InternalNotification();
         notification.setPaFee(0);
         notification.setIun(iun);
+        notification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         NotificationRecipient notificationRecipient = new NotificationRecipient();
         notificationRecipient.setTaxId(taxid);
         NotificationPaymentInfo notificationPaymentInfo = new NotificationPaymentInfo();

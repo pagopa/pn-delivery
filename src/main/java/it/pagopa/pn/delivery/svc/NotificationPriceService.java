@@ -76,7 +76,7 @@ public class NotificationPriceService {
 
         boolean applyCost = getApplyCost(internalNotification, noticeCode);
 
-        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt(), applyCost, internalNotification.getPaFee(), internalNotification.getVat());
+        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientId, recipientIdx, applyCost);
 
         // invio l'evento di asseverazione sulla coda
         log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
@@ -147,7 +147,12 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt, boolean applyCost, Integer paFee, Integer vat) {
+    private NotificationProcessCostResponse getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, String recipientId, int recipientIdx, boolean applyCost) {
+        String iun = internalNotification.getIun();
+        OffsetDateTime sentAt = internalNotification.getSentAt();
+        Integer paFee = internalNotification.getPaFee();
+        Integer vat = internalNotification.getVat();
+
         // controllo che notifica sia stata accettata cercandola nella tabella notificationMetadata tramite PK iun##recipientId
         getNotificationMetadataEntity(iun, recipientId, sentAt);
 
