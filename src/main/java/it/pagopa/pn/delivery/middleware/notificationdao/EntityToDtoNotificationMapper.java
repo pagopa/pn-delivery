@@ -1,9 +1,9 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV23;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.*;
@@ -57,7 +57,7 @@ public class EntityToDtoNotificationMapper {
                 .paFee(entity.getPaFee())
                 .vat(entity.getVat())
                 .sourceChannelDetails(entity.getSourceChannelDetails())
-                .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV21.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
+                .pagoPaIntMode(entity.getPagoPaIntMode() != null ? NewNotificationRequestV23.PagoPaIntModeEnum.fromValue(entity.getPagoPaIntMode()) : null)
                 .version(entity.getVersion());
 
         return builder.build();
@@ -72,7 +72,7 @@ public class EntityToDtoNotificationMapper {
     private NotificationRecipient entity2Recipient(NotificationRecipientEntity entity) {
         return NotificationRecipient.builder()
                 .internalId(entity.getRecipientId())
-                .recipientType(NotificationRecipientV21.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
+                .recipientType(NotificationRecipientV23.RecipientTypeEnum.valueOf(entity.getRecipientType().getValue()))
                 .payments(entity2PaymentInfo(entity.getPayments()))
                 .build();
     }

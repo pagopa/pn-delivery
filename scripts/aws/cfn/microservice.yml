@@ -446,6 +446,32 @@ Parameters:
     Type: Number
     Description: web waf limit
 
+  # EFS parameters
+  FargateEFSFileSystemID:
+    Type: String
+    Description: "EFS Filesystem"
+
+  MountEfs:
+    Type: String
+    Default: false
+    AllowedValues:
+      - "true"
+      - "false"
+
+  # Logging parameters
+  WireTapLogActivation:
+    Type: String
+    Default: false
+    Description: Activation of wire logs
+    AllowedValues:
+      - true
+      - false
+
+  PnCronAnalyzer:
+    Type: String
+    Default: '-'
+    Description: Cron for which you send the metric to CloudWatch
+
 Conditions:
     SendLogToKinesis: !Not [ !Equals [ !Ref LogsKinesisSourceStreamArn, '' ] ]
 
@@ -472,6 +498,8 @@ Resources:
         MaxTasksNumber: !Ref MaxTasksNumber
         AutoscalingDataPointN: !Ref AutoscalingDataPointN
         AutoscalingDataPointM: !Ref AutoscalingDataPointM
+        EfsFilesystem: !Ref FargateEFSFileSystemID
+        MountEfs: !Ref MountEfs
         AlarmSNSTopicArn: !Ref AlarmSNSTopicArn
         ContainerImageURI: !Sub '${ContainerImageUri}'
         ContainerEnvEntry1: !Sub 'AWS_REGIONCODE=${AWS::Region}'
@@ -512,6 +540,8 @@ Resources:
         ContainerEnvEntry36: !Sub 'PN_DELIVERY_DENOMINATIONVALIDATIONREGEXVALUE=${DenominationValidationRegexValue}'
         ContainerEnvEntry37: 'PN_DELIVERY_F24CXID=pn-delivery'
         ContainerEnvEntry38: !Sub 'PN_DELIVERY_F24BASEURL=http://${ApplicationLoadBalancerDomain}:8080'
+        ContainerEnvEntry39: !Sub 'PN_CRON_ANALYZER=${PnCronAnalyzer}'
+        ContainerEnvEntry40: !Sub 'WIRE_TAP_LOG=${WireTapLogActivation}'
         ContainerSecret1: !Sub 'ASSERTION_REST_SUBSCRIPTION_KEY=arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:pn-Delivery-Secrets:AssertionRestSubscriptionKey:AWSCURRENT:'
         MicroServiceSecretPrefix: pn-Delivery-Secrets
         JavaToolOptions: '-Dreactor.netty.ioWorkerCount=120 -XX:MaxMetaspaceSize=512M'
@@ -745,6 +775,8 @@ Resources:
             Action:
               - sts:AssumeRole
       Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
       Policies:
         - PolicyName: !Sub ${ProjectName}-PnDeliveryInsertTriggerLambdaRolePolicy
           PolicyDocument:
@@ -961,6 +993,8 @@ Resources:
             Action:
               - sts:AssumeRole
       Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
       Policies:
         - PolicyName: !Sub ${ProjectName}-PnDeliveryAsseverationLambdaRolePolicy
           PolicyDocument:
@@ -1018,7 +1052,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs20.x
       FunctionName: !Ref PnDeliveryAsseverationLambdaName
       Description: 'It triggers the asseveration written of sqs'
       MemorySize: !Ref PnDeliveryAsseverationLambdaMemory
@@ -1031,25 +1065,20 @@ Resources:
           BUCKET_NAME: !Sub "${LogsBucketName}"
       Code:
         ZipFile: |
-              const AWS = require('aws-sdk')
+              const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
               const crypto = require('node:crypto');
 
-              const S3 = new AWS.S3();
               const BUCKET_NAME = process.env.BUCKET_NAME
-
-              function putObjectToS3(bucket, key, data){
-                  return new Promise( (accept, reject) => {
-                      const params = {
-                          Bucket : bucket,
-                          Key : key,
-                          Body : data
-                      }
-                      S3.putObject(params, function(err, data) {
-                          if (err) reject(err)
-                          else accept(data)
-                      });
-                  })
-                      
+              const client = new S3Client();
+              
+              async function putObjectToS3(bucket, key, data){
+                  const params = {
+                      Bucket : bucket,
+                      Key : key,
+                      Body : data
+                  }
+                  const command = new PutObjectCommand(params);
+                  await client.send(command);             
               }
 
               function uuidv4(crypto) {
@@ -1114,7 +1143,7 @@ Resources:
       Environment:
         Variables:
           REGION: !Sub ${AWS::Region}
-          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.1"
+          PN_DELIVERY_URL: !Sub "http://${ApplicationLoadBalancerDomain}:8080/delivery/v2.3"
       TracingConfig:
         Mode: Active
       Layers:
@@ -1160,6 +1189,7 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   VersioningV1V2GetNotificationLambdaAlarms:
     Type: AWS::CloudFormation::Stack
@@ -1254,6 +1284,7 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   VersioningV1V21SendNewNotificationLambdaAlarms:
     Type: AWS::CloudFormation::Stack
@@ -1347,6 +1378,7 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
 
   VersioningV1V21GetNotificationRequestStatusLambdaAlarms:
     Type: AWS::CloudFormation::Stack

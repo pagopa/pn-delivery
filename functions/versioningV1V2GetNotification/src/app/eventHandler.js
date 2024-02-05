@@ -36,6 +36,9 @@ exports.versioning = async (event, context) => {
 
   const url = `${process.env.PN_DELIVERY_URL}${path}${IUN}`;
 
+  // ora è necessario sapere da che versione sto invocando, per prendere le decisioni corrette.
+  let version = 10;
+
   let CATEGORIES = [
     "SENDER_ACK_CREATION_REQUEST",
     "VALIDATE_NORMALIZE_ADDRESSES_REQUEST",
@@ -79,9 +82,30 @@ exports.versioning = async (event, context) => {
 
   // v2.0 must add never categories to the allowed ones
   if (event["path"].startsWith("/delivery/v2.0/")) {
-    CATEGORIES.push("NOTIFICATION_CANCELLATION_REQUEST");
-    CATEGORIES.push("NOTIFICATION_CANCELLED");
-    CATEGORIES.push("PREPARE_ANALOG_DOMICILE_FAILURE");
+    version = 20;
+  }
+
+  // v2.1 must add never categories to the allowed ones
+  if (event["path"].startsWith("/delivery/v2.1/")) {
+    version = 21;
+  }
+
+  // v2.3 must add never categories to the allowed ones
+  // NB: sebbene (a oggi) la 2.3 non passa di qua, in futuro potrebbe e quindi si è già implementata
+  // la logica di traduzione (che probabilmente andrà aggiornata nel futuro)
+  if (event["path"].startsWith("/delivery/v2.3/")) {
+    version = 23;
+  }
+
+  if (version > 10)
+  {
+      CATEGORIES.push("NOTIFICATION_CANCELLATION_REQUEST");
+      CATEGORIES.push("NOTIFICATION_CANCELLED");
+      CATEGORIES.push("PREPARE_ANALOG_DOMICILE_FAILURE");
+      if (version >= 23)
+      {
+        CATEGORIES.push("NOTIFICATION_RADD_RETRIEVED");
+      }
   }
 
   const headers = JSON.parse(JSON.stringify(event["headers"]));
@@ -201,9 +225,15 @@ exports.versioning = async (event, context) => {
     );
     const pagoPaIntMode = transformPagoPaIntMode(responseV2.pagoPaIntMode);
 
-    const timeline = responseV2.timeline.filter((tl) =>
+    const timelineRaw = responseV2.timeline.filter((tl) =>
       CATEGORIES.includes(tl.category)
     );
+
+    // nella 2.3 sono stati aggiunti alcune proprietà in alcuni specifici details che vanno eliminati puntualmente
+    const timeline = timelineRaw.map((tl) =>
+      transformTimeline(tl, version)
+    );
+
     const timelineIds = [];
     for (const tl of timeline) timelineIds.push(tl.elementId);
 
@@ -252,6 +282,38 @@ exports.versioning = async (event, context) => {
     };
 
     return responseV1;
+  }
+
+  function transformTimeline(tl, version){
+    if (version < 23)
+    {
+      if (tl.category == "SEND_ANALOG_PROGRESS")
+      {
+        console.log("transformTimeline - " + tl.category);
+        // in 2.3 è stato aggiunto nel detail la property serviceLevel, che va rimossa
+        delete tl.details.serviceLevel;
+      }
+      else if (tl.category == "NOTIFICATION_VIEWED"
+                || tl.category == "REFINEMENT"
+                || tl.category == "SEND_DIGITAL_PROGRESS"
+                || tl.category == "PAYMENT")
+      {
+        console.log("transformTimeline - " + tl.category);
+        // in 2.3 è stato aggiunto nel detail la property eventTimestamp, che va rimossa
+        delete tl.details.eventTimestamp;
+      }
+      else if (tl.category == "SCHEDULE_ANALOG_WORKFLOW"
+                      || tl.category == "SCHEDULE_DIGITAL_WORKFLOW")
+      {
+        console.log("transformTimeline - " + tl.category);
+        // in 2.3 è stato aggiunto nel detail la property schedulingDate, che va rimossa
+        delete tl.details.schedulingDate;
+      }
+
+
+    }
+
+    return tl;
   }
 
   function transformRecipient(recipient) {
