@@ -58,10 +58,10 @@ class NotificationReceiverValidationTest {
   }
   @Test
   void invalidNotificationDeliveryModeNoPaFee() {
-    NewNotificationRequestV21 newNotificationRequest = newNotificationWithoutPayments();
+    NewNotificationRequestV23 newNotificationRequest = newNotificationWithoutPayments();
     newNotificationRequest.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
     newNotificationRequest.setVat(22);
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest);
 
     assertThat(errors, hasItems(
@@ -71,10 +71,10 @@ class NotificationReceiverValidationTest {
 
   @Test
   void invalidNotificationDeliveryModeNoVat() {
-    NewNotificationRequestV21 newNotificationRequest = newNotificationWithoutPayments();
+    NewNotificationRequestV23 newNotificationRequest = newNotificationWithoutPayments();
     newNotificationRequest.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
     newNotificationRequest.setPaFee(100);
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(newNotificationRequest);
 
     assertThat(errors, hasItems(

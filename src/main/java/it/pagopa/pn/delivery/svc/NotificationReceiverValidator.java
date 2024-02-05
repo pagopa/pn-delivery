@@ -87,7 +87,7 @@ public class NotificationReceiverValidator {
         // check campi paFee e vat per notifiche DELIVERY_MODE
         if( newNotificationRequestV2.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE) ) {
             if (Objects.isNull(newNotificationRequestV2.getPaFee()) || Objects.isNull(newNotificationRequestV2.getVat())) {
-                ConstraintViolationImpl<NewNotificationRequestV21> constraintViolation = new ConstraintViolationImpl<>("paFee or vat field not filled in for notification with notificationFeePolicy DELIVERY_MODE");
+                ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("paFee or vat field not filled in for notification with notificationFeePolicy DELIVERY_MODE");
                 errors.add( constraintViolation );
             }
         }
