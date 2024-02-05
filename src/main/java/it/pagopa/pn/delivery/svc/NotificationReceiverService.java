@@ -40,7 +40,7 @@ import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.Notification
 @Service
 @CustomLog
 public class NotificationReceiverService {
-	public static final String LATEST_NOTIFICATION_VERSION = "2.1";
+	public static final String LATEST_NOTIFICATION_VERSION = "2.3";
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;

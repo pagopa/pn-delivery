@@ -7,7 +7,7 @@ import it.pagopa.pn.delivery.exception.PnNotificationNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationFeePolicy;
 import it.pagopa.pn.delivery.generated.openapi.msclient.deliverypush.v1.model.NotificationProcessCostResponse;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationCostResponse;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponseV23;
 import it.pagopa.pn.delivery.middleware.AsseverationEventsProducer;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.middleware.notificationdao.NotificationCostEntityDao;
@@ -60,7 +60,7 @@ public class NotificationPriceService {
         this.refinementLocalDateUtils = refinementLocalDateUtils;
     }
 
-    public NotificationPriceResponse getNotificationPrice(String paTaxId, String noticeCode) {
+    public NotificationPriceResponseV23 getNotificationPrice(String paTaxId, String noticeCode) {
         log.info( "Get notification price for paTaxId={} noticeCode={}", paTaxId, noticeCode );
         InternalNotificationCost internalNotificationCost = getInternalNotificationCost(paTaxId, noticeCode);
         String iun = internalNotificationCost.getIun();
@@ -76,7 +76,7 @@ public class NotificationPriceService {
 
         boolean applyCost = getApplyCost(internalNotification, noticeCode);
 
-        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(iun, recipientId, recipientIdx, notificationFeePolicy, internalNotification.getSentAt(), applyCost, 0);
+        NotificationProcessCostResponse notificationProcessCost = getNotificationProcessCost(internalNotification, notificationFeePolicy, recipientId, recipientIdx, applyCost);
 
         // invio l'evento di asseverazione sulla coda
         log.info( "Send asseveration event iun={} creditorTaxId={} noticeCode={}", iun, paTaxId, noticeCode );
@@ -85,8 +85,13 @@ public class NotificationPriceService {
         );
 
         // creazione dto response
-        return NotificationPriceResponse.builder()
-                .amount( notificationProcessCost.getAmount() )
+        return NotificationPriceResponseV23.builder()
+                .partialPrice(notificationProcessCost.getPartialCost())
+                .totalPrice(notificationProcessCost.getTotalCost())
+                .analogCost(notificationProcessCost.getAnalogCost())
+                .paFee(notificationProcessCost.getPaFee())
+                .sendFee(notificationProcessCost.getSendFee())
+                .vat(notificationProcessCost.getVat())
                 .refinementDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getRefinementDate() ) )
                 .notificationViewDate( refinementLocalDateUtils.setLocalRefinementDate( notificationProcessCost.getNotificationViewDate() ) )
                 .iun( iun )
@@ -142,14 +147,19 @@ public class NotificationPriceService {
         }
     }
 
-    private NotificationProcessCostResponse getNotificationProcessCost(String iun, String recipientId, int recipientIdx, NotificationFeePolicy notificationFeePolicy, OffsetDateTime sentAt, boolean applyCost, Integer paFee) {
+    private NotificationProcessCostResponse getNotificationProcessCost(InternalNotification internalNotification, NotificationFeePolicy notificationFeePolicy, String recipientId, int recipientIdx, boolean applyCost) {
+        String iun = internalNotification.getIun();
+        OffsetDateTime sentAt = internalNotification.getSentAt();
+        Integer paFee = internalNotification.getPaFee();
+        Integer vat = internalNotification.getVat();
+
         // controllo che notifica sia stata accettata cercandola nella tabella notificationMetadata tramite PK iun##recipientId
         getNotificationMetadataEntity(iun, recipientId, sentAt);
 
         // contatto delivery-push per farmi calcolare tramite iun, recipientIdx, notificationFeePolicy costo della notifica
         // delivery-push mi risponde con amount, data perfezionamento presa visione, data perfezionamento decorrenza termini
         try {
-            return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy, applyCost, paFee);
+            return deliveryPushClient.getNotificationProcessCost(iun, recipientIdx, notificationFeePolicy, applyCost, paFee, vat);
         } catch (Exception exc) {
             // nel caso in cui la risposta da parte di delivery push è un 404, devo controllare che la causale
             // sia per colpa della notifica cancellata. Se si, ritorno a mia volta un 404, altrimenti ritorno

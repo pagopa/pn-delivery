@@ -597,59 +597,7 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-
-
-  '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
-    get:                                                                            # ONLY EXTERNAL
-      operationId: getNotificationPrice                                             # NO EXTERNAL
-#      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
-      summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
-      description: >-                                                               # ONLY EXTERNAL
-        Usata dalla PA per recuperare il costo di notificazione tramite
-         l'identificativo della posizione debitoria paTaxId e noticeCode.
-      tags:                                                                         # ONLY EXTERNAL
-        - NotificationPrice                                                         # ONLY EXTERNAL
-      parameters:                                                                   # ONLY EXTERNAL
-        - name: paTaxId                                                             # ONLY EXTERNAL
-          description: Payment PA fiscal code                                       # ONLY EXTERNAL
-          in: path                                                                  # ONLY EXTERNAL
-          required: true                                                            # ONLY EXTERNAL
-          example: '77777777777'                                                    # ONLY EXTERNAL
-          schema:                                                                   # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'        # ONLY EXTERNAL
-        - name: noticeCode                                                          # ONLY EXTERNAL
-          description: Payment notice number  numero avviso                         # ONLY EXTERNAL
-          in: path                                                                  # ONLY EXTERNAL
-          required: true                                                            # ONLY EXTERNAL
-          example: '302000100000019421'                                             # ONLY EXTERNAL
-          schema:                                                                   # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'     # ONLY EXTERNAL
-      responses:                                                                    # ONLY EXTERNAL
-        '200':                                                                      # ONLY EXTERNAL
-          description: OK                                                           # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/NotificationPriceResponse'              # ONLY EXTERNAL
-        '400':                                                                      # ONLY EXTERNAL
-          description: Invalid input                                                # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-        '404':                                                                      # ONLY EXTERNAL
-          description: Not Found                                                    # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-        '500':                                                                      # ONLY EXTERNAL
-          description: Internal Server Error                                        # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+                $ref: '#/components/schemas/Problem'                                
 
   "/delivery/v2.3/price/{paTaxId}/{noticeCode}":
     get:

@@ -84,6 +84,14 @@ public class NotificationReceiverValidator {
             return errors;
         }
 
+        // check campi paFee e vat per notifiche DELIVERY_MODE
+        if( newNotificationRequestV2.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE) ) {
+            if (Objects.isNull(newNotificationRequestV2.getPaFee()) || Objects.isNull(newNotificationRequestV2.getVat())) {
+                ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("paFee or vat field not filled in for notification with notificationFeePolicy DELIVERY_MODE");
+                errors.add( constraintViolation );
+            }
+        }
+
         int recIdx = 0;
         Set<String> distinctTaxIds = new HashSet<>();
         Set<String> distinctIuvs = new HashSet<>();
@@ -111,11 +119,11 @@ public class NotificationReceiverValidator {
             NotificationPhysicalAddress physicalAddress = recipient.getPhysicalAddress();
             checkProvinceV2(errors, physicalAddress);
             recIdx++;
-      }
-      errors.addAll(validator.validate( newNotificationRequestV2 ));
-      errors.addAll( this.checkPhysicalAddress( newNotificationRequestV2 ));
+        }
+        errors.addAll(validator.validate( newNotificationRequestV2 ));
+        errors.addAll( this.checkPhysicalAddress( newNotificationRequestV2 ));
         errors.addAll(this.checkDenomination( newNotificationRequestV2 ));
-      return errors;
+        return errors;
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV23>> checkPhysicalAddress(NewNotificationRequestV23 internalNotification) {

@@ -38,6 +38,7 @@ public class DtoToEntityNotificationMapper {
                 .sourceChannel( dto.getSourceChannel() )
                 .sourceChannelDetails( dto.getSourceChannelDetails() )
                 .paFee(dto.getPaFee())
+                .vat(dto.getVat())
                 .version( dto.getVersion() );
 
         return builder.build();

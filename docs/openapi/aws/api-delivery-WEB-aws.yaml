@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: QLX6DKSig31Ow0+eyi9xdHkd6AilIET5QDke3genRrw=
+  version: O3ub4jT/tmkJO1emCeJvghCEhWKLlZp2l1b1DqvhzJg=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -442,91 +442,6 @@ paths:
           integration.request.path.iun: method.request.path.iun
           integration.request.path.recipientIdx: method.request.path.recipientIdx
           integration.request.path.attachmentName: method.request.path.attachmentName
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-  /price/{paTaxId}/{noticeCode}:
-    get:
-      operationId: retrieveNotificationPrice
-      summary: Retrieve notification price and effective date
-      description: |-
-        Usata dalla PA per recuperare il costo di notificazione tramite
-         l'identificativo della posizione debitoria paTaxId e noticeCode.
-      tags:
-        - NotificationPrice
-      parameters:
-        - name: paTaxId
-          description: Payment PA fiscal code
-          in: path
-          required: true
-          example: '77777777777'
-          schema:
-            $ref: '#/components/schemas/paTaxId'
-        - name: noticeCode
-          description: Payment notice number  numero avviso
-          in: path
-          required: true
-          example: '302000100000019421'
-          schema:
-            $ref: '#/components/schemas/noticeCode'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationPriceResponse'
-        '400':
-          description: Invalid input
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-      security:
-        - pn-auth-fleet_jwtAuthorizer_openapi: []
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/price/{paTaxId}/{noticeCode}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.header.x-pagopa-pn-cx-id: context.authorizer.cx_id
-          integration.request.header.x-pagopa-pn-cx-role: context.authorizer.cx_role
-          integration.request.header.x-pagopa-pn-uid: context.authorizer.uid
-          integration.request.header.x-pagopa-pn-jti: context.authorizer.cx_jti
-          integration.request.header.x-pagopa-pn-src-ch: '''WEB'''
-          integration.request.header.x-pagopa-pn-cx-type: context.authorizer.cx_type
-          integration.request.header.x-pagopa-pn-cx-groups: context.authorizer.cx_groups
-          integration.request.header.x-pagopa-pn-src-ch-details: context.authorizer.sourceChannelDetails
-          integration.request.path.paTaxId: method.request.path.paTaxId
-          integration.request.path.noticeCode: method.request.path.noticeCode
-        passthroughBehavior: when_no_match
-        connectionType: VPC_LINK
-        timeoutInMillis: 29000
-        type: http_proxy
-    options:
-      operationId: Options for /price/{paTaxId}/{noticeCode} API CORS
-      x-amazon-apigateway-integration:
-        uri: >-
-          http://${stageVariables.ApplicationLoadBalancerDomain}:8080/${stageVariables.ServiceApiPath}/price/{paTaxId}/{noticeCode}
-        connectionId: ${stageVariables.NetworkLoadBalancerLink}
-        httpMethod: ANY
-        requestParameters:
-          integration.request.path.paTaxId: method.request.path.paTaxId
-          integration.request.path.noticeCode: method.request.path.noticeCode
         passthroughBehavior: when_no_match
         connectionType: VPC_LINK
         timeoutInMillis: 29000

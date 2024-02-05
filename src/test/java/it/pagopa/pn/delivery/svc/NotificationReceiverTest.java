@@ -627,7 +627,7 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequestV23 newNotificationRequest = newNotificationWithoutPayments();
 		newNotificationRequest.setGroup(null);
-		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
+		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
 		// When
 		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null );
 
@@ -640,7 +640,7 @@ class NotificationReceiverTest {
 		// Given
 		NewNotificationRequestV23 newNotificationRequest = newNotificationWithoutPayments();
 		newNotificationRequest.setGroup(null);
-		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
+		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.FLAT_RATE );
 		// When
 		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, "1" );
 
@@ -726,6 +726,8 @@ class NotificationReceiverTest {
 	private NewNotificationRequestV23 newNotificationWithPaymentsDeliveryMode( ) {
 		NewNotificationRequestV23 notification = newNotificationWithoutPayments( );
 		notification.notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
+		notification.setPaFee(100);
+		notification.setVat(22);
 
 		for( NotificationRecipientV23 recipient : notification.getRecipients()) {
 			recipient.payments( List.of(NotificationPaymentItem.builder()

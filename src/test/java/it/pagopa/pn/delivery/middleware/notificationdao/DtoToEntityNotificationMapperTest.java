@@ -30,6 +30,7 @@ class DtoToEntityNotificationMapperTest {
     public static final String X_PAGOPA_PN_SRC_CH = "B2B";
     public static final String NOTICE_CODE = "302211675775915057";
     public static final String CREDITOR_TAX_ID = "77777777777";
+    public static final Integer VAT = 22;
     private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 
     private DtoToEntityNotificationMapper mapper;
@@ -49,6 +50,7 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
+        assertEquals( VAT, notificationEntity.getVat() );
 
     }
 
@@ -158,6 +160,7 @@ class DtoToEntityNotificationMapperTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setPaFee(0);
+        internalNotification.setVat(VAT);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setDocuments(List.of(NotificationDocument
                 .builder()
