@@ -111,6 +111,9 @@ components:
             documentsAvailable:
               type: boolean
               description: Indica se i documenti notificati sono ancora disponibili.
+            version:                                                    # NO EXTERNAL
+              type: string                                              # NO EXTERNAL
+              description: Indica la versione della notifica            # NO EXTERNAL
 
     NewNotificationRequestV23:
       description: I campi utilizzati per la creazione di una nuova Notifica.
