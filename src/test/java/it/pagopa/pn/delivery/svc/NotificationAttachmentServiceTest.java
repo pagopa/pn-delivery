@@ -522,6 +522,25 @@ class NotificationAttachmentServiceTest {
     }
 
     @Test
+    void computeFileInfoInternalExcNoTotalCost() {
+        // Given
+        InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
+        notification.setVersion("2.3");
+        NotificationAttachmentService.FileDownloadIdentify fileDownloadIdentify =
+                NotificationAttachmentService.FileDownloadIdentify.create(null, 0, "F24", null);
+
+        NotificationProcessCostResponse cost = new NotificationProcessCostResponse();
+        cost.setPartialCost(200);
+        cost.setRefinementDate(OffsetDateTime.parse("2023-09-25T10:00:00Z"));
+        cost.setNotificationViewDate(OffsetDateTime.parse("2023-09-25T11:00:00Z"));
+        when(pnDeliveryPushClient.getNotificationProcessCost(anyString(), anyInt(), any(), anyBoolean(), any(), any())).thenReturn(cost);
+
+        Executable todo = () -> attachmentService.computeFileInfo(fileDownloadIdentify, notification);
+
+        Assertions.assertThrows(PnInternalException.class, todo);
+    }
+
+    @Test
     void computeFileInfoDefaultContentType() {
         // Given
         InternalNotification notification = buildNotification(IUN, X_PAGOPA_PN_CX_ID);
