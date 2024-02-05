@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.pnclient.deliverypush;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,12 +41,12 @@ class PnDeliveryPushClientImplTest {
     @Test
     void testGetNotificationProcessCost() throws RestClientException {
         NotificationProcessCostResponse notificationProcessCostResponse = new NotificationProcessCostResponse();
-        when(notificationProcessCostApi.notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any(), anyBoolean(), Mockito.<Integer>any())).thenReturn(notificationProcessCostResponse);
+        when(notificationProcessCostApi.notificationProcessCost(anyString(), anyInt(),
+                any(), anyBoolean(), anyInt(), anyInt())).thenReturn(notificationProcessCostResponse);
         assertSame(notificationProcessCostResponse,
-                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.FLAT_RATE, false, 0));
-        verify(notificationProcessCostApi).notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any(), anyBoolean(), Mockito.<Integer>any());
+                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.FLAT_RATE, false, 0, 22));
+        verify(notificationProcessCostApi).notificationProcessCost(anyString(), anyInt(),
+                any(), anyBoolean(), anyInt(), anyInt());
     }
 
     /**
@@ -66,12 +66,12 @@ class PnDeliveryPushClientImplTest {
     @Test
     void testGetNotificationProcessCost2() throws RestClientException {
         NotificationProcessCostResponse notificationProcessCostResponse = new NotificationProcessCostResponse();
-        when(notificationProcessCostApi.notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any(), anyBoolean(), Mockito.<Integer>any())).thenReturn(notificationProcessCostResponse);
+        when(notificationProcessCostApi.notificationProcessCost( anyString(), anyInt(),
+                any(), anyBoolean(), anyInt(), anyInt())).thenReturn(notificationProcessCostResponse);
         assertSame(notificationProcessCostResponse,
-                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0));
-        verify(notificationProcessCostApi).notificationProcessCost(Mockito.<String>any(), Mockito.<Integer>any(),
-                Mockito.<NotificationFeePolicy>any(), anyBoolean(), Mockito.<Integer>any());
+                pnDeliveryPushClientImpl.getNotificationProcessCost("Iun", 1, NotificationFeePolicy.DELIVERY_MODE, false, 0, 22));
+        verify(notificationProcessCostApi).notificationProcessCost(anyString(), anyInt(),
+                any(), anyBoolean(), anyInt(), anyInt());
     }
 }
 

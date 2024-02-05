@@ -3,6 +3,7 @@ package it.pagopa.pn.delivery.rest;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotificationCancelledException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponse;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationPriceResponseV23;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.svc.NotificationPriceService;
 import org.junit.jupiter.api.Test;
@@ -34,17 +35,17 @@ class PnNotificationPriceControllerTest {
     @Test
     void getPriceSuccess() {
         //Given
-        NotificationPriceResponse priceResponse = NotificationPriceResponse.builder()
+        NotificationPriceResponseV23 priceResponse = NotificationPriceResponseV23.builder()
                 .iun( "iun" )
                 .refinementDate( OffsetDateTime.now() )
-                .amount( 2000 )
+                .partialPrice( 2000 )
                 .build();
 
         //When
         Mockito.when( service.getNotificationPrice( Mockito.anyString(), Mockito.anyString() ) ).thenReturn( priceResponse );
 
         webTestClient.get()
-                .uri( "/delivery/price/{paTaxId}/{noticeCode}"
+                .uri( "/delivery/v2.3/price/{paTaxId}/{noticeCode}"
                         .replace( "{paTaxId}", PA_TAX_ID )
                         .replace( "{noticeCode}", NOTICE_CODE ))
                 .accept( MediaType.APPLICATION_JSON )
@@ -99,7 +100,7 @@ class PnNotificationPriceControllerTest {
         Mockito.when( service.getNotificationPrice( PA_TAX_ID, NOTICE_CODE ) ).thenThrow( exception );
 
         webTestClient.get()
-                .uri( "/delivery/price/{paTaxId}/{noticeCode}"
+                .uri( "/delivery/v2.3/price/{paTaxId}/{noticeCode}"
                         .replace( "{paTaxId}", PA_TAX_ID )
                         .replace( "{noticeCode}", NOTICE_CODE ))
                 .accept( MediaType.APPLICATION_JSON )

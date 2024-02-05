@@ -298,6 +298,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
+  '/delivery/price/{paTaxId}/{noticeCode}':
+    get:
+      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
+      summary: Retrieve notification price and effective date                       
+      description: >-                                                               
+        Usata dalla PA per recuperare il costo di notificazione tramite
+         l'identificativo della posizione debitoria paTaxId e noticeCode.
+      tags:                                                                         
+        - NotificationPrice                                                         
+      parameters:                                                                   
+        - name: paTaxId                                                             
+          description: Payment PA fiscal code                                       
+          in: path                                                                  
+          required: true                                                            
+          example: '77777777777'                                                    
+          schema:                                                                   
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'        
+        - name: noticeCode                                                          
+          description: Payment notice number  numero avviso                         
+          in: path                                                                  
+          required: true                                                            
+          example: '302000100000019421'                                             
+          schema:                                                                   
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'     
+      responses:                                                                    
+        '200':                                                                      
+          description: OK                                                           
+          content:                                                                  
+            application/json:                                                       
+              schema:                                                               
+                $ref: '#/components/schemas/NotificationPriceResponse'              
+        '400':                                                                      
+          description: Invalid input                                                
+          content:                                                                  
+            application/problem+json:                                               
+              schema:                                                               
+                $ref: '#/components/schemas/Problem'                                
+        '404':                                                                      
+          description: Not Found                                                    
+          content:                                                                  
+            application/problem+json:                                               
+              schema:                                                               
+                $ref: '#/components/schemas/Problem'                                
+        '500':                                                                      
+          description: Internal Server Error                                        
+          content:                                                                  
+            application/problem+json:                                               
+              schema:                                                               
+                $ref: '#/components/schemas/Problem'  
+
 
 components:
 
