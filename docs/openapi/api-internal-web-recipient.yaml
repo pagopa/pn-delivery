@@ -132,7 +132,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
 
-  "/delivery/v2.1/notifications/received/{iun}":
+  "/delivery/v2.3/notifications/received/{iun}":
     get:
       summary: Accesso notifiche ricevute
       description: >-
@@ -140,7 +140,7 @@ paths:
         notifiche ricevute.
       tags:
         - RecipientRead
-      operationId: getReceivedNotificationV21
+      operationId: getReceivedNotificationV23
 #      security:                                      # ONLY EXTERNAL
 #        - bearerAuth: [ ]                            # ONLY EXTERNAL
       parameters:
@@ -156,7 +156,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullReceivedNotificationV21"
+                $ref: "#/components/schemas/FullReceivedNotificationV23"
         '400':
           description: Bad request
           content:
@@ -450,12 +450,12 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   schemas:
-    FullReceivedNotificationV21:
+    FullReceivedNotificationV23:
       description: >-
         Le informazioni riguardanti una richiesta di notifica accettata e il processo di 
         inoltro della notifica verso i destinatari (Persone Fisiche o Giuridiche).
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV21'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV23'
         - type: object
           required:
             - notificationStatus
@@ -471,13 +471,13 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV20'
+                $ref: '#/components/schemas/TimelineElementV23'
 
     Problem:
       $ref: './remote-refs.yaml#/components/schemas/Problem'
 
-    TimelineElementV20:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV20'
+    TimelineElementV23:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV23'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:

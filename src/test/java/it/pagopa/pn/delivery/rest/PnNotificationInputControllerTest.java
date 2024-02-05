@@ -57,7 +57,7 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postSuccess() throws PnIdConflictException {
 		// Given
-		NewNotificationRequestV21 notificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 						.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
@@ -66,7 +66,7 @@ class PnNotificationInputControllerTest {
 		// When
 		Mockito.when(deliveryService.receiveNotification(
 						Mockito.anyString(),
-						Mockito.any( NewNotificationRequestV21.class ),
+						Mockito.any( NewNotificationRequestV23.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyList(),
@@ -75,10 +75,10 @@ class PnNotificationInputControllerTest {
 
 		// Then
 		webTestClient.post()
-                .uri("/delivery/v2.1/requests")
+                .uri("/delivery/v2.3/requests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(Mono.just(notificationRequest), NewNotificationRequestV21.class)
+                .body(Mono.just(notificationRequest), NewNotificationRequestV23.class)
                 .header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
@@ -99,7 +99,7 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postSuccessWithSourceChannelDetails() throws PnIdConflictException {
 		// Given
-		NewNotificationRequestV21 notificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
@@ -108,7 +108,7 @@ class PnNotificationInputControllerTest {
 		// When
 		Mockito.when(deliveryService.receiveNotification(
 				Mockito.anyString(),
-				Mockito.any( NewNotificationRequestV21.class ),
+				Mockito.any( NewNotificationRequestV23.class ),
 				Mockito.anyString(),
 				Mockito.anyString(),
 				Mockito.anyList(),
@@ -117,10 +117,10 @@ class PnNotificationInputControllerTest {
 
 		// Then
 		webTestClient.post()
-				.uri("/delivery/v2.1/requests")
+				.uri("/delivery/v2.3/requests")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(notificationRequest), NewNotificationRequestV21.class)
+				.body(Mono.just(notificationRequest), NewNotificationRequestV23.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
@@ -142,7 +142,7 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postSuccessWithNotificationVersion() throws PnIdConflictException {
 		// Given
-		NewNotificationRequestV21 notificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 notificationRequest = newNotificationRequest();
 
 		NewNotificationResponse savedNotification = NewNotificationResponse.builder()
 				.notificationRequestId( Base64Utils.encodeToString(IUN.getBytes(StandardCharsets.UTF_8)) )
@@ -151,7 +151,7 @@ class PnNotificationInputControllerTest {
 		// When
 		Mockito.when(deliveryService.receiveNotification(
 				Mockito.anyString(),
-				Mockito.any( NewNotificationRequestV21.class ),
+				Mockito.any( NewNotificationRequestV23.class ),
 				Mockito.anyString(),
 				Mockito.anyString(),
 				Mockito.anyList(),
@@ -160,10 +160,10 @@ class PnNotificationInputControllerTest {
 
 		// Then
 		webTestClient.post()
-				.uri("/delivery/v2.1/requests")
+				.uri("/delivery/v2.3/requests")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(notificationRequest), NewNotificationRequestV21.class)
+				.body(Mono.just(notificationRequest), NewNotificationRequestV23.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
@@ -183,15 +183,15 @@ class PnNotificationInputControllerTest {
 				"1");
 	}
 
-	private NewNotificationRequestV21 newNotificationRequest() {
-		return NewNotificationRequestV21.builder()
+	private NewNotificationRequestV23 newNotificationRequest() {
+		return NewNotificationRequestV23.builder()
 				.group( "group" )
 				.senderDenomination( "Comune di Milano" )
 				.senderTaxId( "01199250158" )
 				.paProtocolNumber( "protocol_number" )
 				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-				.recipients( Collections.singletonList( NotificationRecipientV21.builder()
-								.recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+				.recipients( Collections.singletonList( NotificationRecipientV23.builder()
+								.recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
 								.taxId( "LVLDAA85T50G702B" )
 								.denomination( "Ada Lovelace" )
 								.digitalDomicile( NotificationDigitalAddress.builder()
@@ -216,7 +216,7 @@ class PnNotificationInputControllerTest {
 										.versionToken( "version_token" )
 										.build() )
 						.build() ) )
-				.physicalCommunicationType( NewNotificationRequestV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				.physicalCommunicationType( NewNotificationRequestV23.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				.subject( "subject_length" )
 				.taxonomyCode( "010101P" )
 				.build();
@@ -225,7 +225,7 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postFailure() {
 		// Given
-		NewNotificationRequestV21 request = newNotificationRequest();
+		NewNotificationRequestV23 request = newNotificationRequest();
 		Map<String,String> conflictMap = new HashMap<>();
 		conflictMap.put( "noticeCode", "duplicatedNoticeCode" );
 		PnIdConflictException exception = new PnIdConflictException( conflictMap );
@@ -233,7 +233,7 @@ class PnNotificationInputControllerTest {
 		// When
 		Mockito.when( deliveryService.receiveNotification(
 						Mockito.anyString(),
-						Mockito.any( NewNotificationRequestV21.class ),
+						Mockito.any( NewNotificationRequestV23.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.isNull(),
@@ -242,10 +242,10 @@ class PnNotificationInputControllerTest {
 
 		//Then
 		webTestClient.post()
-				.uri("/delivery/v2.1/requests")
+				.uri("/delivery/v2.3/requests")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(request), NewNotificationRequestV21.class)
+				.body(Mono.just(request), NewNotificationRequestV23.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
@@ -258,14 +258,14 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postFailureBindExc() {
 		// Given
-		NewNotificationRequestV21 request = newNotificationRequest();
+		NewNotificationRequestV23 request = newNotificationRequest();
 		request.setPaProtocolNumber( null );
 
 		webTestClient.post()
-				.uri("/delivery/v2.1/requests")
+				.uri("/delivery/v2.3/requests")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(request), NewNotificationRequestV21.class)
+				.body(Mono.just(request), NewNotificationRequestV23.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
@@ -277,15 +277,15 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postFailureRuntimeExc() {
 		// Given
-		NewNotificationRequestV21 request = newNotificationRequest();
+		NewNotificationRequestV23 request = newNotificationRequest();
 
 		Mockito.when( deliveryService.receiveNotification( PA_ID, request, X_PAGOPA_PN_SRC_CH,null, Collections.emptyList(), null ) ).thenThrow( RuntimeException.class );
 
 		webTestClient.post()
-				.uri("/delivery/v2.1/requests")
+				.uri("/delivery/v2.3/requests")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(request), NewNotificationRequestV21.class)
+				.body(Mono.just(request), NewNotificationRequestV23.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PA"  )
@@ -298,7 +298,7 @@ class PnNotificationInputControllerTest {
 	@Test
 	void postSuccessWithAmount() throws PnIdConflictException {
 		// Given
-		NewNotificationRequestV21 notificationRequest = NewNotificationRequestV21.builder()
+		NewNotificationRequestV23 notificationRequest = NewNotificationRequestV23.builder()
 				.group( "group" )
 				.senderDenomination( "Comune di Milano" )
 				.senderTaxId( "01199250158" )
@@ -307,8 +307,8 @@ class PnNotificationInputControllerTest {
 				.amount(10000)
 				.paymentExpirationDate("2023-10-22")
 				.notificationFeePolicy( NotificationFeePolicy.FLAT_RATE )
-				.recipients( Collections.singletonList( NotificationRecipientV21.builder()
-						.recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+				.recipients( Collections.singletonList( NotificationRecipientV23.builder()
+						.recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
 						.taxId( "LVLDAA85T50G702B" )
 						.denomination( "Ada Lovelace" )
 						.digitalDomicile( NotificationDigitalAddress.builder()
@@ -332,7 +332,7 @@ class PnNotificationInputControllerTest {
 								.versionToken( "version_token" )
 								.build() )
 						.build() ) )
-				.physicalCommunicationType( NewNotificationRequestV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				.physicalCommunicationType( NewNotificationRequestV23.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				.subject( "subject_length" )
 				.build();
 
@@ -343,7 +343,7 @@ class PnNotificationInputControllerTest {
 		// When
 		Mockito.when(deliveryService.receiveNotification(
 						Mockito.anyString(),
-						Mockito.any( NewNotificationRequestV21.class ),
+						Mockito.any( NewNotificationRequestV23.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyList(),
@@ -352,10 +352,10 @@ class PnNotificationInputControllerTest {
 
 		// Then
 		webTestClient.post()
-				.uri("/delivery/v2.1/requests")
+				.uri("/delivery/v2.3/requests")
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.body(Mono.just(notificationRequest), NewNotificationRequestV21.class)
+				.body(Mono.just(notificationRequest), NewNotificationRequestV23.class)
 				.header(PnDeliveryRestConstants.CX_ID_HEADER, PA_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF"  )
@@ -366,7 +366,7 @@ class PnNotificationInputControllerTest {
 
 		Mockito.verify( deliveryService ).receiveNotification(
 						Mockito.anyString(),
-						Mockito.any( NewNotificationRequestV21.class ),
+						Mockito.any( NewNotificationRequestV23.class ),
 						Mockito.anyString(),
 						Mockito.isNull(),
 						Mockito.anyList(),

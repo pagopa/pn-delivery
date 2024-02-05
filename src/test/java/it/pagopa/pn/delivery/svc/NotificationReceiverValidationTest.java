@@ -107,9 +107,9 @@ class NotificationReceiverValidationTest {
   @Disabled
   void invalidRecipientPGTaxId() {
     // Given
-    NewNotificationRequestV21 n = newNotificationPG();
+    NewNotificationRequestV23 n = newNotificationPG();
     // When
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -285,10 +285,10 @@ class NotificationReceiverValidationTest {
   @Test
   void duplicatedRecipientTaxId() {
     // Given
-    NewNotificationRequestV21 n = newNotificationDuplicateRecipient();
+    NewNotificationRequestV23 n = newNotificationDuplicateRecipient();
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -298,10 +298,10 @@ class NotificationReceiverValidationTest {
   @Test
   void applyCostNotGivenWhenNotificationIsDeliveryMode() {
     // Given
-    NewNotificationRequestV21 n = newNotificationWithPaymentsWithoutApplyCosts();
+    NewNotificationRequestV23 n = newNotificationWithPaymentsWithoutApplyCosts();
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -313,10 +313,10 @@ class NotificationReceiverValidationTest {
   @Test
   void applyCostGivenWhenNotificationIsFlatRate() {
     // Given
-    NewNotificationRequestV21 n = newNotificationWithApplyCostsAndFeePolicyFlatRate();
+    NewNotificationRequestV23 n = newNotificationWithApplyCostsAndFeePolicyFlatRate();
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // Then
@@ -328,10 +328,10 @@ class NotificationReceiverValidationTest {
   @Test
   void validationFailsWhenNotificationHasDuplicatedIuvs() {
     // Given
-    NewNotificationRequestV21 notification = newNotificationWithSameIuvs();
+    NewNotificationRequestV23 notification = newNotificationWithSameIuvs();
 
     // When
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(notification);
 
     String error = createExpectedIuvDuplicatedErrorMessage(notification, 0, 1);
@@ -347,7 +347,7 @@ class NotificationReceiverValidationTest {
    * @param paymIdx indice del pagamento in cui si trova lo IUV duplicato
    * @return Il messaggio d'errore di validazione per gli IUV duplicati
    */
-  private String createExpectedIuvDuplicatedErrorMessage(NewNotificationRequestV21 n, int recIdx, int paymIdx) {
+  private String createExpectedIuvDuplicatedErrorMessage(NewNotificationRequestV23 n, int recIdx, int paymIdx) {
     NotificationPaymentItem expectedPayment = n.getRecipients().get(recIdx).getPayments().get(paymIdx);
     String expectedIuvDuplicated = expectedPayment.getPagoPa().getCreditorTaxId() + expectedPayment.getPagoPa().getNoticeCode();
     return String.format("Duplicated iuv { %s } on recipient with index %s in payment with index %s", expectedIuvDuplicated, recIdx, paymIdx);
@@ -656,7 +656,7 @@ class NotificationReceiverValidationTest {
   @Test
   void newNotificationRequestWhitInvalidPhysicalAddress() {
     // GIVEN
-    NewNotificationRequestV21 n = newNotification();
+    NewNotificationRequestV23 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
             .municipality( "municipality" )
             .address( "address" )
@@ -664,7 +664,7 @@ class NotificationReceiverValidationTest {
     );
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -674,7 +674,7 @@ class NotificationReceiverValidationTest {
   @Test
   void newNotificationRequestWhitInvalidPhysicalAddressForeignStateItaly() {
     // GIVEN
-    NewNotificationRequestV21 n = newNotification();
+    NewNotificationRequestV23 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(NotificationPhysicalAddress.builder()
             .foreignState("Italia")
             .municipality( "municipality" )
@@ -683,7 +683,7 @@ class NotificationReceiverValidationTest {
     );
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -696,11 +696,11 @@ class NotificationReceiverValidationTest {
   void newNotificationRequestForValidDontCheckAddress() {
 
     // GIVEN
-    NewNotificationRequestV21 n = newNotification();
+    NewNotificationRequestV23 n = newNotification();
     n.getRecipients().get(0).setPhysicalAddress(null);
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestBeforeInsert(n);
 
     // THEN
@@ -715,15 +715,15 @@ class NotificationReceiverValidationTest {
   void newNotificationRequestForMVPInvalid() {
 
     // GIVEN
-    NewNotificationRequestV21 n = newNotification();
+    NewNotificationRequestV23 n = newNotification();
     n.setSenderDenomination(null);
     n.addRecipientsItem(
-            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+            NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                     .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
                     .digitalDomicile(NotificationDigitalAddress.builder().build()).build());
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
@@ -738,10 +738,10 @@ class NotificationReceiverValidationTest {
   void newNotificationRequestForMVP() {
 
     // GIVEN
-    NewNotificationRequestV21 n = newNotificationWithoutPayments();
+    NewNotificationRequestV23 n = newNotificationWithoutPayments();
 
     // WHEN
-    Set<ConstraintViolation<NewNotificationRequestV21>> errors;
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
     errors = validator.checkNewNotificationRequestForMVP(n);
 
     // THEN
@@ -861,9 +861,9 @@ class NotificationReceiverValidationTest {
   }
 
 
-  private NewNotificationRequestV21 newNotificationWithoutPayments() {
-    NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
-            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+  private NewNotificationRequestV23 newNotificationWithoutPayments() {
+    NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
+            .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
             .denomination( "Ada Lovelace" )
             .taxId( "taxID" )
             .digitalDomicile( NotificationDigitalAddress.builder()
@@ -880,15 +880,15 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV21.builder()
+    return NewNotificationRequestV23.builder()
             .notificationFeePolicy(NotificationFeePolicy.valueOf("FLAT_RATE"))
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
-            .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
+            .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV21 newNotificationDuplicateRecipient() {
-    NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
+  private NewNotificationRequestV23 newNotificationDuplicateRecipient() {
+    NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments( List.of(NotificationPaymentItem.builder()
                     .pagoPa(PagoPaPayment.builder()
                             .creditorTaxId("00000000000")
@@ -905,7 +905,7 @@ class NotificationReceiverValidationTest {
                                     .build())
                             .build())
                     .build()))
-            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+            .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
             .denomination( "Ada Lovelace" )
             .taxId( "taxID" )
             .digitalDomicile( NotificationDigitalAddress.builder()
@@ -922,15 +922,15 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV21.builder()
+    return NewNotificationRequestV23.builder()
             .notificationFeePolicy(NotificationFeePolicy.valueOf("FLAT_RATE"))
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
-            .senderTaxId("paId").recipients(List.of(notificationRecipientV21, notificationRecipientV21)).build();
+            .senderTaxId("paId").recipients(List.of(notificationRecipientV23, notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV21 newNotificationPG() {
-    NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
+  private NewNotificationRequestV23 newNotificationPG() {
+    NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments( List.of(NotificationPaymentItem.builder()
                     .pagoPa(PagoPaPayment.builder()
                             .creditorTaxId("aaaaaaaaaaa")
@@ -947,7 +947,7 @@ class NotificationReceiverValidationTest {
                                     .build())
                             .build())
                     .build()))
-            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PG )
+            .recipientType( NotificationRecipientV23.RecipientTypeEnum.PG )
             .denomination( "Ada Lovelace" )
             .taxId( "taxID" )
             .digitalDomicile( NotificationDigitalAddress.builder()
@@ -964,15 +964,15 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV21.builder()
+    return NewNotificationRequestV23.builder()
             .notificationFeePolicy(NotificationFeePolicy.valueOf("FLAT_RATE"))
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
-            .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
+            .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV21 newNotification() {
-    NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
+  private NewNotificationRequestV23 newNotification() {
+    NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments( List.of(NotificationPaymentItem.builder()
                     .pagoPa(PagoPaPayment.builder()
                             .creditorTaxId("00000000000")
@@ -989,7 +989,7 @@ class NotificationReceiverValidationTest {
                                     .build())
                             .build())
                     .build()))
-            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+            .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
             .denomination( "Ada Lovelace" )
             .taxId( "taxID" )
             .digitalDomicile( NotificationDigitalAddress.builder()
@@ -1006,16 +1006,16 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV21.builder()
+    return NewNotificationRequestV23.builder()
             .notificationFeePolicy(NotificationFeePolicy.valueOf("FLAT_RATE"))
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
-            .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
+            .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV21 newNotificationDenominationCustom(String denomination) {
-    NotificationRecipientV21 notificationRecipient = NotificationRecipientV21.builder()
-            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+  private NewNotificationRequestV23 newNotificationDenominationCustom(String denomination) {
+    NotificationRecipientV23 notificationRecipient = NotificationRecipientV23.builder()
+            .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
             .denomination( denomination )
             .taxId( "taxID" )
             .digitalDomicile( NotificationDigitalAddress.builder()
@@ -1032,23 +1032,23 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(Arrays.asList(notificationRecipient)).build();
   }
 
-  private FullSentNotificationV21 newFullSentNotification() {
-    return FullSentNotificationV21.builder().sentAt(OffsetDateTime.now()).iun(IUN)
+  private FullSentNotificationV23 newFullSentNotification() {
+    return FullSentNotificationV23.builder().sentAt(OffsetDateTime.now()).iun(IUN)
         .paProtocolNumber("protocol1").group("group_1").idempotenceToken("idempotenceToken")
-        .timeline(Collections.singletonList(TimelineElementV20.builder().build()))
+        .timeline(Collections.singletonList(TimelineElementV23.builder().build()))
         .notificationStatus(NotificationStatus.ACCEPTED)
         .documents(Collections.singletonList(NotificationDocument.builder()
             .contentType("application/pdf")
             .ref(NotificationAttachmentBodyRef.builder().key(KEY).versionToken(VERSION_TOKEN)
                 .build())
             .digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build()).build()))
-        .recipients(Collections.singletonList(NotificationRecipientV21.builder()
-            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+        .recipients(Collections.singletonList(NotificationRecipientV23.builder()
+            .taxId("LVLDAA85T50G702B").recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
             .denomination("Ada Lovelace")
             .digitalDomicile(NotificationDigitalAddress.builder().address("indirizzo@pec.it")
                 .type(NotificationDigitalAddress.TypeEnum.PEC).build())
@@ -1061,14 +1061,14 @@ class NotificationReceiverValidationTest {
         .senderDenomination("Comune di Milano").senderTaxId("01199250158").subject("subject_length")
         .sourceChannel(X_PAGOPA_PN_SRC_CH)
         .physicalCommunicationType(
-                FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                FullSentNotificationV23.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
         .build();
   }
 
-  private NewNotificationRequestV21 badRecipientsNewNotification2() {
-    List<NotificationRecipientV21> recipients = new ArrayList<>();
+  private NewNotificationRequestV23 badRecipientsNewNotification2() {
+    List<NotificationRecipientV23> recipients = new ArrayList<>();
     recipients.add(
-            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+            NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                     .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
                     .digitalDomicile(NotificationDigitalAddress.builder()
                             .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
@@ -1088,16 +1088,16 @@ class NotificationReceiverValidationTest {
                     //.payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
                     //.noticeCodeAlternative("noticeCodeAlternative").build())
                     .build());
-    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
             .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
   }
 
-  private NewNotificationRequestV21 badRecipientsNewNotification() {
-    List<NotificationRecipientV21> recipients = new ArrayList<>();
+  private NewNotificationRequestV23 badRecipientsNewNotification() {
+    List<NotificationRecipientV23> recipients = new ArrayList<>();
     recipients.add(
-            NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+            NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                     .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
                     .digitalDomicile(NotificationDigitalAddress.builder()
                             .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
@@ -1113,15 +1113,15 @@ class NotificationReceiverValidationTest {
                     //.payment(NotificationPaymentInfo.builder().noticeCode("noticeCode")
                     //.noticeCodeAlternative("noticeCodeAlternative").build())
                     .build());
-    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
             .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
   }
 
-  private NewNotificationRequestV21 moreBadRecipientsNewNotification() {
-    List<NotificationRecipientV21> recipients = new ArrayList<>();
-    recipients.add(NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+  private NewNotificationRequestV23 moreBadRecipientsNewNotification() {
+    List<NotificationRecipientV23> recipients = new ArrayList<>();
+    recipients.add(NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
             .taxId("FiscalCode").denomination("Nome Cognome! / Ragione Sociale!")
             .digitalDomicile(NotificationDigitalAddress.builder()
                     .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
@@ -1137,7 +1137,7 @@ class NotificationReceiverValidationTest {
                     )
             )
             .build());
-    recipients.add(NotificationRecipientV21.builder().recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+    recipients.add(NotificationRecipientV23.builder().recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
             .taxId("FiscalCode").denomination("Nome Cognome / Ragione Sociale")
             .digitalDomicile(NotificationDigitalAddress.builder()
                     .type(NotificationDigitalAddress.TypeEnum.PEC).address("account@domain.it").build())
@@ -1153,7 +1153,7 @@ class NotificationReceiverValidationTest {
                     )
             )
             .build());
-    return NewNotificationRequestV21.builder().senderDenomination("Sender Denomination")
+    return NewNotificationRequestV23.builder().senderDenomination("Sender Denomination")
             .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
             .senderTaxId("paId").recipients(recipients).build();
@@ -1243,8 +1243,8 @@ class NotificationReceiverValidationTest {
     return internalNotification;
   }
 
-  private NewNotificationRequestV21 newNotificationWithPaymentsWithoutApplyCosts() {
-    NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
+  private NewNotificationRequestV23 newNotificationWithPaymentsWithoutApplyCosts() {
+    NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments( List.of(NotificationPaymentItem.builder()
                     .pagoPa(PagoPaPayment.builder()
                             .creditorTaxId("00000000000")
@@ -1261,7 +1261,7 @@ class NotificationReceiverValidationTest {
                                     .build())
                             .build())
                     .build()))
-            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+            .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
             .denomination( "Ada Lovelace" )
             .taxId( "taxID" )
             .digitalDomicile( NotificationDigitalAddress.builder()
@@ -1278,14 +1278,14 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV21.builder()
+    return NewNotificationRequestV23.builder()
             .notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
-            .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
+            .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV21 newNotificationWithApplyCostsAndFeePolicyFlatRate() {
+  private NewNotificationRequestV23 newNotificationWithApplyCostsAndFeePolicyFlatRate() {
     List<NotificationPaymentItem> paymentItems = new ArrayList<>();
     paymentItems.add(NotificationPaymentItem.builder()
             .pagoPa(PagoPaPayment.builder()
@@ -1304,9 +1304,9 @@ class NotificationReceiverValidationTest {
                     .build())
             .build());
 
-    NotificationRecipientV21 notificationRecipientV21 = NotificationRecipientV21.builder()
+    NotificationRecipientV23 notificationRecipientV23 = NotificationRecipientV23.builder()
             .payments(paymentItems)
-            .recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+            .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
             .denomination( "Ada Lovelace" )
             .taxId( "taxID" )
             .digitalDomicile( NotificationDigitalAddress.builder()
@@ -1323,15 +1323,15 @@ class NotificationReceiverValidationTest {
                     .municipalityDetails( "municipalityDetail" )
                     .build() )
             .build();
-    return NewNotificationRequestV21.builder()
+    return NewNotificationRequestV23.builder()
             .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
             .senderDenomination("Sender Denomination")
             .idempotenceToken("IUN_01").paProtocolNumber("protocol1").subject("subject_length")
-            .senderTaxId("paId").recipients(List.of(notificationRecipientV21)).build();
+            .senderTaxId("paId").recipients(List.of(notificationRecipientV23)).build();
   }
 
-  private NewNotificationRequestV21 newNotificationWithSameIuvs() {
-    NewNotificationRequestV21 notification = newNotificationWithApplyCostsAndFeePolicyFlatRate();
+  private NewNotificationRequestV23 newNotificationWithSameIuvs() {
+    NewNotificationRequestV23 notification = newNotificationWithApplyCostsAndFeePolicyFlatRate();
     NotificationPaymentItem firstPayment = notification.getRecipients().get(0).getPayments().get(0);
     NotificationPaymentItem duplicatedPayment = NotificationPaymentItem.builder()
             .pagoPa(PagoPaPayment.builder()

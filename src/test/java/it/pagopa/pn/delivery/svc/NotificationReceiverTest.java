@@ -117,7 +117,7 @@ class NotificationReceiverTest {
 		ArgumentCaptor<InternalNotification> savedNotificationCaptor = ArgumentCaptor.forClass(InternalNotification.class);
 
 		// Given
-		NewNotificationRequestV21 notification = newNotificationWithPaymentsDeliveryMode( );
+		NewNotificationRequestV23 notification = newNotificationWithPaymentsDeliveryMode( );
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
@@ -149,7 +149,7 @@ class NotificationReceiverTest {
 
 		// Given
 		//InternalNotification notification = newNotificationWithPaymentsFlat( );
-		NewNotificationRequestV21 notificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 notificationRequest = newNotificationRequest();
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
@@ -175,7 +175,7 @@ class NotificationReceiverTest {
 
 		// Given
 		//InternalNotification notification = newNotificationWithoutPayments( );
-		NewNotificationRequestV21 notificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 notificationRequest = newNotificationRequest();
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
@@ -218,7 +218,7 @@ class NotificationReceiverTest {
 				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
 
 		//InternalNotification notification = newNotificationWithoutPayments();
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 
 		// When
 		NewNotificationResponse addedNotification = deliveryService.receiveNotification( PAID ,newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null);
@@ -252,7 +252,7 @@ class NotificationReceiverTest {
 		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(2);
 
 		//InternalNotification notification = newNotificationWithoutPayments();
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
 						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
@@ -303,7 +303,7 @@ class NotificationReceiverTest {
 		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(5);
 
 		//InternalNotification notification = newNotificationWithoutPayments();
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setDocuments(List.of(NotificationDocument.builder()
 						.ref( NotificationAttachmentBodyRef.builder().key("k1"+ UUID.randomUUID()).versionToken("v1").build())
 						.contentType("application/pdf")
@@ -349,7 +349,7 @@ class NotificationReceiverTest {
 		Mockito.when( pnDeliveryConfigs.getMaxRecipientsCount()).thenReturn(2);
 
 		//InternalNotification notification = newNotificationWithoutPayments();
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setRecipients(
 				List.of(
 						buildRecipient("LVLDAA85T50G702B", "888888888888888888"),
@@ -391,7 +391,7 @@ class NotificationReceiverTest {
 		Mockito.when( pnDeliveryConfigs.getMaxAttachmentsCount()).thenReturn(3);
 
 		//InternalNotification notification = newNotificationWithoutPayments();
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setRecipients(
 				List.of(
 						buildRecipient("LVLDAA85T50G702B", "888888888888888888"),
@@ -410,7 +410,7 @@ class NotificationReceiverTest {
 	@Test
 	void successWriteNotificationWithGroupCheck() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup("group1");
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
@@ -426,7 +426,7 @@ class NotificationReceiverTest {
 	@Test
 	void successWriteNotificationWithGroupCheckNoGroup() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup(null);
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
@@ -443,7 +443,7 @@ class NotificationReceiverTest {
 	@Test
 	void successNewNotificationGroupCheckNoNotificationGroupNoSelfCareGroups() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup( null );
 
 		// When
@@ -456,7 +456,7 @@ class NotificationReceiverTest {
 	@Test
 	void badRequestNewNotificationForSendDisabled() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 
 		// When
 		Mockito.when( sendActiveParameterConsumer.isSendActive( Mockito.anyString() ) ).thenReturn( false );
@@ -469,7 +469,7 @@ class NotificationReceiverTest {
 	@Test
 	void failureNewNotificationCauseGroupCheck() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 
 		// When
 		Executable todo = () -> deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, List.of( "fake_Group" ), null );
@@ -481,7 +481,7 @@ class NotificationReceiverTest {
 	@Test
 	void failureNewNotificationCauseGroupCheckNoNotificationGroupInHeaderGroups() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup( null );
 
 		// When
@@ -494,7 +494,7 @@ class NotificationReceiverTest {
 	@Test
 	void failureNewNotificationCauseGroupCheckNotificationGroupButSelfCareGroupsSuspendend() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup( "group_1" );
 
 		// When
@@ -512,12 +512,12 @@ class NotificationReceiverTest {
 	void throwsPnValidationExceptionForInvalidFormatNotification() {
 
 		// Given
-		NewNotificationRequestV21 notification = NewNotificationRequestV21.builder()
+		NewNotificationRequestV23 notification = NewNotificationRequestV23.builder()
 				.senderTaxId( "fakeSenderTaxId" )
 				.paProtocolNumber("test")
 				.notificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE)
-				.recipients( Collections.singletonList( NotificationRecipientV21.builder()
-								.recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+				.recipients( Collections.singletonList( NotificationRecipientV23.builder()
+								.recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
 						.build() ) )
 				.documents( Collections.singletonList( NotificationDocument.builder().build() ) )
 				.build();
@@ -533,7 +533,7 @@ class NotificationReceiverTest {
 	void throwsPnValidationExceptionForInvalidFormatNotificationForMVP() {
 
 		// Given
-		NewNotificationRequestV21 notification = newNotificationRequest();
+		NewNotificationRequestV23 notification = newNotificationRequest();
 		notification.setSenderDenomination( null );
 
 		// When
@@ -553,7 +553,7 @@ class NotificationReceiverTest {
 				.when( notificationDao )
 				.addNotification( Mockito.any( InternalNotification.class) );
 
-		NewNotificationRequestV21 notification = newNotificationWithPaymentsDeliveryMode( );
+		NewNotificationRequestV23 notification = newNotificationWithPaymentsDeliveryMode( );
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
@@ -583,7 +583,7 @@ class NotificationReceiverTest {
 				.when( notificationDao )
 				.addNotification( Mockito.any( InternalNotification.class) );
 
-		NewNotificationRequestV21 notification = newNotificationWithPaymentsDeliveryMode( );
+		NewNotificationRequestV23 notification = newNotificationWithPaymentsDeliveryMode( );
 
 		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
 				.thenReturn( List.of(new PaGroup().id("Group_1").status(PaGroupStatus.ACTIVE)));
@@ -611,9 +611,9 @@ class NotificationReceiverTest {
 	@Test
 	void successNewNotificationWithPagoPaIntMode() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setGroup(null);
-		newNotificationRequest.setPagoPaIntMode( NewNotificationRequestV21.PagoPaIntModeEnum.SYNC );
+		newNotificationRequest.setPagoPaIntMode( NewNotificationRequestV23.PagoPaIntModeEnum.SYNC );
 
 		// When
 		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS_EMPTY, null );
@@ -625,7 +625,7 @@ class NotificationReceiverTest {
 	@Test
 	void successNewNotificationNoPagoPaIntModeNoPayment() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationWithoutPayments();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationWithoutPayments();
 		newNotificationRequest.setGroup(null);
 		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
 		// When
@@ -638,7 +638,7 @@ class NotificationReceiverTest {
 	@Test
 	void successNewNotificationNoPagoPaIntModeNoPaymentWithNotificationVersion() {
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationWithoutPayments();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationWithoutPayments();
 		newNotificationRequest.setGroup(null);
 		newNotificationRequest.setNotificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
 		// When
@@ -652,7 +652,7 @@ class NotificationReceiverTest {
 	void throwsPnValidationExceptionForMissingTaxonomyCode() {
 
 		// Given
-		NewNotificationRequestV21 newNotificationRequest = newNotificationRequest();
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
 		newNotificationRequest.setTaxonomyCode( null );
 
 		// When
@@ -662,8 +662,8 @@ class NotificationReceiverTest {
 		Assertions.assertThrows( PnInvalidInputException.class, todo );
 	}
 
-	private NewNotificationRequestV21 newNotificationRequest() {
-		return NewNotificationRequestV21.builder()
+	private NewNotificationRequestV23 newNotificationRequest() {
+		return NewNotificationRequestV23.builder()
 				.senderTaxId( "01199250158" )
 				.senderDenomination( "Comune di Milano" )
 				.group( "group1" )
@@ -683,20 +683,20 @@ class NotificationReceiverTest {
 				.paProtocolNumber( "paProtocolNumber" )
 				.recipients( Collections.singletonList(
 						buildRecipient("LVLDAA85T50G702B", "888888888888888888") ))
-				.physicalCommunicationType( NewNotificationRequestV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
+				.physicalCommunicationType( NewNotificationRequestV23.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890 )
 				._abstract( "abstract" )
 				.build();
 	}
 
-	private NewNotificationRequestV21 newNotificationWithoutPayments( ) {
-		return NewNotificationRequestV21.builder()
+	private NewNotificationRequestV23 newNotificationWithoutPayments( ) {
+		return NewNotificationRequestV23.builder()
 				.paProtocolNumber("protocol_01")
 				.subject("Subject 01")
-				.physicalCommunicationType( NewNotificationRequestV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
+				.physicalCommunicationType( NewNotificationRequestV23.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER )
 				.cancelledIun(IUN)
 				.recipients( Collections.singletonList(
-						NotificationRecipientV21.builder()
-								.recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+						NotificationRecipientV23.builder()
+								.recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
 								.taxId("LVLDAA85T50G702B")
 								.denomination("Ada Lovelace")
 								.digitalDomicile(NotificationDigitalAddress.builder()
@@ -723,11 +723,11 @@ class NotificationReceiverTest {
 				.build();
 	}
 
-	private NewNotificationRequestV21 newNotificationWithPaymentsDeliveryMode( ) {
-		NewNotificationRequestV21 notification = newNotificationWithoutPayments( );
+	private NewNotificationRequestV23 newNotificationWithPaymentsDeliveryMode( ) {
+		NewNotificationRequestV23 notification = newNotificationWithoutPayments( );
 		notification.notificationFeePolicy( NotificationFeePolicy.DELIVERY_MODE );
 
-		for( NotificationRecipientV21 recipient : notification.getRecipients()) {
+		for( NotificationRecipientV23 recipient : notification.getRecipients()) {
 			recipient.payments( List.of(NotificationPaymentItem.builder()
 					.pagoPa(PagoPaPayment.builder()
 							.creditorTaxId("00000000000")
@@ -748,8 +748,8 @@ class NotificationReceiverTest {
 		return notification;
 	}
 
-	private NotificationRecipientV21 buildRecipient(String taxID, String noticeCode){
-		return NotificationRecipientV21.builder()
+	private NotificationRecipientV23 buildRecipient(String taxID, String noticeCode){
+		return NotificationRecipientV23.builder()
 				.payments( List.of(NotificationPaymentItem.builder()
 						.pagoPa(PagoPaPayment.builder()
 								.creditorTaxId("00000000000")
@@ -766,7 +766,7 @@ class NotificationReceiverTest {
 										.build())
 								.build())
 						.build()))
-				.recipientType( NotificationRecipientV21.RecipientTypeEnum.PF )
+				.recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
 				.denomination( "Ada Lovelace" )
 				.taxId( taxID )
 				.digitalDomicile( NotificationDigitalAddress.builder()

@@ -325,7 +325,8 @@
                 "deliveryDetailCode": "CON080",
                 "sendRequestId": "SEND_ANALOG_DOMICILE.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0.ATTEMPT_0",
                 "registeredLetterCode": "c2fedd028cc2449e90897d6530652c7a",
-                "notRefinedRecipientIndexes": []
+                "notRefinedRecipientIndexes": [],
+                "serviceLevel": "REGISTERED_LETTER_890"
             }
         },
         {
@@ -425,8 +426,31 @@
             }
         },
         {
+            "elementId": "NOTIFICATION_RADD_RETRIEVED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+            "timestamp": "2023-09-14T10:58:34.365420178Z",
+            "legalFactsIds": [],
+            "category": "NOTIFICATION_RADD_RETRIEVED",
+            "details": {
+                "recIndex": 0,
+                "raddType": "ALT",
+                "raddTransactionId": "213456789",
+                "eventTimestamp": "2023-09-14T10:59:34.365420178Z"
+            }
+        },
+        {
+            "elementId": "NOTIFICATION_VIEWED.IUN_EDXD-TUPX-LNWH-202309-Z-1.RECINDEX_0",
+            "timestamp": "2023-09-14T10:59:34.466420178Z",
+            "legalFactsIds": [],
+            "category": "NOTIFICATION_VIEWED",
+            "details": {
+                "recIndex": 0,
+                "notificationCost": 0,
+                "eventTimestamp": "2023-09-14T10:59:34.366420178Z"
+            }
+        },
+        {
             "elementId": "NOTIFICATION_CANCELLATION_REQUEST.IUN_EDXD-TUPX-LNWH-202309-Z-1",
-            "timestamp": "2023-09-15T10:59:34.366420178Z",
+            "timestamp": "2023-09-15T10:59:34.566420178Z",
             "legalFactsIds": [],
             "category": "NOTIFICATION_CANCELLATION_REQUEST",
             "details": {

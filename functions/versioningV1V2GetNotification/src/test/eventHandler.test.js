@@ -5,6 +5,11 @@ var MockAdapter = require("axios-mock-adapter");
 var mock = new MockAdapter(axios);
 const proxyquire = require("proxyquire").noPreserveCache();
 
+// valori collegati alla definizione del notification.json
+// NB se si aggiungono elementi prima del viewed, aggiornare questo indice
+const NOTIFICATION_VIEWED_IDX = 20;
+const SEND_ANALOG_PROGRESS_IDX = 14;
+
 describe("eventHandler tests", function () {
   it("statusCode 200", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
@@ -75,7 +80,113 @@ describe("eventHandler tests", function () {
 
     expect(response.statusCode).to.equal(200);
     expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.greaterThanOrEqual(0)
+    expect(response.body.indexOf('NOTIFICATION_RADD_RETRIEVED' )).to.be.equal(-1)
+
+    // check che NON sia presente l'eventTimestamp nel notificationViewed
+    let resJson = JSON.parse(response.body);
+    const viewElement = resJson.timeline[NOTIFICATION_VIEWED_IDX];
+    expect(viewElement.category).to.be.equal('NOTIFICATION_VIEWED');
+    expect(viewElement.details.eventTimestamp).to.be.equal(undefined);
+    // check che NON sia presente l'serviceLevel nel SEND_ANALOG_PROGRESS
+    const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
+    expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
+    expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
   });
+
+
+  it("statusCode 200 v2.1", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification.json");
+    let notification = JSON.parse(notificationJSON);
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "12345";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    const eventHandler = proxyquire
+      .noCallThru()
+      .load("../app/eventHandler.js", {});
+
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "v2.1/notifications/sent/{iun}",
+      path: "/delivery/v2.1/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await eventHandler.versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+    expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.greaterThanOrEqual(0)
+    expect(response.body.indexOf('NOTIFICATION_RADD_RETRIEVED' )).to.be.equal(-1)
+
+    // check che NON sia presente l'eventTimestamp nel notificationViewed
+    let resJson = JSON.parse(response.body);
+    const viewElement = resJson.timeline[NOTIFICATION_VIEWED_IDX];
+    expect(viewElement.category).to.be.equal('NOTIFICATION_VIEWED');
+    expect(viewElement.details.eventTimestamp).to.be.equal(undefined);
+    // check che NON sia presente l'serviceLevel nel SEND_ANALOG_PROGRESS
+    const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
+    expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
+    expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
+  });
+
+  it("statusCode 200 v2.3", async () => {
+      const notificationJSON = fs.readFileSync("./src/test/notification.json");
+      let notification = JSON.parse(notificationJSON);
+
+      process.env = Object.assign(process.env, {
+        PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      });
+
+      const iunValue = "12345";
+
+      let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+      const eventHandler = proxyquire
+        .noCallThru()
+        .load("../app/eventHandler.js", {});
+
+      mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+      const event = {
+        pathParameters: { iun: iunValue },
+        headers: {},
+        requestContext: {
+          authorizer: {},
+        },
+        resource: "v2.3/notifications/sent/{iun}",
+        path: "/delivery/v2.3/notifications/sent/MOCK_IUN",
+        httpMethod: "GET",
+      };
+      const context = {};
+
+      const response = await eventHandler.versioning(event, context);
+
+      expect(response.statusCode).to.equal(200);
+      expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.greaterThanOrEqual(0)
+      expect(response.body.indexOf('NOTIFICATION_RADD_RETRIEVED' )).to.be.greaterThanOrEqual(0)
+
+      // check che SIA presente l'eventTimestamp nel notificationViewed
+      let resJson = JSON.parse(response.body);
+      const viewElement = resJson.timeline[NOTIFICATION_VIEWED_IDX+1];    //+1 perchè qui la RADD c'è
+      expect(viewElement.category).to.be.equal('NOTIFICATION_VIEWED');
+      expect(viewElement.details.eventTimestamp).to.be.equal("2023-09-14T10:59:34.366420178Z");
+      // check che SIA presente l'serviceLevel nel SEND_ANALOG_PROGRESS
+      const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
+      expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
+      expect(analogProgElement.details.serviceLevel).to.be.equal("REGISTERED_LETTER_890");
+    });
 
   it("statusCode 200 v1", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
@@ -111,6 +222,17 @@ describe("eventHandler tests", function () {
 
     expect(response.statusCode).to.equal(200);
     expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.equal(-1)
+    expect(response.body.indexOf('NOTIFICATION_RADD_RETRIEVED' )).to.be.equal(-1)
+
+    // check che NON sia presente l'eventTimestamp nel notificationViewed
+    let resJson = JSON.parse(response.body);
+    const viewElement = resJson.timeline[NOTIFICATION_VIEWED_IDX];
+    expect(viewElement.category).to.be.equal('NOTIFICATION_VIEWED');
+    expect(viewElement.details.eventTimestamp).to.be.equal(undefined);
+    // check che NON sia presente l'serviceLevel nel SEND_ANALOG_PROGRESS
+    const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
+    expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
+    expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
   });
 
   it("statusCode 400", async () => {

@@ -4,9 +4,9 @@ import it.pagopa.pn.delivery.exception.PnMandateNotFoundException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.CxTypeAuthFleet;
 import it.pagopa.pn.delivery.generated.openapi.msclient.mandate.v1.model.InternalMandateDto;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV23;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationDigitalAddress;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationStatus;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
@@ -112,7 +112,7 @@ class CheckAuthComponentTest {
         InternalNotification notification = newNotification();
         notification.setCancelledIun(iun);
         notification.setRecipientIds(List.of("recipientId"));
-        notification.setRecipients(List.of(NotificationRecipient.builder().taxId("taxId").recipientType(NotificationRecipientV21.RecipientTypeEnum.PF).build()));
+        notification.setRecipients(List.of(NotificationRecipient.builder().taxId("taxId").recipientType(NotificationRecipientV23.RecipientTypeEnum.PF).build()));
         // Given
         ReadAccessAuth readAccessAuth = ReadAccessAuth.newAccessRequest(cxType, cxId, mandateId, null, iun, recipientIdx);
 
@@ -219,7 +219,7 @@ class CheckAuthComponentTest {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
         internalNotification.setSentAt(OffsetDateTime.MAX);
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
         internalNotification.setRecipientIds(List.of("IUN_01"));
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
