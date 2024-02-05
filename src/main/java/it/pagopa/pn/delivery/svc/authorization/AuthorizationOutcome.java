@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.svc.authorization;
 
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21;
 import it.pagopa.pn.delivery.models.internal.notification.NotificationRecipient;
 import lombok.Value;
 

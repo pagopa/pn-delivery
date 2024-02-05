@@ -104,7 +104,7 @@ class PnSentReceivedNotificationControllerTest {
 				
 		// Then		
 		webTestClient.get()
-			.uri( "/delivery/v2.1/notifications/sent/" + IUN  )
+			.uri( "/delivery/v2.3/notifications/sent/" + IUN  )
 			.accept( MediaType.ALL )
 			.header(HttpHeaders.ACCEPT, "application/json")
 			.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -115,7 +115,7 @@ class PnSentReceivedNotificationControllerTest {
 			.exchange()
 			.expectStatus()
 			.isOk()
-			.expectBody(FullSentNotificationV21.class);
+			.expectBody(FullSentNotificationV23.class);
 		
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck(IUN, PA_ID, GROUPS);
 	}
@@ -131,7 +131,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.1/notifications/sent/" + IUN  )
+				.uri( "/delivery/v2.3/notifications/sent/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -158,7 +158,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.1/notifications/sent/" + IUN  )
+				.uri( "/delivery/v2.3/notifications/sent/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -185,7 +185,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -196,14 +196,14 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV21.class );
+				.expectBody( NewNotificationRequestStatusResponseV23.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
 
 	@Test
 	void testTimeLine(){
-		TimelineElementDetailsV20 actualTimelineElementDetails = new TimelineElementDetailsV20();
+		TimelineElementDetailsV23 actualTimelineElementDetails = new TimelineElementDetailsV23();
 		actualTimelineElementDetails.aarKey("Aar Key");
 		actualTimelineElementDetails.amount(10);
 		actualTimelineElementDetails.analogCost(1);
@@ -274,7 +274,7 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.reasonCode("Just cause");
 		actualTimelineElementDetails.recIndex(1);
 		actualTimelineElementDetails.recipientType(RecipientType.PF);
-		ArrayList<NotificationRefusedErrorV20> refusalReasons = new ArrayList<>();
+		ArrayList<NotificationRefusedErrorV23> refusalReasons = new ArrayList<>();
 		actualTimelineElementDetails.refusalReasons(refusalReasons);
 		actualTimelineElementDetails.registeredLetterCode("Registered Letter Code");
 		actualTimelineElementDetails.relatedRequestId("42");
@@ -363,7 +363,7 @@ class PnSentReceivedNotificationControllerTest {
 		actualTimelineElementDetails.setReasonCode("Just cause");
 		actualTimelineElementDetails.setRecIndex(1);
 		actualTimelineElementDetails.setRecipientType(RecipientType.PF);
-		ArrayList<NotificationRefusedErrorV20> refusalReasons2 = new ArrayList<>();
+		ArrayList<NotificationRefusedErrorV23> refusalReasons2 = new ArrayList<>();
 		actualTimelineElementDetails.setRefusalReasons(refusalReasons2);
 		actualTimelineElementDetails.setRegisteredLetterCode("Registered Letter Code");
 		actualTimelineElementDetails.setRelatedRequestId("42");
@@ -390,7 +390,7 @@ class PnSentReceivedNotificationControllerTest {
 		testingTimeLine3(actualTimelineElementDetails);
 	}
 
-	void testingTimeLine3(TimelineElementDetailsV20 actualTimelineElementDetails){
+	void testingTimeLine3(TimelineElementDetailsV23 actualTimelineElementDetails){
 		assertNotNull(actualTimelineElementDetails.getLegalFactGenerationDate());
 		assertEquals("42", actualTimelineElementDetails.getLegalFactId());
 		assertEquals("42", actualTimelineElementDetails.getLegalfactId());
@@ -422,7 +422,7 @@ class PnSentReceivedNotificationControllerTest {
 		assertEquals(RecipientType.PF, actualTimelineElementDetails.getRecipientType());
 	}
 
-	void testingTimeLine2(TimelineElementDetailsV20 actualTimelineElementDetails){
+	void testingTimeLine2(TimelineElementDetailsV23 actualTimelineElementDetails){
 		assertEquals("Aar Key", actualTimelineElementDetails.getAarKey());
 		assertEquals(10, actualTimelineElementDetails.getAmount().intValue());
 		assertEquals(1, actualTimelineElementDetails.getAnalogCost().intValue());
@@ -446,12 +446,12 @@ class PnSentReceivedNotificationControllerTest {
 		assertNotNull(actualTimelineElementDetails.getLastAttemptDate());
 		assertEquals("Registered Letter Code", actualTimelineElementDetails.getRegisteredLetterCode());
 		assertEquals("42", actualTimelineElementDetails.getRelatedRequestId());
-		TimelineElementDetailsV20 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
+		TimelineElementDetailsV23 actualIsAvailableResult = actualTimelineElementDetails.isAvailable(true);
 		assertSame(actualTimelineElementDetails, actualIsAvailableResult);
 		assertEquals("Notice Code", actualTimelineElementDetails.getNoticeCode());
 	}
 
-	void testingTimeLine1(TimelineElementDetailsV20 timelineElementDetails){
+	void testingTimeLine1(TimelineElementDetailsV23 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getLegalFactId());
 		Assertions.assertNotNull(timelineElementDetails.getNormalizedAddress());
 		Assertions.assertNotNull(timelineElementDetails.getGeneratedAarUrl());
@@ -469,7 +469,7 @@ class PnSentReceivedNotificationControllerTest {
 		Assertions.assertNotNull(timelineElementDetails.getRaddTransactionId());
 	}
 
-	void testingTimeLine(TimelineElementDetailsV20 timelineElementDetails){
+	void testingTimeLine(TimelineElementDetailsV23 timelineElementDetails){
 		Assertions.assertNotNull(timelineElementDetails.getResponseStatus());
 		Assertions.assertNotNull(timelineElementDetails.getNextLastAttemptMadeForSource());
 		Assertions.assertNotNull(timelineElementDetails.getNextSourceAttemptsMade());
@@ -496,10 +496,10 @@ class PnSentReceivedNotificationControllerTest {
 		notification.setNotificationStatusHistory( Collections.singletonList( NotificationStatusHistoryElement.builder()
 						.status( NotificationStatus.REFUSED )
 				.build() ) );
-		notification.setTimeline( Collections.singletonList( TimelineElementV20.builder()
-						.category( TimelineElementCategoryV20.REQUEST_REFUSED )
-						.details( TimelineElementDetailsV20.builder()
-								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV20.builder()
+		notification.setTimeline( Collections.singletonList( TimelineElementV23.builder()
+						.category( TimelineElementCategoryV23.REQUEST_REFUSED )
+						.details( TimelineElementDetailsV23.builder()
+								.refusalReasons( Collections.singletonList( NotificationRefusedErrorV23.builder()
 												.errorCode( "FILE_NOTFOUND" )
 												.detail( "Allegato non trovato. fileKey=81dde2a8-9719-4407-b7b3-63e7ea694869" )
 										.build() ) )
@@ -511,7 +511,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -522,7 +522,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV21.class );
+				.expectBody( NewNotificationRequestStatusResponseV23.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -537,7 +537,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("notificationRequestId", REQUEST_ID)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -548,7 +548,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV21.class );
+				.expectBody( NewNotificationRequestStatusResponseV23.class );
 
 		Mockito.verify( svc ).getNotificationInformationWithSenderIdCheck( new String(Base64Utils.decodeFromString(REQUEST_ID), StandardCharsets.UTF_8), PA_ID, GROUPS );
 	}
@@ -558,7 +558,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
@@ -575,7 +575,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.build())
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, PA_ID )
 				.header(PnDeliveryRestConstants.UID_HEADER, "asdasd")
@@ -596,7 +596,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/requests" )
+								.path( "/delivery/v2.3/requests" )
 								.queryParam("paProtocolNumber", PA_PROTOCOL_NUMBER)
 								.queryParam( "idempotenceToken", IDEMPOTENCE_TOKEN )
 								.build())
@@ -608,7 +608,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody( NewNotificationRequestStatusResponseV21.class );
+				.expectBody( NewNotificationRequestStatusResponseV23.class );
 
 		Mockito.verify( svc ).getNotificationInformation( PA_ID, PA_PROTOCOL_NUMBER, IDEMPOTENCE_TOKEN, GROUPS );
 	}
@@ -625,7 +625,7 @@ class PnSentReceivedNotificationControllerTest {
 
 		// Then
 		webTestClient.get()
-				.uri( "/delivery/v2.1/notifications/received/" + IUN  )
+				.uri( "/delivery/v2.3/notifications/received/" + IUN  )
 				.accept( MediaType.ALL )
 				.header(HttpHeaders.ACCEPT, "application/json")
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, CX_ID)
@@ -635,7 +635,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV21.class);
+				.expectBody(FullReceivedNotificationV23.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, null);
 	}
@@ -675,7 +675,7 @@ class PnSentReceivedNotificationControllerTest {
 		webTestClient.get()
 				.uri(uriBuilder ->
 						uriBuilder
-								.path( "/delivery/v2.1/notifications/received/" + IUN )
+								.path( "/delivery/v2.3/notifications/received/" + IUN )
 								.queryParam("mandateId", MANDATE_ID)
 								.build())
 				.accept( MediaType.ALL )
@@ -687,7 +687,7 @@ class PnSentReceivedNotificationControllerTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBody(FullReceivedNotificationV21.class);
+				.expectBody(FullReceivedNotificationV23.class);
 
 		Mockito.verify(svc).getNotificationAndNotifyViewedEvent(IUN, internalAuthHeader, MANDATE_ID);
 	}
@@ -1297,7 +1297,7 @@ class PnSentReceivedNotificationControllerTest {
 				List.of(
 						NotificationRecipient.builder()
 								.internalId("internalId")
-								.recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+								.recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
 								.taxId("taxId")
 								.physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
 								.digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())
@@ -1377,7 +1377,7 @@ class PnSentReceivedNotificationControllerTest {
 	@Test
 	void getReceivedNotificationDocumentWithNotificationCancelledTest() {
 		webTestClient.get()
-				.uri("/delivery/v2.1/notifications/received/{iun}/attachments/documents/{docIdx}", IUN, 1)
+				.uri("/delivery/v2.3/notifications/received/{iun}/attachments/documents/{docIdx}", IUN, 1)
 				.header( PnDeliveryRestConstants.CX_ID_HEADER, RECIPIENT_ID)
 				.header(PnDeliveryRestConstants.UID_HEADER, UID)
 				.header(PnDeliveryRestConstants.CX_TYPE_HEADER, "PF")

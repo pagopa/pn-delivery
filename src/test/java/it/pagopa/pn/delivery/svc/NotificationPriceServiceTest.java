@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV21.RecipientTypeEnum.PF;
+import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationRecipientV23.RecipientTypeEnum.PF;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

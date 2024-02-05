@@ -27,6 +27,9 @@
     "EnhancedWebSecurityEnabled": "true",
     "DenominationLength": "44",
     "DenominationValidationRegexValue": "",
-    "DenominationValidationTypeValue": "ISO_LATIN_1"
+    "DenominationValidationTypeValue": "ISO_LATIN_1",
+    "MountEfs": "false",
+    "PnCronAnalyzer": "* */1 * * * *",
+    "WireTapLogActivation": "false"
   }
 }
