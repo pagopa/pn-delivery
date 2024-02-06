@@ -769,4 +769,20 @@ public class NotificationRetrieverService {
 		return cancellationTimelineIsPresent;
 	}
 
+	public void checkIUNAndInternalId(String iun, String recipientInternalId, String mandateId, String cxType, List<String> cxGroups) {
+		InternalNotification internalNotification = getInternalNotification(iun);
+
+		if(StringUtils.hasText(mandateId)) {
+			// Se è presente il mandateId, il campo recipientInternalId è valorizzato con l'id del delegato
+			checkMandateForNotificationDetail(recipientInternalId, mandateId, internalNotification.getSenderPaId(), iun, cxType, cxGroups);
+		} else {
+			boolean isRecipientOfNotification = internalNotification.getRecipientIds().stream()
+					.anyMatch(recId -> recId.equalsIgnoreCase(recipientInternalId));
+
+			if(!isRecipientOfNotification) {
+				throw new PnForbiddenException(ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR);
+			}
+		}
+	}
+
 }
