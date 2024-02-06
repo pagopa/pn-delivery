@@ -67,35 +67,35 @@ public class NotificationReceiverValidator {
         }
     }
 
-    protected Set<ConstraintViolation<NewNotificationRequestV23>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV23 newNotificationRequestV2) {
+    protected Set<ConstraintViolation<NewNotificationRequestV23>> checkNewNotificationRequestBeforeInsert(NewNotificationRequestV23 newNotificationRequestV23) {
         Set<ConstraintViolation<NewNotificationRequestV23>> errors = new HashSet<>();
 
         // check del numero massimo di documenti allegati
-        if (pnDeliveryConfigs.getMaxAttachmentsCount() > 0 && newNotificationRequestV2.getDocuments().size() > pnDeliveryConfigs.getMaxAttachmentsCount()) {
+        if (pnDeliveryConfigs.getMaxAttachmentsCount() > 0 && newNotificationRequestV23.getDocuments().size() > pnDeliveryConfigs.getMaxAttachmentsCount()) {
             ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("Max attachment count reached");
             errors.add(constraintViolation);
             return errors;
         }
 
         // check del numero massimo di recipient
-        if (pnDeliveryConfigs.getMaxRecipientsCount() > 0 && newNotificationRequestV2.getRecipients().size() > pnDeliveryConfigs.getMaxRecipientsCount()) {
+        if (pnDeliveryConfigs.getMaxRecipientsCount() > 0 && newNotificationRequestV23.getRecipients().size() > pnDeliveryConfigs.getMaxRecipientsCount()) {
             ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("Max recipient count reached");
             errors.add(constraintViolation);
             return errors;
         }
 
         // check campi paFee e vat per notifiche DELIVERY_MODE
-        if( newNotificationRequestV2.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE) ) {
-            if (Objects.isNull(newNotificationRequestV2.getPaFee()) || Objects.isNull(newNotificationRequestV2.getVat())) {
-                ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("paFee or vat field not filled in for notification with notificationFeePolicy DELIVERY_MODE");
-                errors.add( constraintViolation );
-            }
+        if ( newNotificationRequestV23.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE) &&
+                (Objects.isNull(newNotificationRequestV23.getPaFee()) || Objects.isNull(newNotificationRequestV23.getVat()))) {
+            ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("paFee or vat field not filled in for notification with notificationFeePolicy DELIVERY_MODE");
+            errors.add( constraintViolation );
         }
+
 
         int recIdx = 0;
         Set<String> distinctTaxIds = new HashSet<>();
         Set<String> distinctIuvs = new HashSet<>();
-        for (NotificationRecipientV23 recipient : newNotificationRequestV2.getRecipients()) {
+        for (NotificationRecipientV23 recipient : newNotificationRequestV23.getRecipients()) {
 
             // limitazione temporanea: destinatari PG possono avere solo TaxId numerico
             onlyNumericalTaxIdForPGV2(errors, recIdx, recipient);
@@ -110,7 +110,7 @@ public class NotificationReceiverValidator {
                 errors.add(constraintViolation);
             }
 
-            boolean isNotificationFeePolicyDeliveryMode = newNotificationRequestV2.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE);
+            boolean isNotificationFeePolicyDeliveryMode = newNotificationRequestV23.getNotificationFeePolicy().equals(NotificationFeePolicy.DELIVERY_MODE);
             if(recipient.getPayments() != null) {
                 errors.addAll(checkApplyCost(isNotificationFeePolicyDeliveryMode, recipient.getPayments()));
                 errors.addAll(checkIuvs(recipient.getPayments(), distinctIuvs, recIdx));
@@ -120,9 +120,9 @@ public class NotificationReceiverValidator {
             checkProvinceV2(errors, physicalAddress);
             recIdx++;
         }
-        errors.addAll(validator.validate( newNotificationRequestV2 ));
-        errors.addAll( this.checkPhysicalAddress( newNotificationRequestV2 ));
-        errors.addAll(this.checkDenomination( newNotificationRequestV2 ));
+        errors.addAll(validator.validate( newNotificationRequestV23 ));
+        errors.addAll( this.checkPhysicalAddress( newNotificationRequestV23 ));
+        errors.addAll(this.checkDenomination( newNotificationRequestV23 ));
         return errors;
     }
 
