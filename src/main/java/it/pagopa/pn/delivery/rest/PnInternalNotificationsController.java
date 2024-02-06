@@ -249,4 +249,10 @@ public class PnInternalNotificationsController implements InternalOnlyApi {
         priceService.removeAllNotificationCostsByIun(iun);
         return ResponseEntity.noContent().build();
     }
+
+    @Override
+    public ResponseEntity<Void> checkIUNAndInternalId(String iun, String recipientInternalId, String mandateId, String queryCxType, List<String> queryCxGroups) {
+        retrieveSvc.checkIUNAndInternalId(iun, recipientInternalId, mandateId, queryCxType, queryCxGroups);
+        return ResponseEntity.noContent().build();
+    }
 }

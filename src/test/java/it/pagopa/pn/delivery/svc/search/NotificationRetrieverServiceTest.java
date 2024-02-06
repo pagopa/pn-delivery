@@ -1668,4 +1668,87 @@ class NotificationRetrieverServiceTest {
         when(pnDeliveryPushClient.getTimelineAndStatusHistory(iun, notification.getRecipients().size(), notification.getSentAt())).thenReturn(deliveryPushResponse);
         Assertions.assertEquals(iun, notification.getIun());
     }
+
+    @Test
+    void checkIUNAndInternalIdSuccessfullyWithRecipientId() {
+        String iun = "a-iun";
+        String recipientInternalId = "internalId-1";
+
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        notification.setSentAt(OffsetDateTime.now());
+        notification.setRecipientIds(List.of(recipientInternalId));
+
+        when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.of(notification));
+
+        Assertions.assertDoesNotThrow(() -> svc.checkIUNAndInternalId(iun, recipientInternalId, null, null, null));
+    }
+
+    @Test
+    void checkIUNAndInternalIdFailsWithRecipientId() {
+        String iun = "a-iun";
+        String recipientInternalId = "internalId-1";
+
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        notification.setSentAt(OffsetDateTime.now());
+        notification.setRecipientIds(List.of("otherInternalId-2"));
+
+        when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.of(notification));
+
+        Assertions.assertThrows(PnForbiddenException.class, () -> svc.checkIUNAndInternalId(iun, recipientInternalId, null, null, null));
+    }
+
+    @Test
+    void checkIUNAndInternalIdFailsWithForNotificationNotFound() {
+        String iun = "a-iun";
+        String recipientInternalId = "internalId-1";
+
+        when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(PnNotificationNotFoundException.class, () -> svc.checkIUNAndInternalId(iun, recipientInternalId, null, null, null));
+    }
+
+    @Test
+    void checkIUNAndInternalIdSuccessfullyWithMandateId() {
+        String iun = "a-iun";
+        String recipientInternalId = "delegatedId-1";
+        String mandateId = "mandateId-1";
+
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        notification.setSentAt(OffsetDateTime.now());
+        notification.setRecipientIds(List.of(recipientInternalId));
+        notification.setSenderPaId("senderPaId-1");
+
+        InternalMandateDto internalMandateDto = new InternalMandateDto();
+        internalMandateDto.setMandateId(mandateId);
+        internalMandateDto.setDelegator("delegatorId-1");
+        internalMandateDto.setDelegate(recipientInternalId);
+
+
+        when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.of(notification));
+        when(externalRegistriesClient.getRootSenderId("senderPaId-1")).thenReturn("rootSenderId-1");
+        when(pnMandateClient.listMandatesByDelegate(recipientInternalId, mandateId, null, null)).thenReturn(List.of(internalMandateDto));
+        Assertions.assertDoesNotThrow(() -> svc.checkIUNAndInternalId(iun, recipientInternalId, mandateId, null, null));
+    }
+
+    @Test
+    void checkIUNAndInternalIdFailsWithMandateId() {
+        String iun = "a-iun";
+        String recipientInternalId = "delegatedId-1";
+        String mandateId = "mandateId-1";
+
+        InternalNotification notification = new InternalNotification();
+        notification.setIun(iun);
+        notification.setSentAt(OffsetDateTime.now());
+        notification.setRecipientIds(List.of(recipientInternalId));
+        notification.setSenderPaId("senderPaId-1");
+
+
+        when(notificationDao.getNotificationByIun(iun, true)).thenReturn(Optional.of(notification));
+        when(externalRegistriesClient.getRootSenderId("senderPaId-1")).thenReturn("rootSenderId-1");
+        when(pnMandateClient.listMandatesByDelegate(recipientInternalId, mandateId, null, null)).thenReturn(new ArrayList<>());
+        Assertions.assertThrows(PnMandateNotFoundException.class, () -> svc.checkIUNAndInternalId(iun, recipientInternalId, mandateId, null, null));
+    }
 }
