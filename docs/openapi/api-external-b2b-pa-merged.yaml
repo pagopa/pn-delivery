@@ -916,6 +916,8 @@ paths:
   /delivery/price/{paTaxId}/{noticeCode}:
     get:
       operationId: retrieveNotificationPrice
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v23-getnotificationprice-lambda:live
+      x-pagopa-lambda-account: core
       summary: Retrieve notification price and effective date
       description: |-
         Usata dalla PA per recuperare il costo di notificazione tramite
