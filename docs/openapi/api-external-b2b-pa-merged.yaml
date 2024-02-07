@@ -722,6 +722,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.1/requests:
     post:
+      deprecated: true
       summary: Richiesta invio notifica
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
@@ -775,6 +776,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Problem'
     get:
+      deprecated: true
       operationId: retrieveNotificationRequestStatusV21
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
@@ -883,6 +885,7 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/v2.1/notifications/sent/{iun}:
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
@@ -915,7 +918,10 @@ paths:
                 $ref: '#/components/schemas/Problem'
   /delivery/price/{paTaxId}/{noticeCode}:
     get:
+      deprecated: true
       operationId: retrieveNotificationPrice
+      x-pagopa-lambda-name: pn-delivery-versioning-v1v23-getnotificationprice-lambda:live
+      x-pagopa-lambda-account: core
       summary: Retrieve notification price and effective date
       description: |-
         Usata dalla PA per recuperare il costo di notificazione tramite
