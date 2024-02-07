@@ -91,6 +91,10 @@ describe("eventHandler tests", function () {
     const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
     expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
     expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
+
+    // check che NON siano presenti i campi vat e paFee
+    expect(resJson.paFee).to.be.equal(undefined);
+    expect(resJson.vat).to.be.equal(undefined);
   });
 
 
@@ -139,6 +143,9 @@ describe("eventHandler tests", function () {
     const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
     expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
     expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
+    // check che NON siano presenti i campi vat e paFee
+    expect(resJson.paFee).to.be.equal(undefined);
+    expect(resJson.vat).to.be.equal(undefined);
   });
 
   it("statusCode 200 v2.3", async () => {
@@ -186,6 +193,9 @@ describe("eventHandler tests", function () {
       const analogProgElement = resJson.timeline[SEND_ANALOG_PROGRESS_IDX];
       expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
       expect(analogProgElement.details.serviceLevel).to.be.equal("REGISTERED_LETTER_890");
+      // check che SIANO presenti i campi vat e paFee
+      expect(resJson.paFee).to.be.equal(100);
+      expect(resJson.vat).to.be.equal(22);
     });
 
   it("statusCode 200 v1", async () => {
