@@ -1,4 +1,4 @@
-const { validateRequest, generateResponse, validateQueryStringParameters } = require('./requestHelper')
+const { validateRequest, generateResponse, validateQueryStringParameters, findRequestVersion } = require('./requestHelper')
 const {ValidationException} = require("./exceptions.js");
 const AWSXRay = require("aws-xray-sdk-core");
 
@@ -74,17 +74,26 @@ exports.handleEvent = async (event) => {
             idempotenceToken: idempotenceToken
         });
     }
-    
+
+    let version = findRequestVersion(event);
     
     console.log ('calling ',url + searchParams);
     let response;
     try {
         response = await axios.get(url, { params: searchParams, headers: headers });
-        
-        const transformedObject = transformFromV21ToV1(response.data);
+
+        let finalVersionObject;
+        if(version == 10) {
+            finalVersionObject = transformFromV21ToV1(transformFromV23ToV21(response.data));
+        }
+
+        if(version == 21) {
+           finalVersionObject = transformFromV23ToV21(response.data);
+        }
+
         const ret = {
             statusCode: response.status,
-            body: JSON.stringify(transformedObject),
+            body: JSON.stringify(finalVersionObject),
         };
         return ret;
         
@@ -121,6 +130,12 @@ exports.handleEvent = async (event) => {
                 }
             ]
         }
+    }
+
+    function transformFromV23ToV21(responseV23) {
+        const responseV21 = responseV23;
+        responseV21.vat = undefined;
+        return responseV21;
     }
 
     function transformFromV21ToV1(responseV21) {

@@ -107,7 +107,7 @@ describe("eventHandler tests", function () {
     });
 
     it("should return 200", async () => {
-        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV23.json");
         let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
         process.env = Object.assign(process.env, {
@@ -138,8 +138,43 @@ describe("eventHandler tests", function () {
         expect(res.statusCode).to.equal(200);
     });
 
+    it("should return 200 for v2.1", async () => {
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV23.json");
+        let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
+
+        process.env = Object.assign(process.env, {
+            PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.1/",
+        });
+        
+        let url = `${process.env.PN_DELIVERY_URL}/requests?`;
+        const params = new URLSearchParams({
+            notificationRequestId: 'validNotificationRequestId'
+        });
+
+        mock.onGet(url, { params: params }).reply(200, notificationRequestStatusV21, { "Content-Type": "application/json" });
+
+        const event = {
+            path: '/delivery/v2.1/requests',
+            httpMethod: "GET",
+            headers: {},
+            requestContext: {
+                authorizer: {},
+            },
+            queryStringParameters: {
+                notificationRequestId: 'validNotificationRequestId'
+            }
+        }
+        
+        const res = await handleEvent(event)
+        let resJson = JSON.parse(res.body);
+       
+        expect(res.statusCode).to.equal(200);
+        expect(resJson.paFee).to.be.equal(100);
+        expect(resJson.vat).to.be.equal(undefined);
+    });
+
     it("should return 200 with paProtocolNumber and idempotenceToken", async () => {
-        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV23.json");
         let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
 
@@ -175,7 +210,7 @@ describe("eventHandler tests", function () {
 
     it("Unable to map more than 2 payments", async () => {
 
-        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV23.json");
         let notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
         const extraPayment = {
@@ -228,7 +263,7 @@ describe("eventHandler tests", function () {
 
     it("Unable to map F24 payment", async () => {
 
-        const notificationRequestStatusExtraJSON = fs.readFileSync("./src/test/notificationRequestStatusV21ExtraPayment.json");
+        const notificationRequestStatusExtraJSON = fs.readFileSync("./src/test/notificationRequestStatusV23ExtraPayment.json");
         const notificationRequestStatusV21Extra = JSON.parse(notificationRequestStatusExtraJSON);
 
         process.env = Object.assign(process.env, {
@@ -260,7 +295,7 @@ describe("eventHandler tests", function () {
 
     it("PagoPaIntMode value not supported", async () => {
 
-        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV21.json");
+        const notificationRequestStatusJSON = fs.readFileSync("./src/test/notificationRequestStatusV23.json");
         const notificationRequestStatusV21 = JSON.parse(notificationRequestStatusJSON);
 
         notificationRequestStatusV21.pagoPaIntMode = 'ASYNC'

@@ -71,5 +71,7 @@
     "pagoPaIntMode": "NONE",
     "notificationRequestId": "QUpNTi1UWFVBLU1IR1AtMjAyMzA5LVotMQ==",
     "notificationRequestStatus": "ACCEPTED",
-    "iun": "AJMN-TXUA-MHGP-202309-Z-1"
+    "iun": "AJMN-TXUA-MHGP-202309-Z-1",
+    "paFee": 100,
+    "vat": 22
 }
