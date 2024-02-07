@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: 74I+FAj5chD9CpwQgOwVZwjTaQYt2BJ0qJueEm5SdPA=
+  version: kHFXa69rKfKO2ktrDEvy0kK9bk+M3k84K7cJMOwzE7o=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -819,6 +819,7 @@ paths:
         type: aws_proxy
   /v2.1/requests:
     post:
+      deprecated: true
       summary: Richiesta invio notifica
       description: >-
         Operazione utilizzata dalla Pubblica Amministrazione per richiedere
@@ -893,6 +894,7 @@ paths:
         type: aws_proxy
       parameters: []
     get:
+      deprecated: true
       operationId: retrieveNotificationRequestStatusV21
       x-pagopa-lambda-name: pn-delivery-versioning-v1v21-getnotificationrequeststatus-lambda:live
       x-pagopa-lambda-account: core
@@ -1063,6 +1065,7 @@ paths:
         type: aws_proxy
   /v2.1/notifications/sent/{iun}:
     get:
+      deprecated: true
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: >-
         Questa operazione permette di leggere tutti i dettagli di una notifica
@@ -1116,6 +1119,7 @@ paths:
         type: aws_proxy
   /price/{paTaxId}/{noticeCode}:
     get:
+      deprecated: true
       operationId: retrieveNotificationPrice
       x-pagopa-lambda-name: pn-delivery-versioning-v1v23-getnotificationprice-lambda:live
       x-pagopa-lambda-account: core
