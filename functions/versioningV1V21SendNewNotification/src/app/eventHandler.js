@@ -57,6 +57,7 @@ exports.handleEvent = async (event) => {
       headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
     }
 
+    // nel caso v1.0 vengono effettuati entrambi gli step: v1.0 -> v2.1 -> v2.3
     switch(requestVersion) {
       case 10:
         finalVersionRequest = fromNewNotificationRequestV1ToV21(finalVersionRequest);
