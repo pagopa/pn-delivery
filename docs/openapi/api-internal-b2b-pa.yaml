@@ -49,7 +49,7 @@ info:
       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
       di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
       Se il passo (2) avviene con successo si utilizza l'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV21)
+      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23)
       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
       Nel campo _notificationRequestStatus_ sarà indicato:</br>
       >\- <strong>WAITING:</strong> se la validazione è ancora in corso.</br>
@@ -129,7 +129,7 @@ info:
       #### 2. Richiesta di invio della notifica
     
       Per effettuare una richiesta di invio notifica, invocare l'operazione 
-      [sendNewNotification](#/NewNotification/sendNewNotificationV21) utilizzando i riferimenti dei file 
+      [sendNewNotification](#/NewNotification/sendNewNotificationV23) utilizzando i riferimenti dei file 
       caricati ottenuti al punto (1.b).
       
       </br>
@@ -153,8 +153,8 @@ info:
     
       Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà 
       identificata dalla IUN restituito dall'operazione 
-      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV21).</br> 
-      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.1/notifications/sent/{iun}_ per 
+      [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23).</br> 
+      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.3/notifications/sent/{iun}_ per 
       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
       
@@ -332,7 +332,7 @@ paths:
     ###                          CREAZIONE RICHIESTE DI NOTIFICA                           ###
     ###########################################################################################
 
-  "/delivery/v2.1/requests":
+  "/delivery/v2.3/requests":
     post:
       summary: Richiesta invio notifica
       description: |-
@@ -356,7 +356,7 @@ paths:
         </details>
       tags:
         - NewNotification
-      operationId: sendNewNotificationV21
+      operationId: sendNewNotificationV23
       parameters:                                                     # NO EXTERNAL
         - $ref: '#/components/parameters/uidAuthFleet'                # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'             # NO EXTERNAL
@@ -369,7 +369,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV21"
+              $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV23"
         required: true
       responses:
         '202':
@@ -402,8 +402,8 @@ paths:
     ###                        VERIFICA STATO RICHIESTE DI NOTIFICA                         ###
     ###########################################################################################
     get:
-      operationId: getNotificationRequestStatusV21                       # NO EXTERNAL
-#      operationId: retrieveNotificationRequestStatusV21                 # ONLY EXTERNAL
+      operationId: getNotificationRequestStatusV23                       # NO EXTERNAL
+#      operationId: retrieveNotificationRequestStatusV23                 # ONLY EXTERNAL
       tags:
         - SenderReadB2B
       summary: Verifica accettazione richiesta notifica
@@ -426,7 +426,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV21"
+                $ref: "#/components/schemas/NewNotificationRequestStatusResponseV23"
         '400':
           description: Bad request
           content:
@@ -451,7 +451,7 @@ paths:
     ###                             RICERCA NOTIFICHE ACCETTATE                             ###
     ###########################################################################################
 
-  "/delivery/v2.1/notifications/sent/{iun}":
+  "/delivery/v2.3/notifications/sent/{iun}":
     get:
       summary: 'Mittente: lettura dettagli notifica versione 2'
       description: |-
@@ -470,8 +470,8 @@ paths:
         </details>
       tags:
         - SenderReadB2B
-      operationId: getSentNotificationV21                                      # NO EXTERNAL
-#      operationId: retrieveSentNotificationV21                                # ONLY EXTERNAL
+      operationId: getSentNotificationV23                                      # NO EXTERNAL
+#      operationId: retrieveSentNotificationV23                                # ONLY EXTERNAL
       parameters:
         - $ref: '#/components/parameters/uidAuthFleet'            # NO EXTERNAL
         - $ref: '#/components/parameters/cxTypeAuthFleet'         # NO EXTERNAL
@@ -484,7 +484,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/FullSentNotificationV21"
+                $ref: "#/components/schemas/FullSentNotificationV23"
         '400':
           description: Bad request
           content:
@@ -597,59 +597,59 @@ paths:
           content:
             application/problem+json:
               schema:
+                $ref: '#/components/schemas/Problem'                                
+
+  "/delivery/v2.3/price/{paTaxId}/{noticeCode}":
+    get:
+      operationId: getNotificationPriceV23                                           # NO EXTERNAL
+#      operationId: retrieveNotificationPriceV23                                     # ONLY EXTERNAL
+      summary: Retrieve notification partial price and total price with effective date
+      description: >-
+        Usata dagli enti per recuperare il costo di notificazione tramite
+        l'identificativo della posizione debitoria paTaxId e noticeCode.
+        Viene restituito sia il costo parziale che il costo totale di notificazione.
+      tags:
+        - NotificationPriceV23
+      parameters:
+        - name: paTaxId
+          description: Payment PA fiscal code
+          in: path
+          required: true
+          example: '77777777777'
+          schema:
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'
+        - name: noticeCode
+          description: Payment notice number  numero avviso
+          in: path
+          required: true
+          example: '302000100000019421'
+          schema:
+            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPriceResponseV23'
+        '400':
+          description: Invalid input
+          content:
+            application/problem+json:
+              schema:
                 $ref: '#/components/schemas/Problem'
-
-
-  '/delivery/price/{paTaxId}/{noticeCode}':                                         # ONLY EXTERNAL
-    get:                                                                            # ONLY EXTERNAL
-      operationId: getNotificationPrice                                             # NO EXTERNAL
-#      operationId: retrieveNotificationPrice                                       # ONLY EXTERNAL
-      summary: Retrieve notification price and effective date                       # ONLY EXTERNAL
-      description: >-                                                               # ONLY EXTERNAL
-        Usata dalla PA per recuperare il costo di notificazione tramite
-         l'identificativo della posizione debitoria paTaxId e noticeCode.
-      tags:                                                                         # ONLY EXTERNAL
-        - NotificationPrice                                                         # ONLY EXTERNAL
-      parameters:                                                                   # ONLY EXTERNAL
-        - name: paTaxId                                                             # ONLY EXTERNAL
-          description: Payment PA fiscal code                                       # ONLY EXTERNAL
-          in: path                                                                  # ONLY EXTERNAL
-          required: true                                                            # ONLY EXTERNAL
-          example: '77777777777'                                                    # ONLY EXTERNAL
-          schema:                                                                   # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/paTaxId'        # ONLY EXTERNAL
-        - name: noticeCode                                                          # ONLY EXTERNAL
-          description: Payment notice number  numero avviso                         # ONLY EXTERNAL
-          in: path                                                                  # ONLY EXTERNAL
-          required: true                                                            # ONLY EXTERNAL
-          example: '302000100000019421'                                             # ONLY EXTERNAL
-          schema:                                                                   # ONLY EXTERNAL
-            $ref: 'schemas-pn-notification.yaml#/components/schemas/noticeCode'     # ONLY EXTERNAL
-      responses:                                                                    # ONLY EXTERNAL
-        '200':                                                                      # ONLY EXTERNAL
-          description: OK                                                           # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/json:                                                       # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/NotificationPriceResponse'              # ONLY EXTERNAL
-        '400':                                                                      # ONLY EXTERNAL
-          description: Invalid input                                                # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-        '404':                                                                      # ONLY EXTERNAL
-          description: Not Found                                                    # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
-        '500':                                                                      # ONLY EXTERNAL
-          description: Internal Server Error                                        # ONLY EXTERNAL
-          content:                                                                  # ONLY EXTERNAL
-            application/problem+json:                                               # ONLY EXTERNAL
-              schema:                                                               # ONLY EXTERNAL
-                $ref: '#/components/schemas/Problem'                                # ONLY EXTERNAL
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 
     ###########################################################################################
     ###                     RICEZIONE DATI AVVENUTO PAGAMENTO DALLA PA                      ###
@@ -972,6 +972,44 @@ components:
           description: data di perfezionamento per presa visione espressa alla mezzanotte del giorno in cui si verifica l'evento
           type: string
           format: date-time
+    NotificationPriceResponseV23:
+      title: Notification price Response
+      description: >-
+        Notification price and effective date
+      type: object
+      properties:
+        iun:
+          $ref: './schemas-pn-notification.yaml#/components/schemas/IUN'
+        partialPrice:
+          description: Costo totale di notificazione che non include la paFee e vat
+          type: integer
+          format: int32
+        totalPrice:
+          description: Costo totale di notificazione che include la paFee e vat applicato ai costi cartacei. Presente solo se entrambi i campi paFee e vat sono stati valorizzati
+          type: integer
+          format: int32
+        vat:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/VatV23'
+        paFee:
+          $ref: 'schemas-pn-notification.yaml#/components/schemas/PaFeeV23'
+        refinementDate:
+          description: data di perfezionamento per decorrenza termini localizzata espressa alla mezzanotte del giorno in cui si verifica l'evento
+          type: string
+          format: date-time
+        notificationViewDate:
+          description: data di perfezionamento per presa visione espressa alla mezzanotte del giorno in cui si verifica l'evento
+          type: string
+          format: date-time
+        sendFee:
+          description: costo base di SeND per notificazione
+          type: integer
+          format: int32
+        analogCost:
+          description: costo totale dei prodotti postali
+          type: integer
+          format: int32
+
+
 
     ###########################################################################################
     ###                              DTO RICHIESTE DI NOTIFICA                              ###
@@ -1002,9 +1040,9 @@ components:
             effettuate con lo stesso numero di protocollo (campo _paProtocolNumber_).
           type: string
 
-    NewNotificationRequestStatusResponseV21:
+    NewNotificationRequestStatusResponseV23:
       allOf:
-        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV21"
+        - $ref: "./schemas-pn-notification.yaml#/components/schemas/NewNotificationRequestV23"
         - type: object
           required:
             - notificationRequestId
@@ -1045,12 +1083,12 @@ components:
     ###                              DTO NOTIFICA CON DETTAGLI                              ###
     ###########################################################################################
 
-    FullSentNotificationV21:
+    FullSentNotificationV23:
       description: >-
         Le informazioni riguardanti una notifica (richiesta di notifica accettata) e il 
         processo di inoltro della notifica verso il cittadino.
       allOf:
-        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV21'
+        - $ref: './schemas-pn-notification.yaml#/components/schemas/SentNotificationV23'
         - type: object
           required:
             - notificationStatus
@@ -1066,7 +1104,7 @@ components:
                 elenco dettagliato di tutto ciò che è accaduto durrante il processo di notifica
               type: array
               items:
-                $ref: '#/components/schemas/TimelineElementV20'
+                $ref: '#/components/schemas/TimelineElementV23'
             recipientIds:                                                               # NO EXTERNAL
               description: Lista degli identificativi anonimizzati dei destinatari      # NO EXTERNAL
               type: array                                                               # NO EXTERNAL
@@ -1182,8 +1220,8 @@ components:
           type: integer
           format: int32
 
-    TimelineElementV20:
-      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV20'
+    TimelineElementV23:
+      $ref: './remote-refs.yaml#/components/schemas/TimelineElementV23'
     NotificationStatus:
       $ref: './remote-refs.yaml#/components/schemas/NotificationStatus'
     NotificationStatusHistory:

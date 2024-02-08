@@ -225,7 +225,7 @@ class PaymentEventsServiceTest {
                 .internalId( RECIPIENT_INTERNAL_ID )
                 .taxId( RECIPIENT_TAX_ID )
                 .denomination("Mario Rossi")
-                .recipientType( NotificationRecipientV21.RecipientTypeEnum.valueOf( RECIPIENT_TYPE_PF ) )
+                .recipientType( NotificationRecipientV23.RecipientTypeEnum.valueOf( RECIPIENT_TYPE_PF ) )
                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                         .type(NotificationDigitalAddress.TypeEnum.PEC)
                         .address("account@dominio.it")

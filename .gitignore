@@ -12,6 +12,7 @@ target/
 node_modules/
 .nyc_output/
 coverage/
+.scannerwork
 
 ### STS ###
 .apt_generated

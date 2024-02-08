@@ -2,6 +2,7 @@ package it.pagopa.pn.delivery.rest;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
 import it.pagopa.pn.delivery.PnDeliveryConfigs;
+import it.pagopa.pn.delivery.exception.PnForbiddenException;
 import it.pagopa.pn.delivery.exception.PnNotFoundException;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InputSearchNotificationDto;
@@ -640,6 +641,40 @@ class PnInternalNotificationsControllerTest {
                 .isNotFound();
     }
 
+    @Test
+    void checkIunAndInternalIdWithRecipientTest() {
+        String recipientId = "testRecipient";
+        Mockito.doNothing()
+                .when(retrieveSvc)
+                .checkIUNAndInternalId(IUN, recipientId, null, null, null);
+
+        webTestClient.get()
+                .uri(
+                        uriBuilder ->
+                                uriBuilder.path("/delivery-private/check-iun-internalid/"+ IUN)
+                                        .queryParam("recipientInternalId", recipientId)
+                                        .build()
+                ).exchange().expectStatus()
+                .isNoContent();
+    }
+
+    @Test
+    void checkIunAndInternalIdWithRecipientNotPartOfNotificationTest() {
+        String recipientId = "testRecipient";
+        Mockito.doThrow(new PnForbiddenException("The given recipient is not one of notification's recipients"))
+                .when(retrieveSvc)
+                .checkIUNAndInternalId(IUN, recipientId, null, null, null);
+
+        webTestClient.get()
+                .uri(
+                        uriBuilder ->
+                                uriBuilder.path("/delivery-private/check-iun-internalid/"+ IUN)
+                                        .queryParam("recipientInternalId", recipientId)
+                                        .build()
+                ).exchange().expectStatus()
+                .isNotFound();
+    }
+
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setSourceChannel(X_PAGOPA_PN_SRC_CH);
@@ -648,7 +683,7 @@ class PnInternalNotificationsControllerTest {
                 List.of(
                         NotificationRecipient.builder()
                                 .internalId("internalId")
-                                .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                                .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                                 .taxId("taxId")
                                 .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder().build())
                                 .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder().build())

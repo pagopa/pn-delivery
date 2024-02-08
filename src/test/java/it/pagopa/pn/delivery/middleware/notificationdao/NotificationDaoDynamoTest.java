@@ -80,7 +80,7 @@ class NotificationDaoDynamoTest {
 
         // GIVEN
         InternalNotification notification = newNotificationWithoutPayments( );
-        notification.setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        notification.setPhysicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
 
         // WHEN
         when( pnDataVaultClient.ensureRecipientByExternalId( any(it.pagopa.pn.delivery.generated.openapi.msclient.datavault.v1.model.RecipientType.class), Mockito.anyString() ) ).thenReturn( "opaqueTaxId" );
@@ -462,7 +462,7 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotificationWithoutPayments() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPaFee(0);
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -477,7 +477,7 @@ class NotificationDaoDynamoTest {
                         .taxId("Codice Fiscale 01")
                         .denomination("Nome Cognome/Ragione Sociale")
                         .internalId( "recipientInternalId" )
-                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")
@@ -488,8 +488,8 @@ class NotificationDaoDynamoTest {
     private InternalNotification newNotification() {
         InternalNotification internalNotification = new InternalNotification();
         internalNotification.setPaFee(0);
-        internalNotification.setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setPhysicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -538,7 +538,7 @@ class NotificationDaoDynamoTest {
                                         .build())
                                 .build())
                         )
-                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                         .physicalAddress(it.pagopa.pn.delivery.models.internal.notification.NotificationPhysicalAddress.builder()
                                 .address("address")
                                 .addressDetails("address")

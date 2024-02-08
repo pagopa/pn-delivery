@@ -94,7 +94,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV21"
+                $ref: "schemas-pn-notification.yaml#/components/schemas/SentNotificationV23"
         '400':
           description: Bad request
           content:
@@ -236,6 +236,28 @@ paths:
           description: To many usage of the given QrCode Reference
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  "/delivery-private/check-iun-internalid/{iun}":
+    get:
+      summary: servizio per la verifica di accesso dato uno IUN e un internalId (eventualmente di un delegato)
+      tags:
+      - internal-only
+      operationId: checkIUNAndInternalId
+      parameters:
+        - $ref: './parameters-notification-search.yaml#/components/parameters/pathIun'
+        - $ref: '#/components/parameters/queryRecipientInternalId'
+        - $ref: '#/components/parameters/queryMandateId'
+        - $ref: '#/components/parameters/queryCxType'
+        - $ref: '#/components/parameters/queryCxGroups'
+      responses:
+        '204':
+          description: OK
+        '404':
+          description: IUN reference not Found or not available for internalId
+          content:
+            application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
 
@@ -414,7 +436,29 @@ components:
       schema:
         type: integer
         format: int32
-
+    queryCxType:
+      in: query
+      name: queryCxType
+      description: Tipologia di utente (PA/PF/PG)
+      required: false
+      schema:
+        type: string
+        enum:
+          - PA
+          - PF
+          - PG
+    queryCxGroups:
+      in: query
+      name: queryCxGroups
+      description: Gruppi dell'utente
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          # ASCII printable characters
+          pattern: ^[ -~]*$
+          maxLength: 1024
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid

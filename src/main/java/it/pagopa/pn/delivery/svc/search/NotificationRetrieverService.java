@@ -432,15 +432,15 @@ public class NotificationRetrieverService {
 		return getNotificationInformation(iun, withTimeline, requestBySender, null);
 	}
 
-	protected OffsetDateTime findRefinementDate(List<TimelineElementV20> timeline, String iun) {
+	protected OffsetDateTime findRefinementDate(List<TimelineElementV23> timeline, String iun) {
 		log.debug( "Find refinement date iun={}", iun );
 		OffsetDateTime refinementDate = null;
 		// cerco elemento timeline con category refinement o notificationView
-		Optional<TimelineElementV20> optionalMin = timeline
+		Optional<TimelineElementV23> optionalMin = timeline
 				.stream()
-				.filter(tle -> TimelineElementCategoryV20.REFINEMENT.equals(tle.getCategory() )
-						|| TimelineElementCategoryV20.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
-				.min( Comparator.comparing(TimelineElementV20::getTimestamp) );
+				.filter(tle -> TimelineElementCategoryV23.REFINEMENT.equals(tle.getCategory() )
+						|| TimelineElementCategoryV23.NOTIFICATION_VIEWED.equals( tle.getCategory() ))
+				.min( Comparator.comparing(TimelineElementV23::getTimestamp) );
 		// se trovo la data di perfezionamento della notifica
 		if (optionalMin.isPresent()) {
 			refinementDate = refinementLocalDateUtils.setLocalRefinementDate(optionalMin.get());
@@ -525,10 +525,10 @@ public class NotificationRetrieverService {
 		if (!CxType.PA.name().equals(internalAuthHeader.cxType())) {
 			//se il servizio è invocato da un destinatario, devo filtrare la timeline solo per lo specifico destinatario (o suo delegato)
 			//filtro (cyType != PA) superfluo poiché attualmente il servizio è invocato solo lato destinatario
-			List<TimelineElementV20> timeline = internalNotification.getTimeline();
+			List<TimelineElementV23> timeline = internalNotification.getTimeline();
 			log.debug("Timelines size before filter: {}", timeline.size());
 
-			List<TimelineElementV20> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
+			List<TimelineElementV23> filteredTimelineElements = timeline.stream().filter(timelineElement -> timelineElement.getDetails() == null ||
 							timelineElement.getDetails().getRecIndex() == null ||
 							timelineElement.getDetails().getRecIndex() == recipientIndex)
 					.toList();
@@ -675,7 +675,7 @@ public class NotificationRetrieverService {
 		assert timelineStatusHistoryDto.getNotificationStatus() != null;
 		return notification
 				.timeline( timelineList.stream()
-						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV20.class ) )
+						.map( timelineElement -> modelMapper.map(timelineElement, TimelineElementV23.class ) )
 						.toList()  )
 				.notificationStatusHistory( statusHistory.stream()
 						.map( el -> modelMapper.map( el, NotificationStatusHistoryElement.class ))
@@ -758,8 +758,8 @@ public class NotificationRetrieverService {
 	}
 
 	public boolean isNotificationCancelled(InternalNotification notification) {
-		var cancellationRequestCategory = TimelineElementCategoryV20.NOTIFICATION_CANCELLATION_REQUEST;
-		Optional<TimelineElementV20> cancellationRequestTimeline = notification.getTimeline().stream()
+		var cancellationRequestCategory = TimelineElementCategoryV23.NOTIFICATION_CANCELLATION_REQUEST;
+		Optional<TimelineElementV23> cancellationRequestTimeline = notification.getTimeline().stream()
 				.filter(timelineElement -> cancellationRequestCategory.toString().equals(timelineElement.getCategory().toString()))
 				.findFirst();
 		boolean cancellationTimelineIsPresent = cancellationRequestTimeline.isPresent();
@@ -767,6 +767,22 @@ public class NotificationRetrieverService {
 			log.warn("Notification with iun: {} has a request for cancellation", notification.getIun());
 		}
 		return cancellationTimelineIsPresent;
+	}
+
+	public void checkIUNAndInternalId(String iun, String recipientInternalId, String mandateId, String cxType, List<String> cxGroups) {
+		InternalNotification internalNotification = getInternalNotification(iun);
+
+		if(StringUtils.hasText(mandateId)) {
+			// Se è presente il mandateId, il campo recipientInternalId è valorizzato con l'id del delegato
+			checkMandateForNotificationDetail(recipientInternalId, mandateId, internalNotification.getSenderPaId(), iun, cxType, cxGroups);
+		} else {
+			boolean isRecipientOfNotification = internalNotification.getRecipientIds().stream()
+					.anyMatch(recId -> recId.equalsIgnoreCase(recipientInternalId));
+
+			if(!isRecipientOfNotification) {
+				throw new PnForbiddenException(ERROR_CODE_DELIVERY_USER_ID_NOT_RECIPIENT_OR_DELEGATOR);
+			}
+		}
 	}
 
 }

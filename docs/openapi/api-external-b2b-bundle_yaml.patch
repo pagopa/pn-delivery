@@ -1,8 +1,7 @@
 diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
-index 0c2982f7..0b76ef95 100644
 --- a/docs/openapi/api-external-b2b-pa-bundle.yaml
 +++ b/docs/openapi/api-external-b2b-pa-bundle.yaml
-@@ -1026,7 +1026,6 @@ paths:
+@@ -1225,7 +1225,6 @@ paths:
        operationId: retrieveNotificationLegalFacts
        parameters:
          - $ref: '#/components/parameters/pathIun'
@@ -10,7 +9,7 @@ index 0c2982f7..0b76ef95 100644
        responses:
          '200':
            description: OK
-@@ -1065,7 +1064,6 @@ paths:
+@@ -1262,7 +1261,6 @@ paths:
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactType'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -18,7 +17,7 @@ index 0c2982f7..0b76ef95 100644
        responses:
          '200':
            description: OK
-@@ -1103,7 +1101,6 @@ paths:
+@@ -1298,7 +1296,6 @@ paths:
        parameters:
          - $ref: '#/components/parameters/pathIun'
          - $ref: '#/components/parameters/pathLegalFactId'
@@ -26,10 +25,28 @@ index 0c2982f7..0b76ef95 100644
        responses:
          '200':
            description: OK
-@@ -1129,43 +1126,7 @@ paths:
-             application/problem+json:
+@@ -1306,43 +1303,6 @@ paths:
+             application/json:
                schema:
-                 $ref: '#/components/schemas/Problem'
+                 $ref: '#/components/schemas/LegalFactDownloadMetadataResponse'
+-        '400':
+-          description: Invalid input
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
+-        '404':
+-          description: Not found
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
+-        '500':
+-          description: Internal Server Error
+-          content:
+-            application/problem+json:
+-              schema:
+-                $ref: '#/components/schemas/Problem'
 -  /delivery-push/{iun}/document/{documentType}:
 -    get:
 -      summary: Restituisce il singolo documento identificato dalla documentKey
@@ -49,25 +66,6 @@ index 0c2982f7..0b76ef95 100644
 -            application/json:
 -              schema:
 -                $ref: '#/components/schemas/DocumentDownloadMetadataResponse'
--        '400':
--          description: Invalid input
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
--        '404':
--          description: Not found
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
--        '500':
--          description: Internal Server Error
--          content:
--            application/problem+json:
--              schema:
--                $ref: '#/components/schemas/Problem'
-+
-   /delivery-progresses/streams:
-     post:
-       summary: Crea nuovo stream di eventi
+         '400':
+           description: Invalid input
+           content:

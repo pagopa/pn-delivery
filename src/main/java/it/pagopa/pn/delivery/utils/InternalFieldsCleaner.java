@@ -29,6 +29,7 @@ public class InternalFieldsCleaner {
             internalNotification.setRecipientIds( null );
             internalNotification.setSourceChannel( null );
             internalNotification.setSourceChannelDetails(null);
+            internalNotification.setVersion(null);
             cleanInternalId( internalNotification.getRecipients() );
         }
     }

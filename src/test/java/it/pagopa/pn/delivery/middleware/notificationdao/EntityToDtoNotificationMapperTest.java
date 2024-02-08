@@ -1,7 +1,7 @@
 package it.pagopa.pn.delivery.middleware.notificationdao;
 
 import it.pagopa.pn.commons.exceptions.PnInternalException;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.FullSentNotificationV23;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NotificationFeePolicy;
 import it.pagopa.pn.delivery.middleware.notificationdao.entities.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -12,10 +12,12 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class EntityToDtoNotificationMapperTest {
+    public static final Integer VAT = 22;
 
     private EntityToDtoNotificationMapper mapper;
 
@@ -46,6 +48,7 @@ class EntityToDtoNotificationMapperTest {
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa());
         Assertions.assertNull(internalNotification.getRecipients().get(0).getPayments().get(0).getPagoPa().getAttachment());
         Assertions.assertNotNull(internalNotification.getRecipients().get(1).getPayments().get(0).getPagoPa().getAttachment());
+        assertEquals( VAT, internalNotification.getVat() );
     }
 
     private NotificationEntity newNotificationEntity() {
@@ -150,7 +153,7 @@ class EntityToDtoNotificationMapperTest {
                 .idempotenceToken("idempotenceToken")
                 .paNotificationId("protocol_01")
                 .subject("Subject 01")
-                .physicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
+                .physicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum.REGISTERED_LETTER_890)
                 .cancelledByIun("IUN_05")
                 .cancelledIun("IUN_00")
                 .senderPaId("pa_02")
@@ -159,7 +162,7 @@ class EntityToDtoNotificationMapperTest {
                 .notificationFeePolicy(NotificationFeePolicy.FLAT_RATE)
                 .recipients(List.of(notificationRecipientEntity, notificationRecipientEntity1))
                 .version("1")
-                //.recipientsJson(Collections.emptyMap())
+                .vat(VAT)
                 .build();
     }
 

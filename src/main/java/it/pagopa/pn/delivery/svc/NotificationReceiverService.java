@@ -8,7 +8,7 @@ import it.pagopa.pn.delivery.exception.PnInvalidInputException;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Item;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.SaveF24Request;
 import it.pagopa.pn.delivery.generated.openapi.msclient.externalregistries.v1.model.PaGroup;
-import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV21;
+import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationRequestV23;
 import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.NewNotificationResponse;
 import it.pagopa.pn.delivery.middleware.NotificationDao;
 import it.pagopa.pn.delivery.models.InternalNotification;
@@ -40,7 +40,7 @@ import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.Notification
 @Service
 @CustomLog
 public class NotificationReceiverService {
-	public static final String LATEST_NOTIFICATION_VERSION = "2.1";
+	public static final String LATEST_NOTIFICATION_VERSION = "2.3";
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;
@@ -88,7 +88,7 @@ public class NotificationReceiverService {
 	 */
 	public NewNotificationResponse receiveNotification(
 			String xPagopaPnCxId,
-			NewNotificationRequestV21 newNotificationRequest,
+			NewNotificationRequestV23 newNotificationRequest,
 			String xPagopaPnSrcCh,
 			String xPagopaPnSrcChDetails,
 			List<String> xPagopaPnCxGroups,
@@ -196,20 +196,20 @@ public class NotificationReceiverService {
 
 	}
 
-	private void setPagoPaIntMode(NewNotificationRequestV21 newNotificationRequest) {
+	private void setPagoPaIntMode(NewNotificationRequestV23 newNotificationRequest) {
 		// controllo se non é stato settato il valore pagoPaIntMode dalla PA
 		if ( ObjectUtils.isEmpty( newNotificationRequest.getPagoPaIntMode() ) ) {
 			// verifico che nessun destinatario ha un pagamento
 			if ( newNotificationRequest.getRecipients().stream()
 					.noneMatch(notificationRecipient -> notificationRecipient.getPayments() != null && !notificationRecipient.getPayments().isEmpty())) {
 				// metto default a NONE
-				newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+				newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
 			} else {
 				// qualche destinatario ha un pagamento
 				if (newNotificationRequest.getNotificationFeePolicy().equals( DELIVERY_MODE )) {
-					newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.SYNC);
+					newNotificationRequest.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.SYNC);
 				} else {
-					newNotificationRequest.setPagoPaIntMode( NewNotificationRequestV21.PagoPaIntModeEnum.NONE );
+					newNotificationRequest.setPagoPaIntMode( NewNotificationRequestV23.PagoPaIntModeEnum.NONE );
 				}
 			}
 		}

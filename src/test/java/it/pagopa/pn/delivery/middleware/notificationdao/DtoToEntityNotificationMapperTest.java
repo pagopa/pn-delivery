@@ -30,6 +30,7 @@ class DtoToEntityNotificationMapperTest {
     public static final String X_PAGOPA_PN_SRC_CH = "B2B";
     public static final String NOTICE_CODE = "302211675775915057";
     public static final String CREDITOR_TAX_ID = "77777777777";
+    public static final Integer VAT = 22;
     private static final String FILE_SHA_256 = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
 
     private DtoToEntityNotificationMapper mapper;
@@ -49,6 +50,7 @@ class DtoToEntityNotificationMapperTest {
         Assertions.assertEquals( 1 , notificationEntity.getRecipients().get( 0 ).getPayments().size() );
         Assertions.assertEquals( NOTICE_CODE , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getNoticeCode() );
         Assertions.assertEquals( CREDITOR_TAX_ID , notificationEntity.getRecipients().get( 0 ).getPayments().get( 0 ).getCreditorTaxId() );
+        assertEquals( VAT, notificationEntity.getVat() );
 
     }
 
@@ -73,7 +75,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.paProtocolNumber("42");
         actualInternalNotification.paymentExpirationDate("2020-03-01");
         actualInternalNotification
-                .physicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+                .physicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         ArrayList<String> recipientIds = new ArrayList<>();
         actualInternalNotification.recipientIds(recipientIds);
         ArrayList<NotificationRecipient> recipients = new ArrayList<>();
@@ -99,7 +101,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.setPaProtocolNumber("42");
         actualInternalNotification.setPaymentExpirationDate("2020-03-01");
         actualInternalNotification
-                .setPhysicalCommunicationType(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
+                .setPhysicalCommunicationType(FullSentNotificationV23.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER);
         ArrayList<String> recipientIds2 = new ArrayList<>();
         actualInternalNotification.setRecipientIds(recipientIds2);
         ArrayList<NotificationRecipient> recipients2 = new ArrayList<>();
@@ -111,7 +113,7 @@ class DtoToEntityNotificationMapperTest {
         actualInternalNotification.setSentAt(sentAt);
         actualInternalNotification.setSubject("Hello from the Dreaming Spires");
         actualInternalNotification.setTaxonomyCode("Taxonomy Code");
-        ArrayList<TimelineElementV20> timeline = new ArrayList<>();
+        ArrayList<TimelineElementV23> timeline = new ArrayList<>();
         actualInternalNotification.setTimeline(timeline);
         actualInternalNotification.sourceChannel("Source Channel");
         actualInternalNotification.subject("Hello from the Dreaming Spires");
@@ -120,13 +122,13 @@ class DtoToEntityNotificationMapperTest {
     }
 
     private void testingInternalNotification(InternalNotification actualInternalNotification){
-        ArrayList<TimelineElementV20> timeline2 = new ArrayList<>();
+        ArrayList<TimelineElementV23> timeline2 = new ArrayList<>();
         actualInternalNotification.timeline(timeline2);
         assertEquals(" abstract", actualInternalNotification.getAbstract());
         assertEquals(10, actualInternalNotification.getAmount().intValue());
         assertEquals("Cancelled By Iun", actualInternalNotification.getCancelledByIun());
         assertEquals("Cancelled Iun", actualInternalNotification.getCancelledIun());
-        List<TimelineElementV20> timeline3 = actualInternalNotification.getTimeline();
+        List<TimelineElementV23> timeline3 = actualInternalNotification.getTimeline();
         assertTrue(actualInternalNotification.getDocumentsAvailable());
         assertEquals("Group", actualInternalNotification.getGroup());
         assertEquals("ABC123", actualInternalNotification.getIdempotenceToken());
@@ -135,7 +137,7 @@ class DtoToEntityNotificationMapperTest {
         assertEquals(NotificationStatus.IN_VALIDATION, actualInternalNotification.getNotificationStatus());
         assertEquals("42", actualInternalNotification.getPaProtocolNumber());
         assertEquals("2020-03-01", actualInternalNotification.getPaymentExpirationDate());
-        assertEquals(FullSentNotificationV21.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
+        assertEquals(FullSentNotificationV23.PhysicalCommunicationTypeEnum.AR_REGISTERED_LETTER,
                 actualInternalNotification.getPhysicalCommunicationType());
         assertEquals("Sender Denomination", actualInternalNotification.getSenderDenomination());
         assertEquals("42", actualInternalNotification.getSenderPaId());
@@ -148,7 +150,7 @@ class DtoToEntityNotificationMapperTest {
 
     private InternalNotification newInternalNotification() {
         InternalNotification internalNotification = new InternalNotification();
-        internalNotification.setPagoPaIntMode(NewNotificationRequestV21.PagoPaIntModeEnum.NONE);
+        internalNotification.setPagoPaIntMode(NewNotificationRequestV23.PagoPaIntModeEnum.NONE);
         internalNotification.setSentAt(OffsetDateTime.now());
         internalNotification.setIun("IUN_01");
         internalNotification.setPaProtocolNumber("protocol_01");
@@ -158,6 +160,7 @@ class DtoToEntityNotificationMapperTest {
         internalNotification.setSenderPaId("PA_ID");
         internalNotification.setNotificationStatus(NotificationStatus.ACCEPTED);
         internalNotification.setPaFee(0);
+        internalNotification.setVat(VAT);
         internalNotification.setNotificationFeePolicy(NotificationFeePolicy.DELIVERY_MODE);
         internalNotification.setDocuments(List.of(NotificationDocument
                 .builder()
@@ -196,7 +199,7 @@ class DtoToEntityNotificationMapperTest {
                                         .build())
                                 .build())
                         )
-                        .recipientType(NotificationRecipientV21.RecipientTypeEnum.PF)
+                        .recipientType(NotificationRecipientV23.RecipientTypeEnum.PF)
                         .digitalDomicile(it.pagopa.pn.delivery.models.internal.notification.NotificationDigitalAddress.builder()
                                 .type( NotificationDigitalAddress.TypeEnum.PEC )
                                 .address("account@dominio.it")
