@@ -281,6 +281,12 @@ exports.versioning = async (event, context) => {
       pagoPaIntMode: pagoPaIntMode,
     };
 
+    // Restituisco campi vat e paFee per versione >= 2.3
+    if (version >= 23 ) {
+      responseV1.paFee = responseV2.paFee;
+      responseV1.vat = responseV2.vat;
+    }
+
     return responseV1;
   }
 

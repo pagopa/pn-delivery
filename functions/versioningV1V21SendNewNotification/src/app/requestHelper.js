@@ -1,7 +1,7 @@
 exports.validateRequest = function(event){
   const { path, httpMethod, body } = event
   const errors = []
-  if(httpMethod==='POST' && path && path==='/delivery/requests' && body){
+  if(httpMethod==='POST' && path && path.startsWith('/delivery/') && body){
     return []
   }
   
@@ -17,7 +17,34 @@ exports.generateResponse = function(errorDetails, statusCode, headers){
   }
 }
 
-exports.validateNewNotification = function(newNotificationRequestV1){
+exports.findRequestVersion = function(event) {
+  // a partire dalla versione 1.0 trasformare la request alla versione piú recente sul ms
+  let version = 10;
+
+  // a partire dalla versione 2.1 trasformare la request alla versione piú recente sul ms
+  if (event["path"].startsWith("/delivery/v2.1/")) {
+      version = 21;
+  }
+
+  // a partire dalla versione 2.3 trasformare la request alla versione piú recente sul ms
+  // NB: sebbene (a oggi) la 2.3 non passa di qua, in futuro potrebbe e quindi si è già implementata
+  // la logica di traduzione (che probabilmente andrà aggiornata nel futuro)
+  if (event["path"].startsWith("/delivery/v2.3/")) {
+      version = 23;
+  }
+  return version;
+}
+
+exports.validateNewNotification = function(newNotificationRequest, requestVersion) {
+  switch(requestVersion) {
+    case 10:
+      return validateNewNotificationV1(newNotificationRequest);
+    case 21:
+      return validateNewNotificationV21(newNotificationRequest);
+  }
+}
+
+function validateNewNotificationV1(newNotificationRequestV1) {
   const errors = []
 
   if (!newNotificationRequestV1.pagoPaIntMode){
@@ -49,6 +76,32 @@ exports.validateNewNotification = function(newNotificationRequestV1){
   });
   
   return errors;
+}
+
+function validateNewNotificationV21(newNotificationRequestV21) {
+  const errors = []
+  if(newNotificationRequestV21.notificationFeePolicy === 'DELIVERY_MODE' &&
+   (newNotificationRequestV21.pagoPaIntMode === 'ASYNC' || haveF24Payment(newNotificationRequestV21)) ) {
+    // controlla presenza vat e paFee
+    if (!newNotificationRequestV21.paFee || !newNotificationRequestV21.vat) {
+      errors.push('Vat and paFee fields are required');
+    }
+  }
+  return errors;
+}
+
+function haveF24Payment(newNotificationRequestV21) {
+  let haveSomeF24 = false;
+  newNotificationRequestV21.recipients.forEach(recipient => {
+    if (recipient.payments) {
+      recipient.payments.forEach(payment => {
+        if(payment.f24) {
+          return haveSomeF24 = true;
+        }
+      })
+    }
+  })
+  return haveSomeF24;
 }
 
 function fromRecipientV1ToRecipientV21(recipientV1, applyCostFlag) {
@@ -178,8 +231,18 @@ function transformNotificationDocument(doc) {
   };
 }
 
-exports.createNewNotificationRequesV21 = function(newNotificationRequestV1){
+exports.fromNewNotificationRequestV21ToV23 = function(newNotificationRequestV21){
+  console.log("fromNewNotificationRequestV21ToV23");
+  let newNotificationRequestV23 = newNotificationRequestV21;
+  // se non presente metto default
+  // N.B. anche per la tipologia FLAT_RATE viene aggiunto default anche se non utilizzato al momento
+  newNotificationRequestV23.paFee = newNotificationRequestV21.paFee? newNotificationRequestV21.paFee : 100;
+  newNotificationRequestV23.vat = newNotificationRequestV21.vat? newNotificationRequestV21.vat : 22;
+  return newNotificationRequestV23;
+}
 
+exports.fromNewNotificationRequestV1ToV21 = function(newNotificationRequestV1){
+  console.log("fromNewNotificationRequestV1ToV21");
   let applyCostFlag = false;
   if (newNotificationRequestV1.notificationFeePolicy === 'DELIVERY_MODE') {
     applyCostFlag = true
