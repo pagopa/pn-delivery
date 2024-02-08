@@ -1,4 +1,4 @@
-const { validateRequest, generateResponse, validateNewNotification, createNewNotificationRequesV21 } = require('./requestHelper')
+const { validateRequest, generateResponse, validateNewNotification, findRequestVersion, fromNewNotificationRequestV1ToV21, fromNewNotificationRequestV21ToV23 } = require('./requestHelper')
 const AWSXRay = require("aws-xray-sdk-core");
 
 AWSXRay.captureHTTPsGlobal(require('http'));
@@ -14,17 +14,17 @@ exports.handleEvent = async (event) => {
         return generateResponse({ resultCode: '404.00', resultDescription: 'Not found', errorList: isRequestValid }, 404, {})
     }
 
-    const eventBody = JSON.parse(event.body)
+    let finalVersionRequest = JSON.parse(event.body);
 
-    const eventValidationErrors = validateNewNotification(eventBody)
-    console.log("eventValidationErrors ", eventValidationErrors)
+    let requestVersion = findRequestVersion(event);
+    console.log("requestVersion ", requestVersion);
+
+    const eventValidationErrors = validateNewNotification(finalVersionRequest, requestVersion);
     if(eventValidationErrors.length > 0){
         return generateResponse({ resultCode: '400.00', resultDescription: 'Validation error', errorList: eventValidationErrors }, 400, {})
     }
 
     console.log("Versioning_V1-V21_SendNewNotification_Lambda function started");
-
-    var newNotificationRequestV21 = createNewNotificationRequesV21(eventBody);
 
     // post verso pn-delivery
     const url = process.env.PN_DELIVERY_URL.concat('/requests');
@@ -57,9 +57,17 @@ exports.handleEvent = async (event) => {
       headers["x-pagopa-pn-uid"] = event.requestContext.authorizer["uid"];
     }
 
+    switch(requestVersion) {
+      case 10:
+        finalVersionRequest = fromNewNotificationRequestV1ToV21(finalVersionRequest);
+      case 21:
+        finalVersionRequest = fromNewNotificationRequestV21ToV23(finalVersionRequest);
+        break;
+    }
+
   try {
     console.log ('calling ',url);
-    response = await axios.post(url, newNotificationRequestV21, { headers: headers });
+    response = await axios.post(url, finalVersionRequest, { headers: headers });
     
     const ret = {
       statusCode: response.status,
