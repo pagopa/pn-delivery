@@ -22,13 +22,24 @@ describe('RequestHelper Testing', () => {
         });
     });
     describe('createNewNotificationRequestV23 Testing', () => {
-        it('should return newNotificationRequestV23', async () => {
+        it('should return newNotificationRequestV23 default value', async () => {
             const newNotificationRequestV21JSON = fs.readFileSync("./src/test/newNotificationRequestV21.json");
             let newNotificationRequestV21 = JSON.parse(newNotificationRequestV21JSON);
             const newNotificationRequestV23 = fromNewNotificationRequestV21ToV23(newNotificationRequestV21);
             expect(newNotificationRequestV23).to.not.be.null;
             expect(newNotificationRequestV23).to.not.be.undefined; 
             expect(newNotificationRequestV23.paFee).to.be.equal(100);
+            expect(newNotificationRequestV23.vat).to.be.equal(22);
+        })
+
+        it('should return newNotificationRequestV23', async () => {
+            const newNotificationRequestV21JSON = fs.readFileSync("./src/test/newNotificationRequestV21.json");
+            let newNotificationRequestV21 = JSON.parse(newNotificationRequestV21JSON);
+            newNotificationRequestV21.paFee = 200;
+            const newNotificationRequestV23 = fromNewNotificationRequestV21ToV23(newNotificationRequestV21);
+            expect(newNotificationRequestV23).to.not.be.null;
+            expect(newNotificationRequestV23).to.not.be.undefined; 
+            expect(newNotificationRequestV23.paFee).to.be.equal(200);
             expect(newNotificationRequestV23.vat).to.be.equal(22);
         })
     });
