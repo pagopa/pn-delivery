@@ -8,7 +8,7 @@ AWSXRay.capturePromise();
 const axios = require("axios");
 
 exports.handleEvent = async (event) => {
-    const path = "/delivery/price/";
+    const path = "/price/";
 
     const validationErrors = validateRequest(event)
     if(validationErrors.length > 0 ){

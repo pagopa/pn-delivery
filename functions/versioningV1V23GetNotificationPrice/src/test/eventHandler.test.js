@@ -33,7 +33,7 @@ describe("eventHandler tests", function () {
         const paTaxId = "77777777777";
         const noticeCode = "302011695374606354";
 
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/price/${paTaxId}/${noticeCode}`;
+        let url = `${process.env.PN_DELIVERY_URL}/price/${paTaxId}/${noticeCode}`;
 
         mock.onGet(url).reply(404, {}, {"Content-Type": "application/json"});
 
@@ -63,7 +63,7 @@ describe("eventHandler tests", function () {
         const paTaxId = "77777777777";
         const noticeCode = "302011695374606354";
 
-        let url = `${process.env.PN_DELIVERY_URL}/delivery/price/${paTaxId}/${noticeCode}`;
+        let url = `${process.env.PN_DELIVERY_URL}/price/${paTaxId}/${noticeCode}`;
 
         mock.onGet(url).reply(200, deliveryPrice, {"Content-Type": "application/json"});
 
