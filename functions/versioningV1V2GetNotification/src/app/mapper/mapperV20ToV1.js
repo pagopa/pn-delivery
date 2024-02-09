@@ -1,7 +1,6 @@
 const {adjustTimelineAndHistory} = require('./mapperUtils.js');
 
 exports.transformFromV20ToV1 = function (responseV20) {
-  console.log("transformFromV20ToV1")
   const CATEGORY_TO_EXCLUDE = [
     "NOTIFICATION_CANCELLATION_REQUEST",
     "NOTIFICATION_CANCELLED",

@@ -232,7 +232,6 @@ function transformNotificationDocument(doc) {
 }
 
 exports.fromNewNotificationRequestV21ToV23 = function(newNotificationRequestV21){
-  console.log("fromNewNotificationRequestV21ToV23");
   let newNotificationRequestV23 = newNotificationRequestV21;
   // se non presente metto default
   // N.B. anche per la tipologia FLAT_RATE viene aggiunto default anche se non utilizzato al momento
@@ -242,7 +241,6 @@ exports.fromNewNotificationRequestV21ToV23 = function(newNotificationRequestV21)
 }
 
 exports.fromNewNotificationRequestV1ToV21 = function(newNotificationRequestV1){
-  console.log("fromNewNotificationRequestV1ToV21");
   let applyCostFlag = false;
   if (newNotificationRequestV1.notificationFeePolicy === 'DELIVERY_MODE') {
     applyCostFlag = true

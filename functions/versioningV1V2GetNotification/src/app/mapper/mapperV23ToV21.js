@@ -1,7 +1,6 @@
 const {adjustTimelineAndHistory} = require('./mapperUtils.js');
 
 exports.transformFromV23ToV21 = function(responseV23) {
-    console.log("transformFromV23ToV21")
     const CATEGORY_TO_EXCLUDE = [
         "NOTIFICATION_RADD_RETRIEVED"
     ]
