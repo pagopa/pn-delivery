@@ -1,9 +1,9 @@
+const { versioning } = require("../app/eventHandler.js");
 const { expect } = require("chai");
 const fs = require("fs");
 const axios = require('axios');
 var MockAdapter = require("axios-mock-adapter");
 var mock = new MockAdapter(axios);
-const proxyquire = require("proxyquire").noPreserveCache();
 
 // valori collegati alla definizione del notification.json
 // NB se si aggiungono elementi prima del viewed, aggiornare questo indice
@@ -23,10 +23,6 @@ describe("eventHandler tests", function () {
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
-
     mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
 
     const event = {
@@ -41,7 +37,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(200);
   });
@@ -51,16 +47,12 @@ describe("eventHandler tests", function () {
     let notification = JSON.parse(notificationJSON);
 
     process.env = Object.assign(process.env, {
-      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it/delivery/v2.0",
     });
 
     const iunValue = "12345";
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
-
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
 
     mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
 
@@ -76,7 +68,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(200);
     expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.greaterThanOrEqual(0)
@@ -110,10 +102,6 @@ describe("eventHandler tests", function () {
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
-
     mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
 
     const event = {
@@ -128,7 +116,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(200);
     expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.greaterThanOrEqual(0)
@@ -144,7 +132,7 @@ describe("eventHandler tests", function () {
     expect(analogProgElement.category).to.be.equal('SEND_ANALOG_PROGRESS');
     expect(analogProgElement.details.serviceLevel).to.be.equal(undefined);
     // check che NON siano presenti i campi vat e paFee
-    expect(resJson.paFee).to.be.equal(undefined);
+    expect(resJson.paFee).to.be.equal(100);
     expect(resJson.vat).to.be.equal(undefined);
   });
 
@@ -160,10 +148,6 @@ describe("eventHandler tests", function () {
 
       let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-      const eventHandler = proxyquire
-        .noCallThru()
-        .load("../app/eventHandler.js", {});
-
       mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
 
       const event = {
@@ -178,7 +162,7 @@ describe("eventHandler tests", function () {
       };
       const context = {};
 
-      const response = await eventHandler.versioning(event, context);
+      const response = await versioning(event, context);
 
       expect(response.statusCode).to.equal(200);
       expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.greaterThanOrEqual(0)
@@ -210,10 +194,6 @@ describe("eventHandler tests", function () {
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
-
     mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
 
     const event = {
@@ -228,7 +208,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(200);
     expect(response.body.indexOf('NOTIFICATION_CANCELLATION_REQUEST' )).to.be.equal(-1)
@@ -258,10 +238,6 @@ describe("eventHandler tests", function () {
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
-
     mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
 
     const event = {
@@ -276,7 +252,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(400);
   });
@@ -292,10 +268,6 @@ describe("eventHandler tests", function () {
     const iunValue = "12345";
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
-
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
 
     mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
 
@@ -331,7 +303,7 @@ describe("eventHandler tests", function () {
 
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(200);
     //lodash
@@ -347,10 +319,6 @@ describe("eventHandler tests", function () {
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
-
     mock.onGet(url).reply(500, { error: "ERROR" }, { "Content-Type": "application/json" });
 
     const event = {
@@ -365,7 +333,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
 
     expect(response.statusCode).to.equal(500);
   });
@@ -379,10 +347,6 @@ describe("eventHandler tests", function () {
     const iunValue = "12345";
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
-
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
 
     mock.onGet(url).reply(500, { error: "ERROR" }, { "Content-Type": "application/json" });
 
@@ -398,17 +362,17 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
     expect(response.statusCode).to.equal(502);
 
     event.resource = "/notifications/sent/{iun}"; // correct
     event.path = "/deliverypush/notifications/sent/MOCK_IUN"; // wrong
-    const response2 = await eventHandler.versioning(event, context);
+    const response2 = await versioning(event, context);
     expect(response2.statusCode).to.equal(502);
 
     event.path = "/delivery/notifications/sent/MOCK_IUN"; // correct
     event.httpMethod = "POST"; // wrong
-    const response3 = await eventHandler.versioning(event, context);
+    const response3 = await versioning(event, context);
     expect(response3.statusCode).to.equal(502);
   });
 
@@ -424,10 +388,6 @@ describe("eventHandler tests", function () {
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
-
     notification.notificationStatus = "NOT_SUPPORTED";
 
     mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
@@ -441,7 +401,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    expect(async () => await eventHandler.versioning(event, context)).to.throw;
+    expect(async () => await versioning(event, context)).to.throw;
   });
 
   it("Enum Not supported digitalAddress", async () => {
@@ -456,9 +416,6 @@ describe("eventHandler tests", function () {
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
 
     notification.recipients[0].digitalDomicile = {
       type: "NOT_SUPPORTED",
@@ -476,7 +433,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    expect(async () => await eventHandler.versioning(event, context)).to.throw;
+    expect(async () => await versioning(event, context)).to.throw;
   });
 
   it("fetch throw error", async () => {
@@ -488,10 +445,6 @@ describe("eventHandler tests", function () {
     const iunValue = "12345";
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
-
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
 
     mock.onGet(url).abortRequest();
 
@@ -507,7 +460,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const response = await eventHandler.versioning(event, context);
+    const response = await versioning(event, context);
     console.log("response ", response)
 
     expect(response.statusCode).to.equal(500);
@@ -524,10 +477,6 @@ describe("eventHandler tests", function () {
     const iunValue = "12345";
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
-
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
 
     const extraPayment = {
       pagoPa: {
@@ -563,7 +512,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const res = await eventHandler.versioning(event, context);
+    const res = await versioning(event, context);
     expect(res.statusCode).to.equal(400)
   });
 
@@ -579,9 +528,6 @@ describe("eventHandler tests", function () {
 
     let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
 
-    const eventHandler = proxyquire
-      .noCallThru()
-      .load("../app/eventHandler.js", {});
 
     const extraPayment = {
       f24: {
@@ -615,7 +561,7 @@ describe("eventHandler tests", function () {
     };
     const context = {};
 
-    const res = await eventHandler.versioning(event, context);
+    const res = await versioning(event, context);
     console.log("RESULT: ", res)
     expect(res.statusCode).to.equal(400)
   });

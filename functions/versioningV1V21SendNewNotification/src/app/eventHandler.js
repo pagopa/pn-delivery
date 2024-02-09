@@ -17,7 +17,6 @@ exports.handleEvent = async (event) => {
     let finalVersionRequest = JSON.parse(event.body);
 
     let requestVersion = findRequestVersion(event);
-    console.log("requestVersion ", requestVersion);
 
     const eventValidationErrors = validateNewNotification(finalVersionRequest, requestVersion);
     if(eventValidationErrors.length > 0){
