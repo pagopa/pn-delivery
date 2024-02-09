@@ -81,7 +81,8 @@ exports.handleEvent = async (event) => {
     let response;
     try {
         response = await axios.get(url, { params: searchParams, headers: headers });
-
+        
+        let finalVersionObject = response.data;
         switch(version) {
             case 10:
                 finalVersionObject = transformFromV21ToV1(transformFromV23ToV21(response.data));
