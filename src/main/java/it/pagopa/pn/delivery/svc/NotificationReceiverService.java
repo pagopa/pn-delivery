@@ -41,6 +41,8 @@ import static it.pagopa.pn.delivery.generated.openapi.server.v1.dto.Notification
 @CustomLog
 public class NotificationReceiverService {
 	public static final String LATEST_NOTIFICATION_VERSION = "2.3";
+	public static final int VAT_DEFAULT_VALUE = 22;
+	public static final int PA_FEE_DEFAULT_VALUE = 100;
 
 	private final Clock clock;
 	private final NotificationDao notificationDao;
@@ -109,8 +111,8 @@ public class NotificationReceiverService {
 		log.logCheckingOutcome("New notification request validation process", true, "");
 		String notificationGroup = newNotificationRequest.getGroup();
 		checkGroup(xPagopaPnCxId, notificationGroup, xPagopaPnCxGroups);
-
-		setPagoPaIntMode(newNotificationRequest);
+		
+		setDefaultValueForNotification(newNotificationRequest);
 
 		InternalNotification internalNotification = modelMapper.map(newNotificationRequest, InternalNotification.class);
 
@@ -157,6 +159,13 @@ public class NotificationReceiverService {
 
 		log.info("New notification storing END {}", response);
 		return response;
+	}
+
+	private void setDefaultValueForNotification(NewNotificationRequestV23 newNotificationRequest) {
+		newNotificationRequest.setVat(VAT_DEFAULT_VALUE);
+		newNotificationRequest.setPaFee(PA_FEE_DEFAULT_VALUE);
+
+		setPagoPaIntMode(newNotificationRequest);
 	}
 
 	private SaveF24Item constructF24Item(NotificationPaymentInfo notificationPaymentInfo, Integer recipientIndex, Integer paymentIndex) {
