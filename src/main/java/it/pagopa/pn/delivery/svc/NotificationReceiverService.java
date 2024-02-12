@@ -162,8 +162,12 @@ public class NotificationReceiverService {
 	}
 
 	private void setDefaultValueForNotification(NewNotificationRequestV23 newNotificationRequest) {
-		newNotificationRequest.setVat(VAT_DEFAULT_VALUE);
-		newNotificationRequest.setPaFee(PA_FEE_DEFAULT_VALUE);
+		if(newNotificationRequest.getVat() ==  null){
+			newNotificationRequest.setVat(VAT_DEFAULT_VALUE);
+		}
+		if(newNotificationRequest.getPaFee() == null){
+			newNotificationRequest.setPaFee(PA_FEE_DEFAULT_VALUE);
+		}
 
 		setPagoPaIntMode(newNotificationRequest);
 	}
