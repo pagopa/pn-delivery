@@ -38,6 +38,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
 
+import static it.pagopa.pn.delivery.svc.NotificationReceiverService.PA_FEE_DEFAULT_VALUE;
+import static it.pagopa.pn.delivery.svc.NotificationReceiverService.VAT_DEFAULT_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NotificationReceiverTest {
@@ -141,6 +143,58 @@ class NotificationReceiverTest {
 		assertEquals( notification.getPaProtocolNumber(), savedNotification.getPaProtocolNumber(), "Wrong protocol number");
 		assertEquals( notification.getPaProtocolNumber(), addedNotification.getPaProtocolNumber(), "Wrong protocol number");
 
+	}
+
+	@Test
+	void checkVatPaFeeDefaultValue() {
+		// Given
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setGroup("group1");
+		newNotificationRequest.setVat(null);
+		newNotificationRequest.setPaFee(null);
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+		// When
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS, null );
+
+		// Then
+		Assertions.assertNotNull( response );
+		
+		ArgumentCaptor<InternalNotification> savedNotificationCaptor = ArgumentCaptor.forClass(InternalNotification.class);
+		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture()  );
+
+		InternalNotification savedNotification = savedNotificationCaptor.getValue();
+
+		assertEquals( VAT_DEFAULT_VALUE, savedNotification.getVat() );
+		assertEquals( PA_FEE_DEFAULT_VALUE, savedNotification.getPaFee());
+	}
+
+	@Test
+	void checkVatPaFeeWithoutDefaultValue() {
+		// Given
+		NewNotificationRequestV23 newNotificationRequest = newNotificationRequest();
+		newNotificationRequest.setGroup("group1");
+		newNotificationRequest.setVat(10);
+		newNotificationRequest.setPaFee(80);
+
+		Mockito.when( pnExternalRegistriesClient.getGroups( Mockito.anyString(), Mockito.eq(true ) ) )
+				.thenReturn( List.of(new PaGroup().id("group1").status(PaGroupStatus.ACTIVE)));
+
+		// When
+		NewNotificationResponse response = deliveryService.receiveNotification( PAID, newNotificationRequest, X_PAGOPA_PN_SRC_CH, null, X_PAGOPA_PN_CX_GROUPS, null );
+
+		// Then
+		Assertions.assertNotNull( response );
+
+		ArgumentCaptor<InternalNotification> savedNotificationCaptor = ArgumentCaptor.forClass(InternalNotification.class);
+		Mockito.verify( notificationDao ).addNotification( savedNotificationCaptor.capture()  );
+
+		InternalNotification savedNotification = savedNotificationCaptor.getValue();
+
+		assertEquals( newNotificationRequest.getVat(), savedNotification.getVat() );
+		assertEquals( newNotificationRequest.getPaFee(), savedNotification.getPaFee());
 	}
 
 	@Test
