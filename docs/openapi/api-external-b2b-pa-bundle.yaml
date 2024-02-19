@@ -6512,7 +6512,7 @@ components:
         newStatus:
           $ref: '#/components/schemas/NotificationStatus'
         timelineEventCategory:
-          $ref: '#/components/schemas/TimelineElementCategoryV20'
+          $ref: '#/components/schemas/TimelineElementCategoryV23'
         recipientIndex:
           type: integer
           format: int32
