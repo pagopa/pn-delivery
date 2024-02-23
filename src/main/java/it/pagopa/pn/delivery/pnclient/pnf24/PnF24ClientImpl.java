@@ -1,6 +1,5 @@
 package it.pagopa.pn.delivery.pnclient.pnf24;
 
-import it.pagopa.pn.commons.log.PnLogger;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.api.F24ControllerApi;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.F24Response;
 import it.pagopa.pn.delivery.generated.openapi.msclient.F24.v1.model.RequestAccepted;

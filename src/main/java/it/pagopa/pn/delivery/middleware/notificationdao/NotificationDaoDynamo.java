@@ -67,7 +67,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 					.digitalAddress( createDigitalDomicile( recipient.getDigitalDomicile() ) )
 					.physicalAddress( createAnalogDomicile( recipient.getPhysicalAddress() ) );
 			recipientAddressesDtoList.add( recipientAddressesDto );
-			cleanedRecipientList.add( removeConfidantialInfo( recipient ) );
+			cleanedRecipientList.add( removeConfidentialInfo( recipient ) );
 		}
 
 		pnDataVaultClient.updateNotificationAddressesByIun( internalNotification.getIun(), recipientAddressesDtoList );
@@ -78,7 +78,7 @@ public class NotificationDaoDynamo implements NotificationDao {
 		entityDao.putIfAbsent( entity );
 	}
 
-	private NotificationRecipient removeConfidantialInfo(NotificationRecipient recipient) {
+	private NotificationRecipient removeConfidentialInfo(NotificationRecipient recipient) {
 		return NotificationRecipient.builder()
 				.recipientType( recipient.getRecipientType() )
 				.taxId( recipient.getTaxId() )

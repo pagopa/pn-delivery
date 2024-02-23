@@ -80,7 +80,8 @@ public class EntityToDtoNotificationMapper {
     private List<NotificationPaymentInfo> entity2PaymentInfo(List<NotificationPaymentInfoEntity> paymentList) {
         List<NotificationPaymentInfo> notificationPaymentItems = new ArrayList<>();
         if (!CollectionUtils.isEmpty(paymentList)) {
-            paymentList.forEach(notificationPaymentInfoEntity -> notificationPaymentItems.add(NotificationPaymentInfo.builder()
+            paymentList.stream().filter(Objects::nonNull)
+                    .forEach(notificationPaymentInfoEntity -> notificationPaymentItems.add(NotificationPaymentInfo.builder()
                     .f24(entity2PaymentAttachment(notificationPaymentInfoEntity.getF24()))
                     .pagoPa(entity2PaymentAttachment(notificationPaymentInfoEntity))
                     .build()));

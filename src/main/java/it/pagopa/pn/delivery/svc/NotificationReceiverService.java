@@ -121,6 +121,17 @@ public class NotificationReceiverService {
 		internalNotification.setSourceChannelDetails(xPagopaPnSrcChDetails);
 		internalNotification.setVersion( StringUtils.hasText( xPagopaPnNotificationVersion ) ? xPagopaPnNotificationVersion : LATEST_NOTIFICATION_VERSION );
 
+		String iun = generateIun(internalNotification);
+		saveF24Metadata(internalNotification);
+		doSaveWithRethrow(internalNotification);
+
+		NewNotificationResponse response = generateResponse(internalNotification, iun);
+
+		log.info("New notification storing END {}", response);
+		return response;
+	}
+
+	private void saveF24Metadata(InternalNotification internalNotification) {
 		SaveF24Request saveF24Request = new SaveF24Request();
 		List<SaveF24Item> saveF24Items = IntStream.range(0, internalNotification.getRecipients().size())
 				.boxed()
@@ -145,20 +156,12 @@ public class NotificationReceiverService {
 				})
 				.toList();
 
-		String iun = generateIun(internalNotification);
 		saveF24Request.setF24Items(saveF24Items);
 		saveF24Request.setId(internalNotification.getIun());
 
 		if(!saveF24Items.isEmpty()){
 			f24Client.saveMetadata(this.cfg.getF24CxId(), internalNotification.getIun(), saveF24Request);
 		}
-
-		doSaveWithRethrow(internalNotification);
-
-		NewNotificationResponse response = generateResponse(internalNotification, iun);
-
-		log.info("New notification storing END {}", response);
-		return response;
 	}
 
 	private void setDefaultValueForNotification(NewNotificationRequestV23 newNotificationRequest) {
