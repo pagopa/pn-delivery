@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.IntStream;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -152,6 +153,31 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
         assertNotNull(result);
         assertEquals(1, result.getResults().size());
         assertTrue(result.getResults().stream().anyMatch(e -> e.getIunRecipientIdDelegateIdGroupId().equals("1")));
+    }
+
+    @Test
+    void testSearchExactNotification(){
+        NotificationDelegationMetadataEntity entity1 = newEntity("1");
+        entity1.setDelegateIdCreationMonth("delegateId##202301");
+        entityDao.putIfAbsent(entity1);
+        NotificationDelegationMetadataEntity entity2 = newEntity("2");
+        entity1.setDelegateIdCreationMonth("x##202301");
+        entityDao.putIfAbsent(entity2);
+
+        InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
+            .delegateId("delegateId")
+            .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
+            .endDate(Instant.now().plus(1, ChronoUnit.DAYS))
+            .size(10)
+            .build();
+
+        when(dataVaultClient.getRecipientDenominationByInternalId(anyList()))
+            .thenReturn(getDataVaultResults());
+
+        Page<NotificationDelegationMetadataEntity> result = entityDao.searchExactNotification(searchDto);
+
+
+        assertNotNull(result);
     }
 
     @Test
