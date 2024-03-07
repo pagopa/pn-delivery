@@ -10,6 +10,8 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions.SearchIndexEnum;
+import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.IntStream;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -76,6 +79,32 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
 
         PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchForOneMonth(searchDto,
                 IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, "delegateId##202301", searchDto.getSize(), null);
+        assertNotNull(result);
+    }
+
+    @Test
+    void testSearchForOneMonthWithLastkey() {
+        InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
+            .delegateId("delegateId")
+            .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
+            .endDate(Instant.now())
+            .size(10)
+            .build();
+
+        when(dataVaultClient.getRecipientDenominationByInternalId(anyList()))
+            .thenReturn(getDataVaultResults());
+
+        PnLastEvaluatedKey lastKey = new PnLastEvaluatedKey();
+        lastKey.setExternalLastEvaluatedKey("1");
+        lastKey.setInternalLastEvaluatedKey(Map.of(
+            NotificationDelegationMetadataEntity.FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID, AttributeValue.builder().s("IUN").build(),
+            NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_GROUP_ID_CREATION_MONTH, AttributeValue.builder().s("1").build(),
+            NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_CREATION_MONTH, AttributeValue.builder().build(),
+            NotificationDelegationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s("01-01-2024").build()
+        ));
+
+        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchForOneMonth(searchDto,
+            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, "delegateId##202301", searchDto.getSize(), lastKey);
         assertNotNull(result);
     }
 

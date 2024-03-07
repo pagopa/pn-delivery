@@ -135,7 +135,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
         if (lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
             String attributeName = retrieveAttributeName(indexName);
             Map<String, AttributeValue> attr = lastEvaluatedKey.getInternalLastEvaluatedKey();
-            if (attr.containsKey(attributeName) && attr.get(attributeName).s().equals(partitionValue)) {
+            if (attr.containsKey(attributeName) && partitionValue.equals(attr.get(attributeName).s())) {
                 requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
             }
         }
