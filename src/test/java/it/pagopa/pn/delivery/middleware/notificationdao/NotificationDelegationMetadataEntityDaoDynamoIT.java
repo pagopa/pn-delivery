@@ -158,7 +158,7 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
     @Test
     void testSearchExactNotification(){
         NotificationDelegationMetadataEntity entity1 = newEntity("1");
-        entity1.setDelegateIdCreationMonth("delegateId##202301");
+        entity1.setDelegateIdCreationMonth("delegateId##202401");
         entityDao.putIfAbsent(entity1);
         NotificationDelegationMetadataEntity entity2 = newEntity("2");
         entity1.setDelegateIdCreationMonth("x##202301");
