@@ -113,11 +113,12 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
     @Test
     void testSearchForOneMonthWithLastkey() {
 
+        String partitionKey = "delegateId##202401";
         NotificationDelegationMetadataEntity entity1 = newEntity("1");
-        entity1.setDelegateIdCreationMonth("delegateId##202301");
+        entity1.setDelegateIdCreationMonth(partitionKey);
         entityDao.putIfAbsent(entity1);
         NotificationDelegationMetadataEntity entity2 = newEntity("2");
-        entity2.setDelegateIdCreationMonth("delegateId##202301");
+        entity2.setDelegateIdCreationMonth(partitionKey);
         entityDao.putIfAbsent(entity2);
 
         InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
@@ -131,17 +132,17 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
             .thenReturn(getDataVaultResults());
 
         PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchForOneMonth(searchDto,
-            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, "delegateId##202301", searchDto.getSize(), null);
+            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, partitionKey, searchDto.getSize(), null);
         assertNotNull(result);
 
         PnLastEvaluatedKey lastKey = new PnLastEvaluatedKey();
         lastKey.setExternalLastEvaluatedKey("1");
         lastKey.setInternalLastEvaluatedKey(result.getLastEvaluatedKey());
 
-        PageSearchTrunk<NotificationDelegationMetadataEntity> secondResult = entityDao.searchForOneMonth(searchDto,
-            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, "delegateId##202301", searchDto.getSize(), lastKey);
-        assertNotNull(secondResult);
-        assertEquals(1, secondResult.getResults().size());
+        result = entityDao.searchForOneMonth(searchDto,
+            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, partitionKey, searchDto.getSize(), lastKey);
+        assertNotNull(result);
+        assertEquals(1, result.getResults().size());
     }
 
     @Test
