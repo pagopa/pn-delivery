@@ -11,6 +11,7 @@ import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
 import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import it.pagopa.pn.delivery.utils.DataUtils;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -131,9 +132,10 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
         addFilterExpression(searchDto, requestBuilder);
 
-        if (lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
+        if (lastEvaluatedKey != null && lastEvaluatedKey.getInternalLastEvaluatedKey()!=null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
             String attributeName = retrieveAttributeName(indexName);
-            if (lastEvaluatedKey.getInternalLastEvaluatedKey().get(attributeName).s().equals(partitionValue)) {
+            Map<String, AttributeValue> attr = lastEvaluatedKey.getInternalLastEvaluatedKey();
+            if (attr.containsKey(attributeName) && partitionValue.equals(attr.get(attributeName).s())) {
                 requestBuilder.exclusiveStartKey(lastEvaluatedKey.getInternalLastEvaluatedKey());
             }
         }

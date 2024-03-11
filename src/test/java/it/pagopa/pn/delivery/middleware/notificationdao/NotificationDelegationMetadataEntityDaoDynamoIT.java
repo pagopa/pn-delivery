@@ -10,6 +10,8 @@ import it.pagopa.pn.delivery.models.InputSearchNotificationDelegatedDto;
 import it.pagopa.pn.delivery.models.PageSearchTrunk;
 import it.pagopa.pn.delivery.pnclient.datavault.PnDataVaultClientImpl;
 import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions;
+import it.pagopa.pn.delivery.svc.search.IndexNameAndPartitions.SearchIndexEnum;
+import it.pagopa.pn.delivery.svc.search.PnLastEvaluatedKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +20,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.annotation.JsonAppend.Attr;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.IntStream;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -80,6 +85,67 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
     }
 
     @Test
+    void testSearchForOneMonthWithEmptyLastkey() {
+        InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
+            .delegateId("delegateId")
+            .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
+            .endDate(Instant.now())
+            .size(10)
+            .build();
+
+        when(dataVaultClient.getRecipientDenominationByInternalId(anyList()))
+            .thenReturn(getDataVaultResults());
+
+        PnLastEvaluatedKey lastKey = new PnLastEvaluatedKey();
+        lastKey.setExternalLastEvaluatedKey("1");
+        lastKey.setInternalLastEvaluatedKey(Map.of(
+            NotificationDelegationMetadataEntity.FIELD_IUN_RECIPIENT_ID_DELEGATE_ID_GROUP_ID, AttributeValue.builder().s("IUN").build(),
+            NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_GROUP_ID_CREATION_MONTH, AttributeValue.builder().s("1").build(),
+            NotificationDelegationMetadataEntity.FIELD_DELEGATE_ID_CREATION_MONTH, AttributeValue.builder().build(),
+            NotificationDelegationMetadataEntity.FIELD_SENT_AT, AttributeValue.builder().s("01-01-2024").build()
+        ));
+
+        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchForOneMonth(searchDto,
+            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, "delegateId##202301", searchDto.getSize(), lastKey);
+        assertNotNull(result);
+    }
+
+    @Test
+    void testSearchForOneMonthWithLastkey() {
+
+        String partitionKey = "delegateId##202401";
+        NotificationDelegationMetadataEntity entity1 = newEntity("1");
+        entity1.setDelegateIdCreationMonth(partitionKey);
+        entityDao.putIfAbsent(entity1);
+        NotificationDelegationMetadataEntity entity2 = newEntity("2");
+        entity2.setDelegateIdCreationMonth(partitionKey);
+        entityDao.putIfAbsent(entity2);
+
+        InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
+            .delegateId("delegateId")
+            .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
+            .endDate(Instant.now().plus(1, ChronoUnit.DAYS))
+            .size(1)
+            .build();
+
+        when(dataVaultClient.getRecipientDenominationByInternalId(anyList()))
+            .thenReturn(getDataVaultResults());
+
+        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchForOneMonth(searchDto,
+            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, partitionKey, searchDto.getSize(), null);
+        assertNotNull(result);
+
+        PnLastEvaluatedKey lastKey = new PnLastEvaluatedKey();
+        lastKey.setExternalLastEvaluatedKey("1");
+        lastKey.setInternalLastEvaluatedKey(result.getLastEvaluatedKey());
+
+        result = entityDao.searchForOneMonth(searchDto,
+            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, partitionKey, searchDto.getSize(), lastKey);
+        assertNotNull(result);
+        assertEquals(1, result.getResults().size());
+    }
+
+    @Test
     void testSearchForOneMonthWithFilters() {
         InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
                 .delegateId("delegateId")
@@ -105,7 +171,7 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
         entity1.setDelegateIdCreationMonth("delegateId##202301");
         entityDao.putIfAbsent(entity1);
         NotificationDelegationMetadataEntity entity2 = newEntity("2");
-        entity1.setDelegateIdCreationMonth("x##202301");
+        entity2.setDelegateIdCreationMonth("x##202301");
         entityDao.putIfAbsent(entity2);
 
         InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
@@ -123,6 +189,31 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
         assertNotNull(result);
         assertEquals(1, result.getResults().size());
         assertTrue(result.getResults().stream().anyMatch(e -> e.getIunRecipientIdDelegateIdGroupId().equals("1")));
+    }
+
+    @Test
+    void testSearchExactNotification(){
+        NotificationDelegationMetadataEntity entity1 = newEntity("1");
+        entity1.setDelegateIdCreationMonth("delegateId##202401");
+        entityDao.putIfAbsent(entity1);
+        NotificationDelegationMetadataEntity entity2 = newEntity("2");
+        entity2.setDelegateIdCreationMonth("x##202301");
+        entityDao.putIfAbsent(entity2);
+
+        InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
+            .delegateId("delegateId")
+            .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
+            .endDate(Instant.now().plus(1, ChronoUnit.DAYS))
+            .size(10)
+            .build();
+
+        when(dataVaultClient.getRecipientDenominationByInternalId(anyList()))
+            .thenReturn(getDataVaultResults());
+
+        Page<NotificationDelegationMetadataEntity> result = entityDao.searchExactNotification(searchDto);
+
+
+        assertNotNull(result);
     }
 
     @Test
