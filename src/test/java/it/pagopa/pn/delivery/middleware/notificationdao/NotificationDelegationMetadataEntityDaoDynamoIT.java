@@ -20,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.annotation.JsonAppend.Attr;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Instant;
@@ -84,7 +85,7 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
     }
 
     @Test
-    void testSearchForOneMonthWithLastkey() {
+    void testSearchForOneMonthWithEmptyLastkey() {
         InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
             .delegateId("delegateId")
             .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
@@ -107,6 +108,40 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
         PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchForOneMonth(searchDto,
             IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, "delegateId##202301", searchDto.getSize(), lastKey);
         assertNotNull(result);
+    }
+
+    @Test
+    void testSearchForOneMonthWithLastkey() {
+
+        NotificationDelegationMetadataEntity entity1 = newEntity("1");
+        entity1.setDelegateIdCreationMonth("delegateId##202301");
+        entityDao.putIfAbsent(entity1);
+        NotificationDelegationMetadataEntity entity2 = newEntity("2");
+        entity2.setDelegateIdCreationMonth("delegateId##202301");
+        entityDao.putIfAbsent(entity2);
+
+        InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
+            .delegateId("delegateId")
+            .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
+            .endDate(Instant.now().plus(1, ChronoUnit.DAYS))
+            .size(1)
+            .build();
+
+        when(dataVaultClient.getRecipientDenominationByInternalId(anyList()))
+            .thenReturn(getDataVaultResults());
+
+        PageSearchTrunk<NotificationDelegationMetadataEntity> result = entityDao.searchForOneMonth(searchDto,
+            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, "delegateId##202301", searchDto.getSize(), null);
+        assertNotNull(result);
+
+        PnLastEvaluatedKey lastKey = new PnLastEvaluatedKey();
+        lastKey.setExternalLastEvaluatedKey("1");
+        lastKey.setInternalLastEvaluatedKey(result.getLastEvaluatedKey());
+
+        PageSearchTrunk<NotificationDelegationMetadataEntity> secondResult = entityDao.searchForOneMonth(searchDto,
+            IndexNameAndPartitions.SearchIndexEnum.INDEX_BY_DELEGATE, "delegateId##202301", searchDto.getSize(), lastKey);
+        assertNotNull(secondResult);
+        assertEquals(1, secondResult.getResults().size());
     }
 
     @Test
@@ -135,7 +170,7 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
         entity1.setDelegateIdCreationMonth("delegateId##202301");
         entityDao.putIfAbsent(entity1);
         NotificationDelegationMetadataEntity entity2 = newEntity("2");
-        entity1.setDelegateIdCreationMonth("x##202301");
+        entity2.setDelegateIdCreationMonth("x##202301");
         entityDao.putIfAbsent(entity2);
 
         InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()
@@ -161,7 +196,7 @@ class NotificationDelegationMetadataEntityDaoDynamoIT {
         entity1.setDelegateIdCreationMonth("delegateId##202401");
         entityDao.putIfAbsent(entity1);
         NotificationDelegationMetadataEntity entity2 = newEntity("2");
-        entity1.setDelegateIdCreationMonth("x##202301");
+        entity2.setDelegateIdCreationMonth("x##202301");
         entityDao.putIfAbsent(entity2);
 
         InputSearchNotificationDelegatedDto searchDto = InputSearchNotificationDelegatedDto.builder()

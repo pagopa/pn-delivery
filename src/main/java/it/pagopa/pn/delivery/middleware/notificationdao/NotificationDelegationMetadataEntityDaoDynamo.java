@@ -132,7 +132,7 @@ public class NotificationDelegationMetadataEntityDaoDynamo
 
         addFilterExpression(searchDto, requestBuilder);
 
-        if (lastEvaluatedKey != null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
+        if (lastEvaluatedKey != null && lastEvaluatedKey.getInternalLastEvaluatedKey()!=null && !lastEvaluatedKey.getInternalLastEvaluatedKey().isEmpty()) {
             String attributeName = retrieveAttributeName(indexName);
             Map<String, AttributeValue> attr = lastEvaluatedKey.getInternalLastEvaluatedKey();
             if (attr.containsKey(attributeName) && partitionValue.equals(attr.get(attributeName).s())) {
