@@ -10,6 +10,9 @@ import it.pagopa.pn.delivery.generated.openapi.server.v1.dto.*;
 import it.pagopa.pn.delivery.models.InternalNotification;
 import it.pagopa.pn.delivery.rest.dto.ConstraintViolationImpl;
 import it.pagopa.pn.delivery.utils.DenominationValidationUtils;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
+import kotlin.collections.EmptyList;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
@@ -120,10 +123,67 @@ public class NotificationReceiverValidator {
             checkProvinceV2(errors, physicalAddress);
             recIdx++;
         }
+
+        if (!hasDistinctAttachments(newNotificationRequestV23)) {
+            ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("Same attachment compares more then once in the same request");
+            errors.add(constraintViolation);
+        }
+
         errors.addAll(validator.validate( newNotificationRequestV23 ));
         errors.addAll( this.checkPhysicalAddress( newNotificationRequestV23 ));
         errors.addAll(this.checkDenomination( newNotificationRequestV23 ));
         return errors;
+    }
+
+    /**
+     * Validazio di NewNotificationRequestV23 per verificare l'assenza di duplicati tra gli allegati
+     * @param newNotificationRequestV23
+     * @return
+     */
+    protected boolean hasDistinctAttachments(NewNotificationRequestV23 newNotificationRequestV23){
+        Set<String> uniqueIds = new HashSet<>();
+        if (newNotificationRequestV23.getDocuments() != null) {
+            for (NotificationDocument doc : newNotificationRequestV23.getDocuments()) {
+                if (doc.getRef() != null && doc.getDigests() != null) {
+                    String id = doc.getRef().getKey() + doc.getDigests().getSha256();
+                    if (!uniqueIds.add(id)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        if (newNotificationRequestV23.getRecipients() != null) {
+            for (NotificationRecipientV23 recipient: newNotificationRequestV23.getRecipients()) {
+                Set<String> recipientAttachmentIds = new HashSet<>();
+                recipientAttachmentIds.addAll(uniqueIds);
+
+                if (recipient.getPayments() != null) {
+                    for (NotificationPaymentItem payment : recipient.getPayments()) {
+                        if (payment.getPagoPa() != null && payment.getPagoPa().getAttachment() != null) {
+                            NotificationPaymentAttachment att = payment.getPagoPa().getAttachment();
+                            if (att.getRef() != null && att.getDigests() != null) {
+                                String id = att.getRef().getKey() + att.getDigests().getSha256();
+
+                                if (!recipientAttachmentIds.add(id)) {
+                                    return false;
+                                }
+                            }
+                        }
+                        if (payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
+                            NotificationMetadataAttachment att = payment.getF24().getMetadataAttachment();
+                            if (att.getRef() != null && att.getDigests() != null) {
+                                String id = att.getRef().getKey() + att.getDigests().getSha256();
+
+                                if (!recipientAttachmentIds.add(id)) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV23>> checkPhysicalAddress(NewNotificationRequestV23 internalNotification) {

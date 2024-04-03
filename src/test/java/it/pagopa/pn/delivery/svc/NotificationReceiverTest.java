@@ -46,6 +46,7 @@ class NotificationReceiverTest {
 
 	public static final String ATTACHMENT_BODY_STR = "Body";
 	public static final String SHA256_BODY = "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE=";
+	public static final String SHA256_BODY2 = "X8Q//3XIf4MXiE6LsTYQpkqj4xaPNHXhNkW/iqo1UCo=";
 	private static final String VERSION_TOKEN = "VERSION_TOKEN";
 	private static final String CONTENT_TYPE = "application/pdf";
 	private static final String KEY = "KEY";
@@ -795,7 +796,7 @@ class NotificationReceiverTest {
 							.applyCost(true)
 							.metadataAttachment(NotificationMetadataAttachment.builder()
 									.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
-									.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+									.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY2).build())
 									.contentType("application/json")
 									.build())
 							.build())
@@ -817,7 +818,7 @@ class NotificationReceiverTest {
 								.applyCost(false)
 								.metadataAttachment(NotificationMetadataAttachment.builder()
 										.ref(NotificationAttachmentBodyRef.builder().versionToken(VERSION_TOKEN).key(KEY).build())
-										.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY).build())
+										.digests(NotificationAttachmentDigests.builder().sha256(SHA256_BODY2).build())
 										.contentType("application/json")
 										.build())
 								.build())
