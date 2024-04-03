@@ -120,10 +120,67 @@ public class NotificationReceiverValidator {
             checkProvinceV2(errors, physicalAddress);
             recIdx++;
         }
+
+        if (!hasDistinctAttachments(newNotificationRequestV23)) {
+            ConstraintViolationImpl<NewNotificationRequestV23> constraintViolation = new ConstraintViolationImpl<>("Same attachment compares more then once in the same request");
+            errors.add(constraintViolation);
+        }
+
         errors.addAll(validator.validate( newNotificationRequestV23 ));
         errors.addAll( this.checkPhysicalAddress( newNotificationRequestV23 ));
         errors.addAll(this.checkDenomination( newNotificationRequestV23 ));
         return errors;
+    }
+
+    /**
+     * Validazio di NewNotificationRequestV23 per verificare l'assenza di duplicati tra gli allegati
+     * @param newNotificationRequestV23
+     * @return
+     */
+    protected boolean hasDistinctAttachments(NewNotificationRequestV23 newNotificationRequestV23){
+        Set<String> uniqueIds = new HashSet<>();
+
+        for (NotificationDocument doc : emptyIfNull(newNotificationRequestV23.getDocuments())) {
+            if (doc.getRef() != null && doc.getDigests() != null) {
+                String id = doc.getRef().getKey() + doc.getDigests().getSha256();
+                if (!uniqueIds.add(id)) {
+                    return false;
+                }
+            }
+        }
+
+        long duplicates = emptyIfNull(newNotificationRequestV23.getRecipients())
+            .stream()
+            .map(recipient -> hasRecipientDistinctAttachments(recipient, uniqueIds))
+            .filter(res -> !res).count();
+
+        return duplicates==0;
+    }
+
+    private boolean hasRecipientDistinctAttachments(NotificationRecipientV23 recipient, Set<String> docIds){
+        Set<String> recipientAttachmentIds = new HashSet<>();
+        recipientAttachmentIds.addAll(docIds);
+
+        long duplicatedAttachments = emptyIfNull(recipient.getPayments()).stream()
+            .filter( payment -> payment.getPagoPa() != null && payment.getPagoPa().getAttachment() != null)
+            .map(payment ->{
+                NotificationPaymentAttachment att = payment.getPagoPa().getAttachment();
+                if (att.getRef() != null && att.getDigests() != null) {
+                    String id = att.getRef().getKey() + att.getDigests().getSha256();
+
+                    if (!recipientAttachmentIds.add(id)) {
+                        return false;
+                    }
+                }
+                return true;
+            }).filter( uniqueAttachment -> !uniqueAttachment)
+            .count();
+
+        return duplicatedAttachments == 0;
+    }
+
+    public static <T> List<T> emptyIfNull(List<T> list) {
+        return list == null ? Collections.<T>emptyList() : list;
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV23>> checkPhysicalAddress(NewNotificationRequestV23 internalNotification) {

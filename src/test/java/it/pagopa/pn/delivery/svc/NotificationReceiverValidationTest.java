@@ -1369,5 +1369,109 @@ class NotificationReceiverValidationTest {
     return notification;
   }
 
+  @Test
+  void duplicatedAttachment() {
+    String sha256 = "sha256";
+    String key="key";
+    // Given
+    NewNotificationRequestV23 n = newNotification();
+    NotificationDocument document = NotificationDocument.builder()
+        .ref(NotificationAttachmentBodyRef.builder().key(key).build())
+        .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
+        .build();
+    n.addDocumentsItem(document);
+
+    PagoPaPayment pagopa = n.getRecipients().get(0).getPayments().get(0).getPagoPa();
+    NotificationPaymentAttachment attachment = NotificationPaymentAttachment.builder()
+        .ref(NotificationAttachmentBodyRef.builder().key(key).build())
+        .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
+        .build();
+    pagopa.setAttachment(attachment);
+    // When
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // Then
+    assertConstraintViolationPresentByMessage(errors, "Same attachment compares more then once in the same request");
+  }
+
+  @Test
+  void duplicatedAttachmentNotImpactMoreRecipients() {
+    String sha256 = "sha256";
+    String key="key";
+    // Given
+    NewNotificationRequestV23 n = newNotification();
+    NotificationDocument document = NotificationDocument.builder()
+        .ref(NotificationAttachmentBodyRef.builder().key("key1").build())
+        .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
+        .build();
+    n.addDocumentsItem(document);
+
+    NotificationRecipientV23 recipient = NotificationRecipientV23.builder()
+        .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
+        .denomination( "Ada Lovelace" )
+        .taxId( "taxID" )
+        .digitalDomicile( NotificationDigitalAddress.builder()
+            .type( NotificationDigitalAddress.TypeEnum.PEC )
+            .address( "address@pec.it" )
+            .build() )
+        .physicalAddress( NotificationPhysicalAddress.builder()
+            .at( "at" )
+            .province( "province" )
+            .zip( "83100" )
+            .address( "address" )
+            .addressDetails( "addressDetail" )
+            .municipality( "municipality" )
+            .municipalityDetails( "municipalityDetail" )
+            .build() )
+        .build();
+
+    NotificationRecipientV23 recipient2 = NotificationRecipientV23.builder()
+        .recipientType( NotificationRecipientV23.RecipientTypeEnum.PF )
+        .denomination( "Mario Rossi" )
+        .taxId( "taxID" )
+        .digitalDomicile( NotificationDigitalAddress.builder()
+            .type( NotificationDigitalAddress.TypeEnum.PEC )
+            .address( "address@pec.it" )
+            .build() )
+        .physicalAddress( NotificationPhysicalAddress.builder()
+            .at( "at" )
+            .province( "province" )
+            .zip( "83100" )
+            .address( "address" )
+            .addressDetails( "addressDetail" )
+            .municipality( "municipality" )
+            .municipalityDetails( "municipalityDetail" )
+            .build() )
+        .build();
+
+    recipient.setPayments(Arrays.asList(NotificationPaymentItem.builder()
+        .pagoPa(PagoPaPayment.builder()
+            .attachment( NotificationPaymentAttachment.builder()
+                .ref(NotificationAttachmentBodyRef.builder().key(key).build())
+                .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
+                .build())
+            .build())
+        .build()));
+
+    recipient2.setPayments(Arrays.asList(NotificationPaymentItem.builder()
+        .pagoPa(PagoPaPayment.builder()
+            .attachment( NotificationPaymentAttachment.builder()
+                .ref(NotificationAttachmentBodyRef.builder().key(key).build())
+                .digests(NotificationAttachmentDigests.builder().sha256(sha256).build())
+                .build())
+            .build())
+        .build()));
+
+    n.setRecipients(Arrays.asList(recipient, recipient2));
+
+    // When
+    Set<ConstraintViolation<NewNotificationRequestV23>> errors;
+    errors = validator.checkNewNotificationRequestBeforeInsert(n);
+
+    // Then
+    long actual = errors.stream().filter(cv -> cv.getMessage().equals("Same attachment compares more then once in the same request")).count();
+    Assertions.assertEquals(0, actual);
+  }
 }
 
