@@ -139,48 +139,48 @@ public class NotificationReceiverValidator {
      */
     protected boolean hasDistinctAttachments(NewNotificationRequestV23 newNotificationRequestV23){
         Set<String> uniqueIds = new HashSet<>();
-        if (newNotificationRequestV23.getDocuments() != null) {
-            for (NotificationDocument doc : newNotificationRequestV23.getDocuments()) {
-                if (doc.getRef() != null && doc.getDigests() != null) {
-                    String id = doc.getRef().getKey() + doc.getDigests().getSha256();
-                    if (!uniqueIds.add(id)) {
+
+        for (NotificationDocument doc : emptyIfNull(newNotificationRequestV23.getDocuments())) {
+            if (doc.getRef() != null && doc.getDigests() != null) {
+                String id = doc.getRef().getKey() + doc.getDigests().getSha256();
+                if (!uniqueIds.add(id)) {
+                    return false;
+                }
+            }
+        }
+
+        long duplicates = emptyIfNull(newNotificationRequestV23.getRecipients())
+            .stream()
+            .map(recipient -> hasRecipientDistinctAttachments(recipient, uniqueIds))
+            .filter(res -> !res).count();
+
+        return duplicates==0;
+    }
+
+    private boolean hasRecipientDistinctAttachments(NotificationRecipientV23 recipient, Set<String> docIds){
+        Set<String> recipientAttachmentIds = new HashSet<>();
+        recipientAttachmentIds.addAll(docIds);
+
+        long duplicatedAttachments = emptyIfNull(recipient.getPayments()).stream()
+            .filter( payment -> payment.getPagoPa() != null && payment.getPagoPa().getAttachment() != null)
+            .map(payment ->{
+                NotificationPaymentAttachment att = payment.getPagoPa().getAttachment();
+                if (att.getRef() != null && att.getDigests() != null) {
+                    String id = att.getRef().getKey() + att.getDigests().getSha256();
+
+                    if (!recipientAttachmentIds.add(id)) {
                         return false;
                     }
                 }
-            }
-        }
-        if (newNotificationRequestV23.getRecipients() != null) {
-            for (NotificationRecipientV23 recipient: newNotificationRequestV23.getRecipients()) {
-                Set<String> recipientAttachmentIds = new HashSet<>();
-                recipientAttachmentIds.addAll(uniqueIds);
+                return true;
+            }).filter( uniqueAttachment -> !uniqueAttachment)
+            .count();
 
-                if (recipient.getPayments() != null) {
-                    for (NotificationPaymentItem payment : recipient.getPayments()) {
-                        if (payment.getPagoPa() != null && payment.getPagoPa().getAttachment() != null) {
-                            NotificationPaymentAttachment att = payment.getPagoPa().getAttachment();
-                            if (att.getRef() != null && att.getDigests() != null) {
-                                String id = att.getRef().getKey() + att.getDigests().getSha256();
+        return duplicatedAttachments == 0;
+    }
 
-                                if (!recipientAttachmentIds.add(id)) {
-                                    return false;
-                                }
-                            }
-                        }
-                        if (payment.getF24() != null && payment.getF24().getMetadataAttachment() != null) {
-                            NotificationMetadataAttachment att = payment.getF24().getMetadataAttachment();
-                            if (att.getRef() != null && att.getDigests() != null) {
-                                String id = att.getRef().getKey() + att.getDigests().getSha256();
-
-                                if (!recipientAttachmentIds.add(id)) {
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return true;
+    public static <T> List<T> emptyIfNull(List<T> list) {
+        return list == null ? Collections.<T>emptyList() : list;
     }
 
     protected Set<ConstraintViolation<NewNotificationRequestV23>> checkPhysicalAddress(NewNotificationRequestV23 internalNotification) {
