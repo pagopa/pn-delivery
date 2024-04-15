@@ -925,7 +925,7 @@ Resources:
                   const message = {
                     Id: iun + "_start",
                     DelaySeconds: 0,
-                    MessageGroupId: 'DELIVERY',
+                    MessageGroupId: 'DELIVERY-' + iun,
                     MessageDeduplicationId: iun + "_start",
                     MessageAttributes: {
                       "createdAt": {
