@@ -2,7 +2,10 @@ exports.adjustTimelineAndHistory = function(timeline, history, categoriesToExclu
     const adjustedTimeline = adjustTimeline(timeline, categoriesToExclude, transformFunction);
     
     const timelineIds = [];
-    for (const tl of adjustedTimeline) timelineIds.push(tl.elementId);
+    for (const tl of adjustedTimeline) {
+        console.log('aggiungiamo '+tl.elementId);
+        timelineIds.push(tl.elementId);
+    }
     const adjustedHistory = adjustHistory(history, timelineIds);
     
     return adjustedTimelineAndHistory = {
@@ -26,17 +29,25 @@ function adjustTimeline(timeline, categoriesToExclude, transformFunction) {
 
 // elimina dalla status history tutti gli elementi che includono come related timeline
 function adjustHistory(history, timelineIds) {
-    const notificationStatusHistory =
-    history.filter((nsh) => {
-        let keep = true;
-        for (const relatedTimelineElement of nsh.relatedTimelineElements) {
-            keep = timelineIds.includes(relatedTimelineElement);
-            if (!keep) {
-                console.log("NotificationStatusHistory - skipping status:", nsh.status, "caused by relatedTimelineElement:", relatedTimelineElement);
-                return keep;
-            }
+    const filteredElements = [];
+
+    for (const nsh of history){
+        filteredElements.push (adjustHistoryElement(nsh, timelineIds));
+    }
+
+    return filteredElements;
+}
+
+function adjustHistoryElement(nsh, timelineIds){
+    const filteredElements = [];
+    for (const relatedTimelineElement of nsh.relatedTimelineElements) {
+        if (timelineIds.includes(relatedTimelineElement)) {
+            filteredElements.push(relatedTimelineElement);
         }
-        return keep;
-    });
-    return notificationStatusHistory;
+    }
+    return historyElement = {
+        status: nsh.status,
+        activeFrom: nsh.activeFrom,
+        relatedTimelineElements: filteredElements
+    };
 }
