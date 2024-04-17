@@ -1,0 +1,160 @@
+{
+  "abstract": "Abstract della notifica",
+  "paProtocolNumber": "302080122797607382",
+  "subject": "invio notifica con cucumber",
+  "recipients": [{
+    "recipientType": "PF",
+    "taxId": "FRMTTR76M06B715E",
+    "denomination": "Mario Cucumber",
+    "digitalDomicile": {
+      "type": "PEC",
+      "address": "pectest@pec.pagopa.it"
+    },
+    "physicalAddress": {
+      "at": "Presso",
+      "address": "VIA SENZA NOME",
+      "addressDetails": "SCALA B",
+      "zip": "87100",
+      "municipality": "COSENZA",
+      "municipalityDetails": "COSENZA",
+      "province": "CS",
+      "foreignState": "ITALIA"
+    },
+    "payments": [{
+      "pagoPa": {
+        "noticeCode": "302040122797710291",
+        "creditorTaxId": "77777777777",
+        "applyCost": false,
+        "attachment": {
+          "digests": {
+            "sha256": "1QKD/Ks6BohyQ+bgMxHf9NrpNhVmGUPxRYE1aerU4JQ="
+          },
+          "contentType": "application/pdf",
+          "ref": {
+            "key": "PN_NOTIFICATION_ATTACHMENTS-306085caff44a22863fe082f883b819.pdf",
+            "versionToken": "v1"
+          }
+        }
+      }
+    }
+    ]
+  }
+  ],
+  "documents": [{
+    "digests": {
+      "sha256": "jezIVxlG1M1woCSUngM6KipUN3/p8cG5RMIPnuEanlE="
+    },
+    "contentType": "application/pdf",
+    "ref": {
+      "key": "PN_NOTIFICATION_ATTACHMENTS-8f47e14c1fbb423581805791a309bf99.pdf",
+      "versionToken": "v1"
+    },
+    "docIdx": "0"
+  }
+  ],
+  "notificationFeePolicy": "FLAT_RATE",
+  "physicalCommunicationType": "REGISTERED_LETTER_890",
+  "senderDenomination": "Comune di milano",
+  "senderTaxId": "01199250158",
+  "group": "DEVelopers",
+  "taxonomyCode": "010202N",
+  "paFee": 0,
+  "vat": 0,
+  "pagoPaIntMode": "NONE",
+  "senderPaId": "026e8c72-7944-4dcd-8668-f596447fec6d",
+  "iun": "ULMX-UGTY-VJGJ-202404-K-1",
+  "sentAt": "2024-04-12T10:24:36.223008982Z",
+  "documentsAvailable": true,
+  "notificationStatus": "CANCELLED",
+  "notificationStatusHistory": [{
+    "status": "ACCEPTED",
+    "activeFrom": "2024-04-12T10:24:36.223008982Z",
+    "relatedTimelineElements": ["REQUEST_ACCEPTED.IUN_ULMX-UGTY-VJGJ-202404-K-1", "AAR_CREATION_REQUEST.IUN_ULMX-UGTY-VJGJ-202404-K-1.RECINDEX_0", "NOTIFICATION_CANCELLATION_REQUEST.IUN_ULMX-UGTY-VJGJ-202404-K-1"]
+  }, {
+    "status": "CANCELLED",
+    "activeFrom": "2024-04-12T10:28:58.819055757Z",
+    "relatedTimelineElements": ["NOTIFICATION_CANCELLED.IUN_ULMX-UGTY-VJGJ-202404-K-1"]
+  }
+  ],
+  "timeline": [{
+    "elementId": "VALIDATE_NORMALIZE_ADDRESSES_REQUEST.IUN_ULMX-UGTY-VJGJ-202404-K-1",
+    "timestamp": "2024-04-12T10:25:00.379194094Z",
+    "legalFactsIds": [],
+    "category": "VALIDATE_NORMALIZE_ADDRESSES_REQUEST",
+    "details": {}
+  }, {
+    "elementId": "NORMALIZED_ADDRESS.IUN_ULMX-UGTY-VJGJ-202404-K-1.RECINDEX_0",
+    "timestamp": "2024-04-12T10:27:41.135220341Z",
+    "legalFactsIds": [],
+    "category": "NORMALIZED_ADDRESS",
+    "details": {
+      "recIndex": 0,
+      "oldAddress": {
+        "at": "Presso",
+        "address": "Via senza nome",
+        "addressDetails": "scala b",
+        "zip": "87100",
+        "municipality": "Cosenza",
+        "municipalityDetails": "Cosenza",
+        "province": "CS",
+        "foreignState": "ITALIA"
+      },
+      "normalizedAddress": {
+        "at": "Presso",
+        "address": "VIA SENZA NOME",
+        "addressDetails": "SCALA B",
+        "zip": "87100",
+        "municipality": "COSENZA",
+        "municipalityDetails": "COSENZA",
+        "province": "CS",
+        "foreignState": "ITALIA"
+      }
+    }
+  }, {
+    "elementId": "SENDERACK_LEGALFACT_CREATION_REQUEST.IUN_ULMX-UGTY-VJGJ-202404-K-1",
+    "timestamp": "2024-04-12T10:27:43.613089994Z",
+    "legalFactsIds": [],
+    "category": "SENDER_ACK_CREATION_REQUEST",
+    "details": {
+      "legalFactId": "safestorage://PN_LEGAL_FACTS-5aef1f8b6e54345afe20300e7b5dd1f.pdf"
+    }
+  }, {
+    "elementId": "REQUEST_ACCEPTED.IUN_ULMX-UGTY-VJGJ-202404-K-1",
+    "timestamp": "2024-04-12T10:27:53.767500346Z",
+    "legalFactsIds": [{
+      "key": "safestorage://PN_LEGAL_FACTS-5aef1f8b6e54345afe20300e7b5dd1f.pdf",
+      "category": "SENDER_ACK"
+    }
+    ],
+    "category": "REQUEST_ACCEPTED",
+    "details": {}
+  }, {
+    "elementId": "AAR_CREATION_REQUEST.IUN_ULMX-UGTY-VJGJ-202404-K-1.RECINDEX_0",
+    "timestamp": "2024-04-12T10:27:55.350254811Z",
+    "legalFactsIds": [],
+    "category": "AAR_CREATION_REQUEST",
+    "details": {
+      "recIndex": 0,
+      "numberOfPages": 2,
+      "aarKey": "safestorage://PN_AAR-b297fa3353004f69b60c0b756a80e90b.pdf"
+    }
+  }, {
+    "elementId": "NOTIFICATION_CANCELLATION_REQUEST.IUN_ULMX-UGTY-VJGJ-202404-K-1",
+    "timestamp": "2024-04-12T10:27:56.016333904Z",
+    "legalFactsIds": [],
+    "category": "NOTIFICATION_CANCELLATION_REQUEST",
+    "details": {
+      "cancellationRequestId": "17b30185-d289-4a7d-9986-54b30f8ed313"
+    }
+  }, {
+    "elementId": "NOTIFICATION_CANCELLED.IUN_ULMX-UGTY-VJGJ-202404-K-1",
+    "timestamp": "2024-04-12T10:28:58.819055757Z",
+    "legalFactsIds": [],
+    "category": "NOTIFICATION_CANCELLED",
+    "details": {
+      "notificationCost": 100,
+      "notRefinedRecipientIndexes": [0]
+    }
+  }
+  ]
+}

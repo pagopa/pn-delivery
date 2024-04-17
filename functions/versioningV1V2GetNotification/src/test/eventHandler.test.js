@@ -11,6 +11,7 @@ const NOTIFICATION_VIEWED_IDX = 20;
 const SEND_ANALOG_PROGRESS_IDX = 14;
 
 describe("eventHandler tests", function () {
+
   it("statusCode 200", async () => {
     const notificationJSON = fs.readFileSync("./src/test/notification.json");
     let notification = JSON.parse(notificationJSON);
@@ -566,4 +567,40 @@ describe("eventHandler tests", function () {
     expect(res.statusCode).to.equal(400)
   });
 
+  it("PN-10671", async () => {
+    const notificationJSON = fs.readFileSync("./src/test/notification-PN-10671.json");
+    let notification = JSON.parse(notificationJSON);
+
+    process.env = Object.assign(process.env, {
+      PN_DELIVERY_URL: "https://api.dev.notifichedigitali.it",
+    });
+
+    const iunValue = "ULMX-UGTY-VJGJ-202404-K-1";
+
+    let url = `${process.env.PN_DELIVERY_URL}/notifications/sent/${iunValue}`;
+
+    mock.onGet(url).reply(200, notification, { "Content-Type": "application/json" });
+
+    const event = {
+      pathParameters: { iun: iunValue },
+      headers: {},
+      requestContext: {
+        authorizer: {},
+      },
+      resource: "v1.0/notifications/sent/{iun}",
+      path: "/delivery/notifications/sent/MOCK_IUN",
+      httpMethod: "GET",
+    };
+    const context = {};
+
+    const response = await versioning(event, context);
+
+    expect(response.statusCode).to.equal(200);
+
+    // check che NON sia presente l'eventTimestamp nel notificationViewed
+    let resJson = JSON.parse(response.body);
+    const historyElement = resJson.notificationStatusHistory[0];
+    expect(historyElement.status).to.be.equal('ACCEPTED');
+
+  });
 });
