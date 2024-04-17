@@ -122,10 +122,7 @@ exports.versioning = async (event, context) => {
           break;
         }
 
-        console.log ('transformed response:');
-        console.log(response.data);
-        console.log('---------------------------');
-        
+
         const ret = {
           statusCode: response.status,
           body: JSON.stringify(transformedObject),

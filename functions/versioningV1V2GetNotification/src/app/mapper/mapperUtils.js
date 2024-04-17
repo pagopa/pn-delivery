@@ -3,7 +3,6 @@ exports.adjustTimelineAndHistory = function(timeline, history, categoriesToExclu
     
     const timelineIds = [];
     for (const tl of adjustedTimeline) {
-        console.log('aggiungiamo '+tl.elementId);
         timelineIds.push(tl.elementId);
     }
     const adjustedHistory = adjustHistory(history, timelineIds);
