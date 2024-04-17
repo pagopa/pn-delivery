@@ -142,13 +142,11 @@ public class NotificationDelegatedSearchMultiPage extends NotificationSearch {
             // è necessario eseguire questa distinct by IUN per evitare che venga tornata più volte la stessa notifica,
             // questo accade quando la notifica è stata duplicata per lo stesso delegato più volte (per ogni gruppo) e
             // l'utente che sta facendo la ricerca è l'amministratore senza gruppi
-            log.info("list-1={}", oneQueryResult.getResults().stream().map(x -> NotificationDelegationMetadataEntity.builder().sentAt(x.getSentAt()).iunRecipientIdDelegateIdGroupId(x.getIunRecipientIdDelegateIdGroupId()).build()).toList());
             cumulativeQueryResult.addAll(distinctByIun(oneQueryResult.getResults()));
         }
 
         if (cumulativeQueryResult.size() >= requiredSize) {
             log.debug("ending search, requiredSize reached - partition={} currentRequest={}", partition, currentRequest);
-            log.info("list-2={}", cumulativeQueryResult.stream().map(x -> NotificationDelegationMetadataEntity.builder().sentAt(x.getSentAt()).iunRecipientIdDelegateIdGroupId(x.getIunRecipientIdDelegateIdGroupId()).build()).toList());
             return currentRequest;
         }
 
