@@ -193,7 +193,7 @@ public class NotificationReceiverValidator {
                 ValidationRegex validationRegex = initializeValidationRegex(denominationValidationType);
 
                 String regex = validationRegex.regex;
-                AtomicReference<String> excludeCharacterRegex = new AtomicReference<>(validationRegex.excludedCharacterRegex);
+                String excludeCharacterRegex = validationRegex.excludedCharacterRegex;
 
                 log.info("Check denomination with validation type {}",denominationValidationType);
                 Stream.of( denomination)
@@ -225,10 +225,10 @@ public class NotificationReceiverValidator {
         return new ValidationRegex(regex,excludeCharacterRegex);
     }
 
-    private boolean filterDenomination(Pair<String,String> field, String regex, AtomicReference<String> excludeCharacterRegex ){
+    private boolean filterDenomination(Pair<String,String> field, String regex, String excludeCharacterRegex ){
         return field.getValue() != null
                 && ((!field.getValue().matches(regex))
-                || (excludeCharacterRegex.get() != null && (!field.getValue().matches(excludeCharacterRegex.get()))));
+                || (excludeCharacterRegex != null && (!field.getValue().matches(excludeCharacterRegex))));
     }
 
     private Set<ConstraintViolation<NewNotificationRequestV23>> checkApplyCost(boolean isNotificationFeePolicyDeliveryMode, List<NotificationPaymentItem> payments){
