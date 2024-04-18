@@ -190,8 +190,10 @@ public class NotificationReceiverValidator {
             if(this.pnDeliveryConfigs.getDenominationValidationTypeValue() != null && !this.pnDeliveryConfigs.getDenominationValidationTypeValue().equalsIgnoreCase(NONE.name())){
                 String denominationValidationType = this.pnDeliveryConfigs.getDenominationValidationTypeValue().toLowerCase();
 
-                AtomicReference<String> excludeCharacterRegex = new AtomicReference<>(null);
-                String regex = initializeValidationRegex(denominationValidationType, excludeCharacterRegex);
+                ValidationRegex validationRegex = initializeValidationRegex(denominationValidationType);
+
+                String regex = validationRegex.regex;
+                AtomicReference<String> excludeCharacterRegex = new AtomicReference<>(validationRegex.excludedCharacterRegex);
 
                 log.info("Check denomination with validation type {}",denominationValidationType);
                 Stream.of( denomination)
@@ -204,8 +206,11 @@ public class NotificationReceiverValidator {
         return errors;
     }
 
-    private String initializeValidationRegex(String denominationValidationType, AtomicReference<String> excludeCharacterRegex ){
+    private record ValidationRegex(String regex, String excludedCharacterRegex){}
+
+    private ValidationRegex initializeValidationRegex(String denominationValidationType){
         String regex;
+        String excludeCharacterRegex = null;
         if(denominationValidationType.equalsIgnoreCase(REGEX.name() )){
             regex ="[" + this.pnDeliveryConfigs.getDenominationValidationRegexValue() + "]*";
         }else{
@@ -214,10 +219,10 @@ public class NotificationReceiverValidator {
             if(this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter() != null &&
                     this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter().trim() != "" &&
                     !this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter().equalsIgnoreCase(NONE.name())){
-                excludeCharacterRegex.set("[^"+this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter()+"]*");
+                excludeCharacterRegex = "[^"+this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter()+"]*";
             }
         }
-        return regex;
+        return new ValidationRegex(regex,excludeCharacterRegex);
     }
 
     private boolean filterDenomination(Pair<String,String> field, String regex, AtomicReference<String> excludeCharacterRegex ){
