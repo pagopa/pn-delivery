@@ -217,7 +217,7 @@ public class NotificationReceiverValidator {
             regex = DenominationValidationUtils.getRegexValue(denominationValidationType);
 
             if(this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter() != null &&
-                    this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter().trim() != "" &&
+                    this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter().trim().equalsIgnoreCase("") &&
                     !this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter().equalsIgnoreCase(NONE.name())){
                 excludeCharacterRegex = "[^"+this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter()+"]*";
             }
