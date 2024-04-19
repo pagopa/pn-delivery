@@ -24,7 +24,7 @@
     },
     "dependencies": {
       "aws-xray-sdk-core": "^3.3.6",
-      "axios": "^0.25.0"
+      "axios": "^0.28.0"
     },
     "author": "",
     "license": "ISC"
