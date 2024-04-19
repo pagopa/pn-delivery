@@ -13,12 +13,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -37,13 +39,14 @@ class NotificationDelegatedSearchMultiPageTest {
     private NotificationDelegatedSearchMultiPage searchMultiPage;
     private NotificationDelegatedSearchUtils notificationDelegatedSearchUtils;
     private EntityToDtoNotificationMetadataMapper entityToDtoMapper;
+    private PnDataVaultClientImpl dataVaultClient;
 
     @BeforeEach
     void setup() {
         notificationDao = mock(NotificationDao.class);
         cfg = mock(PnDeliveryConfigs.class);
         entityToDtoMapper = mock(EntityToDtoNotificationMetadataMapper.class);
-        PnDataVaultClientImpl dataVaultClient = mock(PnDataVaultClientImpl.class);
+        dataVaultClient = mock(PnDataVaultClientImpl.class);
         notificationDelegatedSearchUtils = mock(NotificationDelegatedSearchUtils.class);
         searchDto = InputSearchNotificationDelegatedDto.builder()
                 .delegateId(DELEGATE_ID)
@@ -115,6 +118,43 @@ class NotificationDelegatedSearchMultiPageTest {
         assertNotNull(result);
         assertEquals(3, result.getResultsPage().size());
         // nella prima iterazione recupero due record, ma ne scarto uno per la delega, alla seconda iterazione trovo il secondo
+    }
+
+    @Test
+    void testMultiPageSearchOrdered() {
+        Instant baseDate = Instant.EPOCH;
+        List<NotificationDelegationMetadataEntity> listTrunk = new ArrayList<>();
+        for(int i=1; i<=100; i++){
+            listTrunk.add(generateNotificationDelegationMetadataEntity("N"+i, "m"+i, "s"+i, "r"+i, baseDate.plusSeconds(i*60)));
+        }
+
+        PageSearchTrunk<NotificationDelegationMetadataEntity> trunk = new PageSearchTrunk<>();
+        trunk.setResults(listTrunk);
+        trunk.setLastEvaluatedKey(Collections.emptyMap());
+
+        when(notificationDao.searchDelegatedForOneMonth(any(), any(), any(), anyInt(), any()))
+                .thenReturn(trunk);
+        when(cfg.getMaxPageSize()).thenReturn(1);
+        when(notificationDelegatedSearchUtils.checkMandates(any(), any())).then(returnsFirstArg());
+        for(NotificationDelegationMetadataEntity l : listTrunk){
+            when(entityToDtoMapper.entity2Dto(l))
+                    .thenReturn(NotificationSearchRow.builder().sentAt(l.getSentAt().atOffset(ZoneOffset.UTC)).recipients(List.of()).build());
+        }
+        when(dataVaultClient.getRecipientDenominationByInternalId(any())).thenReturn(List.of());
+
+        searchDto.setSize(10);
+
+        ResultPaginationDto<NotificationSearchRow, PnLastEvaluatedKey> result = searchMultiPage.searchNotificationMetadata();
+
+        assertNotNull(result);
+        assertEquals(10, result.getResultsPage().size());
+
+        Instant sentAt = baseDate.plusSeconds(10000);
+        for(int i=0; i<result.getResultsPage().size(); i++){
+            Instant resultSentAt = result.getResultsPage().get(i).getSentAt().toInstant();
+            assertTrue(sentAt.isAfter(resultSentAt));
+            sentAt = resultSentAt;
+        }
     }
 
     private NotificationDelegationMetadataEntity generateNotificationDelegationMetadataEntity(String pk, String mandateId, String senderId, String recipientId, Instant sentAt) {
