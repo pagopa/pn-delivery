@@ -124,8 +124,9 @@ class NotificationDelegatedSearchMultiPageTest {
     void testMultiPageSearchOrdered() {
         Instant baseDate = Instant.EPOCH;
         List<NotificationDelegationMetadataEntity> listTrunk = new ArrayList<>();
-        for(int i=1; i<=100; i++){
-            listTrunk.add(generateNotificationDelegationMetadataEntity("N"+i, "m"+i, "s"+i, "r"+i, baseDate.plusSeconds(i*60)));
+        for(int i=0; i<100; i++){
+            Instant sentAt = baseDate.plusSeconds((i+1)*60);
+            listTrunk.add(generateNotificationDelegationMetadataEntity("N"+i, "m"+i, "s"+i, "r"+i, sentAt));
         }
 
         PageSearchTrunk<NotificationDelegationMetadataEntity> trunk = new PageSearchTrunk<>();
@@ -150,8 +151,8 @@ class NotificationDelegatedSearchMultiPageTest {
         assertEquals(10, result.getResultsPage().size());
 
         Instant sentAt = baseDate.plusSeconds(10000);
-        for(int i=0; i<result.getResultsPage().size(); i++){
-            Instant resultSentAt = result.getResultsPage().get(i).getSentAt().toInstant();
+        for(NotificationSearchRow r : result.getResultsPage()){
+            Instant resultSentAt = r.getSentAt().toInstant();
             assertTrue(sentAt.isAfter(resultSentAt));
             sentAt = resultSentAt;
         }
