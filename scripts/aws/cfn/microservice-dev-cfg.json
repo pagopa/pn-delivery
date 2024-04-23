@@ -28,6 +28,7 @@
     "DenominationLength": "44",
     "DenominationValidationRegexValue": "",
     "DenominationValidationTypeValue": "ISO_LATIN_1",
+    "DenominationValidationExcludedCharacter": "NONE",
     "MountEfs": "false",
     "PnCronAnalyzer": "* */1 * * * *",
     "WireTapLogActivation": "false"

@@ -384,6 +384,7 @@ class NotificationReceiverValidationTest {
     //WHEN
     when(cfg.getDenominationLength()).thenReturn(44);
     when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("adas");
 
     StringBuilder denomination = new StringBuilder();
     for(int i = 0; i < 45; i++){
@@ -403,6 +404,7 @@ class NotificationReceiverValidationTest {
     //WHEN
     when(cfg.getDenominationLength()).thenReturn(0);
     when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("NONE");
 
     StringBuilder denomination = new StringBuilder();
     for(int i = 0; i < 45; i++){
@@ -431,10 +433,28 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
+  void denominationLengthValidationOk_andExcludCharact() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(46);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("NONE");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("abc");
+
+    StringBuilder denomination = new StringBuilder();
+    for(int i = 0; i < 45; i++){
+      denomination.append("a");
+    }
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination.toString()));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
   void denominationValidationIsoLatin1Ok() {
     //WHEN
     when(cfg.getDenominationLength()).thenReturn(0);
     when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("NONE");
 
     String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
     var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
@@ -443,15 +463,16 @@ class NotificationReceiverValidationTest {
     assertThat(errors, hasSize(0));
   }
 
+
   @Test
   void denominationValidationIsoLatin1Ko() {
     //WHEN
     when(cfg.getDenominationLength()).thenReturn(0);
     when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
-
-    String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
-    String noIsoLatin1 = "Ą";
-    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination+noIsoLatin1));
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("|");
+    String denomination = "isoLatin1okString";
+    String excludedCharact = "|";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination+excludedCharact));
 
     //THEN
     assertThat(errors, hasSize(1));
@@ -461,10 +482,82 @@ class NotificationReceiverValidationTest {
   }
 
   @Test
+  void denominationValidationIsoLatin1_AndExcludeChar_Ok() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("|");
+    String denomination = "isoLatin1okString";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationIsoLatin1_AndExcludeCharEmpty_Ok() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("");
+    String denomination = "isoLatin1okString";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationIsoLatin1_AndExcludeCharNull_Ok() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn(null);
+    String denomination = "isoLatin1okString";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
+  void denominationValidationIsoLatin1_ExcludedChar_Ko() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("q");
+    String denomination = "wertyuiosdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+    String noIsoLatin1 = "Ą";
+    String excludedChar = "q";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination+noIsoLatin1+excludedChar));
+
+    //THEN
+    assertThat(errors, hasSize(1));
+    assertThat(errors, hasItems(
+            hasProperty("message", allOf(Matchers.containsString("denomination"), Matchers.containsString("recipient 0")))
+    ));
+  }
+
+  @Test
+  void denominationValidationIsoLatin1_ExcludedChar_ok() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("ISO_LATIN_1");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("q");
+    String denomination = "validString";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+  @Test
   void denominationValidationRegexOk() {
     //WHEN
     when(cfg.getDenominationLength()).thenReturn(0);
     when(cfg.getDenominationValidationTypeValue()).thenReturn("REGEX");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("NONE");
+    when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
     when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
 
     String denomination = "qwertyuiopasdfghjklzxcvbnm";
@@ -474,11 +567,32 @@ class NotificationReceiverValidationTest {
     assertThat(errors, hasSize(0));
   }
 
+
+  @Test
+  void denominationValidationRegexOk_AndExcludeCharactKo() {
+    //WHEN
+    when(cfg.getDenominationLength()).thenReturn(0);
+    when(cfg.getDenominationValidationTypeValue()).thenReturn("REGEX");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("bc");
+    when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
+    when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
+
+    String denomination = "validString";
+    String excludedChar = "b";
+    var errors = validator.checkDenomination(newNotificationDenominationCustom(denomination+excludedChar));
+
+    //THEN
+    assertThat(errors, hasSize(0));
+  }
+
+
+
   @Test
   void denominationValidationRegexKo() {
     //WHEN
     when(cfg.getDenominationLength()).thenReturn(0);
     when(cfg.getDenominationValidationTypeValue()).thenReturn("REGEX");
+    when(cfg.getDenominationValidationExcludedCharacter()).thenReturn("NONE");
     when(cfg.getDenominationValidationRegexValue()).thenReturn("a-zA-Z");
 
     String denomination = "qwertyuiopasdfghjklzxcvbnm1234567890ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";

@@ -77,6 +77,7 @@ public class PnDeliveryConfigs {
     private Integer denominationLength;
     private String denominationValidationTypeValue;
     private String denominationValidationRegexValue;
+    private String denominationValidationExcludedCharacter;
 
     @PostConstruct
     public void init(){
