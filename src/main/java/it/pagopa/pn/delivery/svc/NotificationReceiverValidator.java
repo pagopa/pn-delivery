@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static it.pagopa.pn.delivery.utils.DenominationValidationUtils.ValidationTypeAllowedValues.REGEX;
@@ -245,22 +246,46 @@ public class NotificationReceiverValidator {
 
             if(this.pnDeliveryConfigs.getDenominationValidationTypeValue() != null && !this.pnDeliveryConfigs.getDenominationValidationTypeValue().equalsIgnoreCase(NONE.name())){
                 String denominationValidationType = this.pnDeliveryConfigs.getDenominationValidationTypeValue().toLowerCase();
-                String regex;
-                if(denominationValidationType.equalsIgnoreCase(REGEX.name() )){
-                    regex ="[" + this.pnDeliveryConfigs.getDenominationValidationRegexValue() + "]*";
-                }else{
-                    regex = DenominationValidationUtils.getRegexValue(denominationValidationType);
-                }
+
+                ValidationRegex validationRegex = initializeValidationRegex(denominationValidationType);
+
+                String regex = validationRegex.regex;
+                String excludeCharacterRegex = validationRegex.excludedCharacterRegex;
+
                 log.info("Check denomination with validation type {}",denominationValidationType);
                 Stream.of( denomination)
-                        .filter(field -> field.getValue() != null &&
-                                (!field.getValue().matches(regex)))
+                        .filter(field -> filterDenomination(field,regex,excludeCharacterRegex))
                         .map(field -> new ConstraintViolationImpl<NewNotificationRequestV23>(String.format("Field %s in recipient %s contains invalid characters.", field.getKey(), finalRecIdx)))
                         .forEach(errors::add);
             }
             recIdx++;
         }
         return errors;
+    }
+
+    private record ValidationRegex(String regex, String excludedCharacterRegex){}
+
+    private ValidationRegex initializeValidationRegex(String denominationValidationType){
+        String regex;
+        String excludeCharacterRegex = null;
+        if(denominationValidationType.equalsIgnoreCase(REGEX.name() )){
+            regex ="[" + this.pnDeliveryConfigs.getDenominationValidationRegexValue() + "]*";
+        }else{
+            regex = DenominationValidationUtils.getRegexValue(denominationValidationType);
+
+            if(this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter() != null &&
+                    !this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter().trim().isEmpty() &&
+                    !this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter().equalsIgnoreCase(NONE.name())){
+                excludeCharacterRegex = "[^"+this.pnDeliveryConfigs.getDenominationValidationExcludedCharacter()+"]*";
+            }
+        }
+        return new ValidationRegex(regex,excludeCharacterRegex);
+    }
+
+    private boolean filterDenomination(Pair<String,String> field, String regex, String excludeCharacterRegex ){
+        return field.getValue() != null
+                && ((!field.getValue().matches(regex))
+                || (excludeCharacterRegex != null && (!field.getValue().matches(excludeCharacterRegex))));
     }
 
     private Set<ConstraintViolation<NewNotificationRequestV23>> checkApplyCost(boolean isNotificationFeePolicyDeliveryMode, List<NotificationPaymentItem> payments){
