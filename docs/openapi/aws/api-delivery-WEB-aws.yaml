@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: O3ub4jT/tmkJO1emCeJvghCEhWKLlZp2l1b1DqvhzJg=
+  version: oktHaTzGWS0N6UMCDOQ2r7gVDvb2LCkTWvgvTTKwZcc=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -2320,8 +2320,7 @@ components:
           description: >-
             Modalitá di integrazione pagoPA per l'attualizazione del costo della
             notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
-            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (non ancora
-            supportata)<br/>
+            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. <br/>
           enum:
             - NONE
             - SYNC
@@ -2444,7 +2443,7 @@ components:
           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
-          * `PAYMENT` - Ricezione pagamento della notifica
+          * `PAYMENT` - Ricezione da parte della Pubblica Amministrazione di un evento di chiusura di una o più posizioni debitorie di tipo PagoPA.
           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica

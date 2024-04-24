@@ -69,3 +69,177 @@ diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-ext
          '400':
            description: Invalid input
            content:
+
+
+
+
+
+Subject: [PATCH] PN-10784: tolti log per debug
+---
+Index: docs/openapi/api-external-b2b-pa-bundle.yaml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/openapi/api-external-b2b-pa-bundle.yaml b/docs/openapi/api-external-b2b-pa-bundle.yaml
+--- a/docs/openapi/api-external-b2b-pa-bundle.yaml	(revision 6ccf85a3b0fa9c9d2fd3c72956bc4ac2e18ce002)
++++ b/docs/openapi/api-external-b2b-pa-bundle.yaml	(date 1713948499757)
+@@ -1,6 +1,6 @@
+ openapi: 3.0.3
+ info:
+-  termsOfService: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
++  termsOfService: https://selfcare.notifichedigitali.it/termini-di-servizio
+   x-api-id: api-external-b2b-pa
+   title: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
+   x-summary: 'Piattaforma Notifiche: API B2B per le Pubbliche Amministrazioni'
+@@ -31,19 +31,19 @@
+
+       Per questa verifica possono essere utilizzate due modalità:
+
+-      1. __richiesta puntale__: consigliato solo ai fini di test
++      1. __richiesta puntuale__: consigliato solo ai fini di test
+       2. __lettura da stream configurato__: consigliato per ambienti di produzione
+
+       La differenza tra le due modalità è nell'interazione e nell'efficienza.
+
+-      Con la modalità _"richiesta puntuale"_ è necessario l'invocazione per ogni notifica,
++      Con la modalità _"richiesta puntuale"_ è necessaria l'invocazione per ogni notifica,
+       mentre con la modalità _"stream"_ è possibile avere gli aggiornamenti
+       di stato di più notifiche con una sola invocazione.
+
+       #### 3.1 Richiesta puntuale di verifica accettazione
+
+       Questa modalità è resa disponibile solo ai fini di test o di eventuali operazioni
+-      di allineamento poiché richiede l'invio di una richiesta per ogni notifica.
++      di allineamento. Richiede l'invio di una richiesta per ogni notifica.
+       Se il passo (2) avviene con successo si utilizza l'operazione
+       [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23)
+       per ottenere informazioni riguardo allo stato della "richiesta di invio di notifica". </br>
+@@ -57,7 +57,7 @@
+
+       #### 3.2 Richiesta avanzamento via "stream" di verifica di accettazione
+
+-      Questa modalità è consigliata. Per essere fruita è necessaria un'operazione preliminare
++      Questa è la modalità consigliata. Per essere utilizzata è necessaria un'operazione preliminare
+       tramite la chiamata alla API [createEventStream](https://petstore.swagger.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Fpagopa%2Fpn-delivery-push%2Fmain%2Fdocs%2Fopenapi%2Fapi-external-b2b-webhook.yaml#/Streams/createEventStream)
+       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload:</br></br>``
+       {
+@@ -87,7 +87,7 @@
+
+       #### 1. Caricamento dei documenti della notifica
+
+-      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadati di pagamento).
++      Prima di invocare la richiesta di notifica è necessario caricare i documenti della notifica (documenti e bollettini/metadata di pagamento).
+       [Schema Metadata F24](#/components/schemas/F24Metadata)
+
+       #### 1.a. Richiesta presigned Url
+@@ -142,21 +142,22 @@
+
+       ### 4. Monitorare l'avanzamento di una notifica
+
+-      Allo stesso modo del monitoraggio dell'accettazione della notifica da parte della Piattaforma sono
+-      disponibili le due modalità.
+-
++      Per questa verifica possono essere utilizzate due modalità:
++            1. __monitoraggio puntuale__: consigliato solo ai fini di test
++            2. __monitoraggio tramite stream__: consigliato per ambienti di produzione
++
+       #### 4.1 Monitoraggio puntuale
+
+-      Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" e sarà
+-      identificata dalla IUN restituito dall'operazione
++      Se la "richiesta di invio di notifica" passa le validazioni viene trasformata in "notifica" . Sarà possibile
++      identificarla dallo IUN restituito dall'operazione
+       [getNotificationRequestStatus](#/SenderReadB2B/retrieveNotificationRequestStatusV23).</br>
+-      A tal punto si potranno utilizzare l'operazione _GET /delivery/v2.3/notifications/sent/{iun}_ per
++      A questo punto, si potranno utilizzare l'operazione _GET /delivery/v2.3/notifications/sent/{iun}_ per
+       ottenere i dettagli della notifica, la _timeline_ che dettaglia il perfezionamento della
+       notifica per il mittente e l'avanzamento delle comunicazioni nei confronti dei destinatari.
+
+-      #### 4.1 Monitoraggio tramite stream
++      #### 4.2 Monitoraggio tramite stream
+
+-      Questa modalità è consigliata in produzione. Per essere fruita è necessaria una operazione preliminare
++      Questa è la modalità consigliata in produzione. Per essere utilizzata è necessaria un'operazione preliminare
+       tramite la chiamata alla API [createEventStream](#/Streams/createEventStream)
+       per configurare uno "stream" che registri il cambio di stato della notifica con il seguente payload di esempio:</br></br>``
+       {
+@@ -179,7 +180,7 @@
+
+       ### 5. Download dei Legal Facts
+
+-      E' possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [dowload Legal Fact](#/SenderReadB2B/retrieveSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/retrieveSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
++      É possibile scaricare le Attestazioni Opponibili a Terzi e gli altri documenti conservati da Piattaforma Notifiche attraverso il servizio di [download Legal Fact](#/SenderReadB2B/retrieveSentNotificationDocument) passando all'interno del path lo <strong>Iun</strong>, il <strong>legalFactType</strong> ed il <strong>legalFactId</strong>; si otterrà nella response un link che permette di scaricare il documento richiesto.</br> Per ottenere il <strong>legalFactType</strong> ed il <strong>legalFactId</strong> bisogna chiamare il servizio di [lettura dettaglio notifica](#/SenderReadB2B/retrieveSentNotification) con lo <code>{Iun}</code> della notifica di interesse: all'interno del campo <i>timeline</i> della response è possibile trovare l'elenco degli eventi di quella notifica ed i <strong>legalFactType</strong> e <strong>legalFactId</strong> in corrispondenza degli eventi che generano documenti.
+
+     </br>
+
+@@ -189,8 +190,8 @@
+     di produzione</li>
+     <li><strong>https://api.uat.notifichedigitali.it:</strong></br>Ambiente di
+     collaudo. Potrebbe subire modifiche/integrazioni in futuro, rimanendo
+-    comunque non-bloccante e rispettando il principio di retrocompatibilità</li>
+-    </ul>   </details></br><br/>
++    comunque non-bloccante e rispettando il principio di retro
++    compatibilità</li> </ul>   </details></br><br/>
+
+
+
+@@ -207,7 +208,7 @@
+       - inserimento di elementi di timeline delle notifiche
+
+
+-    E' possibile definire fino ad un __massimo di <span
++    É possibile definire fino ad un __massimo di <span
+     id="webhookMaxStreams">10</span> configurazioni di flussi attive per singola
+     PA__.
+
+@@ -388,7 +389,7 @@
+     configurazione impostata negli streams.
+
+
+-    La api restituisce un __massimo di <span id="webhookMaxLength">50</span>
++    La API restituisce un __massimo di <span id="webhookMaxLength">50</span>
+     elementi per chiamata__.
+
+
+@@ -528,10 +529,8 @@
+     Le __FAQ__ possono essere consultate al seguente link:
+     [https://docs.pagopa.it/f.a.q.-per-integratori/](https://docs.pagopa.it/f.a.q.-per-integratori/)
+   contact:
+-    email: pn-supporto-enti@pagopa.it
+-  license:
+-    name: Licenza di PN
+-    url: https://notifichedigitali.pagopa.it/pubbliche-amministrazioni/index.html
++    name: 'SEND: supporto enti'
++    url: https://pagopa.atlassian.net/servicedesk/customer/portal/5
+ servers:
+   - url: https://api.notifichedigitali.it
+     description: Ambiente di produzione
+@@ -1532,7 +1531,7 @@
+     parameters:
+       - $ref: '#/components/parameters/pathStreamId'
+     get:
+-      summary: Leggi metadati dello stream
++      summary: Leggi metadata dello stream
+       description: Lettura delle configurazioni di uno stream di eventi.
+       tags:
+         - Streams
+@@ -3697,8 +3696,7 @@
+           description: >-
+             Modalitá di integrazione pagoPA per l'attualizazione del costo della
+             notifica. <br/> - _NONE_: nessuna attualizzazione. <br/> - _SYNC_:
+-            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. (non ancora
+-            supportata)<br/>
++            modalitá sincrona. <br/> - _ASYNC_: modalitá asincrona. <br/>
+           enum:
+             - NONE
+             - SYNC
+@@ -3821,7 +3819,7 @@
+           * `COMPLETELY_UNREACHABLE` - Tutti i destinatari risultano irraggiungibili
+           * `AAR_CREATION_REQUEST` - Invio della richiesta di creazione dell'AAR (Avviso di Avvenuta Ricezione) a safe storage
+           * `AAR_GENERATION` - Generazione dell’AAR (Avviso di Avvenuta Ricezione)
+-          * `PAYMENT` - Ricezione pagamento della notifica
++          * `PAYMENT` - Ricezione da parte della Pubblica Amministrazione di un evento di chiusura di una o più posizioni debitorie di tipo PagoPA.
+           * `NOT_HANDLED` - Per la sperimentazione l'invio analogico non è previsto, viene inserito tale elemento di timeline
+           * `PROBABLE_SCHEDULING_ANALOG_DATE` - Data probabile di inizio del flusso analogico
+           * `NOTIFICATION_CANCELLATION_REQUEST` - Richiesta di annullamento di una notifica
