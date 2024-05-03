@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: >-
     ${stageVariables.ProjectName}-${stageVariables.MicroServiceUniqueName}-${stageVariables.IntendedUsage}
-  version: oktHaTzGWS0N6UMCDOQ2r7gVDvb2LCkTWvgvTTKwZcc=
+  version: 0wyrEkwoJvDPE2RwWRm+QDf5ikNmfp829ZIXlNbi7dI=
 servers:
   - url: https://${stageVariables.DnsName}/{basePath}
     variables:
@@ -1808,9 +1808,9 @@ components:
           * `DELIVERED` - La notifica è stata consegnata a tutti i destinatari
           * `VIEWED` - Il destinatario ha letto la notifica entro il termine stabilito
           * `EFFECTIVE_DATE` - Il destinatario non ha letto la notifica entro il termine stabilito
-          * `PAID` - Uno dei destinatari ha pagato la notifica
           * `UNREACHABLE` - Il destinatario non è reperibile
           * `CANCELLED` - L'ente ha annullato l'invio della notifica
+          * `PAID` - [DEPRECATO] Uno dei destinatari ha pagato la notifica
       enum:
         - IN_VALIDATION
         - ACCEPTED
@@ -2265,6 +2265,7 @@ components:
           description: Informazioni sui destinatari
           items:
             $ref: '#/components/schemas/NotificationRecipientV23'
+          minItems: 1
         documents:
           type: array
           description: Documenti notificati

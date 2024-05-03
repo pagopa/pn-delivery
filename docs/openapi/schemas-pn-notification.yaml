@@ -164,6 +164,7 @@ components:
           description: Informazioni sui destinatari
           items:
             $ref: "#/components/schemas/NotificationRecipientV23"
+          minItems: 1
         documents:
           type: array
           description: Documenti notificati
